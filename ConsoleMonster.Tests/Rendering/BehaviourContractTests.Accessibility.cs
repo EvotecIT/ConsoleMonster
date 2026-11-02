@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -58,6 +60,8 @@ namespace ConsoleMonster.Tests.Rendering {
             using var preferences = new AccessibilityEnvironment(accessible, motion);
             long ticks = 0;
             var output = new FakeOutput();
+            var times = new ConcurrentQueue<long>();
+            output.Frame = () => times.Enqueue(Stopwatch.GetTimestamp());
             var target = new FakeTarget();
             RenderContext? rendered = null;
             target.Rendering = context => rendered = context;
@@ -79,16 +83,38 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal(OutputMode.Interactive, rendered!.Profile.Mode);
             Assert.Equal(reduced, rendered.ReducedMotion);
             if (reduced) {
-                Interlocked.Exchange(ref ticks, TimeSpan.FromMilliseconds(999).Ticks);
+                // A simulation/replay clock can advance rapidly; it must not accelerate physical redraws.
+                Interlocked.Exchange(ref ticks, TimeSpan.FromHours(1).Ticks);
+                session.Post(new LiveEvent("work", "state", text: "updated"));
                 Assert.True(session.Flush(TimeSpan.FromSeconds(5)));
-                Assert.Equal(1, Volatile.Read(ref output.Frames));
-                Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(1).Ticks);
+                Assert.Single(target.Events);
+                Assert.False(SpinWait.SpinUntil(() => Volatile.Read(ref output.Frames) > 1, TimeSpan.FromMilliseconds(200)));
                 Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref output.Frames) == 2, TimeSpan.FromSeconds(5)));
+                long[] drawn = times.ToArray();
+                Assert.True(drawn[1] - drawn[0] >= Stopwatch.Frequency, "Reduced motion must cap actual frame writes independently of the session clock.");
                 session.Stop();
                 Assert.Equal(3, output.Frames); // The final state is not lost to the throttle.
             } else {
                 Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref output.Frames) >= 3, TimeSpan.FromSeconds(5)));
             }
+        }
+
+        [Theory]
+        [InlineData("updates")]
+        [InlineData("failed first")]
+        [InlineData("failed pending")]
+        public async System.Threading.Tasks.Task StatusMotion_PublishesPendingStateAndStopsFailedRefreshes(string scenario) {
+            var result = await SessionProcessTests.Run("reduced-status " + (scenario == "updates" ? "updates" : scenario == "failed first" ? "failed-first" : "failed-pending"));
+            Assert.Equal(0, result.Exit);
+            if (scenario != "updates") {
+                Assert.Contains("FAILED_REFRESH_STOPPED=True", result.Output);
+                Assert.Contains("recovered", result.Output);
+                return;
+            }
+            Assert.Contains("first", result.Output);
+            Assert.Contains("[FAIL] second", result.Output);
+            Assert.True(result.Output.IndexOf("second", StringComparison.Ordinal) < result.Output.IndexOf("CHECKPOINT", StringComparison.Ordinal),
+                "The latest update must appear without another Show or finalization: " + result.Output + result.Error);
         }
 
         [Theory]

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using ConsoleMonster.Capabilities;
 
 namespace ConsoleMonster.Rendering {
     /// <summary>OSC 8 targets for terminal output, including file links. Exporters retain their own scheme policy.</summary>
@@ -96,6 +97,25 @@ namespace ConsoleMonster.Rendering {
                 return encoded.ToString();
             }
             return target;
+        }
+
+        // A printed destination is a resource identifier, not prose: transliteration would change its identity.
+        internal static string ForText(string address, GlyphTier tier) {
+            string clean = TextSanitizer.Clean(address);
+            if (tier == GlyphTier.Full) return clean;
+            bool unicode = false;
+            foreach (char c in clean) if (c > 0x7f) { unicode = true; break; }
+            if (!unicode) return clean;
+            string? target = From(clean);
+            string? ascii = ToAscii(target ?? clean);
+            if (ascii != null) return ascii;
+            // Relative destinations have no authority to normalize. Preserve their Unicode bytes as escapes.
+            var encoded = new StringBuilder(clean.Length);
+            foreach (byte value in Encoding.UTF8.GetBytes(clean)) {
+                if (value <= 0x7f) encoded.Append((char)value);
+                else encoded.Append('%').Append(value.ToString("X2", System.Globalization.CultureInfo.InvariantCulture));
+            }
+            return encoded.ToString();
         }
 
         private static string EscapePath(string path) {

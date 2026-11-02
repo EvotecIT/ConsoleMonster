@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -122,6 +122,7 @@ namespace ConsoleMonster.Widgets {
                     if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
                         if (rule.Matches(cell.Value, presented.Number)) { tone = rule.Role; break; }
                     }
+                    tone ??= presented.Role;
                     if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render, ((DataBarPresenter)presenter!).ShowRoleMarker);
                 }
                 // A status word held as text ("Warning" in a State column) is as short as a status enum.

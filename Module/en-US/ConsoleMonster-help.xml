@@ -4561,6 +4561,18 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ReducedMotion</maml:name>
+          <maml:description>
+            <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
           <maml:name>ScriptBlock</maml:name>
           <maml:description>
@@ -4752,6 +4764,18 @@
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ReducedMotion</maml:name>
+        <maml:description>
+          <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -6270,6 +6294,18 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ReducedMotion</maml:name>
+          <maml:description>
+            <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>RetryCount</maml:name>
           <maml:description>
             <maml:para>How many more times a failed or timed-out item runs before it counts as failed (default 0).</maml:para>
@@ -6396,6 +6432,18 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         <maml:name>Parallel</maml:name>
         <maml:description>
           <maml:para>Runs items at the same time, each in its own runspace (pass caller variables with $using:name).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ReducedMotion</maml:name>
+        <maml:description>
+          <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -29099,6 +29147,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ReducedMotion</maml:name>
+          <maml:description>
+            <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReflowBelow</maml:name>
           <maml:description>
             <maml:para>Default width below which columns stack; explicit column thresholds take precedence.</maml:para>
@@ -29403,6 +29463,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameterValue required="false" variableLength="false">TerminalProfile</command:parameterValue>
         <dev:type>
           <maml:name>TerminalProfile</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ReducedMotion</maml:name>
+        <maml:description>
+          <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -34235,6 +34307,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ReducedMotion</maml:name>
+          <maml:description>
+            <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReportPath</maml:name>
           <maml:description>
             <maml:para>Optional report location shown in the final summary.</maml:para>
@@ -34389,6 +34473,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
           <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ReducedMotion</maml:name>
+        <maml:description>
+          <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -35951,6 +36047,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ReducedMotion</maml:name>
+          <maml:description>
+            <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>ScriptBlock</maml:name>
           <maml:description>
@@ -35994,6 +36102,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <maml:name>NoLive</maml:name>
         <maml:description>
           <maml:para>Disables live redraws and uses append-only output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ReducedMotion</maml:name>
+        <maml:description>
+          <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -36668,6 +36788,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>ReducedMotion</maml:name>
+          <maml:description>
+            <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>ScriptBlock</maml:name>
           <maml:description>
@@ -36739,6 +36871,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
           <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ReducedMotion</maml:name>
+        <maml:description>
+          <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

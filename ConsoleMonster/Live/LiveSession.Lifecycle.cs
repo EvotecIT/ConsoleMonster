@@ -90,7 +90,7 @@ namespace ConsoleMonster.Live {
                             }
                         }
                         // Everything that can fail without touching the screen has been validated above.
-                        if (!profile.IsAccessible) _output.BeginLive();
+                        if (!profile.IsAccessible && !_options.AppendOnly) _output.BeginLive();
                         _began = true;
                         ApplyWidthProbe(profile);
                         if (profile.Kind == TerminalKind.Conhost && _onConsole && _output is VtOutput) {

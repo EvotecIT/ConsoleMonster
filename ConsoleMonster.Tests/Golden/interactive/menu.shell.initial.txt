@@ -1,7 +1,7 @@
  Toolbox › Targets                                                                              lab
 ╭────────────────────╮ ╭─ Targets ─────────────────────────────────────────────── 0 of 3 selected ─╮
 │                    │ │                                                                           │
-│▌ t  [Target…  0/3  │ │  Where tasks run.                                                         │
+│› t  [Target…  0/3  │ │  Where tasks run.                                                         │
 │  m  Mode           │ │                                                                           │
 │  o  Options        │ │  › type to filter                                                         │
 │  p  Presets        │ │    ▾ [ ] Servers                     0/2                                  │

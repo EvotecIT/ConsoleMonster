@@ -179,7 +179,7 @@ namespace ConsoleMonster.Widgets {
                     // Close header columns above a spanning section; a cross would leave downward stubs.
                     DrawRule(region, y++, layout, box.LeftJoint, section ? box.BottomJoint : box.Cross, box.RightJoint, box.Horizontal, border);
                 } else if ((Border == TableBorder.Minimal || Border == TableBorder.Rule)) {
-                    DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
+                    DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border, skipBlankHeaders: true);
                 }
             }
             return y;
@@ -235,7 +235,7 @@ namespace ConsoleMonster.Widgets {
                 region.Write(indent, y, caption);
             }
         }
-        private void DrawRule(Region region, int y, TableLayout layout, string left, string joint, string right, string line, Style style) {
+        private void DrawRule(Region region, int y, TableLayout layout, string left, string joint, string right, string line, Style style, bool skipBlankHeaders = false) {
             if (y >= region.Height) {
                 return;
             }
@@ -245,7 +245,8 @@ namespace ConsoleMonster.Widgets {
             }
             for (int v = 0; v < layout.Widths.Length; v++) {
                 int span = layout.Widths[v] + (IsBoxed ? 2 : 0);
-                if (Border != TableBorder.Rule || Markup.Strip(_columns[layout.Visible[v]].Header).Length > 0) { region.HorizontalLine(x, y, span, line, style); }
+                TableColumn column = _columns[layout.Visible[v]];
+                if (!(Border == TableBorder.Rule || skipBlankHeaders) || ((!skipBlankHeaders || column.HeaderSeparator) && !string.IsNullOrWhiteSpace(Markup.Strip(column.Header)))) { region.HorizontalLine(x, y, span, line, style); }
                 x += span;
                 if (v < layout.Widths.Length - 1) {
                     if (IsBoxed) {

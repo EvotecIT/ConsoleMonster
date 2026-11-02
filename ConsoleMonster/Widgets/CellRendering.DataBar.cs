@@ -36,8 +36,8 @@ namespace ConsoleMonster.Widgets {
             Style style = context.Style(tone);
             List<TextSpan> spans = new List<TextSpan>();
             foreach (TextSpan span in value.Line) spans.Add(new TextSpan(span.Text, span.Style.WithColor(style.Color)));
-            if (showMarker && value.Visual == CellVisualKind.Bar && !value.IsEmpty && TryDataBarStatus(tone, out StatusKind status)) {
-                spans.Add(new TextSpan((value.Line.Width > 0 ? " " : string.Empty) + context.Glyphs.StatusSymbol(status), style));
+            if (value.Visual == CellVisualKind.Bar && !value.IsEmpty && StatusKinds.TryFromToken(tone, out StatusKind status)) {
+                spans.Add(new TextSpan((value.Line.Width > 0 ? " " : string.Empty) + (showMarker || context.Profile.IsAccessible ? context.Glyphs.StatusSymbol(status) : context.Labels.StatusWord(status)), style));
             }
             return new PresentedValue(new StyledLine(spans), value.Alignment) {
                 Role = tone, Visual = value.Visual, Fraction = value.Fraction, Series = value.Series,
@@ -45,17 +45,5 @@ namespace ConsoleMonster.Widgets {
             };
         }
 
-        private static bool TryDataBarStatus(ThemeToken tone, out StatusKind status) {
-            switch (tone) {
-                case ThemeToken.Pass: status = StatusKind.Pass; return true;
-                case ThemeToken.Warn: status = StatusKind.Warn; return true;
-                case ThemeToken.Fail: status = StatusKind.Fail; return true;
-                case ThemeToken.Info: status = StatusKind.Info; return true;
-                case ThemeToken.Running: status = StatusKind.Running; return true;
-                case ThemeToken.Pending: status = StatusKind.Pending; return true;
-                case ThemeToken.Skip: status = StatusKind.Skip; return true;
-                default: status = default; return false;
-            }
-        }
     }
 }

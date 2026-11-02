@@ -27,6 +27,21 @@ namespace ConsoleMonster.Styling {
             }
         }
 
+        // Semantic status roles have the same meaning in gauges, chart items and presented cells.
+        // Muted/subtle/series colours are decorative and do not imply an outcome.
+        internal static bool TryFromToken(ThemeToken token, out StatusKind status) {
+            switch (token) {
+                case ThemeToken.Pass: status = StatusKind.Pass; return true;
+                case ThemeToken.Fail: status = StatusKind.Fail; return true;
+                case ThemeToken.Warn: status = StatusKind.Warn; return true;
+                case ThemeToken.Skip: status = StatusKind.Skip; return true;
+                case ThemeToken.Running: status = StatusKind.Running; return true;
+                case ThemeToken.Info: status = StatusKind.Info; return true;
+                case ThemeToken.Pending: status = StatusKind.Pending; return true;
+                default: status = default; return false;
+            }
+        }
+
         /// <summary>
         /// Parses a status word leniently, including PowerShell's own words: pass/passed/ok/success/done/completed,
         /// fail/failed/failure/error, warn/warning, skip/skipped/na, run/running/active/busy, pending/queued/waiting,

@@ -13,7 +13,7 @@ The script runs in a runspace the module owns (or, with -Parallel, once per inpu
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordingPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <double>] [-NoLive] [<CommonParameters>]
+Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordingPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <double>] [-NoLive] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -235,6 +235,22 @@ Record every update as JSON lines for Show-ConsoleReplay -PlaybackMode Automatic
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

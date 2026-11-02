@@ -13,7 +13,7 @@ Builds the layout once, then runs input synchronously on the caller's PowerShell
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-KeyBinding <Object>] [-TerminalHandoff <TerminalHandoff>] [-Dialogs <AppDialogs>] [-Actions <AppActions>] [-Footer <Object>] [-Title <Object>] [-Subtitle <Object>] [-Detail <Object>] [-Status <StatusKind>] [-MinimumWidth <int>] [-MinimumHeight <int>] [-PassThru] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-ReflowBelow <int>] [<CommonParameters>]
+Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-KeyBinding <Object>] [-TerminalHandoff <TerminalHandoff>] [-Dialogs <AppDialogs>] [-Actions <AppActions>] [-Footer <Object>] [-Title <Object>] [-Subtitle <Object>] [-Detail <Object>] [-Status <StatusKind>] [-MinimumWidth <int>] [-MinimumHeight <int>] [-PassThru] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-ReflowBelow <int>] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -307,6 +307,22 @@ Terminal capabilities and dimensions; defaults to the existing interactive profi
 
 ```yaml
 Type: TerminalProfile
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

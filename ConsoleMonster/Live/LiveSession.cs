@@ -52,7 +52,7 @@ namespace ConsoleMonster.Live {
         private long _resizes;
         private long _renderErrors;
         private Output.ConsoleFontWatcher? _fontWatcher;
-        private bool _began; // BeginLive succeeded: only then may stopping draw a final frame and summary.
+        private bool _began; // Output initialization succeeded, including append-only sessions: stopping can print the final state.
         private Exception? _failure; // The first fatal rendering, required-recording or output exception.
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, long> _unknownTargets = new System.Collections.Concurrent.ConcurrentDictionary<string, long>(StringComparer.Ordinal);
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped

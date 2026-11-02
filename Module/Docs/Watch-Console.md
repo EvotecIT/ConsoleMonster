@@ -13,7 +13,7 @@ Like watch: every -PollIntervalSeconds seconds the script block runs and its out
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Count <int>] [-Differences] [-Title <Object>] [-NoLive] [<CommonParameters>]
+Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Count <int>] [-Differences] [-Title <Object>] [-NoLive] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -99,6 +99,22 @@ Seconds between runs (default 2).
 
 ```yaml
 Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

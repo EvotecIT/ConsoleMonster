@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -30,6 +30,7 @@ namespace ConsoleMonster.Output {
         private string _clockFormat = "HH:mm:ss";
         private Timer? _timer;
         private long _frame;
+        private bool _pending;
         private readonly Stopwatch _redrawClock = Stopwatch.StartNew();
         private TimeSpan? _lastRender;
         private int _cursorLeft = -1;
@@ -60,7 +61,11 @@ namespace ConsoleMonster.Output {
                 line._clock = showTimestamp;
                 line._elapsed = showElapsed;
                 line._clockFormat = string.IsNullOrEmpty(timestampFormat) ? "HH:mm:ss" : timestampFormat;
-                line.Render(final);
+                if (!line.Render(final)) {
+                    _current = null;
+                    TaskbarProgress.Clear();
+                    return;
+                }
                 if (final) {
                     _current = null;
                     TaskbarProgress.Clear();
@@ -68,9 +73,7 @@ namespace ConsoleMonster.Output {
                 }
                 if (!profile.ReducedMotion) TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
                 _current = line;
-                if (!profile.IsAccessible && (spinner || showTimestamp || showElapsed)) {
-                    line._timer = new Timer(_ => line.Tick(), null, profile.ReducedMotion ? 1000 : 100, profile.ReducedMotion ? 1000 : 100);
-                }
+                line.Schedule(profile);
             }
         }
 
@@ -131,18 +134,34 @@ namespace ConsoleMonster.Output {
                     _current = null;
                     return;
                 }
+                StopTimer();
                 _frame++;
-                Render(false);
+                if (Render(false)) Schedule(Terminal.GetCurrentProfile());
+                else { _current = null; TaskbarProgress.Clear(); }
             }
         }
 
-        private void Render(bool final) {
+        private void Schedule(TerminalProfile profile) {
+            if (profile.IsAccessible || IsUntracked || (!_pending && !_spinner && !_clock && !_elapsed)) return;
+            int delay = profile.ReducedMotion && _lastRender.HasValue
+                ? Math.Max(1, (int)Math.Ceiling(1000 - (_redrawClock.Elapsed - _lastRender.Value).TotalMilliseconds)) : 100;
+            _timer = new Timer(_ => Tick(), null, delay, Timeout.Infinite);
+        }
+
+        private bool Render(bool final) {
             try {
                 TerminalProfile profile = Terminal.GetCurrentProfile();
-                if (!profile.IsAccessible && profile.ReducedMotion && !final && _lastRender.HasValue
-                    && _redrawClock.Elapsed - _lastRender.Value < TimeSpan.FromSeconds(1)) return;
+                if (!profile.IsAccessible && profile.ReducedMotion && !final && _lastRender.HasValue) {
+                    TimeSpan remaining = TimeSpan.FromSeconds(1) - (_redrawClock.Elapsed - _lastRender.Value);
+                    if (remaining > TimeSpan.Zero) {
+                        if (IsUntracked) {
+                            // Without a safe cursor query, finish this caller's update before returning to a prompt.
+                            Thread.Sleep((int)Math.Ceiling(remaining.TotalMilliseconds));
+                        } else { _pending = true; return true; }
+                    }
+                }
+                _pending = false;
                 RenderContext context = Terminal.CreateContext(profile);
-                _lastRender = _redrawClock.Elapsed;
                 StyledLine line = Compose(context, _content, _status, _spinner, _clock, _elapsed, _clockFormat, _started, _frame, final);
                 // One cell short of the window, so the line never wraps.
                 line = TextWrapper.Truncate(line, Math.Max(1, profile.Width - 1), context.Ellipsis);
@@ -153,10 +172,13 @@ namespace ConsoleMonster.Output {
                         output.WriteLine(line);
                     }
                 }
+                _lastRender = _redrawClock.Elapsed;
                 RememberCursor();
+                return true;
             } catch (Exception) {
                 // A console that went away (closed window, redirected mid-run): stop refreshing.
                 StopTimer();
+                return false;
             }
         }
 

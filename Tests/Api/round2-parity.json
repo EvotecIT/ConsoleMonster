@@ -2560,6 +2560,27 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -3484,6 +3505,27 @@
           "MemberKind": "HostPolicy",
           "Conversion": "HostPolicy",
           "Reason": "Controls when the PowerShell pipeline receives completed worker output."
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -16700,6 +16742,27 @@
               "Mandatory": false
             }
           ]
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -19366,6 +19429,27 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -20412,6 +20496,27 @@
           "MemberKind": "HostPolicy",
           "Conversion": "ScriptBlockCallback",
           "Reason": "Runs the callback on the owning PowerShell pipeline/runspace; C# uses a typed delegate and cancellation token."
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -20763,6 +20868,27 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },

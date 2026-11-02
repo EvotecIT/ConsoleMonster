@@ -13,7 +13,7 @@ The script runs on the pipeline thread with the caller's variables. While it run
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Use-ConsoleProgress [-ScriptBlock] <scriptblock> [-Keep] [-FramesPerSecond <double>] [-NoLive] [<CommonParameters>]
+Use-ConsoleProgress [-ScriptBlock] <scriptblock> [-Keep] [-FramesPerSecond <double>] [-NoLive] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -71,6 +71,22 @@ Accept wildcard characters: False
 
 ### -NoLive
 Disables live redraws and uses append-only output.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
 
 ```yaml
 Type: SwitchParameter

@@ -29,8 +29,8 @@ $lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.Li
 $lanes | Show-Console -Width 60
 '@
         $lines = @($text -split "`n")
-        ($lines | Where-Object { $_ -match '^SRV01' }) | Should -Match '^SRV01\s+40%\s+4/10\s+copying$'
-        ($lines | Where-Object { $_ -match '^SRV02' }) | Should -Match '^SRV02\s+queued$'
+        ($lines | Where-Object { $_ -match '^\|\s+SRV01' }) | Should -Match '^\|\s+SRV01\s+40%\s+4/10\s+copying$'
+        ($lines | Where-Object { $_ -match '^\.\s+SRV02' }) | Should -Match '^\.\s+SRV02\s+queued$'
     }
 
     It 'rejects an unknown column name' {

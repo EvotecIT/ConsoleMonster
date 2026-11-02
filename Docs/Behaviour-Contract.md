@@ -34,7 +34,7 @@ with a useful state, rather than in another copy of the same tests.
 | Numeric/date sorting | Typed value order; formatting culture does not change string comparison |
 | Selection/menu/command-palette fuzzy search | Invariant smart case: lowercase terms ignore case; uppercase terms require exact case; exact case also affects ranking |
 | Glob patterns | Case-insensitive by default; `GlobPattern.CaseSensitive` selects exact case |
-| Object comparison | Case-insensitive by default; `DiffOptions.CaseSensitive` applies to keys, properties and values; case-only differences remain visible |
+| Object comparison | Case-insensitive by default; `DiffOptions.CaseSensitive` applies to comparison keys and string values; property-name lookup and path unions remain ordinal, case-insensitive; case-only key/value differences remain visible |
 | State keys, widget IDs, tree value-column IDs, literal dictionary member identities | Ordinal, case-sensitive |
 
 Culture controls presentation of numbers, dates and labels. It does not silently choose a different
@@ -49,7 +49,7 @@ structural dictionary keys remain data identities.
   absent data. Empty collections stay blank. Numeric NaN/infinity retains the unavailable marker.
 - Object diffs, `Compare-ConsoleObject` and the baseline matrix retain `(null)`, `(empty)` and `(missing)`:
   the distinction is the point of those views. Missing and empty labels use the translation catalog.
-- Record sheets keep hiding null/empty fields by default (`RecordView.HideEmpty = true`). Setting it to
+- Record sheets hide null, empty and missing fields by default (`RecordView.HideEmpty = true`). Setting it to
   false includes those fields with the ordinary display policy; `ConsoleViewOptions.ShowEmpty` controls
   inclusion in the list renderer. Hidden fields are not converted into missing values.
 - ASCII output contains printable ASCII, including caller text. Basic output stays within WGL4.
@@ -113,6 +113,29 @@ cursor, attributes and modes. Native console tests check signal handling and mod
 I also check a real terminal with Oh My Posh: run each exit route in both PowerShell versions,
 then type and edit a command at the multiline/right-aligned prompt, resize the window and run
 another command. Headless checks cannot establish font rendering or the prompt engine's redraw.
+
+## Accessibility, focus and meaning
+
+I apply accessible interaction to the whole run. `CONSOLEMONSTER_ACCESSIBLE=1` and the accessible interaction
+mode use numbered questions, static apps/menus/grids and append-only live narration. Menus and grids can use
+numbered choices when a line console is explicitly supplied. Accessible mode keeps status
+symbols and implies reduced motion. `CONSOLEMONSTER_MOTION=reduced` keeps the normal layout, uses static spinners
+and limits redraws to once a second; final state and explicitly requested recording checkpoints remain available.
+Explicit motion options override the motion environment preference; accessibility wins over those options and
+requests for rich/live output. Plain mode keeps ASCII and no colour. Non-interactive and snapshot guards still win.
+The environment and theme precedence is documented in [Usage](Usage.md#accessible-output-and-motion).
+
+10. **Focus without colour.** Every focusable input, toggle, select, date picker, tab, button, grid, tree select and
+    menu identifies keyboard focus with a glyph, reverse video or a border change. A selected tab has brackets;
+    active menu focus differs from a remembered sidebar selection. Plain output retains structural cues, including
+    the grid's current row and the date cursor/selection. These cues survive colour removal.
+11. **Meaning without colour.** Status colour is accompanied by a symbol or status text. This includes chart
+    thresholds, progress columns, lanes, cell maps, calendar days, flow nodes/links and diagram nodes/links/legends.
+    Hiding a numeric value or optional legend cannot remove the only status cue. Series use distinct fills or trace
+    identifiers that match their labels. Without colour, line/scatter traces use distinct ASCII marks repeated beside
+    their legend labels; accessible line/scatter charts give labelled values in series order.
+    A status-bearing data bar uses a status word when `ShowRoleMarker=false`; accessible mode retains its symbol.
+    Caller-supplied decorative colours and arbitrary legend text do not invent typed status semantics.
 
 Run the solution build, all supported core test targets, extension tests, both PowerShell module gates,
 and the site-frame checks after a shared rendering change. Review real before/after output before

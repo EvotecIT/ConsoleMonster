@@ -88,14 +88,16 @@ namespace ConsoleMonster.Layout {
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => new[] { Content };
 
+        private bool HasTitle => !string.IsNullOrEmpty(Title) || (Verdict && Status.HasValue);
+
         private bool HasBorder => Border != BoxStyle.None;
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             int horizontal = (HasBorder ? 2 : 0) + PaddingLeft + PaddingRight;
-            int vertical = (HasBorder ? 2 : (string.IsNullOrEmpty(Title) ? 0 : 1)) + PaddingTop + PaddingBottom;
+            int vertical = (HasBorder ? 2 : (!HasTitle ? 0 : 1)) + PaddingTop + PaddingBottom;
             Size inner = Content.Measure(constraints.Shrink(horizontal, vertical), context);
-            int titleWidth = string.IsNullOrEmpty(Title) ? 0 : context.Markup(Title!).Width + 4 + (Verdict && Status.HasValue ? DisplayWidth.Measure(context.Glyphs.StatusSymbol(Status.Value)) + 1 : 0);
+            int titleWidth = !HasTitle ? 0 : context.Markup(Title!).Width + 4 + (Verdict && Status.HasValue ? DisplayWidth.Measure(context.Glyphs.StatusSymbol(Status.Value)) + 1 : 0);
             int width = Expand ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, Math.Max(inner.Width + horizontal, titleWidth + 2));
             int height = Height ?? inner.Height + vertical;
             return new Size(width, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -108,7 +110,7 @@ namespace ConsoleMonster.Layout {
             }
             if (!HasBorder) {
                 int top = 0;
-                if (!string.IsNullOrEmpty(Title)) {
+                if (HasTitle) {
                     StyledLine title = TitleLine(context, region.Width);
                     region.Write(PaddingLeft, 0, title);
                     top = 1;
@@ -151,7 +153,7 @@ namespace ConsoleMonster.Layout {
                     captionWidth = 0;
                 }
             }
-            if (!string.IsNullOrEmpty(Title)) {
+            if (HasTitle) {
                 int available = w - 6 - (captionWidth > 0 ? captionWidth + 1 : 0);
                 if (available > 0) {
                     StyledLine title = TitleLine(context, available);
@@ -176,7 +178,7 @@ namespace ConsoleMonster.Layout {
             Style style = context.Style(Verdict && Status.HasValue ? Status.Value.ToToken() : ThemeToken.Title);
             var spans = new List<TextSpan>();
             if (Verdict && Status.HasValue) spans.Add(new TextSpan(context.Glyphs.StatusSymbol(Status.Value) + " ", style));
-            spans.AddRange(context.Markup(Title!).Lines[0].WithBaseStyle(style));
+            spans.AddRange(context.Markup(Title ?? string.Empty).Lines[0].WithBaseStyle(style));
             var line = new StyledLine(spans);
             return TextWrapper.Truncate(line, width, context.Ellipsis);
         }

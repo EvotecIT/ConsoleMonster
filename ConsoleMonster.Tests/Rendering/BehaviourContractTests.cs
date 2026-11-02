@@ -394,6 +394,8 @@ namespace ConsoleMonster.Tests.Rendering {
             foreach (string entry in new[] { "app", "app async", "menu", "menu async", "grid", "explorer" })
                 foreach (string condition in new[] { "redirected", "CI", "noninteractive", "snapshot", "accessible environment", "accessible mode" })
                     yield return new object[] { entry, condition };
+            yield return new object[] { "app", "appendonly" };
+            yield return new object[] { "app async", "appendonly" };
         }
 
         [Fact]
@@ -435,15 +437,29 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Theory]
-        [InlineData("record")]
-        [InlineData("inspector")]
-        public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer) {
+        [InlineData("record", "null")]
+        [InlineData("record", "empty")]
+        [InlineData("record", "missing")]
+        [InlineData("inspector", "header")]
+        public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer, string kind) {
             if (renderer == "record") {
-                var view = new RecordView().AddField("Optional", (object?)null);
-                Assert.DoesNotContain("Optional", TestTerminal.RenderText(view));
+                object? value = kind == "null" ? null : kind == "empty" ? "" : Missing.Value;
+                var view = new RecordView().AddSection("Optional section").AddGroup("Optional group").AddField("Optional field", value)
+                    .AddSection("Required section").AddField("Required field", "State");
+                Assert.True(view.HideEmpty);
+                string hidden = TestTerminal.RenderText(view);
+                Assert.DoesNotContain("Optional", hidden);
+                Assert.Contains("Required field", hidden);
+                Assert.Contains("State", hidden);
                 view.HideEmpty = false;
-                Assert.Contains("Optional", TestTerminal.RenderText(view));
-                Assert.Contains("—", TestTerminal.RenderText(view));
+                string shown = TestTerminal.RenderText(view);
+                Assert.Contains("Optional section", shown);
+                Assert.Contains("Optional group", shown);
+                Assert.Contains("Optional field", shown);
+                if (kind != "empty") Assert.Contains("—", shown);
+                else Assert.DoesNotContain("—", shown);
+                view.HideEmpty = true;
+                Assert.DoesNotContain("Optional", TestTerminal.RenderText(view));
             } else {
                 var view = new InspectorView(new { Value = 1 }, title: "Header");
                 Assert.Contains("Header", TestTerminal.RenderText(view));
@@ -465,11 +481,12 @@ namespace ConsoleMonster.Tests.Rendering {
                 Mode = condition == "snapshot" ? InteractionMode.Snapshot : condition == "accessible mode" ? InteractionMode.Accessible : InteractionMode.Rich,
                 SnapshotOutput = widget => Terminal.Write(widget)
             };
+            var appOptions = new ConsoleAppOptions { Interactive = options, Live = condition == "appendonly" ? new LiveSessionOptions { Live = false } : null };
             int actions = 0;
             var menu = new Menu("State").Item("Deploy", item => item.Action = _ => actions++);
             using (Terminal.Use(ambient)) switch (entry) {
-                case "app": ConsoleApp.Run(new TextBlock("State"), options: new ConsoleAppOptions { Interactive = options }); break;
-                case "app async": await ConsoleApp.RunAsync(new TextBlock("State"), options: new ConsoleAppOptions { Interactive = options }); break;
+                case "app": ConsoleApp.Run(new TextBlock("State"), options: appOptions); break;
+                case "app async": await ConsoleApp.RunAsync(new TextBlock("State"), options: appOptions); break;
                 case "menu": menu.Run(new MenuOptions { Interactive = options }); break;
                 case "menu async": await menu.RunAsync(new MenuOptions { Interactive = options }); break;
                 case "grid": Assert.Empty(new Grid("State").AddColumn("Name").AddRow("first", "alpha").Show(new GridOptions { Interactive = options }).Items); break;

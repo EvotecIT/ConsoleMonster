@@ -30,12 +30,12 @@ namespace ConsoleMonster.Interactive {
             // own guard starts later, so retain the entry mode across initialization and all exit paths.
             using TerminalGuard outputMode = new TerminalGuard(() => { }, false);
             InteractiveOptions interactive = (settings.Interactive ?? InteractiveOptions.Default).Clone();
-            if (interactive.Capture == null && interactive.ResolveMode() == InteractionMode.Rich && interactive.ResolveTarget() is RecordingTarget recording) {
+            if (settings.Live?.Live != false && interactive.Capture == null && interactive.ResolveMode() == InteractionMode.Rich && interactive.ResolveTarget() is RecordingTarget recording) {
                 interactive.Capture = recording.Screens;
             }
             TerminalProfile profile = AccessibilityPolicy.Resolve(interactive.ResolveProfile(), settings.ReducedMotion ?? settings.Live?.ReducedMotion);
             interactive.Profile = profile;
-            bool snapshot = interactive.ResolveMode() != InteractionMode.Rich || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
+            bool snapshot = settings.Live?.Live == false || interactive.ResolveMode() != InteractionMode.Rich || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();
             values.BeginRun();

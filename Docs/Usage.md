@@ -1,4 +1,4 @@
-# ConsoleMonster usage guide
+﻿# ConsoleMonster usage guide
 
 See [the README](../README.md) for installation and first examples, or [consolemonster.dev](https://consolemonster.dev/) for the interactive gallery and references.
 
@@ -1335,21 +1335,24 @@ including when a renderer's optional key or numeric values are hidden. Accessibl
 an individual `InteractiveOptions.Mode` or PowerShell `-Mode Accessible` applies it to that interaction.
 
 `CONSOLEMONSTER_MOTION=reduced` disables animated glyphs and limits live frames and interactive redraws to once a
-second, while retaining the normal layout. Input and queued state changes are still processed promptly; the next
+second of real time, independently of a simulation/replay clock, while retaining the normal layout. Input and queued state changes are still processed promptly; the next
 frame contains their combined state. Shutdown always prints its final state when configured. Spinners use a static
 running glyph; ConsoleMonster does not emit blink or marquee animations. Explicit recording checkpoints still
-capture the states requested by the recording program.
+capture the states requested by the recording program. A status line coalesces rapid updates and publishes the latest
+state even with its spinner and clocks disabled. On terminals without a safe cursor-position query, a manual status
+update waits for its next allowed write instead of scheduling a redraw after the caller returns.
 
 Set `LiveSessionOptions.ReducedMotion` or `ConsoleAppOptions.ReducedMotion` in C#. In PowerShell use
 `-ReducedMotion` on `Show-ConsoleApp`, `Invoke-ConsoleDashboard`, `Use-ConsoleProgress`, `Start-ConsoleRun`,
-`Invoke-ConsoleRun` or `Watch-Console`. An explicit `false` (PowerShell `-ReducedMotion:$false`) overrides the motion
+`Invoke-ConsoleRun` or `Watch-Console`. `ConsoleAppOptions.Live.Live = false` selects the static app fallback. An explicit `false` (PowerShell `-ReducedMotion:$false`) overrides the motion
 environment setting. An app's option overrides its nested live-session option. Accessible mode always keeps reduced
 motion, even when the caller requests `false`, rich input or `Live = true`.
 
 `CONSOLEMONSTER_MODE=plain` keeps its ASCII, colour-free output when accessibility is enabled. `stream` stays
 append-only; `interactive`/`live` cannot override accessibility. Non-interactive and snapshot guards apply before
 accessible questions: defaults or one clear error still apply when nobody can answer. `NO_COLOR` changes colour,
-not interaction or motion. Named themes change the palette, not glyphs, focus cues or narration.
+not interaction or motion. After changing environment preferences on an already detected console, call
+`Terminal.Refresh()` to discard that cached snapshot (PowerShell: `[ConsoleMonster.Terminal]::Refresh()`). Named themes change the palette, not glyphs, focus cues or narration.
 
 ## Edge values
 

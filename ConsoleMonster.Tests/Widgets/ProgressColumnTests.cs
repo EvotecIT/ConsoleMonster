@@ -82,9 +82,9 @@ namespace ConsoleMonster.Tests.Progress {
                 ProgressColumns.Custom("Phase", row => row.IsFinished ? "verified" : row.Status == StatusKind.Running ? "copy" : "wait")
             };
             string[] lines = Render(lanes, 40, GlyphTier.Ascii).Split('\n');
-            Assert.Equal("SRV01  copy", lines[0].TrimEnd());
-            Assert.Equal("SRV02  verified", lines[1].TrimEnd());
-            Assert.Equal("SRV03  wait", lines[2].TrimEnd());
+            Assert.Equal("| SRV01  copy", lines[0].TrimEnd());
+            Assert.Equal("+ SRV02  verified", lines[1].TrimEnd());
+            Assert.Equal(". SRV03  wait", lines[2].TrimEnd());
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Tests.Progress {
             bar.Apply(new LiveEvent("progress", "set", value: 0, total: 100, time: 0));
             bar.Apply(new LiveEvent("progress", "set", value: 40, total: 100, time: 4000));
             string text = Render(bar, 60, GlyphTier.Ascii, 4);
-            Assert.StartsWith("Copy  ", text);
+            Assert.StartsWith("| Copy  ", text);
             Assert.Contains("40%  10 B/s  6s left", text);
             Assert.Equal("Copy 40% 10 B/s 6s left", bar.GetSummaryLine());
         }

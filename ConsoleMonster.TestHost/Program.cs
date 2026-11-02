@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -15,6 +16,7 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Live;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
@@ -26,6 +28,7 @@ namespace ConsoleMonster.TestHost {
                 switch (args[0]) {
                     case "handoff-probe": return TerminalHandoffProbe.Run(args[1]);
                     case "handoff-windows": return TerminalHandoffProbe.Windows(args[1]);
+                    case "reduced-status": ReducedStatus(args.Length > 1 ? args[1] : "updates"); break;
                     case "activity-frame": WriteActivityFrame(); break;
                     case "background": return BackgroundProbe.Run(args[1], args.Length > 2 ? args[2] : string.Empty);
                     case "unix-recording-child": return UnixRecordingChildProbe.Run();
@@ -52,6 +55,39 @@ namespace ConsoleMonster.TestHost {
                 else if (args.Length > 1 && (args[0].StartsWith("cancel", StringComparison.Ordinal) || args[0] == "handoff-windows")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
+            }
+        }
+
+        private static void ReducedStatus(string scenario) {
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_ACCESSIBLE", null);
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_MOTION", "reduced");
+            TerminalProfile profile = TerminalProfile.Fixed(60, 8, ColorDepth.None, GlyphTier.Ascii);
+            Terminal.Profile = profile;
+            if (scenario == "updates") {
+                StatusLine.Show(profile, RichText.Plain("first"), StatusKind.Running, false, false, false, "HH:mm:ss", false);
+                StatusLine.Show(profile, RichText.Plain("second"), StatusKind.Fail, false, false, false, "HH:mm:ss", false);
+                Thread.Sleep(1250);
+                Console.WriteLine("CHECKPOINT");
+            } else {
+                if (scenario == "failed-pending") StatusLine.Show(profile, RichText.Plain("first"), StatusKind.Running, false, false, false, "HH:mm:ss", false);
+                var culture = new StatusClockCulture();
+                Thread.CurrentThread.CurrentCulture = culture;
+                StatusLine.Show(profile, RichText.Plain("invalid clock"), StatusKind.Running, false, true, false, "%", false);
+                Thread.Sleep(1250);
+                int reads = Volatile.Read(ref culture.Reads);
+                Thread.Sleep(200);
+                Console.WriteLine("FAILED_REFRESH_STOPPED=" + (reads > 0 && reads == Volatile.Read(ref culture.Reads)));
+                StatusLine.Show(profile, RichText.Plain("recovered"), StatusKind.Info, false, false, false, "HH:mm:ss", false);
+            }
+            StatusLine.Show(profile, RichText.Plain("done"), StatusKind.Pass, false, false, false, "HH:mm:ss", true);
+        }
+
+        private sealed class StatusClockCulture : CultureInfo {
+            internal int Reads;
+            internal StatusClockCulture() : base("en-US") { }
+            public override DateTimeFormatInfo DateTimeFormat {
+                get { Interlocked.Increment(ref Reads); return base.DateTimeFormat; }
+                set { base.DateTimeFormat = value; }
             }
         }
 

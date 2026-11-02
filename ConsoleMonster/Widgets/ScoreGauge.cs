@@ -34,7 +34,8 @@ public sealed class ScoreGauge : IWidget {
         int whole = (int)Math.Round(cells * ratio, MidpointRounding.AwayFromZero);
         string bar = new string(context.Glyphs.Get(Glyph.BlockFull)[0], whole);
         int remaining = cells - whole;
-        string markup = "[strong]" + Value.ToString("0.##", context.Culture) + "[/][muted]/" + Maximum.ToString("0.##", context.Culture)
+        string marker = StatusKinds.TryFromToken(Role, out StatusKind status) ? Markup.Escape(context.Glyphs.StatusSymbol(status)) + " " : string.Empty;
+        string markup = marker + "[strong]" + Value.ToString("0.##", context.Culture) + "[/][muted]/" + Maximum.ToString("0.##", context.Culture)
             + "[/]  [" + Role.ToString().ToLowerInvariant() + "]" + bar + "[/][subtle]"
             + new string(context.Glyphs.Get(Glyph.ShadeLight)[0], Math.Max(0, remaining)) + "[/]";
         List<string> details = new List<string>();

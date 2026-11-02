@@ -157,17 +157,17 @@
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
-            "w": 85,
-            "h": 3,
-            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8"
+            "w": 100,
+            "h": 4,
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n<span class=c76>[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links </span><span class=f8b8f9a>(https://consolemonster.</span>\n<span class=\"f8b8f9a c4\">dev)</span> use OSC 8"
           }
         },
         "ps5": {
           "host": "Windows PowerShell 5.1",
           "frame": {
-            "w": 85,
-            "h": 3,
-            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8"
+            "w": 100,
+            "h": 4,
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n<span class=c76>[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links </span><span class=f8b8f9a>(https://consolemonster.</span>\n<span class=\"f8b8f9a c4\">dev)</span> use OSC 8"
           }
         }
       }
