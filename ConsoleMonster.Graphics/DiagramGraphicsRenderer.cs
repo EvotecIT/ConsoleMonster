@@ -71,6 +71,7 @@ namespace ConsoleMonster.Graphics {
         public IWidget View(int width, RenderContext context) {
             if (width >= Constraints.Unbounded / 2) width = 120;
             TopologyDiagram view = Current;
+            if (context.Profile.IsAccessible) return _model.TreeView(context);
             if (width < 20) return _model.TreeView(context);
             TopologyCellLayout layout = view.Layout(width, context.Profile.Glyphs);
             bool lost = layout.Columns > width || view.Chart.Nodes.Any(node => {
@@ -106,7 +107,7 @@ namespace ConsoleMonster.Graphics {
             if (summary != null) widgets.Add(summary);
             return widgets.Count == 1 ? view : new Rows(widgets.ToArray());
         }
-        public void Advance(TimeSpan elapsed) => Current.AdvanceFrame(elapsed);
+        public void Advance(TimeSpan elapsed, bool reducedMotion) => Current.AdvanceFrame(elapsed, reducedMotion);
         public IWidget? Panels(RenderContext context) => Current.Panels(context);
         public string? ScenarioId {
             get {

@@ -59,14 +59,30 @@ namespace ConsoleMonster.Widgets {
             string Literal(string? text) => Diagram.Literal(text, context);
             List<DiagramNode> nodes = Resolve();
             List<DiagramLink> links = AllLinks().ToList();
+            bool accessible = context.Profile.IsAccessible;
+            DiagramUseCase? selected = Scenario;
+            int? activeIndex = StepIndex;
+            DiagramStep? activeStep = selected != null && activeIndex.HasValue && activeIndex.Value >= 0 && activeIndex.Value < selected.Steps.Count ? selected.Steps[activeIndex.Value] : null;
+            string LinkDetail(DiagramLink link) {
+                string detail = link.Label ?? "";
+                if (!accessible) return detail;
+                if (link.HasStatus) detail += " (link " + link.Status + ")";
+                if (activeStep != null && (activeStep.From == link.From && activeStep.To == link.To || activeStep.From == link.To && activeStep.To == link.From))
+                    detail += " (active " + activeStep.Kind.ToString().ToLowerInvariant() + ")";
+                return detail.TrimStart();
+            }
             var tree = new Tree(string.IsNullOrEmpty(Title) ? null : Literal(Title)) { WrapLabels = true };
             string Arrow(bool both) => context.Profile.Glyphs == Capabilities.GlyphTier.Ascii ? both ? "<->" : "->" : both ? "↔" : "→";
             var parents = ForestParents(links);
             void AddNode(TreeNode parent, DiagramNode node, DiagramLink? incoming = null) {
-                string label = Literal((FocusNodeId == node.Id ? "> " : "") + node.Label);
+                string name = node.Label;
+                if (accessible && node.HasStatus) name += " (" + node.Status + ")";
+                if (accessible && FocusNodeId == node.Id) name += " (focused)";
+                if (accessible && activeStep != null && activeStep.From == node.Id && activeStep.To == node.Id) name += " (active)";
+                string label = Literal((FocusNodeId == node.Id ? "> " : "") + name);
                 if (incoming != null && incoming.HasStatus && incoming.Status != StatusKind.Pass)
                     label += " [" + incoming.Status.ToToken().ToString().ToLowerInvariant() + "]" + Literal(context.Glyphs.StatusSymbol(incoming.Status)) + "[/]";
-                string detail = string.Join("  ", new[] { node.Subtitle, node.Value, incoming?.Label }.Where(value => !string.IsNullOrEmpty(value)));
+                string detail = string.Join("  ", new[] { node.Subtitle, node.Value, incoming == null ? null : LinkDetail(incoming) }.Where(value => !string.IsNullOrEmpty(value)));
                 TreeNode item = parent.Add(label, node.HasStatus ? node.Status : (StatusKind?)null, DiagramText.ForTier(detail, context));
                 foreach (DiagramLink link in links.Where(l => l.From == node.Id)) {
                     if (parents.TryGetValue(link.To, out DiagramLink? nested) && ReferenceEquals(nested, link)) {
@@ -75,7 +91,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     string target = nodes.First(n => n.Id == link.To).Label;
                     item.Add(Literal(Arrow(link.Both) + " " + target), link.HasStatus && link.Status != StatusKind.Pass ? link.Status : (StatusKind?)null,
-                        DiagramText.ForTier(link.Label ?? "", context));
+                        DiagramText.ForTier(LinkDetail(link), context));
                 }
             }
             void AddGroup(TreeNode parent, DiagramGroup group) {

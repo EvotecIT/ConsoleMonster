@@ -45,6 +45,7 @@ namespace ConsoleMonster.Graphics {
         private int? _step;
         private string? _focus;
         private bool _playing;
+        private bool _motionSuppressed;
         private bool _showDetails = true;
         private TimeSpan? _playAnchor;
         private TimeSpan? _lastPlaybackFrame;
@@ -139,6 +140,7 @@ namespace ConsoleMonster.Graphics {
                 if (_scenario == null || _scenario.Steps.Count == 0) return;
                 if (_step.HasValue && _step.Value >= _scenario.Steps.Count - 1) _step = null;
                 _playing = true;
+                _motionSuppressed = false;
                 _playAnchor = null;
                 _lastPlaybackFrame = null;
             }
@@ -234,7 +236,7 @@ namespace ConsoleMonster.Graphics {
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
             lock (_gate) {
-                Advance(context.Elapsed);
+                AdvanceFrame(context.Elapsed, context.ReducedMotion);
                 Frame frame = Compose(WidthFor(constraints.MaxWidth), context);
                 return new Size(Math.Min(constraints.MaxWidth, frame.Width), constraints.IsHeightUnbounded ? frame.Height : Math.Min(frame.Height, constraints.MaxHeight));
             }
@@ -243,7 +245,7 @@ namespace ConsoleMonster.Graphics {
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             lock (_gate) {
-                Advance(context.Elapsed);
+                AdvanceFrame(context.Elapsed, context.ReducedMotion);
                 Draw(region, Compose(WidthFor(region.Width), context), context);
             }
         }
@@ -307,9 +309,20 @@ namespace ConsoleMonster.Graphics {
             _step = Math.Max(0, Math.Min(_scenario.Steps.Count - 1, index));
         }
 
-        private void StopPlayback() { _playing = false; _playAnchor = null; _lastPlaybackFrame = null; }
+        private void StopPlayback() { _playing = false; _playAnchor = null; _lastPlaybackFrame = null; _motionSuppressed = false; }
 
-        internal void AdvanceFrame(TimeSpan elapsed) { lock (_gate) { Advance(elapsed); } }
+        internal void AdvanceFrame(TimeSpan elapsed, bool reducedMotion = false) {
+            lock (_gate) {
+                if (reducedMotion) { _motionSuppressed = _playing; return; }
+                if (_motionSuppressed) {
+                    _playAnchor = elapsed;
+                    _playFrom = (_step ?? 0) - 1;
+                    _lastPlaybackFrame = elapsed;
+                    _motionSuppressed = false;
+                }
+                Advance(elapsed);
+            }
+        }
 
         private void Advance(TimeSpan elapsed) {
             if (!_playing || _scenario == null || _scenario.Steps.Count == 0) return;
