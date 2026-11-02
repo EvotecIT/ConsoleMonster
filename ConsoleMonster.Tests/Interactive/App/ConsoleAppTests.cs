@@ -198,25 +198,6 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal("seed", result["query"]);
         }
 
-        /// <summary>Non-rich modes fail before initializing state, invoking bindings or reading input.</summary>
-        [Theory]
-        [InlineData(InteractionMode.None)]
-        [InlineData(InteractionMode.Line)]
-        [InlineData(InteractionMode.Accessible)]
-        public void NoninteractiveRun_RefusesBeforeAnyAppWork(InteractionMode mode) {
-            int builds = 0;
-            AppState state = new AppState();
-            ConsoleAppOptions options = AppTestHarness.Options("Escape", out ScreenCapture capture);
-            ScriptedInput input = (ScriptedInput)options.Interactive!.Input!;
-            options.Interactive.Mode = mode;
-            AppBinding binding = new AppBinding(_ => { builds++; return new ConsoleMonster.Widgets.TextBlock("unused"); });
-            Assert.Throws<PromptUnavailableException>(() => ConsoleApp.Run(new Rows(new TextInput("query"), binding), state, options));
-            Assert.Empty(state);
-            Assert.Empty(capture.Frames);
-            Assert.Equal(0, builds);
-            Assert.Equal(1, input.Remaining);
-        }
-
         /// <summary>Inline output is rejected before callbacks or input can use a moving screen origin.</summary>
         [Fact]
         public void Run_RejectsInlineBeforeInitializingStateOrInput() {

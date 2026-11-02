@@ -49,8 +49,9 @@ namespace ConsoleMonster.Interactive {
 #endif
         public ExplorerNode? Show(InteractiveOptions? interactive = null, CancellationToken cancellationToken = default) {
             InteractiveOptions actual = interactive ?? InteractiveOptions.Default;
+            cancellationToken.ThrowIfCancellationRequested();
             if (actual.ResolveMode() != InteractionMode.Rich) {
-                Terminal.Write(new InspectorView(ObjectInspector.Inspect(Root.Value, Options), Title), actual.ResolveProfile());
+                actual.PrintSnapshot(new InspectorView(ObjectInspector.Inspect(Root.Value, Options), Title));
                 return null;
             }
             using (InputLease lease = ConsoleInput.Acquire(actual.Input)) {

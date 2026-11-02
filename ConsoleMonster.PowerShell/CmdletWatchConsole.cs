@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
@@ -10,7 +10,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block again and again and shows its latest output as a live view.</para>
-    /// <para type="description">Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Piped into another command (Out-File, Out-String), or without an interactive console (redirected output, CI, a job), every run is printed instead, so use -Count there; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.</para>
+    /// <para type="description">Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Without an interactive console (redirected output, CI, a job), the current view is printed once by default; an explicit finite -Count prints that many runs. Piped output is append-only; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.</para>
     /// </summary>
     /// <example>
     /// <para>Watch a bounded process sample</para>
@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0.05, 86400)]
         public double PollIntervalSeconds { get; set; } = 2;
 
-        /// <summary><para type="description">How many runs, or 0 (default) until Ctrl+C.</para></summary>
+        /// <summary><para type="description">How many runs; zero follows interactively until Ctrl+C, or prints one snapshot without a user.</para></summary>
         [Parameter]
         [ValidateRange(0, int.MaxValue)]
         public int Count { get; set; }
@@ -61,6 +61,7 @@ namespace ConsoleMonster.PowerShell {
             bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
             bool live = !NoLive.IsPresent && last && !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
             WatchOptions options = new WatchOptions {
+                NonInteractive = PSInteractive.IsNonInteractivePolling,
                 PollInterval = TimeSpan.FromSeconds(PollIntervalSeconds),
                 Count = Count,
                 Differences = Differences.IsPresent,

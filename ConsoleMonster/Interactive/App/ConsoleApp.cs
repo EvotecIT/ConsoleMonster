@@ -19,7 +19,6 @@ namespace ConsoleMonster.Interactive {
         /// <param name="options">Input and rendering configuration.</param>
         /// <param name="cancellationToken">Cancels input and restores the terminal before returning control.</param>
         /// <returns>The final state, including every named input's committed value.</returns>
-        /// <exception cref="PromptUnavailableException">Interactive input is unavailable and a static snapshot was not requested.</exception>
         /// <exception cref="OperationCanceledException">Cancellation was requested.</exception>
         /// <exception cref="ArgumentException">Inline live mode was requested; interactive apps require a stable full-screen origin.</exception>
         public static AppState Run(IWidget layout, AppState? state = null, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default) {
@@ -31,12 +30,11 @@ namespace ConsoleMonster.Interactive {
             // own guard starts later, so retain the entry mode across initialization and all exit paths.
             using TerminalGuard outputMode = new TerminalGuard(() => { }, false);
             InteractiveOptions interactive = (settings.Interactive ?? InteractiveOptions.Default).Clone();
-            if (interactive.Capture == null && interactive.ResolveTarget() is RecordingTarget recording) {
+            if (interactive.Capture == null && interactive.ResolveMode() == InteractionMode.Rich && interactive.ResolveTarget() is RecordingTarget recording) {
                 interactive.Capture = recording.Screens;
             }
             TerminalProfile profile = interactive.ResolveProfile();
-            bool snapshot = interactive.ResolveMode() == InteractionMode.Snapshot || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
-            if (!snapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }
+            bool snapshot = interactive.ResolveMode() != InteractionMode.Rich || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();
             values.BeginRun();
@@ -51,12 +49,9 @@ namespace ConsoleMonster.Interactive {
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
             using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock)) {
                 if (snapshot) {
-                    CellBuffer frame = FrameComposer.RenderBlock(app.Root, profile.Width, context);
-                    if (interactive.Capture != null) { interactive.Capture.Surface.Present(frame, null); }
-                    else if (settings.Live?.Output != null) { settings.Live.Output.WriteBlock(frame); }
-                    else {
-                        using (ITerminalOutput output = Terminal.CreateOutput(profile, interactive.ResolveTarget().Writer)) { output.WriteBlock(frame); }
-                    }
+                    if (settings.Live?.Output != null && interactive.Capture == null) {
+                        settings.Live.Output.WriteBlock(FrameComposer.RenderBlock(app.Root, profile.Width, context));
+                    } else { interactive.PrintSnapshot(app.Root); }
                     return values;
                 }
                 CellBuffer initial = app.PrepareFrame(profile.Width, profile.Height);

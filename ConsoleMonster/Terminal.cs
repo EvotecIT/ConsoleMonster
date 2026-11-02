@@ -217,13 +217,15 @@ namespace ConsoleMonster {
         /// <param name="widget">The widget.</param>
         /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
         /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
-        public static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer) {
+        public static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer) => Write(widget, profile, writer, null);
+
+        internal static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer, ITheme? theme) {
             if (widget == null) {
                 throw new ArgumentNullException(nameof(widget));
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
             writer = writer ?? Target.Writer;
-            RenderContext context = CreateContext(p);
+            RenderContext context = CreateContext(p, theme);
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
             if (owner != null) {
                 Live.ConsoleWriteBlock prepared = new Live.ConsoleWriteBlock(RenderChunks(widget, p.Width, context));

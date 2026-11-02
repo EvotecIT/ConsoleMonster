@@ -92,7 +92,7 @@ namespace ConsoleMonster.Tests.Live {
                         stop.Cancel();
                     }
                     return new TextBlock("run " + i);
-                }, new WatchOptions { Live = false, Print = widget => { }, Delay = (interval, token) => { } }, stop.Token);
+                }, new WatchOptions { Count = 5, Live = false, Print = widget => { }, Delay = (interval, token) => { } }, stop.Token);
                 Assert.Equal(2, runs);
             }
         }

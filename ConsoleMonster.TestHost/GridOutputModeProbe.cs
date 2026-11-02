@@ -35,9 +35,8 @@ namespace ConsoleMonster.TestHost {
                     if (scenario == "cancelled") { cancel.Cancel(); }
                     try {
                         GridResult result = grid.Show(new GridOptions { Interactive = interactive }, cancel.Token);
-                        if (scenario == "unavailable" || scenario == "cancelled") { throw new InvalidOperationException("The failure path did not execute."); }
+                        if (scenario == "cancelled") { throw new InvalidOperationException("The failure path did not execute."); }
                         if (result.Accepted != (scenario == "accepted")) { throw new InvalidOperationException("Unexpected grid result."); }
-                    } catch (PromptUnavailableException) when (scenario == "unavailable") {
                     } catch (OperationCanceledException) when (scenario == "cancelled" && cancel.IsCancellationRequested) {
                     }
                     if (ConsoleInput.IsAcquired) { throw new InvalidOperationException("Grid input lease was not released."); }

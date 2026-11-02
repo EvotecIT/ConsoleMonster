@@ -111,12 +111,17 @@ namespace ConsoleMonster.Interactive {
             // Capability discovery can enable VT. Capture the caller's output mode before resolving labels or profiles.
             using ConsoleMonster.Output.TerminalGuard outputMode = new ConsoleMonster.Output.TerminalGuard(() => { }, false);
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
+            cancellationToken.ThrowIfCancellationRequested();
             PromptLabels labels = interactive.ResolveLabels();
             switch (interactive.ResolveMode()) {
                 case InteractionMode.Snapshot:
-                    throw new PromptUnavailableException("A grid needs an interactive session. Render its source rows as a table for a static view.");
                 case InteractionMode.None:
-                    throw new PromptUnavailableException("Grid '" + grid.Title + "' needs an interactive session.") { Prompt = grid.Title };
+                    using (GridView view = new GridView(grid, options, labels, cancellationToken, interactive.ActionClock)) {
+                        Capabilities.TerminalProfile profile = interactive.ResolveProfile();
+                        RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
+                        interactive.PrintSnapshot(view.Snapshot(context));
+                    }
+                    return new GridResult(false, Array.Empty<object?>());
                 case InteractionMode.Line:
                 case InteractionMode.Accessible:
                     return Lines(grid, new LinePrompter(interactive.ResolveLineConsole(), labels, interactive.ResolveMode() == InteractionMode.Accessible), cancellationToken);

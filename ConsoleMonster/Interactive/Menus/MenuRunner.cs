@@ -15,10 +15,28 @@ namespace ConsoleMonster.Interactive {
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             PromptLabels labels = interactive.ResolveLabels();
             InteractionMode mode = interactive.ResolveMode();
-            ChoiceStore store = new ChoiceStore(options.AppName ?? menu.Title, options.StorageRoot);
+            cancellationToken.ThrowIfCancellationRequested();
             if (mode == InteractionMode.None || mode == InteractionMode.Snapshot) {
-                throw new PromptUnavailableException("Menu '" + menu.Title + "' needs an interactive session.") { Prompt = menu.Title };
+                var rows = new Rows(new Widgets.HeaderBar(menu.Title) { Subtitle = menu.Subtitle });
+                RenderContext context = Terminal.CreateContext(interactive.ResolveProfile(), interactive.ResolveTheme());
+                if (!string.IsNullOrEmpty(menu.Description)) rows.Add(new Widgets.TextBlock(menu.Description!));
+                foreach (MenuItem item in menu.Items) {
+                    if (item.Kind == MenuItemKind.Separator) { rows.Add(new Widgets.Rule(item.Label)); continue; }
+                    string? disabled = item.CurrentDisabledReason;
+                    string? icon = item.IconText(context.Glyphs);
+                    string text = (string.IsNullOrEmpty(icon) ? "" : Markup.Escape(icon!) + " ") + Markup.Escape(item.Label);
+                    string? badge = item.CurrentBadge?.ToMarkup();
+                    if (!string.IsNullOrEmpty(badge)) text += "  " + badge;
+                    string? detail = item.CurrentDetail;
+                    if (!string.IsNullOrEmpty(detail)) text += "  [muted]" + Markup.Escape(detail!) + "[/]";
+                    if (!string.IsNullOrEmpty(item.Description)) text += "  [muted]" + Markup.Escape(item.Description!) + "[/]";
+                    if (!string.IsNullOrEmpty(disabled)) text += "  [muted](" + Markup.Escape(disabled!) + ")[/]";
+                    rows.Add(new Widgets.TextBlock(text));
+                }
+                interactive.PrintSnapshot(rows);
+                return;
             }
+            ChoiceStore store = new ChoiceStore(options.AppName ?? menu.Title, options.StorageRoot);
             MenuLayout layout = options.Layout != MenuLayout.Auto ? options.Layout : menu.Layout != MenuLayout.Auto ? menu.Layout : menu.HasContent ? MenuLayout.Shell : MenuLayout.Classic;
             if (mode != InteractionMode.Rich || layout == MenuLayout.Inline) {
                 new InlineMenu(menu, options, labels, store, cancellationToken).Run();

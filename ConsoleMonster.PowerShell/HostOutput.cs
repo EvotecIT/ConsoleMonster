@@ -34,15 +34,16 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="widget">The widget.</param>
         /// <param name="profile">The profile, or null for <see cref="Terminal.GetCurrentProfile"/>.</param>
         /// <param name="explicitWidth">Whether the profile width was set by the caller (-Width) and must be kept.</param>
-        internal static void Write(PSCmdlet cmdlet, IWidget widget, TerminalProfile? profile = null, bool explicitWidth = false) {
+        /// <param name="theme">An explicit theme for static application fallback, or null for the active terminal theme.</param>
+        internal static void Write(PSCmdlet cmdlet, IWidget widget, TerminalProfile? profile = null, bool explicitWidth = false, ITheme? theme = null) {
             TerminalProfile p = profile ?? Terminal.GetCurrentProfile();
             if (!UseHost(cmdlet, p)) {
-                Terminal.Write(widget, p);
+                Terminal.Write(widget, p, null, theme);
                 return;
             }
             HostRoute route = RouteFor(cmdlet, p);
             TerminalProfile host = HostProfile(cmdlet, p, explicitWidth, route);
-            RenderContext context = Terminal.CreateContext(host);
+            RenderContext context = Terminal.CreateContext(host, theme);
             ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
             foreach (CellBuffer block in Terminal.RenderChunks(widget, host.Width, context)) {

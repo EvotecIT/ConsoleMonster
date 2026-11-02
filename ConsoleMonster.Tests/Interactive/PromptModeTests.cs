@@ -63,7 +63,7 @@ namespace ConsoleMonster.Tests.Interactive {
         public void ResolveMode_FlagsAndInputSources() {
             Assert.Equal(InteractionMode.None, new InteractiveOptions { NonInteractive = true }.ResolveMode());
             Assert.Equal(InteractionMode.Rich, new InteractiveOptions { Input = new ScriptedInput(string.Empty) }.ResolveMode());
-            Assert.Equal(InteractionMode.Accessible, new InteractiveOptions { Mode = InteractionMode.Accessible }.ResolveMode());
+            Assert.Equal(InteractionMode.Accessible, new InteractiveOptions { Mode = InteractionMode.Accessible, LineConsole = new FakeLines() }.ResolveMode());
         }
 
         [Fact]

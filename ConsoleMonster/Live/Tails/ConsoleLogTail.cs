@@ -30,6 +30,7 @@ namespace ConsoleMonster.Live.Tails {
             using (TerminalGuard modeGuard = new TerminalGuard(() => { }, false)) {
                 TerminalProfile profile = options.Profile ?? Terminal.Target.Profile;
                 bool plain = !options.Live || profile.IsOutputRedirected || profile.IsContinuousIntegration
+                    || options.NonInteractive || Interactive.InteractiveOptions.Default.IsNonInteractive
                     || profile.Mode != OutputMode.Interactive || !profile.SupportsVirtualTerminal
                     || (options.Input == null && Terminal.Target.Input == null && ConsoleInput.Override == null && Console.IsInputRedirected)
                     || (options.Output != null && !options.Output.SupportsLiveFrames);
@@ -54,7 +55,9 @@ namespace ConsoleMonster.Live.Tails {
                 }
                 using (TerminalGuard guard = new TerminalGuard(() => { }, options.HandleCancelKey))
                 using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, guard.Cancellation)) {
-                    Poll(read, options, entry => write(entry.Text), null, linked.Token);
+                    bool snapshot = options.NonInteractive || Interactive.InteractiveOptions.Default.IsNonInteractive
+                        || new Interactive.InteractiveOptions { Profile = profile, Input = options.Input }.ResolveMode() != Interactive.InteractionMode.Rich;
+                    Poll(read, options, entry => write(Glyphs.SymbolFallback.Constrain(entry.Text, profile.Glyphs)), null, linked.Token, snapshot: snapshot);
                 }
             } finally {
                 if (ownsWriter) { writer?.Dispose(); }
@@ -88,7 +91,7 @@ namespace ConsoleMonster.Live.Tails {
         }
 
         private static void Poll(Func<IReadOnlyList<TailedLogEntry>> read, LogTailOptions options,
-            Action<TailedLogEntry> accept, Func<InputEvent, bool>? key, CancellationToken cancellationToken, IInputSource? input = null) {
+            Action<TailedLogEntry> accept, Func<InputEvent, bool>? key, CancellationToken cancellationToken, IInputSource? input = null, bool snapshot = false) {
             Stopwatch watch = Stopwatch.StartNew();
             TimeSpan nextRead = TimeSpan.Zero;
             long count = 0;
@@ -104,7 +107,7 @@ namespace ConsoleMonster.Live.Tails {
                             if (filter.Matches(entry.Text, entry.Level, entry.Tag)) { accept(entry); }
                         }
                         count++;
-                        if (options.Count > 0 && count >= options.Count) { return; }
+                        if (options.Count > 0 ? count >= options.Count : snapshot) { return; }
                         nextRead = watch.Elapsed + options.PollInterval;
                     }
                     TimeSpan wait = nextRead - watch.Elapsed;

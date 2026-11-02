@@ -66,7 +66,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Theory]
         [InlineData("", "Search hosts", "| Search hosts")]
         [InlineData("server", "", "|server")]
-        [InlineData("界a", "", "|界a")]
+        [InlineData("界a", "", "|? a")]
         public void PlainCaret_InsertsVisibleMarkerWithoutReplacingText(string value, string placeholder, string expected) {
             TextInput query = new TextInput("Query", value) { Placeholder = placeholder };
             using (AppController app = Controller(query)) {

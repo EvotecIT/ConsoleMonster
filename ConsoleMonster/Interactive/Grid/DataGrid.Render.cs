@@ -66,9 +66,15 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private Table BuildPage(RenderContext context, int sample, int count) {
+        internal Table Snapshot(RenderContext context) {
+            Table table = BuildPage(context, 0, _visible.Count, snapshot: true);
+            table.Title = Markup.Escape(_grid.Title);
+            return table;
+        }
+
+        private Table BuildPage(RenderContext context, int sample, int count, bool snapshot = false) {
             var table = new Table { Border = TableBorder.Minimal, CardsBelow = 0, RecordViewRows = 0, Presentation = _grid.Presentation, StableWidths = false };
-            bool marks = _grid.OutputMode == GridSelection.Multiple;
+            bool marks = !snapshot && _grid.OutputMode == GridSelection.Multiple;
             if (marks) { table.AddColumn(new TableColumn(StatusPresenters ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left }); }
             List<int> shown = ShownColumns();
             foreach (int c in shown) {
@@ -78,7 +84,7 @@ namespace ConsoleMonster.Interactive {
                     Presenter = source.Presenter ?? (StatusPresenters && _rows.Count > 0 ? CellPresenters.ForStatus(source.Key ?? Markup.Strip(source.Header), Value(_rows[0], c)) : null),
                     Priority = source.Priority, IsKey = source.IsKey, Flexible = source.Flexible, Weight = source.Weight,
                     MinWidth = source.MinWidth, MaxWidth = source.MaxWidth, Width = source.Width,
-                    Overflow = ColumnOverflow.Truncate, MaxLines = 1
+                    Overflow = snapshot ? source.Overflow : ColumnOverflow.Truncate, MaxLines = snapshot ? source.MaxLines : 1
                 };
                 foreach (RoleRule rule in source.RoleRules) { column.RoleRules.Add(rule); }
                 table.AddColumn(column);
@@ -89,7 +95,7 @@ namespace ConsoleMonster.Interactive {
                 var cells = new List<TableCell>();
                 if (marks) { cells.Add(new TableCell(_marked.Contains(row.Id) ? "[accent bold]" + check + "[/]" : string.Empty)); }
                 foreach (int c in shown) {
-                    object? value = c < row.Values.Count ? row.Values[c] : null;
+                    object? value = c < row.Values.Count ? row.Values[c] : System.Reflection.Missing.Value;
                     if (value is DataGridCell lazy) {
                         if (resolve) { _cells.Add(lazy); value = lazy.Resolve(_lifetime.Token, _cellChanged); }
                         else { value = lazy.Peek(); }
@@ -99,7 +105,7 @@ namespace ConsoleMonster.Interactive {
                 table.AddRow(cells.ToArray());
             }
             if (sample == 0) {
-                for (int i = 0; i < _visible.Count; i++) { Add(i, i >= _top && i < _top + count); }
+                for (int i = 0; i < _visible.Count; i++) { Add(i, !snapshot && i >= _top && i < _top + count); }
             } else {
                 for (int i = 0; i < sample; i++) { Add(i, false); }
                 for (int i = _top; i < Math.Min(_visible.Count, _top + count); i++) { Add(i, true); }
