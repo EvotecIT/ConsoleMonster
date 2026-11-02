@@ -287,6 +287,9 @@
     "size-100x30": {
       "src": "/site/cards/size-100x30.svg"
     },
+    "theme-dark": {
+      "src": "/site/cards/theme-dark.svg"
+    },
     "formatting": {
       "src": "/site/cards/formatting.svg"
     },
@@ -359,9 +362,6 @@
     },
     "text-diff-120": {
       "src": "/site/cards/text-diff-120.svg"
-    },
-    "theme-dark": {
-      "src": "/site/cards/theme-dark.svg"
     },
     "threads-live": {
       "src": "/site/cards/threads-live.svg"
