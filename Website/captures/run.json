@@ -5,105 +5,33 @@
   "scope": "produced-only",
   "requestedSet": "gallery",
   "filters": {
-    "SITEFRAMES_GALLERY": "assessment"
+    "SITEFRAMES_GALLERY": "service-browser"
   },
   "allSetsCompleted": false,
   "files": {
-    "gallery/assessment-0.ps7.ansi": {
+    "gallery/service-browser-0.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "29a61a9b4d6f2541588f8e19a08d5c8eb7aeb2b0b3df4bef0448747a094336ad",
+      "sha256": "9501856b0bdb702b59e56f2dbf88982f82de506650b89c718f10505b75015da3",
       "screen": "dark",
-      "width": 140,
-      "height": 42
+      "width": 100,
+      "height": 30
     },
-    "gallery/assessment-1.ps7.ansi": {
+    "gallery/service-browser-1.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "da8f130ab00102a6eb65360eafbd2cffe1bc1d01b19b42f6f0e2bbf3f4e746fd",
+      "sha256": "a46b75b0a830869341905ba9eadc461be6d0c71cd8e2e1cc2cc8a9a8c4e1e312",
       "screen": "dark",
-      "width": 140,
-      "height": 42
+      "width": 100,
+      "height": 30
     },
-    "gallery/assessment-10.ps7.ansi": {
+    "gallery/service-browser-2.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "2d26f52b33edb66efa7bf4b0bc5dfa7991238369e9384b5bd2e703f61820d499",
+      "sha256": "261b73e6ca117d5db8e809a0120fc7f77bc801fdc38b5e94c02fed0d3c755ad0",
       "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-11.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "b05a4237432d677487920e3b5f8762b678a8e07582813b39098d1da1f6d33441",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-2.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "8374f30b00abc1b1fd573a4231084c789c3d3b3f99f2bfbcaac30dc3b12ae7af",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-3.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "833b30559978694d93d4a3bc4863e9f92d166c310dff8a22473e452a2d98a79d",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-4.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "f833e0e738360135e220db09a5eba3d3316fc2012ba5ab9049f016c2c3b166e9",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-5.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "ac58cf3574378fce25f63c6cd39836be78ed89a5c65f74d5f645bb330fa61e30",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-6.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "b6e35a6af39a0f25523587d82bd564a3c3018cbdf5a6d8c0152c735ba7d68c0d",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-7.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "435589fe70603507a9538c92bfa269f8df699ac953d76f15b8658a9e148b3dc0",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-8.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "d0e49d923d151db0150964e0f09852cb5c14fd08e35618465ba3a59bd2b7bc73",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
-    },
-    "gallery/assessment-9.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "776e6a20230c5f7e9d819c962cbd04fb0a18f47713c83d28f6edee0dda22f964",
-      "screen": "dark",
-      "width": 140,
-      "height": 42
+      "width": 100,
+      "height": 30
     }
   }
 }

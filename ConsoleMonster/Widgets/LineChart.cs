@@ -10,8 +10,9 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
-    /// A line or scatter chart on a sub-cell canvas: braille (2x4 dots per cell) on Full, half blocks on Basic and
-    /// characters on Ascii. A y axis with min/max labels sits on the left, a legend below when there are several series or a semantic status to identify.
+    /// A line or scatter chart. With colour, the canvas uses braille (2x4 dots per cell) on Full, half blocks on Basic
+    /// and characters on Ascii. Without colour, ASCII marks identify each series in the plot and legend.
+    /// A y axis with min/max labels sits on the left, a legend below when there are several series or a semantic status to identify.
     /// Live operation: <c>add</c> (Key = series, Value).
     /// </summary>
     public sealed class LineChart : LiveWidget {

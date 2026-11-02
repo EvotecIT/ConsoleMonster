@@ -1,10 +1,10 @@
-source 96ead1ba2b8ba07a3a05dd53706267c3
+source 96ead1ba2b8ba07ab759fa3eb68aff5a
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │ ›     Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
@@ -20,13 +20,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys21a1e0e8be2bcd2c
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysd1b83034141278c8
  Services on FS01                                                                                 7 of 7 rows
 
  › s
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │ ›     Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
@@ -42,13 +42,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keysff3c97e6ef52444e
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys8e093f9007978404
  Services on FS01                                                                                 2 of 7 rows
 
  › sq
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │ ›     MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
 │                                                                                                            │
@@ -64,13 +64,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys69f6e950e33398c0
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys262118fe9d90844e
  Services on FS01                                                                                 2 of 7 rows
 
  › sql
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │ ›     MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
 │                                                                                                            │
@@ -86,13 +86,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keysff3c97e6ef52444e
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys8e093f9007978404
  Services on FS01                                                                                 2 of 7 rows
 
  › sq
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │ ›     MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
 │                                                                                                            │
@@ -108,13 +108,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys7e5951184ce6f98b
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keysfb74e2dbe147be57
  Services on FS01                                                                                 7 of 7 rows
 
  › s
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
 │ ›     MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
@@ -130,13 +130,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys519d87ede7278506
+ ↑↓ move  space select  ctrl+enter done  esc clear filter  enter details  f3 sort  f2 columns  ? keys7b77412e991ef817
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
 ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
 │ ›     MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
 │       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
@@ -152,13 +152,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys9692904bfba78247
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys003ff83639320bcb
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       DFSR            ✗ FAIL  Automatic       0 B                                                          │
 │       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
 │ ›     MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
@@ -174,13 +174,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysb5708d7cdf7926de
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys911222464ad62498
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       DFSR            ✗ FAIL  Automatic       0 B                                                          │
 │       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
@@ -196,13 +196,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysebce4796b97fad4d
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys1ac9e142be95ef40
  Services on FS01                                                                    7 of 7 rows · 1 selected
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       DFSR            ✗ FAIL  Automatic       0 B                                                          │
 │       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
@@ -218,13 +218,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys7e1cc646207ef733
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys8a24120d9f39c35a
  Services on FS01                                                                    7 of 7 rows · 1 selected
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       DFSR            ✗ FAIL  Automatic       0 B                                                          │
 │       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
@@ -240,13 +240,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysc611bdc3767ba9db
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys111bb6ccebd69094
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       DFSR            ✗ FAIL  Automatic       0 B                                                          │
 │       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
@@ -262,13 +262,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysee4fd0d5666c6edf
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys835d0a9069dc3124
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name       ╭─ SQLSERVERAGENT ─────────────────────────────────────────────────────╮                  │
-│ ─  ─  ───────────│                                                                      │                  │
+│       ───────────│                                                                      │                  │
 │       DFSR       │ Name        SQLSERVERAGENT                                           │                  │
 │       LanmanServe│ Status      ▴ WARN                                                   │                  │
 │       MSSQLSERVER│ Start type  Manual                                                   │                  │
@@ -284,13 +284,13 @@ source 96ead1ba2b8ba07a3a05dd53706267c3
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  esc closec611bdc3767ba9db
+ ↑↓ move  esc close111bb6ccebd69094
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
 ╭─ Name ↑ ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │       Name            Status  Start type   Memory                                                          │
-│ ─  ─  ──────────────  ──────  ──────────  ───────                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
 │       DFSR            ✗ FAIL  Automatic       0 B                                                          │
 │       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
 │       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
