@@ -1,3 +1,9 @@
+### Unreleased
+
+- Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.
+- Tables, cards, records, key/value lists, trees and diffs distinguish missing, null and empty data. Record sheets show empty fields by default; explicit empty-field filtering remains available.
+- ASCII and Basic output constrain caller text to ASCII and WGL4 respectively. Grid and live-table string sorting use stable ordinal case-insensitive order. See the [behaviour contract](Docs/Behaviour-Contract.md).
+
 ### 2.1.0 - the everyday path
 
 ## Public API
