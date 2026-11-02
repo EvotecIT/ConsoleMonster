@@ -1,6 +1,6 @@
 ---
 title: Diagrams, zero to hero
-description: Draw diagrams in the terminal from C#, the fluent builder or PowerShell, one idea at a time, from three boxes to live values, request walkthroughs and hierarchies.
+description: Draw terminal diagrams in C#, fluent C# or PowerShell, one idea at a time, from three boxes to live values, request walkthroughs and hierarchies.
 slug: diagrams
 order: 18
 group: apps
