@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     internal static class PSInteractive {
         // A checkpoint recorder is an explicit synthetic live destination, even in a -NonInteractive producer process.
-        internal static bool IsNonInteractivePolling => IsNonInteractiveSession() && Input.ConsoleInput.Override == null
+        internal static bool IsNonInteractivePolling => IsNonInteractiveSession() && Input.ConsoleInput.Override == null && Terminal.Target.Input == null
             && !(Terminal.Target is Output.RecordingTarget recording && recording.CaptureViewport);
 
         /// <summary>The options for a prompt asked by a cmdlet in its host.</summary>
