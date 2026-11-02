@@ -3,73 +3,35 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "object-drift",
-  "filters": {},
+  "requestedSet": "demos",
+  "filters": {
+    "SITEFRAMES_DEMOS": "watch,progress,record"
+  },
   "allSetsCompleted": false,
   "files": {
-    "docs/object-drift-dark-120.ps5.ansi": {
+    "demos/progress.cast": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "01d638f5dc250fb89eab169dd29272e7e2586745449eb23194981adc8114d7db",
+      "sha256": "6640a5d94dd61f56407390bf2046ed68d4ae821dfc6138a1031395c4ba37953b",
       "screen": "dark",
-      "width": 120,
-      "height": 80
+      "width": 96,
+      "height": 12
     },
-    "docs/object-drift-dark-120.ps7.ansi": {
+    "demos/record.cast": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "01d638f5dc250fb89eab169dd29272e7e2586745449eb23194981adc8114d7db",
+      "sha256": "123e0ea567e78ecb00c92645d4ec5c855eb7bfb69a7b7bb355c2987af25b02e5",
       "screen": "dark",
-      "width": 120,
-      "height": 80
+      "width": 100,
+      "height": 18
     },
-    "docs/object-drift-dark-60.ps5.ansi": {
+    "demos/watch.cast": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "dabc001393d8882140dbe382ed4c2078ba7a6d3ab3d121adc4280e59d0597908",
+      "sha256": "6f5267a3f53168a1b887714c9a964503d3fd6ea8335ff362ed9e73c8a0ff2e89",
       "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/object-drift-dark-60.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "dabc001393d8882140dbe382ed4c2078ba7a6d3ab3d121adc4280e59d0597908",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/object-drift-light-120.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "19cb7d41d060a3a65b7827afb420d9fd26ec1e82633ae7767cf7c3afa555e2ed",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/object-drift-light-120.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "19cb7d41d060a3a65b7827afb420d9fd26ec1e82633ae7767cf7c3afa555e2ed",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/object-drift-light-60.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "c6f15a360e2947cd709aa177bd3fde7a8d168c18f6831c21dfcc937274380637",
-      "screen": "light",
-      "width": 60,
-      "height": 80
-    },
-    "docs/object-drift-light-60.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "c6f15a360e2947cd709aa177bd3fde7a8d168c18f6831c21dfcc937274380637",
-      "screen": "light",
-      "width": 60,
-      "height": 80
+      "width": 96,
+      "height": 14
     }
   }
 }
