@@ -437,15 +437,29 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Theory]
-        [InlineData("record")]
-        [InlineData("inspector")]
-        public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer) {
+        [InlineData("record", "null")]
+        [InlineData("record", "empty")]
+        [InlineData("record", "missing")]
+        [InlineData("inspector", "header")]
+        public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer, string kind) {
             if (renderer == "record") {
-                var view = new RecordView().AddField("Optional", (object?)null);
-                Assert.DoesNotContain("Optional", TestTerminal.RenderText(view));
+                object? value = kind == "null" ? null : kind == "empty" ? "" : Missing.Value;
+                var view = new RecordView().AddSection("Optional section").AddGroup("Optional group").AddField("Optional field", value)
+                    .AddSection("Required section").AddField("Required field", "State");
+                Assert.True(view.HideEmpty);
+                string hidden = TestTerminal.RenderText(view);
+                Assert.DoesNotContain("Optional", hidden);
+                Assert.Contains("Required field", hidden);
+                Assert.Contains("State", hidden);
                 view.HideEmpty = false;
-                Assert.Contains("Optional", TestTerminal.RenderText(view));
-                Assert.Contains("—", TestTerminal.RenderText(view));
+                string shown = TestTerminal.RenderText(view);
+                Assert.Contains("Optional section", shown);
+                Assert.Contains("Optional group", shown);
+                Assert.Contains("Optional field", shown);
+                if (kind != "empty") Assert.Contains("—", shown);
+                else Assert.DoesNotContain("—", shown);
+                view.HideEmpty = true;
+                Assert.DoesNotContain("Optional", TestTerminal.RenderText(view));
             } else {
                 var view = new InspectorView(new { Value = 1 }, title: "Header");
                 Assert.Contains("Header", TestTerminal.RenderText(view));

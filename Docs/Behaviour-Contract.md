@@ -49,7 +49,7 @@ structural dictionary keys remain data identities.
   absent data. Empty collections stay blank. Numeric NaN/infinity retains the unavailable marker.
 - Object diffs, `Compare-ConsoleObject` and the baseline matrix retain `(null)`, `(empty)` and `(missing)`:
   the distinction is the point of those views. Missing and empty labels use the translation catalog.
-- Record sheets keep hiding null/empty fields by default (`RecordView.HideEmpty = true`). Setting it to
+- Record sheets hide null, empty and missing fields by default (`RecordView.HideEmpty = true`). Setting it to
   false includes those fields with the ordinary display policy; `ConsoleViewOptions.ShowEmpty` controls
   inclusion in the list renderer. Hidden fields are not converted into missing values.
 - ASCII output contains printable ASCII, including caller text. Basic output stays within WGL4.
