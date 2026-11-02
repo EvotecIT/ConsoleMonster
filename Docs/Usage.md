@@ -836,7 +836,8 @@ the object remains `Unchanged` unless another property differs. They are listed 
 and the summary reports their count separately. In C#, use `DiffOptions.CaseSensitive` and `ChangeSet.CaseOnly`.
 `PropertyChange.HasBefore` and `HasAfter` distinguish missing properties from present null or empty values.
 Missing values render as `(missing)` using the current language's `WidgetLabels.ChangesMissing` label.
-Present null and empty strings retain their existing equality and blank-cell behavior.
+Present null and empty strings keep their equality semantics and render as `(null)` and `(empty)`;
+empty collections render as `(empty)` too. Ordinary views use quiet placeholders instead of these comparison markers.
 
 For settings collected from several machines, use a baseline matrix:
 

@@ -92,6 +92,53 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Contains("B", text);
         }
 
+        [Fact]
+        public void ImportedModelEdits_PreserveChartSubtitleNodeDetailsAndNodeOnlySteps() {
+            var chart = TopologyChart.Create().WithTitle("Before").WithSubtitle("Deployment context")
+                .WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)
+                .AddAutoNode("dns", "DNS", TopologyNodeKind.Generic)
+                .AddAutoNode("worker", "Worker", TopologyNodeKind.Service)
+                .AddEdge("observes", "worker", "dns", "observes", direction: VisualLinkDirection.None);
+            chart.Nodes[0].Metrics["Region"] = "Warsaw";
+            chart.AddScenario("inspect", "Inspect", scenario => {
+                scenario.Description = "Inspect the service";
+                scenario.Metadata["Owner"] = "Operations";
+                scenario.AddNodeStep("dns", "Check DNS");
+            });
+            Diagram diagram = chart.ToDiagram();
+            Assert.Contains("Deployment context", Text(diagram, 120));
+            diagram.Title = "After";
+            diagram.Nodes[0].Label = "DNS service";
+            diagram.Nodes.Add(new DiagramNode("Gateway"));
+            diagram.Links.Add(new DiagramLink("dns", "Gateway"));
+            diagram.FocusNode("dns");
+            diagram.Step(0);
+            string text = Text(diagram, 200);
+            Assert.Contains("After", text);
+            Assert.Contains("Deployment context", text);
+            Assert.Contains("DNS service", text);
+            Assert.Contains("Region: Warsaw", text);
+            Assert.Contains("Inspect the service", text);
+            Assert.Contains("Check DNS", text);
+            Assert.Equal("inspect", diagram.ScenarioId);
+            Assert.Equal("Operations", chart.Scenarios[0].Metadata["Owner"]);
+            Assert.Equal(TopologyScenarioStepKind.Node, chart.Scenarios[0].Steps[0].Kind);
+            Assert.Equal(TopologyNodeKind.Generic, chart.Nodes.Single(node => node.Id == "dns").Kind);
+            Assert.Equal(VisualLinkDirection.None, chart.Edges.Single(edge => edge.Id == "observes").Direction);
+        }
+
+        [Fact]
+        public void AsciiTopology_TransliteratesCallerTextBeforeCellProjection() {
+            var chart = TopologyChart.Create().AddAutoNode("city", "Łódź Straße", TopologyNodeKind.Service);
+            var caption = chart.Nodes[0].LabelContent;
+            Diagram diagram = chart.ToDiagram();
+            string text = ConsoleExporter.ToText(diagram, new ExportOptions { Width = 120, Glyphs = GlyphTier.Ascii });
+            Assert.Contains("Lodz Strasse", text);
+            Assert.Contains("+", text);
+            Assert.Contains("Łódź Straße", Text(diagram, 120));
+            Assert.Same(caption, chart.Nodes[0].LabelContent);
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -207,6 +254,8 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Contains("vpn.contoso.com", writer.ToString());
             Assert.Same(original, options.Interactive);
             Assert.False(diagram.Playing);
+            Assert.DoesNotContain("play/pause", writer.ToString());
+            Assert.DoesNotContain("focus", writer.ToString());
         }
     }
 }

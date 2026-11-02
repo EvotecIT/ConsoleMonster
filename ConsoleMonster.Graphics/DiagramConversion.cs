@@ -28,7 +28,7 @@ namespace ConsoleMonster.Graphics {
                 default: return StatusKind.Unknown;
             }
         }
-        private static TopologyNodeKind Kind(DiagramNodeKind kind) {
+        internal static TopologyNodeKind Kind(DiagramNodeKind kind) {
             switch (kind) {
                 case DiagramNodeKind.Workstation: return TopologyNodeKind.Endpoint;
                 case DiagramNodeKind.User: case DiagramNodeKind.Person: return TopologyNodeKind.Person;
@@ -142,7 +142,7 @@ namespace ConsoleMonster.Graphics {
                 model.UseCases.Add(useCase);
             }
             // Preserve file/chart features outside the friendly model, including node-only steps and payload formats.
-            model.AttachRenderer(new DiagramGraphicsRenderer(model, chart));
+            model.AttachRenderer(new DiagramGraphicsRenderer(model, new DiagramImportedChart(chart, model, groups)));
             return model;
         }
     }

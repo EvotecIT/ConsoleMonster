@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ChartForgeX.Topology;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -32,6 +34,8 @@ namespace ConsoleMonster.Graphics {
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly Dictionary<string, TopologyHealthStatus> _statuses = new Dictionary<string, TopologyHealthStatus>(StringComparer.Ordinal);
         private PreparedTopology? _prepared;
+        private PreparedTopology? _asciiPrepared;
+        private GlyphTier _projectionGlyphs = GlyphTier.Full;
         private TopologyCellLayout? _layout;
         private int _layoutWidth = -1;
         private int _layoutReserve = -1;
@@ -246,9 +250,12 @@ namespace ConsoleMonster.Graphics {
 
         internal PreparedTopology Prepared { get { lock (_gate) { return _prepared ??= _chart.Prepare(); } } }
 
-        internal TopologyCellLayout Layout(int width) {
+        internal TopologyCellLayout Layout(int width, GlyphTier? glyphs = null) {
+            GlyphTier projection = glyphs == GlyphTier.Ascii ? GlyphTier.Ascii : glyphs.HasValue ? GlyphTier.Full : _projectionGlyphs;
+            if (projection != _projectionGlyphs) { _projectionGlyphs = projection; _layout = null; _naturalColumns = 0; }
+            PreparedTopology prepared = projection == GlyphTier.Ascii ? _asciiPrepared ??= PrepareAscii() : Prepared;
             // Grow only at reservation boundaries, and never shrink when a live value gets shorter.
-            int longest = _values.Count == 0 ? 0 : _values.Values.Max(DisplayWidth.Measure);
+            int longest = _values.Count == 0 ? 0 : _values.Values.Max(value => DisplayWidth.Measure(projection == GlyphTier.Ascii ? SymbolFallback.Constrain(value, GlyphTier.Ascii) : value));
             int requested = longest <= ValueColumns ? ValueColumns : Math.Min(MaximumValueColumns, ((longest + 7) / 8) * 8);
             int reserve = Math.Max(requested, _layoutReserve);
             int columns = Math.Max(20, Math.Min(1000, width));
@@ -256,7 +263,7 @@ namespace ConsoleMonster.Graphics {
             // The projection fills the columns it is given, so a small diagram in a wide terminal would get huge boxes.
             // Aim for the diagram's natural size, about one cell per 10 layout pixels, without dropping any text for it.
             if (_naturalColumns == 0) {
-                TopologyLayoutDiagnosticReport report = Prepared.Analyze();
+                TopologyLayoutDiagnosticReport report = prepared.Analyze();
                 double[] positions = report.Nodes.SelectMany(node => new[] { node.Bounds.Left, node.Bounds.Right })
                     .Concat(report.Groups.SelectMany(group => new[] { group.Bounds.Left, group.Bounds.Right }))
                     .Concat(report.Edges.SelectMany(edge => edge.Points.Select(point => point.X))).ToArray();
@@ -267,13 +274,13 @@ namespace ConsoleMonster.Graphics {
             bool fits = _layout != null && reserve <= _layoutReserve && (_layoutWidth == width
                 || _layout.Columns <= width && (width <= _layoutWidth || !_layoutCompacted && natural == _layoutNatural));
             if (!fits) {
-                TopologyCellLayout layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
+                TopologyCellLayout layout = TopologyCellLayout.Create(prepared, new TopologyCellLayoutOptions {
                     MaximumColumns = natural, ReservedValueWidth = reserve
                 });
                 // Only a terminal too narrow for the full text drops subtitles and shortens labels.
                 _layoutCompacted = layout.Columns > columns;
                 if (_layoutCompacted) {
-                    layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
+                    layout = TopologyCellLayout.Create(prepared, new TopologyCellLayoutOptions {
                         MaximumColumns = columns, ReservedValueWidth = reserve, CompactToFit = true
                     });
                 }

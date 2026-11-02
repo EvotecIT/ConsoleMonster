@@ -15,12 +15,12 @@ namespace ConsoleMonster.Graphics {
         private readonly Diagram _model;
         private TopologyDiagram _view;
         private string _key;
-        private bool _imported;
-        internal DiagramGraphicsRenderer(Diagram model, TopologyChart? imported = null) {
+        private readonly DiagramImportedChart? _imported;
+        internal DiagramGraphicsRenderer(Diagram model, DiagramImportedChart? imported = null) {
             _model = model;
             _key = DiagramConversion.Key(model);
-            _imported = imported != null;
-            _view = new TopologyDiagram(imported ?? DiagramConversion.ToChart(model), model.WidgetId);
+            _imported = imported;
+            _view = new TopologyDiagram(imported?.Chart ?? DiagramConversion.ToChart(model), model.WidgetId);
             SetBoundaries();
         }
         private TopologyDiagram Current {
@@ -32,12 +32,11 @@ namespace ConsoleMonster.Graphics {
                         int? step = _view.StepIndex;
                         string? focus = _view.FocusNodeId;
                         bool playing = _view.Playing;
-                        _view = new TopologyDiagram(DiagramConversion.ToChart(_model), _model.WidgetId);
+                        _view = new TopologyDiagram(_imported?.Update(_model) ?? DiagramConversion.ToChart(_model), _model.WidgetId);
                         _key = key;
-                        _imported = false;
                         SetBoundaries();
                         int index = _model.UseCases.FindIndex(c => c.Id == scenario);
-                        if (index >= 0) _view.SelectScenario("case-" + index.ToString(CultureInfo.InvariantCulture));
+                        if (index >= 0) _view.SelectScenario(_imported?.ScenarioId(_model.UseCases[index]) ?? "case-" + index.ToString(CultureInfo.InvariantCulture));
                         if (step.HasValue) _view.Step(step.Value);
                         if (focus != null) _view.FocusNode(focus);
                         if (playing) _view.Play();
@@ -66,27 +65,28 @@ namespace ConsoleMonster.Graphics {
                 if (!group.Boundary) _view.BorderlessGroups.Add(id);
                 foreach (DiagramGroup child in group.Groups) Group(child);
             }
-            if (!_imported) foreach (DiagramGroup group in _model.Groups) Group(group);
+            if (_imported == null) foreach (DiagramGroup group in _model.Groups) Group(group);
+            else foreach (string id in _imported.BorderlessGroups) _view.BorderlessGroups.Add(id);
         }
         public IWidget View(int width, RenderContext context) {
             if (width >= Constraints.Unbounded / 2) width = 120;
             TopologyDiagram view = Current;
             if (width < 20) return _model.TreeView(context);
-            TopologyCellLayout layout = view.Layout(width);
+            TopologyCellLayout layout = view.Layout(width, context.Profile.Glyphs);
             bool lost = layout.Columns > width || view.Chart.Nodes.Any(node => {
                 TopologyCellNode? placed = layout.FindNode(node.Id);
-                return placed == null || placed.Label != node.Label || (!string.IsNullOrEmpty(node.Subtitle) && placed.Subtitle != node.Subtitle);
+                return placed == null || placed.Label != DiagramText.ForTier(node.Label, context) || (!string.IsNullOrEmpty(node.Subtitle) && placed.Subtitle != DiagramText.ForTier(node.Subtitle!, context));
             }) || layout.Edges.Any(edge => !string.IsNullOrEmpty(edge.Label) && !edge.LabelPosition.HasValue);
             // Check the painted group labels too: a positioned label can still be overwritten by a route.
             if (!lost && layout.Groups.Count > 0) {
                 TopologyCellCanvas canvas = layout.Paint();
                 string[] lines = Enumerable.Range(0, canvas.Rows).Select(row => string.Concat(Enumerable.Range(0, canvas.Columns).Select(column => canvas[column, row].Glyph))).ToArray();
-                lost = layout.Groups.Any(group => !lines.Any(line => line.Contains(group.Label)));
+                lost = layout.Groups.Any(group => !lines.Any(line => line.Contains(DiagramText.ForTier(group.Label, context))));
             }
             // A forest must retain its requested parent-to-child reading direction. Let the engine repair
             // the geometry; use the lossless hierarchy until its projection satisfies this contract.
             var links = _model.AllLinks().ToList();
-            if (!lost && !_imported && links.Count > 0 && _model.Groups.Count == 0 && _model.ForestParents(links).Count == links.Count) {
+            if (!lost && _imported == null && links.Count > 0 && _model.Groups.Count == 0 && _model.ForestParents(links).Count == links.Count) {
                 lost = links.Any(link => {
                     TopologyCellNode? from = layout.FindNode(link.From), to = layout.FindNode(link.To);
                     if (from == null || to == null) return true;
@@ -111,7 +111,7 @@ namespace ConsoleMonster.Graphics {
         public string? ScenarioId {
             get {
                 if (_view.ScenarioId == null) return null;
-                if (_imported) return _view.ScenarioId;
+                if (_imported != null) return _imported.ModelScenarioId(_view.ScenarioId);
                 int index = _view.Chart.Scenarios.FindIndex(c => c.Id == _view.ScenarioId);
                 return index >= 0 && index < _model.UseCases.Count ? _model.UseCases[index].Id : null;
             }
@@ -124,7 +124,7 @@ namespace ConsoleMonster.Graphics {
             if (id == null) { view.SelectScenario(null); return; }
             int index = _model.UseCases.FindIndex(c => c.Id == id);
             if (index < 0) throw new ArgumentException("Unknown diagram use case: " + id, nameof(id));
-            view.SelectScenario(_imported ? id : "case-" + index.ToString(CultureInfo.InvariantCulture));
+            view.SelectScenario(_imported?.ScenarioId(_model.UseCases[index]) ?? "case-" + index.ToString(CultureInfo.InvariantCulture));
         }
         public void NextScenario(int delta) => Current.NextScenario(delta);
         public void Step(int index) => Current.Step(index);
@@ -138,7 +138,7 @@ namespace ConsoleMonster.Graphics {
         public bool HandleInput(InputEvent input) => Current.HandleInput(input);
         public AppState Run(ConsoleAppOptions? options, CancellationToken cancellationToken) {
             bool keys = _model.ShowKeys;
-            try { _model.ShowKeys = true; return Current.Run(options, cancellationToken, _model); }
+            try { _model.ShowKeys = keys || (options?.Interactive ?? InteractiveOptions.Default).ResolveMode() == InteractionMode.Rich; return Current.Run(options, cancellationToken, _model); }
             finally { _model.ShowKeys = keys; }
         }
         public byte[] ToPng() => ConsoleGraphicsExtensions.ToPng(_model);
