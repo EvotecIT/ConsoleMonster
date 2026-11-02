@@ -70,30 +70,70 @@ image.Write();
 
 In PowerShell, use `Show-ConsoleImage` and `New-ConsoleImage`. See [Inline images](https://consolemonster.dev/docs/inline-images/).
 
-## Topology diagrams and use case playback
+## Diagrams and use case playback
 
-`TopologyDiagram` draws a ChartForgeX topology in the terminal: boxes, routed
-edges, dashed group boundaries and a status legend. ChartForgeX lays the diagram
-out and projects it into cells (`TopologyCellLayout`); the widget only styles and
-draws those cells, so the terminal shows the same diagram as the SVG and PNG
-exports. A diagram wider than the terminal drops subtitles, then shortens labels,
-then drops edge labels until it fits.
+`ConsoleMonster.Widgets.Diagram` contains nodes, links, groups and use cases in
+the dependency-free core package. Graphics adds boxes, routed connections,
+group boundaries, keyboard navigation and use case playback through ChartForgeX.
+Without Graphics, the same model renders as a grouped tree with connection and
+status text.
 
-Finish configuring the chart before constructing the widget and treat it as
-immutable afterwards. The widget caches the prepared geometry; create a new
-widget to display a changed chart.
+Call `DiagramRendererProvider.Register()` once at application startup, before
+creating or loading diagrams. This explicit registration is required on every
+target framework, including .NET Framework 4.7.2 and .NET Standard 2.0 consumers.
+A package reference alone does not load the Graphics assembly or register its
+provider.
 
-When the topology has use cases (ChartForgeX scenarios, for example from a
-`chartforgex architecture v1` file), the widget shows a player under the diagram:
-the steps, the active step highlighted on the diagram, and its request or
-response payload.
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Graphics;
+using ConsoleMonster.Widgets;
+
+DiagramRendererProvider.Register();
+
+var diagram = Ui.Diagram("Home network")
+    .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
+    .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
+        .Subtitle("192.168.1.1").Value("1 ms"))
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"))
+    .Build;
+diagram.Run();
+```
+
+Object initializers and the fluent `Ui.Diagram()` surface configure the same
+model. `Subtitle` is the second node line; `Value` is a separate third line for
+readings or other live text. A value update retains the subtitle. Node and link
+health use the core `StatusKind` enum. The **Needs attention** list is enabled by
+default and retains full text for every node and link whose status is not
+`Pass`. Set `ShowSummary = false` or use `.Summary(false)` to hide it.
+
+Finish configuring the model and its collections before sharing it with a live
+session. Use its thread-safe `DiagramHandle` for concurrent updates; direct
+collection edits and fluent configuration are sequential setup operations.
+
+### Load a file or import a chart
+
+After registration, `Diagram.Load(path, diagramId)` reads a Markdown file with
+ChartForgeX visual fences or a plain architecture file. The optional second
+argument selects a diagram when the file contains several:
 
 ```csharp
 using ConsoleMonster.Graphics;
+using ConsoleMonster.Widgets;
 
-var diagram = new TopologyDiagram(chart);   // a ChartForgeX TopologyChart
+DiagramRendererProvider.Register(); // once at application startup
+Diagram diagram = Diagram.Load("ad-replication.md", "replication");
 diagram.Run();
 ```
+
+For an existing ChartForgeX `TopologyChart`, use `Diagram.From(chart)`. The
+compiler infers `TChart` for the core `Diagram.From<TChart>()` factory; the
+registered Graphics provider performs the import. Core has no ChartForgeX type
+or dependency, and neither factory loads or registers Graphics automatically.
+Finish configuring the source chart before importing it and do not mutate that chart afterwards. Configure the returned Diagram through its own model.
+
+When a diagram has use cases, the view shows the steps, the active step
+highlighted on the diagram, and its request or response payload.
 
 `Run()` uses the keyboard view in a rich console. When output is redirected,
 the session runs in CI, or interaction is unavailable, it prints one static
@@ -112,34 +152,50 @@ For dashboards, keep the diagram in a live session and update node values and
 statuses from any thread:
 
 ```csharp
-using ChartForgeX.Topology;
 using ConsoleMonster.Graphics;
 using ConsoleMonster.Live;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Widgets;
 
-var diagram = new TopologyDiagram(chart).SelectScenario(null);
+DiagramRendererProvider.Register(); // once at application startup
+var diagram = new Diagram("Replication") {
+    Nodes = {
+        new DiagramNode("dc03") { Subtitle = "Branch controller", Value = "lag 0 min" }
+    }
+};
 using var session = new LiveSession(diagram, new LiveSessionOptions());
 session.Start();
 var nodes = diagram.Handle(session);
-nodes.Value("dc03", "lag 42 min", TopologyHealthStatus.Critical);
+nodes.Value("dc03", "lag 42 min", StatusKind.Fail);
 ```
+
+`diagram.Values` returns a read-only snapshot of non-null readings keyed by
+node id. `diagram.Scenario` returns the selected core `DiagramUseCase`, or null
+when no use case is selected.
 
 Nodes reserve ten columns for live values from the first frame, so value
 updates keep boxes and routes in place. Longer values are clipped in the box;
 the focused details retain the full text.
 
-Full, Basic and ASCII glyph tiers are covered: Basic swaps rounded corners,
-dashes and heavy lines for their WGL4 equivalents. `diagram.ToPng()` renders the
-diagram with the active step through ChartForgeX, for terminals that can show
-images; live values and focus stay in the cell drawing.
+Full, Basic and ASCII glyph tiers are supported: Basic swaps rounded corners,
+dashes and heavy lines for their WGL4 equivalents. When a topology cannot fit
+without losing labels, the widget falls back to the grouped tree.
+`diagram.ToPng()` exports the current widget through Graphics, including its
+active step and live values.
 
-A small diagram keeps its natural size, about one cell per ten layout pixels,
-instead of stretching across a wide terminal.
-
-From PowerShell, `Show-ConsoleDiagram` reads a Markdown file with ChartForgeX
-fences, or a plain architecture file, and opens the same view with its keys.
-Outside an interactive console it prints one static view:
+The PowerShell module bundles Graphics and registers the provider for diagram
+commands. Build a model with `New-ConsoleDiagram` and its node, link, group,
+use case and step cmdlets, or pass connection rows or a file to
+`Show-ConsoleDiagram`. Outside an interactive console it prints one static view:
 
 ```powershell
+Import-Module ConsoleMonster
+
+New-ConsoleDiagram -Title 'Home network' {
+    New-ConsoleDiagramNode 'Laptop' -Kind Workstation -To Router
+    New-ConsoleDiagramNode 'Router' -Kind Gateway -Subtitle '192.168.1.1' -Value '1 ms'
+} | Show-ConsoleDiagram
+
 Show-ConsoleDiagram -Path ./ad-replication.md
 Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot
 ```
@@ -147,6 +203,11 @@ Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -Stati
 `-AsWidget` returns a widget for static display or live updates in
 `Show-ConsoleApp`. The consumer handles keys when it needs diagram navigation
 or playback. `-AsWidget` cannot be combined with `-AsString` or `-StaticSnapshot`.
+
+Use `-NoSummary` on `New-ConsoleDiagram` or `Show-ConsoleDiagram` to hide the
+attention list. See the [eight diagram examples](../ConsoleMonster.Examples/Diagrams/README.md)
+for equivalent initializer, fluent and PowerShell versions, the core tree runner,
+and the Graphics runner with text, SVG and PNG capture.
 
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend

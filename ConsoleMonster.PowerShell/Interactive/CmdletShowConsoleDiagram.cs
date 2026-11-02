@@ -1,36 +1,33 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using System.Threading;
-using ChartForgeX.Diagnostics;
-using ChartForgeX.Markup;
-using ChartForgeX.Topology;
-using ChartForgeX.VisualArtifacts;
 using ConsoleMonster.Graphics;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
+using DiagramWidget = ConsoleMonster.Widgets.Diagram;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.</para>
+    /// <para type="synopsis">Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.</para>
+    /// <para type="description">Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.</para>
     /// <para type="description">Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.</para>
     /// </summary>
     /// <example><para>Explore a diagram and its use cases with the keyboard.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md</code></example>
     /// <example><para>Print one step of a use case without reading keys.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot</code></example>
     /// <example><para>Capture the diagram as plain text for a log or a ticket.</para><code>Show-ConsoleDiagram -Path ./tierbridge.md -Scenario blocked -Step 7 -Width 120 -AsString</code></example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleDiagram")]
-    [OutputType(typeof(TopologyDiagram), typeof(string))]
-    public sealed class CmdletShowConsoleDiagram : NoPipelineInputCmdlet {
-        private const int MaximumDiagnostics = 10;
-        private readonly CancellationTokenSource _stop = new CancellationTokenSource();
-        private bool _shown;
+    /// <example><para>Show connection rows using their standard columns.</para><code>$rows | Show-ConsoleDiagram -Title 'Replication' -StaticSnapshot</code></example>
+    /// <example><para>Select columns and calculate connection labels.</para><code>$rows | Show-ConsoleDiagram -From Source -To Destination -Label { $_.Lag.ToString() + ' min' } -Status Health -Group Site -AsString</code></example>
+    [Cmdlet(VerbsCommon.Show, "ConsoleDiagram", DefaultParameterSetName = "Rows")]
+    [OutputType(typeof(DiagramWidget), typeof(string))]
+    public sealed class CmdletShowConsoleDiagram : DiagramContentCmdlet {
+        private CancellationTokenSource? _stop;
+        private int _stopping;
 
         /// <summary><para type="description">The Markdown or architecture file to read. A file without visual fences is read as one ChartForgeX architecture diagram.</para></summary>
-        [Parameter(Mandatory = true, Position = 0)]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Path")]
         [ValidateNotNullOrEmpty]
         public string Path { get; set; } = string.Empty;
 
@@ -66,26 +63,33 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public SwitchParameter AsWidget { get; set; }
 
         /// <inheritdoc />
-        protected override void ProcessWithoutPipelineInput() {
-            // A null pipeline record still reaches this method; draw the diagram once.
-            if (_shown) { return; }
-            _shown = true;
+        protected override void EndProcessing() {
+            var stop = new CancellationTokenSource();
+            Volatile.Write(ref _stop, stop);
             try {
-                Show();
-            } finally {
-                _stop.Dispose();
-            }
+                if (Volatile.Read(ref _stopping) != 0) stop.Cancel();
+                Show(stop.Token);
+            } catch (OperationCanceledException) when (stop.IsCancellationRequested) {
+                // Stop before or during preparation ends without emitting a partial snapshot or widget.
+            } finally { stop.Dispose(); }
         }
-
-        private void Show() {
+        private void Show(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
             if (AsWidget.IsPresent && (AsString.IsPresent || StaticSnapshot.IsPresent)) {
                 throw Failure("-AsWidget cannot be combined with -AsString or -StaticSnapshot.", "DiagramOutputModeInvalid", ErrorCategory.InvalidArgument, nameof(AsWidget));
             }
             PSOutputExport.Validate(this);
-            string path = ResolvePath();
-            TopologyChart chart = Load(Read(path), path);
-            TopologyDiagram diagram = new TopologyDiagram(chart);
-            Select(diagram, chart);
+            DiagramRendererProvider.Register();
+            DiagramWidget diagram;
+            if (ParameterSetName == "Path") {
+                string path = ResolvePath();
+                diagram = Load(path);
+                Configure(diagram);
+            } else {
+                diagram = BuildDiagram();
+            }
+            Select(diagram);
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (AsWidget.IsPresent) { WriteObject(diagram); return; }
             InteractiveOptions interactive = PSInteractive.Options(this, Mode);
@@ -95,8 +99,8 @@ namespace ConsoleMonster.PowerShell {
             }
 
             try {
-                diagram.Run(new ConsoleAppOptions { Interactive = interactive }, _stop.Token);
-            } catch (OperationCanceledException) when (_stop.IsCancellationRequested) {
+                diagram.Run(new ConsoleAppOptions { Interactive = interactive }, cancellationToken);
+            } catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
                 // Ctrl+C ends the view like Esc.
             } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCanceledException || ex is InputClosedException) {
                 PSInteractive.Fail(this, ex, MyInvocation.MyCommand.Name);
@@ -123,95 +127,40 @@ namespace ConsoleMonster.PowerShell {
             return path;
         }
 
-        private string Read(string path) {
+        private DiagramWidget Load(string path) {
             try {
-                return File.ReadAllText(path);
+                return DiagramFileReader.Load(path, Diagram, WriteWarning);
+            } catch (DiagramFileReader.ImportException ex) {
+                ErrorCategory category = ex.ErrorId == "DiagramMarkupInvalid" ? ErrorCategory.InvalidData
+                    : ex.ErrorId == "DiagramNotFound" ? ErrorCategory.ObjectNotFound : ErrorCategory.InvalidArgument;
+                throw Failure(ex.Message, ex.ErrorId, category, ex.Target);
             } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) {
                 throw Failure("The diagram file cannot be read: " + ex.Message, "DiagramFileUnreadable", ErrorCategory.ReadError, Path);
             }
         }
 
-        private TopologyChart Load(string text, string path) {
-            VisualMarkupScanResult scan = VisualMarkupScanner.Scan(text);
-            if (scan.Blocks.Count == 0 && scan.Diagnostics.Count == 0) {
-                string extension = System.IO.Path.GetExtension(path);
-                if (string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".markdown", StringComparison.OrdinalIgnoreCase)) {
-                    throw Failure("The Markdown file has no ChartForgeX visual fences.", "DiagramNotFound", ErrorCategory.ObjectNotFound, path);
-                }
-                MarkupParseResult<TopologyChart> architecture = new MarkupArchitectureParser().Parse(text);
-                Report(architecture.Diagnostics, path, fatal: true);
-                return architecture.Document ?? throw Failure("The architecture file produced no diagram.", "DiagramNotFound", ErrorCategory.ObjectNotFound, path);
-            }
-
-            // Parse once for file-wide generated ids; valid artifacts survive errors in other fences.
-            VisualMarkupParseResult result = new VisualMarkupParser().Parse(scan);
-            List<Candidate> diagrams = new List<Candidate>();
-            foreach (VisualArtifact artifact in result.Artifacts) {
-                TopologyChart? chart = artifact.Model as TopologyChart ?? (artifact.Model is FlowArtifact flow ? flow.ToTopologyChart() : null);
-                if (chart != null) { diagrams.Add(new Candidate(artifact.Id, chart)); }
-            }
-
-            Candidate? selected = null;
-            if (Diagram != null) {
-                List<Candidate> matches = diagrams.Where(item => string.Equals(item.Id, Diagram, StringComparison.Ordinal)).ToList();
-                if (matches.Count > 1) {
-                    throw Failure("More than one diagram has id '" + Diagram + "'; give each diagram a unique id.", "DiagramAmbiguous", ErrorCategory.InvalidArgument, Diagram);
-                }
-                selected = matches.FirstOrDefault();
-            } else if (diagrams.Count == 1) {
-                selected = diagrams[0];
-            }
-            if (selected == null) {
-                // Nothing to show: the errors elsewhere in the file explain why.
-                Report(result.Diagnostics, path, fatal: true);
-                if (diagrams.Count == 0) { throw Failure("The file has no architecture, topology or flow diagram.", "DiagramNotFound", ErrorCategory.ObjectNotFound, path); }
-                if (Diagram != null) { throw Failure("No diagram has id '" + Diagram + "'. Diagrams: " + Ids(diagrams) + ".", "DiagramNotFound", ErrorCategory.ObjectNotFound, Diagram); }
-                throw Failure("The file has " + diagrams.Count.ToString(CultureInfo.InvariantCulture) + " diagrams; choose one with -Diagram: " + Ids(diagrams) + ".", "DiagramAmbiguous", ErrorCategory.InvalidArgument, path);
-            }
-
-            Report(result.Diagnostics, path, fatal: false);
-            return selected.Chart;
-        }
-
-        private void Select(TopologyDiagram diagram, TopologyChart chart) {
+        private void Select(DiagramWidget diagram) {
             if (Scenario != null) {
-                if (!chart.Scenarios.Any(item => string.Equals(item.Id, Scenario, StringComparison.Ordinal))) {
-                    string known = chart.Scenarios.Count == 0 ? "The diagram has no use cases." : "Use cases: " + string.Join(", ", chart.Scenarios.Select(item => item.Id)) + ".";
-                    throw Failure("No use case has id '" + Scenario + "'. " + known, "DiagramScenarioNotFound", ErrorCategory.ObjectNotFound, Scenario);
+                if (!diagram.UseCases.Any(item => item.Id == Scenario)) {
+                    string known = string.Join(", ", diagram.UseCases.Select(item => item.Id));
+                    throw Failure("No use case has id '" + Scenario + "'. Use cases: " + (known.Length == 0 ? "none" : known) + ".", "DiagramScenarioNotFound", ErrorCategory.ObjectNotFound, Scenario);
                 }
                 try { diagram.SelectScenario(Scenario); }
                 catch (ArgumentException ex) {
-                    // The use case exists but names nodes or connections the diagram does not have.
                     throw Failure("Use case '" + Scenario + "' cannot be shown: " + Reason(ex), "DiagramScenarioInvalid", ErrorCategory.InvalidData, Scenario);
                 }
-            } else if (diagram.Scenario == null && chart.Scenarios.Count > 0) {
+            } else if (diagram.UseCases.Count > 0 && diagram.ScenarioId == null) {
                 WriteWarning("None of the diagram's use cases can be shown; they name nodes or connections the diagram does not have.");
-            } else if (chart.Scenarios.Count > 0 && diagram.ScenarioId != chart.Scenarios[0].Id) {
-                WriteWarning("Use case '" + chart.Scenarios[0].Id + "' names nodes or connections the diagram does not have; showing '" + diagram.ScenarioId + "'.");
+            } else if (diagram.UseCases.Count > 0 && diagram.ScenarioId != diagram.UseCases[0].Id) {
+                WriteWarning("Use case '" + diagram.UseCases[0].Id + "' names nodes or connections the diagram does not have; showing '" + diagram.ScenarioId + "'.");
             }
-            if (!MyInvocation.BoundParameters.ContainsKey(nameof(Step))) { return; }
-            TopologyResolvedScenario? scenario = diagram.Scenario;
-            if (scenario == null) { throw Failure("The diagram has no use case that can be stepped through.", "DiagramStepUnavailable", ErrorCategory.InvalidArgument, Step); }
-            if (scenario.Steps.Count == 0) { throw Failure("Use case '" + scenario.Id + "' has no steps.", "DiagramStepUnavailable", ErrorCategory.InvalidArgument, Step); }
-            if (Step > scenario.Steps.Count) {
-                throw Failure("Step accepts a number from 1 to " + scenario.Steps.Count.ToString(CultureInfo.InvariantCulture) + " for use case '" + scenario.Id + "'.", "DiagramStepOutOfRange", ErrorCategory.InvalidArgument, Step);
-            }
+            if (!MyInvocation.BoundParameters.ContainsKey(nameof(Step))) return;
+            string? selected = diagram.ScenarioId;
+            if (selected == null) throw Failure("The diagram has no use case that can be stepped through.", "DiagramStepUnavailable", ErrorCategory.InvalidArgument, Step);
+            int count = diagram.UseCases.First(item => item.Id == selected).Steps.Count;
+            if (count == 0) throw Failure("Use case '" + selected + "' has no steps.", "DiagramStepUnavailable", ErrorCategory.InvalidArgument, Step);
+            if (Step > count) throw Failure("Step accepts a number from 1 to " + count.ToString(CultureInfo.InvariantCulture) + " for use case '" + selected + "'.", "DiagramStepOutOfRange", ErrorCategory.InvalidArgument, Step);
             diagram.Step(Step - 1);
-        }
-
-        private void Report(IEnumerable<MarkupDiagnostic> diagnostics, string path, bool fatal) {
-            StringBuilder errors = new StringBuilder();
-            int count = 0;
-            foreach (MarkupDiagnostic diagnostic in diagnostics) {
-                string line = System.IO.Path.GetFileName(path) + ":" + diagnostic.Line.ToString(CultureInfo.InvariantCulture)
-                    + (diagnostic.Column > 0 ? ":" + diagnostic.Column.ToString(CultureInfo.InvariantCulture) : string.Empty)
-                    + (string.IsNullOrEmpty(diagnostic.Code) ? string.Empty : " " + diagnostic.Code) + " " + diagnostic.Message;
-                if (!fatal || diagnostic.Severity != VisualDiagnosticSeverity.Error) { WriteWarning(line); continue; }
-                if (++count <= MaximumDiagnostics) { errors.Append(errors.Length == 0 ? string.Empty : Environment.NewLine).Append(line); }
-            }
-            if (count == 0) { return; }
-            if (count > MaximumDiagnostics) { errors.Append(Environment.NewLine).Append("... and ").Append((count - MaximumDiagnostics).ToString(CultureInfo.InvariantCulture)).Append(" more errors."); }
-            throw Failure("The diagram markup has errors:" + Environment.NewLine + errors, "DiagramMarkupInvalid", ErrorCategory.InvalidData, path);
         }
 
         // ArgumentException appends the parameter name ("Parameter name: x" on .NET Framework, " (Parameter 'x')" on .NET); people only need the reason.
@@ -222,8 +171,6 @@ namespace ConsoleMonster.PowerShell {
             return ex.ParamName == null ? message : message.Replace(" (Parameter '" + ex.ParamName + "')", string.Empty);
         }
 
-        private static string Ids(List<Candidate> diagrams) => string.Join(", ", diagrams.Select(item => item.Id).Distinct(StringComparer.Ordinal));
-
         // ThrowTerminatingError always throws; returning an exception lets callers write `throw Failure(...)` so the compiler sees the exit.
         private PipelineStoppedException Failure(string message, string errorId, ErrorCategory category, object target) {
             ThrowTerminatingError(new ErrorRecord(new InvalidOperationException(message), errorId, category, target));
@@ -232,17 +179,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void StopProcessing() {
-            try { _stop.Cancel(); } catch (ObjectDisposedException) { }
-        }
-
-        private sealed class Candidate {
-            public Candidate(string id, TopologyChart chart) {
-                Id = id;
-                Chart = chart;
-            }
-
-            public string Id { get; }
-            public TopologyChart Chart { get; }
+            Volatile.Write(ref _stopping, 1);
+            try { Volatile.Read(ref _stop)?.Cancel(); } catch (ObjectDisposedException) { }
         }
     }
 }

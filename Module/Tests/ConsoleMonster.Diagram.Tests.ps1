@@ -92,7 +92,7 @@ Describe 'Show-ConsoleDiagram' {
 
     It 'returns the diagram widget with the selected use case and step' {
         $widget = Show-ConsoleDiagram -Path $script:StoryPath -Step 3 -AsWidget
-        $widget.GetType().FullName | Should -Be 'ConsoleMonster.Graphics.TopologyDiagram'
+        $widget.GetType().FullName | Should -Be 'ConsoleMonster.Widgets.Diagram'
         $widget.ScenarioId | Should -Be 'checkout'
         $widget.StepIndex | Should -Be 2
     }
@@ -155,5 +155,159 @@ Describe 'Show-ConsoleDiagram' {
     It 'rejects a folder and a missing file' {
         { Show-ConsoleDiagram -Path $script:DiagramRoot -AsString } | Should -Throw -ErrorId 'DiagramPathIsFolder,ConsoleMonster.PowerShell.CmdletShowConsoleDiagram'
         { Show-ConsoleDiagram -Path (Join-Path $script:DiagramRoot 'missing.cfx') -AsString } | Should -Throw -ErrorId 'DiagramFileNotFound,ConsoleMonster.PowerShell.CmdletShowConsoleDiagram'
+    }
+}
+
+Describe 'Diagram construction and live updates' {
+    BeforeAll {
+        Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force -ErrorAction Stop
+    }
+
+    It 'collects nested groups and ordered use-case payloads with label identities and implicit endpoints' {
+        $diagram = New-ConsoleDiagram -Title Ordering -WidgetId orders -Content {
+            New-ConsoleDiagramGroup Office -Content {
+                New-ConsoleDiagramGroup Services -Boundary:$false -Content {
+                    New-ConsoleDiagramNode 'Order API' -Id api -Kind Server -Subtitle 'api.contoso.test' -Value '12 ms' -Status Warn -To Queue
+                }
+            }
+            New-ConsoleDiagramLink api Database -Label insert -Status Fail -Style Dashed -Both
+            New-ConsoleDiagramUseCase Checkout -Delay 1200 -Loop -Content {
+                New-ConsoleDiagramStep Shopper api 'POST /orders' -Payload @{ sku = 'A-100'; quantity = 2; confirmed = $false; metadata = @{ region = 'EU' } }
+                New-ConsoleDiagramStep api Shopper Created -Reply
+                New-ConsoleDiagramStep api Queue Rejected -Failed
+            }
+        }
+        $diagram.GetType().FullName | Should -Be 'ConsoleMonster.Widgets.Diagram'
+        $diagram.WidgetId | Should -Be orders
+        $diagram.ShowSummary | Should -BeTrue
+        $diagram.Groups.Count | Should -Be 1
+        $nested = $diagram.Groups[0].Groups[0]
+        $nested.Label | Should -Be Services
+        $nested.Boundary | Should -BeFalse
+        $node = $nested.Nodes[0]
+        $node.Id | Should -Be api
+        $node.Label | Should -Be 'Order API'
+        $node.Kind.ToString() | Should -Be Server
+        $node.Status.ToString() | Should -Be Warn
+        $node.Status.GetType().FullName | Should -Be 'ConsoleMonster.Styling.StatusKind'
+        @($node.To) | Should -Be @('Queue')
+        $diagram.Links[0].Both | Should -BeTrue
+        $diagram.Links[0].Style.ToString() | Should -Be Dashed
+        $diagram.Links[0].Status.ToString() | Should -Be Fail
+        @($diagram.Nodes.Id | Sort-Object) | Should -Be @('Database', 'Queue', 'Shopper')
+        $diagram.Nodes | ForEach-Object { $_.Id | Should -Be $_.Label }
+        $useCase = $diagram.UseCases[0]
+        $useCase.Id | Should -Be Checkout
+        $useCase.Delay | Should -Be 1200
+        $useCase.Loop | Should -BeTrue
+        @($useCase.Steps.Kind | ForEach-Object ToString) | Should -Be @('Request', 'Reply', 'Failed')
+        $useCase.Steps[0].Payload['quantity'] | Should -BeOfType ([int])
+        $useCase.Steps[0].Payload['quantity'] | Should -Be 2
+        $useCase.Steps[0].Payload['confirmed'] | Should -BeFalse
+        $useCase.Steps[0].Payload['metadata']['region'] | Should -Be EU
+        $text = $diagram | Export-ConsoleFrame -Format Text -Width 100
+        $text | Should -Match 'Needs attention'
+        $text | Should -Match 'api\.contoso\.test'
+        $text | Should -Match '12 ms'
+        $selected = $diagram | Show-ConsoleDiagram -Scenario Checkout -Step 1 -AsWidget
+        $selected.StepIndex | Should -Be 0
+        $selectedText = $selected | Export-ConsoleFrame -Format Text -Width 100
+        $selectedText | Should -Match 'POST /orders'
+        $selectedText | Should -Match 'A-100'
+        $hidden = $diagram | Show-ConsoleDiagram -NoSummary -AsWidget
+        $hidden.ShowSummary | Should -BeFalse
+        ($hidden | Show-ConsoleDiagram -AsWidget).ShowSummary | Should -BeFalse
+        ($hidden | Show-ConsoleDiagram -NoSummary:$false -AsWidget).ShowSummary | Should -BeTrue
+    }
+
+    It 'maps <Shape> connection rows through all five selectors' -ForEach @(
+        @{ Shape = 'typed property' }
+        @{ Shape = 'hashtable default' }
+        @{ Shape = 'scriptblock' }
+    ) {
+        $selectors = @{}
+        switch ($Shape) {
+            'typed property' {
+                $rows = @([Tuple[string, string, string, string, string]]::new('Files', 'Backup', 'nightly', 'Warn', 'Office'))
+                $selectors = @{ From = 'Item1'; To = 'Item2'; Label = 'Item3'; Status = 'Item4'; Group = 'Item5' }
+            }
+            'hashtable default' {
+                $rows = @(@{ from = 'Files'; TO = 'Backup'; Label = 'nightly'; Status = 'Warn'; Group = 'Office' })
+            }
+            'scriptblock' {
+                $rows = @([pscustomobject] @{ Origin = 'files'; Destination = 'Backup'; Job = 'nightly'; Health = 'Warn'; Site = 'Office' })
+                $selectors = @{
+                    From = { $_.Origin.Substring(0, 1).ToUpperInvariant() + $_.Origin.Substring(1) }
+                    To = { $PSItem.Destination }
+                    Label = { $_.Job }
+                    Status = { $_.Health }
+                    Group = { $_.Site }
+                }
+            }
+        }
+        $diagram = $rows | New-ConsoleDiagram @selectors -Title Replication -NoSummary
+        $diagram.Title | Should -Be Replication
+        $diagram.ShowSummary | Should -BeFalse
+        $diagram.Links.Count | Should -Be 1
+        $diagram.Links[0].From | Should -Be Files
+        $diagram.Links[0].To | Should -Be Backup
+        $diagram.Links[0].Label | Should -Be nightly
+        $diagram.Links[0].Status.ToString() | Should -Be Warn
+        $diagram.Groups[0].Label | Should -Be Office
+        $diagram.Groups[0].Nodes[0].Id | Should -Be Files
+        $diagram.Groups[0].Nodes[0].Label | Should -Be Files
+        $diagram.Nodes[0].Id | Should -Be Backup
+        $shown = $rows | Show-ConsoleDiagram @selectors -Title Replication -NoSummary -AsWidget
+        ($shown | Export-ConsoleFrame -Format Text -Width 80) |
+            Should -Be ($diagram | Export-ConsoleFrame -Format Text -Width 80)
+    }
+
+    It 'rejects a multi-value selector instead of silently discarding connections' {
+        $row = [pscustomobject] @{ From = 'Source'; To = 'unused' }
+        { $row | New-ConsoleDiagram -To { 'A'; 'B' } -ErrorAction Stop } |
+            Should -Throw '*one value per row*'
+    }
+
+    It 'applies addressed values and statuses through a running session and stops accepting updates after stop' {
+        $diagram = New-ConsoleDiagram -WidgetId ping -Content {
+            New-ConsoleDiagramNode VPN -Id vpn -Subtitle 'vpn.contoso.test'
+            New-ConsoleDiagramNode Router -Value unchanged
+        }
+        $core = [ConsoleMonster.Terminal].Assembly
+        $target = ($core.GetType('ConsoleMonster.Testing.TestTerminal', $true))::Target(80, 24)
+        $target.SkipDelays = $true
+        $options = ($core.GetType('ConsoleMonster.Live.LiveSessionOptions', $true))::new()
+        $options.Target = $target
+        $options.CaptureConsole = $false
+        $options.HandleCancelKey = $false
+        $options.PrintFinalState = $false
+        $sessionType = (Get-Command Update-Console).Parameters['Session'].ParameterType
+        $session = $sessionType::new($diagram, $options)
+        try {
+            $session.Start()
+            Update-Console -WidgetId ping -Session $session -Key vpn -Value '180 ms' -Status Warn
+            Wait-ConsoleDashboard -Session $session -Seconds 0
+            $diagram.Nodes[0].Value | Should -Be '180 ms'
+            $diagram.Nodes[0].Status.ToString() | Should -Be Warn
+            $diagram.Nodes[0].Subtitle | Should -Be 'vpn.contoso.test'
+            $diagram.Nodes[1].Value | Should -Be unchanged
+            $before = $session.EventsPosted
+            { Update-Console -WidgetId ping -Session $session -Key missing -Value timeout -Status Fail } | Should -Throw '*Unknown diagram*'
+            $session.EventsPosted | Should -Be $before
+            Update-Console -WidgetId ping -Session $session -Key vpn -Status Fail
+            Wait-ConsoleDashboard -Session $session -Seconds 0
+            $diagram.Nodes[0].Value | Should -Be '180 ms'
+            $diagram.Nodes[0].Status.ToString() | Should -Be Fail
+            Update-Console -WidgetId ping -Session $session -Key vpn -Value $null -Status Pass
+            Wait-ConsoleDashboard -Session $session -Seconds 0
+            $diagram.Nodes[0].Value | Should -BeNullOrEmpty
+            $diagram.Nodes[0].Status.ToString() | Should -Be Pass
+            $session.Stop()
+            $before = $session.EventsPosted
+            Update-Console -WidgetId ping -Session $session -Key vpn -Value late -Status Fail
+            $session.EventsPosted | Should -Be $before
+            $diagram.Nodes[0].Value | Should -BeNullOrEmpty
+            $diagram.Nodes[0].Status.ToString() | Should -Be Pass
+        } finally { $session.Dispose() }
     }
 }

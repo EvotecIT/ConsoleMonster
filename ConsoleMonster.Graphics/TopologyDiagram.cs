@@ -5,6 +5,7 @@ using ChartForgeX.Topology;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
@@ -16,7 +17,11 @@ namespace ConsoleMonster.Graphics {
     /// </summary>
     /// <remarks>Widget state changes and rendering share a lock. Finish configuring the chart before construction and
     /// do not mutate it afterwards; the widget caches its prepared geometry. Create a new widget for a changed chart.</remarks>
-    public sealed partial class TopologyDiagram : LiveWidget {
+    internal sealed partial class TopologyDiagram : LiveWidget {
+        internal readonly HashSet<string> BorderlessGroups = new HashSet<string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, StatusKind> _statusKinds = new Dictionary<string, StatusKind>(StringComparer.Ordinal);
+        private readonly Dictionary<string, DiagramNodeKind> _nodeKinds = new Dictionary<string, DiagramNodeKind>(StringComparer.Ordinal);
+        internal void SetNodeMetadata(string nodeId, StatusKind status, DiagramNodeKind kind) { lock (_gate) { _statusKinds[nodeId] = status; _nodeKinds[nodeId] = kind; } }
         private const double NaturalPixelsPerColumn = 10.0;
         private const int ValueColumns = 10;
         private readonly object _gate = new object();
@@ -283,6 +288,8 @@ namespace ConsoleMonster.Graphics {
         }
 
         private void StopPlayback() { _playing = false; _playAnchor = null; _lastPlaybackFrame = null; }
+
+        internal void AdvanceFrame(TimeSpan elapsed) { lock (_gate) { Advance(elapsed); } }
 
         private void Advance(TimeSpan elapsed) {
             if (!_playing || _scenario == null || _scenario.Steps.Count == 0) return;

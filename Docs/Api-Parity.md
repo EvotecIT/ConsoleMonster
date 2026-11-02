@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **93 commands**, **1070 parameters** and **341 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **99 commands**, **1132 parameters** and **351 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -59,6 +59,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleDatePicker` | `Ui.DatePicker()` | `c.DatePicker(datePicker => …)` |
 | `New-ConsoleTabs` | `Ui.Tabs()` | `c.Tabs(tabs => …)` |
 | `New-ConsoleDialog` | `Ui.Dialog()` | Definition, not display content |
+| `New-ConsoleDiagram` | `Ui.Diagram()` | Definition, not display content |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |
@@ -77,6 +78,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `Ui.Rule(title)` | `New-ConsoleRule -Title` | The rule title is the primary separator input. |
 | `Ui.Markup(markup)` | `New-ConsoleText -Markup` | Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings. |
 | `Ui.Phases(widgetId)` | `New-ConsoleStatusList -WidgetId` | Layout Strip creates Phases using the same primary live identity as the List layout. |
+| `Ui.Diagram(title)` | `New-ConsoleDiagram -Title` | The diagram title is a named PowerShell option and an optional Ui.Diagram argument. |
 
 ## Parameter-set mappings
 
@@ -610,12 +612,6 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.HeaderBar.Crumbs` | CSharpOnly: Native menu/form runners generate breadcrumb steps from their navigation stack; the Show-ConsoleApp header shorthand exposes title/subtitle rather than an independent breadcrumb collection. | Use menu/submenu navigation for generated breadcrumbs, or compose a typed HeaderBar in Show-ConsoleApp -Content. |
 | `ConsoleMonster.Widgets.HeaderBar.Elapsed` | CSharpOnly: Native header hosts can pin the clock value instead of the render context clock. PowerShell dashboards use the session clock and do not expose a second header clock. | Use Invoke-ConsoleDashboard -Clock for a deterministic session clock, or compose a typed HeaderBar for an independent clock value. |
 | `ConsoleMonster.Widgets.HeaderBar.HeaderRight` | CSharpOnly: Native grid/menu/form runners add contextual row/step captions to the header. The Show-ConsoleApp shorthand keeps its supported title/subtitle/detail/status fields. | Use Show-ConsoleApp -Detail/-Status for its status area, or compose a typed HeaderBar in -Content for independent right-hand text. |
-| `ConsoleMonster.Graphics.TopologyDiagram.ShowLegend` | CSharpOnly: The command always draws the status legend under the diagram; hosts embedding the widget may hide it. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
-| `ConsoleMonster.Graphics.TopologyDiagram.ShowStepPanel` | CSharpOnly: The command always shows the use case panel when the diagram has use cases; hosts embedding the widget may hide it. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
-| `ConsoleMonster.Graphics.TopologyDiagram.ShowDetails` | CSharpOnly: The keyboard view toggles node details with D; the static view shows them for a focused node only. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
-| `ConsoleMonster.Graphics.TopologyDiagram.ShowKeys` | CSharpOnly: TopologyDiagramApp.Run turns the key hints on for the keyboard view and restores them afterwards. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
-| `ConsoleMonster.Graphics.TopologyDiagram.MaxPayloadLines` | CSharpOnly: The command keeps the widget default of eight payload lines, which fits common terminal heights. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
-| `ConsoleMonster.Graphics.TopologyDiagram.MaxStepLines` | CSharpOnly: The command keeps the widget default of seven step lines around the active step. | Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console. |
 
 ## .NET host integrations
 

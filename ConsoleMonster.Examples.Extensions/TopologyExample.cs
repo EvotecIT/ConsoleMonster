@@ -5,6 +5,8 @@ using ChartForgeX.Primitives;
 using ChartForgeX.Topology;
 using ConsoleMonster.Graphics;
 using ConsoleMonster.Live;
+using ConsoleMonster.Widgets;
+using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Examples.Extensions {
     /// <summary>
@@ -13,7 +15,8 @@ namespace ConsoleMonster.Examples.Extensions {
     /// </summary>
     internal static class TopologyExample {
         public static int Run(string[] args) {
-            TopologyDiagram view = new TopologyDiagram(Replication());
+            DiagramRendererProvider.Register();
+            Diagram view = Diagram.From(Replication());
             if (args.Length > 0 && args[0] == "--live") {
                 int seconds = args.Length > 1 && int.TryParse(args[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int value) ? value : 10;
                 Live(view, seconds);
@@ -25,16 +28,16 @@ namespace ConsoleMonster.Examples.Extensions {
         }
 
         // A live dashboard: the view stays the same, only node values and statuses change.
-        private static void Live(TopologyDiagram view, int seconds) {
+        private static void Live(Diagram view, int seconds) {
             view.SelectScenario(null);
             using (LiveSession session = new LiveSession(view, new LiveSessionOptions())) {
                 session.Start();
-                TopologyDiagramHandle handle = view.Handle(session);
+                DiagramHandle handle = view.Handle(session);
                 Random random = new Random(7);
                 for (int tick = 0; tick < seconds * 2; tick++) {
                     foreach (string dc in new[] { "dc01", "dc02", "dc03", "dc04" }) {
                         int lag = dc == "dc03" ? 20 + random.Next(40) : random.Next(5);
-                        TopologyHealthStatus status = lag > 45 ? TopologyHealthStatus.Critical : lag > 15 ? TopologyHealthStatus.Warning : TopologyHealthStatus.Healthy;
+                        StatusKind status = lag > 45 ? StatusKind.Fail : lag > 15 ? StatusKind.Warn : StatusKind.Pass;
                         handle.Value(dc, "lag " + lag.ToString(CultureInfo.InvariantCulture) + " min", status);
                     }
 

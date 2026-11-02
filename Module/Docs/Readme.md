@@ -154,6 +154,36 @@ Creates a persistent civil-date or inclusive range picker.
 
 Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.
 
+### [New-ConsoleDiagram](New-ConsoleDiagram.md)
+Builds a diagram from a script block or connection rows.
+
+Emit New-ConsoleDiagramNode, Link, Group and UseCase objects in Content. A node's label is its id unless Id is given. Pipeline rows use From, To, Label, Status and Group; selectors accept property names or script blocks using $_. Connections create undeclared endpoints. Graphics is optional for C#; the module includes it and registers its renderer.
+
+### [New-ConsoleDiagramGroup](New-ConsoleDiagramGroup.md)
+Groups components and nested diagram groups.
+
+Content emits New-ConsoleDiagramNode and New-ConsoleDiagramGroup objects. The grouped tree keeps all children at narrow widths. Boundary controls the topology outline.
+
+### [New-ConsoleDiagramLink](New-ConsoleDiagramLink.md)
+Connects two diagram components.
+
+From and To identify nodes by their label or explicit Id. The containing diagram creates undeclared endpoints. Labels are literal, Status uses the shared ConsoleMonster health states, and Both adds an arrow at each end.
+
+### [New-ConsoleDiagramNode](New-ConsoleDiagramNode.md)
+Creates a diagram component.
+
+Label is the connection identity unless Id is set. Subtitle is the second line and Value is the third. To adds unlabelled outgoing connections; missing destination nodes are created by the diagram.
+
+### [New-ConsoleDiagramStep](New-ConsoleDiagramStep.md)
+Creates a request, message, reply or failed interaction.
+
+From and To identify diagram nodes. Payload is a hashtable of fields shown with the active step. Reply and Failed are shorthand for Kind; choose one interaction kind.
+
+### [New-ConsoleDiagramUseCase](New-ConsoleDiagramUseCase.md)
+Builds a playable sequence of diagram interactions.
+
+Content emits New-ConsoleDiagramStep values in playback order. Id defaults to Label. AutoPlay starts only when the keyboard view opens; static output keeps the selected step.
+
 ### [New-ConsoleDialog](New-ConsoleDialog.md)
 Creates a typed modal form for the running app's dialog service.
 
@@ -370,9 +400,11 @@ Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ### [Show-ConsoleDiagram](Show-ConsoleDiagram.md)
-Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.
+Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.
 
-Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes, D shows the focused node's details and Esc ends the view. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.
+Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.
+
+Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.
 
 ### [Show-ConsoleGrid](Show-ConsoleGrid.md)
 Shows pipeline objects in an interactive grid and returns the rows you choose.

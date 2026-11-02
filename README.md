@@ -141,6 +141,51 @@ New-ConsoleChart -Role Fail -InputObject ([ordered] @{
 
 [The widget gallery](https://consolemonster.dev/widgets/): every widget at every colour and glyph tier, in PowerShell and C#.
 
+## Diagrams
+
+Describe networks, application flows and team hierarchies with the core `Diagram` model: nodes, links, groups and
+use cases. Object initializers, `Ui.Diagram("Title")` and `New-ConsoleDiagram` configure the same model.
+The dependency-free core draws a grouped tree with connection labels and status text:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var diagram = Ui.Diagram("Home network")
+    .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
+    .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
+        .Subtitle("192.168.1.1").Value("1 ms"))
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"))
+    .Build;
+Terminal.Write(diagram);
+```
+
+For boxes, routed connections, keyboard navigation and use case playback, add the optional `ConsoleMonster.Graphics`
+package and call `DiagramRendererProvider.Register()` once at startup, before creating diagrams. Registration is
+required on every target framework, including net472 and netstandard2.0 consumers; a package reference alone does
+not load the assembly or register the renderer. Then `diagram.Run()` opens the keyboard view, and
+`Diagram.Load(path, diagramId)` or `Diagram.From(chart)` imports through the registered provider. Core does not
+reference ChartForgeX.
+
+The PowerShell module bundles Graphics and registers it for diagram commands:
+
+```powershell
+Import-Module ConsoleMonster
+
+New-ConsoleDiagram -Title 'Home network' {
+    New-ConsoleDiagramNode 'Laptop' -Kind Workstation
+    New-ConsoleDiagramNode 'Router' -Kind Gateway -Subtitle '192.168.1.1' -Value '1 ms'
+    New-ConsoleDiagramLink 'Laptop' 'Router' -Label 'Wi-Fi'
+} | Show-ConsoleDiagram -StaticSnapshot
+```
+
+Subtitles and live values occupy separate lines. **Needs attention** lists every non-`Pass` node and link by
+default; hide it with `ShowSummary = false`, fluent `.Summary(false)` or PowerShell `-NoSummary`. Configure the model
+before sharing it with a session, then use `diagram.Handle(session)` for thread-safe live updates.
+
+[Eight examples in initializer, fluent and PowerShell forms](ConsoleMonster.Examples/Diagrams/README.md) ·
+[Graphics registration, file loading and playback](ConsoleMonster.Graphics/README.md#diagrams-and-use-case-playback)
+
 ## Live progress for long-running work
 
 <!-- example: Website/examples/demos/parallel.ps1 -->

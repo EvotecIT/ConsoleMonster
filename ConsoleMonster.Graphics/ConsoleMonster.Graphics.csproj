@@ -17,9 +17,12 @@
     <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="ConsoleMonster.Extensions.Tests" />
+    <InternalsVisibleTo Include="ConsoleMonster.PowerShell" />
     <ProjectReference Include="../ConsoleMonster.Generators/ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="../ConsoleMonster/ConsoleMonster.csproj" />
     <PackageReference Include="ChartForgeX" Version="3.3.0" />
+    <PackageReference Include="ChartForgeX.Markup" Version="3.3.0" />
     <EmbeddedResource Include="Fonts/OFL.txt" LogicalName="ConsoleMonster.Graphics.JetBrainsMono-OFL.txt" />
     <EmbeddedResource Include="Fonts/JetBrainsMono.ttf" LogicalName="ConsoleMonster.Graphics.JetBrainsMono.ttf" />
     <None Include="Fonts/OFL.txt" Pack="true" PackagePath="licenses/JetBrainsMono-OFL.txt" />

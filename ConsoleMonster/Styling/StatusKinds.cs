@@ -37,6 +37,12 @@ namespace ConsoleMonster.Styling {
         /// <returns>Whether the word was recognised.</returns>
         public static bool TryParse(string? text, out StatusKind status) {
             switch ((text ?? string.Empty).Trim().ToLowerInvariant()) {
+                case "unknown":
+                    status = StatusKind.Unknown;
+                    return true;
+                case "none":
+                    status = StatusKind.None;
+                    return true;
                 case "pass":
                 case "passed":
                 case "ok":
