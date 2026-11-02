@@ -69,6 +69,8 @@ structural dictionary keys remain data identities.
 - `Terminal.Write`/`Show-Console` writes a live widget's current state once outside a live session.
   Rendering does not start a worker, consume input or synthesize updates. Handles update state through
   their dispatcher; owning a handle does not start a session.
+- An app input edit and the bindings it changes appear in the same frame. Callbacks and binding builders
+  run on the input thread; drawing resumes only after their queued replacements have been applied.
 - Options apply where their renderer has that capability. Table column presenters, tone rules and
   culture also apply to cards and record fallback. Table borders, separators and column width negotiation
   belong to grid layout; cards use labelled fields. Tree guides/value columns, code line numbers,

@@ -84,10 +84,12 @@ namespace ConsoleMonster.Interactive {
                     bool eventsProcessed = false;
                     try {
                         AppEventLoop.Run(lease.Source, () => values.ExitRequested || !session.IsRunning, () => {
+                            using IDisposable frameUpdate = session.UpdateFrame();
                             if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
                             eventsProcessed = false;
                             app.Refresh(session);
                         }, input => {
+                                using IDisposable frameUpdate = session.UpdateFrame();
 
                                 if (interactive.Capture != null && input.Kind == InputEventKind.Resize && input.Width > 0 && input.Height > 0) {
                                     Interlocked.Exchange(ref captureWindow, new[] { 0, 0, input.Width, input.Height });
@@ -99,6 +101,7 @@ namespace ConsoleMonster.Interactive {
                                 eventsProcessed = true;
                         }, cancellationToken, endOnInputClosed: true);
                         if (session.Failure == null) {
+                            using IDisposable frameUpdate = session.UpdateFrame();
                             if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
                             app.Refresh(session);
                         }

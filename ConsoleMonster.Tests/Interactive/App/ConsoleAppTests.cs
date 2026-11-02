@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Input;
@@ -13,6 +14,34 @@ namespace ConsoleMonster.Tests.Interactive.App {
     /// <summary>Scripted public app runs, exit semantics and reusable cleanup after failures.</summary>
     [Collection("Live sessions")]
     public sealed class ConsoleAppTests {
+        /// <summary>An input edit and its dependent binding never appear in separate terminal frames.</summary>
+        [Fact]
+        public void InputEditAndBinding_ArePublishedInTheSameFrame() {
+            TextInput query = new TextInput("query");
+            AppBinding summary = new AppBinding(state => {
+                string value = state.Get<string>("query") ?? string.Empty;
+                if (value == "X" && LiveSession.Current is LiveSession session) {
+                    long frame = session.FramesRendered;
+                    // Give the actual renderer a complete scheduling opportunity while the new binding is being built.
+                    // Publishing the control early would capture one X here, before the summary carries the second X.
+                    SpinWait.SpinUntil(() => session.FramesRendered > frame, TimeSpan.FromSeconds(2));
+                }
+                return new ConsoleMonster.Widgets.TextBlock("Summary: " + value);
+            });
+            ConsoleAppOptions options = AppTestHarness.Options("\"X\"", out ScreenCapture capture);
+            ScriptedInput input = (ScriptedInput)options.Interactive!.Input!;
+            input.WaitForOutput(capture, "Summary: X", TimeSpan.FromSeconds(5));
+            input.Append("Escape");
+            options.Live!.FramesPerSecond = 60;
+            AppState result = ConsoleApp.Run(new Rows(query, summary), options: options);
+            Assert.Equal("X", result["query"]);
+            Assert.Contains(capture.Frames, frame => frame.ToPlainText().Contains("Summary: X"));
+            Assert.All(capture.Frames, frame => {
+                string text = frame.ToPlainText();
+                Assert.True(text.Count(c => c == 'X') is 0 or 2, text);
+            });
+        }
+
         /// <summary>A run returns the supplied state with initialized controls and every committed edit.</summary>
         [Fact]
         public void Run_ReturnsFinalStateAndCommitsEachKeystroke() {

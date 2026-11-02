@@ -396,6 +396,24 @@ namespace ConsoleMonster.Tests.Rendering {
                     yield return new object[] { entry, condition };
         }
 
+        [Fact]
+        public void AppIdleUpdates_PreserveTerminalCellDiffing() {
+            using var writer = new StringWriter();
+            var profile = TerminalProfile.Fixed(48, 12, ColorDepth.None, GlyphTier.Ascii).WithMode(OutputMode.Interactive);
+            using var input = new global::ConsoleMonster.Input.ScriptedInput("wait:500 Escape") { RealTime = true };
+            int polls = 0;
+            ConsoleApp.Run(new TextBlock("Idle content"), options: new ConsoleAppOptions {
+                Interactive = new InteractiveOptions { Input = input, Target = new WriterTarget(writer, profile), Profile = profile, Mode = InteractionMode.Rich },
+                Live = new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false, FramesPerSecond = 60 },
+                ProcessEvents = _ => polls++
+            });
+            Assert.True(polls > 2, "The app must process idle ticks while its actual live output is running.");
+            Assert.Contains("Idle content", writer.ToString());
+            int clears = writer.ToString().Split(new[] { "\u001b[2J" }, StringSplitOptions.None).Length - 1;
+            // Alternate-screen setup, the first frame and the committed Escape can clear; idle ticks cannot.
+            Assert.InRange(clears, 1, 3);
+        }
+
         [Theory]
         [InlineData("watch", 0, 1)]
         [InlineData("watch", 2, 2)]

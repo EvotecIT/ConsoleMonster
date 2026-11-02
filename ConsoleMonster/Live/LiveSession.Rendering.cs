@@ -71,6 +71,11 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
+            if (liveEvent.WidgetId == "$frame" && liveEvent.Operation == "resume" && liveEvent.Payload is LivePause pause) {
+                pause.Dispose();
+                Interlocked.Increment(ref _eventsApplied);
+                return;
+            }
             if (liveEvent.WidgetId == "$checkpoint" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> checkpoint) {
                 ApplyCheckpoint(checkpoint);
                 return;
@@ -175,7 +180,7 @@ namespace ConsoleMonster.Live {
             }
             CheckFont();
             lock (_outputGate) {
-                if (_restored) {
+                if (_restored || Volatile.Read(ref _paused) != 0) {
                     return;
                 }
                 bool resized = _frame != null && (_frame.Width != width || (!(_output is InlineOutput) && _frame.Height != height));
