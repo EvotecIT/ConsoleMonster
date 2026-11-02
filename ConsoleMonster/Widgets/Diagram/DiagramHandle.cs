@@ -7,6 +7,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Creates a handle for a live diagram.</summary>
         public DiagramHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) { }
         /// <summary>Updates a component's third line and optionally its status.</summary>
+        /// <exception cref="System.ArgumentException">The node key is null, empty or whitespace. Validation runs before the update is queued.</exception>
         public void Value(string node, string? text, StatusKind? status = null) {
             var update = new WidgetUpdate { Key = node, Value = text };
             if (status.HasValue) update.Status = status.Value;

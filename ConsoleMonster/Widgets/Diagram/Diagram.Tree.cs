@@ -112,7 +112,7 @@ namespace ConsoleMonster.Widgets {
             string Literal(string? text) => Diagram.Literal(text, context);
             if (!ShowSummary) return null;
             List<DiagramNode> nodes = Resolve();
-            var summary = new Tree("Needs attention") { WrapLabels = true };
+            var summary = new Tree("[bold]Needs attention[/]") { WrapLabels = true };
             var links = AllLinks().ToList();
             foreach (DiagramNode node in nodes.Where(n => n.HasStatus && n.Status != StatusKind.Pass)) {
                 string? problem = !string.IsNullOrEmpty(node.Value) ? node.Value : node.Subtitle;
