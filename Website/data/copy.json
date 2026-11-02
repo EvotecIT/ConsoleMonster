@@ -426,7 +426,7 @@
     },
     "reported": {
       "title": "Reported in the repository",
-      "body": "Figures stated in the ConsoleMonster 2.0 pull request and the README, measured by the maintainers on their machines.",
+      "body": "Figures stated in the release notes and the README, measured by the maintainers on their machines.",
       "rows": [
         {
           "measure": "Frame rate during the stress test",

@@ -142,5 +142,35 @@
     "h": 8,
     "dark": "#   #  ###  #   #  #### ##### ##### ####\n## ## #   # #   # #       #   #     #   #\n# # # #   # ##  # #       #   #     #   #\n# # # #   # # # #  ###    #   ####  ####\n#   # #   # #  ##     #   #   #     # #\n#   # #   # #   #     #   #   #     #  #\n#   #  ###  #   # ####    #   ##### #   #\nzero-dependency console rendering",
     "light": "#   #  ###  #   #  #### ##### ##### ####\n## ## #   # #   # #       #   #     #   #\n# # # #   # ##  # #       #   #     #   #\n# # # #   # # # #  ###    #   ####  ####\n#   # #   # #  ##     #   #   #     # #\n#   # #   # #   #     #   #   #     #  #\n#   #  ###  #   # ####    #   ##### #   #\nzero-dependency console rendering"
+  },
+  "calendar": {
+    "w": 40,
+    "h": 11,
+    "dark": "November 2026\n\nWeek    Mo  Tu  We  Th  Fr  Sa  Su\nW44                             01\nW45     02  03+ 04  05  06  07  08\nW46     09  10x 11  12  13  14  15\nW47     16  17+ 18@ 19! 20  21  22\nW48     23  24i 25  26  27? 28  29\nW49     30\nx Fail  ! Warn  ? Pending  + Pass\ni Info  @ Today 18 Nov",
+    "light": "November 2026\n\nWeek    Mo  Tu  We  Th  Fr  Sa  Su\nW44                             01\nW45     02  03+ 04  05  06  07  08\nW46     09  10x 11  12  13  14  15\nW47     16  17+ 18@ 19! 20  21  22\nW48     23  24i 25  26  27? 28  29\nW49     30\nx Fail  ! Warn  ? Pending  + Pass\ni Info  @ Today 18 Nov"
+  },
+  "cellmap": {
+    "w": 60,
+    "h": 5,
+    "dark": "web-01 + + - -\nweb-02 + ! - -\napi-01 + + x +\ndb-01  - - + +\n+ 8 passed  x 1 failed  ! 1 warning  - 6 skipped",
+    "light": "web-01 + + - -\nweb-02 + ! - -\napi-01 + + x +\ndb-01  - - + +\n+ 8 passed  x 1 failed  ! 1 warning  - 6 skipped"
+  },
+  "flow": {
+    "w": 72,
+    "h": 22,
+    "dark": "+-----------------+\n| [OK] Client     |\n+-|---------------+\n  | :443\n  |\n+-v---------------+\n| [OK] Proxy      |\n+-|---------------+\n  | HTTP\n  |\n+-v---------------+\n| [WARN] API      |\n+-|---------------+\n  | [FAIL] timeout\n  x\n  |\n+-v---------------+\n| [FAIL] Database |\n+-|---------------+\n  +-&gt; [FAIL]\n      listener\n      stopped",
+    "light": "+-----------------+\n| [OK] Client     |\n+-|---------------+\n  | :443\n  |\n+-v---------------+\n| [OK] Proxy      |\n+-|---------------+\n  | HTTP\n  |\n+-v---------------+\n| [WARN] API      |\n+-|---------------+\n  | [FAIL] timeout\n  x\n  |\n+-v---------------+\n| [FAIL] Database |\n+-|---------------+\n  +-&gt; [FAIL]\n      listener\n      stopped"
+  },
+  "lanes": {
+    "w": 72,
+    "h": 4,
+    "dark": "+ DC01  #################### 100%  P40 F 0 W 0  done\n| DC02  ###########---------  55%  P21 F 0 W 1  replication\n| DC03  ####----------------  22%  P 7 F 2 W 0  DNS records\n. DC04  --------------------                    queued",
+    "light": "+ DC01  #################### 100%  P40 F 0 W 0  done\n| DC02  ###########---------  55%  P21 F 0 W 1  replication\n| DC03  ####----------------  22%  P 7 F 2 W 0  DNS records\n. DC04  --------------------                    queued"
+  },
+  "summarybar": {
+    "w": 84,
+    "h": 1,
+    "dark": "###############-----  30/40  75%  ~14s left  | + 27 passed  x 2 failed  - 1 skipped",
+    "light": "###############-----  30/40  75%  ~14s left  | + 27 passed  x 2 failed  - 1 skipped"
   }
 }

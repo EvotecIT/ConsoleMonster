@@ -80,8 +80,8 @@
         {{ include "code" }}
       </div>
       <div>
-        <h3>Show-ConsoleList</h3>
-        {{~ f = ex["format-consolelist"].rich.ps7; screen_frame = f.frame; screen_title = "Show-ConsoleList"; screen_meta = [f.host]; screen_dark = true; screen_label = "Show-ConsoleList output" ~}}
+        <h3>Show-Console -View List</h3>
+        {{~ f = ex["format-consolelist"].rich.ps7; screen_frame = f.frame; screen_title = "Show-Console -View List"; screen_meta = [f.host]; screen_dark = true; screen_label = "Show-Console -View List output" ~}}
         {{ include "screen" }}
         {{~ code_lang = "powershell"; code_label = "PowerShell"; code_file = "format-consolelist.ps1"; code_text = ex["format-consolelist"].script; code_full = ex["format-consolelist"].scriptFull ~}}
         {{ include "code" }}

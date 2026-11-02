@@ -3,7 +3,7 @@
 ## Purpose
 
 This folder builds **consolemonster.dev**, a PowerForge.Web site (`site.json`, `pipeline.json`, `themes/consolemonster`).
-It is the home of ConsoleMonster 2.0: the widget gallery, tables, live dashboards, interactive screens, the PowerShell
+It is the home of ConsoleMonster: the widget gallery, tables, live dashboards, interactive screens, the PowerShell
 module, guides, docs, benchmarks and the .NET and PowerShell references. GitHub Pages serves the site at consolemonster.dev,
 with DNS managed in Cloudflare. `.github/workflows/website-ci.yml` validates PRs and `website-deploy.yml` publishes master
 through PowerForge's shared deployment workflow. The CI pipeline runs the renderer tests, regenerates terminal assets,
