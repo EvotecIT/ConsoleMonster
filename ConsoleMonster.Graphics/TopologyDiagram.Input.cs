@@ -60,9 +60,10 @@ namespace ConsoleMonster.Graphics {
         }
     }
 
-    /// <summary>Runs a <see cref="TopologyDiagram"/> as a full-screen keyboard app.</summary>
+    /// <summary>Runs a <see cref="TopologyDiagram"/> as a keyboard app, or prints a snapshot when interaction is unavailable.</summary>
     public static class TopologyDiagramApp {
-        /// <summary>Shows the diagram with its keys, key hints, scrolling and live playback until the app exits.</summary>
+        /// <summary>Shows the diagram with keys, scrolling and live playback in a rich console. Otherwise prints one static snapshot without reading input.</summary>
+        /// <remarks>The selected scenario's AutoPlay setting starts playback when the keyboard view opens. Static snapshots retain the current step and do not start autoplay.</remarks>
         /// <param name="diagram">The diagram.</param>
         /// <param name="options">Optional app options. They are restored when the app ends; an existing input handler still runs first.</param>
         /// <param name="cancellationToken">Cancels the app.</param>
@@ -70,6 +71,17 @@ namespace ConsoleMonster.Graphics {
         public static AppState Run(this TopologyDiagram diagram, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default) {
             if (diagram == null) throw new ArgumentNullException(nameof(diagram));
             ConsoleAppOptions settings = options ?? new ConsoleAppOptions();
+            InteractiveOptions? originalInteractive = settings.Interactive;
+            InteractiveOptions interactive = (originalInteractive ?? InteractiveOptions.Default).Clone();
+            if (interactive.ResolveMode() != InteractionMode.Rich) {
+                interactive.Mode = InteractionMode.Snapshot;
+                try {
+                    settings.Interactive = interactive;
+                    return ConsoleApp.Run(diagram, null, settings, cancellationToken);
+                } finally {
+                    settings.Interactive = originalInteractive;
+                }
+            }
             Func<AppState, InputEvent, bool>? previous = settings.HandleInput;
             KeyChord? nextFocus = settings.Keys.NextFocus;
             KeyChord? previousFocus = settings.Keys.PreviousFocus;
@@ -77,6 +89,8 @@ namespace ConsoleMonster.Graphics {
             bool scrollHints = diagram.ScrollKeyHints;
             var viewport = new DiagramViewport(diagram);
             try {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (diagram.Scenario?.Scenario.AutoPlay == true) diagram.Play();
                 // Tab switches use cases here; the diagram has no inputs to move focus between.
                 if (IsTab(nextFocus)) settings.Keys.NextFocus = null;
                 if (IsTab(previousFocus)) settings.Keys.PreviousFocus = null;

@@ -95,6 +95,13 @@ var diagram = new TopologyDiagram(chart);   // a ChartForgeX TopologyChart
 diagram.Run();
 ```
 
+`Run()` uses the keyboard view in a rich console. When output is redirected,
+the session runs in CI, or interaction is unavailable, it prints one static
+snapshot without reading keys. The selected scenario's `AutoPlay` setting
+(the architecture markup's `autoplay` attribute) starts playback when the
+keyboard view opens. A static snapshot retains the current step and does not
+start autoplay.
+
 Keys: `p` or Space play and pause, `n` or Right next step, `b` or Left previous
 step, `r` or Home restart, `e` or End last step, `x` clear the step, `s` or Tab
 next use case (Shift+Tab previous), Up and Down focus a node, and `d` show or hide

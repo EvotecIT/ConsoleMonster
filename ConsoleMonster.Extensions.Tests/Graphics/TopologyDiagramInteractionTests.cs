@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using ChartForgeX.Topology;
 using ConsoleMonster.Capabilities;
@@ -6,11 +7,56 @@ using ConsoleMonster.Graphics;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Testing;
 using Xunit;
 
 namespace ConsoleMonster.Extensions.Tests.Graphics {
     public sealed class TopologyDiagramInteractionTests {
+        [Theory]
+        [InlineData(null)]
+        [InlineData(InteractionMode.Line)]
+        [InlineData(InteractionMode.Snapshot)]
+        public void Run_NonInteractiveWriter_PrintsOneSnapshotAndPreservesOptions(InteractionMode? mode) {
+            var view = new TopologyDiagram(SingleNodeChart().WithTitle("Redirected topology")
+                .AddScenario("flow", "Flow", scenario => scenario.WithPlayback(autoPlay: true).AddNodeStep("worker", "Inspect")));
+            using var writer = new StringWriter();
+            var interactive = new InteractiveOptions { Target = new WriterTarget(writer, 80), Mode = mode };
+            var options = new ConsoleAppOptions { Interactive = interactive };
+
+            AppState state = view.Run(options);
+
+            string output = writer.ToString();
+            Assert.Contains("Worker", output, StringComparison.Ordinal);
+            Assert.Equal(1, output.Split(new[] { "Redirected topology" }, StringSplitOptions.None).Length - 1);
+            Assert.DoesNotContain('\u001b', output);
+            Assert.Same(interactive, options.Interactive);
+            Assert.Equal(mode, interactive.Mode);
+            Assert.Null(options.HandleInput);
+            Assert.False(view.ShowKeys);
+            Assert.False(view.Playing);
+            Assert.Null(view.StepIndex);
+            Assert.False(state.ExitRequested);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Run_KeyboardView_HonorsSelectedScenarioAutoplay(bool autoPlay) {
+            var view = new TopologyDiagram(SingleNodeChart().AddScenario("flow", "Flow", scenario => scenario
+                .WithPlayback(stepDurationMilliseconds: 60000, loop: true, autoPlay: autoPlay).AddNodeStep("worker", "Inspect")));
+            var capture = new ScreenCapture(100, 40);
+            ConsoleAppOptions options = AppOptions("Escape", capture);
+            bool? observedPlaying = null;
+            options.ProcessEvents = state => { observedPlaying = view.Playing; state.RequestExit(); };
+
+            view.Run(options);
+
+            Assert.Equal(autoPlay, observedPlaying);
+            Assert.Equal(autoPlay ? (int?)0 : null, view.StepIndex);
+            Assert.Contains("Worker", capture.Frames[0].ToPlainText(), StringComparison.Ordinal);
+        }
+
         [Fact]
         public void EmptyTopology_FocusAndStepKeys_AreUnhandledWithoutChangingDetails() {
             var view = new TopologyDiagram(TopologyChart.Create()) { ShowDetails = false };
