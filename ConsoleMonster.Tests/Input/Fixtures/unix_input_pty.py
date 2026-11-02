@@ -159,6 +159,11 @@ def main():
                         os.write(master, TAILS[event["name"]])
                     elif phase == "menu_ready":
                         os.write(master, b"\r")
+                    elif phase == "nested_prompt_ready":
+                        receipt["nested_prompt_ready"] = True
+                        os.write(master, b"\r")
+                    elif phase == "nested_prompt_pass":
+                        receipt["nested_prompt_accepted"] = True
                     elif phase == "live_ready":
                         # ShowKeys is set before the first read activates raw mode. Wait for the
                         # actual mode, then prove SIGINT is preserved during raw key polling.
@@ -262,6 +267,8 @@ def main():
                               and receipt.get("lease_released") is True and finished)
         receipt["success"] = (receipt["success"]
                               and receipt.get("signals_enabled_during_work") is True
+                              and receipt.get("nested_prompt_ready") is True
+                              and receipt.get("nested_prompt_accepted") is True
                               and receipt.get("keyboard_cancelled_work") is True
                               and receipt.get("raw_mode_resumed") is True
                               and receipt.get("menu_navigation_after_work") is True

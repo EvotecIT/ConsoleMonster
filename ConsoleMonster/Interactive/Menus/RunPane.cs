@@ -144,7 +144,7 @@ namespace ConsoleMonster.Interactive {
                 } catch (Exception ex) {
                     result = new MenuRunResult(fallbackTitle, StatusKind.Fail) { Error = ex };
                 } finally {
-                    session.Stop();
+                    session.Dispose();
                 }
             } finally {
                 hide();

@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Contains("\u001b[1A", end);
             Assert.Contains("\u001b[J", end);
             Assert.Contains("done\r\n", end);
-            Assert.EndsWith("\u001b[?25h", end);
+            Assert.EndsWith("\u001b[?25h\r", end);
         }
 
         [Fact]

@@ -310,7 +310,7 @@ namespace ConsoleMonster.Live {
             if (work == null) { throw new ArgumentNullException(nameof(work)); }
             Start();
             try { work(this); }
-            finally { Stop(); }
+            finally { Dispose(); }
         }
 
         /// <summary>Runs asynchronous work with linked caller and session cancellation.</summary>
@@ -323,12 +323,24 @@ namespace ConsoleMonster.Live {
             using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(ct, Cancellation))
             using (ct.Register(RequestCancellation)) {
                 try { await work(this, linked.Token).ConfigureAwait(false); }
-                finally { Stop(); }
+                finally {
+                    Stop();
+                    if (Thread.CurrentThread != _thread && !Monitor.IsEntered(_finishGate)) {
+                        await _outputStopped.Task.ConfigureAwait(false);
+                    }
+                }
             }
         }
 
-        /// <inheritdoc />
-        public void Dispose() => Stop();
+        /// <summary>Stops the session and waits for final output and terminal restoration. A dispatcher callback requests its own loop to finish.</summary>
+        public void Dispose() {
+            Stop();
+            // Stop can hand blocked callbacks back to the dispatcher after its bounded join.
+            // A completed public lifetime must wait for its last write and terminal restoration.
+            if (Thread.CurrentThread != _thread && !Monitor.IsEntered(_finishGate)) {
+                _outputStopped.Task.GetAwaiter().GetResult();
+            }
+        }
 
         // Default ids are per kind (a bar chart is "bars"), so two widgets of one kind in a live tree need their own ids.
         internal static string DuplicateWidgetId(string widgetId, ILiveTarget? first, ILiveTarget second) =>

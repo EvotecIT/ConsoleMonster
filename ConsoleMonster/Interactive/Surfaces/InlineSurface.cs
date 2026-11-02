@@ -166,31 +166,31 @@ namespace ConsoleMonster.Interactive {
             if (_completed) {
                 return;
             }
-            _completed = true;
             _sb.Clear();
             if (_drawn) {
                 MoveTo(0);
                 _sb.Append('\r').Append(Csi).Append('J');
             }
+            if (!_drawn) { _sb.Append("\r\n"); }
             if (summary != null) {
                 foreach (StyledLine line in summary) {
                     AppendLine(line);
                     _sb.Append("\r\n");
                 }
             }
-            _sb.Append(Csi).Append("?25h");
+            _sb.Append(Csi).Append("?2026l");
+            _sb.Append(SgrEncoder.TerminalResetFor(_profile));
+            _sb.Append(Csi).Append("?25h\r");
             Emit();
+            _completed = true;
             _rows.Clear();
             _drawn = false;
         }
 
         public void Dispose() {
-            if (!_completed) {
-                Complete(null);
-            }
-            if (_ownsWriter) {
-                _writer.Dispose();
-            }
+            try { if (!_completed) { Complete(null); } }
+            catch { try { Complete(null); } catch { } throw; }
+            finally { if (_ownsWriter) { _writer.Dispose(); } }
         }
 
         private string EncodeRow(CellBuffer frame, int y, out int width) {

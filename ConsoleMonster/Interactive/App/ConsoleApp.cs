@@ -71,6 +71,12 @@ namespace ConsoleMonster.Interactive {
                     live.WindowSource = () => Volatile.Read(ref captureWindow);
                 }
                 using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
+                // The session guard owns screen output. This scope owns input and mouse state on
+                // process exit too, when normal stack unwinding cannot be relied upon.
+                using (TerminalGuard inputGuard = new TerminalGuard(() => {
+                    try { mouse?.Dispose(); }
+                    finally { lease.Dispose(); }
+                }, false))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Register(app.Log);
                     session.Start();
@@ -97,7 +103,7 @@ namespace ConsoleMonster.Interactive {
                             app.Refresh(session);
                         }
                     } finally {
-                        session.Stop();
+                        session.Dispose();
                         if (session.Failure == null && interactive.Capture != null) {
                             int[] finalWindow = Volatile.Read(ref captureWindow);
                             interactive.Capture.Surface.Present(app.PrepareFrame(finalWindow[2], finalWindow[3]), null);

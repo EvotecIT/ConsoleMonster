@@ -26,7 +26,12 @@ namespace ConsoleMonster.Live {
             _pause = pause;
             _context = context;
             _capture = capture;
-            Refresh();
+            try {
+                Refresh();
+            } catch {
+                _pause.Dispose();
+                throw;
+            }
         }
 
         public static IPromptSurface? TryCreate(RenderContext context, ITerminalTarget target, RecordingTarget? recording = null) {

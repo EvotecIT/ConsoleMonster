@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.
+
 - Added the `Diagram` model, widget-returning fluent chains and PowerShell diagram commands for nodes, links, nested groups, connection rows and playable use cases.
 - Kept diagram models and grouped tree rendering in the dependency-free core. The optional Graphics provider adds ChartForgeX import, routed topology rendering, keyboard navigation and PNG export.
 - Added full-text attention summaries, a lossless narrow tree view, and addressed node values and shared `StatusKind` updates through C# handles and `Update-Console`.

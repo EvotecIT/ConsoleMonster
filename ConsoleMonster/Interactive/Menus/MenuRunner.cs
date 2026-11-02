@@ -5,6 +5,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -12,6 +13,18 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Runs a menu in the layout and interaction mode that fit the session.</summary>
     internal static class MenuRunner {
         public static void Run(Menu menu, MenuOptions options, CancellationToken cancellationToken) {
+            InputLease? lease = null;
+            IPromptSurface? ownedSurface = null;
+            void Restore() {
+                try {
+                    Interlocked.Exchange(ref ownedSurface, null)?.Dispose();
+                } finally {
+                    lease?.Dispose();
+                }
+            }
+            // Resolving labels can detect capabilities and enable Windows VT before a surface exists.
+            // Raw input handles Ctrl+C; nested live runs own signal interception while input is suspended.
+            using TerminalGuard guard = new TerminalGuard(Restore, false);
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             PromptLabels labels = interactive.ResolveLabels();
             InteractionMode mode = interactive.ResolveMode();
@@ -42,23 +55,20 @@ namespace ConsoleMonster.Interactive {
                 new InlineMenu(menu, options, labels, store, cancellationToken).Run();
                 return;
             }
-            using (InputLease lease = ConsoleInput.Acquire(interactive.Input)) {
+            try {
+                lease = ConsoleInput.Acquire(interactive.Input);
                 Capabilities.TerminalProfile profile = interactive.ResolveProfile();
                 RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-                IPromptSurface surface = interactive.Surface ?? new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize());
+                IPromptSurface surface = interactive.Surface ?? (ownedSurface = new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
+                MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
                 try {
-                    MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
-                    try {
-                        InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
-                    } finally {
-                        app.Shutdown();
-                    }
-                    surface.Complete(null);
+                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
                 } finally {
-                    if (interactive.Surface == null) {
-                        surface.Dispose();
-                    }
+                    app.Shutdown();
                 }
+                surface.Complete(null);
+            } finally {
+                Restore();
             }
         }
     }

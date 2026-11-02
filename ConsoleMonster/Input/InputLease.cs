@@ -20,7 +20,11 @@ namespace ConsoleMonster.Input {
         /// <summary>Releases the hold.</summary>
         public void Dispose() {
             if (Interlocked.Exchange(ref _released, 1) == 0) {
-                ConsoleInput.Release(this);
+                try {
+                    (Source as IConsoleInputMode)?.RestoreSuspendedMode();
+                } finally {
+                    ConsoleInput.Release(this);
+                }
             }
         }
     }

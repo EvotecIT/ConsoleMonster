@@ -25,6 +25,7 @@ namespace ConsoleMonster.Input {
         private char _highSurrogate;
         private uint _mouseButtons;
         private bool _disposed;
+        private bool _suspended;
 
         private WindowsConsoleInput(IntPtr handle, uint originalMode, uint rawMode) {
             _handle = handle;
@@ -294,7 +295,13 @@ namespace ConsoleMonster.Input {
         /// session as a signal); <see cref="Resume"/> switches back and drops keys typed meanwhile.
         /// </summary>
         public void Suspend() {
+            _suspended = true;
             ConsoleInputNative.TrySetMode(_handle, _originalMode);
+        }
+
+        /// <inheritdoc />
+        public void RestoreSuspendedMode() {
+            if (!_disposed && _suspended) { Suspend(); }
         }
 
         /// <summary>Switches back to raw key input after <see cref="Suspend"/>, discarding keys typed meanwhile.</summary>
@@ -303,6 +310,7 @@ namespace ConsoleMonster.Input {
             _pending.Clear();
             _mouseButtons = 0;
             ConsoleInputNative.TrySetMode(_handle, _rawMode);
+            _suspended = false;
         }
 
         /// <inheritdoc />

@@ -167,13 +167,16 @@ namespace ConsoleMonster.Rendering {
             if (!_live) {
                 return;
             }
-            _live = false;
+            // A previous failed cleanup already restored native mode; reacquire it for this attempt.
+            _outputMode ??= WindowsOutputModeScope.Activate(_writer);
             _sb.Clear();
+            bool drew = _drawn > 0;
             ClearArea();
-            SgrEncoder.AppendReset(_sb, Profile);
-            _sb.Append(Esc).Append("?25h");
+            _sb.Append(Esc).Append("?2026l");
+            _sb.Append(SgrEncoder.TerminalResetFor(Profile));
+            _sb.Append(Esc).Append("?25h").Append(drew ? "\r" : "\r\n");
             _previous = null;
-            try { Emit(); }
+            try { Emit(); _live = false; }
             finally {
                 _outputMode?.Dispose();
                 _outputMode = null;
@@ -183,6 +186,11 @@ namespace ConsoleMonster.Rendering {
         /// <inheritdoc />
         public void Dispose() {
             try { EndLive(); }
+            catch {
+                // A transient writer failure must not disable the disposal recovery attempt.
+                try { EndLive(); } catch { }
+                throw;
+            }
             finally {
                 if (_ownsWriter) { _writer.Dispose(); }
             }

@@ -83,6 +83,11 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Whether the program is drawing on the alternate screen (a live dashboard).</summary>
         public bool OnAlternate => _onAlternate;
 
+        /// <summary>Whether the application has left the cursor visible.</summary>
+        internal bool CursorVisible { get; private set; } = true;
+        internal bool ButtonMotionMouse { get; private set; }
+        internal bool SgrMouse { get; private set; }
+
         /// <summary>Whether a synchronized update is still being painted.</summary>
         public bool SynchronizedOutput { get; private set; }
 
@@ -514,6 +519,9 @@ namespace ConsoleMonster.Sessions {
         private void Mode(int[] p, bool set) {
             foreach (int mode in p) {
                 switch (mode) {
+                    case 25: CursorVisible = set; break;
+                    case 1002: ButtonMotionMouse = set; break;
+                    case 1006: SgrMouse = set; break;
                     case 6:
                         _origin = set;
                         _x = 0;

@@ -20,7 +20,10 @@ namespace ConsoleMonster.TestHost {
             if (buffer == new IntPtr(-1)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
             try {
                 if (!SetStdHandle(-11, buffer) || !SetConsoleMode(buffer, 3)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
-                using (ScriptedInput input = new ScriptedInput("Escape"))
+                bool menu = scenario.StartsWith("menu-", StringComparison.Ordinal);
+                bool prompt = scenario.StartsWith("prompt-", StringComparison.Ordinal);
+                string path = menu ? scenario.Substring(5) : prompt ? scenario.Substring(7) : scenario;
+                using (ScriptedInput input = new ScriptedInput(path == "exception" ? "wait:0" : prompt ? "Enter" : menu ? "Ctrl+Q" : "Escape"))
                 using (VtOutput output = new VtOutput(new StringTerminalWriter(), TerminalProfile.Fixed(80, 24)))
                 using (CancellationTokenSource cancel = new CancellationTokenSource()) {
                     ConsoleAppOptions options = new ConsoleAppOptions {
@@ -29,14 +32,35 @@ namespace ConsoleMonster.TestHost {
                         Interactive = new InteractiveOptions { Input = input, Mode = InteractionMode.Rich, Theme = Theme.Dark },
                         Live = new LiveSessionOptions { Output = output, CaptureConsole = false, TaskbarProgress = false }
                     };
-                    if (scenario == "cancel") { cancel.Cancel(); }
+                    if (path == "cancel") { cancel.Cancel(); }
                     InvalidOperationException expected = new InvalidOperationException("Synthetic application startup failure.");
+                    // Throw only when the real event loop reads, after the initial view has been drawn.
+                    if (path == "exception") { input.SkippedWait = _ => throw expected; }
                     try {
-                        ConsoleApp.Run(scenario == "startup" ? (Layout.IWidget)new AppBinding(_ => throw expected) : new TextInput("query"),
-                            options: options, cancellationToken: cancel.Token);
-                        if (scenario != "normal") { throw new InvalidOperationException("The failure path did not execute."); }
-                    } catch (OperationCanceledException) when (scenario == "cancel" && cancel.IsCancellationRequested) {
-                    } catch (InvalidOperationException error) when (scenario == "startup" && ReferenceEquals(error, expected)) {
+                        if (menu) {
+                            Menu nativeMenu = new Menu("Output mode probe");
+                            nativeMenu.Item("Quit", item => {
+                                item.Action = context => context.Exit();
+                            });
+                            if (path == "startup") {
+                                nativeMenu.KeyBindings.Add(KeyBinding.Numbered("probe", () => throw expected, _ => { }));
+                            }
+                            nativeMenu.Run(new MenuOptions { ConfirmExit = false, Layout = MenuLayout.Shell, Interactive = options.Interactive }, cancel.Token);
+                        } else if (prompt) {
+                            SelectPrompt<string> nativePrompt = new SelectPrompt<string>("Output mode probe", new[] { "answer" });
+                            if (path == "startup") {
+                                nativePrompt.Choices[0].Preview = new Widgets.ContextWidget(_ => throw expected);
+                            }
+                            if (nativePrompt.Show(options.Interactive, cancel.Token) != "answer") {
+                                throw new InvalidOperationException("The native prompt returned an unexpected answer.");
+                            }
+                        } else {
+                            ConsoleApp.Run(scenario == "startup" ? (Layout.IWidget)new AppBinding(_ => throw expected) : new TextInput("query"),
+                                options: options, cancellationToken: cancel.Token);
+                        }
+                        if (path != "normal") { throw new InvalidOperationException("The failure path did not execute."); }
+                    } catch (OperationCanceledException) when (path == "cancel" && cancel.IsCancellationRequested) {
+                    } catch (InvalidOperationException error) when ((path == "startup" || path == "exception") && ReferenceEquals(error, expected)) {
                     }
                     if (!GetConsoleMode(buffer, out uint after) || after != 3) {
                         throw new InvalidOperationException("First-use output mode was not restored: 3 -> " + after + ".");

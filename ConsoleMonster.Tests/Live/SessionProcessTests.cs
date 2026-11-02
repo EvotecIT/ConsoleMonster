@@ -43,6 +43,14 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData("normal")]
         [InlineData("startup")]
         [InlineData("cancel")]
+        [InlineData("menu-normal")]
+        [InlineData("menu-cancel")]
+        [InlineData("menu-exception")]
+        [InlineData("menu-startup")]
+        [InlineData("prompt-normal")]
+        [InlineData("prompt-cancel")]
+        [InlineData("prompt-exception")]
+        [InlineData("prompt-startup")]
         public async Task FirstUseApp_RestoresNativeOutputMode(string scenario) {
             string receipt = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".txt");
             try {

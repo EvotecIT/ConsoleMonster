@@ -159,7 +159,8 @@ namespace ConsoleMonster.Live {
         /// Stops admission, cancels work and joins for up to StopTimeout (two seconds by default).
         /// Accepted events are drained on the stopping caller after joining, before restoration.
         /// If user code blocks the render thread, console capture is restored immediately and final cleanup is deferred
-        /// until that callback returns. A call from the render thread also defers final cleanup to its loop exit.
+        /// until that callback returns. Dispose, Run and RunAsync wait for that final cleanup before their lifetime ends.
+        /// A call from the render thread also defers final cleanup to its loop exit.
         /// </summary>
         public void Stop() {
             Thread? thread;
@@ -233,8 +234,8 @@ namespace ConsoleMonster.Live {
             }
             lock (_outputGate) {
                 if (_restored) { return; }
-                _restored = true;
                 _output?.EndLive(); // Outputs flush their writers here; there is no separate Flush contract.
+                _restored = true;
             }
         }
 

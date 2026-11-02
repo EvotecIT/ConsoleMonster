@@ -74,6 +74,37 @@ structural dictionary keys remain data identities.
   overloads share semantics. A convenience builder delegates to the same implementation. New aliases or
   overlapping selectors need a distinct contract or should be removed before release.
 
+## Terminal handoff and prompt engines
+
+I leave a clean terminal for the next shell prompt, including Oh My Posh with Nerd Fonts,
+multiline prompts and a right prompt, on PowerShell 7 and Windows PowerShell 5.1.
+
+- Normal return, Esc, Ctrl+C, host cancellation and exceptions follow the same cleanup path.
+  The outermost live session, full-screen app or menu leaves the alternate screen, makes the
+  cursor visible, finishes the current line and returns at column zero on an empty line.
+  Inline prompts and dashboards erase their owned region; a prompt's answer or cancellation
+  summary ends with a line break. Cleanup also works before the first frame is drawn.
+- Reset colours and decorations after returning to the normal screen: leaving the alternate
+  screen can restore its saved attributes. An explicit profile colour baseline still applies.
+  Synchronized output ends, mouse reporting owned by the app is disabled, input is released,
+  and saved native console modes are restored. Cleanup is idempotent and borrowed writers stay open.
+- `Run`, `RunAsync` and disposal wait for final output and restoration. `Stop` requests shutdown
+  with a bounded dispatcher join; if a user callback outlasts `StopTimeout`, disposal still waits
+  for that callback to return. Callbacks must cooperate with cancellation; they cannot be forcibly
+  terminated safely. Calling Stop from the dispatcher requests its loop to finish.
+- A prompt or dashboard borrowing an app's screen returns ownership to that app. It does not
+  leave the outer alternate screen or release the outer input lease. The outer owner performs
+  the final shell handoff.
+- Redirected/static output uses complete lines and does not emit interactive terminal modes.
+  A writer or terminal that has disconnected cannot receive cleanup; the original failure
+  remains observable rather than being replaced by an invented successful handoff.
+
+The shared suite decodes actual output with the headless terminal model and checks final screen,
+cursor, attributes and modes. Native console tests check signal handling and mode restoration.
+I also check a real terminal with Oh My Posh: run each exit route in both PowerShell versions,
+then type and edit a command at the multiline/right-aligned prompt, resize the window and run
+another command. Headless checks cannot establish font rendering or the prompt engine's redraw.
+
 Run the solution build, all supported core test targets, extension tests, both PowerShell module gates,
 and the site-frame checks after a shared rendering change. Review real before/after output before
 accepting changed fallbacks, value markers or visual baselines.

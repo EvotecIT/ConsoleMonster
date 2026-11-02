@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.IO;
+using System.Threading;
+using ConsoleMonster.Input;
+using ConsoleMonster.Sessions;
 using System.Reflection;
 using System.Threading.Tasks;
 using ConsoleMonster.Canvas;
@@ -23,9 +27,224 @@ namespace ConsoleMonster.Tests.Rendering {
     /// <summary>Cross-cutting behaviour at the shared rendering and application boundaries.</summary>
     [Collection("Live sessions")]
     public sealed class BehaviourContractTests {
+        public static IEnumerable<object[]> TerminalExitCases() {
+            foreach (string entry in new[] { "app", "app async", "menu", "menu async", "prompt" })
+                foreach (string exit in new[] { "normal", "Esc", "Ctrl+C", "cancel", "exception" })
+                    yield return new object[] { entry, exit };
+            foreach (string entry in new[] { "live full", "live inline" })
+                foreach (string exit in new[] { "normal", "cancel", "exception" })
+                    yield return new object[] { entry, exit };
+            foreach (string entry in new[] { "empty full", "empty inline", "empty prompt", "empty full no colour", "empty inline no colour", "empty prompt no colour" })
+                yield return new object[] { entry, "exception" };
+        }
+
+        [Theory]
+        [MemberData(nameof(TerminalExitCases))]
+        public async Task TerminalExit_ReturnsACleanLineToTheNextPrompt(string entry, string exit) {
+            var profile = TerminalProfile.Fixed(48, 12, entry.EndsWith("no colour", StringComparison.Ordinal) ? ColorDepth.None : ColorDepth.TrueColor, GlyphTier.Full).WithHyperlinks(true);
+            using var text = new StringWriter(CultureInfo.InvariantCulture);
+            var target = new WriterTarget(text, profile);
+            // A caller can have written a coloured partial line before invoking an app.
+            text.Write("\u001b]8;;https://example.test/\u001b\\\u001b[31mcaller partial");
+            using var cancellation = new CancellationTokenSource();
+            using var input = new ExitContractInput(exit, cancellation,
+                entry.StartsWith("app", StringComparison.Ordinal) ? "Escape" : "Enter");
+            var interactive = new InteractiveOptions { Target = target, Profile = profile, Mode = InteractionMode.Rich };
+            Exception? failure = null;
+            IInputSource? previousInput = ConsoleInput.Override;
+            ConsoleInput.Override = input;
+            try {
+                if (entry.StartsWith("app", StringComparison.Ordinal)) {
+                    var state = new AppState();
+                    var options = new ConsoleAppOptions { Interactive = interactive,
+                        Live = new LiveSessionOptions { CaptureConsole = false, HandleCancelKey = false, TaskbarProgress = false } };
+                    if (exit == "normal") options.ProcessEvents = values => values.RequestExit();
+                    if (entry == "app async") await ConsoleApp.RunAsync(new TextBlock("State"), state, options, cancellation.Token);
+                    else ConsoleApp.Run(new TextBlock("State"), state, options, cancellation.Token);
+                } else if (entry.StartsWith("menu", StringComparison.Ordinal)) {
+                    var menu = new Menu("State").Exit("Quit");
+                    if (entry == "menu async") await menu.RunAsync(new MenuOptions { Interactive = interactive }, cancellation.Token);
+                    else menu.Run(new MenuOptions { Interactive = interactive }, cancellation.Token);
+                } else if (entry == "prompt") {
+                    new ConfirmPrompt("State", true).Show(interactive, cancellation.Token);
+                } else if (entry.StartsWith("live", StringComparison.Ordinal)) {
+                    using var session = new LiveSession(new TextBlock("State"), new LiveSessionOptions {
+                        Target = target, Profile = profile, CaptureConsole = false, HandleCancelKey = false,
+                        TaskbarProgress = false, PrintFinalState = false,
+                        Mode = entry == "live inline" ? LiveMode.Inline : LiveMode.FullScreen
+                    });
+                    session.Start();
+                    Assert.True(session.Flush(TimeSpan.FromSeconds(10)));
+                    if (exit == "cancel") { cancellation.Cancel(); cancellation.Token.ThrowIfCancellationRequested(); }
+                    if (exit == "exception") throw new InvalidOperationException("exit contract");
+                } else {
+                    // Setup can fail after acquiring the screen, before the first frame exists.
+                    if (entry.StartsWith("empty prompt", StringComparison.Ordinal)) { using var surface = new InlineSurface(profile, target.Writer); throw new InvalidOperationException("exit contract"); }
+                    using var output = entry.StartsWith("empty full", StringComparison.Ordinal) ? Terminal.CreateOutput(profile, target.Writer) : Terminal.CreateInlineOutput(profile, target.Writer);
+                    output.BeginLive();
+                    throw new InvalidOperationException("exit contract");
+                }
+            } catch (Exception ex) { failure = ex; }
+            finally { ConsoleInput.Override = previousInput; }
+            if (exit == "exception") Assert.IsType<InvalidOperationException>(failure);
+            else if (exit == "cancel") Assert.IsAssignableFrom<OperationCanceledException>(failure);
+            else if (exit == "Ctrl+C" && entry == "prompt") Assert.IsType<PromptCanceledException>(failure);
+            else Assert.Null(failure);
+            Assert.True(input.Reads > 0 || entry.StartsWith("live", StringComparison.Ordinal) || entry.StartsWith("empty", StringComparison.Ordinal) || (exit == "normal" && entry.StartsWith("app", StringComparison.Ordinal)));
+
+            AssertPromptReady(text.ToString());
+            // A different thread must be able to take the global lease after every exit.
+            try {
+                ConsoleInput.Override = input;
+                await Task.Run(() => { using InputLease lease = ConsoleInput.Acquire(); Assert.Same(input, lease.Source); });
+            } finally { ConsoleInput.Override = previousInput; }
+        }
+
+        [Theory]
+        [InlineData("nested prompt")]
+        [InlineData("overlay setup failure")]
+        [InlineData("full cleanup write failure")]
+        [InlineData("inline cleanup write failure")]
+        [InlineData("prompt cleanup write failure")]
+        public void TerminalRecovery_PreservesOwnershipAndReturnsACleanLine(string scenario) {
+            var profile = TerminalProfile.Fixed(48, 12, ColorDepth.TrueColor, GlyphTier.Full);
+            using var text = new ExitContractWriter();
+            var target = new WriterTarget(text, profile);
+            text.Write("\u001b[31mcaller partial");
+            if (scenario.Contains("cleanup write failure")) {
+                if (scenario.StartsWith("prompt", StringComparison.Ordinal)) {
+                    var surface = new InlineSurface(profile, target.Writer);
+                    surface.Present(TestTerminal.Render(new TextBlock("State"), 40), null);
+                    text.FailNextWrite = true;
+                    Assert.Throws<IOException>(() => surface.Complete(null));
+                    surface.Dispose();
+                } else {
+                    var output = scenario.StartsWith("full", StringComparison.Ordinal)
+                        ? Terminal.CreateOutput(profile, target.Writer) : Terminal.CreateInlineOutput(profile, target.Writer);
+                    output.BeginLive();
+                    output.RenderFrame(TestTerminal.Render(new TextBlock("State"), 40));
+                    text.FailNextWrite = true;
+                    Assert.Throws<IOException>(() => output.EndLive());
+                    output.Dispose();
+                }
+            } else {
+                int failWindow = 0;
+                using var session = new LiveSession(new TextBlock("State"), new LiveSessionOptions {
+                    Target = target, Profile = profile, CaptureConsole = false, HandleCancelKey = false,
+                    TaskbarProgress = false, PrintFinalState = false,
+                    WindowSource = () => Volatile.Read(ref failWindow) != 0
+                        ? throw new InvalidOperationException("overlay window failure") : new[] { 0, 0, 48, 12 }
+                });
+                session.Start();
+                Assert.True(session.Flush(TimeSpan.FromSeconds(10)));
+                using LivePause pause = session.Pause();
+                if (scenario == "overlay setup failure") {
+                    Volatile.Write(ref failWindow, 1);
+                    Assert.Throws<InvalidOperationException>(() => new ConfirmPrompt("Nested", true).Show(new InteractiveOptions {
+                        Target = target, Profile = profile, Input = new ScriptedInput("Enter"), Mode = InteractionMode.Rich
+                    }));
+                    Volatile.Write(ref failWindow, 0);
+                } else {
+                    Assert.True(new ConfirmPrompt("Nested", true).Show(new InteractiveOptions {
+                        Target = target, Profile = profile, Input = new ScriptedInput("Enter"), Mode = InteractionMode.Rich
+                    }));
+                }
+                // The nested lifetime did not leave the borrowed screen or retain an extra pause.
+                var active = new VtScreen(48, 12, keepScrollback: false);
+                active.Feed(text.ToString());
+                Assert.True(active.OnAlternate);
+                Assert.True(session.IsPaused);
+                pause.Dispose();
+                Assert.False(session.IsPaused);
+                session.Dispose();
+            }
+            AssertPromptReady(text.ToString());
+            text.Write("writer remains open");
+            Assert.EndsWith("writer remains open", text.ToString());
+        }
+
+        [Theory]
+        [InlineData("Run")]
+        [InlineData("RunAsync")]
+        [InlineData("Dispose")]
+        public async Task TerminalLifetime_WaitsForDeferredRestorationBeforeReturning(string lifetime) {
+            using var entered = new ManualResetEventSlim();
+            using var release = new ManualResetEventSlim();
+            using var text = new StringWriter(CultureInfo.InvariantCulture);
+            var profile = TerminalProfile.Fixed(48, 12, ColorDepth.TrueColor, GlyphTier.Full);
+            var target = new WriterTarget(text, profile);
+            var widget = new global::ConsoleMonster.Tests.Live.FakeTarget {
+                Rendering = _ => { entered.Set(); Assert.True(release.Wait(TimeSpan.FromSeconds(10))); }
+            };
+            using var session = new LiveSession(widget, new LiveSessionOptions {
+                Target = target, Profile = profile, CaptureConsole = false, HandleCancelKey = false,
+                TaskbarProgress = false, PrintFinalState = false, StopTimeout = TimeSpan.Zero
+            });
+            Task operation = Task.Run(async () => {
+                void Work(LiveSession _) { Assert.True(entered.Wait(TimeSpan.FromSeconds(10))); }
+                if (lifetime == "Run") session.Run(Work);
+                else if (lifetime == "RunAsync") await session.RunAsync((current, _) => { Work(current); return Task.CompletedTask; });
+                else { session.Start(); Work(session); session.Dispose(); }
+            });
+            try {
+                Assert.True(entered.Wait(TimeSpan.FromSeconds(10)));
+                Assert.True(SpinWait.SpinUntil(() => session.LastError is TimeoutException, TimeSpan.FromSeconds(10)));
+                Assert.False(operation.IsCompleted);
+            } finally { release.Set(); }
+            await operation;
+            Assert.True(session.OutputStopped.IsCompleted);
+            AssertPromptReady(text.ToString());
+        }
+
+        private static void AssertPromptReady(string output) {
+            var terminal = new VtScreen(48, 12, keepScrollback: false);
+            terminal.Feed(output);
+            Assert.False(terminal.OnAlternate);
+            Assert.True(terminal.CursorVisible);
+            Assert.Equal(0, terminal.Cursor.X);
+            Assert.False(terminal.Cursor.PendingWrap);
+            Assert.False(terminal.SynchronizedOutput);
+            Assert.False(terminal.ButtonMotionMouse);
+            Assert.False(terminal.SgrMouse);
+            Assert.False(terminal.HasIncompleteSequence);
+            Assert.Equal(Style.Plain, terminal.ActiveStyle);
+            Assert.True(string.IsNullOrWhiteSpace(terminal.Snapshot().GetRowText(terminal.Cursor.Y)));
+            // The next shell prompt starts on the empty row, with ordinary colours and no hidden suffix.
+            terminal.Feed("next prompt> ");
+            Assert.Equal("next prompt> ", terminal.Snapshot().GetRowText(terminal.Cursor.Y).TrimEnd() + " ");
+        }
+
+        private sealed class ExitContractWriter : StringWriter {
+            internal bool FailNextWrite;
+            public override void Write(string? value) {
+                if (FailNextWrite) { FailNextWrite = false; throw new IOException("contract cleanup write failure"); }
+                base.Write(value);
+            }
+        }
+
+        private sealed class ExitContractInput : IInputSource {
+            private readonly string _exit;
+            private readonly CancellationTokenSource _cancellation;
+            private readonly ScriptedInput _keys;
+            internal int Reads;
+            internal ExitContractInput(string exit, CancellationTokenSource cancellation, string normal) {
+                _exit = exit; _cancellation = cancellation;
+                _keys = new ScriptedInput(exit == "Esc" ? "Escape" : exit == "Ctrl+C" ? "Ctrl+C" : normal);
+            }
+            public string Name => "contract exit input";
+            public InputEvent? Read(TimeSpan timeout, CancellationToken cancellationToken) {
+                Reads++;
+                if (_exit == "exception") throw new InvalidOperationException("exit contract");
+                if (_exit == "cancel") { _cancellation.Cancel(); cancellationToken.ThrowIfCancellationRequested(); }
+                return _keys.Read(timeout, cancellationToken);
+            }
+            public void Dispose() => _keys.Dispose();
+        }
+
         private const string CallerText = "Łódź 東京 ✅ café";
         private static readonly Dictionary<string, Func<IWidget>> Scenes = new Dictionary<string, Func<IWidget>> {
             ["text"] = () => new TextBlock(CallerText),
+            ["diagram"] = () => new Diagram().Node(CallerText).Node("Target").Link(CallerText, "Target"),
             ["code"] = () => new CodeView(CallerText),
             ["report"] = TestScenes.Report,
             ["live dashboard"] = TestScenes.Live,
