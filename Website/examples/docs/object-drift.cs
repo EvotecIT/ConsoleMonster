@@ -26,11 +26,10 @@ object[] controllers = {
     }
 };
 
-// dc01 is the reference; each SPN is compared without its host name, so only real drift remains.
+// dc01, the first object, is the reference; each SPN is compared without its host name, so only real drift remains.
 var options = new DiffOptions();
 options.Ignore.Add("Name");
 options.Normalize["Spn"] = value => Regex.Replace(value?.ToString() ?? "", "/[^.]+", "/HOST");
 
-BaselineComparison comparison = ObjectDiff.CompareBaseline(
-    controllers, options, baselineName: "dc01");
+BaselineComparison comparison = ObjectDiff.CompareBaseline(controllers, options);
 Terminal.Write(new BaselineView(comparison) { Title = "Domain controller drift" });
