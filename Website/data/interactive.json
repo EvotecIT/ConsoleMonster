@@ -489,6 +489,80 @@
       ]
     },
     {
+      "id": "controls",
+      "title": "Tabs, toggles and dates",
+      "summary": "Retained tabs with Ctrl+PageDown, toggles that Space flips, and a date picker where Space marks the start and end of a range. The line underneath follows every change.",
+      "keys": "Space Tab Right Right Space Right Right Right Space Ctrl+PageDown Space Escape",
+      "csharp": "// A fixed \"today\", so the calendar opens on the same month every time.\nvar dates = new DateSelectionOptions {\n    Today = new DateTime(2026, 11, 18),\n    FirstDayOfWeek = DayOfWeek.Monday\n};\nvar schedule = new Rows(\n    new Toggle(\"Enabled\", true) { Label = \"Run nightly checks\" },\n    dates.CreatePicker(\"Window\", true));\nvar notify = new Rows(\n    new Toggle(\"Email\") { Label = \"Email the report\" },\n    new Toggle(\"Teams\") { Label = \"Post to Teams\" });\nvar tabs = new Tabs().Add(\"Schedule\", schedule).Add(\"Notify\", notify);\n\n// One line under the tabs follows every change.\nvar summary = new AppBinding(state => new TextBlock(\n    $\"[muted]Checks[/] {(state.Get(\"Enabled\", false) ? \"on\" : \"off\")}\" +\n    $\"  [muted]Window[/] {state[\"Window\"] ?? \"none\"}\" +\n    $\"  [muted]Email[/] {(state.Get(\"Email\", false) ? \"yes\" : \"no\")}\"));\n\nConsoleApp.Run(new Rows(new HeaderBar(\"Maintenance\"), tabs, summary), new AppState());",
+      "csharpFull": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\n// A fixed \"today\", so the calendar opens on the same month every time.\nvar dates = new DateSelectionOptions {\n    Today = new DateTime(2026, 11, 18),\n    FirstDayOfWeek = DayOfWeek.Monday\n};\nvar schedule = new Rows(\n    new Toggle(\"Enabled\", true) { Label = \"Run nightly checks\" },\n    dates.CreatePicker(\"Window\", true));\nvar notify = new Rows(\n    new Toggle(\"Email\") { Label = \"Email the report\" },\n    new Toggle(\"Teams\") { Label = \"Post to Teams\" });\nvar tabs = new Tabs().Add(\"Schedule\", schedule).Add(\"Notify\", notify);\n\n// One line under the tabs follows every change.\nvar summary = new AppBinding(state => new TextBlock(\n    $\"[muted]Checks[/] {(state.Get(\"Enabled\", false) ? \"on\" : \"off\")}\" +\n    $\"  [muted]Window[/] {state[\"Window\"] ?? \"none\"}\" +\n    $\"  [muted]Email[/] {(state.Get(\"Email\", false) ? \"yes\" : \"no\")}\"));\n\nConsoleApp.Run(new Rows(new HeaderBar(\"Maintenance\"), tabs, summary), new AppState());",
+      "csharpFile": "Program.cs",
+      "player": {
+        "url": "/replays/interactive-controls.json",
+        "w": 90,
+        "h": 22,
+        "duration": 4200,
+        "frames": 3,
+        "start": 0,
+        "poster": {
+          "w": 90,
+          "h": 22,
+          "dark": "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c11\">Maintenance</span><span class=\"fe2e8f0 k1f2a3c\">                                                                              </span>\n<span class=\"ff1f5f9 k243b5e c10\"> Schedule </span><span class=c1> </span><span class=f8b8f9a> Notify</span>\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c20\"><i class=n>›</i> Run nightly checks</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c65\">─────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"f60a5fa c3\">[<i class=n>✓</i>]</span><span class=c84> Yes                                                                                </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c88\">────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Window</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c79\">───────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c13\">November 2026</span><span class=c74>                                                                          </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c4\">Week</span><span class=c4>    </span><span class=\"B c2\">Mo</span><span class=c2>  </span><span class=\"B c2\">Tu</span><span class=c2>  </span><span class=\"B c2\">We</span><span class=c2>  </span><span class=\"B c2\">Th</span><span class=c2>  </span><span class=\"B c2\">Fr</span><span class=c2>  </span><span class=\"B c2\">Sa</span><span class=c2>  </span><span class=\"B c2\">Su</span><span class=c53>                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">W44</span><span class=c29>                             </span><span class=\"f8b8f9a c2\">01</span><span class=c53>                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">W45</span><span class=c25>     02  03  04  05  06  </span><span class=\"f8b8f9a c2\">07</span><span class=c2>  </span><span class=\"f8b8f9a c2\">08</span><span class=c53>                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">W46</span><span class=c25>     09  10  11  12  13  </span><span class=\"f8b8f9a c2\">14</span><span class=c2>  </span><span class=\"f8b8f9a c2\">15</span><span class=c53>                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">W47</span><span class=c13>     16  17  </span><span class=\"ff1f5f9 k243b5e B U c2\">18</span><span class=c10>  19  20  </span><span class=\"f8b8f9a c2\">21</span><span class=c2>  </span><span class=\"f8b8f9a c2\">22</span><span class=c53>                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">W48</span><span class=c25>     23  24  25  26  27  </span><span class=\"f8b8f9a c2\">28</span><span class=c2>  </span><span class=\"f8b8f9a c2\">29</span><span class=c53>                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">W49</span><span class=c84>     30                                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f8b8f9a c33\">Space anchor <i class=n>·</i> Enter select range</span><span class=c54>                                                      </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c88\">────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f8b8f9a c6\">Checks</span><span class=c5> on  </span><span class=\"f8b8f9a c6\">Window</span><span class=c7> none  </span><span class=\"f8b8f9a c5\">Email</span> no\n\n\n<span class=c1> </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> quit</span>"
+        }
+      },
+      "powershell": "# A fixed \"today\", so the calendar opens on the same month every time.\n$dates = @{\n    Today = [datetime] '2026-11-18'; FirstDayOfWeek = 'Monday'\n}\n\nShow-ConsoleApp -Title Maintenance -Content {\n    New-ConsoleTabs -Content ([ordered] @{\n        Schedule = {\n            New-ConsoleToggle -Key Enabled -Label 'Run nightly checks' -Value $true\n            New-ConsoleDatePicker -Key Window -Range -Selection $dates\n        }\n        Notify = {\n            New-ConsoleToggle -Key Email -Label 'Email the report'\n            New-ConsoleToggle -Key Teams -Label 'Post to Teams'\n        }\n    })\n    # One line under the tabs follows every change.\n    New-ConsoleBinding -Content {\n        param($State)\n        $checks = if ($State.Enabled) { 'on' } else { 'off' }\n        $window = if ($State.Window) { $State.Window } else { 'none' }\n        $email = if ($State.Email) { 'yes' } else { 'no' }\n        \"[muted]Checks[/] $checks  [muted]Window[/] $window  [muted]Email[/] $email\"\n    }\n}",
+      "powershellFull": "Import-Module ConsoleMonster\n\n# A fixed \"today\", so the calendar opens on the same month every time.\n$dates = @{\n    Today = [datetime] '2026-11-18'; FirstDayOfWeek = 'Monday'\n}\n\nShow-ConsoleApp -Title Maintenance -Content {\n    New-ConsoleTabs -Content ([ordered] @{\n        Schedule = {\n            New-ConsoleToggle -Key Enabled -Label 'Run nightly checks' -Value $true\n            New-ConsoleDatePicker -Key Window -Range -Selection $dates\n        }\n        Notify = {\n            New-ConsoleToggle -Key Email -Label 'Email the report'\n            New-ConsoleToggle -Key Teams -Label 'Post to Teams'\n        }\n    })\n    # One line under the tabs follows every change.\n    New-ConsoleBinding -Content {\n        param($State)\n        $checks = if ($State.Enabled) { 'on' } else { 'off' }\n        $window = if ($State.Window) { $State.Window } else { 'none' }\n        $email = if ($State.Email) { 'yes' } else { 'no' }\n        \"[muted]Checks[/] $checks  [muted]Window[/] $window  [muted]Email[/] $email\"\n    }\n}",
+      "powershellFile": "controls.ps1",
+      "parity": true,
+      "csharpRepo": "Website/examples/interactive/controls.cs",
+      "csharpFluent": "// A fixed \"today\", so the calendar opens on the same month every time.\nvar dates = new DateSelectionOptions()\n    .Today(new DateTime(2026, 11, 18))\n    .FirstDayOfWeek(DayOfWeek.Monday);\nvar schedule = Ui.Rows().Content(c =>\n{\n    c.Toggle(toggle => toggle.Key(\"Enabled\").Value(true).Label(\"Run nightly checks\"));\n    c.Add(dates.CreatePicker(\"Window\", true));\n});\nvar notify = Ui.Rows().Content(c =>\n{\n    c.Toggle(toggle => toggle.Key(\"Email\").Label(\"Email the report\"));\n    c.Toggle(toggle => toggle.Key(\"Teams\").Label(\"Post to Teams\"));\n});\nvar tabs = Ui.Tabs().Add(\"Schedule\", schedule).Add(\"Notify\", notify);\n\n// One line under the tabs follows every change.\nvar summary = Ui.Binding()\n    .Configure(\n        o => o.Content = state => Ui.Markup(\n            $\"[muted]Checks[/] {(state.Get(\"Enabled\", false) ? \"on\" : \"off\")}\"\n                + $\"  [muted]Window[/] {state[\"Window\"] ?? \"none\"}\"\n                + $\"  [muted]Email[/] {(state.Get(\"Email\", false) ? \"yes\" : \"no\")}\"))\n    .Build();\nConsoleApp.Run(Ui.Rows().Content(c =>\n{\n    c.HeaderBar(headerBar => headerBar.Title(\"Maintenance\"));\n    c.Add(tabs);\n    c.Add(summary);\n}), new AppState());\n",
+      "csharpFluentFull": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\n// A fixed \"today\", so the calendar opens on the same month every time.\nvar dates = new DateSelectionOptions()\n    .Today(new DateTime(2026, 11, 18))\n    .FirstDayOfWeek(DayOfWeek.Monday);\nvar schedule = Ui.Rows().Content(c =>\n{\n    c.Toggle(toggle => toggle.Key(\"Enabled\").Value(true).Label(\"Run nightly checks\"));\n    c.Add(dates.CreatePicker(\"Window\", true));\n});\nvar notify = Ui.Rows().Content(c =>\n{\n    c.Toggle(toggle => toggle.Key(\"Email\").Label(\"Email the report\"));\n    c.Toggle(toggle => toggle.Key(\"Teams\").Label(\"Post to Teams\"));\n});\nvar tabs = Ui.Tabs().Add(\"Schedule\", schedule).Add(\"Notify\", notify);\n\n// One line under the tabs follows every change.\nvar summary = Ui.Binding()\n    .Configure(\n        o => o.Content = state => Ui.Markup(\n            $\"[muted]Checks[/] {(state.Get(\"Enabled\", false) ? \"on\" : \"off\")}\"\n                + $\"  [muted]Window[/] {state[\"Window\"] ?? \"none\"}\"\n                + $\"  [muted]Email[/] {(state.Get(\"Email\", false) ? \"yes\" : \"no\")}\"))\n    .Build();\nConsoleApp.Run(Ui.Rows().Content(c =>\n{\n    c.HeaderBar(headerBar => headerBar.Title(\"Maintenance\"));\n    c.Add(tabs);\n    c.Add(summary);\n}), new AppState());\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleToggle",
+          "csharp": "new Toggle(…)",
+          "fluent": "Ui.Toggle()",
+          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Toggle",
+          "note": "Inside Content: c.Toggle(toggle => …)."
+        },
+        {
+          "powershell": "New-ConsoleToggle -Value …",
+          "csharp": "Value = …",
+          "fluent": ".Value(…)",
+          "memberId": "ConsoleMonster.Interactive.ToggleInputOptions.Value",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleTabs",
+          "csharp": "new Tabs(…)",
+          "fluent": "Ui.Tabs()",
+          "memberId": "M:ConsoleMonster.Ui.Tabs",
+          "note": "Inside Content: c.Tabs(tabs => …)."
+        },
+        {
+          "powershell": "New-ConsoleTabs -Content …",
+          "csharp": "Tabs.Add(…)",
+          "fluent": "Tabs.Add(…)",
+          "memberId": "A:ConsoleMonster.Widgets.Tabs.Add.content",
+          "note": "Each typed page contributes its key and retained content to the shared tab container. The content argument receives …."
+        },
+        {
+          "powershell": "New-ConsoleBinding -Content { … }",
+          "csharp": "Content = …",
+          "fluent": ".Content(c => { … })",
+          "memberId": "ConsoleMonster.Interactive.BindingOptions.Content",
+          "note": "The typed definition materializes the same AppBinding after callback and identity configuration. C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
+        },
+        {
+          "powershell": "New-ConsoleText -Markup $text",
+          "csharp": "new TextBlock(text)",
+          "fluent": "Ui.Markup(text); c.Markup(text)",
+          "memberId": "M:ConsoleMonster.Ui.Markup",
+          "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
+        }
+      ]
+    },
+    {
       "id": "grid",
       "title": "The grid",
       "summary": "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",

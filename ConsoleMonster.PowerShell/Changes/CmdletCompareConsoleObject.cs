@@ -191,12 +191,8 @@ namespace ConsoleMonster.PowerShell {
                     options.Key.Add(NameProperty!);
                 }
                 object?[] objects = PSChanges.Unwrap(_difference).ToArray();
-                object? requested = Baseline == null ? null : PSObjectMemberSource.UnwrapPSObject(Baseline);
-                if (requested != null && !(requested is int) && !(requested is string)) {
-                    throw new ArgumentException("Baseline must be a column name or a zero-based Int32 index.");
-                }
-                BaselineComparison comparison = ObjectDiff.CompareBaseline(objects, options, Name,
-                    requested is int index ? index : 0, requested as string);
+                options.Baseline = Baseline == null ? null : PSObjectMemberSource.UnwrapPSObject(Baseline);
+                BaselineComparison comparison = ObjectDiff.CompareBaseline(objects, options, Name);
                 if (PassThru.IsPresent) {
                     foreach (BaselineRow row in comparison.Rows) { WriteObject(row); }
                 } else {

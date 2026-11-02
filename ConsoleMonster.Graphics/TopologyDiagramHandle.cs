@@ -5,7 +5,7 @@ using ConsoleMonster.Live;
 
 namespace ConsoleMonster.Graphics {
     /// <summary>A thread-safe live handle for a <see cref="TopologyDiagram"/>: node values and statuses for dashboards, and step control.</summary>
-    public sealed class TopologyDiagramHandle : LiveHandle {
+    internal sealed class TopologyDiagramHandle : LiveHandle {
         /// <summary>Creates a handle.</summary>
         /// <param name="dispatcher">The dispatcher.</param><param name="widgetId">The view identifier.</param>
         public TopologyDiagramHandle(ILiveDispatcher dispatcher, string widgetId) : base(dispatcher, widgetId) { }

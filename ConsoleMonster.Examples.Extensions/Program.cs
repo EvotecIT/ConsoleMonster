@@ -16,6 +16,8 @@ namespace ConsoleMonster.Examples.Extensions {
         public static async Task<int> Main(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "logging";
             switch (name) {
+                case "diagram":
+                    return DiagramLadderExample.Run(args);
                 case "logging":
                     Logging();
                     return 0;

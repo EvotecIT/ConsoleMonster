@@ -1,5 +1,11 @@
-### Unreleased
+## Unreleased
 
+- Added the `Diagram` model, widget-returning fluent chains and PowerShell diagram commands for nodes, links, nested groups, connection rows and playable use cases.
+- Kept diagram models and grouped tree rendering in the dependency-free core. The optional Graphics provider adds ChartForgeX import, routed topology rendering, keyboard navigation and PNG export.
+- Added full-text attention summaries, a lossless narrow tree view, and addressed node values and shared `StatusKind` updates through C# handles and `Update-Console`.
+- Unified baseline selection in `DiffOptions.Baseline` and documented hashtable configuration for PowerShell date pickers.
+- Kept omitted diagram statuses unmarked, nested tree hierarchies, preserved wrapped guides and used compact natural topology sizing.
+- Added the typed `TopologyChart.ToDiagram()` extension in Graphics, keeping the core free of ChartForgeX types and dependencies.
 - Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.
 - Tables, cards, records, key/value lists, trees and diffs distinguish missing, null and empty data. Record sheets show empty fields by default; explicit empty-field filtering remains available.
 - ASCII and Basic output constrain caller text to ASCII and WGL4 respectively. Grid and live-table string sorting use stable ordinal case-insensitive order. See the [behaviour contract](Docs/Behaviour-Contract.md).

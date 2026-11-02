@@ -32,6 +32,9 @@ namespace ConsoleMonster.Changes {
         /// <summary>Compare string values and match keys with ordinal case sensitivity. Default false.</summary>
         public bool CaseSensitive { get; set; }
 
+        /// <summary>The baseline column's zero-based <see cref="int"/> index or unique <see cref="string"/> name. Null selects the first column; numeric strings remain names.</summary>
+        public object? Baseline { get; set; }
+
         /// <summary>Comparison-only transforms keyed by exact property path (case-insensitive lookup). Display keeps original values.</summary>
         public IDictionary<string, Func<object?, object?>> Normalize { get; } = new Dictionary<string, Func<object?, object?>>(StringComparer.OrdinalIgnoreCase);
 

@@ -13,6 +13,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
+using ConsoleMonster.Widgets;
 using ConsoleMonster.Tests.Rendering;
 using Xunit;
 
@@ -189,6 +190,22 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
 
             Assert.True(lines.Max(line => line.TrimEnd().Length) <= 80, "A two-node diagram should not stretch across 200 columns:\n" + string.Join("\n", lines));
             Assert.True(lines.Count(line => line.Contains("│")) <= 8, "Node boxes should stay a few rows tall.");
+        }
+
+        [Fact]
+        public void Layout_DefaultCanvasBranchingDiagram_UsesGeometryExtentWithoutStretching() {
+            var diagram = new Diagram("Ping") { Nodes = { new DiagramNode("This PC"), new DiagramNode("Router"), new DiagramNode("DNS"), new DiagramNode("VPN"), new DiagramNode("Internet") }, Links = {
+                new DiagramLink("This PC", "Router"), new DiagramLink("Router", "DNS"), new DiagramLink("Router", "VPN"), new DiagramLink("Router", "Internet")
+            } };
+            TopologyChart chart = DiagramConversion.ToChart(diagram);
+            var view = new TopologyDiagram(chart);
+            TopologyCellLayout medium = view.Layout(120);
+            TopologyCellLayout wide = view.Layout(200);
+            Assert.InRange(medium.Columns, 20, 85);
+            Assert.InRange(medium.Rows, 1, 25);
+            Assert.Equal(medium.Columns, wide.Columns);
+            Assert.Equal(medium.Rows, wide.Rows);
+            Assert.Equal(medium.FindNode("Router")!.Column, wide.FindNode("Router")!.Column);
         }
 
         [Fact]

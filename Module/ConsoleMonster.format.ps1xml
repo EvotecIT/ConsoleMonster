@@ -65,6 +65,7 @@
         <TypeName>ConsoleMonster.Widgets.ConsoleViewFrame</TypeName>
         <TypeName>ConsoleMonster.Widgets.ContextWidget</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Diagram</TypeName>
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
         <TypeName>ConsoleMonster.Widgets.FactFlow</TypeName>
         <TypeName>ConsoleMonster.Widgets.Flow</TypeName>

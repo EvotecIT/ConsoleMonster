@@ -80,10 +80,10 @@ namespace ConsoleMonster.Tests.Changes {
                 new Dictionary<string, object?> { ["Name"] = "dc02", ["Port"] = 443, ["Site"] = "HQ", ["Optional"] = null, ["Spn"] = "ldap/dc02.example", ["CaseValue"] = "BASE" },
                 new Dictionary<string, object?> { ["Name"] = "dc03", ["Port"] = 443, ["Site"] = "HQ", ["Spn"] = "ldap/dc03.example", ["CaseValue"] = "base" }
             };
-            var options = new DiffOptions();
+            var options = new DiffOptions { Baseline = 1 };
             options.Ignore.Add("Name");
             options.Normalize["Spn"] = value => System.Text.RegularExpressions.Regex.Replace((string)value!, "/[^.]+", "/HOST");
-            BaselineComparison comparison = ObjectDiff.CompareBaseline(objects, options, baselineIndex: 1);
+            BaselineComparison comparison = ObjectDiff.CompareBaseline(objects, options);
             Assert.Equal(new[] { "dc01", "dc02", "dc03" }, comparison.Names);
             Assert.Equal(1, comparison.BaselineIndex);
             Assert.DoesNotContain(comparison.Rows, row => row.Path == "Site");
@@ -112,7 +112,7 @@ namespace ConsoleMonster.Tests.Changes {
             string translated = TestTerminal.RenderText(new BaselineView(comparison), 100, 0, GlyphTier.Basic, CultureInfo.GetCultureInfo("pl"));
             Assert.Contains("Pokazano 4 właściwości, ukryto 2 zgodnych", translated);
             options.IncludeUnchanged = true;
-            BaselineComparison all = ObjectDiff.CompareBaseline(objects, options, baselineIndex: 1);
+            BaselineComparison all = ObjectDiff.CompareBaseline(objects, options);
             Assert.Contains(all.Rows, row => row.Path == "Site" && !row.HasDifferences);
             Assert.Equal(0, all.HiddenMatchingCount);
             string allText = TestTerminal.RenderText(new BaselineView(all), 100, 0, GlyphTier.Ascii);
@@ -138,7 +138,40 @@ namespace ConsoleMonster.Tests.Changes {
                 Assert.Equal(TextDecoration.Bold, baseline.Style.Decoration & TextDecoration.Bold);
                 Assert.Equal(theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor).Color, At("Site", "HQ").Style.Color);
             }
-            Assert.Throws<ArgumentOutOfRangeException>(() => ObjectDiff.CompareBaseline(objects, baselineIndex: 3));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ObjectDiff.CompareBaseline(objects, new DiffOptions { Baseline = 3 }));
+        }
+
+        [Theory]
+        [InlineData(null, false, 0)]
+        [InlineData(0, false, 0)]
+        [InlineData(1, false, 1)]
+        [InlineData("DC02", false, 1)]
+        [InlineData("dc02", true, 1)]
+        [InlineData("1", false, 2)]
+        public void BaselineSelector_UsesOneOptionForDefaultIndexOrName(object? baseline, bool caseSensitive, int expected) {
+            object[] objects = { new { Port = 80 }, new { Port = 443 }, new { Port = 389 } };
+            var options = new DiffOptions { Baseline = baseline, CaseSensitive = caseSensitive, IncludeUnchanged = true };
+            BaselineComparison comparison = ObjectDiff.CompareBaseline(objects, options, new[] { "dc01", "dc02", "1" });
+            Assert.Equal(expected, comparison.BaselineIndex);
+            BaselineRow row = Assert.Single(comparison.Rows);
+            Assert.Equal(ChangeKind.Unchanged, row.Cells[expected].Kind);
+            Assert.Equal(2, row.Cells.Count(cell => cell.Kind == ChangeKind.Changed));
+        }
+
+        [Theory]
+        [InlineData(-1, false)]
+        [InlineData(3, false)]
+        [InlineData("missing", false)]
+        [InlineData("DC02", true)]
+        [InlineData("dc01", false)]
+        [InlineData(1L, false)]
+        [InlineData(true, false)]
+        public void BaselineSelector_RejectsInvalidIndexesNamesAndKinds(object baseline, bool caseSensitive) {
+            object[] objects = { new { Port = 80 }, new { Port = 443 }, new { Port = 389 } };
+            var options = new DiffOptions { Baseline = baseline, CaseSensitive = caseSensitive };
+            ArgumentException error = Assert.ThrowsAny<ArgumentException>(() =>
+                ObjectDiff.CompareBaseline(objects, options, new[] { "dc01", "DC01", "dc02" }));
+            Assert.Equal("Baseline", error.ParamName);
         }
     }
 }

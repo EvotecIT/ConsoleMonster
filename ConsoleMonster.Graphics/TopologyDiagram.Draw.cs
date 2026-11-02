@@ -8,9 +8,11 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using ConsoleMonster.Widgets;
+using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.Graphics {
-    public sealed partial class TopologyDiagram {
+    internal sealed partial class TopologyDiagram {
         private sealed class Line {
             public Line(string text, ThemeToken token, int indent = 0) { Text = text; Token = token; Indent = indent; }
             public string Text { get; }
@@ -55,6 +57,20 @@ namespace ConsoleMonster.Graphics {
                 SanitizeLines(below, context);
             }
             return new Frame(layout.Paint(paint), above, below);
+        }
+
+        internal IWidget? Panels(RenderContext context) {
+            lock (_gate) {
+                var lines = new List<Line>();
+                bool ascii = context.Profile.Glyphs == GlyphTier.Ascii;
+                _basic = context.Profile.Glyphs == GlyphTier.Basic;
+                TopologyResolvedScenarioStep? step = _scenario != null && _step.HasValue && _step.Value < _scenario.Steps.Count ? _scenario.Steps[_step.Value] : null;
+                if (ShowStepPanel && _scenario != null) AddStepPanel(lines, step, ascii);
+                if (ShowDetails && _focus != null) AddDetails(lines, ascii);
+                if (ShowKeys) AddKeyHints(lines, ascii);
+                return lines.Count == 0 ? null : new Rows(lines.Select(line => (IWidget)TextBlock.Plain(
+                    new string(' ', line.Indent) + DiagramText.ForTier(line.Text, context), line.Token)).ToArray());
+            }
         }
 
         private void AddStepPanel(List<Line> lines, TopologyResolvedScenarioStep? active, bool ascii) {
@@ -103,13 +119,7 @@ namespace ConsoleMonster.Graphics {
         private static void SanitizeLines(List<Line> lines, RenderContext context) {
             for (int index = 0; index < lines.Count; index++) {
                 Line line = lines[index];
-                string text = SymbolFallback.Apply(line.Text, GlyphTier.Ascii, context.Profile.WidthProfile);
-                // Apply preserves ordinary Unicode prose. This widget's explicit ASCII contract also needs
-                // the canonical fixed-cell fallback for any remaining non-ASCII graphemes.
-                text = string.Concat(DisplayWidth.Clusters(text, context.Profile.WidthProfile).Select(cluster => {
-                    string glyph = text.Substring(cluster.Start, cluster.Length);
-                    return glyph.All(ch => ch < 128) ? glyph : SymbolFallback.GetGlyph(glyph, GlyphTier.Ascii, context.Profile.WidthProfile);
-                }));
+                string text = DiagramText.ForTier(line.Text, context);
                 lines[index] = new Line(text, line.Token, line.Indent);
             }
         }
@@ -118,8 +128,12 @@ namespace ConsoleMonster.Graphics {
             TopologyNode? node = _chart.Nodes.FirstOrDefault(item => item.Id == _focus);
             if (node == null) return;
             TopologyHealthStatus status = _statuses.TryGetValue(node.Id, out TopologyHealthStatus live) ? live : node.Status;
-            List<string> facts = new List<string> { string.IsNullOrWhiteSpace(node.Label) ? node.Id : node.Label, node.Kind.ToString() };
-            if (status != TopologyHealthStatus.Unknown) facts.Add(status.ToString());
+            List<string> facts = new List<string> { string.IsNullOrWhiteSpace(node.Label) ? node.Id : node.Label,
+                _nodeKinds.TryGetValue(node.Id, out DiagramNodeKind ownKind) ? ownKind.ToString() : node.Kind.ToString() };
+            if (_statusKinds.TryGetValue(node.Id, out StatusKind ownStatus)) {
+                if (!_unmarkedNodes.Contains(node.Id)) facts.Add(ownStatus.ToString());
+            }
+            else if (status != TopologyHealthStatus.Unknown) facts.Add(status.ToString());
             if (!string.IsNullOrWhiteSpace(node.GroupId)) facts.Add(_chart.Groups.FirstOrDefault(group => group.Id == node.GroupId)?.Label ?? node.GroupId!);
             lines.Add(new Line(string.Empty, ThemeToken.Muted));
             lines.Add(new Line((ascii ? "* " : _basic ? "♦ " : "◆ ") + string.Join(Dot(ascii), facts), ThemeToken.Focus));
@@ -159,12 +173,25 @@ namespace ConsoleMonster.Graphics {
             for (int row = 0; row < frame.Canvas.Rows && y < region.Height; row++, y++) {
                 for (int column = 0; column < frame.Canvas.Columns && column < region.Width; column++) {
                     TopologyCell cell = frame.Canvas[column, row];
+                    if (cell.Role == TopologyCellRole.NodeStatus && cell.ElementId != null && _statusKinds.ContainsKey(cell.ElementId)) continue;
+                    if (cell.Role == TopologyCellRole.GroupBorder && cell.ElementId != null && BorderlessGroups.Contains(cell.ElementId)) continue;
                     if (cell.Width == 0 || cell.Role == TopologyCellRole.Empty) continue;
                     if (column + cell.Width > region.Width) break;
                     string glyph = ascii ? SymbolFallback.GetGlyph(cell.Glyph, GlyphTier.Ascii, context.Profile.WidthProfile)
                         : basic ? BasicGlyph(cell.Glyph) : cell.Glyph;
                     region.Put(column, y, glyph, CellStyle(cell, context), ascii ? 1 : cell.Width);
                 }
+            }
+
+            // The engine omits markers for Unknown. Paint the core status at its projected node position so
+            // Info, Pending, Running and the other StatusKind meanings survive that health-only projection.
+            if (_layout != null) foreach (TopologyCellNode node in _layout.Nodes) {
+                if (!_statusKinds.TryGetValue(node.Id, out StatusKind status) || _unmarkedNodes.Contains(node.Id)) continue;
+                int column = node.Column + node.Width - 2, row = frame.Above.Count + node.Row + 1;
+                if (column >= region.Width || row >= region.Height) continue;
+                string marker = context.Glyphs.StatusSymbol(status);
+                if (DisplayWidth.Measure(marker, context.Profile.WidthProfile) != 1) marker = SymbolFallback.GetGlyph(marker, context.Profile.Glyphs, context.Profile.WidthProfile);
+                region.Put(column, row, marker, context.Style(status), 1);
             }
 
             foreach (Line line in frame.Below) {

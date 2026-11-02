@@ -8,7 +8,8 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Graphics {
-    public sealed partial class TopologyDiagram {
+    internal sealed partial class TopologyDiagram {
+        internal Action<bool>? DetailsChanged;
         internal bool ScrollKeyHints { get { lock (_gate) { return _scrollKeyHints; } } set { lock (_gate) { _scrollKeyHints = value; } } }
         private bool _scrollKeyHints;
 
@@ -46,6 +47,7 @@ namespace ConsoleMonster.Graphics {
                     case 'd':
                         if (_chart.Nodes.Count == 0) return false;
                         if (_focus == null) { _showDetails = true; FocusNext(1); } else _showDetails = !_showDetails;
+                        DetailsChanged?.Invoke(_showDetails);
                         return true;
                     default: return false;
                 }
@@ -61,14 +63,15 @@ namespace ConsoleMonster.Graphics {
     }
 
     /// <summary>Runs a <see cref="TopologyDiagram"/> as a keyboard app, or prints a snapshot when interaction is unavailable.</summary>
-    public static class TopologyDiagramApp {
+    internal static class TopologyDiagramApp {
         /// <summary>Shows the diagram with keys, scrolling and live playback in a rich console. Otherwise prints one static snapshot without reading input.</summary>
         /// <remarks>The selected scenario's AutoPlay setting starts playback when the keyboard view opens. Static snapshots retain the current step and do not start autoplay.</remarks>
         /// <param name="diagram">The diagram.</param>
         /// <param name="options">Optional app options. They are restored when the app ends; an existing input handler still runs first.</param>
         /// <param name="cancellationToken">Cancels the app.</param>
+        /// <param name="content">Optional composed Diagram content, including summary and narrow tree.</param>
         /// <returns>The final app state.</returns>
-        public static AppState Run(this TopologyDiagram diagram, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default) {
+        public static AppState Run(this TopologyDiagram diagram, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, IWidget? content = null) {
             if (diagram == null) throw new ArgumentNullException(nameof(diagram));
             ConsoleAppOptions settings = options ?? new ConsoleAppOptions();
             InteractiveOptions? originalInteractive = settings.Interactive;
@@ -77,7 +80,7 @@ namespace ConsoleMonster.Graphics {
                 interactive.Mode = InteractionMode.Snapshot;
                 try {
                     settings.Interactive = interactive;
-                    return ConsoleApp.Run(diagram, null, settings, cancellationToken);
+                    return ConsoleApp.Run(content ?? diagram, null, settings, cancellationToken);
                 } finally {
                     settings.Interactive = originalInteractive;
                 }
@@ -87,7 +90,7 @@ namespace ConsoleMonster.Graphics {
             KeyChord? previousFocus = settings.Keys.PreviousFocus;
             bool keys = diagram.ShowKeys;
             bool scrollHints = diagram.ScrollKeyHints;
-            var viewport = new DiagramViewport(diagram);
+            var viewport = new DiagramViewport(diagram, content ?? diagram);
             try {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (diagram.Scenario?.Scenario.AutoPlay == true) diagram.Play();
@@ -110,13 +113,14 @@ namespace ConsoleMonster.Graphics {
         private sealed class DiagramViewport : IContainer {
             private readonly TopologyDiagram _diagram;
             private readonly ScrollView _scroll;
+            private readonly IWidget _content;
             private int _canScroll;
 
-            internal DiagramViewport(TopologyDiagram diagram) { _diagram = diagram; _scroll = new ScrollView(diagram); }
+            internal DiagramViewport(TopologyDiagram diagram, IWidget content) { _diagram = diagram; _content = content; _scroll = new ScrollView(content); }
             public IReadOnlyList<IWidget> Children => new IWidget[] { _scroll };
             public Size Measure(Constraints constraints, RenderContext context) => _scroll.Measure(constraints, context);
             public void Render(Region region, RenderContext context) {
-                bool canScroll = _diagram.Measure(new Constraints(region.Width), context).Height > region.Height;
+                bool canScroll = _content.Measure(new Constraints(region.Width), context).Height > region.Height;
                 Volatile.Write(ref _canScroll, canScroll ? 1 : 0);
                 _diagram.ScrollKeyHints = canScroll;
                 _scroll.Render(region, context);
