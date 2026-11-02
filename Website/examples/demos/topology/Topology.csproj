@@ -9,9 +9,6 @@
         <IsPackable>false</IsPackable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="ChartForgeX.Markup" Version="3.3.0" />
-    </ItemGroup>
-    <ItemGroup>
         <ProjectReference Include="..\..\..\..\ConsoleMonster.Graphics\ConsoleMonster.Graphics.csproj" />
     </ItemGroup>
     <ItemGroup>

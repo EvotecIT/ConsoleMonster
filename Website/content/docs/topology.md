@@ -9,12 +9,13 @@ chips: [ChartForgeX, Use cases, Live values]
 summary: "Architecture and request-flow diagrams in terminal cells, with use case playback."
 ---
 
-ConsoleMonster.Graphics draws the architecture and topology diagrams that ChartForgeX renders as SVG, PNG or an HTML player, in terminal cells: boxes with status, routed connections with arrows, dashed groups and a legend. ChartForgeX lays the diagram out once, so the terminal, the image and the web page show the same picture.
+A `Diagram` is nodes, links, groups and use cases, written in C#, with the fluent builder or with PowerShell commands. The core package draws it as a tree and needs nothing else. Add ConsoleMonster.Graphics and register it, and the same diagram is drawn with the ChartForgeX layout: boxes with status, routed connections with arrows, dashed groups and a legend, the same picture ChartForgeX renders as SVG, PNG or an HTML player.
 
 ```terminal
 dotnet add package ConsoleMonster.Graphics
-dotnet add package ChartForgeX.Markup
 ```
+
+`DiagramRendererProvider.Register()` turns on the Graphics drawing once per process; `Diagram.Load(path)` then reads a ChartForgeX architecture file, as the demo below does.
 
 {{< cm-demo id="topology" heading="h2" >}}
 
@@ -51,11 +52,13 @@ Markup errors stop the command with the file, line and diagnostic code, for exam
 A diagram can be a live dashboard. Values and statuses change, the layout stays put, and nodes keep room for a short value; longer text shows in the focused node's details.
 
 ```csharp
-using var session = new LiveSession(view, new LiveSessionOptions());
+using var session = new LiveSession(diagram, new LiveSessionOptions());
 session.Start();
-TopologyDiagramHandle handle = view.Handle(session);
-handle.Value("dc03", "lag 42 min", TopologyHealthStatus.Critical);
+DiagramHandle handle = diagram.Handle(session);
+handle.Value("dc03", "lag 42 min", StatusKind.Fail);
 ```
+
+In PowerShell, give the diagram a `-WidgetId` and update it with `Update-Console -WidgetId <id> -Key dc03 -Value 'lag 42 min' -Status Fail`.
 
 ## Glyphs and width
 

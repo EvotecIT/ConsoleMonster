@@ -20,11 +20,11 @@ source 1719100c876a104f07535c7542316d2a
 Checks on  Window none  Email no
 
 
- tab next  shift+tab back  esc quitbae808b0b3a569f6
+ tab next  shift+tab back  esc quit07535c7542316d2a
  Maintenance
  Schedule   Notify
 ╭─ › Run nightly checks ─────────────────────────────────────────────────────────────────╮
-│ [ ] No                                                                                 │
+│ [✓] Yes                                                                                │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Window ───────────────────────────────────────────────────────────────────────────────╮
 │ November 2026                                                                          │

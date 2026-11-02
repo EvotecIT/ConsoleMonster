@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 41,
+      "count": 47,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -374,6 +374,36 @@
           "name": "New-ConsoleDatePicker",
           "synopsis": "Creates a persistent civil-date or inclusive range picker.",
           "url": "/powershell/commands/new-consoledatepicker/"
+        },
+        {
+          "name": "New-ConsoleDiagram",
+          "synopsis": "Builds a diagram from a script block or connection rows.",
+          "url": "/powershell/commands/new-consolediagram/"
+        },
+        {
+          "name": "New-ConsoleDiagramGroup",
+          "synopsis": "Groups components and nested diagram groups.",
+          "url": "/powershell/commands/new-consolediagramgroup/"
+        },
+        {
+          "name": "New-ConsoleDiagramLink",
+          "synopsis": "Connects two diagram components.",
+          "url": "/powershell/commands/new-consolediagramlink/"
+        },
+        {
+          "name": "New-ConsoleDiagramNode",
+          "synopsis": "Creates a diagram component.",
+          "url": "/powershell/commands/new-consolediagramnode/"
+        },
+        {
+          "name": "New-ConsoleDiagramStep",
+          "synopsis": "Creates a request, message, reply or failed interaction.",
+          "url": "/powershell/commands/new-consolediagramstep/"
+        },
+        {
+          "name": "New-ConsoleDiagramUseCase",
+          "synopsis": "Builds a playable sequence of diagram interactions.",
+          "url": "/powershell/commands/new-consolediagramusecase/"
         },
         {
           "name": "New-ConsoleDialog",
@@ -611,7 +641,7 @@
         },
         {
           "name": "Show-ConsoleDiagram",
-          "synopsis": "Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.",
+          "synopsis": "Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.",
           "url": "/powershell/commands/show-consolediagram/"
         },
         {
