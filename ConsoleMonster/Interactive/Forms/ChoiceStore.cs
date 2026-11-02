@@ -53,7 +53,7 @@ namespace ConsoleMonster.Interactive {
             if (Section(Load(PresetsFile), form) is Dictionary<string, object?> presets) {
                 names.AddRange(presets.Keys);
             }
-            names.Sort(StringComparer.CurrentCultureIgnoreCase);
+            names.Sort(StringComparer.Ordinal);
             return names;
         }
 

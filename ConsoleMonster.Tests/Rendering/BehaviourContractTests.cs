@@ -306,6 +306,23 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal(new[] { "lower", "upper", "last", "accent" }, live.Keys);
             Assert.NotNull(new Menu("Tasks").Item("ALPHA").Find("alpha"));
             Assert.True(new LogFilter(tag: "API", text: "READY").Matches(new LogEntry(TimeSpan.Zero, "info", "ready", null, "api")));
+            string root = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "cm-behaviour-" + Guid.NewGuid().ToString("N"));
+            CultureInfo previous = CultureInfo.CurrentCulture;
+            try {
+                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(culture);
+                var store = new ChoiceStore("Presets", root);
+                foreach (string name in new[] { "alpha", "ALPHA", "zeta", "ä" }) store.SavePreset("form", name, new Dictionary<string, object?>());
+                Assert.Equal(new[] { "ALPHA", "alpha", "zeta", "ä" }, store.PresetNames("form"));
+                Assert.Null(store.LoadPreset("form", "Alpha"));
+                string files = System.IO.Directory.CreateDirectory(System.IO.Path.Combine(root, "paths")).FullName;
+                foreach (string name in new[] { "alpha", "zeta", "ä" }) System.IO.File.WriteAllText(System.IO.Path.Combine(files, name), "");
+                var path = new PathPrompt("Path") { BasePath = files };
+                Assert.Equal(new[] { "alpha", "zeta", "ä" }, path.Complete(""));
+                Assert.Equal(new[] { "alpha" }, path.Complete("AL"));
+            } finally {
+                CultureInfo.CurrentCulture = previous;
+                if (System.IO.Directory.Exists(root)) System.IO.Directory.Delete(root, true);
+            }
         }
 
         [Theory]

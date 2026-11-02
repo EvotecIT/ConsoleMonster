@@ -27,7 +27,9 @@ with a useful state, rather than in another copy of the same tests.
 
 | Feature | Case rule |
 | --- | --- |
-| Menu item/preset names; grid substring filters and prefix search; log tags/text; tree search | Ordinal, case-insensitive |
+| Menu item names; grid substring filters and prefix search; log tags/text; tree search; path completion | Ordinal, case-insensitive |
+| Saved preset/form names | Ordinal, case-sensitive for lookup and listing; differently cased saved names remain distinct |
+| Path completion order | Folders first, then files; ordinal, case-insensitive within each group |
 | Grid and live-table string sorting | Ordinal, case-insensitive; equal values retain input/insertion order |
 | Numeric/date sorting | Typed value order; formatting culture does not change string comparison |
 | Selection/menu/command-palette fuzzy search | Invariant smart case: lowercase terms ignore case; uppercase terms require exact case; exact case also affects ranking |
