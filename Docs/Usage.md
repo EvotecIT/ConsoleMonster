@@ -877,13 +877,15 @@ object[] controllers = {
     new { Name = "dc03", Site = "Branch", LdapPort = 389, GlobalCatalog = false, DnsEnabled = true, Security = new { Signing = "Negotiate" } },
     new { Name = "dc04", Site = "Branch", LdapPort = 389, GlobalCatalog = true, Security = new { Signing = "Required" } }
 };
-var options = new DiffOptions();
+var options = new DiffOptions { Baseline = "dc01" };
 options.Ignore.Add("Name");
-BaselineComparison comparison = ObjectDiff.CompareBaseline(controllers, options, baselineName: "dc01");
+BaselineComparison comparison = ObjectDiff.CompareBaseline(controllers, options);
 Terminal.Write(new BaselineView(comparison) { Title = "Domain controller drift" });
 ```
 
-`CompareBaseline` also accepts explicit `names` and a zero-based `baselineIndex`. `DiffOptions.Properties`,
+`CompareBaseline` also accepts explicit `names`. `DiffOptions.Baseline` selects one reference column by
+zero-based integer index or unique name; null uses the first column, and a numeric string remains a name.
+Name matching follows `CaseSensitive`. `DiffOptions.Properties`,
 `Ignore`, `Depth`, `IncludeUnchanged`, `CaseSensitive`, and `Normalize` apply to both comparison modes.
 Collections within properties compare in order and retain the existing collection display, while nested records
 use dotted paths. Member reads that exhaust the comparison budget appear in `NotCompared`.

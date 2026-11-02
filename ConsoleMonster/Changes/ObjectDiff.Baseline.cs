@@ -7,29 +7,32 @@ namespace ConsoleMonster.Changes {
     public static partial class ObjectDiff {
         /// <summary>Compares two or more objects as property rows against a reference column.</summary>
         /// <param name="objects">Objects in column order; null represents an object with no properties.</param>
-        /// <param name="options">Shared path, depth, normalization and equality options.</param>
+        /// <param name="options">Shared path, depth, normalization, equality and baseline selection options.</param>
         /// <param name="names">Explicit column names, or null to use the key selector and default key properties.</param>
-        /// <param name="baselineIndex">The zero-based reference column, default zero.</param>
-        /// <param name="baselineName">A unique column name instead of an index, using the configured case rule.</param>
         /// <returns>The structured comparison for <see cref="BaselineView"/>.</returns>
-        public static BaselineComparison CompareBaseline(IEnumerable<object?> objects, DiffOptions? options = null, IReadOnlyList<string>? names = null, int baselineIndex = 0, string? baselineName = null) {
+        public static BaselineComparison CompareBaseline(IEnumerable<object?> objects, DiffOptions? options = null, IReadOnlyList<string>? names = null) {
             if (objects == null) { throw new ArgumentNullException(nameof(objects)); }
             object?[] items = objects.ToArray();
             if (items.Length < 2) { throw new ArgumentException("A baseline comparison needs at least two objects.", nameof(objects)); }
-            if (baselineIndex < 0 || baselineIndex >= items.Length) { throw new ArgumentOutOfRangeException(nameof(baselineIndex)); }
             if (names != null && (names.Count != items.Length || names.Any(string.IsNullOrWhiteSpace))) {
                 throw new ArgumentException("Supply one nonempty name per object.", nameof(names));
             }
             options ??= new DiffOptions();
+            object? requested = options.Baseline;
+            if (requested != null && !(requested is int) && !(requested is string)) {
+                throw new ArgumentException("Baseline must be a column name or a zero-based Int32 index.", nameof(DiffOptions.Baseline));
+            }
+            int baselineIndex = requested is int index ? index : 0;
+            if (baselineIndex < 0 || baselineIndex >= items.Length) { throw new ArgumentOutOfRangeException(nameof(DiffOptions.Baseline)); }
             options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
             options.Shape = null;
             options.NotCompared.Clear();
             string[] headings = names?.ToArray() ?? items.Select((item, i) => item == null ? "#" + (i + 1).ToString(CultureInfo.InvariantCulture) : KeyOf(item, options, i)).ToArray();
-            if (baselineName != null) {
+            if (requested is string baselineName) {
                 int[] matches = headings.Select((name, i) => new { name, i })
                     .Where(pair => string.Equals(pair.name, baselineName, options.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
                     .Select(pair => pair.i).ToArray();
-                if (matches.Length != 1) { throw new ArgumentException("Baseline must name exactly one column; use an index for duplicate names.", nameof(baselineName)); }
+                if (matches.Length != 1) { throw new ArgumentException("Baseline must name exactly one column; use an index for duplicate names.", nameof(DiffOptions.Baseline)); }
                 baselineIndex = matches[0];
             }
             var rows = new List<BaselineRow>();

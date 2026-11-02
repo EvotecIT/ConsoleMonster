@@ -215,11 +215,11 @@
           "Default": false
         },
         {
-          "Reason": "An integer selects baselineIndex; a string selects baselineName using the comparison case rule.",
-          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Reason": "The one Baseline option accepts an Int32 index or a unique string heading; PowerShell unwraps its argument and the core validates it.",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
           "Conversion": "NameOrIndex",
-          "Member": "CompareBaseline",
-          "MemberKind": "Method",
+          "Member": "Baseline",
+          "MemberKind": "Property",
           "Parameter": "Baseline",
           "ParameterType": "System.Object",
           "Sets": [
@@ -229,7 +229,11 @@
               "Mandatory": false
             }
           ],
-          "Default": null
+          "Default": null,
+          "Writable": true,
+          "Nullable": "Nullable",
+          "CSharpTypeName": "System.Object",
+          "Static": false
         },
         {
           "CSharpTypeName": "System.Boolean",

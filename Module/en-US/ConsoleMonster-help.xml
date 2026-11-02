@@ -1224,11 +1224,11 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$controllers = @(&#xD;
-                [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389 }&#xD;
-                [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }&#xD;
-                [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }&#xD;
-            )&#xD;
+        <dev:code>$controllers = @(
+                [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389 }
+                [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }
+                [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }
+            )
             $controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'</dev:code>
         <dev:remarks>
           <maml:para>Compare three domain controller settings against dc02.</maml:para>
@@ -1236,8 +1236,8 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }&#xD;
-            $widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Normalize $normalizers -AsWidget&#xD;
+        <dev:code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
+            $widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Normalize $normalizers -AsWidget
             $widget | Export-ConsoleFrame -Format Html -Width 120 -Path ./comparison.html</dev:code>
         <dev:remarks>
           <maml:para>Normalize host-specific noise while retaining the original displayed values.</maml:para>
@@ -9594,7 +9594,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleDatePicker</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Disabled</maml:name>
           <maml:description>
             <maml:para>Disables editing and removes the input from keyboard focus traversal.</maml:para>
@@ -9606,7 +9606,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Key</maml:name>
           <maml:description>
             <maml:para>Unique key in the application's state and final hashtable.</maml:para>
@@ -9618,7 +9618,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>Visible label; defaults to the name using the core control's labels.</maml:para>
@@ -9630,7 +9630,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OnChange</maml:name>
           <maml:description>
             <maml:para>Runs once per committed edit on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. State is a hashtable; add or assign keys to write back. Output is discarded. Retains closure variables.</maml:para>
@@ -9642,7 +9642,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Range</maml:name>
           <maml:description>
             <maml:para>Commits one inclusive DateRange.</maml:para>
@@ -9654,10 +9654,10 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Selection</maml:name>
           <maml:description>
-            <maml:para>Shared bounds, culture, today and marked-day model.</maml:para>
+            <maml:para>Shared bounds, culture, today and marked-day model. Supply a hashtable such as @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }; PowerShell converts its entries to the shared selection model.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">DateSelectionOptions</command:parameterValue>
           <dev:type>
@@ -9666,7 +9666,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>TabIndex</maml:name>
           <maml:description>
             <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
@@ -9678,7 +9678,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ValidationMessage</maml:name>
           <maml:description>
             <maml:para>Initial validation text displayed below the input.</maml:para>
@@ -9690,7 +9690,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Value</maml:name>
           <maml:description>
             <maml:para>Initial DateTime or DateRange; a scalar range default means Start=End.</maml:para>
@@ -9705,7 +9705,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Disabled</maml:name>
         <maml:description>
           <maml:para>Disables editing and removes the input from keyboard focus traversal.</maml:para>
@@ -9717,7 +9717,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Key</maml:name>
         <maml:description>
           <maml:para>Unique key in the application's state and final hashtable.</maml:para>
@@ -9729,7 +9729,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>Visible label; defaults to the name using the core control's labels.</maml:para>
@@ -9741,7 +9741,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>OnChange</maml:name>
         <maml:description>
           <maml:para>Runs once per committed edit on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. State is a hashtable; add or assign keys to write back. Output is discarded. Retains closure variables.</maml:para>
@@ -9753,7 +9753,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Range</maml:name>
         <maml:description>
           <maml:para>Commits one inclusive DateRange.</maml:para>
@@ -9765,10 +9765,10 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Selection</maml:name>
         <maml:description>
-          <maml:para>Shared bounds, culture, today and marked-day model.</maml:para>
+          <maml:para>Shared bounds, culture, today and marked-day model. Supply a hashtable such as @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }; PowerShell converts its entries to the shared selection model.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">DateSelectionOptions</command:parameterValue>
         <dev:type>
@@ -9777,7 +9777,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>TabIndex</maml:name>
         <maml:description>
           <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
@@ -9789,7 +9789,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ValidationMessage</maml:name>
         <maml:description>
           <maml:para>Initial validation text displayed below the input.</maml:para>
@@ -9801,7 +9801,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Value</maml:name>
         <maml:description>
           <maml:para>Initial DateTime or DateRange; a scalar range default means Start=End.</maml:para>
@@ -9830,7 +9830,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
-        <maml:para></maml:para>
+        <maml:para />
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -9839,6 +9839,13 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <dev:code>New-ConsoleDatePicker -Key Window -Range -Value ([datetime]'2026-10-08')</dev:code>
         <dev:remarks>
           <maml:para>Choose a maintenance range.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleDatePicker -Key Window -Range -Selection @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }</dev:code>
+        <dev:remarks>
+          <maml:para>Configure today and the first weekday with a hashtable.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
