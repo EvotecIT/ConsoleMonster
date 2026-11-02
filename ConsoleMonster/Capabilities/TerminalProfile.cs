@@ -232,8 +232,24 @@ namespace ConsoleMonster.Capabilities {
         /// </summary>
         public CultureInfo? Language { get; private set; }
 
-        /// <summary>Whether the profile allows live redraw (interactive mode with VT support).</summary>
-        public bool IsLive => Mode == OutputMode.Interactive && SupportsVirtualTerminal;
+        /// <summary>Whether accessible interaction and append-only live narration were requested.</summary>
+        public bool IsAccessible { get; private set; }
+
+        /// <summary>Whether animation is disabled and live redraws are limited to once a second.</summary>
+        public bool ReducedMotion { get; private set; }
+
+        internal bool? MotionOverride { get; private set; }
+
+        internal TerminalProfile WithAccessibility(bool accessible, bool reducedMotion, bool? motionOverride = null) {
+            TerminalProfile copy = Copy();
+            copy.IsAccessible = accessible;
+            copy.ReducedMotion = accessible || reducedMotion;
+            copy.MotionOverride = motionOverride;
+            return copy;
+        }
+
+        /// <summary>Whether this profile permits live cursor-based rendering.</summary>
+        public bool IsLive => !IsAccessible && Mode == OutputMode.Interactive && SupportsVirtualTerminal;
 
         /// <summary>
         /// A fixed profile for tests, snapshots and HTML-free documentation captures.
@@ -286,7 +302,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
                 IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
-                ImageSupport = ImageSupport, ImageSource = ImageSource
+                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride
             };
         }
 
@@ -361,7 +377,7 @@ namespace ConsoleMonster.Capabilities {
                 themePreference ?? ThemePreference,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride
             };
         }
     }

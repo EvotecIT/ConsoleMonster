@@ -43,6 +43,10 @@ namespace ConsoleMonster.Live {
                         _onConsole = _options.Output == null && targetWriter == null;
                         _theme = _options.Theme ?? target.Theme;
                         TerminalProfile profile = _options.Profile != null ? Terminal.ApplyProfilePolicy(_options.Profile) : Terminal.GetTargetProfile(target);
+                        profile = AccessibilityPolicy.Resolve(profile, _options.ReducedMotion);
+                        if (profile.IsAccessible) {
+                            profile = profile.WithMode(profile.Mode == OutputMode.Plain ? OutputMode.Plain : OutputMode.Stream);
+                        }
                         if (_options.Output?.Profile.Mode == OutputMode.Plain) {
                             profile = profile.WithMode(OutputMode.Plain);
                         } else if (_options.AppendOnly) {
@@ -86,7 +90,7 @@ namespace ConsoleMonster.Live {
                             }
                         }
                         // Everything that can fail without touching the screen has been validated above.
-                        _output.BeginLive();
+                        if (!profile.IsAccessible) _output.BeginLive();
                         _began = true;
                         ApplyWidthProbe(profile);
                         if (profile.Kind == TerminalKind.Conhost && _onConsole && _output is VtOutput) {
@@ -259,7 +263,7 @@ namespace ConsoleMonster.Live {
                 Attempt(() => RecordSlotSnapshots(true), fatal: RecordingRequired);
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;
-                if (drawn) { Attempt(RenderFinal, fatal: true); }
+                if (drawn) { Attempt(() => RenderFinal(finalState: true), fatal: true); }
                 Attempt(RestoreTerminal, fatal: true);
                 if (_taskbarUsed) {
                     Attempt(TaskbarProgress.Clear);

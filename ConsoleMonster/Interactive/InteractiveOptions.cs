@@ -84,9 +84,12 @@ namespace ConsoleMonster.Interactive {
 
         internal ILineConsole ResolveLineConsole() => LineConsole ?? ConsoleLineConsole.Instance;
 
-        internal TerminalProfile ResolveProfile() => Profile != null ? Terminal.ApplyProfilePolicy(Profile)
-            : Capture != null ? Terminal.ApplyProfilePolicy(TerminalProfile.Fixed(Capture.Width, Capture.Height))
-            : Terminal.GetTargetProfile(ResolveTarget());
+        internal TerminalProfile ResolveProfile() {
+            TerminalProfile profile = Profile != null ? Terminal.ApplyProfilePolicy(Profile)
+                : Capture != null ? Terminal.ApplyProfilePolicy(TerminalProfile.Fixed(Capture.Width, Capture.Height))
+                : Terminal.GetTargetProfile(ResolveTarget());
+            return Mode == InteractionMode.Accessible ? profile.WithAccessibility(true, true) : profile;
+        }
 
         /// <summary>
         /// Where the prompt runs (see <see cref="ITerminalTarget"/>), or null for <see cref="Terminal.Target"/>. A target
@@ -135,7 +138,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>
-        /// Picks the interaction mode: snapshot and non-interactive guards precede an explicit <see cref="Mode"/>; then
+        /// Picks the interaction mode: snapshot and non-interactive guards apply first; accessible environment/defaults precede a requested rich mode; then
         /// non-interactive sessions (the
         /// <see cref="NonInteractive"/> flag, <c>CONSOLEMONSTER_NONINTERACTIVE=1</c>, CI, redirected input without an input
         /// source) get <see cref="InteractionMode.None"/>; <c>CONSOLEMONSTER_ACCESSIBLE=1</c> gets
@@ -145,7 +148,7 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The mode.</returns>
         public InteractionMode ResolveMode() {
             if (Mode == InteractionMode.Snapshot) return InteractionMode.Snapshot;
-            if (IsNonInteractive) {
+            if (IsNonInteractive || Mode == InteractionMode.None) {
                 return InteractionMode.None;
             }
             TerminalProfile profile = ResolveProfile();
@@ -153,8 +156,9 @@ namespace ConsoleMonster.Interactive {
                 && (profile.IsContinuousIntegration || profile.IsOutputRedirected || profile.Mode != OutputMode.Interactive)) {
                 return InteractionMode.None;
             }
-            if (Mode.HasValue) return Mode.Value;
-            bool accessible = IsSet("CONSOLEMONSTER_ACCESSIBLE");
+            bool accessible = profile.IsAccessible || Mode == InteractionMode.Accessible;
+            if (Mode.HasValue) return accessible ? InteractionMode.Accessible : Mode.Value;
+            if (accessible && LineConsole != null) return InteractionMode.Accessible;
             if (_input == null && Capture == null && !(ResolveTarget() is ConsoleTarget)) {
                 // Another target answers with its own input, or nobody can answer.
                 return Input != null ? (accessible ? InteractionMode.Accessible : InteractionMode.Rich) : InteractionMode.None;

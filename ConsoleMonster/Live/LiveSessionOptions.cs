@@ -28,6 +28,9 @@ namespace ConsoleMonster.Live {
         /// </summary>
         public LiveMode Mode { get; set; }
 
+        /// <summary>Disables animation and limits live redraws to once a second. Null follows CONSOLEMONSTER_MOTION; accessible mode always enables it.</summary>
+        public bool? ReducedMotion { get; set; }
+
         // A monitor can require append-only output after the host's scoped profile policy is applied.
         internal bool AppendOnly { get; set; }
 

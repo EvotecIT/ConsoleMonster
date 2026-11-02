@@ -29,7 +29,8 @@ namespace ConsoleMonster.Interactive {
             PromptLabels labels = interactive.ResolveLabels();
             InteractionMode mode = interactive.ResolveMode();
             cancellationToken.ThrowIfCancellationRequested();
-            if (mode == InteractionMode.None || mode == InteractionMode.Snapshot) {
+            if (mode == InteractionMode.None || mode == InteractionMode.Snapshot
+                || (mode == InteractionMode.Accessible && interactive.LineConsole == null)) {
                 var rows = new Rows(new Widgets.HeaderBar(menu.Title) { Subtitle = menu.Subtitle });
                 RenderContext context = Terminal.CreateContext(interactive.ResolveProfile(), interactive.ResolveTheme());
                 if (!string.IsNullOrEmpty(menu.Description)) rows.Add(new Widgets.TextBlock(menu.Description!));

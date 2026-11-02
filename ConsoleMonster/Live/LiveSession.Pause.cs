@@ -72,7 +72,7 @@ namespace ConsoleMonster.Live {
             return IsRunning && TryPost(new LiveEvent("$console", "write-block") { Payload = item });
         }
 
-        internal bool CanOverlay => IsRunning && _output != null && _output.SupportsLiveFrames && !_restored;
+        internal bool CanOverlay => IsRunning && _output != null && SupportsLiveFrames && !_restored;
 
         // Append-only recording outputs still have a checkpoint backdrop for an in-memory prompt overlay.
         internal bool CanCaptureOverlay(RecordingTarget target) => IsRunning && !_restored &&

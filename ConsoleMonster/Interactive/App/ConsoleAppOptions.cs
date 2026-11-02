@@ -57,6 +57,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Enables optional terminal mouse reporting for an interactive run. Keyboard operation is always available.</summary>
         public bool Mouse { get; set; } = true;
 
+        /// <summary>Disables animation and limits redraws to once a second. Null follows Live.ReducedMotion and CONSOLEMONSTER_MOTION; accessible mode always enables it.</summary>
+        public bool? ReducedMotion { get; set; }
+
         /// <summary>The default width below which column layouts stack; explicitly configured column thresholds take precedence.</summary>
         public int ReflowBelow { get; set; } = 60;
 

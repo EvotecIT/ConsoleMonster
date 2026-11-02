@@ -441,7 +441,7 @@ Prompts asked from a menu action appear in front of the app.
 |---|---|
 | CI, redirected input, `pwsh -NonInteractive`, `CONSOLEMONSTER_NONINTERACTIVE=1` | Return the default, or fail: *Prompt 'Environment' needs a value in a non-interactive session; pass -Environment or set a default.* |
 | Remoting, the ISE | Ask through the host: numbered choices and `PromptForChoice`. |
-| `CONSOLEMONSTER_ACCESSIBLE=1` | Plain numbered questions with no redraws; every answer is confirmed as text. |
+| `CONSOLEMONSTER_ACCESSIBLE=1` or `-Mode Accessible` | Numbered questions confirm each answer as text. Apps, menus and grids print one static view; live sessions narrate updates on new lines. |
 
 Esc and Ctrl+C end a prompt with a `PromptCanceled` error (a typed confirmation answers `$false` instead).
 
@@ -1311,8 +1311,9 @@ try {
 - Font changes: in conhost, the console font is polled about once a second, and a new face or size re-derives the
   glyph tier and the emoji/ambiguous widths. In Windows Terminal, widths are measured again after every resize, which
   also covers Ctrl+= and Ctrl+0 zoom.
-- Theme: `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code. `auto` reads
-  the console background colour in conhost. Windows Terminal doesn't expose its colour scheme to console programs
+- Theme: `CONSOLEMONSTER_THEME=light|dark|highcontrast|colorblind|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code. `auto` reads
+  Windows High Contrast first, then the console background colour in conhost. Explicit `light`, `dark`, `highcontrast`
+  or `colorblind` selects that palette; `Theme`/`Set-ConsoleTheme` and a supplied target/session theme take precedence. Windows Terminal doesn't expose its colour scheme to console programs
   (ConPTY reports the default dark colour table), and ConsoleMonster never reads console input to ask the terminal
   (OSC 11). So in Windows Terminal with a light scheme, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light`.
   The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background.
@@ -1322,6 +1323,33 @@ try {
   re-lay it out: in conhost with "Wrap text output on resize" on, a narrower window re-wraps wide lines into
   fragments, and with the option off, wide lines are clipped behind a horizontal scroll bar. Use `-Width` (or a
   `TerminalProfile.Fixed` profile) when output must fit a known width.
+
+## Accessible output and motion
+
+I use `CONSOLEMONSTER_ACCESSIBLE=1` for a session that needs screen-reader-friendly output. Prompts use numbered
+questions and confirm answers as text. Apps, menus and grids print a static view with their title and content (menus and grids can use numbered choices
+when a line console is explicitly supplied);
+live sessions use append-only `Describe(LiveEvent)`/`ILiveSummary` narration. Status symbols remain visible,
+including when a renderer's optional key or numeric values are hidden. Accessible output implies reduced motion.
+`InteractiveOptions.Default.Mode = InteractionMode.Accessible` applies the same policy to live sessions;
+an individual `InteractiveOptions.Mode` or PowerShell `-Mode Accessible` applies it to that interaction.
+
+`CONSOLEMONSTER_MOTION=reduced` disables animated glyphs and limits live frames and interactive redraws to once a
+second, while retaining the normal layout. Input and queued state changes are still processed promptly; the next
+frame contains their combined state. Shutdown always prints its final state when configured. Spinners use a static
+running glyph; ConsoleMonster does not emit blink or marquee animations. Explicit recording checkpoints still
+capture the states requested by the recording program.
+
+Set `LiveSessionOptions.ReducedMotion` or `ConsoleAppOptions.ReducedMotion` in C#. In PowerShell use
+`-ReducedMotion` on `Show-ConsoleApp`, `Invoke-ConsoleDashboard`, `Use-ConsoleProgress`, `Start-ConsoleRun`,
+`Invoke-ConsoleRun` or `Watch-Console`. An explicit `false` (PowerShell `-ReducedMotion:$false`) overrides the motion
+environment setting. An app's option overrides its nested live-session option. Accessible mode always keeps reduced
+motion, even when the caller requests `false`, rich input or `Live = true`.
+
+`CONSOLEMONSTER_MODE=plain` keeps its ASCII, colour-free output when accessibility is enabled. `stream` stays
+append-only; `interactive`/`live` cannot override accessibility. Non-interactive and snapshot guards apply before
+accessible questions: defaults or one clear error still apply when nobody can answer. `NO_COLOR` changes colour,
+not interaction or motion. Named themes change the palette, not glyphs, focus cues or narration.
 
 ## Edge values
 

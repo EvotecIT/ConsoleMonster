@@ -26,7 +26,7 @@ using Xunit;
 namespace ConsoleMonster.Tests.Rendering {
     /// <summary>Cross-cutting behaviour at the shared rendering and application boundaries.</summary>
     [Collection("Live sessions")]
-    public sealed class BehaviourContractTests {
+    public sealed partial class BehaviourContractTests {
         public static IEnumerable<object[]> TerminalExitCases() {
             foreach (string entry in new[] { "app", "app async", "menu", "menu async", "prompt" })
                 foreach (string exit in new[] { "normal", "Esc", "Ctrl+C", "cancel", "exception" })
@@ -392,7 +392,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         public static IEnumerable<object[]> EntryCases() {
             foreach (string entry in new[] { "app", "app async", "menu", "menu async", "grid", "explorer" })
-                foreach (string condition in new[] { "redirected", "CI", "noninteractive", "snapshot" })
+                foreach (string condition in new[] { "redirected", "CI", "noninteractive", "snapshot", "accessible environment", "accessible mode" })
                     yield return new object[] { entry, condition };
         }
 
@@ -455,13 +455,14 @@ namespace ConsoleMonster.Tests.Rendering {
         [Theory]
         [MemberData(nameof(EntryCases))]
         public async Task EntryPoints_PrintOneStaticViewWithoutRunningActions(string entry, string condition) {
+            using var preferences = new AccessibilityEnvironment(condition == "accessible environment" ? "1" : null, null);
             var profile = new TerminalProfile(ColorDepth.None, GlyphTier.Ascii, OutputMode.Interactive, 48, 12,
                 supportsVirtualTerminal: true, isOutputRedirected: condition == "redirected", isContinuousIntegration: condition == "CI");
             var target = new RecordingTarget(profile);
             var ambient = TestTerminal.Target(80);
             var options = new InteractiveOptions {
                 Target = target, Profile = profile, NonInteractive = condition == "noninteractive",
-                Mode = condition == "snapshot" ? InteractionMode.Snapshot : InteractionMode.Rich,
+                Mode = condition == "snapshot" ? InteractionMode.Snapshot : condition == "accessible mode" ? InteractionMode.Accessible : InteractionMode.Rich,
                 SnapshotOutput = widget => Terminal.Write(widget)
             };
             int actions = 0;

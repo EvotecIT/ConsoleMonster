@@ -24,7 +24,7 @@ namespace ConsoleMonster.Canvas {
             Profile = profile ?? throw new ArgumentNullException(nameof(profile));
             Theme = theme ?? throw new ArgumentNullException(nameof(theme));
             Glyphs = glyphs ?? GlyphSet.For(profile.Glyphs);
-            Tick = tick;
+            _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = new Style[(int)ThemeToken.Gap + 1];
             for (int i = 0; i < _tokenStyles.Length; i++) {
@@ -56,7 +56,11 @@ namespace ConsoleMonster.Canvas {
         private Localization.WidgetLabels? _labels;
 
         /// <summary>Animation frame counter.</summary>
-        public long Tick { get; }
+        public long Tick => ReducedMotion ? 0 : _tick;
+        private readonly long _tick;
+
+        /// <summary>Whether animated glyphs and motion must remain static.</summary>
+        public bool ReducedMotion => Profile.ReducedMotion;
 
         /// <summary>Time since the session started.</summary>
         public TimeSpan Elapsed { get; }
@@ -118,7 +122,7 @@ namespace ConsoleMonster.Canvas {
             Profile = profile;
             Theme = theme;
             Glyphs = glyphs;
-            Tick = tick;
+            _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = tokenStyles;
             _markupCache = markupCache;

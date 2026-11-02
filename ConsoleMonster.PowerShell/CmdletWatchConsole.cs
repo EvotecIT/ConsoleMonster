@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
@@ -53,6 +53,9 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
         [Parameter] public SwitchParameter NoLive { get; set; }
 
+        /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
+        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
@@ -68,7 +71,7 @@ namespace ConsoleMonster.PowerShell {
                 Title = Title != null ? PSText.Markup(Title) : Text.Markup.Escape(ScriptBlock.ToString().Trim()),
                 Live = live,
                 // Ctrl+C stops the pipeline the PowerShell way (StopProcessing); the session keeps the last frame.
-                Session = new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
+                Session = new LiveSessionOptions { ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null, Mode = LiveMode.Inline, PrintFinalState = true, HandleCancelKey = false },
                 Print = widget => PSFormatting.Emit(this, widget, 0, null, false)
             };
             try {

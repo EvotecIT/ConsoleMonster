@@ -26,6 +26,14 @@ namespace ConsoleMonster.Capabilities {
             bool isOutputRedirected = false, bool isWindows = false, int windowsBuild = 0,
             bool isConsoleHandle = false, bool? virtualTerminalEnabled = null,
             string? consoleFontFace = null, bool consoleFontIsRaster = false,
+            int windowWidth = 0, int windowHeight = 0, bool isInputRedirected = false)
+            : this(false, environmentVariables, isOutputRedirected, isWindows, windowsBuild, isConsoleHandle,
+                  virtualTerminalEnabled, consoleFontFace, consoleFontIsRaster, windowWidth, windowHeight, isInputRedirected) { }
+
+        internal TerminalEnvironment(bool highContrast, IReadOnlyDictionary<string, string>? environmentVariables = null,
+            bool isOutputRedirected = false, bool isWindows = false, int windowsBuild = 0,
+            bool isConsoleHandle = false, bool? virtualTerminalEnabled = null,
+            string? consoleFontFace = null, bool consoleFontIsRaster = false,
             int windowWidth = 0, int windowHeight = 0, bool isInputRedirected = false) {
             Dictionary<string, string> copy = new Dictionary<string, string>(isWindows ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
             if (environmentVariables != null) {
@@ -44,6 +52,7 @@ namespace ConsoleMonster.Capabilities {
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
             IsInputRedirected = isInputRedirected;
+            HighContrast = highContrast;
         }
 
         /// <summary>Copied environment variables, case-insensitive on Windows.</summary>
@@ -78,6 +87,9 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Whether standard input is redirected.</summary>
         public bool IsInputRedirected { get; }
 
+        /// <summary>Whether the Windows system High Contrast setting is enabled in this snapshot.</summary>
+        public bool HighContrast { get; }
+
         /// <summary>Captures real process inputs, enabling Windows VT output without changing code pages.</summary>
         /// <returns>A snapshot for deterministic detection.</returns>
         public static TerminalEnvironment Capture() {
@@ -101,7 +113,7 @@ namespace ConsoleMonster.Capabilities {
             bool? vt = console ? WindowsConsole.TrySetMode(handle, mode | WindowsConsole.EnableVirtualTerminalProcessing) : (bool?)null;
             WindowsConsole.TryGetFont(handle, out string? face, out bool raster);
             TerminalSize.TryGet(out int width, out int height);
-            return new TerminalEnvironment(variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height, inputRedirected);
+            return new TerminalEnvironment(WindowsAccessibility.HighContrastEnabled(), variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height, inputRedirected);
         }
     }
 }

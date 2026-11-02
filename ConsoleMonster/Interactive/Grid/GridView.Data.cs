@@ -114,6 +114,7 @@ namespace ConsoleMonster.Interactive {
             cancellationToken.ThrowIfCancellationRequested();
             PromptLabels labels = interactive.ResolveLabels();
             switch (interactive.ResolveMode()) {
+                case InteractionMode.Accessible when interactive.LineConsole == null:
                 case InteractionMode.Snapshot:
                 case InteractionMode.None:
                     using (GridView view = new GridView(grid, options, labels, cancellationToken, interactive.ActionClock)) {

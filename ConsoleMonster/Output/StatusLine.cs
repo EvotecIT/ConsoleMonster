@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
@@ -28,6 +30,8 @@ namespace ConsoleMonster.Output {
         private string _clockFormat = "HH:mm:ss";
         private Timer? _timer;
         private long _frame;
+        private readonly Stopwatch _redrawClock = Stopwatch.StartNew();
+        private TimeSpan? _lastRender;
         private int _cursorLeft = -1;
         private int _cursorTop = -1;
 
@@ -46,6 +50,7 @@ namespace ConsoleMonster.Output {
         /// <param name="timestampFormat">The time format for the clock.</param>
         /// <param name="final">Whether the line completes (the next output starts below it).</param>
         public static void Show(TerminalProfile profile, RichText content, StatusKind? status, bool spinner, bool showTimestamp, bool showElapsed, string timestampFormat, bool final) {
+            profile = AccessibilityPolicy.Resolve(profile);
             lock (Gate) {
                 StatusLine line = _current != null && _current.CursorUnchanged() ? _current : new StatusLine(profile);
                 _current?.StopTimer();
@@ -61,10 +66,10 @@ namespace ConsoleMonster.Output {
                     TaskbarProgress.Clear();
                     return;
                 }
-                TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
+                if (!profile.ReducedMotion) TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
                 _current = line;
-                if (spinner || showTimestamp || showElapsed) {
-                    line._timer = new Timer(_ => line.Tick(), null, 100, 100);
+                if (!profile.IsAccessible && (spinner || showTimestamp || showElapsed)) {
+                    line._timer = new Timer(_ => line.Tick(), null, profile.ReducedMotion ? 1000 : 100, profile.ReducedMotion ? 1000 : 100);
                 }
             }
         }
@@ -89,7 +94,7 @@ namespace ConsoleMonster.Output {
             } else if (spinner && !final) {
                 IReadOnlyList<string> frames = context.Glyphs.SpinnerFrames;
                 if (frames.Count > 0) {
-                    spans.Add(new TextSpan(frames[(int)(frame % frames.Count)] + " ", context.Style(ThemeToken.Running)));
+                    spans.Add(new TextSpan((context.ReducedMotion ? context.Glyphs.Get(Glyph.Running) : frames[(int)(frame % frames.Count)]) + " ", context.Style(ThemeToken.Running)));
                 }
             }
             if (showTimestamp) {
@@ -134,14 +139,17 @@ namespace ConsoleMonster.Output {
         private void Render(bool final) {
             try {
                 TerminalProfile profile = Terminal.GetCurrentProfile();
+                if (!profile.IsAccessible && profile.ReducedMotion && !final && _lastRender.HasValue
+                    && _redrawClock.Elapsed - _lastRender.Value < TimeSpan.FromSeconds(1)) return;
                 RenderContext context = Terminal.CreateContext(profile);
+                _lastRender = _redrawClock.Elapsed;
                 StyledLine line = Compose(context, _content, _status, _spinner, _clock, _elapsed, _clockFormat, _started, _frame, final);
                 // One cell short of the window, so the line never wraps.
                 line = TextWrapper.Truncate(line, Math.Max(1, profile.Width - 1), context.Ellipsis);
                 using (ITerminalOutput output = Terminal.CreateOutput(profile)) {
-                    if (output is VtOutput vt) {
+                    if (!profile.IsAccessible && output is VtOutput vt) {
                         vt.WriteInPlace(line, final);
-                    } else if (final) {
+                    } else if (final || profile.IsAccessible) {
                         output.WriteLine(line);
                     }
                 }

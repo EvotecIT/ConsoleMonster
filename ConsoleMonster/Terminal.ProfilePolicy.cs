@@ -20,7 +20,7 @@ namespace ConsoleMonster {
             return new ProfilePolicyScope(previous);
         }
 
-        internal static TerminalProfile ApplyProfilePolicy(TerminalProfile profile) => ProfilePolicy.Value?.Invoke(profile) ?? profile;
+        internal static TerminalProfile ApplyProfilePolicy(TerminalProfile profile) => AccessibilityPolicy.Resolve(ProfilePolicy.Value?.Invoke(profile) ?? profile);
 
         internal static TerminalProfile GetTargetProfile(ITerminalTarget target) =>
             ApplyProfilePolicy(target is ConsoleTarget ? GetConsoleProfile() : target.Profile);

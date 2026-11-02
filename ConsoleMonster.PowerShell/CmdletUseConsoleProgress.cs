@@ -68,6 +68,9 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
         [Parameter] public SwitchParameter NoLive { get; set; }
 
+        /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
+        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
@@ -95,7 +98,7 @@ $__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collec
 
         private void RunWithArea() {
             ActivityList activities = new ActivityList();
-            LiveSessionOptions options = new LiveSessionOptions {
+            LiveSessionOptions options = new LiveSessionOptions { ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null,
                 Mode = LiveMode.Inline,
                 Live = !NoLive.IsPresent,
                 PrintFinalState = Keep.IsPresent,
