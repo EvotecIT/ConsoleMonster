@@ -26,6 +26,7 @@ namespace ConsoleMonster.Graphics {
         private int _naturalColumns;
         private const double NaturalPixelsPerColumn = 10.0;
         private const int ValueColumns = 10;
+        private const int MaximumValueColumns = 32;
         private readonly object _gate = new object();
         private readonly TopologyChart _chart;
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -165,8 +166,8 @@ namespace ConsoleMonster.Graphics {
 
         /// <summary>Sets a live value and optional status on a node, such as a health percentage or a count.</summary>
         /// <param name="nodeId">The node id.</param>
-        /// <param name="value">The value text, or null to show the node's subtitle again. Node boxes reserve ten
-        /// columns for live values; longer text is clipped there and remains available in the focused details.</param>
+        /// <param name="value">The value text, or null to show the node's subtitle again. Node boxes grow their value
+        /// reservation in steps up to 32 columns and do not shrink again. Longer text remains available in the focused details.</param>
         /// <param name="status">An optional live status that replaces the node's own status. With a null value and no status, the live status is cleared too.</param>
         public void SetValue(string nodeId, string? value, TopologyHealthStatus? status = null) {
             if (string.IsNullOrWhiteSpace(nodeId)) throw new ArgumentException("A node id is required.", nameof(nodeId));
@@ -246,8 +247,10 @@ namespace ConsoleMonster.Graphics {
         internal PreparedTopology Prepared { get { lock (_gate) { return _prepared ??= _chart.Prepare(); } } }
 
         internal TopologyCellLayout Layout(int width) {
-            // Reserve before the first update too: changing values never moves a node or its routes.
-            const int reserve = ValueColumns;
+            // Grow only at reservation boundaries, and never shrink when a live value gets shorter.
+            int longest = _values.Count == 0 ? 0 : _values.Values.Max(DisplayWidth.Measure);
+            int requested = longest <= ValueColumns ? ValueColumns : Math.Min(MaximumValueColumns, ((longest + 7) / 8) * 8);
+            int reserve = Math.Max(requested, _layoutReserve);
             int columns = Math.Max(20, Math.Min(1000, width));
             width = columns;
             // The projection fills the columns it is given, so a small diagram in a wide terminal would get huge boxes.

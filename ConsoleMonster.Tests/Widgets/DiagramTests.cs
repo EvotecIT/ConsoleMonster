@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
 using ConsoleMonster.Live;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
+using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
@@ -71,7 +73,11 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData("", null, null)]
         public void Attention_KeepsNodeProblemsSeparateFromIncidentLinkProblems(string? value, string? subtitle, string? detail) {
             var diagram = new Diagram("Office") { Nodes = { new DiagramNode("File server") { Value = value, Subtitle = subtitle, Status = StatusKind.Warn } }, Links = { new DiagramLink("File server", "Backup") { Label = "failed two nights", Status = StatusKind.Fail } } };
-            string text = Text(diagram, 80);
+            var context = new RenderContext(TerminalProfile.Fixed(80, 60, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            var frame = ConsoleMonster.Rendering.FrameComposer.RenderBlock(diagram, 80, context);
+            int headingRow = Enumerable.Range(0, frame.Height).Single(y => string.Concat(Enumerable.Range(0, frame.Width).Select(x => frame[x, y].Glyph)).Contains("Needs attention"));
+            Assert.Contains(Enumerable.Range(0, frame.Width), x => frame[x, headingRow].Glyph == "N" && (frame[x, headingRow].Style.Decoration & TextDecoration.Bold) != 0);
+            string text = frame.ToPlainText();
             string summary = text.Substring(text.IndexOf("Needs attention", StringComparison.Ordinal));
             string[] lines = summary.Split('\n');
             string node = lines.Single(line => line.Contains("File server") && !line.Contains("→"));

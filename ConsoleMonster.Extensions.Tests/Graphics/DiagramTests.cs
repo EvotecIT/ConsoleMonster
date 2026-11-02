@@ -19,6 +19,30 @@ using Xunit;
 
 namespace ConsoleMonster.Extensions.Tests.Graphics {
     public sealed class DiagramTests {
+        [Theory]
+        [InlineData("null")]
+        [InlineData("empty")]
+        [InlineData("whitespace")]
+        public void BlankNodeKeys_AreRejectedBeforeTheGraphicsSessionQueuesAnUpdate(string keyCase) {
+            string? key = keyCase == "null" ? null : keyCase == "empty" ? "" : " \t";
+            var diagram = Ui.Diagram("Monitor").Node("VPN", node => node.Subtitle("vpn.contoso.com"));
+            using var writer = new StringWriter();
+            using var session = new LiveSession(diagram, new LiveSessionOptions {
+                Target = new WriterTarget(writer, 100), CaptureConsole = false, TaskbarProgress = false
+            });
+            session.Start();
+            DiagramHandle handle = diagram.Handle(session);
+            Assert.Throws<ArgumentException>(() => handle.Value(key!, "invalid", StatusKind.Fail));
+            handle.Value("VPN", "42 ms", StatusKind.Warn);
+            session.Stop();
+            Assert.Equal(0, session.ApplyErrors);
+            Assert.Equal(0, session.RenderErrors);
+            Assert.Equal("42 ms", diagram.Values["VPN"]);
+            Assert.Equal(StatusKind.Warn, diagram.Nodes[0].Status);
+            Assert.Contains("42 ms", Text(diagram, 100));
+            Assert.DoesNotContain("invalid", Text(diagram, 100));
+        }
+
         public DiagramTests() { DiagramRendererProvider.Register(); }
         private static string Text(Diagram diagram, int width) => ConsoleExporter.ToText(diagram, new ExportOptions { Width = width, Glyphs = GlyphTier.Full });
 

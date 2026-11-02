@@ -141,17 +141,22 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         }
 
         [Fact]
-        public void LiveValues_GrowingText_PreservesReservedNodePositions() {
+        public void LiveValues_GrowInBoundedStepsAndDoNotShrinkBetweenUpdates() {
             var view = new TopologyDiagram(TopologyFixtures.AdReplication()) { ShowStepPanel = false };
             Assert.Contains("DC04", Text(view, 130), StringComparison.Ordinal);
-            string[] borders = Borders(view);
-            foreach (string value in new[] { "1", "1234567890", new string('9', 80) }) {
+            view.SetValue("dc03", "last success 2 days ago");
+            Assert.Contains("last success 2 days ago", Text(view, 200), StringComparison.Ordinal);
+            string[] grown = Borders(view);
+            foreach (string value in new[] { "1", "last success 3 days ago" }) {
                 view.SetValue("dc03", value);
-                Render(view, Context(130));
-                Assert.Equal(borders, Borders(view));
+                Assert.Equal(grown, Borders(view));
             }
+            view.SetValue("dc03", new string('9', 80));
+            string[] capped = Borders(view);
+            view.SetValue("dc03", new string('9', 160));
+            Assert.Equal(capped, Borders(view));
             view.FocusNode("dc03");
-            Assert.Contains("Value: " + new string('9', 80), Text(view, 130), StringComparison.Ordinal);
+            Assert.Contains("Value: " + new string('9', 160), Text(view, 200), StringComparison.Ordinal);
         }
 
         private static string[] Borders(TopologyDiagram view) {
