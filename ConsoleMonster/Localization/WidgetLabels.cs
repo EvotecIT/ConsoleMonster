@@ -362,6 +362,42 @@ namespace ConsoleMonster.Localization {
         /// <summary>Properties left out of a comparison because reading them stalled: <c>{0} not compared</c>.</summary>
         public string ChangesNotCompared { get; set; } = "{0} not compared";
 
+        /// <summary>An absent property, distinct from a present null or empty value.</summary>
+        public string ChangesMissing { get; set; } = "(missing)";
+
+        /// <summary>A present property whose value is null or empty, so a narrow card still lists it.</summary>
+        public string ChangesEmpty { get; set; } = "(empty)";
+
+        /// <summary>A case-only difference ignored for equality.</summary>
+        public string ChangesCaseOnly { get; set; } = "case only";
+
+        /// <summary>The count of ignored case-only property differences.</summary>
+        public string ChangesCaseOnlyCount { get; set; } = "{0} case only";
+
+        /// <summary>The reference column label in a baseline matrix.</summary>
+        public string ChangesBaseline { get; set; } = "baseline";
+
+        /// <summary>The status column of a baseline matrix.</summary>
+        public string ChangesStatus { get; set; } = "Status";
+
+        /// <summary>A row equal to the baseline.</summary>
+        public string ChangesSame { get; set; } = "same";
+
+        /// <summary>A row different from the baseline.</summary>
+        public string ChangesDiffers { get; set; } = "differs";
+
+        /// <summary>A row missing on a number of objects.</summary>
+        public string ChangesMissingOn { get; set; } = "missing on {0}";
+
+        /// <summary>The baseline footer when one property row is shown.</summary>
+        public string ChangesOnePropertyShown { get; set; } = "{0} property shown";
+
+        /// <summary>The number of property rows actually shown in a baseline matrix.</summary>
+        public string ChangesPropertiesShown { get; set; } = "{0} properties shown";
+
+        /// <summary>Matching property rows hidden from a baseline matrix, with the PowerShell option to include them.</summary>
+        public string ChangesMatchingHidden { get; set; } = "{0} matching hidden";
+
         /// <summary>The item column of a change table.</summary>
         public string ChangesItem { get; set; } = "Item";
 

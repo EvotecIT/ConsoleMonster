@@ -280,3 +280,16 @@ Widget.HelpOptions = Optionen
 Widget.HelpExamples = Beispiele
 Widget.HelpRequired = Erforderlich.
 Widget.HelpDefault = [Standard: {0}]
+
+Widget.ChangesMissing = (fehlt)
+Widget.ChangesEmpty = (leer)
+Widget.ChangesCaseOnly = nur Groß-/Kleinschreibung
+Widget.ChangesCaseOnlyCount = {0} nur Groß-/Kleinschreibung
+Widget.ChangesBaseline = Referenz
+Widget.ChangesStatus = Status
+Widget.ChangesSame = gleich
+Widget.ChangesDiffers = abweichend
+Widget.ChangesMissingOn = fehlt bei {0}
+Widget.ChangesOnePropertyShown = {0} Eigenschaft angezeigt
+Widget.ChangesPropertiesShown = {0} Eigenschaften angezeigt
+Widget.ChangesMatchingHidden = {0} gleiche ausgeblendet

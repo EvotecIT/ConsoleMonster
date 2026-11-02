@@ -280,3 +280,16 @@ Widget.HelpOptions = Opciones
 Widget.HelpExamples = Ejemplos
 Widget.HelpRequired = Obligatorio.
 Widget.HelpDefault = [predeterminado: {0}]
+
+Widget.ChangesMissing = (ausente)
+Widget.ChangesEmpty = (vacío)
+Widget.ChangesCaseOnly = solo mayúsculas/minúsculas
+Widget.ChangesCaseOnlyCount = {0} solo mayúsculas/minúsculas
+Widget.ChangesBaseline = referencia
+Widget.ChangesStatus = Estado
+Widget.ChangesSame = igual
+Widget.ChangesDiffers = difiere
+Widget.ChangesMissingOn = ausente en {0}
+Widget.ChangesOnePropertyShown = {0} propiedad mostrada
+Widget.ChangesPropertiesShown = {0} propiedades mostradas
+Widget.ChangesMatchingHidden = {0} iguales ocultas

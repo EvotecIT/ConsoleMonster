@@ -741,7 +741,7 @@
       "commands": [
         {
           "name": "Compare-ConsoleObject",
-          "synopsis": "Compares two sets of objects and shows what was added, removed and changed, property by property.",
+          "synopsis": "Compares object sets or shows property drift across a baseline matrix.",
           "url": "/powershell/commands/compare-consoleobject/"
         },
         {

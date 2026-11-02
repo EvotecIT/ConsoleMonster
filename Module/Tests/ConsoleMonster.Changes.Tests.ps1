@@ -45,6 +45,56 @@ foreach ($c in $changes) { "CHANGE=$($c.Kind)|$($c.Key)|$(@($c.Properties | ForE
         $text | Should -Match 'CHANGE=Added\|app01\|'
     }
 
+    It 'binds comparison normalization and exposes case and presence through structured records' {
+        $text = Invoke-ChangesChild @'
+$before = [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; Optional = $null; Spn = 'HOST/dc01.example' }
+$after = [pscustomobject]@{ Name = 'DC01'; Site = 'hq'; Spn = 'HOST/dc02.example' }
+$changes = @(Compare-ConsoleObject @($before) @($after) -Property Name -Normalize @{ Spn = { $_ -replace 'dc\d+', 'HOST' } } -PassThru -ErrorAction Stop)
+"COUNT=$($changes.Count) KIND=$($changes[0].Kind)"
+foreach ($property in $changes[0].Properties) { "PROP=$($property.Path)|$($property.IsCaseOnly)|$($property.HasBefore)|$($property.HasAfter)" }
+$sensitive = @(Compare-ConsoleObject @($before) @($after) -Property Name -CaseSensitive -PassThru)
+"SENSITIVE=$($sensitive.Kind -join ',')"
+$widget = Compare-ConsoleObject @($before) @($after) -Property Name -AsWidget
+"WIDGET=$($widget.GetType().Name)"
+$widget | Export-ConsoleFrame -Format Text -Width 100
+'@
+        $text | Should -Match 'COUNT=1 KIND=Changed'
+        $text | Should -Match 'PROP=Name\|True\|True\|True'
+        $text | Should -Match 'PROP=Site\|True\|True\|True'
+        $text | Should -Match 'PROP=Optional\|False\|True\|False'
+        $text | Should -Not -Match 'PROP=Spn'
+        $text | Should -Match 'SENSITIVE=Removed,Added'
+        $text | Should -Match 'WIDGET=ChangeView'
+        $text | Should -Match '\(missing\)'
+    }
+
+    It 'builds an exportable baseline widget from pipeline objects and resolves names and indexes' {
+        $text = Invoke-ChangesChild @'
+$objects = @(
+    [pscustomobject]@{ Name = 'dc01'; Port = 80; Site = 'HQ'; Spn = 'HOST/dc01.example'; Optional = '' }
+    [pscustomobject]@{ Name = 'dc02'; Port = 443; Site = 'HQ'; Spn = 'HOST/dc02.example'; Optional = $null }
+    [pscustomobject]@{ Name = 'dc03'; Port = 443; Site = 'HQ'; Spn = 'HOST/dc03.example' }
+)
+$normalizers = @{ Spn = { $PSItem -replace 'dc\d+', 'HOST' } }
+$widget = $objects | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline 'DC02' -Ignore Name -Normalize $normalizers -AsWidget -ErrorAction Stop
+"WIDGET=$($widget.GetType().Name) BASELINE=$($widget.Comparison.BaselineIndex)"
+$widget | Export-ConsoleFrame -Format Text -Width 110
+$rows = @(Compare-ConsoleObject -InputObject $objects -Name First,Second,Third -Baseline 1 -Ignore Name -Normalize $normalizers -IncludeEqual -PassThru -ErrorAction Stop)
+foreach ($row in $rows) { "ROW=$($row.Path)|$($row.HasDifferences)|$($row.MissingCount)|$($row.Cells.Count)" }
+"ORIGINAL=$($widget.Comparison.Rows[0].Cells[0].Value)"
+try { Compare-ConsoleObject -InputObject $objects -Baseline 8 -AsWidget -ErrorAction Stop; throw 'Accepted invalid baseline' } catch { "ERROR=$($_.FullyQualifiedErrorId)" }
+'@
+        $text | Should -Match 'WIDGET=BaselineView BASELINE=1'
+        $text | Should -Match 'dc02 \(baseline\)'
+        $text | Should -Match 'missing on 1'
+        $text | Should -Match 'ROW=Port\|True\|0\|3'
+        $text | Should -Match 'ROW=Site\|False\|0\|3'
+        $text | Should -Match 'ROW=Spn\|False\|0\|3'
+        $text | Should -Match 'ROW=Optional\|True\|1\|3'
+        $text | Should -Match 'ORIGINAL=80'
+        $text | Should -Match 'ERROR=InvalidBaselineComparison'
+    }
+
     It 'shows the change view with tones and counts' {
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'web01'; Ram = 8 })
