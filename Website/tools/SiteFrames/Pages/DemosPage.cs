@@ -222,6 +222,14 @@ namespace SiteFrames.Pages {
                 PowerShellTwin = "Website/examples/demos/logging/Run.ps1",
                 Static = true
             };
+            // A ChartForgeX architecture file drawn in the terminal; the first use case plays, then the recording presses Ctrl+C.
+            yield return new Demo("topology", "dotnet run", 170, 32) {
+                Project = Path.Combine("Website", "examples", "demos", "topology", "Topology.csproj"),
+                PowerShellTwin = "Website/examples/demos/topology/Run.ps1",
+                Interrupt = TimeSpan.FromSeconds(11),
+                EndsOn = "step 8 of 8",
+                PosterShare = 0.6
+            };
             // TemplateDemo compiles the template's own Program.cs and drives its menu with scripted keys.
             yield return new Demo("template", "dotnet run, then dotnet run -- serve", 100, 26) {
                 Project = Path.Combine("Website", "tools", "TemplateDemo", "TemplateDemo.csproj"),

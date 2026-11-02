@@ -592,7 +592,7 @@
     },
     {
       "verb": "Show",
-      "count": 13,
+      "count": 14,
       "commands": [
         {
           "name": "Show-Console",
@@ -608,6 +608,11 @@
           "name": "Show-ConsoleDemo",
           "synopsis": "Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.",
           "url": "/powershell/commands/show-consoledemo/"
+        },
+        {
+          "name": "Show-ConsoleDiagram",
+          "synopsis": "Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.",
+          "url": "/powershell/commands/show-consolediagram/"
         },
         {
           "name": "Show-ConsoleGrid",

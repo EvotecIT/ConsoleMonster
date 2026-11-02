@@ -807,6 +807,28 @@
         "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
       }
     },
+    "topology": {
+      "title": "Architecture diagrams that play in the terminal",
+      "body": "An AD replication diagram from a ChartForgeX architecture file: two sites, four domain controllers and a use case whose steps light up on the diagram, with the payload of each step under it.",
+      "label": "An Active Directory replication diagram playing its use case step by step in the terminal",
+      "try": {
+        "project": "Topology",
+        "packages": [
+          "ConsoleMonster.Graphics",
+          "ChartForgeX.Markup"
+        ],
+        "note": "Save ad-replication.cfx beside Program.cs. Esc quits."
+      },
+      "use": {
+        "links": [
+          {
+            "title": "Architecture diagrams",
+            "url": "/docs/topology/"
+          }
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Graphics/README.md"
+      }
+    },
     "logging": {
       "title": "Log entries the ConsoleMonster way",
       "body": "Every level, a scope, a structured message and an exception, through the Microsoft.Extensions.Logging provider.",
