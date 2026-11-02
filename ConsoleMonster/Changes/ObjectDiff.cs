@@ -176,7 +176,7 @@ namespace ConsoleMonster.Changes {
         public static string PairText(object? value, object? other) => PairText(value, other, Localization.WidgetLabels.Current);
 
         internal static string PairText(object? value, object? other, Localization.WidgetLabels labels) {
-            string? marker = Values.ValueDisplay.Marker(value, labels);
+            string? marker = Values.ValueDisplay.ComparisonMarker(value, labels);
             if (marker != null) return marker;
             string text = Text(value);
             if ((value is DateTime || value is DateTimeOffset) && (other is DateTime || other is DateTimeOffset) && !Equals(value, other) && Text(other) == text) {

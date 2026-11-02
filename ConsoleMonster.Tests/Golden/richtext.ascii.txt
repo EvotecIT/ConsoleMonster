@@ -28,7 +28,7 @@ rich text
 | SRV03  | + PASS |
 +--------+--------+
 
-Owner   Przemys?aw K?ys
+Owner   Przemyslaw Klys
 Status  x FAIL
 
 Certificate

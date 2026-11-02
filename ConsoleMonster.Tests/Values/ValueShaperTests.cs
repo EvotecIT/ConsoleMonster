@@ -195,9 +195,9 @@ namespace ConsoleMonster.Tests.Values {
         }
 
         [Fact]
-        public void Cell_EmptyCollectionHasAMutedMarkerAndNullRemainsTyped() {
+        public void Cell_EmptyCollectionStaysBlankAndNullRemainsTyped() {
             TableCell empty = Assert.IsType<TableCell>(ValueShaper.Cell(Array.Empty<int>()));
-            Assert.Equal("[muted](empty)[/]", empty.Markup);
+            Assert.Equal(string.Empty, ConsoleMonster.Text.Markup.Strip(empty.Markup));
             Assert.Null(ValueShaper.Cell(null));
             Assert.Null(ValueShaper.Cell(DBNull.Value));
         }

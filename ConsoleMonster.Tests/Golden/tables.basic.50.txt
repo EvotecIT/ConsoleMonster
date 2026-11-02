@@ -101,7 +101,7 @@ BIMI
   Status  ♦ INFO
   Detail  no record; optional
   Took    19 ms
-  RFC     (null)
+  RFC     —
 
 mail.evotec.xyz  ·  TLS certificate · ECDSA P-256…
 
@@ -115,7 +115,6 @@ Certificate
   Key               ECDSA P-256
   OCSP stapling     √ yes
   Revoked           – no
-  Notes             (null)
   Subject alternative names  3
     mail.evotec.xyz
     autodiscover.evotec.xyz

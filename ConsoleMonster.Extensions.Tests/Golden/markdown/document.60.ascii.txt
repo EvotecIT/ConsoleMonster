@@ -78,7 +78,7 @@ close.</div>
 ### Compact terminal reading
 
 This deliberately longer paragraph checks wrapping at sixty
-columns while retaining Polish text such as za???? g??l?
-ja??, Japanese text such as ??, and an emoji such as [OK].
+columns while retaining Polish text such as zazolc gesla
+jazn, Japanese text such as ??, and an emoji such as [OK].
 The pager must retain every paragraph and table row when the
 document exceeds the visible screen.

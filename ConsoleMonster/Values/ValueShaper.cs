@@ -686,7 +686,7 @@ namespace ConsoleMonster.Values {
         internal static string ShapedText(object? value, ShapeOptions options, ShapeBudget? budget = null) => TextAt(Prepare(value, options), options, budget, 0, null);
 
         private static string TextAt(object? value, ShapeOptions options, ShapeBudget? budget, int depth, HashSet<object>? visiting) {
-            string? marker = ValueDisplay.Marker(value, Localization.WidgetLabels.Current);
+            string? marker = ValueDisplay.Marker(value);
             if (marker != null || value == null) return marker!;
             switch (value) {
                 case FieldError error:
@@ -771,7 +771,7 @@ namespace ConsoleMonster.Values {
             return options.Collections == CollectionDisplay.FirstN ? joined + " +" + tail + " more" : joined + " " + Placeholders.Ellipsis + " +" + tail;
         }
 
-        private static string EmptyText => Localization.WidgetLabels.Current.ChangesEmpty;
+        private static string EmptyText => string.Empty;
 
         private static string ItemCount(int count, CultureInfo culture) =>
             count == 1 ? "1 item" : count.ToString("N0", culture) + " items";

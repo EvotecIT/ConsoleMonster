@@ -81,7 +81,7 @@ namespace ConsoleMonster.Interactive {
                 object? value = Prepared;
                 if (Error != null) { return "error: " + Error; }
                 if (IsCycle) { return "(cycle)"; }
-                string? marker = Values.ValueDisplay.Marker(value, Localization.WidgetLabels.Current);
+                string? marker = Values.ValueDisplay.Marker(value);
                 if (marker != null || value == null) { return marker!; }
                 if (Pending(out string? pending)) { return pending ?? "pending"; }
                 if (value is ICollection collection && !(value is IDictionary) && !(value is string)) {

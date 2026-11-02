@@ -2,7 +2,7 @@ Cards  -  2 records
 
 SRV03
   Result  + PASS
-  Owner   Przemys?aw K?ys
+  Owner   Przemyslaw Klys
   Note    [red]literal[/] data
 
 SRV04

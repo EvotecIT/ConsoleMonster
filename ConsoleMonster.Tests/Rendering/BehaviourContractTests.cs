@@ -354,28 +354,40 @@ namespace ConsoleMonster.Tests.Rendering {
 
         public static IEnumerable<object[]> ValueCases() {
             foreach (string renderer in new[] { "table", "cards", "key/value", "record", "tree", "diff" }) {
-                yield return new object[] { renderer, "null", "(null)" };
-                yield return new object[] { renderer, "empty", "(empty)" };
-                yield return new object[] { renderer, "missing", "(missing)" };
+                yield return new object[] { renderer, "null", renderer == "diff" ? "(null)" : "—" };
+                yield return new object[] { renderer, "empty", renderer == "diff" ? "(empty)" : "" };
+                yield return new object[] { renderer, "missing", renderer == "diff" ? "(missing)" : "—" };
             }
         }
 
         [Theory]
         [MemberData(nameof(ValueCases))]
-        public void Values_KeepNullEmptyAndMissingDistinct(string renderer, string kind, string expected) {
+        public void Values_UseQuietPlaceholdersExceptInComparisons(string renderer, string kind, string expected) {
             object? value = kind == "null" ? null : kind == "empty" ? "" : Missing.Value;
             IWidget widget;
             switch (renderer) {
                 case "table": widget = new Table().AddColumn("Value").AddValues(new[] { value }); break;
                 case "cards": widget = new Table { AlwaysCards = true }.AddColumn("Value").AddValues(new[] { value }); break;
                 case "key/value": widget = new KeyValueList().AddValue("Value", value); break;
-                case "record": widget = new RecordView().AddField("Value", value); break;
+                case "record": widget = new RecordView { HideEmpty = false }.AddField("Value", value); break;
                 case "diff": widget = new ChangeView(ObjectDiff.Compare(new Dictionary<string, object?> { ["Value"] = value }, new Dictionary<string, object?>())); break;
                 default: var tree = new Tree("Root"); tree.Add("Value").Value = TableCell.FromValue(value); widget = tree; break;
             }
-            Assert.Contains(expected, TestTerminal.RenderText(widget, 80, glyphs: GlyphTier.Ascii));
-            string translated = kind == "missing" ? "(brak)" : kind == "empty" ? "(puste)" : "(null)";
-            Assert.Contains(translated, TestTerminal.RenderText(widget, 80, glyphs: GlyphTier.Basic, culture: CultureInfo.GetCultureInfo("pl")));
+            string ascii = TestTerminal.RenderText(widget, 80, glyphs: GlyphTier.Ascii);
+            string basic = TestTerminal.RenderText(widget, 80, glyphs: GlyphTier.Basic, culture: CultureInfo.GetCultureInfo("pl"));
+            if (renderer == "diff") {
+                Assert.Contains(expected, ascii);
+                string translated = kind == "missing" ? "(brak)" : kind == "empty" ? "(puste)" : "(null)";
+                Assert.Contains(translated, basic);
+            } else {
+                Assert.Equal(expected, global::ConsoleMonster.Values.ValueShaper.Text(value));
+                Assert.Contains("Value", basic);
+                foreach (string marker in new[] { "(null)", "(empty)", "(missing)", "(brak)", "(puste)" }) {
+                    Assert.DoesNotContain(marker, ascii); Assert.DoesNotContain(marker, basic);
+                }
+                if (expected.Length > 0) { Assert.Contains(expected, basic); Assert.Contains("-", ascii); }
+                else { Assert.DoesNotContain("—", basic); }
+            }
         }
 
         public static IEnumerable<object[]> EntryCases() {
@@ -410,9 +422,10 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer) {
             if (renderer == "record") {
                 var view = new RecordView().AddField("Optional", (object?)null);
-                Assert.Contains("(null)", TestTerminal.RenderText(view));
-                view.HideEmpty = true;
                 Assert.DoesNotContain("Optional", TestTerminal.RenderText(view));
+                view.HideEmpty = false;
+                Assert.Contains("Optional", TestTerminal.RenderText(view));
+                Assert.Contains("—", TestTerminal.RenderText(view));
             } else {
                 var view = new InspectorView(new { Value = 1 }, title: "Header");
                 Assert.Contains("Header", TestTerminal.RenderText(view));
@@ -446,6 +459,9 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Contains("State", target.Text);
             Assert.Equal(1, target.Text.Split(new[] { "State" }, StringSplitOptions.None).Length - 1);
             Assert.Equal(0, actions);
+            Assert.DoesNotContain("tab next", target.Text.ToLowerInvariant());
+            Assert.DoesNotContain("esc quit", target.Text.ToLowerInvariant());
+            Assert.DoesNotContain("enter select", target.Text.ToLowerInvariant());
             Assert.Empty(ambient.Text);
         }
 
@@ -491,6 +507,11 @@ namespace ConsoleMonster.Tests.Rendering {
             if (tier != GlyphTier.Full) Assert.All(writer.ToString().Where(c => c != '\r' && c != '\n' && c != '\u001b'), c => Assert.True(
                 tier == GlyphTier.Ascii ? c >= ' ' && c <= '~' : Wgl4Repertoire.Contains(c)));
             Assert.Contains("caf", writer.ToString());
+            if (tier == GlyphTier.Ascii) {
+                Assert.Contains("Lodz ?? [OK] cafe", writer.ToString());
+                string latin = SymbolFallback.Constrain("ł Ł đ Đ ø Ø ß æ Æ œ Œ þ ð e\u0301", tier);
+                Assert.Equal("l L d D o O ss ae AE oe OE th d e", latin);
+            }
             if (mode == OutputMode.Interactive) {
                 Assert.Contains(tier == GlyphTier.Full ? "https://example.test/Łódź/東京" : "https://example.test/%C5%81%C3%B3d%C5%BA/%E6%9D%B1%E4%BA%AC", writer.ToString());
                 Assert.Contains(tier == GlyphTier.Full ? "https://例え.テスト/报告" : "https://xn--r8jz45g.xn--zckzah/%E6%8A%A5%E5%91%8A", writer.ToString());

@@ -19,16 +19,15 @@ namespace ConsoleMonster.Tests.Values {
             table.AddValues("café — ✓ …", ValueShaper.Cell(new string[0]), ValueShaper.Cell(Enumerable.Range(1, 9).Select(i => "m" + i).ToList()));
 
             string ascii = Render(table, GlyphTier.Ascii);
-            Assert.Contains("caf? - + ...", ascii);
+            Assert.Contains("cafe - + ...", ascii);
             Assert.Contains("m5 ... +4", ascii);
-            Assert.Contains("(empty)", ascii);
+            Assert.DoesNotContain("(empty)", ascii);
             Assert.All(ascii, c => Assert.InRange((int)c, 0, 127));
 
             string full = Render(table, GlyphTier.Full);
             Assert.Contains("m5 … +4", full);
-            Assert.Contains("(empty)", full);
-            // The public text keeps the Unicode placeholders for logs, exports and string consumers.
-            Assert.Equal("(empty)", ValueShaper.Text(new string[0]));
+            Assert.DoesNotContain("(empty)", full);
+            Assert.Equal(string.Empty, ValueShaper.Text(new string[0]));
         }
     }
 }

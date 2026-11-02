@@ -47,7 +47,7 @@ namespace ConsoleMonster.Interactive {
                 console.Activate();
             }
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock)) {
+            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock, staticView: snapshot)) {
                 if (snapshot) {
                     if (settings.Live?.Output != null && interactive.Capture == null) {
                         settings.Live.Output.WriteBlock(FrameComposer.RenderBlock(app.Root, profile.Width, context));

@@ -43,17 +43,20 @@ structural dictionary keys remain data identities.
 
 ## Values and glyphs
 
-- Raw data distinguishes an absent member (`(missing)`), a present null/`DBNull` (`(null)`) and an empty
-  string or collection (`(empty)`). The missing and empty labels use the existing translation catalog.
-  `System.Reflection.Missing.Value` represents an absent value when a caller supplies cells directly.
-- Tables, cards, record sheets, key/value lists, trees, inspectors and object diffs use those markers.
-  Omitted table cells and missing selected properties are absent values. A deliberately blank markup
-  span or layout cell is spacing, not raw data. Numeric NaN/infinity retains the numeric unavailable marker.
-- Record sheets show null and empty fields by default. `RecordView.HideEmpty = true` explicitly hides
-  them; `ConsoleViewOptions.ShowEmpty` controls inclusion in the list renderer. Hidden fields are not
-  converted into missing values.
+- Ordinary tables, cards, key/value lists, trees, inspectors and record sheets use the existing muted
+  placeholder `—` (ASCII `-`) for null and missing values, and leave an empty string blank. They do not
+  print `(null)`, `(empty)` or `(missing)`. `System.Reflection.Missing.Value` and omitted cells represent
+  absent data. Empty collections stay blank. Numeric NaN/infinity retains the unavailable marker.
+- Object diffs, `Compare-ConsoleObject` and the baseline matrix retain `(null)`, `(empty)` and `(missing)`:
+  the distinction is the point of those views. Missing and empty labels use the translation catalog.
+- Record sheets keep hiding null/empty fields by default (`RecordView.HideEmpty = true`). Setting it to
+  false includes those fields with the ordinary display policy; `ConsoleViewOptions.ShowEmpty` controls
+  inclusion in the list renderer. Hidden fields are not converted into missing values.
 - ASCII output contains printable ASCII, including caller text. Basic output stays within WGL4.
-  Known symbols use their tier alternatives; unsupported graphemes become `?`. Full retains caller text.
+  Known symbols keep their tier alternatives. ASCII decomposes letters and drops combining marks,
+  transliterates letters such as `ł`, `ø`, `ß` and `æ`, and uses `?` only when there is no reasonable ASCII
+  form: `Łódź 東京 ✅ café` becomes `Lodz ?? [OK] cafe`. Basic retains WGL4 caller text; unsupported
+  graphemes become `?`. Full retains caller text.
   Reduced-tier conversion is a display operation: source values and search inputs
   are not rewritten. Link destinations use IDNA hostnames and percent-encoded UTF-8 paths in reduced
   tiers, preserving the URI. Plain log-tail output keeps literal lines and applies only the repertoire restriction.
@@ -70,7 +73,8 @@ structural dictionary keys remain data identities.
   culture also apply to cards and record fallback. Table borders, separators and column width negotiation
   belong to grid layout; cards use labelled fields. Tree guides/value columns, code line numbers,
   exception stack/source options, chart axes and export format settings belong to their named renderer.
-  Interactive actions, mouse reporting and keyboard hints do not execute in static fallback.
+  Static app/menu/grid snapshots keep their content and title and omit key-hint footers: no key works
+  in a snapshot. Interactive actions and mouse reporting do not execute there.
 - Use one public parameter or member for one choice. Sync/async endings and typed versus object input
   overloads share semantics. A convenience builder delegates to the same implementation. New aliases or
   overlapping selectors need a distinct contract or should be removed before release.
