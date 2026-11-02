@@ -20,6 +20,7 @@
 .cm-screen .f16a34a{color:#16a34a}
 .cm-screen .f16c60c{color:#16c60c}
 .cm-screen .f1d4ed8{color:#1d4ed8}
+.cm-screen .f243b5e{color:#243b5e}
 .cm-screen .f2563eb{color:#2563eb}
 .cm-screen .f2dd4bf{color:#2dd4bf}
 .cm-screen .f374151{color:#374151}
@@ -401,6 +402,7 @@
 .cm-screen .keeeff1{background-color:#eeeff1}
 .cm-screen .keff0f2{background-color:#eff0f2}
 .cm-screen .kf0f1f2{background-color:#f0f1f2}
+.cm-screen .kf1f5f9{background-color:#f1f5f9}
 .cm-screen .kf2f2f2{background-color:#f2f2f2}
 .cm-screen .kf3f3f5{background-color:#f3f3f5}
 .cm-screen .kf4f4f6{background-color:#f4f4f6}
@@ -562,6 +564,7 @@
 .cm-screen .g251b{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:0 50%,50% 0;background-size:calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy),var(--cm-heavy) calc(50% + calc(var(--cm-heavy) / 2))}
 .cm-screen .g251c{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,50% 0,50% 100%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),var(--cm-light) calc(50% + calc(var(--cm-light) / 2)),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}
 .cm-screen .g2524{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:0 50%,50% 0,50% 100%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),var(--cm-light) calc(50% + calc(var(--cm-light) / 2)),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}
+.cm-screen .g252b{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:0 50%,50% 0,50% 100%;background-size:calc(50% + calc(var(--cm-heavy) / 2)) var(--cm-heavy),var(--cm-heavy) calc(50% + calc(var(--cm-heavy) / 2)),var(--cm-heavy) calc(50% + calc(var(--cm-heavy) / 2))}
 .cm-screen .g252c{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%,50% 100%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}
 .cm-screen .g2534{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%,50% 0;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}
 .cm-screen .g253c{background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:100% 50%,0 50%,50% 0,50% 100%;background-size:calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),calc(50% + calc(var(--cm-light) / 2)) var(--cm-light),var(--cm-light) calc(50% + calc(var(--cm-light) / 2)),var(--cm-light) calc(50% + calc(var(--cm-light) / 2))}
