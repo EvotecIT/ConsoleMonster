@@ -41,4 +41,4 @@ Widget.ChangesDiffers = differs
 Widget.ChangesMissingOn = missing on {0}
 Widget.ChangesOnePropertyShown = {0} property shown
 Widget.ChangesPropertiesShown = {0} properties shown
-Widget.ChangesMatchingHidden = {0} matching hidden (-IncludeEqual)
+Widget.ChangesMatchingHidden = {0} matching hidden

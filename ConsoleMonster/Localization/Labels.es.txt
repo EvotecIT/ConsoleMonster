@@ -291,4 +291,4 @@ Widget.ChangesDiffers = difiere
 Widget.ChangesMissingOn = ausente en {0}
 Widget.ChangesOnePropertyShown = {0} propiedad mostrada
 Widget.ChangesPropertiesShown = {0} propiedades mostradas
-Widget.ChangesMatchingHidden = {0} iguales ocultas (-IncludeEqual)
+Widget.ChangesMatchingHidden = {0} iguales ocultas

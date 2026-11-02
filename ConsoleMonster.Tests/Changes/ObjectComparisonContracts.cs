@@ -101,14 +101,14 @@ namespace ConsoleMonster.Tests.Changes {
             Assert.Contains("missing on 1", rendered);
             Assert.Contains("(missing)", rendered);
             Assert.Contains("differs", rendered);
-            Assert.Contains("differs, missing on 1", rendered);
-            Assert.Contains("4 properties shown, 2 matching hidden (-IncludeEqual)", rendered);
+            Assert.EndsWith("| missing on 1 |", rendered.Split('\n').Single(line => line.Contains("| Optional")).TrimEnd());
+            Assert.Contains("4 properties shown, 2 matching hidden", rendered);
             string compact = TestTerminal.RenderText(new BaselineView(comparison), 48, 0, GlyphTier.Ascii);
             Assert.All(compact.Split('\n'), line => Assert.True(line.Length <= 48));
             Assert.DoesNotContain("records", compact);
             Assert.Contains("4 properties shown", compact);
             string translated = TestTerminal.RenderText(new BaselineView(comparison), 100, 0, GlyphTier.Ascii, CultureInfo.GetCultureInfo("pl"));
-            Assert.Contains("Pokazano 4 właściwości, ukryto 2 zgodnych (-IncludeEqual)", translated);
+            Assert.Contains("Pokazano 4 właściwości, ukryto 2 zgodnych", translated);
             options.IncludeUnchanged = true;
             BaselineComparison all = ObjectDiff.CompareBaseline(objects, options, baselineIndex: 1);
             Assert.Contains(all.Rows, row => row.Path == "Site" && !row.HasDifferences);
@@ -127,7 +127,6 @@ namespace ConsoleMonster.Tests.Changes {
                     return frame[x, y];
                 }
                 Assert.Equal(theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor).Color, At("Port", "differs").Style.Color);
-                Assert.Equal(theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor).Color, At("Optional", "differs").Style.Color);
                 Assert.Equal(theme.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Color, At("Optional", "missing on 1").Style.Color);
                 Assert.Equal(theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor).Color, At("CaseValue", "case only").Style.Color);
                 Assert.Equal(theme.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Color, At("Site", "same").Style.Color);

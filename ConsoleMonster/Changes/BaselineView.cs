@@ -47,8 +47,9 @@ namespace ConsoleMonster.Changes {
                     cells.Add("[" + tone + "]" + Markup.Escape(text) + "[/]");
                 }
                 var status = new List<string>();
-                if (row.HasDifferences || row.HasCaseDifferences) {
-                    status.Add("[warn]" + Markup.Escape(row.HasDifferences ? labels.ChangesDiffers : labels.ChangesCaseOnly) + "[/]");
+                bool differs = reference.IsPresent && row.Cells.Any(c => c.IsPresent && c.Kind != ChangeKind.Unchanged);
+                if (differs || row.HasCaseDifferences) {
+                    status.Add("[warn]" + Markup.Escape(differs ? labels.ChangesDiffers : labels.ChangesCaseOnly) + "[/]");
                 } else if (row.MissingCount == 0) {
                     status.Add("[muted]" + Markup.Escape(labels.ChangesSame) + "[/]");
                 }

@@ -393,7 +393,7 @@ namespace ConsoleMonster.Localization {
         public string ChangesPropertiesShown { get; set; } = "{0} properties shown";
 
         /// <summary>Matching property rows hidden from a baseline matrix, with the PowerShell option to include them.</summary>
-        public string ChangesMatchingHidden { get; set; } = "{0} matching hidden (-IncludeEqual)";
+        public string ChangesMatchingHidden { get; set; } = "{0} matching hidden";
 
         /// <summary>The item column of a change table.</summary>
         public string ChangesItem { get; set; } = "Item";
