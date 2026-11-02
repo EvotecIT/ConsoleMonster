@@ -1,4 +1,4 @@
- evotec.xyz · DNS records via Cloudflare DoH
+ evotec.xyz * DNS records via Cloudflare DoH
 +------------------------+-------+----------+-----------------------------------+---------------+----------------------+
 | Name                   | Type  |      TTL | Data                              |       Latency | Cache file           |
 +------------------------+-------+----------+-----------------------------------+---------------+----------------------+
@@ -18,21 +18,21 @@
 | evotec.xyz             | CAA   | 1 h 00 m | 0 issue "letsencrypt.org"         |         15 ms | /var/cach...CAA.json |
 +------------------------+-------+----------+-----------------------------------+---------------+----------------------+
 
- evotec.xyz · mail security checks
-+---------+--------+-----------------------------------------------------------------------------------+--------+------+
-| Check   | Status | Detail                                                                            |   Took | RFC  |
-+---------+--------+-----------------------------------------------------------------------------------+--------+------+
-| SPF     | [OK]   | 9 DNS lookups (limit 10); ends with -all                                          |  84 ms | 7208 |
-| DMARC   | [OK]   | p=reject, aggregate and forensic reports configured                               |  41 ms | 7489 |
-| DKIM    | [WARN] | selector2 key is 1024-bit; selector1 is 2048-bit. Rotate selector2 to a 2048-bit  | 212 ms | 6376 |
-|         |        | key                                                                               |        |      |
-| MTA-STS | [FAIL] | policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt     |  1.4 s | 8461 |
-| TLS-RPT | [SKIP] | not published                                                                     |  22 ms | 8460 |
-| DNSSEC  | [WARN] | zone is not signed                                                                |  95 ms | 4033 |
-| BIMI    | [INFO] | no record; optional                                                               |  19 ms |      |
-+---------+--------+-----------------------------------------------------------------------------------+--------+------+
+ evotec.xyz * mail security checks
++---------+--------+---------------------------------------------------------------------------------+--------+--------+
+| Check   | Status | Detail                                                                          |   Took | RFC    |
++---------+--------+---------------------------------------------------------------------------------+--------+--------+
+| SPF     | [OK]   | 9 DNS lookups (limit 10); ends with -all                                        |  84 ms | 7208   |
+| DMARC   | [OK]   | p=reject, aggregate and forensic reports configured                             |  41 ms | 7489   |
+| DKIM    | [WARN] | selector2 key is 1024-bit; selector1 is 2048-bit. Rotate selector2 to a         | 212 ms | 6376   |
+|         |        | 2048-bit key                                                                    |        |        |
+| MTA-STS | [FAIL] | policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt   |  1.4 s | 8461   |
+| TLS-RPT | [SKIP] | not published                                                                   |  22 ms | 8460   |
+| DNSSEC  | [WARN] | zone is not signed                                                              |  95 ms | 4033   |
+| BIMI    | [INFO] | no record; optional                                                             |  19 ms | (null) |
++---------+--------+---------------------------------------------------------------------------------+--------+--------+
 
-mail.evotec.xyz  -  TLS certificate · ECDSA P-256 · Let's Encrypt
+mail.evotec.xyz  -  TLS certificate * ECDSA P-256 * Let's Encrypt
 
 Certificate
   Subject           CN=mail.evotec.xyz
@@ -43,6 +43,7 @@ Certificate
   Key               ECDSA P-256
   OCSP stapling     yes
   Revoked           no
+  Notes             (null)
   Subject alternative names  3
     mail.evotec.xyz
     autodiscover.evotec.xyz
@@ -54,7 +55,7 @@ Certificate
     CN=R11, O=Let's Encrypt  in 4 mo         RSA 2048
     CN=ISRG Root X1          in 8 y          RSA 4096
 
- Nightly checks · run summary
+ Nightly checks * run summary
 +--------------------------+--------+--------+-----------+-----------+----------+------------------+
 | Target                   | Result | Passed |    Failed |  Warnings | Duration |            Score |
 +- Domains - 2 ------------+--------+--------+-----------+-----------+----------+------------------+
@@ -72,7 +73,7 @@ Certificate
 | Total                    |        |    145 | [FAIL] 10 | [WARN] 23 | 2 m 04 s |          80.14 % |
 +--------------------------+--------+--------+-----------+-----------+----------+------------------+
 
- Build artifacts · ConsoleMonster 2.0.0
+ Build artifacts * ConsoleMonster 2.0.0
 +-------------------------------+---------+---------+----------+----------+-----------------------------+--------------+
 | Artifact                      | Kind    |    Size | Built in | Created  | Path                        | SHA256       |
 +-------------------------------+---------+---------+----------+----------+-----------------------------+--------------+

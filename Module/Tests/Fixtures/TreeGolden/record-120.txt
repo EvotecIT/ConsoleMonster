@@ -1,4 +1,4 @@
 worker-01
 ├── Status  ✓ Running
 ├── Ready   ✓ yes
-└── +1 empty
+└── +1 empty  (empty)

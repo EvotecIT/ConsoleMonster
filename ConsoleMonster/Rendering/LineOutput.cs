@@ -66,10 +66,7 @@ namespace ConsoleMonster.Rendering {
             }
             _sb.Clear();
             ColorDepth depth = Depth;
-            foreach (TextSpan span in line) {
-                SgrEncoder.Append(_sb, span.Style, depth, Profile);
-                TextSanitizer.Append(_sb, span.Text);
-            }
+            CellEncoder.AppendStyled(_sb, line, depth, hyperlinks: false, profile: Profile);
             if (depth != ColorDepth.None && line.Count > 0) {
                 SgrEncoder.AppendReset(_sb, Profile);
             }

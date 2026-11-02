@@ -245,6 +245,10 @@ namespace ConsoleMonster.Presenters {
         /// <param name="context">The presenter context.</param>
         /// <returns>The presented value.</returns>
         public static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context) {
+            string? marker = Values.ValueDisplay.Marker(value, context.Render.Labels);
+            if (marker != null) {
+                return new PresentedValue(StyledLine.From(marker, context.Render.Style(ThemeToken.Muted))) { IsEmpty = PresenterValues.IsEmpty(value) };
+            }
             if (value is Text.RichText rich) {
                 // Rich text brings its own colours; presenters and tone rules do not restyle it.
                 return MarkupPresenter.FromStyledText(rich.ToStyledText(context.Render), rich.PlainText.Length == 0);

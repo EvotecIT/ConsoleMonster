@@ -19,18 +19,18 @@
 └──────────────────────────┴───────┴──────────┴──────────────────────────────────────┴──────────┴──────────────────────┘
 
  evotec.xyz · mail security checks
-┌─────────┬────────┬───────────────────────────────────────────────────────────────────────────────────┬────────┬──────┐
-│ Check   │ Status │ Detail                                                                            │   Took │ RFC  │
-├─────────┼────────┼───────────────────────────────────────────────────────────────────────────────────┼────────┼──────┤
-│ SPF     │ √ PASS │ 9 DNS lookups (limit 10); ends with -all                                          │  84 ms │ 7208 │
-│ DMARC   │ √ PASS │ p=reject, aggregate and forensic reports configured                               │  41 ms │ 7489 │
-│ DKIM    │ ! WARN │ selector2 key is 1024-bit; selector1 is 2048-bit. Rotate selector2 to a 2048-bit  │ 212 ms │ 6376 │
-│         │        │ key                                                                               │        │      │
-│ MTA-STS │ × FAIL │ policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt     │  1.4 s │ 8461 │
-│ TLS-RPT │ – SKIP │ not published                                                                     │  22 ms │ 8460 │
-│ DNSSEC  │ ! WARN │ zone is not signed                                                                │  95 ms │ 4033 │
-│ BIMI    │ ♦ INFO │ no record; optional                                                               │  19 ms │      │
-└─────────┴────────┴───────────────────────────────────────────────────────────────────────────────────┴────────┴──────┘
+┌─────────┬────────┬─────────────────────────────────────────────────────────────────────────────────┬────────┬────────┐
+│ Check   │ Status │ Detail                                                                          │   Took │ RFC    │
+├─────────┼────────┼─────────────────────────────────────────────────────────────────────────────────┼────────┼────────┤
+│ SPF     │ √ PASS │ 9 DNS lookups (limit 10); ends with -all                                        │  84 ms │ 7208   │
+│ DMARC   │ √ PASS │ p=reject, aggregate and forensic reports configured                             │  41 ms │ 7489   │
+│ DKIM    │ ! WARN │ selector2 key is 1024-bit; selector1 is 2048-bit. Rotate selector2 to a         │ 212 ms │ 6376   │
+│         │        │ 2048-bit key                                                                    │        │        │
+│ MTA-STS │ × FAIL │ policy file returns 404 at https://mta-sts.evotec.xyz/.well-known/mta-sts.txt   │  1.4 s │ 8461   │
+│ TLS-RPT │ – SKIP │ not published                                                                   │  22 ms │ 8460   │
+│ DNSSEC  │ ! WARN │ zone is not signed                                                              │  95 ms │ 4033   │
+│ BIMI    │ ♦ INFO │ no record; optional                                                             │  19 ms │ (null) │
+└─────────┴────────┴─────────────────────────────────────────────────────────────────────────────────┴────────┴────────┘
 
 mail.evotec.xyz  ·  TLS certificate · ECDSA P-256 · Let's Encrypt
 
@@ -43,6 +43,7 @@ Certificate
   Key               ECDSA P-256
   OCSP stapling     √ yes
   Revoked           – no
+  Notes             (null)
   Subject alternative names  3
     mail.evotec.xyz
     autodiscover.evotec.xyz

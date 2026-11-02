@@ -109,7 +109,7 @@ namespace ConsoleMonster.Tests.Changes {
             Assert.Contains("4 properties shown", compact);
             Assert.Contains("(empty)", compact);
             Assert.DoesNotContain("columns (", TestTerminal.RenderText(new BaselineView(comparison), 60, 0, GlyphTier.Ascii));
-            string translated = TestTerminal.RenderText(new BaselineView(comparison), 100, 0, GlyphTier.Ascii, CultureInfo.GetCultureInfo("pl"));
+            string translated = TestTerminal.RenderText(new BaselineView(comparison), 100, 0, GlyphTier.Basic, CultureInfo.GetCultureInfo("pl"));
             Assert.Contains("Pokazano 4 właściwości, ukryto 2 zgodnych", translated);
             options.IncludeUnchanged = true;
             BaselineComparison all = ObjectDiff.CompareBaseline(objects, options, baselineIndex: 1);

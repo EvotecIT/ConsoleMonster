@@ -73,18 +73,18 @@ namespace ConsoleMonster.Widgets {
 
         private List<StyledLine> BuildLines(RenderContext context, int width) {
             string? separator = WrapSeparator;
-            StyledText text = IsMarkup ? context.Markup(Content) : StyledText.FromPlain(Content);
+            StyledText text = IsMarkup ? context.SourceMarkup(Content) : StyledText.FromPlain(Content);
             Style baseStyle = Role.HasValue ? context.Style(Role.Value) : Style.Plain;
             List<StyledLine> result = new List<StyledLine>();
             foreach (StyledLine raw in text.Lines) {
                 StyledLine line = raw.WithBaseStyle(baseStyle);
-                StyledLine convertedLine = WrapSeparator == " · " ? FactFlow.TierSeparators(line, context) : line;
+                StyledLine convertedLine = Convert(line);
                 if (convertedLine.Width <= width || width <= 0) {
                     result.Add(convertedLine);
                 } else if (Overflow == TextOverflow.Wrap) {
                     IEnumerable<StyledLine> wrapped = !string.IsNullOrEmpty(separator) && line.PlainText.Contains(separator!)
-                        ? FactFlow.WrapSeparated(line, width, separator!, preserveSeparator: separator != " · ",
-                            convert: separator == " · " ? part => FactFlow.TierSeparators(part, context) : null)
+                        ? FactFlow.WrapSeparated(line, width, separator!, preserveSeparator: WrapSeparator != " · ",
+                            convert: Convert)
                         : TextWrapper.Wrap(convertedLine, width);
                     result.AddRange(wrapped);
                 } else {
@@ -92,6 +92,11 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             return result;
+
+            StyledLine Convert(StyledLine line) {
+                if (WrapSeparator == " · ") line = FactFlow.TierSeparators(line, context);
+                return Glyphs.SymbolFallback.ForOutput(new StyledText(new List<StyledLine> { line }), context.Glyphs.Tier).Lines[0];
+            }
         }
     }
 }

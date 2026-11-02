@@ -134,7 +134,7 @@ namespace ConsoleMonster.Changes {
         private string PropertyLabel(PropertyChange property) => Markup.Escape(property.Path + (property.IsCaseOnly ? " (" + _labels.ChangesCaseOnly + ")" : ""));
 
         private string ValueText(PropertyChange property, bool before) => (before ? property.HasBefore : property.HasAfter)
-            ? ObjectDiff.PairText(before ? property.Before : property.After, before ? property.After : property.Before) : _labels.ChangesMissing;
+            ? ObjectDiff.PairText(before ? property.Before : property.After, before ? property.After : property.Before, _labels) : _labels.ChangesMissing;
 
         private string Summary() {
             List<string> parts = new List<string> {

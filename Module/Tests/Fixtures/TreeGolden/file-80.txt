@@ -1,4 +1,4 @@
 report.txt
 ├── Length     1.5 KB
 ├── Extension  .txt
-└── +1 empty
+└── +1 empty  (empty)

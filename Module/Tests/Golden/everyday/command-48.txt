@@ -12,7 +12,10 @@ Get-Date
 
 gi -> Get-Inventory
   CommandType  [Alias]
+  Version      (null)
+  Source       (empty)
 
 tool
   CommandType  [Application]
+  Version      (null)
   Source       /usr/bin/tool

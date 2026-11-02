@@ -195,9 +195,9 @@ namespace ConsoleMonster.Tests.Values {
         }
 
         [Fact]
-        public void Cell_EmptyCollectionIsAMutedDashAndNullStaysBlank() {
+        public void Cell_EmptyCollectionHasAMutedMarkerAndNullRemainsTyped() {
             TableCell empty = Assert.IsType<TableCell>(ValueShaper.Cell(Array.Empty<int>()));
-            Assert.Equal("[muted]—[/]", empty.Markup);
+            Assert.Equal("[muted](empty)[/]", empty.Markup);
             Assert.Null(ValueShaper.Cell(null));
             Assert.Null(ValueShaper.Cell(DBNull.Value));
         }

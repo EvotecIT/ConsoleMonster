@@ -43,14 +43,14 @@ namespace ConsoleMonster.Widgets {
             }
             if (layout.Record != null) {
                 Size size = layout.Record.Measure(new Constraints(width), context);
-                CellBuffer record = new CellBuffer(width, size.Height);
+                CellBuffer record = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
                 layout.Record.Render(new Region(record), context);
                 yield return record;
                 yield break;
             }
             int head = HeadHeight(layout, layout.MergeFirstGroup);
             if (head > 0) {
-                CellBuffer buffer = new CellBuffer(width, head);
+                CellBuffer buffer = new CellBuffer(width, head) { GlyphTier = context.Glyphs.Tier };
                 DrawHead(new Region(buffer), 0, layout, context, layout.MergeFirstGroup);
                 yield return buffer;
             }
@@ -70,7 +70,7 @@ namespace ConsoleMonster.Widgets {
                     lines += layout.Rows[end].Height;
                     end++;
                 }
-                CellBuffer buffer = new CellBuffer(width, lines);
+                CellBuffer buffer = new CellBuffer(width, lines) { GlyphTier = context.Glyphs.Tier };
                 DrawRows(new Region(buffer), 0, layout, index, end, context, index == 0 && layout.MergeFirstGroup && !ShowHeader);
                 for (int i = index; i < end; i++) {
                     // Drawn: release the row's text so memory stays at one block.
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Widgets {
             }
             int tail = TailHeight(layout);
             if (tail > 0) {
-                CellBuffer buffer = new CellBuffer(width, tail);
+                CellBuffer buffer = new CellBuffer(width, tail) { GlyphTier = context.Glyphs.Tier };
                 DrawTail(new Region(buffer), 0, layout, context);
                 yield return buffer;
             }
@@ -128,7 +128,7 @@ namespace ConsoleMonster.Widgets {
                 rowLines.Add(headHeight + lines);
                 lines += row.Height;
             }
-            CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines));
+            CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines)) { GlyphTier = context.Glyphs.Tier };
             Region region = new Region(buffer);
             DrawHead(region, 0, layout, context, merge, first);
             DrawRows(region, headHeight, layout, first, end, context, merge && !ShowHeader);

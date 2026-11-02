@@ -40,8 +40,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A muted summary after the title (<c>12 targets · 4 failing</c>), or null.</summary>
         public string? Summary { get; set; }
 
-        /// <summary>Whether empty values (null, empty text) are left out (default true).</summary>
-        public bool HideEmpty { get; set; } = true;
+        /// <summary>Whether null and empty values are left out (default false). Visible values retain distinct markers.</summary>
+        public bool HideEmpty { get; set; }
 
         /// <summary>Cells each nesting level indents (default 2).</summary>
         public int IndentWidth { get; set; } = 2;

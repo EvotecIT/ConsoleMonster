@@ -132,7 +132,8 @@ namespace ConsoleMonster.Tests.Rendering {
             string text = Render(table, 60);
             Assert.Contains("Site", text);
             Assert.Contains("Warsaw", text);
-            Assert.DoesNotContain("Owner", text);
+            Assert.Contains("Owner", text);
+            Assert.Contains("(null)", text);
             Assert.DoesNotContain("╭", text);
         }
 

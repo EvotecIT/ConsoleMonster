@@ -22,7 +22,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [InlineData(120, GlyphTier.Full)]
         [InlineData(60, GlyphTier.Full)]
         [InlineData(60, GlyphTier.Ascii)]
-        public void CompleteDocument_ReflowsWithoutLosingContent(int width, GlyphTier tier) {
+        public void CompleteDocument_ReflowsForTheDestinationRepertoire(int width, GlyphTier tier) {
             string source = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "everyday.md"));
             string text = Render(source, width, tier: tier).ToPlainText();
             Golden.Match("markdown/document." + width + "." + tier.ToString().ToLowerInvariant() + ".txt", text.TrimEnd() + "\n");
@@ -31,7 +31,8 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             Assert.Contains("5. Continue only after verification.", text);
             Assert.Contains("incident review", text);
             Assert.Contains("deployment-notes", text);
-            Assert.Contains("検証", text);
+            if (tier == GlyphTier.Ascii) Assert.All(text, c => Assert.InRange((int)c, 0, 127));
+            else Assert.Contains("検証", text);
             Assert.All(text.Split('\n'), line => Assert.True(DisplayWidth.Measure(line) <= width));
         }
 

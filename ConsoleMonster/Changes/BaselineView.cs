@@ -41,7 +41,7 @@ namespace ConsoleMonster.Changes {
                 BaselineCell reference = row.Cells[Comparison.BaselineIndex];
                 for (int i = 0; i < row.Cells.Count; i++) {
                     BaselineCell cell = row.Cells[i];
-                    string text = !cell.IsPresent ? labels.ChangesMissing : ObjectDiff.PairText(cell.Value, reference.Value) is { Length: > 0 } value ? value : labels.ChangesEmpty;
+                    string text = !cell.IsPresent ? labels.ChangesMissing : ObjectDiff.PairText(cell.Value, reference.Value, labels) is { Length: > 0 } value ? value : labels.ChangesEmpty;
                     string tone = i == Comparison.BaselineIndex ? "accent bold" :
                         !cell.IsPresent || cell.Kind == ChangeKind.Removed ? "fail" : cell.Kind == ChangeKind.Added ? "pass" :
                         cell.Kind == ChangeKind.Changed || cell.IsCaseOnly ? "warn" : "text";

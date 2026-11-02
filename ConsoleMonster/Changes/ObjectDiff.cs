@@ -173,7 +173,11 @@ namespace ConsoleMonster.Changes {
         /// <param name="value">The value.</param>
         /// <param name="other">The value on the other side.</param>
         /// <returns>The text.</returns>
-        public static string PairText(object? value, object? other) {
+        public static string PairText(object? value, object? other) => PairText(value, other, Localization.WidgetLabels.Current);
+
+        internal static string PairText(object? value, object? other, Localization.WidgetLabels labels) {
+            string? marker = Values.ValueDisplay.Marker(value, labels);
+            if (marker != null) return marker;
             string text = Text(value);
             if ((value is DateTime || value is DateTimeOffset) && (other is DateTime || other is DateTimeOffset) && !Equals(value, other) && Text(other) == text) {
                 string precise = Presenters.DatePresenter.Text(value, null, true) ?? text;

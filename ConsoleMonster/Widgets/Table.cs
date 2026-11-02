@@ -185,7 +185,7 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
-        /// <summary>Adds a row of cells (strings convert to markup cells). Missing cells are blank.</summary>
+        /// <summary>Adds a row of cells (strings convert to markup cells). Omitted cells show the missing-value marker.</summary>
         /// <param name="cells">The cells.</param>
         /// <returns>This instance.</returns>
         public Table AddRow(params TableCell[] cells) {
@@ -218,7 +218,7 @@ namespace ConsoleMonster.Widgets {
         public Table AddPlainRow(params string?[] values) {
             TableCell[] cells = new TableCell[values?.Length ?? 0];
             for (int i = 0; i < cells.Length; i++) {
-                cells[i] = new TableCell(Markup.Escape(values![i] ?? string.Empty));
+                cells[i] = string.IsNullOrEmpty(values![i]) ? TableCell.FromValue(values[i]) : new TableCell(Markup.Escape(values[i]!));
             }
             return AddRow(cells);
         }
@@ -323,7 +323,7 @@ namespace ConsoleMonster.Widgets {
             int count = Math.Max(_columns.Count, cells?.Length ?? 0);
             TableCell[] result = new TableCell[count];
             for (int i = 0; i < count; i++) {
-                result[i] = cells != null && i < cells.Length && cells[i] != null ? cells[i] : new TableCell(string.Empty);
+                result[i] = cells != null && i < cells.Length && cells[i] != null ? cells[i] : TableCell.FromValue(System.Reflection.Missing.Value);
             }
             return result;
         }
