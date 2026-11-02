@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using ConsoleMonster.Interop;
 
@@ -6,6 +7,14 @@ namespace ConsoleMonster.Output {
 
     /// <summary>Restores the screen and saved Windows output mode on disposal, termination or a second Ctrl+C.</summary>
     public sealed class TerminalGuard : IDisposable {
+        private static readonly object ActiveGate = new object();
+        private static readonly List<TerminalGuard> Active = new List<TerminalGuard>();
+
+        static TerminalGuard() {
+            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        }
+
         private readonly Action _restore;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly CancellationToken _cancellation;
@@ -26,8 +35,7 @@ namespace ConsoleMonster.Output {
             if (handleCancelKey) {
                 Console.CancelKeyPress += OnCancelKeyPress;
             }
-            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            lock (ActiveGate) { Active.Add(this); }
         }
 
         /// <summary>Cancelled on the first Ctrl+C or when the guard is disposed.</summary>
@@ -62,9 +70,8 @@ namespace ConsoleMonster.Output {
             if (_handleCancelKey) {
                 Console.CancelKeyPress -= OnCancelKeyPress;
             }
-            AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
-            AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
             Restore();
+            lock (ActiveGate) { Active.Remove(this); }
             Cancel();
             _cts.Dispose();
         }
@@ -76,7 +83,7 @@ namespace ConsoleMonster.Output {
                 Cancel();
                 return true;
             }
-            Restore();
+            RestoreAll();
             return false;
         }
 
@@ -89,7 +96,14 @@ namespace ConsoleMonster.Output {
         }
 
         private void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e) => e.Cancel = RequestCancellation();
-        private void OnProcessExit(object? sender, EventArgs e) => Restore();
-        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) => Restore();
+        private static void RestoreAll() {
+            TerminalGuard[] guards;
+            lock (ActiveGate) { guards = Active.ToArray(); }
+            // Native mode snapshots nest with their resources. The entry snapshot must be restored last.
+            for (int i = guards.Length - 1; i >= 0; i--) { guards[i].Restore(); }
+        }
+
+        private static void OnProcessExit(object? sender, EventArgs e) => RestoreAll();
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) => RestoreAll();
     }
 }

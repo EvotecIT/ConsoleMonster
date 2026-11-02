@@ -284,7 +284,7 @@ namespace ConsoleMonster.Interactive {
             } catch (Exception ex) {
                 result = new MenuRunResult(context.Item?.Label ?? _root.Title, StatusKind.Fail) { Error = ex };
             } finally {
-                session.Stop();
+                session.Dispose();
             }
             // The run's time on the session clock: real time, or the simulated clock the options give.
             if (result.Elapsed == TimeSpan.Zero) {

@@ -43,6 +43,8 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData("normal")]
         [InlineData("startup")]
         [InlineData("cancel")]
+        [InlineData("terminate")]
+        [InlineData("menu-terminate")]
         [InlineData("menu-normal")]
         [InlineData("menu-cancel")]
         [InlineData("menu-exception")]

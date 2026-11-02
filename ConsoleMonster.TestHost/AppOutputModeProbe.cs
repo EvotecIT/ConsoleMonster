@@ -20,10 +20,19 @@ namespace ConsoleMonster.TestHost {
             if (buffer == new IntPtr(-1)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
             try {
                 if (!SetStdHandle(-11, buffer) || !SetConsoleMode(buffer, 3)) { throw new Win32Exception(Marshal.GetLastWin32Error()); }
+                void ExitWithReceipt() {
+                    AppDomain.CurrentDomain.ProcessExit += (_, _) => {
+                        string result = GetConsoleMode(buffer, out uint restored) && restored == 3
+                            ? "APP_MODE_OK " + scenario + " 3->3\n"
+                            : "Emergency output mode was not restored: 3 -> " + restored + ".\n";
+                        File.WriteAllText(receipt, result);
+                    };
+                    Environment.Exit(0);
+                }
                 bool menu = scenario.StartsWith("menu-", StringComparison.Ordinal);
                 bool prompt = scenario.StartsWith("prompt-", StringComparison.Ordinal);
                 string path = menu ? scenario.Substring(5) : prompt ? scenario.Substring(7) : scenario;
-                using (ScriptedInput input = new ScriptedInput(path == "exception" ? "wait:0" : prompt ? "Enter" : menu ? "Ctrl+Q" : "Escape"))
+                using (ScriptedInput input = new ScriptedInput(path == "exception" ? "wait:0" : prompt || (menu && path == "terminate") ? "Enter" : menu ? "Ctrl+Q" : "Escape"))
                 using (VtOutput output = new VtOutput(new StringTerminalWriter(), TerminalProfile.Fixed(80, 24)))
                 using (CancellationTokenSource cancel = new CancellationTokenSource()) {
                     ConsoleAppOptions options = new ConsoleAppOptions {
@@ -32,6 +41,7 @@ namespace ConsoleMonster.TestHost {
                         Interactive = new InteractiveOptions { Input = input, Mode = InteractionMode.Rich, Theme = Theme.Dark },
                         Live = new LiveSessionOptions { Output = output, CaptureConsole = false, TaskbarProgress = false }
                     };
+                    if (path == "terminate" && !menu) { options.ProcessEvents = _ => ExitWithReceipt(); }
                     if (path == "cancel") { cancel.Cancel(); }
                     InvalidOperationException expected = new InvalidOperationException("Synthetic application startup failure.");
                     // Throw only when the real event loop reads, after the initial view has been drawn.
@@ -40,7 +50,14 @@ namespace ConsoleMonster.TestHost {
                         if (menu) {
                             Menu nativeMenu = new Menu("Output mode probe");
                             nativeMenu.Item("Quit", item => {
-                                item.Action = context => context.Exit();
+                                item.Action = context => {
+                                    if (path == "terminate") {
+                                        context.Run(new Widgets.TextBlock("Active nested run"), _ => {
+                                            ExitWithReceipt();
+                                            return new MenuRunResult("Unreachable");
+                                        }, new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false });
+                                    } else { context.Exit(); }
+                                };
                             });
                             if (path == "startup") {
                                 nativeMenu.KeyBindings.Add(KeyBinding.Numbered("probe", () => throw expected, _ => { }));

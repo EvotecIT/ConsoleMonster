@@ -87,7 +87,8 @@ multiline prompts and a right prompt, on PowerShell 7 and Windows PowerShell 5.1
 - Reset colours and decorations after returning to the normal screen: leaving the alternate
   screen can restore its saved attributes. An explicit profile colour baseline still applies.
   Synchronized output ends, mouse reporting owned by the app is disabled, input is released,
-  and saved native console modes are restored. Cleanup is idempotent and borrowed writers stay open.
+  and saved native console modes are restored. Emergency cleanup restores inner owners first and
+  the original entry mode last. Cleanup is idempotent and borrowed writers stay open.
 - `Run`, `RunAsync` and disposal wait for final output and restoration. `Stop` requests shutdown
   with a bounded dispatcher join; if a user callback outlasts `StopTimeout`, disposal still waits
   for that callback to return. Callbacks must cooperate with cancellation; they cannot be forcibly

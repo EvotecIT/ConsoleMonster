@@ -187,7 +187,6 @@ namespace ConsoleMonster.Live {
         public void Dispose() {
             try { Complete(); }
             finally { _session.Dispose(); }
-            ThrowIfFailed();
         }
     }
 }
