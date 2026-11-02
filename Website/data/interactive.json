@@ -500,8 +500,8 @@
         "url": "/replays/interactive-controls.json",
         "w": 90,
         "h": 22,
-        "duration": 3300,
-        "frames": 2,
+        "duration": 4200,
+        "frames": 3,
         "start": 0,
         "poster": {
           "w": 90,
