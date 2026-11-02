@@ -172,6 +172,7 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.All(text, ch => Assert.True(ch < 128, "Non-ASCII character: " + ch));
             Assert.Contains("Needs attention", text);
             Assert.Contains("98 %", text);
+            Assert.Contains("Lodz", text);
         }
     }
 }

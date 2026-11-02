@@ -138,15 +138,15 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
 
             string initial = TestTerminal.RenderText(view, 180, glyphs: GlyphTier.Ascii);
             Assert.All(initial, ch => Assert.True(ch < 128, "Non-ASCII U+" + ((int)ch).ToString("X4")));
-            foreach (string visible in new[] { "Title [OK]", "Subtitle *", "Worker", "Store", "Zone", "Save", "Node subtitle", "Scenario [OK]", "Description *", "Request [OK]", "Payload [OK] *" })
+            foreach (string visible in new[] { "Title [OK]", "Subtitle ?", "Worker", "Store", "Zone", "Save", "Node subtitle", "Scenario [OK]", "Description ?", "Request [OK]", "Payload [OK] ?" })
                 Assert.Contains(visible, initial, StringComparison.Ordinal);
 
             view.FocusNode("worker");
             view.SetValue("worker", "Live ✅ 漢");
             string live = TestTerminal.RenderText(view, 180, glyphs: GlyphTier.Ascii);
             Assert.All(live, ch => Assert.True(ch < 128, "Non-ASCII U+" + ((int)ch).ToString("X4")));
-            Assert.Contains("Value: Live [OK] *", live, StringComparison.Ordinal);
-            Assert.Contains("Metric [OK]: Metric value *", live, StringComparison.Ordinal);
+            Assert.Contains("Value: Live [OK] ?", live, StringComparison.Ordinal);
+            Assert.Contains("Metric [OK]: Metric value ?", live, StringComparison.Ordinal);
             Assert.Contains("Node subtitle [OK]", live, StringComparison.Ordinal);
         }
 

@@ -10,6 +10,8 @@
 - Let live value boxes grow in bounded steps without shrinking between updates, and made the attention heading bold.
 - Reject pipeline input with Show-ConsoleDiagram -Path once, before reading the file.
 - Kept node attention details separate from connection failures, using each node's own value or subtitle.
+- Preserved imported chart metadata through Diagram edits, measured ASCII captions before topology projection, and kept automatic key hints out of static Diagram runs.
+- Accessible diagrams keep status, focus and active failures in their tree text even when companion panels are hidden; reduced motion freezes playback and resumes without skipping.
 - Preserved Unicode diagram example text in Windows PowerShell 5.1 and PowerShell 7.
 - Added the typed `TopologyChart.ToDiagram()` extension in Graphics, keeping the core free of ChartForgeX types and dependencies.
 - Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.

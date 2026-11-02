@@ -206,7 +206,8 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             var view = new TopologyDiagram(chart);
             TopologyCellLayout medium = view.Layout(120);
             TopologyCellLayout wide = view.Layout(200);
-            Assert.InRange(medium.Columns, 20, 85);
+            // Engine geometry may grow, but it must stay at its natural size instead of filling the viewport.
+            Assert.InRange(medium.Columns, 20, 119);
             Assert.InRange(medium.Rows, 1, 25);
             Assert.Equal(medium.Columns, wide.Columns);
             Assert.Equal(medium.Rows, wide.Rows);

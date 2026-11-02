@@ -36,13 +36,13 @@ namespace ConsoleMonster.Graphics {
         private Frame Compose(int width, RenderContext context) {
             bool ascii = context.Profile.Glyphs == GlyphTier.Ascii;
             _basic = context.Profile.Glyphs == GlyphTier.Basic;
-            TopologyCellLayout layout = Layout(width);
+            TopologyCellLayout layout = Layout(width, context.Profile.Glyphs);
             TopologyResolvedScenarioStep? step = _scenario != null && _step.HasValue && _step.Value < _scenario.Steps.Count ? _scenario.Steps[_step.Value] : null;
             TopologyCellPaintOptions paint = step == null ? new TopologyCellPaintOptions() : TopologyCellPaintOptions.ForStep(step);
             paint.Glyphs = ascii ? TopologyCellGlyphSet.Ascii : TopologyCellGlyphSet.Unicode;
             paint.FocusNodeId = _focus;
             paint.IncludeLegend = ShowLegend;
-            foreach (KeyValuePair<string, string> value in _values) paint.NodeValues[value.Key] = value.Value;
+            foreach (KeyValuePair<string, string> value in _values) paint.NodeValues[value.Key] = DiagramText.ForTier(value.Value, context);
             foreach (KeyValuePair<string, TopologyHealthStatus> status in _statuses) paint.NodeStatuses[status.Key] = status.Value;
             List<Line> above = new List<Line>();
             if (!string.IsNullOrWhiteSpace(_chart.Title)) above.Add(new Line(_chart.Title!, ThemeToken.Title));

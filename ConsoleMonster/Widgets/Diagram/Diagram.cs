@@ -136,9 +136,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Exports the topology as PNG through Graphics.</summary>
         public byte[] ToPng() => RequireRenderer().ToPng();
         /// <inheritdoc />
-        public override Size Measure(Constraints constraints, RenderContext context) { lock (Gate) { Renderer?.Advance(context.Elapsed); return (Renderer?.View(constraints.MaxWidth, context) ?? TreeView(context)).Measure(constraints, context); } }
+        public override Size Measure(Constraints constraints, RenderContext context) { lock (Gate) { Renderer?.Advance(context.Elapsed, context.ReducedMotion); return (Renderer?.View(constraints.MaxWidth, context) ?? TreeView(context)).Measure(constraints, context); } }
         /// <inheritdoc />
-        public override void Render(Region region, RenderContext context) { lock (Gate) { Renderer?.Advance(context.Elapsed); (Renderer?.View(region.Width, context) ?? TreeView(context)).Render(region, context); } }
+        public override void Render(Region region, RenderContext context) { lock (Gate) { Renderer?.Advance(context.Elapsed, context.ReducedMotion); (Renderer?.View(region.Width, context) ?? TreeView(context)).Render(region, context); } }
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
             switch (liveEvent.Operation) {
@@ -156,7 +156,7 @@ namespace ConsoleMonster.Widgets {
     }
 
     internal interface IDiagramRenderer {
-        void Advance(TimeSpan elapsed);
+        void Advance(TimeSpan elapsed, bool reducedMotion);
         IWidget View(int width, RenderContext context);
         IWidget? Panels(RenderContext context);
         string? ScenarioId { get; }

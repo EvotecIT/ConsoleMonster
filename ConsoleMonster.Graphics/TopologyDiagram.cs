@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ChartForgeX.Topology;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -32,6 +34,8 @@ namespace ConsoleMonster.Graphics {
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly Dictionary<string, TopologyHealthStatus> _statuses = new Dictionary<string, TopologyHealthStatus>(StringComparer.Ordinal);
         private PreparedTopology? _prepared;
+        private PreparedTopology? _asciiPrepared;
+        private GlyphTier _projectionGlyphs = GlyphTier.Full;
         private TopologyCellLayout? _layout;
         private int _layoutWidth = -1;
         private int _layoutReserve = -1;
@@ -41,6 +45,7 @@ namespace ConsoleMonster.Graphics {
         private int? _step;
         private string? _focus;
         private bool _playing;
+        private bool _motionSuppressed;
         private bool _showDetails = true;
         private TimeSpan? _playAnchor;
         private TimeSpan? _lastPlaybackFrame;
@@ -135,6 +140,7 @@ namespace ConsoleMonster.Graphics {
                 if (_scenario == null || _scenario.Steps.Count == 0) return;
                 if (_step.HasValue && _step.Value >= _scenario.Steps.Count - 1) _step = null;
                 _playing = true;
+                _motionSuppressed = false;
                 _playAnchor = null;
                 _lastPlaybackFrame = null;
             }
@@ -230,7 +236,7 @@ namespace ConsoleMonster.Graphics {
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
             lock (_gate) {
-                Advance(context.Elapsed);
+                AdvanceFrame(context.Elapsed, context.ReducedMotion);
                 Frame frame = Compose(WidthFor(constraints.MaxWidth), context);
                 return new Size(Math.Min(constraints.MaxWidth, frame.Width), constraints.IsHeightUnbounded ? frame.Height : Math.Min(frame.Height, constraints.MaxHeight));
             }
@@ -239,16 +245,19 @@ namespace ConsoleMonster.Graphics {
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             lock (_gate) {
-                Advance(context.Elapsed);
+                AdvanceFrame(context.Elapsed, context.ReducedMotion);
                 Draw(region, Compose(WidthFor(region.Width), context), context);
             }
         }
 
         internal PreparedTopology Prepared { get { lock (_gate) { return _prepared ??= _chart.Prepare(); } } }
 
-        internal TopologyCellLayout Layout(int width) {
+        internal TopologyCellLayout Layout(int width, GlyphTier? glyphs = null) {
+            GlyphTier projection = glyphs == GlyphTier.Ascii ? GlyphTier.Ascii : glyphs.HasValue ? GlyphTier.Full : _projectionGlyphs;
+            if (projection != _projectionGlyphs) { _projectionGlyphs = projection; _layout = null; _naturalColumns = 0; }
+            PreparedTopology prepared = projection == GlyphTier.Ascii ? _asciiPrepared ??= PrepareAscii() : Prepared;
             // Grow only at reservation boundaries, and never shrink when a live value gets shorter.
-            int longest = _values.Count == 0 ? 0 : _values.Values.Max(DisplayWidth.Measure);
+            int longest = _values.Count == 0 ? 0 : _values.Values.Max(value => DisplayWidth.Measure(projection == GlyphTier.Ascii ? SymbolFallback.Constrain(value, GlyphTier.Ascii) : value));
             int requested = longest <= ValueColumns ? ValueColumns : Math.Min(MaximumValueColumns, ((longest + 7) / 8) * 8);
             int reserve = Math.Max(requested, _layoutReserve);
             int columns = Math.Max(20, Math.Min(1000, width));
@@ -256,7 +265,7 @@ namespace ConsoleMonster.Graphics {
             // The projection fills the columns it is given, so a small diagram in a wide terminal would get huge boxes.
             // Aim for the diagram's natural size, about one cell per 10 layout pixels, without dropping any text for it.
             if (_naturalColumns == 0) {
-                TopologyLayoutDiagnosticReport report = Prepared.Analyze();
+                TopologyLayoutDiagnosticReport report = prepared.Analyze();
                 double[] positions = report.Nodes.SelectMany(node => new[] { node.Bounds.Left, node.Bounds.Right })
                     .Concat(report.Groups.SelectMany(group => new[] { group.Bounds.Left, group.Bounds.Right }))
                     .Concat(report.Edges.SelectMany(edge => edge.Points.Select(point => point.X))).ToArray();
@@ -267,13 +276,13 @@ namespace ConsoleMonster.Graphics {
             bool fits = _layout != null && reserve <= _layoutReserve && (_layoutWidth == width
                 || _layout.Columns <= width && (width <= _layoutWidth || !_layoutCompacted && natural == _layoutNatural));
             if (!fits) {
-                TopologyCellLayout layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
+                TopologyCellLayout layout = TopologyCellLayout.Create(prepared, new TopologyCellLayoutOptions {
                     MaximumColumns = natural, ReservedValueWidth = reserve
                 });
                 // Only a terminal too narrow for the full text drops subtitles and shortens labels.
                 _layoutCompacted = layout.Columns > columns;
                 if (_layoutCompacted) {
-                    layout = TopologyCellLayout.Create(Prepared, new TopologyCellLayoutOptions {
+                    layout = TopologyCellLayout.Create(prepared, new TopologyCellLayoutOptions {
                         MaximumColumns = columns, ReservedValueWidth = reserve, CompactToFit = true
                     });
                 }
@@ -300,9 +309,21 @@ namespace ConsoleMonster.Graphics {
             _step = Math.Max(0, Math.Min(_scenario.Steps.Count - 1, index));
         }
 
-        private void StopPlayback() { _playing = false; _playAnchor = null; _lastPlaybackFrame = null; }
+        private void StopPlayback() { _playing = false; _playAnchor = null; _lastPlaybackFrame = null; _motionSuppressed = false; }
 
-        internal void AdvanceFrame(TimeSpan elapsed) { lock (_gate) { Advance(elapsed); } }
+        internal void AdvanceFrame(TimeSpan elapsed, bool reducedMotion = false) {
+            lock (_gate) {
+                if (reducedMotion) { _motionSuppressed = _playing; return; }
+                if (_motionSuppressed) {
+                    if (_lastPlaybackFrame.HasValue && elapsed < _lastPlaybackFrame.Value) return;
+                    _playAnchor = elapsed;
+                    _playFrom = (_step ?? 0) - 1;
+                    _lastPlaybackFrame = elapsed;
+                    _motionSuppressed = false;
+                }
+                Advance(elapsed);
+            }
+        }
 
         private void Advance(TimeSpan elapsed) {
             if (!_playing || _scenario == null || _scenario.Steps.Count == 0) return;
