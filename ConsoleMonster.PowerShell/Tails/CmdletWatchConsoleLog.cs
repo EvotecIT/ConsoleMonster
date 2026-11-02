@@ -101,7 +101,7 @@ namespace ConsoleMonster.PowerShell {
                     TerminalProfile profile = Terminal.GetCurrentProfile();
                     bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
                     LogTailOptions options = new LogTailOptions {
-                        NonInteractive = PSInteractive.IsNonInteractivePolling,
+                        NonInteractive = PSInteractive.IsNonInteractivePolling || !last,
                         Count = Count, PollInterval = TimeSpan.FromSeconds(PollIntervalSeconds), Capacity = Capacity,
                         Filter = Filter, Level = Level, Highlight = Highlight, TimestampFormat = TimestampFormat, HandleCancelKey = false, Profile = profile,
                         Live = !NoLive.IsPresent && last && !HostOutput.UseHost(this, profile) && profile.Mode == OutputMode.Interactive,

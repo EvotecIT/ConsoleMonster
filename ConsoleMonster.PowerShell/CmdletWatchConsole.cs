@@ -61,7 +61,7 @@ namespace ConsoleMonster.PowerShell {
             bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
             bool live = !NoLive.IsPresent && last && !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
             WatchOptions options = new WatchOptions {
-                NonInteractive = PSInteractive.IsNonInteractivePolling,
+                NonInteractive = PSInteractive.IsNonInteractivePolling || !last,
                 PollInterval = TimeSpan.FromSeconds(PollIntervalSeconds),
                 Count = Count,
                 Differences = Differences.IsPresent,

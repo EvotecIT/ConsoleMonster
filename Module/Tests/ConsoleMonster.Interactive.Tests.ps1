@@ -53,6 +53,25 @@
 
 
 
+    It 'prints one default polling snapshot when <Entry> output is piped' -ForEach @(
+        @{ Entry = 'watch'; Command = "Watch-Console -Title Poll { 'State' } | Out-String" }
+        @{ Entry = 'tail'; Command = 'Watch-ConsoleLog -Path $path | Out-String' }
+    ) {
+        $body = @'
+$profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(80, 12)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile, '')
+$path = [IO.Path]::GetTempFileName()
+try {
+    [IO.File]::WriteAllText($path, "State`n")
+    Use-ConsoleTarget -Target $target {
+        $text = __COMMAND__
+        "SNAPSHOTS=$([regex]::Matches(($text -join ''), 'State').Count)"
+    }
+} finally { [IO.File]::Delete($path) }
+'@
+        (Invoke-PromptChild $body.Replace('__COMMAND__', $Command)) | Should -Match 'SNAPSHOTS=1'
+    }
+
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(80, 30, 'None', 'Ascii')
