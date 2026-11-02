@@ -119,10 +119,23 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             string text = Text(diagram, 120);
             string nodeLine = text.Split('\n').First(line => line.Contains("Worker") && line.Contains("│"));
             Assert.Contains(GlyphSet.Full.StatusSymbol(status), nodeLine);
-            Assert.Contains(status.ToString(), text);
+            if (status == StatusKind.Pass) Assert.DoesNotContain(status.ToString(), text);
+            else Assert.Contains(status.ToString(), text);
             diagram.ShowLegend = false;
             diagram.FocusNode("Worker");
             Assert.Contains("Worker  ·  Workstation  ·  " + status, Text(diagram, 120));
+        }
+
+        [Fact]
+        public void FocusedDetails_DistinguishesOmittedStatusFromExplicitNone() {
+            var node = new DiagramNode("Worker") { Kind = DiagramNodeKind.Workstation };
+            var diagram = new Diagram { Nodes = { node }, ShowLegend = false, ShowSummary = false };
+            diagram.FocusNode("Worker");
+            string omitted = Text(diagram, 120);
+            Assert.Contains("Worker  ·  Workstation", omitted);
+            Assert.DoesNotContain("  ·  None", omitted);
+            node.Status = StatusKind.None;
+            Assert.Contains("Worker  ·  Workstation  ·  None", Text(diagram, 120));
         }
 
         [Fact]

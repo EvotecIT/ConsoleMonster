@@ -39,10 +39,12 @@ namespace ConsoleMonster.PowerShell {
             foreach (object row in rows) {
                 string source = PSWidgets.ToText(Select(row, from, "From")), target = PSWidgets.ToText(Select(row, to, "To"));
                 if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target)) throw new ArgumentException("A diagram row needs From and To. Select another column or a script block with -From and -To.");
-                StatusKind health = StatusKind.Pass;
+                StatusKind health = StatusKind.None;
                 object? value = Select(row, status, "Status");
                 if (value != null && !StatusKinds.TryParse(PSWidgets.ToText(value), out health)) throw new ArgumentException("Unknown diagram status: " + value);
-                diagram.Links.Add(new DiagramLink(source, target) { Label = PSWidgets.ToText(Select(row, label, "Label")), Status = health });
+                var link = new DiagramLink(source, target) { Label = PSWidgets.ToText(Select(row, label, "Label")) };
+                if (value != null) link.Status = health;
+                diagram.Links.Add(link);
                 string name = PSWidgets.ToText(Select(row, group, "Group"));
                 if (name.Length > 0 && !diagram.AllNodes().Any(n => n.Id == source)) {
                     DiagramGroup? owner = diagram.Groups.FirstOrDefault(g => g.Label == name);

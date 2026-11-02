@@ -63,7 +63,9 @@ namespace ConsoleMonster.Graphics {
                 case DiagramDirection.Up: direction = TopologyLayoutDirection.BottomToTop; break;
                 default: direction = TopologyLayoutDirection.LeftToRight; break;
             }
-            var chart = TopologyChart.Create().WithTitle(model.Title).WithLayout(TopologyLayoutMode.Layered, direction);
+            // A terminal diagram starts on a compact logical canvas. The engine grows its content as needed;
+            // the terminal projection must not inherit the large default canvas used for web artwork.
+            var chart = TopologyChart.Create().WithTitle(model.Title).WithLayout(TopologyLayoutMode.Layered, direction).WithViewport(480, 240, 28);
             int groupIndex = 0;
             void Node(DiagramNode node, string? group) => chart.AddAutoNode(node.Id, node.Label, Kind(node.Kind), Health(node.Status), group, node.Subtitle);
             void Group(DiagramGroup group, string? parent) {

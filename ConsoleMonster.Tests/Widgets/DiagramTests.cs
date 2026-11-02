@@ -11,6 +11,67 @@ namespace ConsoleMonster.Tests.Widgets {
     public sealed class DiagramTests {
         private static string Text(Diagram diagram, int width = 60) => ConsoleExporter.ToText(diagram, new ExportOptions { Width = width });
 
+        [Theory]
+        [InlineData(GlyphTier.Full, "→")]
+        [InlineData(GlyphTier.Basic, "→")]
+        [InlineData(GlyphTier.Ascii, "->")]
+        public void Tree_ShowsOnlySuppliedStatusesAndKeepsMetadataAndLinksInline(GlyphTier tier, string arrow) {
+            var source = new DiagramNode("File server") { Subtitle = "FS01", Value = "disk 91%" };
+            var diagram = new Diagram("Office") { Groups = { new DiagramGroup("LAN") { Nodes = { source, new DiagramNode("Backup") } } }, Links = { new DiagramLink("File server", "Backup") { Label = "nightly" } } };
+            string Render() => ConsoleExporter.ToText(diagram, new ExportOptions { Width = 80, Glyphs = tier });
+            string unset = Render();
+            Assert.Contains("File server  FS01  disk 91%", unset);
+            Assert.Contains(arrow + " Backup  nightly", unset);
+            Assert.DoesNotContain("Pass", unset);
+            Assert.DoesNotContain("Needs attention", unset);
+            source.Status = StatusKind.Pass;
+            Assert.DoesNotContain("Pass", Render());
+            source.Status = StatusKind.Warn;
+            string warning = Render();
+            Assert.Contains("Warn", warning);
+            Assert.DoesNotContain("Pass", warning);
+            Assert.Contains("Needs attention", warning);
+            string summary = warning.Substring(warning.IndexOf("Needs attention", StringComparison.Ordinal));
+            Assert.DoesNotContain("├", summary);
+            Assert.DoesNotContain("└", summary);
+            Assert.Contains("File server  disk 91%", summary);
+            Assert.DoesNotContain("FS01", summary);
+            diagram.Links[0].Status = StatusKind.Pass;
+            string healthyLink = Render().Split('\n').First(line => line.Contains(arrow + " Backup"));
+            Assert.DoesNotContain("✓", healthyLink);
+            Assert.DoesNotContain("PASS", healthyLink);
+        }
+
+        [Fact]
+        public void Tree_NestsAForestAndRetainsCycleCrossLinkAndEdgeEvidence() {
+            var diagram = new Diagram("Team") { Nodes = { new DiagramNode("Anna"), new DiagramNode("Marek"), new DiagramNode("Julia"), new DiagramNode("Tom"), new DiagramNode("Ola"), new DiagramNode("Ben") }, Links = {
+                new DiagramLink("Anna", "Marek"), new DiagramLink("Anna", "Julia"), new DiagramLink("Marek", "Tom"), new DiagramLink("Marek", "Ola"), new DiagramLink("Julia", "Ben")
+            } };
+            string forest = ConsoleExporter.ToText(diagram, new ExportOptions { Width = 80, Glyphs = GlyphTier.Full });
+            Assert.Contains("    ├── Marek", forest);
+            Assert.Contains("    │   ├── Tom", forest);
+            Assert.Contains("    │   └── Ola", forest);
+            Assert.Contains("    └── Julia", forest);
+            Assert.Contains("        └── Ben", forest);
+            Assert.DoesNotContain("→", forest);
+            diagram.Links.Add(new DiagramLink("Tom", "Anna") { Label = "escalates", Status = StatusKind.Warn });
+            diagram.Links.Add(new DiagramLink("Julia", "Tom") { Label = "consults" });
+            diagram.ShowSummary = false;
+            string references = ConsoleExporter.ToText(diagram, new ExportOptions { Width = 80, Glyphs = GlyphTier.Full });
+            Assert.Contains("→ Anna  escalates", references);
+            Assert.Contains("→ Tom  consults", references);
+            Assert.Equal(1, references.Split('\n').Count(line => line.TrimEnd().EndsWith(" Ben", StringComparison.Ordinal)));
+        }
+
+        [Fact]
+        public void Attention_PrefersFailedConnectionEvidenceToAnUnhelpfulSubtitle() {
+            var diagram = new Diagram("Office") { Nodes = { new DiagramNode("Backup") { Subtitle = "Offsite", Status = StatusKind.Fail } }, Links = { new DiagramLink("File server", "Backup") { Label = "failed two nights", Status = StatusKind.Fail } } };
+            string text = Text(diagram, 80);
+            string summary = text.Substring(text.IndexOf("Needs attention", StringComparison.Ordinal));
+            Assert.Contains("Backup  failed two nights", summary);
+            Assert.DoesNotContain("Offsite", summary);
+        }
+
         [Fact]
         public void Tree_GroupsNodesAndRetainsEveryConnectionSubtitleAndValue() {
             var diagram = new Diagram("Small office") {
@@ -19,7 +80,7 @@ namespace ConsoleMonster.Tests.Widgets {
             };
             string text = Text(diagram, 34);
             foreach (string required in new[] { "Small office", "Office LAN", "File server", "disk 91%", "840 GB", "Printer", "Backup", "Needs attention" }) Assert.Contains(required, text);
-            string joined = string.Concat(text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(line => line.Trim().TrimStart('│', '├', '└', '─', '|', '-', '+', ' ')));
+            string joined = string.Join(" ", text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(line => line.Trim().TrimStart('│', '├', '└', '─', '|', '-', '+', ' ')));
             Assert.Contains("failed two nights; RPC", joined);
             Assert.Contains("server unavailable", joined);
             Assert.Equal(new[] { "Backup", "Printer", "files" }, diagram.Resolve().Select(n => n.Id).OrderBy(id => id, StringComparer.Ordinal));

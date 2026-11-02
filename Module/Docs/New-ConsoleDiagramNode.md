@@ -81,7 +81,7 @@ Accept wildcard characters: False
 ```
 
 ### -Status
-The component health.
+The component health. Omit it to show no status marker.
 
 ```yaml
 Type: StatusKind

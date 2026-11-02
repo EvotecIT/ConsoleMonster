@@ -81,7 +81,7 @@ Accept wildcard characters: False
 ```
 
 ### -Status
-The connection health.
+The connection health. Omit it to show no status marker.
 
 ```yaml
 Type: StatusKind

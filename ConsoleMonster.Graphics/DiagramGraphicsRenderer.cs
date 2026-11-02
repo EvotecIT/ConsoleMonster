@@ -50,7 +50,7 @@ namespace ConsoleMonster.Graphics {
                     _view.MaxStepLines = _model.MaxStepLines;
                     foreach (DiagramNode node in _model.Resolve()) {
                         _view.SetValue(node.Id, node.Value, DiagramConversion.Health(node.Status));
-                        _view.SetNodeMetadata(node.Id, node.Status, node.Kind);
+                        _view.SetNodeMetadata(node.Id, node.Status, node.Kind, node.HasStatus);
                     }
                     var links = _model.AllLinks().ToList();
                     for (int index = 0; index < links.Count && index < _view.Chart.Edges.Count; index++) _view.Chart.Edges[index].Status = DiagramConversion.Health(links[index].Status);
@@ -77,6 +77,27 @@ namespace ConsoleMonster.Graphics {
                 TopologyCellNode? placed = layout.FindNode(node.Id);
                 return placed == null || placed.Label != node.Label || (!string.IsNullOrEmpty(node.Subtitle) && placed.Subtitle != node.Subtitle);
             }) || layout.Edges.Any(edge => !string.IsNullOrEmpty(edge.Label) && !edge.LabelPosition.HasValue);
+            // Check the painted group labels too: a positioned label can still be overwritten by a route.
+            if (!lost && layout.Groups.Count > 0) {
+                TopologyCellCanvas canvas = layout.Paint();
+                string[] lines = Enumerable.Range(0, canvas.Rows).Select(row => string.Concat(Enumerable.Range(0, canvas.Columns).Select(column => canvas[column, row].Glyph))).ToArray();
+                lost = layout.Groups.Any(group => !lines.Any(line => line.Contains(group.Label)));
+            }
+            // A forest must retain its requested parent-to-child reading direction. Let the engine repair
+            // the geometry; use the lossless hierarchy until its projection satisfies this contract.
+            var links = _model.AllLinks().ToList();
+            if (!lost && !_imported && links.Count > 0 && _model.Groups.Count == 0 && _model.ForestParents(links).Count == links.Count) {
+                lost = links.Any(link => {
+                    TopologyCellNode? from = layout.FindNode(link.From), to = layout.FindNode(link.To);
+                    if (from == null || to == null) return true;
+                    switch (_model.Direction) {
+                        case DiagramDirection.Down: return to.Row < from.Row + from.Height;
+                        case DiagramDirection.Up: return from.Row < to.Row + to.Height;
+                        case DiagramDirection.Left: return from.Column < to.Column + to.Width;
+                        default: return to.Column < from.Column + from.Width;
+                    }
+                });
+            }
             if (lost) return _model.TreeView(context);
             var widgets = new System.Collections.Generic.List<IWidget> { view };
             IWidget? legend = _model.Legend(context);

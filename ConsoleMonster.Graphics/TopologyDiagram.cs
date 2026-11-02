@@ -21,7 +21,9 @@ namespace ConsoleMonster.Graphics {
         internal readonly HashSet<string> BorderlessGroups = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, StatusKind> _statusKinds = new Dictionary<string, StatusKind>(StringComparer.Ordinal);
         private readonly Dictionary<string, DiagramNodeKind> _nodeKinds = new Dictionary<string, DiagramNodeKind>(StringComparer.Ordinal);
-        internal void SetNodeMetadata(string nodeId, StatusKind status, DiagramNodeKind kind) { lock (_gate) { _statusKinds[nodeId] = status; _nodeKinds[nodeId] = kind; } }
+        private readonly HashSet<string> _unmarkedNodes = new HashSet<string>(StringComparer.Ordinal);
+        internal void SetNodeMetadata(string nodeId, StatusKind status, DiagramNodeKind kind, bool hasStatus = true) { lock (_gate) { _statusKinds[nodeId] = status; _nodeKinds[nodeId] = kind; if (hasStatus) _unmarkedNodes.Remove(nodeId); else _unmarkedNodes.Add(nodeId); } }
+        private int _naturalColumns;
         private const double NaturalPixelsPerColumn = 10.0;
         private const int ValueColumns = 10;
         private readonly object _gate = new object();
@@ -250,7 +252,15 @@ namespace ConsoleMonster.Graphics {
             width = columns;
             // The projection fills the columns it is given, so a small diagram in a wide terminal would get huge boxes.
             // Aim for the diagram's natural size, about one cell per 10 layout pixels, without dropping any text for it.
-            int natural = Math.Max(20, Math.Min(columns, (int)Math.Ceiling(Prepared.Width / NaturalPixelsPerColumn) + reserve));
+            if (_naturalColumns == 0) {
+                TopologyLayoutDiagnosticReport report = Prepared.Analyze();
+                double[] positions = report.Nodes.SelectMany(node => new[] { node.Bounds.Left, node.Bounds.Right })
+                    .Concat(report.Groups.SelectMany(group => new[] { group.Bounds.Left, group.Bounds.Right }))
+                    .Concat(report.Edges.SelectMany(edge => edge.Points.Select(point => point.X))).ToArray();
+                double extent = positions.Length == 0 ? 0 : positions.Max() - positions.Min();
+                _naturalColumns = Math.Max(20, Math.Min(1000, (int)Math.Ceiling(extent / NaturalPixelsPerColumn) + 1));
+            }
+            int natural = Math.Min(columns, _naturalColumns);
             bool fits = _layout != null && reserve <= _layoutReserve && (_layoutWidth == width
                 || _layout.Columns <= width && (width <= _layoutWidth || !_layoutCompacted && natural == _layoutNatural));
             if (!fits) {

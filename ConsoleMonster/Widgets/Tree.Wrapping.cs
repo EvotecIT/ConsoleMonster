@@ -26,6 +26,15 @@ namespace ConsoleMonster.Widgets {
                 prefix.AddRange(TextWrapper.Truncate(marker, markerWidth, string.Empty));
                 StyledLine firstPrefix = new StyledLine(prefix);
                 int indent = firstPrefix.Width;
+                string continuation = row.Prefix;
+                if (!node.Bare && continuation.Length > 0) {
+                    int branchWidth = CompactGuides ? 3 : context.Glyphs.Get(Glyphs.Glyph.TreeBranch).Length;
+                    string tail = continuation.Substring(Math.Max(0, continuation.Length - branchWidth));
+                    bool last = tail.StartsWith("└", StringComparison.Ordinal) || tail.StartsWith("`", StringComparison.Ordinal);
+                    continuation = continuation.Substring(0, Math.Max(0, continuation.Length - branchWidth))
+                        + (last ? new string(' ', branchWidth) : (context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "|" : "│") + new string(' ', branchWidth - 1));
+                }
+                StyledLine continuationGuide = TextWrapper.Truncate(StyledLine.From(continuation, context.Style(ThemeToken.Border)), guideWidth, string.Empty);
                 List<TextSpan> content = new List<TextSpan>();
                 AddLines(content, context.Markup(node.LabelFor(context)).Lines);
                 if (node.LabelPadding > 0) { content.Add(new TextSpan(new string(' ', node.LabelPadding))); }
@@ -37,7 +46,8 @@ namespace ConsoleMonster.Widgets {
                 if (!string.IsNullOrEmpty(note)) content.Add(new TextSpan("  " + note, context.Style(ThemeToken.Muted)));
                 IReadOnlyList<StyledLine> wrapped = TextWrapper.Wrap(new StyledLine(content), Math.Max(1, width - indent));
                 for (int i = 0; i < wrapped.Count; i++) {
-                    List<TextSpan> spans = i == 0 ? new List<TextSpan>(firstPrefix) : new List<TextSpan> { new TextSpan(new string(' ', indent)) };
+                    List<TextSpan> spans = i == 0 ? new List<TextSpan>(firstPrefix) : new List<TextSpan>(continuationGuide);
+                    if (i > 0 && indent > continuationGuide.Width) spans.Add(new TextSpan(new string(' ', indent - continuationGuide.Width)));
                     spans.AddRange(wrapped[i]);
                     lines.Add(new StyledLine(spans));
                 }

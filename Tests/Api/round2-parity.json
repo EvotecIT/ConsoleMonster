@@ -22475,7 +22475,7 @@
         {
           "Parameter": "Status",
           "ParameterType": "ConsoleMonster.Styling.StatusKind",
-          "Default": "Pass",
+          "Default": "None",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -22602,7 +22602,7 @@
         {
           "Parameter": "Status",
           "ParameterType": "ConsoleMonster.Styling.StatusKind",
-          "Default": "Pass",
+          "Default": "None",
           "Sets": [
             {
               "Name": "__AllParameterSets",

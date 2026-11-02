@@ -10508,7 +10508,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Status</maml:name>
           <maml:description>
-            <maml:para>The connection health.</maml:para>
+            <maml:para>The connection health. Omit it to show no status marker.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
           <command:parameterValueGroup>
@@ -10599,7 +10599,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Status</maml:name>
         <maml:description>
-          <maml:para>The connection health.</maml:para>
+          <maml:para>The connection health. Omit it to show no status marker.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
         <command:parameterValueGroup>
@@ -10751,7 +10751,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Status</maml:name>
           <maml:description>
-            <maml:para>The component health.</maml:para>
+            <maml:para>The component health. Omit it to show no status marker.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
           <command:parameterValueGroup>
@@ -10865,7 +10865,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Status</maml:name>
         <maml:description>
-          <maml:para>The component health.</maml:para>
+          <maml:para>The component health. Omit it to show no status marker.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">StatusKind</command:parameterValue>
         <command:parameterValueGroup>

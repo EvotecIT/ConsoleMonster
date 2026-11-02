@@ -111,10 +111,10 @@
         (New-ConsoleMenuItem 'Tasks' -MultiSelect 'One', 'Two' -Minimum 1).Kind.ToString() | Should -Be MultiSelect
     }
 
-    It 'reserves Name and Target for their approved resource meanings' {
+    It 'uses Name for help entries or explicit baseline headings and Target for output destinations' {
         foreach ($command in $script:Commands) {
             if ($command.Parameters.ContainsKey('Name')) {
-                $command.Name | Should -BeIn @('Show-ConsoleHelp')
+                $command.Name | Should -BeIn @('Show-ConsoleHelp', 'Compare-ConsoleObject')
             }
             if ($command.Parameters.ContainsKey('Target')) {
                 $command.Name | Should -BeIn @('Use-ConsoleTarget', 'Start-ConsoleRun')
@@ -176,7 +176,12 @@
                 $parameter = $set.Parameters | Where-Object Name -EQ WidgetId
                 if ($null -ne $parameter) {
                     if ($command.Name -eq 'Update-Console') { $parameter.IsMandatory | Should -BeTrue }
-                    $parameter.Position | Should -Be 0 -Because "$($command.Name) [$($set.Name)] addresses a widget first"
+                    if ($command.Name -eq 'New-ConsoleDiagram') {
+                        $parameter.Position | Should -Be ([int]::MinValue) -Because 'the diagram DSL takes its content block first and keeps the optional live address named'
+                        ($set.Parameters | Where-Object Name -EQ Content).Position | Should -Be 0
+                    } else {
+                        $parameter.Position | Should -Be 0 -Because "$($command.Name) [$($set.Name)] addresses a widget first"
+                    }
                 }
                 $positions = @($set.Parameters | Where-Object Position -GE 0 | Group-Object Position | Where-Object Count -GT 1)
                 $positions.Count | Should -Be 0 -Because "$($command.Name) [$($set.Name)] has unambiguous positional arguments"

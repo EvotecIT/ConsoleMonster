@@ -15,15 +15,16 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public DiagramNodeKind Kind { get; set; }
         /// <summary><para type="description">The second line.</para></summary>
         [Parameter] public string? Subtitle { get; set; }
-        /// <summary><para type="description">The component health.</para></summary>
-        [Parameter] public StatusKind Status { get; set; } = StatusKind.Pass;
+        /// <summary><para type="description">The component health. Omit it to show no status marker.</para></summary>
+        [Parameter] public StatusKind Status { get; set; } = StatusKind.None;
         /// <summary><para type="description">The independent third line.</para></summary>
         [Parameter] public string? Value { get; set; }
         /// <summary><para type="description">Destination node ids for outgoing connections.</para></summary>
         [Parameter] public string[] To { get; set; } = System.Array.Empty<string>();
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            var node = new DiagramNode(Label) { Kind = Kind, Subtitle = Subtitle, Status = Status, Value = Value };
+            var node = new DiagramNode(Label) { Kind = Kind, Subtitle = Subtitle, Value = Value };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Status))) node.Status = Status;
             if (Id != null) node.Id = Id;
             node.To.AddRange(To);
             WriteObject(node);

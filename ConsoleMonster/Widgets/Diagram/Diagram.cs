@@ -77,7 +77,9 @@ namespace ConsoleMonster.Widgets {
             var diagram = new Diagram();
             foreach (T row in rows) {
                 string source = from(row), target = to(row);
-                diagram.Links.Add(new DiagramLink(source, target) { Label = label?.Invoke(row), Status = status?.Invoke(row) ?? StatusKind.Pass });
+                var link = new DiagramLink(source, target) { Label = label?.Invoke(row) };
+                if (status != null) link.Status = status(row);
+                diagram.Links.Add(link);
                 string? name = group?.Invoke(row);
                 if (!string.IsNullOrEmpty(name) && !diagram.AllNodes().Any(n => n.Id == source)) {
                     DiagramGroup? owner = diagram.Groups.FirstOrDefault(g => g.Label == name);

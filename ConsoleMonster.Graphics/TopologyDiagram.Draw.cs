@@ -130,7 +130,9 @@ namespace ConsoleMonster.Graphics {
             TopologyHealthStatus status = _statuses.TryGetValue(node.Id, out TopologyHealthStatus live) ? live : node.Status;
             List<string> facts = new List<string> { string.IsNullOrWhiteSpace(node.Label) ? node.Id : node.Label,
                 _nodeKinds.TryGetValue(node.Id, out DiagramNodeKind ownKind) ? ownKind.ToString() : node.Kind.ToString() };
-            if (_statusKinds.TryGetValue(node.Id, out StatusKind ownStatus)) facts.Add(ownStatus.ToString());
+            if (_statusKinds.TryGetValue(node.Id, out StatusKind ownStatus)) {
+                if (!_unmarkedNodes.Contains(node.Id)) facts.Add(ownStatus.ToString());
+            }
             else if (status != TopologyHealthStatus.Unknown) facts.Add(status.ToString());
             if (!string.IsNullOrWhiteSpace(node.GroupId)) facts.Add(_chart.Groups.FirstOrDefault(group => group.Id == node.GroupId)?.Label ?? node.GroupId!);
             lines.Add(new Line(string.Empty, ThemeToken.Muted));
@@ -184,7 +186,7 @@ namespace ConsoleMonster.Graphics {
             // The engine omits markers for Unknown. Paint the core status at its projected node position so
             // Info, Pending, Running and the other StatusKind meanings survive that health-only projection.
             if (_layout != null) foreach (TopologyCellNode node in _layout.Nodes) {
-                if (!_statusKinds.TryGetValue(node.Id, out StatusKind status)) continue;
+                if (!_statusKinds.TryGetValue(node.Id, out StatusKind status) || _unmarkedNodes.Contains(node.Id)) continue;
                 int column = node.Column + node.Width - 2, row = frame.Above.Count + node.Row + 1;
                 if (column >= region.Width || row >= region.Height) continue;
                 string marker = context.Glyphs.StatusSymbol(status);

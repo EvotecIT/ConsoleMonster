@@ -103,9 +103,14 @@ diagram.Run();
 Object initializers and the fluent `Ui.Diagram()` surface configure the same
 model. `Subtitle` is the second node line; `Value` is a separate third line for
 readings or other live text. A value update retains the subtitle. Node and link
-health use the core `StatusKind` enum. The **Needs attention** list is enabled by
-default and retains full text for every node and link whose status is not
-`Pass`. Set `ShowSummary = false` or use `.Summary(false)` to hide it.
+health use the core `StatusKind` enum. Omitted status has no marker. A legend appears only when a supplied
+status is not `Pass`, and lists only supplied statuses. The **Needs attention** list retains problem details
+for every node and link with a supplied non-`Pass` status. Set `ShowSummary = false` or use `.Summary(false)` to hide it.
+
+Small diagrams keep their natural terminal size. The renderer chooses the tree when the terminal is below
+20 columns, projected text would be lost, a group label is overwritten, or a forest does not preserve its
+parent-to-child reading direction. Wider windows use topology as soon as the engine preserves those contracts.
+The tree nests forests, keeps cross-links and cycles as references, and places subtitle and value beside each label.
 
 Finish configuring the model and its collections before sharing it with a live
 session. Use its thread-safe `DiagramHandle` for concurrent updates; direct

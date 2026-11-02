@@ -60,8 +60,10 @@ namespace ConsoleMonster.Widgets {
         public DiagramNodeKind Kind { get; set; }
         /// <summary>The second line, retained when a live value is present.</summary>
         public string? Subtitle { get; set; }
-        /// <summary>The component's health.</summary>
-        public StatusKind Status { get; set; } = StatusKind.Pass;
+        private StatusKind _status = StatusKind.None;
+        internal bool HasStatus { get; private set; }
+        /// <summary>The component's health. Omit it to show no status marker.</summary>
+        public StatusKind Status { get => _status; set { _status = value; HasStatus = true; } }
         /// <summary>The third line, independent of Subtitle.</summary>
         public string? Value { get; set; }
         /// <summary>Destination ids for unlabelled outgoing connections.</summary>
@@ -78,8 +80,10 @@ namespace ConsoleMonster.Widgets {
         public string To { get; set; }
         /// <summary>The connection's literal label.</summary>
         public string? Label { get; set; }
-        /// <summary>The connection's health.</summary>
-        public StatusKind Status { get; set; } = StatusKind.Pass;
+        private StatusKind _status = StatusKind.None;
+        internal bool HasStatus { get; private set; }
+        /// <summary>The connection's health. Omit it to show no status marker.</summary>
+        public StatusKind Status { get => _status; set { _status = value; HasStatus = true; } }
         /// <summary>The connection's stroke.</summary>
         public DiagramLinkStyle Style { get; set; }
         /// <summary>Whether arrows point in both directions.</summary>

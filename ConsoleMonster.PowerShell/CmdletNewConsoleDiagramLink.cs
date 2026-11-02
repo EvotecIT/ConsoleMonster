@@ -13,13 +13,17 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true, Position = 1)][ValidateNotNullOrEmpty] public string To { get; set; } = "";
         /// <summary><para type="description">The connection text.</para></summary>
         [Parameter] public string? Label { get; set; }
-        /// <summary><para type="description">The connection health.</para></summary>
-        [Parameter] public StatusKind Status { get; set; } = StatusKind.Pass;
+        /// <summary><para type="description">The connection health. Omit it to show no status marker.</para></summary>
+        [Parameter] public StatusKind Status { get; set; } = StatusKind.None;
         /// <summary><para type="description">Solid, dashed or dotted stroke.</para></summary>
         [Parameter] public DiagramLinkStyle Style { get; set; }
         /// <summary><para type="description">Draws arrows at both ends.</para></summary>
         [Parameter] public SwitchParameter Both { get; set; }
         /// <inheritdoc />
-        protected override void ProcessRecord() => WriteObject(new DiagramLink(From, To) { Label = Label, Status = Status, Style = Style, Both = Both });
+        protected override void ProcessRecord() {
+            var link = new DiagramLink(From, To) { Label = Label, Style = Style, Both = Both };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Status))) link.Status = Status;
+            WriteObject(link);
+        }
     }
 }
