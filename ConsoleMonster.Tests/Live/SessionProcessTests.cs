@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -100,7 +100,7 @@ namespace ConsoleMonster.Tests.Live {
             } finally { if (File.Exists(receipt)) { File.Delete(receipt); } }
         }
 
-        private static async Task<(int Exit, string Output, string Error)> Run(string arguments) {
+        internal static async Task<(int Exit, string Output, string Error)> Run(string arguments) {
             string assembly = typeof(TestHost.Program).Assembly.Location;
 #if NETFRAMEWORK
             // xUnit shadow-copies referenced assemblies into separate directories; execute the original built host.

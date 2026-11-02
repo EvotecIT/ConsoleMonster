@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +15,7 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Live;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
@@ -26,6 +27,7 @@ namespace ConsoleMonster.TestHost {
                 switch (args[0]) {
                     case "handoff-probe": return TerminalHandoffProbe.Run(args[1]);
                     case "handoff-windows": return TerminalHandoffProbe.Windows(args[1]);
+                    case "reduced-status": ReducedStatus(); break;
                     case "activity-frame": WriteActivityFrame(); break;
                     case "background": return BackgroundProbe.Run(args[1], args.Length > 2 ? args[2] : string.Empty);
                     case "unix-recording-child": return UnixRecordingChildProbe.Run();
@@ -53,6 +55,18 @@ namespace ConsoleMonster.TestHost {
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }
+        }
+
+        private static void ReducedStatus() {
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_ACCESSIBLE", null);
+            Environment.SetEnvironmentVariable("CONSOLEMONSTER_MOTION", "reduced");
+            TerminalProfile profile = TerminalProfile.Fixed(60, 8, ColorDepth.None, GlyphTier.Ascii);
+            Terminal.Profile = profile;
+            StatusLine.Show(profile, RichText.Plain("first"), StatusKind.Running, false, false, false, "HH:mm:ss", false);
+            StatusLine.Show(profile, RichText.Plain("second"), StatusKind.Fail, false, false, false, "HH:mm:ss", false);
+            Thread.Sleep(1250);
+            Console.WriteLine("CHECKPOINT");
+            StatusLine.Show(profile, RichText.Plain("done"), StatusKind.Pass, false, false, false, "HH:mm:ss", true);
         }
 
         private static void RenderLockOrder(bool summary) {

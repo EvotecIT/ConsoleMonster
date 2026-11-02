@@ -1,4 +1,4 @@
-# ConsoleMonster usage guide
+﻿# ConsoleMonster usage guide
 
 See [the README](../README.md) for installation and first examples, or [consolemonster.dev](https://consolemonster.dev/) for the interactive gallery and references.
 
@@ -1338,7 +1338,9 @@ an individual `InteractiveOptions.Mode` or PowerShell `-Mode Accessible` applies
 second of real time, independently of a simulation/replay clock, while retaining the normal layout. Input and queued state changes are still processed promptly; the next
 frame contains their combined state. Shutdown always prints its final state when configured. Spinners use a static
 running glyph; ConsoleMonster does not emit blink or marquee animations. Explicit recording checkpoints still
-capture the states requested by the recording program.
+capture the states requested by the recording program. A status line coalesces rapid updates and publishes the latest
+state even with its spinner and clocks disabled. On terminals without a safe cursor-position query, a manual status
+update waits for its next allowed write instead of scheduling a redraw after the caller returns.
 
 Set `LiveSessionOptions.ReducedMotion` or `ConsoleAppOptions.ReducedMotion` in C#. In PowerShell use
 `-ReducedMotion` on `Show-ConsoleApp`, `Invoke-ConsoleDashboard`, `Use-ConsoleProgress`, `Start-ConsoleRun`,

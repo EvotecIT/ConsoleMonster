@@ -22,7 +22,7 @@ using Calendar = ConsoleMonster.Widgets.Calendar;
 namespace ConsoleMonster.Tests.Rendering {
     public sealed partial class BehaviourContractTests {
         public static IEnumerable<object[]> ColourIndependentCases() {
-            foreach (string scene in new[] { "header", "verdict", "gauge", "bar role", "bar expanded label", "data bar", "data bar word", "calendar", "bar values", "bar without values", "lanes", "progress", "cells", "flow", "stacked", "line", "scatter" })
+            foreach (string scene in new[] { "header", "verdict", "gauge", "bar role", "bar expanded label", "data bar", "data bar word", "calendar", "bar values", "bar without values", "lanes", "progress", "cells", "flow", "stacked", "line", "scatter", "line status", "scatter status", "line converging", "scatter converging", "line quantized", "scatter quantized" })
                 foreach (GlyphTier tier in new[] { GlyphTier.Full, GlyphTier.Basic, GlyphTier.Ascii })
                     foreach (ColorDepth color in new[] { ColorDepth.None, ColorDepth.TrueColor })
                         yield return new object[] { scene, tier, color };
@@ -50,8 +50,9 @@ namespace ConsoleMonster.Tests.Rendering {
             else if (scene == "flow") widget = new Flow().Node("disk", "Disk", StatusKind.Fail);
             else if (scene == "stacked") widget = new StackedBar().Add("Alpha", 1).Add("Beta", 1);
             else {
-                var chart = new LineChart { Scatter = scene == "scatter" };
-                chart.Add("Alpha", 10).Add("Alpha", 20).Add("Beta", 30).Add("Beta", 40);
+                var chart = new LineChart { Scatter = scene.StartsWith("scatter", StringComparison.Ordinal) };
+                if (scene.EndsWith("status", StringComparison.Ordinal)) { var series = chart.AddSeries("Disk", ThemeToken.Fail); series.Add(10, 512); series.Add(20, 512); }
+                else chart.Add("Alpha", 10).Add("Alpha", 20).Add("Beta", 30).Add("Beta", scene.EndsWith("converging", StringComparison.Ordinal) ? 20 : scene.EndsWith("quantized", StringComparison.Ordinal) ? 20.1 : 40);
                 widget = chart;
             }
             string text = FrameComposer.RenderBlock(widget, 80, context).ToPlainText();
@@ -61,7 +62,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 Assert.True(bar.Trim().Distinct().Count() >= 2, "Series fills must be distinguishable when styles are removed.");
                 Assert.Contains("Alpha", text);
                 Assert.Contains("Beta", text);
-            } else if (scene == "line" || scene == "scatter") {
+            } else if ((scene.StartsWith("line", StringComparison.Ordinal) || scene.StartsWith("scatter", StringComparison.Ordinal)) && !scene.EndsWith("status", StringComparison.Ordinal)) {
                 Assert.Contains("1 Alpha", text);
                 Assert.Contains("2 Beta", text);
                 // The key must identify the traces too, not just two differently coloured identical legend symbols.
@@ -78,28 +79,37 @@ namespace ConsoleMonster.Tests.Rendering {
             foreach (string scene in new[] { "text input", "text area", "toggle", "select", "multiselect", "button", "date picker", "grid", "tree select", "log viewport", "tabs", "menu choices" })
                 foreach (GlyphTier tier in new[] { GlyphTier.Full, GlyphTier.Basic, GlyphTier.Ascii })
                     yield return new object[] { scene, tier };
+            foreach (GlyphTier tier in new[] { GlyphTier.Full, GlyphTier.Basic, GlyphTier.Ascii })
+                yield return new object[] { "compact date picker", tier };
         }
 
         [Theory]
         [MemberData(nameof(FocusCases))]
         public void Focus_IsVisibleAfterRemovingAllStyles(string scene, GlyphTier tier) {
             var context = new RenderContext(TerminalProfile.Fixed(80, 24, ColorDepth.TrueColor, tier), Theme.Dark);
+            int height = scene == "compact date picker" ? 12 : 24;
             IWidget widget = scene == "tabs" ? new Tabs().Add("Alpha", new TextBlock("State")).Add("Beta", new TextBlock("State"))
                 : scene == "grid" ? new DataGrid("grid", new Grid("Rows").AddColumn("Value").AddRow("first", "alpha"))
                 : scene == "menu choices" ? new ChoiceList(new[] { new Choice(1, "Alpha") }, false) { Focused = false, ShowInactiveFocus = true }
-                : Scenes[scene]();
+                : Scenes[scene == "compact date picker" ? "date picker" : scene]();
             try {
                 if (widget is InputControl input) input.Focused = false;
-                string before = FrameComposer.RenderBlock(widget, 80, context).ToPlainText();
+                string before = FrameComposer.Compose(widget, 80, height, context).ToPlainText();
+                if (scene == "compact date picker") {
+                    var picker = (DatePicker)widget;
+                    picker.Range = true;
+                    picker.Value = new Dates.DateRange(new DateTime(2026, 11, 2), new DateTime(2026, 11, 5));
+                }
                 if (widget is InputControl control) control.Focus();
                 else if (widget is Tabs tabs) tabs.SelectedIndex = 1;
                 else ((ChoiceList)widget).Focused = true;
-                string after = FrameComposer.RenderBlock(widget, 80, context).ToPlainText();
+                string after = FrameComposer.Compose(widget, 80, height, context).ToPlainText();
                 Assert.NotEqual(before, after);
                 if (scene == "tabs") Assert.Contains("[Beta]", after);
                 else Assert.Contains(InteractiveGlyphs.For(context).Pointer, after);
                 if (scene == "grid") Assert.Matches(System.Text.RegularExpressions.Regex.Escape(InteractiveGlyphs.For(context).Pointer) + @"\s+alpha", after);
-                if (scene == "date picker") Assert.Contains("Cursor: 2026-11-02", after);
+                if (scene.Contains("date picker")) Assert.Contains("Cursor: 2026-11-02", after);
+                if (scene == "compact date picker") Assert.Contains("Selected: 2026-11-02..2026-11-05", after);
             } finally { (widget as IDisposable)?.Dispose(); }
         }
 

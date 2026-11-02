@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Diagnostics;
@@ -97,6 +97,16 @@ namespace ConsoleMonster.Tests.Rendering {
             } else {
                 Assert.True(SpinWait.SpinUntil(() => Volatile.Read(ref output.Frames) >= 3, TimeSpan.FromSeconds(5)));
             }
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ReducedMotionStatus_PublishesTheLatestUpdateWithoutAnAnimationTimer() {
+            var result = await SessionProcessTests.Run("reduced-status");
+            Assert.Equal(0, result.Exit);
+            Assert.Contains("first", result.Output);
+            Assert.Contains("[FAIL] second", result.Output);
+            Assert.True(result.Output.IndexOf("second", StringComparison.Ordinal) < result.Output.IndexOf("CHECKPOINT", StringComparison.Ordinal),
+                "The latest update must appear without another Show or finalization: " + result.Output + result.Error);
         }
 
         [Theory]

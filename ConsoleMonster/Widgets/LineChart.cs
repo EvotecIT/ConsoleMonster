@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
@@ -11,7 +11,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// A line or scatter chart on a sub-cell canvas: braille (2x4 dots per cell) on Full, half blocks on Basic and
-    /// characters on Ascii. A y axis with min/max labels sits on the left, a legend below when there are several series.
+    /// characters on Ascii. A y axis with min/max labels sits on the left, a legend below when there are several series or a semantic status to identify.
     /// Live operation: <c>add</c> (Key = series, Value).
     /// </summary>
     public sealed class LineChart : LiveWidget {
@@ -104,17 +104,19 @@ namespace ConsoleMonster.Widgets {
             return rows;
         }
 
+        private bool NeedsLegend => _series.Count > 1 || (_series.Count == 1 && StatusKinds.TryFromToken(_series[0].Role, out _));
+
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
             if (context.Profile.IsAccessible) return SeriesText(context).Measure(constraints, context);
-            int height = Math.Max(3, Height) + (_series.Count > 1 ? 1 : 0);
+            int height = Math.Max(3, Height) + (NeedsLegend ? 1 : 0);
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         /// <inheritdoc />
         public override void Render(Region region, RenderContext context) {
             if (context.Profile.IsAccessible) { SeriesText(context).Render(region, context); return; }
-            bool legend = _series.Count > 1 && region.Height >= 4;
+            bool legend = NeedsLegend && region.Height >= 3;
             int plotRows = region.Height - 1 - (legend ? 1 : 0);
             if (plotRows < 1 || region.Width < 8) {
                 return;
@@ -163,7 +165,7 @@ namespace ConsoleMonster.Widgets {
             PixelCanvas canvas = PixelCanvas.Create(context.Profile.Glyphs, plotColumns, plotRows);
             int pw = canvas.PixelWidth;
             int ph = canvas.PixelHeight;
-            var traceLabels = new List<(int X, int Y, string Text, Style Style)>();
+            var traceLabels = new Dictionary<int, List<TextSpan>>();
             int seriesIndex = 0;
             foreach (ChartSeries series in _series) {
                 seriesIndex++;
@@ -189,17 +191,26 @@ namespace ConsoleMonster.Widgets {
                     prevX = px;
                     prevY = py;
                 }
-                if (_series.Count > 1 && prevX >= 0) traceLabels.Add((axisWidth + prevX / canvas.PixelsPerColumn, prevY / canvas.PixelsPerRow,
-                    seriesIndex.ToString(CultureInfo.InvariantCulture), context.Style(series.Role)));
+                if (_series.Count > 1 && prevX >= 0) {
+                    int row = prevY / canvas.PixelsPerRow;
+                    if (!traceLabels.TryGetValue(row, out List<TextSpan>? labels)) traceLabels[row] = labels = new List<TextSpan>();
+                    if (labels.Count > 0) labels.Add(new TextSpan("/", muted));
+                    labels.Add(new TextSpan(seriesIndex.ToString(CultureInfo.InvariantCulture), context.Style(series.Role)));
+                }
             }
             canvas.Render(region, axisWidth, 0, context);
 
-            foreach (var label in traceLabels) region.Write(Math.Max(axisWidth, Math.Min(label.X, region.Width - label.Text.Length)), label.Y, label.Text, label.Style);
+            foreach (var label in traceLabels) {
+                // Traces that converge in one terminal cell share its label; none overwrites another's identity.
+                var text = new StyledLine(label.Value);
+                region.Write(Math.Max(axisWidth, region.Width - text.Width), label.Key, text);
+            }
             if (legend) {
                 List<TextSpan> spans = new List<TextSpan>();
                 int index = 0;
                 foreach (ChartSeries series in _series) {
-                    string marker = (++index).ToString(CultureInfo.InvariantCulture) + (StatusKinds.TryFromToken(series.Role, out StatusKind status) ? " " + context.Glyphs.StatusSymbol(status) : string.Empty);
+                    string marker = _series.Count > 1 ? (++index).ToString(CultureInfo.InvariantCulture) : string.Empty;
+                    if (StatusKinds.TryFromToken(series.Role, out StatusKind status)) marker += (marker.Length > 0 ? " " : string.Empty) + context.Glyphs.StatusSymbol(status);
                     if (spans.Count > 0) {
                         spans.Add(new TextSpan("   "));
                     }
