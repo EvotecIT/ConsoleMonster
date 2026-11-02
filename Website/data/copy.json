@@ -814,8 +814,7 @@
       "try": {
         "project": "Topology",
         "packages": [
-          "ConsoleMonster.Graphics",
-          "ChartForgeX.Markup"
+          "ConsoleMonster.Graphics"
         ],
         "note": "Save ad-replication.cfx beside Program.cs. Esc quits."
       },

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Diagram ladder level 8: OrgChart.
 .DESCRIPTION

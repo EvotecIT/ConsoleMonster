@@ -65,13 +65,21 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Equal(1, references.Split('\n').Count(line => line.TrimEnd().EndsWith(" Ben", StringComparison.Ordinal)));
         }
 
-        [Fact]
-        public void Attention_PrefersFailedConnectionEvidenceToAnUnhelpfulSubtitle() {
-            var diagram = new Diagram("Office") { Nodes = { new DiagramNode("Backup") { Subtitle = "Offsite", Status = StatusKind.Fail } }, Links = { new DiagramLink("File server", "Backup") { Label = "failed two nights", Status = StatusKind.Fail } } };
+        [Theory]
+        [InlineData("disk 91%", "FS01", "disk 91%")]
+        [InlineData(null, "FS01", "FS01")]
+        [InlineData("", null, null)]
+        public void Attention_KeepsNodeProblemsSeparateFromIncidentLinkProblems(string? value, string? subtitle, string? detail) {
+            var diagram = new Diagram("Office") { Nodes = { new DiagramNode("File server") { Value = value, Subtitle = subtitle, Status = StatusKind.Warn } }, Links = { new DiagramLink("File server", "Backup") { Label = "failed two nights", Status = StatusKind.Fail } } };
             string text = Text(diagram, 80);
             string summary = text.Substring(text.IndexOf("Needs attention", StringComparison.Ordinal));
-            Assert.Contains("Backup  failed two nights", summary);
-            Assert.DoesNotContain("Offsite", summary);
+            string[] lines = summary.Split('\n');
+            string node = lines.Single(line => line.Contains("File server") && !line.Contains("→"));
+            if (detail != null) Assert.Contains(detail, node);
+            if (!string.IsNullOrEmpty(value) && subtitle != null) Assert.DoesNotContain(subtitle, node);
+            Assert.DoesNotContain("failed two nights", node);
+            Assert.Equal(1, lines.Count(line => line.Contains("failed two nights")));
+            Assert.Contains("File server → Backup  failed two nights", summary);
         }
 
         [Fact]

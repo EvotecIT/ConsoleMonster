@@ -17,7 +17,7 @@ namespace ConsoleMonster.Examples.Diagrams {
                 } },
                 new DiagramGroup("Cloud") { Nodes = {
                     new DiagramNode("Microsoft 365") { Kind = DiagramNodeKind.Cloud },
-                    new DiagramNode("Backup") { Kind = DiagramNodeKind.Storage, Subtitle = "Offsite", Status = StatusKind.Fail }
+                    new DiagramNode("Backup") { Kind = DiagramNodeKind.Storage, Subtitle = "Offsite", Value = "last success 2 days ago", Status = StatusKind.Fail }
                 } }
             },
             Links = {

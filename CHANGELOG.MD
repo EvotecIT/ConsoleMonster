@@ -7,6 +7,8 @@
 - Added full-text attention summaries, a lossless narrow tree view, and addressed node values and shared `StatusKind` updates through C# handles and `Update-Console`.
 - Unified baseline selection in `DiffOptions.Baseline` and documented hashtable configuration for PowerShell date pickers.
 - Kept omitted diagram statuses unmarked, nested tree hierarchies, preserved wrapped guides and used compact natural topology sizing.
+- Kept node attention details separate from connection failures, using each node's own value or subtitle.
+- Preserved Unicode diagram example text in Windows PowerShell 5.1 and PowerShell 7.
 - Added the typed `TopologyChart.ToDiagram()` extension in Graphics, keeping the core free of ChartForgeX types and dependencies.
 - Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.
 - Tables, cards, records, key/value lists, trees and diffs distinguish missing, null and empty data. Record sheets show empty fields by default; explicit empty-field filtering remains available.

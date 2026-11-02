@@ -115,10 +115,7 @@ namespace ConsoleMonster.Widgets {
             var summary = new Tree("Needs attention") { WrapLabels = true };
             var links = AllLinks().ToList();
             foreach (DiagramNode node in nodes.Where(n => n.HasStatus && n.Status != StatusKind.Pass)) {
-                string? problem = !string.IsNullOrEmpty(node.Value) ? node.Value : string.Join("; ", links
-                    .Where(link => link.HasStatus && link.Status != StatusKind.Pass && (link.From == node.Id || link.To == node.Id))
-                    .Select(link => link.Label).Where(label => !string.IsNullOrEmpty(label)).Distinct());
-                if (string.IsNullOrEmpty(problem)) problem = node.Subtitle;
+                string? problem = !string.IsNullOrEmpty(node.Value) ? node.Value : node.Subtitle;
                 TreeNode row = summary.Add(Literal(node.Label), node.Status, DiagramText.ForTier(problem ?? "", context));
                 row.Bare = true;
             }

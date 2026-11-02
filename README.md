@@ -147,6 +147,7 @@ Describe networks, application flows and team hierarchies with the core `Diagram
 use cases. Object initializers, `Ui.Diagram("Title")` and `New-ConsoleDiagram` configure the same model.
 The dependency-free core draws a grouped tree with connection labels and status text:
 
+<!-- example: Website/content/docs/topology.md#2 -->
 ```csharp
 using ConsoleMonster;
 using ConsoleMonster.Widgets;
@@ -169,6 +170,7 @@ reference ChartForgeX.
 
 The PowerShell module bundles Graphics and registers it for diagram commands:
 
+<!-- example: Website/content/docs/topology.md#3 -->
 ```powershell
 Import-Module ConsoleMonster
 

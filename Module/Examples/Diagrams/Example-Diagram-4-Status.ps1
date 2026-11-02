@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Diagram ladder level 4: Status.
 .DESCRIPTION
@@ -14,7 +14,7 @@ New-ConsoleDiagram -Title 'Small office · Monday 08:10' -Direction Right {
     }
     New-ConsoleDiagramGroup 'Cloud' {
         New-ConsoleDiagramNode 'Microsoft 365' -Kind Cloud
-        New-ConsoleDiagramNode 'Backup' -Kind Storage -Subtitle 'Offsite' -Status Fail
+        New-ConsoleDiagramNode 'Backup' -Kind Storage -Subtitle 'Offsite' -Value 'last success 2 days ago' -Status Fail
     }
     New-ConsoleDiagramNode 'Firewall' -Kind Gateway
     New-ConsoleDiagramLink '12 PCs' 'Firewall' -Label 'HTTPS'
