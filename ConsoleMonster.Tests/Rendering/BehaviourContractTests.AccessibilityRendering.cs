@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -12,6 +12,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
+using ConsoleMonster.Presenters;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Tests.Live;
 using ConsoleMonster.Widgets;
@@ -21,7 +22,7 @@ using Calendar = ConsoleMonster.Widgets.Calendar;
 namespace ConsoleMonster.Tests.Rendering {
     public sealed partial class BehaviourContractTests {
         public static IEnumerable<object[]> ColourIndependentCases() {
-            foreach (string scene in new[] { "header", "verdict", "gauge", "bar role", "bar expanded label", "calendar", "bar values", "bar without values", "lanes", "progress", "cells", "flow", "stacked", "line", "scatter" })
+            foreach (string scene in new[] { "header", "verdict", "gauge", "bar role", "bar expanded label", "data bar", "data bar word", "calendar", "bar values", "bar without values", "lanes", "progress", "cells", "flow", "stacked", "line", "scatter" })
                 foreach (GlyphTier tier in new[] { GlyphTier.Full, GlyphTier.Basic, GlyphTier.Ascii })
                     foreach (ColorDepth color in new[] { ColorDepth.None, ColorDepth.TrueColor })
                         yield return new object[] { scene, tier, color };
@@ -35,6 +36,7 @@ namespace ConsoleMonster.Tests.Rendering {
             if (scene == "header") widget = new HeaderBar("Result") { Status = StatusKind.Fail };
             else if (scene == "verdict") widget = new Panel(new TextBlock("Result")) { Verdict = true, Status = StatusKind.Fail };
             else if (scene == "gauge") widget = new ScoreGauge(90, role: ThemeToken.Fail);
+            else if (scene.StartsWith("data bar", StringComparison.Ordinal)) widget = new Table().AddColumn(new TableColumn("Disk") { Presenter = new DataBarPresenter(100, new NumberPresenter { NonZeroRole = ThemeToken.Fail }) { ShowRoleMarker = scene != "data bar word" } }).AddValues(90);
             else if (scene == "bar expanded label") widget = new BarChart().Add("ßabc", 90, ThemeToken.Fail);
             else if (scene == "bar role") widget = new BarChart().Add("Disk", 90, ThemeToken.Fail);
             else if (scene == "calendar") widget = new Calendar(2026, 11, new[] { new Dates.CalendarMark(new DateTime(2026, 11, 2), StatusKind.Fail) }) { ShowLegend = false };
@@ -67,7 +69,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 Assert.Contains("1", plot);
                 Assert.Contains("2", plot);
             } else {
-                string marker = tier == GlyphTier.Full ? "✗" : tier == GlyphTier.Basic ? "×" : scene == "flow" || scene == "header" ? "[FAIL]" : "x";
+                string marker = scene == "data bar word" ? context.Labels.StatusWord(StatusKind.Fail) : tier == GlyphTier.Full ? "✗" : tier == GlyphTier.Basic ? "×" : scene == "flow" || scene == "header" ? "[FAIL]" : "x";
                 Assert.Contains(marker, text);
             }
         }
