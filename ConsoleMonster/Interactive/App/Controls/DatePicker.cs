@@ -119,7 +119,9 @@ namespace ConsoleMonster.Interactive {
                 try { _cursor = _cursor.AddMonths(-Math.Sign(input.WheelDelta)); } catch (ArgumentOutOfRangeException) { }
                 return true;
             }
-            if (!_calendar.TryDateAt(input.Column - _calendarBounds.X, input.Row - _calendarBounds.Y, out DateTime date)) {
+            bool insideCalendar = input.Column >= _calendarBounds.X && input.Column < _calendarBounds.Right
+                && input.Row >= _calendarBounds.Y && input.Row < _calendarBounds.Bottom;
+            if (!insideCalendar || !_calendar.TryDateAt(input.Column - _calendarBounds.X, input.Row - _calendarBounds.Y, out DateTime date)) {
                 if (_dragging && input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0) {
                     int direction = input.Row < _calendarBounds.Y ? -1 : input.Row >= _calendarBounds.Bottom ? 1 : 0;
                     if (direction != 0 && (_lastEdgeNavigation == TimeSpan.MinValue || _navigationClock.Elapsed - _lastEdgeNavigation >= TimeSpan.FromMilliseconds(250))) {

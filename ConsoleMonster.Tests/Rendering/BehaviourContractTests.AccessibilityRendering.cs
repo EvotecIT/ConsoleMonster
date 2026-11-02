@@ -8,6 +8,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Interactive;
+using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Output;
@@ -94,6 +95,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 : Scenes[scene == "compact date picker" ? "date picker" : scene]();
             try {
                 if (widget is InputControl input) input.Focused = false;
+                if (scene == "compact date picker") ((DatePicker)widget).FirstDayOfWeek = DayOfWeek.Monday;
                 string before = FrameComposer.Compose(widget, 80, height, context).ToPlainText();
                 if (scene == "compact date picker") {
                     var picker = (DatePicker)widget;
@@ -109,7 +111,15 @@ namespace ConsoleMonster.Tests.Rendering {
                 else Assert.Contains(InteractiveGlyphs.For(context).Pointer, after);
                 if (scene == "grid") Assert.Matches(System.Text.RegularExpressions.Regex.Escape(InteractiveGlyphs.For(context).Pointer) + @"\s+alpha", after);
                 if (scene.Contains("date picker")) Assert.Contains("Cursor: 2026-11-02", after);
-                if (scene == "compact date picker") Assert.Contains("Selected: 2026-11-02..2026-11-05", after);
+                if (scene == "compact date picker") {
+                    Assert.Contains("Selected: 2026-11-02..2026-11-05", after);
+                    var picker = (DatePicker)widget;
+                    object? selected = picker.Value;
+                    Assert.False(picker.HandleInput(InputEvent.Mouse(10, 9), context));
+                    Assert.False(picker.HandleInput(InputEvent.Pointer(10, 9, MouseAction.Up, 1), context));
+                    Assert.Same(selected, picker.Value);
+                    Assert.Equal(new DateTime(2026, 11, 2), picker.Cursor);
+                }
             } finally { (widget as IDisposable)?.Dispose(); }
         }
 

@@ -99,10 +99,18 @@ namespace ConsoleMonster.Tests.Rendering {
             }
         }
 
-        [Fact]
-        public async System.Threading.Tasks.Task ReducedMotionStatus_PublishesTheLatestUpdateWithoutAnAnimationTimer() {
-            var result = await SessionProcessTests.Run("reduced-status");
+        [Theory]
+        [InlineData("updates")]
+        [InlineData("failed first")]
+        [InlineData("failed pending")]
+        public async System.Threading.Tasks.Task StatusMotion_PublishesPendingStateAndStopsFailedRefreshes(string scenario) {
+            var result = await SessionProcessTests.Run("reduced-status " + (scenario == "updates" ? "updates" : scenario == "failed first" ? "failed-first" : "failed-pending"));
             Assert.Equal(0, result.Exit);
+            if (scenario != "updates") {
+                Assert.Contains("FAILED_REFRESH_STOPPED=True", result.Output);
+                Assert.Contains("recovered", result.Output);
+                return;
+            }
             Assert.Contains("first", result.Output);
             Assert.Contains("[FAIL] second", result.Output);
             Assert.True(result.Output.IndexOf("second", StringComparison.Ordinal) < result.Output.IndexOf("CHECKPOINT", StringComparison.Ordinal),

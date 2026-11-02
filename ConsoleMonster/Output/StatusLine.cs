@@ -61,7 +61,11 @@ namespace ConsoleMonster.Output {
                 line._clock = showTimestamp;
                 line._elapsed = showElapsed;
                 line._clockFormat = string.IsNullOrEmpty(timestampFormat) ? "HH:mm:ss" : timestampFormat;
-                line.Render(final);
+                if (!line.Render(final)) {
+                    _current = null;
+                    TaskbarProgress.Clear();
+                    return;
+                }
                 if (final) {
                     _current = null;
                     TaskbarProgress.Clear();
@@ -132,8 +136,8 @@ namespace ConsoleMonster.Output {
                 }
                 StopTimer();
                 _frame++;
-                Render(false);
-                Schedule(Terminal.GetCurrentProfile());
+                if (Render(false)) Schedule(Terminal.GetCurrentProfile());
+                else { _current = null; TaskbarProgress.Clear(); }
             }
         }
 
@@ -144,7 +148,7 @@ namespace ConsoleMonster.Output {
             _timer = new Timer(_ => Tick(), null, delay, Timeout.Infinite);
         }
 
-        private void Render(bool final) {
+        private bool Render(bool final) {
             try {
                 TerminalProfile profile = Terminal.GetCurrentProfile();
                 if (!profile.IsAccessible && profile.ReducedMotion && !final && _lastRender.HasValue) {
@@ -153,7 +157,7 @@ namespace ConsoleMonster.Output {
                         if (IsUntracked) {
                             // Without a safe cursor query, finish this caller's update before returning to a prompt.
                             Thread.Sleep((int)Math.Ceiling(remaining.TotalMilliseconds));
-                        } else { _pending = true; return; }
+                        } else { _pending = true; return true; }
                     }
                 }
                 _pending = false;
@@ -170,9 +174,11 @@ namespace ConsoleMonster.Output {
                 }
                 _lastRender = _redrawClock.Elapsed;
                 RememberCursor();
+                return true;
             } catch (Exception) {
                 // A console that went away (closed window, redirected mid-run): stop refreshing.
                 StopTimer();
+                return false;
             }
         }
 
