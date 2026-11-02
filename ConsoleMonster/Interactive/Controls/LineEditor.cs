@@ -49,6 +49,24 @@ namespace ConsoleMonster.Interactive {
 
         public bool HasHistory => _history.Count > 0;
 
+        /// <summary>Whether <see cref="Handle"/> takes this key: typed characters and the editing keys below.</summary>
+        internal static bool Takes(KeyChord chord) {
+            if (chord.IsCharacter || chord.Equals(new KeyChord(ConsoleKey.Spacebar))) { return true; }
+            bool ctrl = (chord.Modifiers & KeyModifiers.Control) != 0;
+            bool alt = (chord.Modifiers & KeyModifiers.Alt) != 0;
+            bool unix = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            switch (chord.Key) {
+                case ConsoleKey.Backspace: case ConsoleKey.Delete: case ConsoleKey.LeftArrow: case ConsoleKey.RightArrow: case ConsoleKey.Home: case ConsoleKey.End:
+                    return true;
+                case ConsoleKey.W: case ConsoleKey.U:
+                    return ctrl;
+                case ConsoleKey.A: case ConsoleKey.E:
+                    return unix && ctrl && !alt;
+                case ConsoleKey.B: case ConsoleKey.F:
+                    return unix && alt && !ctrl;
+            }
+            return false;
+        }
         /// <summary>Applies an edit; returns true when the event was an edit or caret movement.</summary>
         public bool Handle(InputEvent e) {
             if (e.Kind == InputEventKind.Paste) {

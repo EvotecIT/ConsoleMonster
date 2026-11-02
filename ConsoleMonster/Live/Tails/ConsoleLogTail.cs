@@ -92,6 +92,8 @@ namespace ConsoleMonster.Live.Tails {
             Stopwatch watch = Stopwatch.StartNew();
             TimeSpan nextRead = TimeSpan.Zero;
             long count = 0;
+            // Filtering at the source keeps retained history to matching lines, in plain and live output alike.
+            Widgets.LogFilter filter = new Widgets.LogFilter(level: options.Level, text: options.Filter);
             try {
                 while (!cancellationToken.IsCancellationRequested) {
                     if (watch.Elapsed >= nextRead) {
@@ -99,9 +101,7 @@ namespace ConsoleMonster.Live.Tails {
                         foreach (TailedLogEntry entry in entries) {
                             if (cancellationToken.IsCancellationRequested) { return; }
                             if (entry == null) { throw new InvalidOperationException(WidgetLabels.Current.TailReaderReturnedNullEntry); }
-                            if (string.IsNullOrEmpty(options.Filter) || entry.Text.IndexOf(options.Filter, StringComparison.OrdinalIgnoreCase) >= 0) {
-                                accept(entry);
-                            }
+                            if (filter.Matches(entry.Text, entry.Level, entry.Tag)) { accept(entry); }
                         }
                         count++;
                         if (options.Count > 0 && count >= options.Count) { return; }

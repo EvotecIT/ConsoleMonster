@@ -46,6 +46,29 @@ namespace ConsoleMonster.Interactive {
             _frameHolds[index] = previous + duration;
         }
 
+        /// <summary>
+        /// The captured screens as an animation timeline: each frame shows for <paramref name="frameDuration"/> plus its
+        /// <see cref="FrameHolds"/>, and the last one for <paramref name="lastFrameHold"/> more. Export it with
+        /// <see cref="Export.Recording.Export(IReadOnlyList{Export.RecordedFrame}, Export.ExportFormat, Export.RecordingExportOptions)"/>
+        /// (HTML player, animated SVG, asciicast) or <c>SaveGraphics</c> in ConsoleMonster.Graphics (GIF, APNG).
+        /// </summary>
+        /// <param name="frameDuration">How long each frame shows (at least one millisecond).</param>
+        /// <param name="lastFrameHold">Extra time on the last frame before the animation loops or ends.</param>
+        /// <returns>The timed frames, sharing this capture's cells.</returns>
+        public List<Export.RecordedFrame> ToRecordedFrames(TimeSpan frameDuration, TimeSpan lastFrameHold = default) {
+            if (frameDuration < TimeSpan.FromMilliseconds(1)) { throw new ArgumentOutOfRangeException(nameof(frameDuration)); }
+            if (lastFrameHold < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(lastFrameHold)); }
+            List<Export.RecordedFrame> frames = new List<Export.RecordedFrame>();
+            long start = 0;
+            for (int i = 0; i < Frames.Count; i++) {
+                _frameHolds.TryGetValue(i, out TimeSpan hold);
+                long duration = (long)(frameDuration + hold + (i == Frames.Count - 1 ? lastFrameHold : TimeSpan.Zero)).TotalMilliseconds;
+                frames.Add(new Export.RecordedFrame(Frames[i], start) { Duration = duration });
+                start += duration;
+            }
+            return frames;
+        }
+
         /// <summary>The last frame drawn, or null.</summary>
         public CellBuffer? LastFrame => _surface.LastFrame;
 

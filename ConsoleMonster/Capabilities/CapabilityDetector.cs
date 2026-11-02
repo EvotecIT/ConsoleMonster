@@ -127,10 +127,12 @@ namespace ConsoleMonster.Capabilities {
                 glyphReason = "ambiguous width 2";
                 decisions.Add("glyphs downgraded: ambiguous width 2");
             }
-            int width = env.IsOutputRedirected ? Dimension("COLUMNS", TerminalProfile.DefaultWidth) : Positive(env.WindowWidth, TerminalProfile.DefaultWidth);
+            int columns = env.IsOutputRedirected ? Dimension("COLUMNS", 0) : 0;
+            int width = env.IsOutputRedirected ? Positive(columns, TerminalProfile.DefaultWidth) : Positive(env.WindowWidth, TerminalProfile.DefaultWidth);
             int height = env.IsOutputRedirected ? Dimension("LINES", TerminalProfile.DefaultHeight) : Positive(env.WindowHeight, TerminalProfile.DefaultHeight);
             TerminalKind kind = DetectKind();
             bool hyperlinks = DetectHyperlinks(kind, decisions);
+            ImageProtocol images = DetectImages(out string imageSource);
             decisions.Add("mode: " + mode + " (" + modeReason + ")");
             decisions.Add("colour: " + color + " (" + colorReason + ")");
             decisions.Add("glyphs: " + glyphs + " (" + glyphReason + ")");
@@ -142,7 +144,9 @@ namespace ConsoleMonster.Capabilities {
             CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks);
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
+                WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource
+            };
         }
 
         // CONSOLEMONSTER_CULTURE: a culture name (en-US, pl-PL), "invariant", or empty/"current" for the current culture.
@@ -203,7 +207,7 @@ namespace ConsoleMonster.Capabilities {
                 glyphs = GlyphTier.Ascii;
                 reason = "plain mode";
             }
-            List<string> decisions = new List<string>(profile.Decisions) {
+            List<string> decisions = new List<string>(profile.RecordedDecisions) {
                 "font refreshed: " + font,
                 "glyphs: " + glyphs + " (" + reason + ")"
             };
@@ -214,7 +218,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport).WithLanguage(profile.Language)
+                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) { ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource }.WithLanguage(profile.Language)
                 .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground);
         }
 

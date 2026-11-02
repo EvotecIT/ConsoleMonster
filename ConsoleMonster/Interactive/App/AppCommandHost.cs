@@ -181,7 +181,45 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        // Output written while the app runs (a worker's Console.WriteLine) joins the action output panel.
+        internal void WriteOutput(string text, string level) => _session.Write(text, level);
+
+        // Keys Handle takes before the app's focused input and key bindings.
+        internal IEnumerable<KeyChord> FirstChords() {
+            if (_commands.Length > 0 && _keys.Palette.HasValue) { yield return _keys.Palette.Value; }
+            if (_commandBar != null && _keys.Actions.HasValue) { yield return _keys.Actions.Value; }
+            if (_keys.CancelAction.HasValue && _session.IsBusy) { yield return _keys.CancelAction.Value; }
+            foreach (AppCommand command in _commands) { if (command.Shortcut.HasValue) { yield return command.Shortcut.Value; } }
+            if (HasCommands) {
+                yield return new KeyChord(ConsoleKey.PageUp, KeyModifiers.Alt);
+                yield return new KeyChord(ConsoleKey.PageDown, KeyModifiers.Alt);
+            }
+        }
+
         internal IWidget Wrap(IWidget content) => HasCommands || _dialogs != null ? new Surface(this, content) : content;
+
+        // Apps paint the open dialog on their overlay layer, above popups; the grid viewer keeps it in this surface.
+        internal bool ModalOnOverlay { get; set; }
+        // The open dialog for the app overlay layer, built for the body it covers.
+        internal IWidget? ModalLayer(RenderContext context, int width, int height, out int maxWidth) {
+            lock (_gate) {
+                maxWidth = 78;
+                if (_modal == null || _modal.IsClosed) { return null; }
+                _frame = new ViewFrame(context, width, height, false, context.Elapsed);
+                maxWidth = _modal.MaxWidth;
+                return _modal.Build(_frame, _frame.Caret);
+            }
+        }
+
+        // While a dialog is open it takes every key, so the footer shows its keys instead of the app's.
+        internal List<KeyBinding>? ModalBindings() {
+            lock (_gate) {
+                if (_modal == null || _modal.IsClosed || _frame == null) { return null; }
+                List<KeyBinding> bindings = new List<KeyBinding>();
+                _modal.AddBindings(bindings, _frame);
+                return bindings;
+            }
+        }
         internal void AddBindings(List<KeyBinding> bindings) {
             if (!HasCommands) { return; }
             if (_commandBar != null && _keys.Actions.HasValue) { bindings.Add(new KeyBinding(_labels.KeyActions, () => { _barActive = !_barActive; SetBarFocus(); }, _keys.Actions.Value) { KeyText = _keys.Actions.Value.ToString().ToLowerInvariant() }); }
@@ -221,7 +259,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     IWidget body = !_host.HasCommands ? _content : rows.Add(new Panel(log, _host.IsBusy ? PromptLabels.Format(_host._labels.ActionRunning, _host._keys.CancelAction?.ToString() ?? "Ctrl+C") : _host._labels.ActionOutput), LayoutSize.Fixed(logHeight));
                     _host._frame = new ViewFrame(context, region.Width, region.Height, false, context.Elapsed);
-                    if (_host._modal != null && !_host._modal.IsClosed) {
+                    if (!_host.ModalOnOverlay && _host._modal != null && !_host._modal.IsClosed) {
                         body = new Overlay(body, _host._modal.Build(_host._frame, _host._frame.Caret)) { MaxWidth = _host._modal.MaxWidth };
                     }
                     body.Render(region, context);

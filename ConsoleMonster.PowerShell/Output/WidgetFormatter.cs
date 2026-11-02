@@ -27,8 +27,9 @@ namespace ConsoleMonster.PowerShell {
                 case IWidget widget:
                     // PowerShell's custom format view wraps before the last terminal cell. Reserve its content margin
                     // only for an interactive host; redirected output and explicit ConsoleRendering widths keep their size.
-                    int hostWidth = !Console.IsOutputRedirected ? HostWidth(host) : 0;
-                    return Render(widget, host, outputRendering, hostWidth > 1 ? hostWidth - 1 : 0, null);
+                    // A line exactly as wide as the window also wraps on some consoles, so two cells stay free.
+                    int visible = !Console.IsOutputRedirected ? HostWidth.Visible(host) : 0;
+                    return Render(widget, host, outputRendering, visible > 2 ? visible - 2 : 0, null);
                 default:
                     // A deserialized rendering carries its plain text as its ToString.
                     return (value is PSObject other ? other.ToString() : Convert.ToString(raw, CultureInfo.CurrentCulture)) ?? string.Empty;
@@ -39,7 +40,7 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="widget">The widget.</param>
         /// <param name="host">The host (for the width), or null.</param>
         /// <param name="outputRendering">Host, Ansi or PlainText; empty or null means plain.</param>
-        /// <param name="width">An explicit positive width, or zero for the current target/terminal, falling back to 100 cells.</param>
+        /// <param name="width">An explicit positive width, or zero for the <see cref="HostWidth"/> rule.</param>
         /// <param name="culture">A culture, or null.</param>
         /// <returns>The text, without a trailing line break.</returns>
         public static string Render(IWidget widget, PSHost? host, string? outputRendering, int width, CultureInfo? culture) {
@@ -50,8 +51,7 @@ namespace ConsoleMonster.PowerShell {
             if (culture != null) {
                 profile = profile.WithCulture(culture);
             }
-            int columns = Terminal.ResolveWidth(width);
-            profile = profile.WithSize(columns, profile.Height);
+            profile = profile.WithSize(width > 0 ? width : HostWidth.Resolve(host, profile), profile.Height);
             if (profile.Mode == OutputMode.Interactive) {
                 profile = profile.WithMode(OutputMode.Stream);
             }
@@ -64,17 +64,5 @@ namespace ConsoleMonster.PowerShell {
             return text.Replace("\r\n", "\n").TrimEnd('\n');
         }
 
-        // The visible width minus one: a line exactly as wide as the window would wrap on some consoles.
-        internal static int HostWidth(PSHost? host) {
-            try {
-                int width = host?.UI?.RawUI?.WindowSize.Width ?? 0;
-                if (width <= 0) {
-                    width = host?.UI?.RawUI?.BufferSize.Width ?? 0;
-                }
-                return width > 1 ? width - 1 : 0;
-            } catch (Exception) {
-                return 0;
-            }
-        }
     }
 }

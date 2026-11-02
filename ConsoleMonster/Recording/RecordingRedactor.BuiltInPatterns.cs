@@ -5,9 +5,10 @@ namespace ConsoleMonster.Sessions {
     internal sealed partial class RecordingRedactor {
         private const int PatternTimeoutMilliseconds = 100;
         private const string BearerPattern = @"(?i)\bbearer\s+[^\s;""'\x00-\x1f]+";
-        private const string CredentialPattern = @"(?i)\b(?:password|pwd|api[_-]?key|access[_-]?token|client[_-]?secret|token)\s*[=:]\s*(?:""[^""\x00-\x1f]*""?|'[^'\x00-\x1f]*'?|[^;""'\x00-\x1f]+)";
+        // A label may be separated from its value by a run break (a value cell placed with CUP); the value itself ends at one.
+        private const string CredentialPattern = @"(?i)\b(?:password|pwd|api[_-]?key|access[_-]?token|client[_-]?secret|token)[\s\x1f]*[=:][\s\x1f]*(?:""[^""\x00-\x1f]*""?|'[^'\x00-\x1f]*'?|[^;""'\x00-\x1f]+)";
         private const string TokenPattern = @"\b(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+|sk-[A-Za-z0-9_-]{8,}|AKIA[A-Z0-9]{16})\b";
-        private const string PendingKeySuffix = @"(?:\s*(?:[=:]\s*(?:""[^""\x00-\x1f]*|'[^'\x00-\x1f]*|[^;""'\x00-\x1f]*))?)?\z";
+        private const string PendingKeySuffix = @"(?:[\s\x1f]*(?:[=:][\s\x1f]*(?:""[^""\x00-\x1f]*|'[^'\x00-\x1f]*|[^;""'\x00-\x1f]*))?)?\z";
         private const string PendingBearerPattern = @"(?i)\bbearer(?:\s+[^\s;""'\x00-\x1f]*)?\z";
         private const string PendingPasswordPattern = @"(?i)\bpassword" + PendingKeySuffix;
         private const string PendingPwdPattern = @"(?i)\bpwd" + PendingKeySuffix;
@@ -19,10 +20,13 @@ namespace ConsoleMonster.Sessions {
         private const string PendingGitHubPatPattern = @"(?i)\bgithub_pat_[A-Za-z0-9_]*\z";
         private const string PendingSkPattern = @"(?i)\bsk-[A-Za-z0-9_-]*\z";
 
-        private static readonly Regex[] BuiltInPatterns = { BearerRegex(), CredentialRegex(), TokenRegex() };
+        // Open-ended key/value rules end at a visible run boundary; otherwise a value written before a full-screen
+        // repaint would absorb every later frame. Word-shaped tokens and custom rules still span all controls.
+        private static readonly Regex[] RunPatterns = { BearerRegex(), CredentialRegex() };
+        private static readonly Regex[] BuiltInPatterns = { TokenRegex() };
         // A fixed keyword prefix lets each engine skip safe text. Keep one deadline across all candidate
         // positions for a rule; restarting Match for every candidate would allow quadratic scans to run unbounded.
-        private static readonly Regex[] PendingCredentialPatterns = {
+        private static readonly Regex[] PendingRunPatterns = {
             PendingBearerRegex(),
             PendingPasswordRegex(),
             PendingPwdRegex(),
@@ -30,6 +34,8 @@ namespace ConsoleMonster.Sessions {
             PendingAccessTokenRegex(),
             PendingClientSecretRegex(),
             PendingTokenRegex(),
+        };
+        private static readonly Regex[] PendingWordPatterns = {
             PendingGitHubShortRegex(),
             PendingGitHubPatRegex(),
             PendingSkRegex(),

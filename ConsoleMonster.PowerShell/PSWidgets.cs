@@ -18,7 +18,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>Collects widgets from script output already invoked with native application variables.</summary>
         public static List<IWidget> Collect(IEnumerable<PSObject> output) {
             List<IWidget> widgets = new List<IWidget>();
-            foreach (PSObject item in output) { AddItem(widgets, item); }
+            ScreenGroup screens = new ScreenGroup();
+            foreach (PSObject item in output) { AddItem(widgets, item, screens); }
             return widgets;
         }
 
@@ -123,19 +124,35 @@ namespace ConsoleMonster.PowerShell {
             objects.Clear();
         }
 
-        private static void AddItem(List<IWidget> widgets, object? item, List<object>? path = null) {
+        private static void AddItem(List<IWidget> widgets, object? item, ScreenGroup screens, List<object>? path = null) {
             object? raw = item is PSObject ps ? ps.BaseObject : item;
             if (raw is object[] array) {
                 PSCollectionPath.Enter(ref path, array);
                 try {
-                    foreach (object nested in array) { AddItem(widgets, nested, path); }
+                    foreach (object nested in array) { AddItem(widgets, nested, screens, path); }
                 } finally { path!.RemoveAt(path.Count - 1); }
+                return;
+            }
+            // Adjacent New-ConsoleScreen results are one screen stack, in the place of the first.
+            if (raw is Interactive.AppScreen screen) {
+                if (screens.Stack == null) {
+                    if (screens.Closed) { throw new PSArgumentException("Keep the New-ConsoleScreen commands together: an app has one screen stack."); }
+                    screens.Stack = new Interactive.AppScreens();
+                    widgets.Add(screens.Stack);
+                }
+                screens.Stack.Add(screen);
                 return;
             }
             IWidget? widget = AsWidget(raw);
             if (widget != null) {
+                if (screens.Stack != null) { screens.Stack = null; screens.Closed = true; }
                 widgets.Add(widget);
             }
+        }
+
+        private sealed class ScreenGroup {
+            internal Interactive.AppScreens? Stack;
+            internal bool Closed;
         }
     }
 }

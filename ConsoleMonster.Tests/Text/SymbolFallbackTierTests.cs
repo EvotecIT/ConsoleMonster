@@ -61,11 +61,10 @@ namespace ConsoleMonster.Tests.Text {
         }
 
         [Fact]
-        public void Apply_StyledBoundary_PreservesTheSeparatorAndColor() {
-            string text = TestTerminal.RenderText(new TextBlock("✅[green]Result[/]"), 120, glyphs: GlyphTier.Basic);
-            Assert.Equal("√ Result", text.TrimEnd());
-            Assert.Equal("√ Result", TestTerminal.RenderText(new TextBlock("[green]✅[/] Result"), 120, glyphs: GlyphTier.Basic).TrimEnd());
-            Assert.Equal("~ Result", TestTerminal.RenderText(new TextBlock("⛓️[green]‍💥Result[/]"), 120, glyphs: GlyphTier.Basic).TrimEnd());
+        public void Apply_StyledBoundary_KeepsTheSeparator() {
+            Assert.Equal("√ Result", SymbolFallback.Apply(Markup.Parse("✅[green]Result[/]"), GlyphTier.Basic).Lines[0].PlainText);
+            Assert.Equal("√ Result", SymbolFallback.Apply(Markup.Parse("[green]✅[/] Result"), GlyphTier.Basic).Lines[0].PlainText);
+            Assert.Equal("~ Result", SymbolFallback.Apply(Markup.Parse("⛓️[green]‍💥Result[/]"), GlyphTier.Basic).Lines[0].PlainText);
         }
 
         [Fact]

@@ -26,7 +26,8 @@ namespace ConsoleMonster.Interactive {
 
         internal CommandModal(IReadOnlyList<AppCommand> commands, Action<AppCommand> run, PromptLabels labels) {
             _labels = labels;
-            Select select = new Select("Command", commands.Select(command => new Choice(command, command.Label))) { Label = labels.Commands, PageSize = 8 };
+            // The dialog frame carries the title; the list inside it has no frame of its own.
+            Select select = new Select("Command", commands.Select(command => new Choice(command, command.Label)), chrome: false) { Label = labels.Commands, PageSize = 8 };
             select.Changed += (_, __) => { if (select.Value is AppCommand command) { Close(); run(command); } };
             _content = DialogChrome.Frame(select, labels.Commands);
             _focus = new FocusManager(_content);

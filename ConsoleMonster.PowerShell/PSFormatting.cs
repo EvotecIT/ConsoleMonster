@@ -285,8 +285,8 @@ namespace ConsoleMonster.PowerShell {
             IReadOnlyList<PSObject> expanded = Expand(items, shape);
             if (expanded.Count > 0 && expanded.All(item => PSShaping.IsValueLike(item, shape))) {
                 // Values have no fields: one line each, as text.
-                string lines = string.Join("\n", expanded.Select(item => Text.Markup.Escape(ValueShaper.Text(item, shape, ShapeBudget.For(shape)))));
-                return title == null ? new TextBlock(lines) : (IWidget)new Rows(new TextBlock(title), new TextBlock(lines));
+                string lines = string.Join("\n", expanded.Select(item => Text.Markup.Escape(ValueShaper.ShapedText(item, shape, ShapeBudget.For(shape)))));
+                return title == null ? Placeholders.Block(lines) : new Rows(new TextBlock(title), Placeholders.Block(lines));
             }
             RecordView view = new RecordView(title) { HideEmpty = !showEmpty };
             if (expanded.Count > 1 || groupBy != null) {
@@ -398,8 +398,8 @@ namespace ConsoleMonster.PowerShell {
             }
             // PowerShell's formatter wraps format-view output at the host's width: an explicit -Width wider than the host
             // keeps the host route, so the requested layout is not broken up.
-            int hostWidth = WidgetFormatter.HostWidth(cmdlet.Host);
-            bool fits = width <= 0 || hostWidth <= 0 || width <= hostWidth;
+            int hostWidth = HostWidth.Visible(cmdlet.Host);
+            bool fits = width <= 0 || hostWidth <= 1 || width < hostWidth;
             if (!passThru && fits && EmitsRendering(cmdlet)) {
                 // A blank line after the block, as Format-Table and the host route print.
                 cmdlet.WriteObject(new ConsoleRendering(appendBlankLine ? new Rows(widget, new TextBlock(string.Empty)) : widget, width, culture));

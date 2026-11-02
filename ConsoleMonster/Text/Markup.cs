@@ -29,8 +29,8 @@ namespace ConsoleMonster.Text {
 
         /// <summary>
         /// When true, <c>:name:</c> shortcodes in the text of markup become emoji (<c>:white_check_mark:</c> is ✅; see
-        /// <see cref="Glyphs.Shortcodes"/>). Off by default, so colons in data are never touched. On glyph tiers that cannot
-        /// show emoji, the symbol fallback turns them into ASCII or Basic equivalents.
+        /// <see cref="Glyphs.Shortcodes"/>). Off by default, so colons in data are never touched. The emoji are written as
+        /// they are on every glyph tier; the <c>Emoji</c> cell presenter turns them into Basic or ASCII equivalents.
         /// </summary>
         public static bool Shortcodes { get; set; }
 

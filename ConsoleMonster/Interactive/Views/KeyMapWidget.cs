@@ -51,7 +51,7 @@ namespace ConsoleMonster.Interactive {
                 }
             }
             int width = Math.Min(constraints.MaxWidth, Math.Max(36, keyWidth + labelWidth + 8));
-            int height = Lines + 3;
+            int height = Lines + DialogChrome.ExtraHeight;
             return new Size(width, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 

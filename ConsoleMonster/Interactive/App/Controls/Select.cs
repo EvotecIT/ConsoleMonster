@@ -8,6 +8,8 @@ namespace ConsoleMonster.Interactive {
         /// <param name="choices">Available choices, configured before running.</param>
         public Select(string key, IEnumerable<Choice> choices) : base(key, choices, false) { }
 
+        internal Select(string key, IEnumerable<Choice> choices, bool chrome) : base(key, choices, false, chrome) { }
+
         /// <summary>The committed value; null also represents an empty selection. Assign only enabled choices' values.</summary>
         /// <exception cref="System.ArgumentException">A non-null value does not identify an enabled choice.</exception>
         public object? Value {

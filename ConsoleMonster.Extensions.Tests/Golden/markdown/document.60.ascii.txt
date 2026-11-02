@@ -79,6 +79,6 @@ close.</div>
 
 This deliberately longer paragraph checks wrapping at sixty
 columns while retaining Polish text such as zażółć gęślą
-jaźń, Japanese text such as 検証, and an emoji such as [OK].
+jaźń, Japanese text such as 検証, and an emoji such as ✅.
 The pager must retain every paragraph and table row when the
 document exceeds the visible screen.

@@ -12,6 +12,37 @@ namespace ConsoleMonster.Tests.Live {
             foreach (LiveEvent item in ConsoleUpdate.Events(target, update)) { target.Apply(item); }
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void QueuedPhaseCreationMakesItsItemsAvailableBeforeRendering(int placement) {
+            var phases = new Phases("phases");
+            ConsoleMonster.Layout.IWidget root = placement == 0 ? (ConsoleMonster.Layout.IWidget)phases
+                : placement == 1 ? new TextBlock("Host") : new RegionWidget("slot");
+            using (var session = new LiveSession(root, LiveSessionTests.Options(new FakeOutput(false)))) {
+                if (placement == 1) { session.Register(phases); }
+                if (placement >= 2) { session.Region("slot").Set(phases); }
+                var handle = phases.Handle(session);
+                handle.Start("migrate");
+                if (placement == 3) {
+                    session.Region("slot").Clear();
+                    session.Region("slot").Set(phases);
+                }
+                handle.Item("migrate", "alice", StatusKind.Running, "40%");
+                long accepted = session.EventsPosted;
+                Assert.Equal(0, session.EventsApplied);
+                var error = Assert.Throws<ConsoleUpdateException>(() => handle.Item("unknown", "bob", StatusKind.Pass));
+                Assert.Equal("ConsoleMonsterUnknownItem", error.ErrorId);
+                Assert.Equal(accepted, session.EventsPosted);
+                session.Start();
+                session.Stop();
+                Assert.Equal(0, session.ApplyErrors);
+                Assert.Contains("alice 40%", Terminal.RenderText(phases, ConsoleMonster.Capabilities.TerminalProfile.Fixed(80, 20)));
+            }
+        }
+
         [Fact]
         public void ProgressTotalKeepsTheQueuedValueAndAcceptsUnknownTotal() {
             var progress = new ProgressBar { Value = 3, Total = 10 };

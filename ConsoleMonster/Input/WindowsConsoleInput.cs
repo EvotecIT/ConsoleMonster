@@ -154,7 +154,7 @@ namespace ConsoleMonster.Input {
             if (record.KeyDown == 0) {
                 // Alt+numpad composition delivers the character on the Alt key release.
                 if (vk == 0x12 && c != '\0') {
-                    AddCharacter(c, KeyModifiers.None, keys, ref highSurrogate);
+                    AddCharacter(c, KeyModifiers.None, 0, keys, ref highSurrogate);
                 }
                 return;
             }
@@ -179,7 +179,8 @@ namespace ConsoleMonster.Input {
                 if (c >= ' ' && c != '\u007f') {
                     // AltGr is Ctrl+Alt on Windows: the character is what the user meant.
                     KeyModifiers charModifiers = ctrl && alt ? KeyModifiers.None : modifiers;
-                    AddCharacter(c, charModifiers, keys, ref highSurrogate);
+                    // An AltGr character is not the key's own character, so it carries no key for layout matching.
+                    AddCharacter(c, charModifiers, ctrl && alt ? 0 : (ConsoleKey)vk, keys, ref highSurrogate);
                     continue;
                 }
                 ConsoleKey key = (ConsoleKey)vk;
@@ -195,7 +196,7 @@ namespace ConsoleMonster.Input {
             }
         }
 
-        private static void AddCharacter(char c, KeyModifiers modifiers, List<InputEvent> keys, ref char highSurrogate) {
+        private static void AddCharacter(char c, KeyModifiers modifiers, ConsoleKey physical, List<InputEvent> keys, ref char highSurrogate) {
             if (char.IsHighSurrogate(c)) {
                 highSurrogate = c;
                 return;
@@ -208,7 +209,7 @@ namespace ConsoleMonster.Input {
                 return;
             }
             highSurrogate = '\0';
-            keys.Add(InputEvent.Character(c, modifiers));
+            keys.Add(InputEvent.Character(c, modifiers, physical));
         }
 
         // A run of plain characters (with Enter or Tab inside it) read in one batch is a paste, not typing: nobody types three

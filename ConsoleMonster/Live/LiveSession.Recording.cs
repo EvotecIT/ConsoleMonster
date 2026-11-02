@@ -70,6 +70,7 @@ namespace ConsoleMonster.Live {
         // Records an applied event. Region swaps carry an in-process widget, which a recording cannot hold: the new content
         // is recorded as a picture (markup) instead, and so are later changes of live widgets inside it.
         private void RecordApplied(ILiveTarget target, LiveEvent liveEvent) {
+            if (liveEvent.Payload is IUnrecorded) { return; }
             if (target is RegionWidget slot && (liveEvent.Operation == "set" || liveEvent.Operation == "clear")) {
                 TrackMembers(slot);
                 if (liveEvent.Operation == "set" && liveEvent.Payload is IWidget) {

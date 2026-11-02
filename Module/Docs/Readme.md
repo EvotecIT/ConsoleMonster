@@ -90,9 +90,9 @@ Runs Pester tests with a live ConsoleMonster dashboard and a summary table.
 Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagFilter, FullNameFilter, Container, Output, CI, PassThru) or a -Configuration (a PesterConfiguration or a hashtable), and runs Pester 5 or 6, imported when first needed. While the tests run, an inline area (or the full screen with -FullScreen) shows the run totals and the clock, the test files as lanes with passed, failed and skipped counts, the running test, and with -FullScreen the failures (expected against actual, the file and line as a link), the slowest tests and a histogram of durations. When the run ends a table of results by file, the failures and the totals are written to the scrollback, and -ReportPath saves the final dashboard. In redirected output, jobs and CI logs the output is one line per failure and a summary line. Pester's result object is returned with -PassThru (or Run.PassThru), Run.Throw and Run.Exit (-CI) are applied after the summary, and Write-Host output from tests appears above the inline area. Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter; when the internals are not what it expects (or with Run.Parallel or Output None) Pester runs unchanged with its own output and the summary table follows. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ### [Invoke-ConsoleRecording](Invoke-ConsoleRecording.md)
-Records a script or an interactive child shell and saves the result.
+Records a script, an app on a headless terminal, or an interactive child shell and saves the result.
 
-Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.
+Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ### [Invoke-ConsoleRun](Invoke-ConsoleRun.md)
 Runs a script block for every input item, optionally in parallel, with a live view of the run.
@@ -174,6 +174,11 @@ Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or 
 
 The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
 
+### [New-ConsoleImage](New-ConsoleImage.md)
+Creates an image to place inside panels, columns and dashboards.
+
+Inside layouts and live dashboards the image is drawn with half blocks on terminals with 256 colours or more, so it redraws cleanly with the rest of the screen; redirected and no-colour output gets [image: name WxH]. To print an image on its own with the terminal's real pixels, use Show-ConsoleImage.
+
 ### [New-ConsoleKeyValue](New-ConsoleKeyValue.md)
 Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.
 
@@ -197,7 +202,7 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 ### [New-ConsoleLogRegion](New-ConsoleLogRegion.md)
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of Message/Level records calls (each with a level and a time) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.
 
 ### [New-ConsoleMenu](New-ConsoleMenu.md)
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
@@ -234,6 +239,11 @@ Creates a horizontal rule, optionally with a title.
 
 The line uses the border colour and the glyph tier's line character.
 
+### [New-ConsoleScreen](New-ConsoleScreen.md)
+Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.
+
+Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.
+
 ### [New-ConsoleScrollView](New-ConsoleScrollView.md)
 Creates a clipped vertical viewport for a small widget tree inside an app.
 
@@ -252,7 +262,7 @@ Each widget the scriptblock emits is a layer, bottom first; later layers paint o
 ### [New-ConsoleStatusList](New-ConsoleStatusList.md)
 Creates a checklist of items with status markers.
 
-Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List or a horizontal Strip. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
+Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ### [New-ConsoleSummaryBar](New-ConsoleSummaryBar.md)
 Creates a summary bar: one line with progress, done of total, the time left and result counters.
@@ -352,7 +362,7 @@ Pipe objects to choose a view automatically, or use View for a table, list, obje
 ### [Show-ConsoleApp](Show-ConsoleApp.md)
 Runs native input controls and dependent displays in a console application.
 
-Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders run on that same thread. Escape exits. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
+Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ### [Show-ConsoleDemo](Show-ConsoleDemo.md)
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
@@ -373,6 +383,11 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
 Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
+
+### [Show-ConsoleImage](Show-ConsoleImage.md)
+Shows an image in the console, at the size you ask for in cells.
+
+Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel). Other terminals with 256 colours or more get half blocks. Redirected, CI, remote, 16-colour and no-colour output, the ISE and sessions with a transcript running get one line, [image: name WxH]. Get-ConsoleCapability shows the protocol in ImageProtocol. The aspect ratio is always kept. To put an image inside a panel or dashboard, use New-ConsoleImage.
 
 ### [Show-ConsoleMenu](Show-ConsoleMenu.md)
 Shows a menu until the user exits.

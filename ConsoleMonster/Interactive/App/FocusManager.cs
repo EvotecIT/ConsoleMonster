@@ -11,6 +11,8 @@ namespace ConsoleMonster.Interactive {
         private InputControl? _current;
         private bool _disposed;
         private HashSet<InputControl>? _mounted;
+        private int _version;
+        private int _holds;
 
         /// <summary>Discovers inputs in declaration order and applies their tab-order overrides.</summary>
         /// <param name="layout">The stable input layout.</param>
@@ -41,12 +43,22 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Moves to the previous enabled control, wrapping at the beginning.</summary>
         public void MovePrevious() => Move(-1);
 
-        internal void SetMounted(IEnumerable<InputControl> controls) {
+        // Counts focus changes, so a frame arranged before a change cannot move focus back (see SetMounted).
+        internal int Version { get { lock (_gate) { return _version; } } }
+
+        internal void SetMounted(IEnumerable<InputControl> controls, int? arrangedAt = null) {
             lock (_gate) {
+                // A frame arranged before focus last changed, or during a screen switch, shows inputs the app has moved
+                // focus away from; it changes nothing, and the next frame reconciles.
+                if (arrangedAt.HasValue && (_holds > 0 || arrangedAt.Value != _version)) { return; }
                 _mounted = new HashSet<InputControl>(controls);
                 if (_current == null || !_mounted.Contains(_current)) { Move(1); }
             }
         }
+
+        // Brackets a screen switch: frames arranged in between cannot move focus.
+        internal void Hold() { lock (_gate) { _holds++; _version++; } }
+        internal void Release() { lock (_gate) { _holds = Math.Max(0, _holds - 1); _version++; } }
 
         /// <summary>Focuses a control belonging to this manager, if enabled.</summary>
         /// <param name="control">The target control.</param>
@@ -58,6 +70,7 @@ namespace ConsoleMonster.Interactive {
                 if (!control.Enabled) { return; }
                 InputControl? previous = _current;
                 _current = control;
+                if (previous != control) { _version++; }
                 if (previous != null && previous != control) { previous.Focused = false; }
                 control.Focused = true;
             }
@@ -99,7 +112,7 @@ namespace ConsoleMonster.Interactive {
                 }
                 InputControl? previous = _current;
                 _current = null;
-                if (previous != null) { previous.Focused = false; }
+                if (previous != null) { _version++; previous.Focused = false; }
             }
         }
 

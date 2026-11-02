@@ -90,7 +90,7 @@ namespace ConsoleMonster.Views {
                 case ConsoleViewKind.Empty:
                     return new TextBlock(string.Empty);
                 case ConsoleViewKind.Text:
-                    return new TextBlock(Markup.Escape(string.Join("\n", items.Select(item => Values.ValueShaper.Text(item)))));
+                    return Values.Placeholders.Block(Markup.Escape(string.Join("\n", items.Select(item => Values.ValueShaper.ShapedText(item, new Values.ShapeOptions())))));
                 case ConsoleViewKind.Code: case ConsoleViewKind.Json:
                     return BuildCode(items, options);
                 case ConsoleViewKind.List:
@@ -348,12 +348,12 @@ namespace ConsoleMonster.Views {
                 List<string> parts = new List<string>();
                 foreach (object? item in sequence) {
                     if (parts.Count == 5) {
-                        parts.Add("…");
+                        parts.Add(Values.Placeholders.Ellipsis);
                         break;
                     }
                     parts.Add(Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty);
                 }
-                return "{" + string.Join(", ", parts) + "}";
+                return Values.Placeholders.Cell("{" + string.Join(", ", parts) + "}");
             }
             return Convert.ToString(value, CultureInfo.CurrentCulture);
         }

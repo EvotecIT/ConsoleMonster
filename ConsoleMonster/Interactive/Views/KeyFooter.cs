@@ -58,8 +58,7 @@ namespace ConsoleMonster.Interactive {
         }
         public static bool Dispatch(IReadOnlyList<KeyBinding> bindings, Input.InputEvent input) {
             foreach (KeyBinding b in bindings) {
-                if (b.Chords.Count > 0 && b.Matches(input)) {
-                    b.Action();
+                if (b.TryInvoke(input)) {
                     return true;
                 }
             }

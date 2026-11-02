@@ -19,6 +19,8 @@ namespace ConsoleMonster.Interactive {
         public int? PageSize { get; set; }
         /// <summary>Shows a single-choice list with radio indicators.</summary>
         public bool Radio { get; set; }
+        /// <summary>Shows one row with the current choice and opens the list over the content below.</summary>
+        public bool Dropdown { get; set; }
         /// <summary>The prepared choices, retaining original values and enabled/selected metadata.</summary>
         public IList<Choice> Choices { get; } = new List<Choice>();
     }

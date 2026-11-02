@@ -27,6 +27,13 @@ On Windows, `-LogName` selects a local event log through `Get-WinEvent`:
 Watch-ConsoleLog -LogName Application -Tail 20 -Highlight database
 ```
 
+Event-log lines show their provider in a tag column, each provider in its own colour; plain output keeps the original `[Provider#Id]` text. `-Level Warn` keeps warnings and errors:
+
+```powershell
+# Windows only.
+Watch-ConsoleLog -LogName System -Level Warn
+```
+
 The Windows event-log command is a usage example. The website's captured evidence uses only the supplied synthetic file and does not query Windows logs.
 
 | Option | Default | Meaning |
@@ -37,6 +44,7 @@ The Windows event-log command is a usage example. The website's captured evidenc
 | `-PollIntervalSeconds` | `0.25` | Seconds between source polls. |
 | `-Capacity` | `1000` | Maximum retained history entries in the live view. |
 | `-Filter` | Empty | Required literal substring in each original line. |
+| `-Level` | Every level | Lowest level kept: `Warn` keeps warnings and errors, `Verbose` drops only debug lines. |
 | `-Highlight` | Empty | Literal substring emphasized in the live view. |
 | `-TimestampFormat` | Automatic | Invariant .NET source timestamp format for the live view. Defaults to `HH:mm:ss`, adding `yyyy-MM-dd` when retained entries span source calendar days, at both compact and wide widths. |
 | `-Plain` | Off | Force original-line output and never acquire input. |
@@ -54,7 +62,7 @@ Use `Watch-ConsoleLog -Path ./service.log -TimestampFormat 'yyyy-MM-dd HH:mm:ss 
 | End | Return to the newest entries and resume following. |
 | q / Escape / Ctrl+C | End the tail and restore the terminal. |
 
-New entries still arrive while paused. The warning-colored `⏸ Paused · viewing history` state shows how many new lines have been applied since pausing, including each row of a multiline entry. The counter resets when End or forward navigation resumes following. The viewport stays on its retained history until navigation resumes following; eviction can remove the oldest history. Long messages are clipped to the available row width rather than wrapped. The footer highlights the keys in `q quit · PgUp history · End follow`; Escape and Ctrl+C also quit.
+The view shares its follow, pause and filter model with the app `LogViewport` (see [Full-screen controls](Full-Screen-Controls.md)), so both behave the same way. New entries still arrive while paused. The warning-colored `⏸ Paused · viewing history` state shows how many new lines have been applied since pausing, including each row of a multiline entry. The counter resets when End or forward navigation resumes following. The viewport stays on its retained history until navigation resumes following; eviction can remove the oldest history. Long messages are clipped to the available row width rather than wrapped. The footer highlights the keys in `q quit · PgUp history · End follow`; Escape and Ctrl+C also quit.
 
 ## C#
 

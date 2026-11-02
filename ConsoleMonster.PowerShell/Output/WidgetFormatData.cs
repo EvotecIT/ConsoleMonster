@@ -7,7 +7,7 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// Generates ConsoleMonster.format.ps1xml from the widget types themselves: every public, non-abstract
-    /// <see cref="IWidget"/> in ConsoleMonster and ConsoleMonster.PowerShell, and <see cref="ConsoleRendering"/> (live or deserialized), gets the
+    /// <see cref="IWidget"/> in ConsoleMonster, ConsoleMonster.Graphics and ConsoleMonster.PowerShell, and <see cref="ConsoleRendering"/> (live or deserialized), gets the
     /// view that draws it (<see cref="WidgetFormatter"/>). Nothing is listed by hand: Module/Build/Update-ConsoleFormatData.ps1
     /// writes the file and a test fails when it is out of date.
     /// </summary>
@@ -22,7 +22,8 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>The type names.</returns>
         public static IReadOnlyList<string> TypeNames() {
             SortedSet<string> names = new SortedSet<string>(StringComparer.Ordinal) { typeof(ConsoleRendering).FullName!, DeserializedRendering };
-            foreach (Type type in typeof(IWidget).Assembly.GetExportedTypes().Concat(typeof(WidgetFormatData).Assembly.GetExportedTypes())) {
+            foreach (Type type in typeof(IWidget).Assembly.GetExportedTypes().Concat(typeof(WidgetFormatData).Assembly.GetExportedTypes())
+                .Concat(typeof(Graphics.ConsoleImage).Assembly.GetExportedTypes())) {
                 if (type.IsClass && !type.IsAbstract && !type.IsGenericTypeDefinition && typeof(IWidget).IsAssignableFrom(type) && type.FullName != null) {
                     names.Add(type.FullName);
                 }

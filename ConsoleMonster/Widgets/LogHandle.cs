@@ -12,7 +12,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Writes a line.</summary>
         /// <param name="text">The text.</param>
         /// <param name="level">The level: info, warn, err, verbose, debug, pass.</param>
-        public void Write(string text, string level = "info") => Post("write", text: text, state: level);
+        /// <param name="tag">The source of the line (a job, server or component), or null.</param>
+        public void Write(string text, string level = "info", string? tag = null) => Post("write", key: tag, text: text, state: level);
 
         /// <summary>Writes a warning.</summary>
         /// <param name="text">The text.</param>

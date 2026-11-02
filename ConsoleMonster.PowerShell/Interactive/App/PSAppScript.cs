@@ -47,7 +47,7 @@ namespace ConsoleMonster.PowerShell {
         internal static PSAppScript? BindingScript(AppBinding binding) =>
             Bindings.TryGetValue(binding, out PSAppScript? script) ? script : null;
 
-        /// <summary>Invokes with native state and commits changed keys through the public state API. Output stays local.</summary>
+        /// <summary>Invokes with native state and commits changed keys through the public state API. Output stays local. A value (an edit, a click, a numbered key) comes first: param($Value, $State).</summary>
         internal Collection<PSObject> Invoke(AppState state, InputControl? control = null, object? value = null) {
             if (Thread.CurrentThread.ManagedThreadId != _thread || !ReferenceEquals(Runspace.DefaultRunspace, _runspace)) {
                 throw new InvalidOperationException(PSAppMessages.ActiveInputThread);
@@ -58,7 +58,7 @@ namespace ConsoleMonster.PowerShell {
                 new PSVariable("State", values), new PSVariable("Value", value), new PSVariable("Control", control)
             };
             Collection<PSObject> output = _script.InvokeWithContext(null, variables,
-                control == null ? new object?[] { values } : new object?[] { value, values });
+                control == null && value == null ? new object?[] { values } : new object?[] { value, values });
             // AppState has no removal API. State is a value map: add or assign keys to write back.
             foreach (DictionaryEntry entry in values) {
                 if (!(entry.Key is string key)) {

@@ -13,7 +13,7 @@ Choices use the shared prompt conversion and retain original objects as values. 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Radio] [-PageSize <Int32>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Radio] [-Dropdown] [-PageSize <Int32>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -69,6 +69,22 @@ Display property name or scriptblock for object choices, as in Read-ConsoleSelec
 
 ```yaml
 Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Dropdown
+Shows one row with the current choice; Enter, Space, Down or a click opens the list over the content below.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

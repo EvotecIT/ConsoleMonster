@@ -29,7 +29,8 @@ namespace ConsoleMonster.Input {
     public sealed class InputEvent {
         private InputEvent(InputEventKind kind, ConsoleKey key, char character, KeyModifiers modifiers, string? text, int width, int height,
             int column = 0, int row = 0, int mouseButton = 0, bool mousePressed = false,
-            MouseAction mouseAction = MouseAction.Down, int wheelDelta = 0, int horizontalWheelDelta = 0, int heldButtons = 0) {
+            MouseAction mouseAction = MouseAction.Down, int wheelDelta = 0, int horizontalWheelDelta = 0, int heldButtons = 0,
+            ConsoleKey physicalKey = 0, bool physicalShift = false) {
             Kind = kind;
             Key = key;
             Char = character;
@@ -45,6 +46,8 @@ namespace ConsoleMonster.Input {
             WheelDelta = wheelDelta;
             HorizontalWheelDelta = horizontalWheelDelta;
             HeldButtons = heldButtons;
+            PhysicalKey = physicalKey;
+            PhysicalShift = physicalShift;
         }
 
         /// <summary>What the event describes.</summary>
@@ -88,6 +91,11 @@ namespace ConsoleMonster.Input {
         public int HorizontalWheelDelta { get; }
         /// <summary>Held-button bitmask: left 1, middle 2, right 4.</summary>
         public int HeldButtons { get; }
+
+        // The key that produced a typed character, where the source reports it (Windows records, win32-input-mode). Character
+        // chords fall back to it when a non-Latin layout types another letter on the same key.
+        internal ConsoleKey PhysicalKey { get; }
+        internal bool PhysicalShift { get; }
 
         /// <summary>Creates a normalized pointer event. Motion/wheel events use button zero when no button changed.</summary>
         public static InputEvent Pointer(int column, int row, MouseAction action, int button = 0, int wheelDelta = 0,
@@ -145,6 +153,10 @@ namespace ConsoleMonster.Input {
         public static InputEvent Character(char character, KeyModifiers modifiers = KeyModifiers.None) {
             return new InputEvent(InputEventKind.Key, KeyFor(character), character, modifiers & ~KeyModifiers.Shift, null, 0, 0);
         }
+
+        internal static InputEvent Character(char character, KeyModifiers modifiers, ConsoleKey physicalKey) =>
+            new InputEvent(InputEventKind.Key, KeyFor(character), character, modifiers & ~KeyModifiers.Shift, null, 0, 0,
+                physicalKey: physicalKey, physicalShift: (modifiers & KeyModifiers.Shift) != 0);
 
         /// <summary>Creates a paste.</summary>
         /// <param name="text">The pasted text.</param>

@@ -77,13 +77,16 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void PausedLogRetainsItsSurvivingVisibleRowsAcrossMultilineEviction() {
-            var log = new LogViewport("Output") { Height = 2, Capacity = 8, ShowElapsed = false };
+            // Two log rows and the paused state line inside the frame.
+            var log = new LogViewport("Output") { Height = 3, Capacity = 8, ShowElapsed = false };
             log.Write(string.Join("\n", Enumerable.Range(0, 8).Select(i => "line-" + i)));
             log.ScrollOffset = 2;
-            string before = FrameComposer.Compose(log, 40, 4, Context).ToPlainText();
-            Assert.Contains("line-4", before); Assert.Contains("line-5", before);
+            string[] before = FrameComposer.Compose(log, 40, 5, Context).ToPlainText().Split('\n');
+            Assert.Contains("line-4", before[1]); Assert.Contains("line-5", before[2]);
             log.Write("line-8\nline-9\nline-10");
-            Assert.Equal(before, FrameComposer.Compose(log, 40, 4, Context).ToPlainText());
+            string[] after = FrameComposer.Compose(log, 40, 5, Context).ToPlainText().Split('\n');
+            Assert.Equal(before[1], after[1]); Assert.Equal(before[2], after[2]);
+            Assert.Contains("Paused · 3 new", after[3]);
             Assert.Equal(8, log.Entries.Count);
         }
 

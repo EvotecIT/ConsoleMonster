@@ -98,8 +98,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
             for (int i = 0; i < 1000; i++) { log.Write("entry " + i); }
             Assert.Equal(20, log.Entries.Count); Assert.Equal("entry 980", log.Entries.First().Text);
             var context = Terminal.CreateContext(TerminalProfile.Fixed(60, 12));
-            log.HandleInput(InputEvent.Press(ConsoleKey.Home), context); Assert.Equal(19, log.ScrollOffset);
-            log.HandleInput(InputEvent.Press(ConsoleKey.End), context); Assert.Equal(0, log.ScrollOffset);
+            log.HandleInput(InputEvent.Press(ConsoleKey.Home), context);
+            Assert.False(log.Following); Assert.Contains("entry 980", FrameComposer.Compose(log, 60, 12, context).ToPlainText());
+            log.HandleInput(InputEvent.Press(ConsoleKey.End), context); Assert.Equal(0, log.ScrollOffset); Assert.True(log.Following);
         }
 
         [Fact]

@@ -9,9 +9,10 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Glyphs {
     /// <summary>
     /// What emoji and special symbols become on glyph tiers that cannot show them: ✅ is √ on the Basic tier and [OK] on
-    /// ASCII, ⚠️ is !, ❌ is × or x, ➜ is → or ->. Applied to text that goes through markup or rich text (widget labels,
-    /// titles, table cells, log lines) before it is measured, so widths stay right. The Full tier shows the text as written.
-    /// Apps add or change entries with <see cref="Register"/>.
+    /// ASCII, ⚠️ is !, ❌ is × or x, ➜ is → or ->. Rendering never applies it to the caller's text (labels, titles, table
+    /// cells, log lines), which stays as written on every tier; the <c>Emoji</c> cell presenter and apps that want it for
+    /// their own symbols call it explicitly. The Full tier shows the text as written. Apps add or change entries with
+    /// <see cref="Register"/>.
     /// </summary>
     public static partial class SymbolFallback {
         private static readonly object Gate = new object();

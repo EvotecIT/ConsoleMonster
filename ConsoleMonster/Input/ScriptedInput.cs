@@ -10,13 +10,14 @@ namespace ConsoleMonster.Input {
     /// Input from a script, for tests, demos and recordings: <c>Down Down Space "ad.evotec" Enter</c>.
     /// <list type="bullet">
     /// <item>key names as <see cref="KeyChord.Parse"/> accepts them (<c>Ctrl+K</c>, <c>Shift+Tab</c>, <c>F2</c>, <c>?</c>);</item>
-    /// <item><c>Down*3</c> repeats a key;</item>
+    /// <item><c>Down*3</c> repeats a key (at most 10000 times);</item>
     /// <item>quoted text (<c>"text"</c> or <c>'text'</c>) types each character;</item>
     /// <item><c>paste:"text"</c> pastes; <c>resize:80x24</c> resizes; <c>wait:250</c> pauses (milliseconds).</item>
     /// </list>
     /// Reading past the end throws <see cref="InputClosedException"/>, so a test whose script is too short fails instead of hanging.
     /// </summary>
     public sealed class ScriptedInput : IInputSource {
+        private const int MaxRepeat = 10000;
         private readonly Queue<Step> _steps = new Queue<Step>();
         private DateTime _waitUntil = DateTime.MinValue;
 
@@ -151,7 +152,7 @@ namespace ConsoleMonster.Input {
             return events;
         }
 
-        private static List<Step> Parse(string script) {
+        internal static List<Step> Parse(string script) {
             List<Step> steps = new List<Step>();
             int i = 0;
             while (i < script.Length) {
@@ -194,6 +195,8 @@ namespace ConsoleMonster.Input {
                 int repeat = 1;
                 int star = token.LastIndexOf('*');
                 if (star > 0 && star < token.Length - 1 && int.TryParse(token.Substring(star + 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out int count)) {
+                    // Scripts also arrive from the debug socket and the browser host; a repeat must not exhaust memory.
+                    if (count > MaxRepeat) { throw new FormatException("A key repeats at most " + MaxRepeat.ToString(CultureInfo.InvariantCulture) + " times."); }
                     repeat = count;
                     token = token.Substring(0, star);
                 }
@@ -231,7 +234,7 @@ namespace ConsoleMonster.Input {
         public void Dispose() {
         }
 
-        private sealed class Step {
+        internal sealed class Step {
             public Step(Func<bool> ready, TimeSpan timeout) { Ready = ready; ReadyTimeout = timeout; }
             public Step(InputEvent? e, int wait) {
                 Event = e;

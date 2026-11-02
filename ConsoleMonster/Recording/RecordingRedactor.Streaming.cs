@@ -17,38 +17,42 @@ namespace ConsoleMonster.Sessions {
         }
 
         /// <summary>Keeps visible and raw pattern lookahead, incomplete controls and unfinished built-in credentials.</summary>
-        internal int PrefixLength(string text) {
+        internal int PrefixLength(string text, IReadOnlyList<bool>? rowChanges = null) {
             int boundary = text.Length;
             foreach (TerminalInterpretation interpretation in Interpretations) {
-                boundary = Math.Min(boundary, ProjectionPrefixLength(text, interpretation));
+                boundary = Math.Min(boundary, ProjectionPrefixLength(text, interpretation, rowChanges));
             }
             if (boundary == 0) { return 0; }
-            int pending = PendingCredentialStart(text);
-            return pending >= 0 ? Math.Min(boundary, pending) : boundary;
+            int pending = Math.Min(PendingCredentialStart(text, PendingRunPatterns), PendingCredentialStart(text, PendingWordPatterns));
+            return Math.Min(boundary, pending);
         }
 
-        private int ProjectionPrefixLength(string text, TerminalInterpretation interpretation) {
+        private int ProjectionPrefixLength(string text, TerminalInterpretation interpretation, IReadOnlyList<bool>? rowChanges) {
             string visible = VisibleText(text, stopAtIncomplete: true, out List<int> positions, out List<SourceRange> controls, interpretation);
             if (positions.Count <= _overlap) { return 0; }
             int boundary = Math.Min(positions[positions.Count - _overlap], text.Length - _overlap);
             foreach (SourceRange control in controls) {
                 if (control.Start < boundary && control.End > boundary) { boundary = control.Start; }
             }
-            int pending = PendingCredentialStart(visible);
-            if (pending >= 0) { boundary = Math.Min(boundary, positions[pending]); }
+            int pending = PendingCredentialStart(visible, PendingWordPatterns);
+            if (pending < visible.Length) { boundary = Math.Min(boundary, positions[pending]); }
+            // An unfinished key/value is pending only within the visible run that ends the record.
+            string runs = VisibleText(text, stopAtIncomplete: true, out List<int> runPositions, out _, interpretation, runBreaks: true, rowChanges);
+            pending = PendingCredentialStart(runs, PendingRunPatterns);
+            if (pending < runs.Length) { boundary = Math.Min(boundary, runPositions[pending]); }
             if (boundary > 0 && char.IsHighSurrogate(text[boundary - 1]) && char.IsLowSurrogate(text[boundary])) { boundary--; }
             return boundary;
         }
 
-        /// <summary>Finds the earliest unfinished credential while keeping each rule's bounded search intact.</summary>
-        private static int PendingCredentialStart(string text) {
+        /// <summary>Finds the earliest unfinished credential (or the text length) while keeping each rule's bounded search intact.</summary>
+        private static int PendingCredentialStart(string text, Regex[] patterns) {
             int start = text.Length;
-            foreach (Regex pattern in PendingCredentialPatterns) {
+            foreach (Regex pattern in patterns) {
                 Match pending = pattern.Match(text);
                 if (pending.Success) { start = Math.Min(start, pending.Index); }
                 if (start == 0) { break; }
             }
-            return start < text.Length ? start : -1;
+            return start;
         }
 
         /// <summary>Retains a previous visible character and following controls for word-boundary context.</summary>

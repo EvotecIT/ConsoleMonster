@@ -31,6 +31,15 @@ namespace ConsoleMonster {
         // capture before LiveSession.Start saves the native mode, even when its first Terminal call follows the guard.
         static Terminal() { }
 
+        /// <summary>Whether <see cref="Profile"/> was assigned rather than detected, so its size is kept as it is.</summary>
+        internal static bool HasExplicitProfile {
+            get {
+                lock (Gate) {
+                    return _explicitProfile;
+                }
+            }
+        }
+
         // Test hook: returns { width, height } of the visible window, or null when unknown. Null uses the console.
         internal static Func<int[]?>? WindowSizeSource { get; set; }
 
@@ -286,7 +295,7 @@ namespace ConsoleMonster {
         /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
         public static void WriteMarkup(string markup, bool newLine, TerminalProfile? profile = null, ITerminalWriter? writer = null) {
             TerminalProfile p = profile ?? GetCurrentProfile();
-            IReadOnlyList<StyledLine> lines = Glyphs.SymbolFallback.Apply(Markup.Parse(markup, Theme, p.ColorDepth), p.Glyphs, p.WidthProfile).Lines;
+            IReadOnlyList<StyledLine> lines = CreateContext(p).Markup(markup).Lines;
             if (!p.IsOutputRedirected && p.Mode == OutputMode.Interactive) {
                 // Long markup wraps at word boundaries with its styles, like a text block, instead of breaking mid-word
                 // at the window edge. Redirected, CI and plain output keep whole lines for logs.

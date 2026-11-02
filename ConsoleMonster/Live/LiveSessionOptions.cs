@@ -99,6 +99,16 @@ namespace ConsoleMonster.Live {
         /// <summary>Borrowed recording writer; flushed but left open at shutdown.</summary>
         public TextWriter? RecordWriter { get; set; }
 
+        /// <summary>
+        /// An in-process <see cref="Sessions.SessionRecorder"/> that receives exactly what this session draws, frame by frame:
+        /// the whole composed screen with its log panel, footer, dialogs and prompts, which <see cref="RecordPath"/> (widget
+        /// updates replayed into the same definition) cannot hold for an interactive app. The recording follows the window
+        /// size. The caller owns the recorder and disposes it after the session ends; export it with
+        /// <see cref="Sessions.SessionRecording"/> or <c>Export-ConsoleRecording</c> to HTML, SVG, GIF or APNG.
+        /// Requires the session to create its own output (no <see cref="Output"/>).
+        /// </summary>
+        public Sessions.SessionRecorder? Recorder { get; set; }
+
         private int _autoRecord;
         private long _autoRecordMaxBytes = 50L * 1024 * 1024;
 

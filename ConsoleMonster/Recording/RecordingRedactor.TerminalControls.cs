@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,8 +8,12 @@ namespace ConsoleMonster.Sessions {
             TerminalInterpretation.OpaqueStrings, TerminalInterpretation.Standard, TerminalInterpretation.Replay
         };
 
-        /// <summary>Projects visible characters while retaining their original source offsets.</summary>
-        private static string VisibleText(string text, bool stopAtIncomplete, out List<int> positions, out List<SourceRange> controls, TerminalInterpretation interpretation) {
+        /// <summary>
+        /// Projects visible characters while retaining their original source offsets. Full-screen repaints
+        /// place later text with cursor controls rather than newlines; with <paramref name="runBreaks"/> those
+        /// controls project as a separator mapped to the control, so an open-ended value ends there.
+        /// </summary>
+        private static string VisibleText(string text, bool stopAtIncomplete, out List<int> positions, out List<SourceRange> controls, TerminalInterpretation interpretation, bool runBreaks = false, IReadOnlyList<bool>? rowChanges = null) {
             controls = TerminalControls(text, out int incompleteAt, interpretation);
             int end = stopAtIncomplete && incompleteAt >= 0 ? incompleteAt : text.Length;
             StringBuilder visible = new StringBuilder(end);
@@ -16,12 +21,49 @@ namespace ConsoleMonster.Sessions {
             int controlIndex = 0;
             for (int i = 0; i < end; i++) {
                 if (controlIndex < controls.Count && i == controls[controlIndex].Start) {
-                    i = controls[controlIndex++].End - 1;
+                    SourceRange control = controls[controlIndex++];
+                    if (runBreaks && EndsVisibleRun(text, control, rowChanges)) { visible.Append(RunBreak); positions.Add(control.Start); }
+                    i = control.End - 1;
                 } else {
                     visible.Append(text[i]); positions.Add(i);
                 }
             }
             return visible.ToString();
+        }
+
+        // A non-whitespace control character: run rules' value classes and \s cannot cross it.
+        private const char RunBreak = '\u001f';
+
+        /// <summary>A projected run break stands for a control, never for a visible character.</summary>
+        private static bool IsRunBreak(string text, string visible, List<int> positions, int index) => visible[index] != text[positions[index]];
+
+        /// <summary>
+        /// Ends a visible run where following text can no longer continue it on screen: an actual row change
+        /// from positioning (CUU, CUD, CNL, CPL, CUP, HVP, VPA, VPR, IND, NEL, RI), erasing the text
+        /// before the cursor (ED/EL 1-2), reset and alternate-screen switches. Styles, cursor visibility,
+        /// synchronized-update markers, column moves and save/restore keep the run, as on one line.
+        /// </summary>
+        private static bool EndsVisibleRun(string text, SourceRange control, IReadOnlyList<bool>? rowChanges) {
+            int length = control.End - control.Start;
+            if (text[control.Start] != '\u001b' || length < 2) { return false; }
+            char kind = text[control.Start + 1];
+            // The writer records this through VtScreen, including wrapping, scroll margins and resizing.
+            // Without that observation, keep the value pending rather than guess that a control moved rows.
+            bool movedRow = rowChanges != null && control.End <= rowChanges.Count && rowChanges[control.End - 1];
+            if (kind != '[') { return length == 2 && (kind == 'c' || movedRow && "DEM".IndexOf(kind) >= 0); }
+            if (length < 3) { return false; }
+            char final = text[control.End - 1];
+            string parameters = text.Substring(control.Start + 2, length - 3);
+            foreach (char c in parameters) { if (c < '0' || c > '?') { return false; } }
+            if (final == 'J' || final == 'K') { return parameters == "1" || parameters == "2"; }
+            if (final == 'h' || final == 'l') {
+                if (!parameters.StartsWith("?", StringComparison.Ordinal)) { return false; }
+                foreach (string mode in parameters.Substring(1).Split(';')) {
+                    if (mode == "47" || mode == "1047" || mode == "1049") { return true; }
+                }
+                return false;
+            }
+            return movedRow && "ABEFHdef".IndexOf(final) >= 0;
         }
 
         /// <summary>

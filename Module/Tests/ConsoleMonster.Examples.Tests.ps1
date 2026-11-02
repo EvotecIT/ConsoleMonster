@@ -1,4 +1,4 @@
-﻿param([string[]] $ExampleName)
+param([string[]] $ExampleName)
 
 BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
@@ -463,7 +463,7 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
         # Paced keys wait for the prompt to take the previous one, as the site's recordings do.
         $paced = if ($case['Paced']) { '$true' } else { '$false' }
-        $keys = if ($case['Input']) { "`$scriptedKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('$($case['Input'])'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = `$scriptedKeys" } else { '' }
+        $keys = if ($case['Input']) { "`$scriptedKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('$($case['Input'] -replace "'", "''")'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         # Clear-Host needs a real console on Windows; the example's interactive recording covers it.

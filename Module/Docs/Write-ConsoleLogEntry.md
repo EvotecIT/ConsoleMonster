@@ -13,7 +13,7 @@ Writes a line to the log region of a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
+Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>] [-Tag <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,6 +30,19 @@ Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowl
 ```
 
 Log a warning
+
+### EXAMPLE 2
+```powershell
+$dashboard = New-ConsoleDashboard -Title 'Patching' -Content { New-ConsoleLogRegion -NoElapsed }
+Invoke-ConsoleDashboard $dashboard {
+    foreach ($server in 'DC01', 'DC02', 'FS01') {
+        Write-ConsoleLogEntry 'Installing KB5044284' -Tag $server
+    }
+    Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'
+}
+```
+
+Tag lines with the server they came from
 
 ## PARAMETERS
 
@@ -97,8 +110,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Tag
+The source of the line (a job, server or component), shown in its own column with a colour that stays the same for that source, and matched by New-ConsoleLogRegion -Tag.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -WidgetId
-The log name; defaults to the dashboard's log region.
+The log name; defaults to the dashboard's log region. In a running app, the key of a log viewport.
 
 ```yaml
 Type: String

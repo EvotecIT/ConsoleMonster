@@ -49,6 +49,10 @@ namespace ConsoleMonster.Live {
                     object?[] values = (object?[])u.Row!.Values.Clone();
                     Add("update", u.Row.Key, LiveTable.TextOf(values), payload: values);
                 }
+            } else if (target is Phases && u.Has(nameof(u.ParentKey))) {
+                string item = u.ParentKey + Phases.ItemSeparator + u.Key;
+                if (u.Has(nameof(u.Status)) || u.Has(nameof(u.Label))) { Add("item", item, u.Label, u.Has(nameof(u.Status)) ? u.Status.ToString() : null); }
+                if (u.Has(nameof(u.Detail))) { Add("item-detail", item, u.Detail); }
             } else if (target is Phases) {
                 if (u.Has(nameof(u.Status))) { Add("state", u.Key, u.Detail, u.Status.ToString()); }
                 if (u.Has(nameof(u.Detail))) { Add("detail", u.Key, u.Detail); }

@@ -21,12 +21,15 @@ namespace ConsoleMonster.Sessions {
         private const int OutputChunkCharacters = 16384;
         private readonly SessionRecordingOptions _options;
         private readonly RecordingRedactor _redactor;
+        private readonly VtScreen _screen;
         private readonly FileStream _file;
         private readonly FileStream _metadata;
         private readonly Stopwatch _clock = Stopwatch.StartNew();
         private readonly StringBuilder _pending = new StringBuilder();
         private readonly StringBuilder _relay = new StringBuilder();
         private readonly List<Arrival> _arrivals = new List<Arrival>();
+        // Source-aligned cursor observations survive the same streaming prefix/overlap cuts as output and arrivals.
+        private readonly List<bool> _rowChanges = new List<bool>();
         private readonly List<BufferedEvent> _deferred = new List<BufferedEvent>();
         private readonly StringBuilder _control = new StringBuilder();
         private readonly List<Arrival> _controlArrivals = new List<Arrival>();
@@ -53,6 +56,7 @@ namespace ConsoleMonster.Sessions {
             options.Validate();
             _options = options;
             _redactor = new RecordingRedactor(options.Redact, options.RedactionText);
+            _screen = new VtScreen(options.Width, options.Height, keepScrollback: false);
             Mode = mode;
             Path = System.IO.Path.GetFullPath(options.Path ?? System.IO.Path.Combine(options.Folder, "ConsoleRecording-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture) + "-" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".cast"));
             string header = "{\"version\":2,\"width\":" + options.Width + ",\"height\":" + options.Height + ",\"timestamp\":" + Started.ToUnixTimeSeconds() + ",\"title\":" + Json(_redactor.Apply(options.Title)) + ",\"idle_time_limit\":" + Seconds(options.IdleLimit.TotalSeconds) + ",\"env\":{\"TERM\":\"xterm-256color\"},\"consolemonster\":{\"recording\":true,\"mode\":" + Json(mode) + ",\"host\":" + Json(_redactor.Apply(Environment.MachineName)) + "}}\n";
@@ -116,6 +120,9 @@ namespace ConsoleMonster.Sessions {
         private void AppendCharacter(char c, Arrival arrival) {
             _relay.Append(c);
             if (LimitReached) { return; }
+            int row = _screen.Cursor.Y;
+            _screen.Feed(c);
+            bool rowChanged = row != _screen.Cursor.Y;
             bool wasControl = _terminalState.IsPending || _standardTerminalState.IsPending || _replayTerminalState.IsPending;
             _terminalState.Append(c);
             _standardTerminalState.Append(c, RecordingRedactor.TerminalInterpretation.Standard);
@@ -126,7 +133,7 @@ namespace ConsoleMonster.Sessions {
                 if (lineBoundary) { _suppressRecord = false; }
                 return;
             }
-            _pending.Append(c); _arrivals.Add(arrival);
+            _pending.Append(c); _arrivals.Add(arrival); _rowChanges.Add(rowChanged);
             if (lineBoundary) { FlushPending(); }
             else if (_pending.Length >= _nextFlush) {
                 if (!_redactor.RequiresCompleteRecord) {
@@ -149,25 +156,25 @@ namespace ConsoleMonster.Sessions {
         private void ClearControl() { _control.Clear(); _controlArrivals.Clear(); }
         private void FlushPending() {
             if (_pending.Length > _contextLength && !LimitReached) {
-                RedactedOutput safe = _redactor.ApplyPrefix(_pending.ToString(), _pending.Length, _contextLength);
+                RedactedOutput safe = _redactor.ApplyPrefix(_pending.ToString(), _pending.Length, _contextLength, _rowChanges);
                 if (safe.TimedOut) { RedactionFallback("pattern timeout", suppress: false); return; }
                 QueueOutput(safe);
             }
-            _pending.Clear(); _arrivals.Clear();
+            _pending.Clear(); _arrivals.Clear(); _rowChanges.Clear();
             _contextLength = 0; _nextFlush = FlushThreshold;
             FlushDeferred();
         }
 
         private void FlushPrefix() {
             string text = _pending.ToString();
-            int prefix = _redactor.PrefixLength(text);
+            int prefix = _redactor.PrefixLength(text, _rowChanges);
             if (prefix <= _contextLength) { return; }
-            RedactedOutput safe = _redactor.ApplyPrefix(text, prefix, _contextLength);
+            RedactedOutput safe = _redactor.ApplyPrefix(text, prefix, _contextLength, _rowChanges);
             if (safe.TimedOut) { RedactionFallback("pattern timeout", suppress: true); return; }
             if (safe.SourceLength <= _contextLength) { return; }
             QueueOutput(safe);
             int retain = RecordingRedactor.ContextStart(text, safe.SourceLength);
-            _pending.Remove(0, retain); _arrivals.RemoveRange(0, retain);
+            _pending.Remove(0, retain); _arrivals.RemoveRange(0, retain); _rowChanges.RemoveRange(0, retain);
             _contextLength = safe.SourceLength - retain;
             FlushDeferred();
         }
@@ -190,7 +197,7 @@ namespace ConsoleMonster.Sessions {
 
         private void RedactionFallback(string reason, bool suppress) {
             Arrival first = _arrivals.Count > _contextLength ? _arrivals[_contextLength] : Now();
-            _pending.Clear(); _arrivals.Clear(); _contextLength = 0;
+            _pending.Clear(); _arrivals.Clear(); _rowChanges.Clear(); _contextLength = 0;
             _redactionFallbacks++; _suppressRecord = suppress; _nextFlush = FlushThreshold;
             _deferred.Add(new BufferedEvent(first, "o", "[REDACTED: " + reason + "]\r\n"));
             FlushDeferred();
@@ -217,7 +224,10 @@ namespace ConsoleMonster.Sessions {
             else { Event(item); }
         }
         public void Resize(int width, int height) {
-            if (!_disposed && !StopRequested && !LimitReached) { Queue(new BufferedEvent(Now(), "r", width + "x" + height)); }
+            if (!_disposed && !StopRequested && !LimitReached) {
+                _screen.Resize(width, height);
+                Queue(new BufferedEvent(Now(), "r", width + "x" + height));
+            }
         }
         public void Marker(string label) => Marker(label, Now());
         public void Marker(string label, TimeSpan hold, RecordingPace? pace, bool isChapter) => Marker(label, hold, pace, isChapter, Now());

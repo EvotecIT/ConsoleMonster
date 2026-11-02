@@ -2,9 +2,10 @@ using System;
 using System.Threading;
 
 namespace ConsoleMonster.Interactive {
-    /// <summary>Modal form service attached to one application run. Dialog callbacks execute on the owning app thread.</summary>
+    /// <summary>Dialogs and toasts for one application run, drawn on the app's overlay layer. Open them on the owning app thread; dialog callbacks run there too.</summary>
     public sealed class AppDialogs {
         private Action<Modal>? _show;
+        private Action<Toast>? _toast;
         private Func<bool>? _open;
         private int _thread;
         /// <summary>Whether this app currently has a modal input scope.</summary>
@@ -17,10 +18,17 @@ namespace ConsoleMonster.Interactive {
             if (Open) { throw new InvalidOperationException("Close the current modal before opening another form."); }
             _show(new FormDialogModal<T>(dialog, completed));
         }
+        /// <summary>Shows a toast in the footer row for its duration, over the key hints. A newer toast replaces it.</summary>
+        public void Show(Toast toast) {
+            if (toast == null) { throw new ArgumentNullException(nameof(toast)); }
+            if (_toast == null || _thread != Thread.CurrentThread.ManagedThreadId) { throw new InvalidOperationException("Toasts must open on their owning app thread."); }
+            _toast(toast);
+        }
+        internal void AttachToasts(Action<Toast> toast) => _toast = toast;
         internal void Attach(Action<Modal> show, Func<bool> open) {
             if (_show != null) { throw new InvalidOperationException("This dialog service already belongs to an app."); }
             _show = show; _open = open; _thread = Thread.CurrentThread.ManagedThreadId;
         }
-        internal void Detach() { _show = null; _open = null; _thread = 0; }
+        internal void Detach() { _show = null; _open = null; _toast = null; _thread = 0; }
     }
 }

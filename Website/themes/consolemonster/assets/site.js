@@ -169,6 +169,17 @@
     });
     code.classList.add('cm-ident');
   });
+  // Command pages show a command in use before its syntax: Examples move ahead of Syntax, in the page and its contents.
+  var syntax = document.querySelector('.pf-api-docs section#syntax');
+  var examples = document.querySelector('.pf-api-docs section#examples');
+  if (syntax && examples && syntax.compareDocumentPosition(examples) & Node.DOCUMENT_POSITION_FOLLOWING) {
+    syntax.parentNode.insertBefore(examples, syntax);
+    document.querySelectorAll('.pf-api-docs a[href="#examples"]').forEach(function (link) {
+      var item = link.closest('li');
+      var before = item && item.parentNode.querySelector(':scope > li > a[href="#syntax"]');
+      if (before) item.parentNode.insertBefore(item, before.parentNode);
+    });
+  }
   // Markdown fences become the shared code block: a caption with the language and a copy action.
   // dotnet commands (with the cd that goes with them) are fenced as terminal and labelled Terminal; CodeGuard.cs checks the dotnet part.
   var names = { csharp: 'C#', cs: 'C#', powershell: 'PowerShell', ps1: 'PowerShell', json: 'JSON', bash: 'Shell', terminal: 'Terminal', text: 'Text', xml: 'XML', yaml: 'YAML' };

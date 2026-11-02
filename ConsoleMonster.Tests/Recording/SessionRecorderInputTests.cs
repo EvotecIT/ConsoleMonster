@@ -13,14 +13,17 @@ namespace ConsoleMonster.Tests {
         [Fact]
         public void ReadinessWaitSeesEarlyOutputAndInputResponseBeforeDrain() {
             var options = Options();
+            // Windows PowerShell startup can take longer under hosted CI load; output signals end each wait immediately.
+            TimeSpan readinessCeiling = TimeSpan.FromMinutes(1);
+            options.Timeout = readinessCeiling;
             options.Shell = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "powershell.exe" : "/bin/sh";
             foreach (string argument in RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? new[] { "-NoLogo", "-NoProfile", "-Command", "[Console]::Write('READY'); $line = [Console]::ReadLine(); [Console]::Write('ACK:' + $line)" }
                 : new[] { "-c", "printf READY; read line; printf 'ACK:%s' \"$line\"" }) { options.Arguments.Add(argument); }
             using (var recorder = SessionRecorder.Start(options)) {
-                recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+                recorder.WaitForOutput("READY", readinessCeiling);
                 recorder.SendInputAfter(TimeSpan.FromMilliseconds(10), "hello\r");
-                recorder.WaitForOutput("ACK:hello", TimeSpan.FromSeconds(10));
+                recorder.WaitForOutput("ACK:hello", readinessCeiling);
                 recorder.WaitForExit(default); // Existing CancellationToken call remains unambiguous.
                 Assert.Equal(0, recorder.ExitCode);
                 Assert.Throws<ObjectDisposedException>(() => recorder.WaitForOutput("READY", TimeSpan.FromSeconds(1)));

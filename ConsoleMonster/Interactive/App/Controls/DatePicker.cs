@@ -102,6 +102,16 @@ namespace ConsoleMonster.Interactive {
                 return true;
             } catch (ArgumentOutOfRangeException) { return true; }
         }
+        internal override bool Takes(KeyChord chord, RenderContext context) {
+            switch (chord.Key) {
+                case ConsoleKey.LeftArrow: case ConsoleKey.RightArrow: case ConsoleKey.UpArrow: case ConsoleKey.DownArrow:
+                case ConsoleKey.PageUp: case ConsoleKey.PageDown: case ConsoleKey.Home: case ConsoleKey.End: case ConsoleKey.Enter:
+                    return true;
+                case ConsoleKey.Spacebar: return Range;
+                case ConsoleKey.Escape: return Read(() => _anchor.HasValue);
+            }
+            return false;
+        }
         /// <inheritdoc />
         protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
             if (_calendar == null) { return false; }

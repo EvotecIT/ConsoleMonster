@@ -74,12 +74,15 @@ namespace ConsoleMonster.Styling {
                 overlay.Link ?? Link);
         }
 
-        /// <summary>Downsamples both colours to the given depth; decorations are dropped for <see cref="ColorDepth.None"/>.</summary>
+        /// <summary>
+        /// Downsamples both colours to the given depth; colours and decorations are dropped for <see cref="ColorDepth.None"/>,
+        /// while a hyperlink target is kept, so plain output can still show it.
+        /// </summary>
         /// <param name="depth">The colour depth.</param>
         /// <returns>The downsampled style.</returns>
         public Style Downsample(ColorDepth depth) {
             if (depth == ColorDepth.None) {
-                return Plain;
+                return Link == null ? Plain : Plain.WithLink(Link);
             }
             return new Style(Color.Downsample(depth), BackgroundColor.Downsample(depth), Decoration, Link);
         }

@@ -7,32 +7,48 @@ using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
-    /// <para type="synopsis">Records a script or an interactive child shell and saves the result.</para>
-    /// <para type="description">Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG. -InProcess explicitly selects the limited PowerShell output fallback.</para>
+    /// <para type="synopsis">Records a script, an app on a headless terminal, or an interactive child shell and saves the result.</para>
+    /// <para type="description">Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</para>
     /// </summary>
     /// <example><para>Preview recording coloured output and a chapter</para><code>Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; Get-Date; Write-Host 'Done' -ForegroundColor Green } -Path ./demo.html -WhatIf</code></example>
     /// <example><para>Preview recording a child shell</para><code>Invoke-ConsoleRecording -Interactive -Path ./session.cast -WhatIf</code></example>
+    /// <example><para>Preview recording an app driven by keys, then make a GIF of it</para><code>Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {
+    ///     Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }
+    /// }
+    /// Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif -WhatIf</code></example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRecording", DefaultParameterSetName = "Script", SupportsShouldProcess = true)]
     [OutputType(typeof(FileInfo))]
     public sealed partial class CmdletInvokeConsoleRecording : ConsoleRecordingCommand {
         /// <summary><para type="description">Script to run in the recorded PowerShell child.</para></summary>
-        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Script")] public ScriptBlock ScriptBlock { get; set; } = null!;
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Script")]
+        [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Headless")] public ScriptBlock ScriptBlock { get; set; } = null!;
         /// <summary><para type="description">Export path for a script; Interactive writes a cast here, or uses a timestamped name when omitted.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Script")]
+        [Parameter(Mandatory = true, ParameterSetName = "Headless")]
         [Parameter(ParameterSetName = "Interactive")] public string Path { get; set; } = string.Empty;
         /// <summary><para type="description">Export colours.</para></summary>
-        [Parameter(ParameterSetName = "Script")] public ExportTheme Theme { get; set; } = ExportTheme.Dark;
+        [Parameter(ParameterSetName = "Script")]
+        [Parameter(ParameterSetName = "Headless")] public ExportTheme Theme { get; set; } = ExportTheme.Dark;
         /// <summary><para type="description">MacOS (default), Windows, Linux or None. Choose None to hide chrome.</para></summary>
-        [Parameter(ParameterSetName = "Script"), PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")] public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
+        [Parameter(ParameterSetName = "Script"), PSDefaultValue(Value = WindowChromeStyle.MacOS, Help = "MacOS")]
+        [Parameter(ParameterSetName = "Headless")] public WindowChromeStyle ChromeStyle { get; set; } = WindowChromeStyle.MacOS;
 
         /// <summary><para type="description">Export the final frame as a static SVG.</para></summary>
-        [Parameter(ParameterSetName = "Script")] public SwitchParameter FinalFrame { get; set; }
+        [Parameter(ParameterSetName = "Script")]
+        [Parameter(ParameterSetName = "Headless")] public SwitchParameter FinalFrame { get; set; }
         /// <summary><para type="description">Records an interactive child shell until it exits or stops recording.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Interactive")]
         public SwitchParameter Interactive { get; set; }
+        /// <summary><para type="description">Runs the script in this session against a headless terminal and records what it shows. Caller variables and functions are available; only ConsoleMonster output is recorded.</para></summary>
+        [Parameter(Mandatory = true, ParameterSetName = "Headless")]
+        public SwitchParameter Headless { get; set; }
+        /// <summary><para type="description">Input for -Headless: key names (Down, Enter, Ctrl+K, F2), repeats (Down*3), quoted text, paste:"text", resize:80x24 and wait:250 pauses. Input ends after the last key.</para></summary>
+        [Parameter(ParameterSetName = "Headless")]
+        public string? InputScript { get; set; }
 
         /// <inheritdoc/>
         protected override void EndProcessing() {
+            if (Headless.IsPresent && (InProcess.IsPresent || Shell != null || MyInvocation.BoundParameters.ContainsKey(nameof(TimeoutSeconds)))) { throw new ArgumentException("-Headless runs the script in this session; -InProcess, -Shell and -TimeoutSeconds do not apply. The script ends when its apps run out of input, or with Ctrl+C."); }
             string target = string.IsNullOrWhiteSpace(Path) ? "interactive recording in the current directory" : SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
             if (!ShouldProcess(target, Interactive.IsPresent ? "Record a child shell" : "Run and record the script")) { return; }
             if (Interactive.IsPresent) { RecordInteractive(); return; }
@@ -46,7 +62,9 @@ namespace ConsoleMonster.PowerShell {
             else if (RecordingPath == null) { options.Path = destination; }
             if (string.Equals(options.Path, destination, StringComparison.OrdinalIgnoreCase) && extension != ".cast") { throw new ArgumentException("The native cast path and export destination must be different files."); }
             string cast;
-            if (InProcess.IsPresent) {
+            if (Headless.IsPresent) {
+                cast = RecordHeadless(options);
+            } else if (InProcess.IsPresent) {
                 WriteWarning("In-process fallback records PowerShell output only; native terminal output is not captured.");
                 cast = InProcessRecordingHost.Run(this, options, ScriptBlock.ToString(), () => IsStopping);
             } else {

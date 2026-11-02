@@ -11,11 +11,17 @@ namespace ConsoleMonster.Interactive {
         public AppHostKeys Keys { get; set; } = new AppHostKeys();
         /// <summary>Lets the terminal generate signals for Ctrl+C and Ctrl+backslash. False keeps signal keys as input events, including the Commander's Ctrl+backslash.</summary>
         public bool SignalKeys { get; set; }
+        /// <summary>
+        /// App-wide keys. A key reaches the focused input's own bindings, then the input, then the current screen's
+        /// bindings, then these; the first that matches wins. The footer is built from the same bindings, so it lists
+        /// exactly the keys that work: a binding hidden by a nearer one with the same key is not shown.
+        /// </summary>
+        public IList<KeyBinding> KeyBindings { get; } = new List<KeyBinding>();
         /// <summary>App-thread registry routing after modal and cancellation handling, before focused-input handling. Return true when consumed.</summary>
         public Func<AppState, InputEvent, bool>? HandleInput { get; set; }
         /// <summary>Optional terminal handoff service, attached only for this run.</summary>
         public TerminalHandoff? TerminalHandoff { get; set; }
-        /// <summary>Optional context footer. Null uses the host's standard hints.</summary>
+        /// <summary>Optional context footer. Null uses the key hints built from the app's key bindings; a FooterBar without hints or a source shows them too.</summary>
         public Layout.IWidget? Footer { get; set; }
         /// <summary>Optional typed modal form service for this run.</summary>
         public AppDialogs? Dialogs { get; set; }

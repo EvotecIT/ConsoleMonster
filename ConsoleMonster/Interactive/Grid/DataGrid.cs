@@ -161,6 +161,16 @@ namespace ConsoleMonster.Interactive {
         protected override object? ReadValueCore() => SelectionCore();
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, Math.Max(1, Height)));
+        internal override bool Takes(KeyChord chord, RenderContext context) => Read(() => {
+            switch (chord.Key) {
+                case ConsoleKey.UpArrow: case ConsoleKey.DownArrow: case ConsoleKey.PageUp: case ConsoleKey.PageDown: case ConsoleKey.Home: case ConsoleKey.End:
+                    return true;
+                case ConsoleKey.Spacebar: return _grid.OutputMode == GridSelection.Multiple || QuickSearch && chord.Modifiers == KeyModifiers.None;
+                case ConsoleKey.Insert: return _grid.OutputMode == GridSelection.Multiple;
+                case ConsoleKey.Escape: case ConsoleKey.Backspace: return QuickSearch && _quickSearch.Length > 0;
+            }
+            return QuickSearch && chord.IsCharacter;
+        });
         /// <inheritdoc />
         protected override bool HandleInputCore(InputEvent input, RenderContext context) {
             if (input.Is(ConsoleKey.UpArrow)) { _cursor = Clamp(_cursor - 1); }

@@ -26,6 +26,7 @@ namespace ConsoleMonster.Interactive {
             }
             if (options.PageSize.HasValue) { ((SelectionInputBase)control).PageSize = options.PageSize.Value; }
             ((SelectionInputBase)control).Radio = options.Radio;
+            ((SelectionInputBase)control).Dropdown = options.Dropdown;
             Configure(control, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             return control;
         }

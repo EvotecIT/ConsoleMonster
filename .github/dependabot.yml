@@ -11,6 +11,9 @@ updates:
   - package-ecosystem: nuget
     directories:
       - '/**/*'
+    # The source generator must load in the compiler shipped by supported SDKs.
+    ignore:
+      - dependency-name: Microsoft.CodeAnalysis.CSharp
     schedule:
       interval: weekly
     cooldown:

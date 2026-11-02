@@ -215,10 +215,28 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             { @{ Label = 'Build'; Status = 'Passs' } | New-ConsoleStatusList } | Should -Throw '*not a status*'
         }
 
+        It 'keeps piped keyed phase and child dictionaries as records' {
+            $text = @(
+                @{ Key = 'migrate'; Status = 'Running' }
+                @{ ParentKey = 'migrate'; Key = 'alice'; Status = 'Fail'; Detail = 'access denied' }
+            ) | New-ConsoleStatusList -Layout Strip | Get-WidgetText
+            $text | Should -Match 'migrate'
+            $text | Should -Match 'alice\s+access denied'
+        }
+
         It 'builds a strip layout from status records and strings' {
             $text = New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { [pscustomobject]@{ Label = 'Build'; Status = 'Pass'; Detail = '14s' }; [pscustomobject]@{ Label = 'Test'; Status = 'Running' } } | Get-WidgetText
             $text | Should -Match 'Build 14s'
             (New-ConsoleStatusList -Layout Strip -WidgetId phases -Content { 'Restore', 'Pack' } | Get-WidgetText) | Should -Match 'Restore.*Pack'
+        }
+
+        It 'rejects child items in a numbered strip instead of hiding them' {
+            {
+                New-ConsoleStatusList -Layout Strip -StepCounter -Content {
+                    @{ Key = 'migrate'; Status = 'Running' }
+                    @{ ParentKey = 'migrate'; Key = 'alice'; Status = 'Fail'; Detail = 'access denied' }
+                }
+            } | Should -Throw '*ParentKey*without StepCounter*'
         }
 
         It 'colours bars and stacked segments with -Role' {

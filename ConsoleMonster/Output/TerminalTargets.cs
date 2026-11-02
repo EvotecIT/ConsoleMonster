@@ -11,7 +11,7 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Output {
     /// <summary>The process console: detected profile (size refreshed on every write), keyboard input. The default target.</summary>
-    public sealed class ConsoleTarget : ITerminalTarget {
+    public sealed class ConsoleTarget : IConsoleDriver {
         private ConsoleTarget() {
         }
 
@@ -32,6 +32,9 @@ namespace ConsoleMonster.Output {
 
         /// <inheritdoc />
         public IInputSource? Input => null;
+
+        /// <inheritdoc />
+        public bool TryGetWindow(out int left, out int top, out int width, out int height) => TerminalSize.TryGetWindow(out left, out top, out width, out height);
     }
 
     /// <summary>

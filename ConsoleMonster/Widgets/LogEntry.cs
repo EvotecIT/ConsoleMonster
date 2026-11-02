@@ -23,8 +23,21 @@ namespace ConsoleMonster.Widgets {
             Timestamp = timestamp;
         }
 
+        /// <summary>Creates a literal entry from a named source, shown in the tag column and matched by <see cref="LogFilter.Tag"/>.</summary>
+        /// <param name="time">Session time of the entry.</param>
+        /// <param name="level">The canonical log level.</param>
+        /// <param name="text">The original literal text.</param>
+        /// <param name="timestamp">The source timestamp, or null when unknown.</param>
+        /// <param name="tag">The source (a job, component or item name), or null.</param>
+        public LogEntry(TimeSpan time, string level, string text, DateTimeOffset? timestamp, string? tag) : this(time, level, text, timestamp) {
+            Tag = string.IsNullOrWhiteSpace(tag) ? null : tag!.Trim();
+        }
+
         /// <summary>The source timestamp, or null when none was supplied.</summary>
         public DateTimeOffset? Timestamp { get; }
+
+        /// <summary>The source the entry came from (a job, component or item name), or null.</summary>
+        public string? Tag { get; }
 
         /// <summary>Session time of the entry.</summary>
         public TimeSpan Time { get; }
@@ -43,13 +56,14 @@ namespace ConsoleMonster.Widgets {
 
         internal bool IsLineSlice { get; }
 
-        internal LogEntry(TimeSpan time, string level, RichText source, string text, int lineIndex) {
+        internal LogEntry(TimeSpan time, string level, RichText source, string text, int lineIndex, string? tag) {
             Time = time;
             Level = level;
             RichText = source;
             Text = text;
             LineIndex = lineIndex;
             IsLineSlice = true;
+            Tag = tag;
         }
 
         /// <summary>Creates a multicolour entry.</summary>

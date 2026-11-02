@@ -52,6 +52,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <inheritdoc />
         protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) => _editor.Handle(input);
+        internal override bool Takes(Input.KeyChord chord, RenderContext context) => LineEditor.Takes(chord);
 
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));

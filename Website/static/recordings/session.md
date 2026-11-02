@@ -20,6 +20,6 @@ Build report
 PS demo> Get-Item ./missing.json 2>&1 | Write-ConsoleText -Color Red
 Cannot find path 'demo:/missing.json' because it does not exist.
 PS demo> Show-DemoToken $env:API_TOKEN
-API_TOKEN=demo-token (synthetic)
+API_TOKEN=[REDACTED] (synthetic)
 PS demo>
 ```

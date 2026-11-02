@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
+using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -14,16 +15,16 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     internal static class PromptHost {
         [ThreadStatic]
-        private static Func<RenderContext, IPromptSurface?>? _current;
+        private static Func<RenderContext, ITerminalTarget, IPromptSurface?>? _current;
 
-        public static Func<RenderContext, IPromptSurface?>? Current {
+        public static Func<RenderContext, ITerminalTarget, IPromptSurface?>? Current {
             get => _current;
             set => _current = value;
         }
 
         /// <summary>The surface for a prompt asked now: over a live dashboard, over an app, or null for the caller's default.</summary>
-        public static IPromptSurface? Resolve(RenderContext context) {
-            return Live.LivePromptSurface.TryCreate(context) ?? _current?.Invoke(context);
+        public static IPromptSurface? Resolve(RenderContext context, ITerminalTarget target) {
+            return Live.LivePromptSurface.TryCreate(context, target) ?? _current?.Invoke(context, target);
         }
     }
 

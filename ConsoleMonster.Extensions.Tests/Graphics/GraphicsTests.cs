@@ -226,6 +226,35 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             } finally { File.Delete(path); }
         }
 
+        /// <summary>Composed, timed screens (an app's captured frames) encode to GIF and APNG with one frame per screen and its own delay.</summary>
+        [Fact]
+        public void TimedFrames_SaveAsGifAndApngWithTheirDurations() {
+            string folder = Path.Combine(Path.GetTempPath(), "cm-frames-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(folder);
+            try {
+                var frames = new List<RecordedFrame>();
+                long start = 0;
+                foreach (int step in new[] { 1, 2, 3 }) {
+                    CellBuffer screen = ConsoleExporter.Render(Ui.Text().Content("Step " + step + " of 3"), new ExportOptions { Width = 30, Height = 3 }, ConsoleMonster.Styling.Theme.Dark);
+                    frames.Add(new RecordedFrame(screen, start) { Duration = step * 300 });
+                    start += step * 300;
+                }
+                var settings = new GraphicsExportOptions { Frame = new ExportOptions { FontSize = 8 } };
+                string gif = Path.Combine(folder, "app.gif"), apng = Path.Combine(folder, "app.png");
+                frames.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                frames.SaveGraphics(apng, GraphicsFormat.Apng, settings);
+
+                byte[] gifBytes = File.ReadAllBytes(gif);
+                Assert.Equal("GIF89a", Encoding.ASCII.GetString(gifBytes, 0, 6));
+                Assert.Equal(new[] { 30, 60, 90 }, GifDelays(gifBytes, out _));
+                byte[] png = File.ReadAllBytes(apng);
+                Assert.Equal(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, png.Take(8).ToArray());
+                int actl = Encoding.ASCII.GetString(png).IndexOf("acTL", StringComparison.Ordinal);
+                Assert.True(actl > 0);
+                Assert.Equal(3, BigEndian(png, actl + 4));
+            } finally { Directory.Delete(folder, true); }
+        }
+
         private static List<int> GifDelays(byte[] bytes, out int repetitions) {
             int position = 13;
             if ((bytes[10] & 0x80) != 0) { position += 3 * (1 << ((bytes[10] & 7) + 1)); }

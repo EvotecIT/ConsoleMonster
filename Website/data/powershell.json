@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 39,
+      "count": 41,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -396,6 +396,11 @@
           "url": "/powershell/commands/new-consoleform/"
         },
         {
+          "name": "New-ConsoleImage",
+          "synopsis": "Creates an image to place inside panels, columns and dashboards.",
+          "url": "/powershell/commands/new-consoleimage/"
+        },
+        {
           "name": "New-ConsoleKeyValue",
           "synopsis": "Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.",
           "url": "/powershell/commands/new-consolekeyvalue/"
@@ -454,6 +459,11 @@
           "name": "New-ConsoleRule",
           "synopsis": "Creates a horizontal rule, optionally with a title.",
           "url": "/powershell/commands/new-consolerule/"
+        },
+        {
+          "name": "New-ConsoleScreen",
+          "synopsis": "Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.",
+          "url": "/powershell/commands/new-consolescreen/"
         },
         {
           "name": "New-ConsoleScrollView",
@@ -582,7 +592,7 @@
     },
     {
       "verb": "Show",
-      "count": 12,
+      "count": 13,
       "commands": [
         {
           "name": "Show-Console",
@@ -608,6 +618,11 @@
           "name": "Show-ConsoleHelp",
           "synopsis": "Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.",
           "url": "/powershell/commands/show-consolehelp/"
+        },
+        {
+          "name": "Show-ConsoleImage",
+          "synopsis": "Shows an image in the console, at the size you ask for in cells.",
+          "url": "/powershell/commands/show-consoleimage/"
         },
         {
           "name": "Show-ConsoleMenu",
@@ -683,7 +698,7 @@
         },
         {
           "name": "Invoke-ConsoleRecording",
-          "synopsis": "Records a script or an interactive child shell and saves the result.",
+          "synopsis": "Records a script, an app on a headless terminal, or an interactive child shell and saves the result.",
           "url": "/powershell/commands/invoke-consolerecording/"
         },
         {

@@ -262,7 +262,7 @@ source 96ead1ba2b8ba07aecd2a45a520efc2a
 │                                                                                                            │
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys2b07f2e89d37f640
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys5d50eba11c87b221
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter
@@ -274,8 +274,8 @@ source 96ead1ba2b8ba07aecd2a45a520efc2a
 │    MSSQLSERVER   │ Start type  Manual                                                   │                  │
 │ ✓  Spooler       │ Memory      40.1 MB                                                  │                  │
 │ ✓  SQLSERVERAGENT│  ↑↓ move  esc close                                                  │                  │
-│    W32Time       ╰──────────────────────────────────────────────────────────────────────╯                  │
-│    WinRM           ✓ PASS  Automatic   9.38 MB                                                             │
+│    W32Time       │                                                                      │                  │
+│    WinRM         ╰──────────────────────────────────────────────────────────────────────╯                  │
 │                                                                                                            │
 │                                                                                                            │
 │                                                                                                            │

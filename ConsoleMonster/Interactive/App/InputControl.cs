@@ -50,11 +50,19 @@ namespace ConsoleMonster.Interactive {
             set => Enabled = !value;
         }
 
+        /// <summary>The frame around a chrome control; <see cref="Glyphs.BoxStyle.None"/> draws the content alone so a surrounding panel can frame it.</summary>
+        private protected Glyphs.BoxStyle FrameBorder { get; set; } = Glyphs.BoxStyle.Rounded;
+
+        private bool Chrome => _chrome && FrameBorder != Glyphs.BoxStyle.None;
+
         /// <summary>Whether this control owns keyboard focus.</summary>
         public bool Focused {
             get { lock (_gate) { return _focused; } }
             internal set { lock (_gate) { _focused = value; } Invalidate(); }
         }
+
+        /// <summary>Keys that apply while this control has focus. They reach the control before its own keys (so Enter can open the selected row) and feed the app footer.</summary>
+        public System.Collections.Generic.IList<KeyBinding> Bindings { get; } = new System.Collections.Generic.List<KeyBinding>();
 
         /// <summary>The committed value, independent of the concrete control's value type.</summary>
         public object? CurrentValue => Read(ReadValueCore);
@@ -127,6 +135,36 @@ namespace ConsoleMonster.Interactive {
         protected virtual bool HandlePointerCore(InputEvent input, RenderContext context) => false;
         internal virtual void CancelPointer() { }
 
+        // A pointer event inside this control's popup on the app overlay layer, in frame coordinates.
+        internal bool HandlePopupInput(InputEvent input, RenderContext context) {
+            object? before;
+            object? after;
+            bool handled;
+            lock (_gate) {
+                if (!_enabled) { return false; }
+                before = ReadValueCore();
+                handled = HandlePopupPointerCore(input, context);
+                after = ReadValueCore();
+            }
+            Notify(before, after);
+            if (handled) { Invalidate(); }
+            return handled;
+        }
+
+        internal void ClosePopup() {
+            lock (_gate) { ClosePopupCore(); }
+            Invalidate();
+        }
+
+        // Keys the control itself takes right now (an open dropdown takes Enter and Escape). The app footer lists them and hides
+        // the bindings they shadow; the control still handles them itself.
+        internal virtual void AddOwnKeys(System.Collections.Generic.List<KeyBinding> keys, RenderContext context) { }
+        // Whether the focused control would take this key itself, so the app footer does not list a binding it hides.
+        // Kept next to each control's key handling.
+        internal virtual bool Takes(KeyChord chord, RenderContext context) => false;
+        internal virtual bool HandlePopupPointerCore(InputEvent input, RenderContext context) => false;
+        internal virtual void ClosePopupCore() { }
+
         /// <summary>Measures the existing control content without its border.</summary>
         /// <param name="constraints">Available content size.</param>
         /// <param name="context">The render context.</param>
@@ -142,8 +180,8 @@ namespace ConsoleMonster.Interactive {
         public Size Measure(Constraints constraints, RenderContext context) {
             lock (_gate) {
                 constraints = constraints.Height(Math.Min(constraints.MaxHeight, _viewportHeight));
-                int extra = _chrome ? 2 + (string.IsNullOrEmpty(ValidationMessage) ? 0 : 1) : 0;
-                Size content = MeasureContent(_chrome ? constraints.Shrink(4, extra) : constraints, context);
+                int extra = Chrome ? 2 + (string.IsNullOrEmpty(ValidationMessage) ? 0 : 1) : 0;
+                Size content = MeasureContent(Chrome ? constraints.Shrink(4, extra) : constraints, context);
                 return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, content.Height + extra));
             }
         }
@@ -153,12 +191,13 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 _bounds = region.Bounds;
                 InputArrangement.Record(this, region.Bounds);
-                if (!_chrome) { RenderContent(region, context); return; }
+                if (!Chrome) { RenderContent(region, context); return; }
                 string title = Label ?? Key;
                 if (!_enabled) { title = PromptLabels.Format(PromptLabels.For(context.Profile.Language).Disabled, title); }
                 else if (_focused) { title = InteractiveGlyphs.For(context).Pointer + " " + title; }
                 int errorRows = string.IsNullOrEmpty(ValidationMessage) ? 0 : 1;
                 Panel panel = new Panel(new Content(this), Markup.Escape(title)) {
+                    Border = FrameBorder,
                     BorderRole = _focused && _enabled ? ThemeToken.Accent : ThemeToken.Border
                 };
                 panel.Render(region.Sub(0, 0, region.Width, Math.Max(0, region.Height - errorRows)), context);

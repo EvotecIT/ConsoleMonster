@@ -187,7 +187,7 @@ namespace ConsoleMonster.Interactive {
             public object? Result { get; private set; }
 
             public void Execute(MenuApp app) {
-                Func<Canvas.RenderContext, IPromptSurface?>? previous = PromptHost.Current;
+                Func<Canvas.RenderContext, Output.ITerminalTarget, IPromptSurface?>? previous = PromptHost.Current;
                 PromptHost.Current = app.ResolvePromptSurface;
                 try {
                     Result = _call();

@@ -16,6 +16,14 @@ namespace ConsoleMonster.Serialization {
             return sb.ToString();
         }
 
+        /// <summary>One line without indentation, for line-delimited protocols and event streams. <c>&lt;</c>, <c>&gt;</c>,
+        /// <c>&amp;</c> and the Unicode line separators are escaped, so the text is also safe inside an HTML script element.</summary>
+        public static string WriteCompact(object? value) {
+            StringBuilder sb = new StringBuilder();
+            WriteValue(sb, value, -1);
+            return sb.ToString();
+        }
+
         public static object? Read(string text, bool preserveNumberTypes = false) {
             if (text == null) { throw new ArgumentNullException(nameof(text)); }
             int index = 0;
@@ -36,12 +44,20 @@ namespace ConsoleMonster.Serialization {
                     sb.Append(b ? "true" : "false");
                     return;
                 case string s:
-                    WriteString(sb, s);
+                    WriteString(sb, s, indent < 0);
                     return;
                 case IDictionary<string, object?> map:
                     sb.Append('{');
                     bool first = true;
                     foreach (KeyValuePair<string, object?> pair in map) {
+                        if (indent < 0) {
+                            if (!first) { sb.Append(','); }
+                            first = false;
+                            WriteString(sb, pair.Key, true);
+                            sb.Append(':');
+                            WriteValue(sb, pair.Value, -1);
+                            continue;
+                        }
                         sb.Append(first ? "\n" : ",\n");
                         first = false;
                         sb.Append(' ', (indent + 1) * 2);
@@ -49,7 +65,7 @@ namespace ConsoleMonster.Serialization {
                         sb.Append(": ");
                         WriteValue(sb, pair.Value, indent + 1);
                     }
-                    if (!first) {
+                    if (!first && indent >= 0) {
                         sb.Append('\n').Append(' ', indent * 2);
                     }
                     sb.Append('}');
@@ -59,10 +75,10 @@ namespace ConsoleMonster.Serialization {
                     bool firstItem = true;
                     foreach (object? item in list) {
                         if (!firstItem) {
-                            sb.Append(", ");
+                            sb.Append(indent < 0 ? "," : ", ");
                         }
                         firstItem = false;
-                        WriteValue(sb, item, indent + 1);
+                        WriteValue(sb, item, indent < 0 ? -1 : indent + 1);
                     }
                     sb.Append(']');
                     return;
@@ -70,15 +86,19 @@ namespace ConsoleMonster.Serialization {
                     if (value is byte || value is sbyte || value is short || value is ushort || value is int || value is uint || value is long || value is ulong || value is decimal) {
                         sb.Append(Convert.ToString(value, CultureInfo.InvariantCulture));
                     } else {
-                        WriteString(sb, value is IFormattable formattable ? formattable.ToString(null, CultureInfo.InvariantCulture) : Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
+                        WriteString(sb, value is IFormattable formattable ? formattable.ToString(null, CultureInfo.InvariantCulture) : Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty, indent < 0);
                     }
                     return;
             }
         }
 
-        private static void WriteString(StringBuilder sb, string s) {
+        private static void WriteString(StringBuilder sb, string s, bool htmlSafe = false) {
             sb.Append('"');
             foreach (char c in s) {
+                if (htmlSafe && (c == '<' || c == '>' || c == '&' || c == '\u2028' || c == '\u2029')) {
+                    sb.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
+                    continue;
+                }
                 switch (c) {
                     case '"':
                         sb.Append("\\\"");

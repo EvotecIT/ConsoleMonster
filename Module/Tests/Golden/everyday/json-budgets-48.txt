@@ -12,13 +12,13 @@ Message      Processing inventory for west
              inventory for west region. Process…
 
 Checks
-  ╭─────────┬───────╮
-  │ Name    │ State │
-  ├─────────┼───────┤
-  │ check-1 │ Ready │
-  │ check-2 │ Ready │
-  │ check-3 │ Ready │
-  │ check-4 │ Ready │
-  │ check-5 │ Ready │
-  ╰─────────┴───────╯
+  ╭─────────┬─────────╮
+  │ Name    │ State   │
+  ├─────────┼─────────┤
+  │ check-1 │ ✓ Ready │
+  │ check-2 │ ✓ Ready │
+  │ check-3 │ ✓ Ready │
+  │ check-4 │ ✓ Ready │
+  │ check-5 │ ✓ Ready │
+  ╰─────────┴─────────╯
    +3 more rows

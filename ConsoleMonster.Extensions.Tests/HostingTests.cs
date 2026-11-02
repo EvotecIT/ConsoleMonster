@@ -121,6 +121,8 @@ namespace ConsoleMonster.Extensions.Tests {
             List<IHostedService> hosted = host.Services.GetServices<IHostedService>().ToList();
             Assert.Contains(hosted, service => service is BackgroundService);
             await host.StartAsync();
+            // .NET 10 starts ExecuteAsync on the pool; observe completion before the failing worker stops the host.
+            Assert.Equal(ServiceState.Completed, (await WaitFor(dashboard, "Quick", ServiceState.Completed)).State);
             brokenWorker.Fail.SetResult(true);
             IHostApplicationLifetime lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
             Task stopped = Task.Delay(Timeout.Infinite, lifetime.ApplicationStopping);

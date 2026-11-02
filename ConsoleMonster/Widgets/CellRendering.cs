@@ -130,7 +130,8 @@ namespace ConsoleMonster.Widgets {
             }
             RenderContext render = context.Render;
             // Rich text values keep their own colours and line breaks, like markup cells.
-            StyledText text = cell.Value is RichText rich ? rich.ToStyledText(render) : render.Markup(cell.Markup);
+            StyledText text = cell.Value is RichText rich ? rich.ToStyledText(render)
+                : render.Markup(cell.PlaceholderMarkup != null ? Values.Placeholders.Resolve(cell.PlaceholderMarkup, render.Glyphs.Tier) : cell.Markup);
             List<StyledLine> lines = new List<StyledLine>(text.Lines);
             if (cell.AssessmentSeverity.HasValue && lines.Count > 0) {
                 Severity severity = cell.AssessmentSeverity.Value;

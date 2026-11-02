@@ -9,14 +9,17 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// The one dialog look: a panel with an accent border (warn for destructive questions), an optional title on the
-    /// border, one blank row above the content and one column either side, placed a third of the way down over a dimmed
+    /// border, one blank row above and below the content and one column either side, placed a third of the way down over a dimmed
     /// backdrop. Menu dialogs (confirm, name, output, palette), prompts asked over a menu and prompts asked over a paused
     /// live run all use it. See Docs/Design-System.md.
     /// </summary>
     internal static class DialogChrome {
+        /// <summary>The rows the frame adds around its content: two borders and a blank row above and below.</summary>
+        public const int ExtraHeight = 4;
+
         /// <summary>Wraps dialog content in the dialog frame.</summary>
         public static Panel Frame(IWidget content, string? title, ThemeToken border = ThemeToken.Accent) {
-            return new Panel(new Padding(content, 0, 1, 0, 0), title == null ? null : Markup.Escape(title)) { BorderRole = border };
+            return new Panel(new Padding(content, 0, 1, 0, 1), title == null ? null : Markup.Escape(title)) { BorderRole = border };
         }
 
         /// <summary>Where a dialog of a size goes in an area: centred, a third of the way down (or near the top).</summary>
@@ -40,7 +43,7 @@ namespace ConsoleMonster.Interactive {
             Region all = new Region(composite);
             Overlay.Dim(all, context);
             int content = ContentWidth(prompt);
-            Rect place = Place(width, height, content + 4, prompt.Height + 3);
+            Rect place = Place(width, height, content + 4, prompt.Height + ExtraHeight);
             Region area = all.Sub(place.X, place.Y, place.Width, place.Height);
             area.Fill(Style.Plain);
             Frame(new BufferView(prompt, content), null).Render(area, context);
