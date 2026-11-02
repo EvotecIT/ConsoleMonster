@@ -22,7 +22,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Link("Orders API", "SQL")
             .Link("Web", "Redis")
             .Link("Orders API", "Queue")
-            .Link("Queue", "Worker")
-            .Build;
+            .Link("Queue", "Worker");
     }
 }

@@ -95,8 +95,7 @@ var diagram = Ui.Diagram("Home network")
     .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
     .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
         .Subtitle("192.168.1.1").Value("1 ms"))
-    .Link("Laptop", "Router", l => l.Label("Wi-Fi"))
-    .Build;
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
 diagram.Run();
 ```
 
@@ -131,10 +130,10 @@ Diagram diagram = Diagram.Load("ad-replication.md", "replication");
 diagram.Run();
 ```
 
-For an existing ChartForgeX `TopologyChart`, use `Diagram.From(chart)`. The
-compiler infers `TChart` for the core `Diagram.From<TChart>()` factory; the
-registered Graphics provider performs the import. Core has no ChartForgeX type
-or dependency, and neither factory loads or registers Graphics automatically.
+For an existing ChartForgeX `TopologyChart`, use `chart.ToDiagram()` with
+`using ConsoleMonster.Graphics;`. This typed extension lives in Graphics and accepts
+only a topology chart. Core has no ChartForgeX type or dependency. Keep the same
+explicit startup registration for rendering other diagrams and loading files.
 Finish configuring the source chart before importing it and do not mutate that chart afterwards. Configure the returned Diagram through its own model.
 
 When a diagram has use cases, the view shows the steps, the active step

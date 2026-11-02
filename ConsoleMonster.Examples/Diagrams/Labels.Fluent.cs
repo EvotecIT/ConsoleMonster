@@ -14,7 +14,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Link("Laptop", "Router", l => l.Label("Wi-Fi"))
             .Link("TV", "Router", l => l.Label("1 Gb"))
             .Link("NAS", "Router", l => l.Label("1 Gb"))
-            .Link("Router", "Internet", l => l.Label("WAN"))
-            .Build;
+            .Link("Router", "Internet", l => l.Label("WAN"));
     }
 }

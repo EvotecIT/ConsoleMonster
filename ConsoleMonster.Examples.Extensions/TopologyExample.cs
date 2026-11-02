@@ -16,7 +16,7 @@ namespace ConsoleMonster.Examples.Extensions {
     internal static class TopologyExample {
         public static int Run(string[] args) {
             DiagramRendererProvider.Register();
-            Diagram view = Diagram.From(Replication());
+            Diagram view = Replication().ToDiagram();
             if (args.Length > 0 && args[0] == "--live") {
                 int seconds = args.Length > 1 && int.TryParse(args[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int value) ? value : 10;
                 Live(view, seconds);

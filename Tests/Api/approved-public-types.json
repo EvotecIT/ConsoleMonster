@@ -502,7 +502,6 @@
     "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.Diagram",
-    "ConsoleMonster.Widgets.DiagramBuilder",
     "ConsoleMonster.Widgets.DiagramDirection",
     "ConsoleMonster.Widgets.DiagramGroup",
     "ConsoleMonster.Widgets.DiagramGroupBuilder",
@@ -780,6 +779,7 @@
   "ConsoleMonster.Graphics": [
     "ConsoleMonster.Graphics.ConsoleGraphicsExtensions",
     "ConsoleMonster.Graphics.ConsoleImage",
+    "ConsoleMonster.Graphics.DiagramExtensions",
     "ConsoleMonster.Graphics.DiagramRendererProvider",
     "ConsoleMonster.Graphics.GraphicsBackground",
     "ConsoleMonster.Graphics.GraphicsExportOptions",

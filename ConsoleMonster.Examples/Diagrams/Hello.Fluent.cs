@@ -10,7 +10,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Node("Router", n => n.Kind(DiagramNodeKind.Gateway))
             .Node("Internet", n => n.Kind(DiagramNodeKind.Cloud))
             .Link("Laptop", "Router")
-            .Link("Router", "Internet")
-            .Build;
+            .Link("Router", "Internet");
     }
 }

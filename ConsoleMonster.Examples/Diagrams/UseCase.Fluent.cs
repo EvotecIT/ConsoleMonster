@@ -22,7 +22,6 @@ namespace ConsoleMonster.Examples.Diagrams {
                 .Reply("Payments", "Orders API", "approved")
                 .Step("Orders API", "SQL", "INSERT order")
                 .Reply("Orders API", "Web", "201 order 1042")
-                .Reply("Web", "Shopper", "Thank you page"))
-            .Build;
+                .Reply("Web", "Shopper", "Thank you page"));
     }
 }

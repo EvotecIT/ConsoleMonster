@@ -24,6 +24,7 @@
     <View>
       <Name>ConsoleMonster.Widget</Name>
       <ViewSelectedBy>
+        <TypeName>ConsoleMonster.Changes.BaselineView</TypeName>
         <TypeName>ConsoleMonster.Changes.ChangeView</TypeName>
         <TypeName>ConsoleMonster.Changes.TextDiffView</TypeName>
         <TypeName>ConsoleMonster.Frames.DashboardFrame</TypeName>
@@ -64,7 +65,6 @@
         <TypeName>ConsoleMonster.Widgets.ContextWidget</TypeName>
         <TypeName>ConsoleMonster.Widgets.Dashboard</TypeName>
         <TypeName>ConsoleMonster.Widgets.Diagram</TypeName>
-        <TypeName>ConsoleMonster.Widgets.DiagramBuilder</TypeName>
         <TypeName>ConsoleMonster.Widgets.ExceptionView</TypeName>
         <TypeName>ConsoleMonster.Widgets.FactFlow</TypeName>
         <TypeName>ConsoleMonster.Widgets.Flow</TypeName>

@@ -1,52 +1,8 @@
 using System;
 using System.Collections.Generic;
-using ConsoleMonster.Canvas;
-using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Widgets {
-    /// <summary>A fluent construction surface for the Diagram model.</summary>
-    public sealed class DiagramBuilder : IContainer {
-        /// <summary>Wraps a diagram for fluent configuration.</summary>
-        public DiagramBuilder(Diagram diagram) { Build = diagram ?? throw new ArgumentNullException(nameof(diagram)); }
-        /// <summary>The configured widget for live sessions and composition.</summary>
-        public Diagram Build { get; }
-        /// <summary>Exposes the configured widget to live-session target discovery.</summary>
-        public IReadOnlyList<IWidget> Children => new IWidget[] { Build };
-        /// <summary>Sets the title.</summary>
-        public DiagramBuilder Title(string title) { Build.Title = title; return this; }
-        /// <summary>Sets the reading direction.</summary>
-        public DiagramBuilder Direction(DiagramDirection direction) { Build.Direction = direction; return this; }
-        /// <summary>Controls the attention summary.</summary>
-        public DiagramBuilder Summary(bool show = true) { Build.ShowSummary = show; return this; }
-        /// <summary>Controls the legend.</summary>
-        public DiagramBuilder ShowLegend(bool show = true) { Build.ShowLegend = show; return this; }
-        /// <summary>Controls the use-case step panel.</summary>
-        public DiagramBuilder ShowStepPanel(bool show = true) { Build.ShowStepPanel = show; return this; }
-        /// <summary>Controls focused-node details.</summary>
-        public DiagramBuilder ShowDetails(bool show = true) { Build.ShowDetails = show; return this; }
-        /// <summary>Controls keyboard hints.</summary>
-        public DiagramBuilder ShowKeys(bool show = true) { Build.ShowKeys = show; return this; }
-        /// <summary>Limits visible payload lines.</summary>
-        public DiagramBuilder MaxPayloadLines(int count) { Build.MaxPayloadLines = count; return this; }
-        /// <summary>Limits visible step lines.</summary>
-        public DiagramBuilder MaxStepLines(int count) { Build.MaxStepLines = count; return this; }
-        /// <summary>Adds a component.</summary>
-        public DiagramBuilder Node(string label, Action<DiagramNodeBuilder>? configure = null) { Build.Nodes.Add(DiagramConstruction.Node(label, configure)); return this; }
-        /// <summary>Adds a connection.</summary>
-        public DiagramBuilder Link(string from, string to, Action<DiagramLinkBuilder>? configure = null) {
-            var link = new DiagramLink(from, to); configure?.Invoke(new DiagramLinkBuilder(link)); Build.Links.Add(link); return this;
-        }
-        /// <summary>Adds a group.</summary>
-        public DiagramBuilder Group(string label, Action<DiagramGroupBuilder> configure) { var group = new DiagramGroup(label); configure(new DiagramGroupBuilder(group)); Build.Groups.Add(group); return this; }
-        /// <summary>Adds a use case.</summary>
-        public DiagramBuilder UseCase(string label, Action<DiagramUseCaseBuilder> configure) { var useCase = new DiagramUseCase(label); configure(new DiagramUseCaseBuilder(useCase)); Build.UseCases.Add(useCase); return this; }
-        /// <inheritdoc />
-        public Size Measure(Constraints constraints, RenderContext context) => Build.Measure(constraints, context);
-        /// <inheritdoc />
-        public void Render(Region region, RenderContext context) => Build.Render(region, context);
-    }
-
     internal static class DiagramConstruction {
         internal static DiagramNode Node(string label, Action<DiagramNodeBuilder>? configure) { var node = new DiagramNode(label); configure?.Invoke(new DiagramNodeBuilder(node)); return node; }
     }

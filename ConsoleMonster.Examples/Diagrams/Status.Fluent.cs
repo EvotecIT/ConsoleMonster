@@ -16,7 +16,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Node("Firewall", n => n.Kind(DiagramNodeKind.Gateway))
             .Link("12 PCs", "Firewall", l => l.Label("HTTPS"))
             .Link("File server", "Backup", l => l.Label("failed 2 nights").Status(StatusKind.Fail))
-            .Link("Firewall", "Microsoft 365", l => l.Label("443"))
-            .Build;
+            .Link("Firewall", "Microsoft 365", l => l.Label("443"));
     }
 }

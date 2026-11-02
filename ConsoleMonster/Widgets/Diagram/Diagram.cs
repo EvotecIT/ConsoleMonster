@@ -13,7 +13,6 @@ namespace ConsoleMonster.Widgets {
     /// <summary>A live diagram with a dependency-free tree view and an optional Graphics topology renderer.</summary>
     /// <remarks>Configure collections before sharing the diagram with a session. Use Handle for concurrent live
     /// updates; direct collection edits are intended for sequential configuration, not concurrent writers.</remarks>
-    [NoFluent]
     public sealed partial class Diagram : LiveWidget {
         private IDiagramRenderer? _renderer;
         internal readonly object Gate = new object();
@@ -61,14 +60,9 @@ namespace ConsoleMonster.Widgets {
         internal void AttachRenderer(IDiagramRenderer renderer) { _renderer = renderer; }
         internal static Func<Diagram, IDiagramRenderer>? RendererFactory;
         internal static Func<string, string?, Diagram>? FileLoader;
-        internal static Func<object, Diagram>? ChartLoader;
         internal IDiagramRenderer RequireRenderer() => Renderer ?? throw new NotSupportedException("Reference ConsoleMonster.Graphics and call DiagramRendererProvider.Register() to use topology files, playback or keyboard navigation.");
         /// <summary>Loads a ChartForgeX file using the registered Graphics provider.</summary>
         public static Diagram Load(string path, string? diagramId = null) => FileLoader != null ? FileLoader(path, diagramId) : throw new NotSupportedException("Call ConsoleMonster.Graphics.DiagramRendererProvider.Register() before Diagram.Load().");
-        /// <summary>Imports an engine-owned chart using the registered Graphics provider. Core does not load that engine.</summary>
-        /// <remarks>Finish configuring the source chart before import and do not mutate it afterwards. Configure
-        /// the returned Diagram through its own model; the provider retains the source chart's engine-specific settings.</remarks>
-        public static Diagram From<TChart>(TChart chart) where TChart : class => ChartLoader != null ? ChartLoader(chart ?? throw new ArgumentNullException(nameof(chart))) : throw new NotSupportedException("Call ConsoleMonster.Graphics.DiagramRendererProvider.Register() before Diagram.From().");
         /// <summary>Creates a diagram from connection rows. Endpoints are created automatically; group selects the source's group.</summary>
         public static Diagram FromLinks<T>(IEnumerable<T> rows, Func<T, string> from, Func<T, string> to, Func<T, string?>? label = null, Func<T, StatusKind>? status = null, Func<T, string?>? group = null) {
             if (rows == null) throw new ArgumentNullException(nameof(rows));

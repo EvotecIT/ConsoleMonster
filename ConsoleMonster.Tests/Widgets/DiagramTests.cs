@@ -3,6 +3,8 @@ using System.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
 using ConsoleMonster.Live;
+using ConsoleMonster.Layout;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 using Xunit;
@@ -91,10 +93,26 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void FromLinks_FluentAndInitializerUseLabelIdentitiesAndImplicitEndpoints() {
             var data = Diagram.FromLinks(new[] { (Source: "File server", Target: "Backup", Description: "nightly", Health: StatusKind.Fail) }, r => r.Source, r => r.Target, r => r.Description, r => r.Health, r => "Office LAN");
-            var fluent = Ui.Diagram().Group("Office LAN", g => g.Node("File server")).Link("File server", "Backup", l => l.Label("nightly").Status(StatusKind.Fail)).Build;
+            Diagram fluent = Ui.Diagram();
+            Assert.Same(fluent, fluent.Direction(DiagramDirection.Right).Summary(false).ShowLegend(false)
+                .Group("Office LAN", g => g.Node("File server"))
+                .Link("File server", "Backup", l => l.Label("nightly").Status(StatusKind.Fail)));
+            Assert.False(fluent.ShowSummary);
+            Assert.False(fluent.ShowLegend);
+            fluent.Summary().ShowLegend();
             var initialized = new Diagram { Groups = { new DiagramGroup("Office LAN") { Nodes = { new DiagramNode("File server") } } }, Links = { new DiagramLink("File server", "Backup") { Label = "nightly", Status = StatusKind.Fail } } };
             Assert.Equal(Text(initialized), Text(data));
             Assert.Equal(Text(initialized), Text(fluent));
+            var expected = new StringTerminalWriter();
+            var actual = new StringTerminalWriter();
+            TerminalProfile profile = TerminalProfile.Fixed(60, 30);
+            Terminal.Write(initialized, profile, expected);
+            fluent.Show(profile, actual);
+            Assert.Equal(expected.ToString(), actual.ToString());
+            var composed = new Panel().Content(c => c.Diagram(d => d
+                .Group("Office LAN", g => g.Node("File server"))
+                .Link("File server", "Backup", l => l.Label("nightly").Status(StatusKind.Fail))));
+            Assert.Equal(ConsoleExporter.ToText(new Panel(initialized)), ConsoleExporter.ToText(composed));
             Assert.Equal("Backup", data.Resolve().Single(node => node.Id == "Backup").Label);
         }
 

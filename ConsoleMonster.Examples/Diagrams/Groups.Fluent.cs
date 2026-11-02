@@ -19,7 +19,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Link("12 PCs", "Firewall", l => l.Label("HTTPS"))
             .Link("File server", "Backup", l => l.Label("nightly"))
             .Link("Firewall", "Web server", l => l.Label("443"))
-            .Link("Firewall", "Microsoft 365", l => l.Label("443"))
-            .Build;
+            .Link("Firewall", "Microsoft 365", l => l.Label("443"));
     }
 }

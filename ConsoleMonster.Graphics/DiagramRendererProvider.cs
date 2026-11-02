@@ -1,5 +1,3 @@
-using System;
-using ChartForgeX.Topology;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.Graphics {
@@ -10,7 +8,6 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Registers topology rendering, diagram-file import and PNG frame export for this process.</summary>
         public static void Register() {
             Diagram.RendererFactory = diagram => new DiagramGraphicsRenderer(diagram);
-            Diagram.ChartLoader = source => source is TopologyChart chart ? DiagramConversion.From(chart) : throw new ArgumentException("Diagram.From expects a ChartForgeX TopologyChart.", nameof(source));
             Diagram.FileLoader = (path, id) => DiagramFileReader.Load(path, id);
             PngFrameExportProvider.Register();
         }

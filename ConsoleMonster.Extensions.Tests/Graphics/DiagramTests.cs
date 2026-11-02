@@ -72,7 +72,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [InlineData(false)]
         [InlineData(true)]
         public void DetailsKey_PersistsThroughThePublicAdapterAndNextFrame(bool throughApp) {
-            var diagram = Ui.Diagram("Worker").Node("Worker", node => node.Value("42")).Build;
+            var diagram = Ui.Diagram("Worker").Node("Worker", node => node.Value("42"));
             diagram.FocusNode("Worker");
             if (throughApp) {
                 var capture = new ScreenCapture(110, 40);
@@ -91,10 +91,11 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
 
         [Fact]
         public void ImportedBackwardLink_PreservesDirectionInTheCoreModelAndTree() {
+            Assert.Throws<ArgumentNullException>(() => ((TopologyChart)null!).ToDiagram());
             var chart = TopologyChart.Create().WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)
                 .AddAutoNode("A", "A").AddAutoNode("B", "B")
                 .AddEdge("back", "A", "B", "reply", direction: VisualLinkDirection.Backward);
-            Diagram diagram = Diagram.From(chart);
+            Diagram diagram = chart.ToDiagram();
             DiagramLink link = Assert.Single(diagram.Links);
             Assert.Equal("B", link.From);
             Assert.Equal("A", link.To);
@@ -140,7 +141,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
 
         [Fact]
         public void PlaybackInNarrowTree_IgnoresAResizeResetAndContinuesAtTheNextForwardFrame() {
-            var diagram = Ui.Diagram("Checkout").UseCase("Order", u => u.Delay(1000).Step("Shopper", "Web", "POST").Reply("Web", "Shopper", "Thanks")).Build;
+            var diagram = Ui.Diagram("Checkout").UseCase("Order", u => u.Delay(1000).Step("Shopper", "Web", "POST").Reply("Web", "Shopper", "Thanks"));
             diagram.Play();
             void Frame(int milliseconds) {
                 var profile = TerminalProfile.Fixed(12, 60, ColorDepth.None, GlyphTier.Full);
@@ -156,7 +157,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         public void Run_NarrowTree_ShowsPlaybackKeysAndScrollsTheActivePayload() {
             string payload = string.Join("\n", Enumerable.Range(1, 24).Select(index => "payload-" + index)) + "\npayload-last";
             var diagram = Ui.Diagram("Narrow playback")
-                .UseCase("Inspect", useCase => useCase.Step("Source", "Destination", "Request", step => step.Payload(new System.Collections.Generic.Dictionary<string, object?> { { "Body", payload } }))).Build;
+                .UseCase("Inspect", useCase => useCase.Step("Source", "Destination", "Request", step => step.Payload(new System.Collections.Generic.Dictionary<string, object?> { { "Body", payload } })));
             diagram.MaxPayloadLines = 30;
             diagram.Step(0);
             var capture = new ScreenCapture(34, 14);
@@ -173,7 +174,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [InlineData(null)]
         [InlineData(InteractionMode.Line)]
         public void Run_RedirectedSnapshotRetainsTheAttentionSummaryAndDoesNotAutoplay(InteractionMode? mode) {
-            var diagram = Ui.Diagram("Monitor").Node("VPN", n => n.Status(StatusKind.Fail).Subtitle("vpn.contoso.com")).UseCase("Connect", u => u.AutoPlay().Step("VPN", "VPN", "connect")).Build;
+            var diagram = Ui.Diagram("Monitor").Node("VPN", n => n.Status(StatusKind.Fail).Subtitle("vpn.contoso.com")).UseCase("Connect", u => u.AutoPlay().Step("VPN", "VPN", "connect"));
             using var writer = new StringWriter();
             var original = new InteractiveOptions { Mode = mode, Target = new WriterTarget(writer, 60) };
             var options = new ConsoleAppOptions { Interactive = original };

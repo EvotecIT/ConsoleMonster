@@ -21749,7 +21749,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
           "Member": "Summary",
           "Argument": "show",
           "MemberKind": "Method",
@@ -21825,12 +21825,14 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
           "Member": "ShowKeys",
-          "Argument": "show",
-          "MemberKind": "Method",
+          "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean"
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "ShowLegend",
@@ -22177,7 +22179,7 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
           "Member": "Summary",
           "Argument": "show",
           "MemberKind": "Method",
@@ -22216,12 +22218,14 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
           "Member": "ShowKeys",
-          "Argument": "show",
-          "MemberKind": "Method",
+          "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean"
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "ShowLegend",
@@ -27319,7 +27323,6 @@
     "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.Diagram",
-    "ConsoleMonster.Widgets.DiagramBuilder",
     "ConsoleMonster.Widgets.DiagramGroup",
     "ConsoleMonster.Widgets.DiagramLink",
     "ConsoleMonster.Widgets.DiagramNode",
@@ -27646,7 +27649,6 @@
     "ConsoleMonster.Widgets.ContextWidget",
     "ConsoleMonster.Widgets.Dashboard",
     "ConsoleMonster.Widgets.Diagram",
-    "ConsoleMonster.Widgets.DiagramBuilder",
     "ConsoleMonster.Widgets.DiagramDirection",
     "ConsoleMonster.Widgets.DiagramGroup",
     "ConsoleMonster.Widgets.DiagramLink",
@@ -30037,24 +30039,6 @@
       "Reason": "The explicit diagram builder method configures this model property."
     },
     {
-      "CSharpType": "ConsoleMonster.Widgets.Diagram",
-      "Member": "ShowKeys",
-      "MemberId": "ConsoleMonster.Widgets.Diagram.ShowKeys",
-      "CSharpTypeName": "System.Boolean",
-      "Command": "New-ConsoleDiagram",
-      "Parameter": "ShowKeys",
-      "Reason": "The explicit diagram builder method configures this model property."
-    },
-    {
-      "CSharpType": "ConsoleMonster.Widgets.Diagram",
-      "Member": "ShowKeys",
-      "MemberId": "ConsoleMonster.Widgets.Diagram.ShowKeys",
-      "CSharpTypeName": "System.Boolean",
-      "Command": "Show-ConsoleDiagram",
-      "Parameter": "ShowKeys",
-      "Reason": "The explicit diagram builder method configures this model property."
-    },
-    {
       "CSharpType": "ConsoleMonster.Widgets.DiagramLink",
       "Member": "Both",
       "MemberId": "ConsoleMonster.Widgets.DiagramLink.Both",
@@ -30725,10 +30709,9 @@
         {
           "Command": "New-ConsoleDiagram",
           "Noun": "Diagram",
-          "ReturnType": "ConsoleMonster.Widgets.DiagramBuilder",
-          "ContentBuilder": false,
+          "ReturnType": "ConsoleMonster.Widgets.Diagram",
+          "ContentBuilder": true,
           "Pattern": "Ui.Diagram()",
-          "Materialize": "Build",
           "InitializerTypes": [
             "ConsoleMonster.Widgets.Diagram"
           ]

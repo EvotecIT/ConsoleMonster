@@ -14,7 +14,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Link("This PC", "Router")
             .Link("Router", "DNS")
             .Link("Router", "VPN")
-            .Link("Router", "contoso.com")
-            .Build;
+            .Link("Router", "contoso.com");
     }
 }

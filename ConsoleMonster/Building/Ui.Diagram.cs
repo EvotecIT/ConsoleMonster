@@ -4,7 +4,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster {
     public static partial class Ui {
         /// <summary>Starts a diagram chain using the same model as object initializers and PowerShell.</summary>
-        public static DiagramBuilder Diagram(string title = "") => new DiagramBuilder(new Diagram(title));
+        public static Diagram Diagram(string title = "") => new Diagram(title);
     }
 }
 

@@ -155,8 +155,7 @@ var diagram = Ui.Diagram("Home network")
     .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
     .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
         .Subtitle("192.168.1.1").Value("1 ms"))
-    .Link("Laptop", "Router", l => l.Label("Wi-Fi"))
-    .Build;
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
 Terminal.Write(diagram);
 ```
 
@@ -164,7 +163,8 @@ For boxes, routed connections, keyboard navigation and use case playback, add th
 package and call `DiagramRendererProvider.Register()` once at startup, before creating diagrams. Registration is
 required on every target framework, including net472 and netstandard2.0 consumers; a package reference alone does
 not load the assembly or register the renderer. Then `diagram.Run()` opens the keyboard view, and
-`Diagram.Load(path, diagramId)` or `Diagram.From(chart)` imports through the registered provider. Core does not
+`Diagram.Load(path, diagramId)` imports files through the registered provider. For a ChartForgeX `TopologyChart`,
+use `chart.ToDiagram()` with `using ConsoleMonster.Graphics;`. The typed extension belongs to Graphics; core does not
 reference ChartForgeX.
 
 The PowerShell module bundles Graphics and registers it for diagram commands:

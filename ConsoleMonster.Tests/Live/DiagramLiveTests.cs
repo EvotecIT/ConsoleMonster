@@ -12,14 +12,14 @@ namespace ConsoleMonster.Tests.Live {
     public sealed class DiagramLiveTests {
         [Fact]
         public void FluentSession_DiscoversTheDiagramForAddressedUpdates() {
-            DiagramBuilder builder = Ui.Diagram("Monitor").Node("VPN", node => node.Subtitle("vpn.contoso.com"));
-            using var session = builder.CreateSession(LiveSessionTests.Options(new FakeOutput(false)));
-            builder.Build.Handle(session).Value("VPN", "180 ms", StatusKind.Warn);
+            Diagram diagram = Ui.Diagram("Monitor").Node("VPN", node => node.Subtitle("vpn.contoso.com"));
+            using var session = diagram.CreateSession(LiveSessionTests.Options(new FakeOutput(false)));
+            diagram.Handle(session).Value("VPN", "180 ms", StatusKind.Warn);
             session.Start(); session.Stop();
             Assert.Equal(0, session.ApplyErrors);
             Assert.Equal(0, session.RenderErrors);
-            Assert.Equal("180 ms", builder.Build.Values["VPN"]);
-            Assert.Equal(StatusKind.Warn, builder.Build.Nodes.Single().Status);
+            Assert.Equal("180 ms", diagram.Values["VPN"]);
+            Assert.Equal(StatusKind.Warn, diagram.Nodes.Single().Status);
         }
 
         [Fact]

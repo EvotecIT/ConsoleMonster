@@ -16,7 +16,6 @@ namespace ConsoleMonster.Examples.Diagrams {
             .Link("Anna", "Julia")
             .Link("Marek", "Tom")
             .Link("Marek", "Ola")
-            .Link("Julia", "Ben")
-            .Build;
+            .Link("Julia", "Ben");
     }
 }

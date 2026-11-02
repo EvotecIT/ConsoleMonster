@@ -63,7 +63,7 @@ var diagram = new Diagram("Home network") {
 Terminal.Write(diagram);
 ```
 
-The fluent form produces the same widget through `.Build`:
+The fluent chain returns the `Diagram` itself, ready for `.Show()` or `Terminal.Write(...)`:
 
 ```csharp
 using ConsoleMonster;
@@ -73,8 +73,7 @@ var diagram = Ui.Diagram("Home network")
     .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
     .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
         .Subtitle("192.168.1.1").Value("1 ms"))
-    .Link("Laptop", "Router", l => l.Label("Wi-Fi"))
-    .Build;
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
 Terminal.Write(diagram);
 ```
 
@@ -165,8 +164,8 @@ creating diagrams, on every target framework. This includes .NET Framework
 4.7.2 and .NET Standard 2.0 consumers: referencing the package alone does not
 load the assembly or register the provider.
 
-After registration, `Diagram.Load(path, diagramId)` loads a supported file, and
-`Diagram.From(chart)` imports a ChartForgeX `TopologyChart` with `TChart` inferred
-by the compiler. These are provider factories on the core model; core does not
-reference ChartForgeX. See the [Graphics guide](../../ConsoleMonster.Graphics/README.md#diagrams-and-use-case-playback)
+After registration, `Diagram.Load(path, diagramId)` loads a supported file.
+For a ChartForgeX `TopologyChart`, use the typed `chart.ToDiagram()` extension
+with `using ConsoleMonster.Graphics;`. Chart conversion belongs to Graphics;
+core does not reference ChartForgeX. See the [Graphics guide](../../ConsoleMonster.Graphics/README.md#diagrams-and-use-case-playback)
 for startup registration, file loading, live updates and keyboard controls.
