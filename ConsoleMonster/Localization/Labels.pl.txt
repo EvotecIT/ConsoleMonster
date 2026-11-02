@@ -282,6 +282,7 @@ Widget.HelpRequired = Wymagane.
 Widget.HelpDefault = [domyślnie: {0}]
 
 Widget.ChangesMissing = (brak)
+Widget.ChangesEmpty = (puste)
 Widget.ChangesCaseOnly = tylko wielkość liter
 Widget.ChangesCaseOnlyCount = {0} tylko wielkość liter
 Widget.ChangesBaseline = wzorzec

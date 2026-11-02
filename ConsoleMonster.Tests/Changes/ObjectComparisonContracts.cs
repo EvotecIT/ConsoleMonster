@@ -107,6 +107,8 @@ namespace ConsoleMonster.Tests.Changes {
             Assert.All(compact.Split('\n'), line => Assert.True(line.Length <= 48));
             Assert.DoesNotContain("records", compact);
             Assert.Contains("4 properties shown", compact);
+            Assert.Contains("(empty)", compact);
+            Assert.DoesNotContain("columns (", TestTerminal.RenderText(new BaselineView(comparison), 60, 0, GlyphTier.Ascii));
             string translated = TestTerminal.RenderText(new BaselineView(comparison), 100, 0, GlyphTier.Ascii, CultureInfo.GetCultureInfo("pl"));
             Assert.Contains("Pokazano 4 właściwości, ukryto 2 zgodnych", translated);
             options.IncludeUnchanged = true;

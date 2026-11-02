@@ -25867,6 +25867,14 @@
       "CSharpTypeName": "System.String",
       "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
       "Disposition": "CSharpOnly",
+      "Member": "ChangesEmpty",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
       "Member": "ChangesCaseOnly",
       "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
     },

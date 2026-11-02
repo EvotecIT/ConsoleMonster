@@ -28,7 +28,8 @@ namespace ConsoleMonster.Changes {
 
         private IWidget Build(RenderContext context) {
             WidgetLabels labels = context.Labels;
-            var table = new Table { Title = Title, Border = TableBorder.Rounded, ShowCardCount = false };
+            // Hiding an object or the status column would hide the drift itself, so cards take over whenever the grid does not fit.
+            var table = new Table { Title = Title, Border = TableBorder.Rounded, CardsBelow = int.MaxValue, ShowCardCount = false };
             table.AddColumn(Markup.Escape(labels.ChangesProperty));
             for (int i = 0; i < Comparison.Names.Count; i++) {
                 string name = Comparison.Names[i] + (i == Comparison.BaselineIndex ? " (" + labels.ChangesBaseline + ")" : "");
@@ -40,7 +41,7 @@ namespace ConsoleMonster.Changes {
                 BaselineCell reference = row.Cells[Comparison.BaselineIndex];
                 for (int i = 0; i < row.Cells.Count; i++) {
                     BaselineCell cell = row.Cells[i];
-                    string text = cell.IsPresent ? ObjectDiff.PairText(cell.Value, reference.Value) : labels.ChangesMissing;
+                    string text = !cell.IsPresent ? labels.ChangesMissing : ObjectDiff.PairText(cell.Value, reference.Value) is { Length: > 0 } value ? value : labels.ChangesEmpty;
                     string tone = i == Comparison.BaselineIndex ? "accent bold" :
                         !cell.IsPresent || cell.Kind == ChangeKind.Removed ? "fail" : cell.Kind == ChangeKind.Added ? "pass" :
                         cell.Kind == ChangeKind.Changed || cell.IsCaseOnly ? "warn" : "text";

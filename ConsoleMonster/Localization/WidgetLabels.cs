@@ -365,6 +365,9 @@ namespace ConsoleMonster.Localization {
         /// <summary>An absent property, distinct from a present null or empty value.</summary>
         public string ChangesMissing { get; set; } = "(missing)";
 
+        /// <summary>A present property whose value is null or empty, so a narrow card still lists it.</summary>
+        public string ChangesEmpty { get; set; } = "(empty)";
+
         /// <summary>A case-only difference ignored for equality.</summary>
         public string ChangesCaseOnly { get; set; } = "case only";
 

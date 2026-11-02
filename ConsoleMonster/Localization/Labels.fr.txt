@@ -282,6 +282,7 @@ Widget.HelpRequired = Obligatoire.
 Widget.HelpDefault = [par défaut : {0}]
 
 Widget.ChangesMissing = (absent)
+Widget.ChangesEmpty = (vide)
 Widget.ChangesCaseOnly = casse uniquement
 Widget.ChangesCaseOnlyCount = {0} casse uniquement
 Widget.ChangesBaseline = référence

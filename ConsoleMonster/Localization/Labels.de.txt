@@ -282,6 +282,7 @@ Widget.HelpRequired = Erforderlich.
 Widget.HelpDefault = [Standard: {0}]
 
 Widget.ChangesMissing = (fehlt)
+Widget.ChangesEmpty = (leer)
 Widget.ChangesCaseOnly = nur Groß-/Kleinschreibung
 Widget.ChangesCaseOnlyCount = {0} nur Groß-/Kleinschreibung
 Widget.ChangesBaseline = Referenz

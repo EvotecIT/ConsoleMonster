@@ -32,6 +32,7 @@ Document.TableAlignments = Alignments must match the header cell count.
 Document.Self = A document cannot contain itself.
 
 Widget.ChangesMissing = (missing)
+Widget.ChangesEmpty = (empty)
 Widget.ChangesCaseOnly = case only
 Widget.ChangesCaseOnlyCount = {0} case only
 Widget.ChangesBaseline = baseline
