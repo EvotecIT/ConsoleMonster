@@ -289,3 +289,6 @@ Widget.ChangesStatus = Stan
 Widget.ChangesSame = zgodne
 Widget.ChangesDiffers = różne
 Widget.ChangesMissingOn = brak w {0}
+Widget.ChangesOnePropertyShown = Pokazano {0} właściwość
+Widget.ChangesPropertiesShown = Pokazano {0} właściwości
+Widget.ChangesMatchingHidden = ukryto {0} zgodnych (-IncludeEqual)

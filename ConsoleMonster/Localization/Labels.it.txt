@@ -289,3 +289,6 @@ Widget.ChangesStatus = Stato
 Widget.ChangesSame = uguale
 Widget.ChangesDiffers = diverso
 Widget.ChangesMissingOn = mancante in {0}
+Widget.ChangesOnePropertyShown = {0} proprietà mostrata
+Widget.ChangesPropertiesShown = {0} proprietà mostrate
+Widget.ChangesMatchingHidden = {0} uguali nascoste (-IncludeEqual)

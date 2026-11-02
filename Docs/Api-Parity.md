@@ -624,6 +624,9 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Localization.WidgetLabels.ChangesSame` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 | `ConsoleMonster.Localization.WidgetLabels.ChangesDiffers` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 | `ConsoleMonster.Localization.WidgetLabels.ChangesMissingOn` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesOnePropertyShown` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesPropertiesShown` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesMatchingHidden` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 
 ## .NET host integrations
 

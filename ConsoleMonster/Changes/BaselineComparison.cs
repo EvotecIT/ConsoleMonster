@@ -43,11 +43,12 @@ namespace ConsoleMonster.Changes {
 
     /// <summary>A baseline comparison whose columns preserve the supplied object order.</summary>
     public sealed class BaselineComparison {
-        internal BaselineComparison(IReadOnlyList<string> names, int baselineIndex, IReadOnlyList<BaselineRow> rows, IReadOnlyList<string> notCompared) {
+        internal BaselineComparison(IReadOnlyList<string> names, int baselineIndex, IReadOnlyList<BaselineRow> rows, IReadOnlyList<string> notCompared, int hiddenMatchingCount) {
             Names = names;
             BaselineIndex = baselineIndex;
             Rows = rows;
             NotCompared = notCompared;
+            HiddenMatchingCount = hiddenMatchingCount;
         }
 
         /// <summary>The object names used as column headings.</summary>
@@ -56,6 +57,8 @@ namespace ConsoleMonster.Changes {
         public int BaselineIndex { get; }
         /// <summary>Different rows and visible case-only differences; equal rows appear when requested.</summary>
         public IReadOnlyList<BaselineRow> Rows { get; }
+        /// <summary>The number of matching property rows omitted because unchanged rows were not requested.</summary>
+        public int HiddenMatchingCount { get; }
         /// <summary>Paths skipped because member reading exceeded the time budget.</summary>
         public IReadOnlyList<string> NotCompared { get; }
     }

@@ -4,6 +4,9 @@ using System.Linq;
 using System.Globalization;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Changes;
+using ConsoleMonster.Canvas;
+using ConsoleMonster.Export;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
 using Xunit;
 
@@ -73,16 +76,19 @@ namespace ConsoleMonster.Tests.Changes {
         [Fact]
         public void BaselineMatrix_UsesSelectedReferenceAndInputOrder_WithMissingAndEqualRows() {
             object[] objects = {
-                new Dictionary<string, object?> { ["Name"] = "dc01", ["Port"] = 80, ["Site"] = "HQ", ["Optional"] = "", ["EmptyRecord"] = new Dictionary<string, object?>() },
-                new Dictionary<string, object?> { ["Name"] = "dc02", ["Port"] = 443, ["Site"] = "HQ", ["Optional"] = null },
-                new Dictionary<string, object?> { ["Name"] = "dc03", ["Port"] = 443, ["Site"] = "HQ" }
+                new Dictionary<string, object?> { ["Name"] = "dc01", ["Port"] = 80, ["Site"] = "HQ", ["Optional"] = "", ["EmptyRecord"] = new Dictionary<string, object?>(), ["Spn"] = "ldap/dc01.example", ["CaseValue"] = "BASE" },
+                new Dictionary<string, object?> { ["Name"] = "dc02", ["Port"] = 443, ["Site"] = "HQ", ["Optional"] = null, ["Spn"] = "ldap/dc02.example", ["CaseValue"] = "BASE" },
+                new Dictionary<string, object?> { ["Name"] = "dc03", ["Port"] = 443, ["Site"] = "HQ", ["Spn"] = "ldap/dc03.example", ["CaseValue"] = "base" }
             };
             var options = new DiffOptions();
             options.Ignore.Add("Name");
+            options.Normalize["Spn"] = value => System.Text.RegularExpressions.Regex.Replace((string)value!, "/[^.]+", "/HOST");
             BaselineComparison comparison = ObjectDiff.CompareBaseline(objects, options, baselineIndex: 1);
             Assert.Equal(new[] { "dc01", "dc02", "dc03" }, comparison.Names);
             Assert.Equal(1, comparison.BaselineIndex);
             Assert.DoesNotContain(comparison.Rows, row => row.Path == "Site");
+            Assert.DoesNotContain(comparison.Rows, row => row.Path == "Spn");
+            Assert.Equal(2, comparison.HiddenMatchingCount);
             Assert.Equal(new[] { ChangeKind.Changed, ChangeKind.Unchanged, ChangeKind.Unchanged }, comparison.Rows.Single(r => r.Path == "Port").Cells.Select(c => c.Kind));
             BaselineRow optional = comparison.Rows.Single(r => r.Path == "Optional");
             Assert.Equal(1, optional.MissingCount);
@@ -95,10 +101,42 @@ namespace ConsoleMonster.Tests.Changes {
             Assert.Contains("missing on 1", rendered);
             Assert.Contains("(missing)", rendered);
             Assert.Contains("differs", rendered);
+            Assert.Contains("differs, missing on 1", rendered);
+            Assert.Contains("4 properties shown, 2 matching hidden (-IncludeEqual)", rendered);
             string compact = TestTerminal.RenderText(new BaselineView(comparison), 48, 0, GlyphTier.Ascii);
             Assert.All(compact.Split('\n'), line => Assert.True(line.Length <= 48));
+            Assert.DoesNotContain("records", compact);
+            Assert.Contains("4 properties shown", compact);
+            string translated = TestTerminal.RenderText(new BaselineView(comparison), 100, 0, GlyphTier.Ascii, CultureInfo.GetCultureInfo("pl"));
+            Assert.Contains("Pokazano 4 właściwości, ukryto 2 zgodnych (-IncludeEqual)", translated);
             options.IncludeUnchanged = true;
-            Assert.Contains(ObjectDiff.CompareBaseline(objects, options).Rows, row => row.Path == "Site" && !row.HasDifferences);
+            BaselineComparison all = ObjectDiff.CompareBaseline(objects, options, baselineIndex: 1);
+            Assert.Contains(all.Rows, row => row.Path == "Site" && !row.HasDifferences);
+            Assert.Equal(0, all.HiddenMatchingCount);
+            string allText = TestTerminal.RenderText(new BaselineView(all), 100, 0, GlyphTier.Ascii);
+            Assert.Contains("6 properties shown", allText);
+            Assert.DoesNotContain("hidden", allText);
+            foreach (ITheme theme in new ITheme[] { Theme.Dark, Theme.Light }) {
+                CellBuffer frame = ConsoleExporter.Render(new BaselineView(all), new ExportOptions { Width = 140, ColorDepth = ColorDepth.TrueColor, Glyphs = GlyphTier.Ascii }, theme);
+                string[] lines = frame.ToPlainText().Split('\n');
+                Cell At(string row, string value) {
+                    int y = Array.FindIndex(lines, line => line.Contains(row));
+                    Assert.InRange(y, 0, lines.Length - 1);
+                    int x = lines[y].IndexOf(value, StringComparison.Ordinal);
+                    Assert.InRange(x, 0, frame.Width - 1);
+                    return frame[x, y];
+                }
+                Assert.Equal(theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor).Color, At("Port", "differs").Style.Color);
+                Assert.Equal(theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor).Color, At("Optional", "differs").Style.Color);
+                Assert.Equal(theme.Resolve(ThemeToken.Fail, ColorDepth.TrueColor).Color, At("Optional", "missing on 1").Style.Color);
+                Assert.Equal(theme.Resolve(ThemeToken.Warn, ColorDepth.TrueColor).Color, At("CaseValue", "case only").Style.Color);
+                Assert.Equal(theme.Resolve(ThemeToken.Muted, ColorDepth.TrueColor).Color, At("Site", "same").Style.Color);
+                Assert.Equal(theme.Resolve(ThemeToken.Accent, ColorDepth.TrueColor).Color, At("Property", "dc02").Style.Color);
+                Cell baseline = At("Port", "443");
+                Assert.Equal(theme.Resolve(ThemeToken.Accent, ColorDepth.TrueColor).Color, baseline.Style.Color);
+                Assert.Equal(TextDecoration.Bold, baseline.Style.Decoration & TextDecoration.Bold);
+                Assert.Equal(theme.Resolve(ThemeToken.Text, ColorDepth.TrueColor).Color, At("Site", "HQ").Style.Color);
+            }
             Assert.Throws<ArgumentOutOfRangeException>(() => ObjectDiff.CompareBaseline(objects, baselineIndex: 3));
         }
     }

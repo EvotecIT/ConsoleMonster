@@ -25917,6 +25917,30 @@
       "Disposition": "CSharpOnly",
       "Member": "ChangesMissingOn",
       "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels",
+      "Member": "ChangesOnePropertyShown",
+      "CSharpTypeName": "System.String",
+      "Disposition": "CSharpOnly",
+      "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels",
+      "Member": "ChangesPropertiesShown",
+      "CSharpTypeName": "System.String",
+      "Disposition": "CSharpOnly",
+      "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels",
+      "Member": "ChangesMatchingHidden",
+      "CSharpTypeName": "System.String",
+      "Disposition": "CSharpOnly",
+      "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
     }
   ],
   "SchemaVersion": 2,

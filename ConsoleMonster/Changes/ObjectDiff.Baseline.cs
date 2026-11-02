@@ -34,7 +34,8 @@ namespace ConsoleMonster.Changes {
             }
             var rows = new List<BaselineRow>();
             BaselineInto(rows, string.Empty, items, items.Select(i => i != null).ToArray(), options, baselineIndex, 0);
-            return new BaselineComparison(headings, baselineIndex, rows, options.NotCompared.ToArray());
+            BaselineRow[] shown = options.IncludeUnchanged ? rows.ToArray() : rows.Where(row => row.HasDifferences || row.HasCaseDifferences).ToArray();
+            return new BaselineComparison(headings, baselineIndex, shown, options.NotCompared.ToArray(), rows.Count - shown.Length);
         }
 
         private static void BaselineInto(List<BaselineRow> rows, string path, object?[] values, bool[] present, DiffOptions options, int baseline, int depth) {
@@ -64,7 +65,7 @@ namespace ConsoleMonster.Changes {
                     cells.Add(new BaselineCell(values[i], present[i], kind, differences.Any(p => p.IsCaseOnly)));
                 }
                 var row = new BaselineRow(path.Length == 0 ? "(value)" : path, cells);
-                if (row.HasDifferences || row.HasCaseDifferences || options.IncludeUnchanged) { rows.Add(row); }
+                rows.Add(row);
                 return;
             }
             Dictionary<string, object?>[] fields = members!;

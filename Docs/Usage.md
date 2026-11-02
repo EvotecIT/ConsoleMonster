@@ -857,7 +857,11 @@ supplies explicit headings; otherwise `-NameProperty`, `-Property`, or the usual
 `-Ignore Name` omits the identifier from the compared rows while retaining it in the headings.
 Equal rows are hidden unless `-IncludeEqual` is set. Changed cells use the warning tone, properties absent on
 the reference use the added tone, and missing cells use the removed tone. The status says `same`, `differs`,
-`case only`, or `missing on N`. Narrow widths use the standard table wrapping and record-card fallback.
+`case only`, or `missing on N`; a row that differs and has missing values reports both. Status words use their
+matching tones, while the reference column uses accent and bold emphasis. The footer counts the property rows
+shown and matching rows hidden by default, with `-IncludeEqual` as the hint to show them. In C#,
+`BaselineComparison.HiddenMatchingCount` provides the hidden count. Narrow widths use the standard table
+wrapping and record-card fallback.
 `-PassThru` returns `BaselineRow` records with `Path`, ordered `Cells`, `MissingCount`, `HasDifferences`, and
 `HasCaseDifferences`. Each `BaselineCell` retains its original `Value`, `IsPresent`, `Kind`, and `IsCaseOnly`.
 

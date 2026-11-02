@@ -386,6 +386,15 @@ namespace ConsoleMonster.Localization {
         /// <summary>A row missing on a number of objects.</summary>
         public string ChangesMissingOn { get; set; } = "missing on {0}";
 
+        /// <summary>The baseline footer when one property row is shown.</summary>
+        public string ChangesOnePropertyShown { get; set; } = "{0} property shown";
+
+        /// <summary>The number of property rows actually shown in a baseline matrix.</summary>
+        public string ChangesPropertiesShown { get; set; } = "{0} properties shown";
+
+        /// <summary>Matching property rows hidden from a baseline matrix, with the PowerShell option to include them.</summary>
+        public string ChangesMatchingHidden { get; set; } = "{0} matching hidden (-IncludeEqual)";
+
         /// <summary>The item column of a change table.</summary>
         public string ChangesItem { get; set; } = "Item";
 
