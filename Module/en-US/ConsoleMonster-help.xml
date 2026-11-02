@@ -27814,7 +27814,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:noun>ConsoleDiagram</command:noun>
       <maml:description>
         <maml:para>Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.</maml:para>
-        <maml:para>Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes, D shows the focused node's details and Esc ends the view. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.</maml:para>
+        <maml:para>Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
@@ -27824,7 +27824,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Show-ConsoleDiagram</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>AsString</maml:name>
           <maml:description>
             <maml:para>Returns the static view as one plain-text string.</maml:para>
@@ -27836,10 +27836,10 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>AsWidget</maml:name>
           <maml:description>
-            <maml:para>Returns the diagram widget without drawing it, for Show-ConsoleApp layouts or live updates.</maml:para>
+            <maml:para>Returns the diagram widget without drawing it, for static display or live updates in Show-ConsoleApp layouts. The consumer must handle keys to enable diagram navigation and playback. Cannot be combined with -AsString or -StaticSnapshot.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -27848,7 +27848,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Diagram</maml:name>
           <maml:description>
             <maml:para>The diagram id to show when the file has more than one architecture, topology or flow diagram.</maml:para>
@@ -27860,10 +27860,10 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Mode</maml:name>
           <maml:description>
-            <maml:para>Rich runs the keyboard view. Line, Accessible and None print the static view.</maml:para>
+            <maml:para>Rich runs the keyboard view. Line, Accessible, None and Snapshot print the static view.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">InteractionMode</command:parameterValue>
           <command:parameterValueGroup>
@@ -27871,6 +27871,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
             <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">Accessible</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Snapshot</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>InteractionMode</maml:name>
@@ -27878,7 +27879,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Path</maml:name>
           <maml:description>
             <maml:para>The Markdown or architecture file to read. A file without visual fences is read as one ChartForgeX architecture diagram.</maml:para>
@@ -27890,7 +27891,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Scenario</maml:name>
           <maml:description>
             <maml:para>The use case id to select. Defaults to the diagram's first use case.</maml:para>
@@ -27902,7 +27903,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>StaticSnapshot</maml:name>
           <maml:description>
             <maml:para>Prints a static view without reading keys.</maml:para>
@@ -27914,7 +27915,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Step</maml:name>
           <maml:description>
             <maml:para>The one-based step to highlight in the selected use case. Interactive views start there; static views show that step.</maml:para>
@@ -27926,7 +27927,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Width</maml:name>
           <maml:description>
             <maml:para>Width used by the static view; zero detects the host width.</maml:para>
@@ -27941,7 +27942,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>AsString</maml:name>
         <maml:description>
           <maml:para>Returns the static view as one plain-text string.</maml:para>
@@ -27953,10 +27954,10 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>AsWidget</maml:name>
         <maml:description>
-          <maml:para>Returns the diagram widget without drawing it, for Show-ConsoleApp layouts or live updates.</maml:para>
+          <maml:para>Returns the diagram widget without drawing it, for static display or live updates in Show-ConsoleApp layouts. The consumer must handle keys to enable diagram navigation and playback. Cannot be combined with -AsString or -StaticSnapshot.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -27965,7 +27966,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Diagram</maml:name>
         <maml:description>
           <maml:para>The diagram id to show when the file has more than one architecture, topology or flow diagram.</maml:para>
@@ -27977,10 +27978,10 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Mode</maml:name>
         <maml:description>
-          <maml:para>Rich runs the keyboard view. Line, Accessible and None print the static view.</maml:para>
+          <maml:para>Rich runs the keyboard view. Line, Accessible, None and Snapshot print the static view.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">InteractionMode</command:parameterValue>
         <command:parameterValueGroup>
@@ -27988,6 +27989,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <command:parameterValue required="false" variableLength="false">Line</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">Accessible</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Snapshot</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>InteractionMode</maml:name>
@@ -27995,7 +27997,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Path</maml:name>
         <maml:description>
           <maml:para>The Markdown or architecture file to read. A file without visual fences is read as one ChartForgeX architecture diagram.</maml:para>
@@ -28007,7 +28009,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Scenario</maml:name>
         <maml:description>
           <maml:para>The use case id to select. Defaults to the diagram's first use case.</maml:para>
@@ -28019,7 +28021,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>StaticSnapshot</maml:name>
         <maml:description>
           <maml:para>Prints a static view without reading keys.</maml:para>
@@ -28031,7 +28033,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Step</maml:name>
         <maml:description>
           <maml:para>The one-based step to highlight in the selected use case. Interactive views start there; static views show that step.</maml:para>
@@ -28043,7 +28045,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Width</maml:name>
         <maml:description>
           <maml:para>Width used by the static view; zero detects the host width.</maml:para>
@@ -28056,13 +28058,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes>
-      <command:inputType>
-        <dev:type>
-          <maml:name>System.Management.Automation.PSObject</maml:name>
-        </dev:type>
-      </command:inputType>
-    </command:inputTypes>
+    <command:inputTypes />
     <command:returnValues>
       <command:returnValue>
         <dev:type>

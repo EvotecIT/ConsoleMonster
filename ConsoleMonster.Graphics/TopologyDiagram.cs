@@ -14,9 +14,11 @@ namespace ConsoleMonster.Graphics {
     /// use case player (step list, payload, keys), node focus details and live node values. ChartForgeX lays the
     /// diagram out and projects it into cells; this widget only styles and draws those cells.
     /// </summary>
-    /// <remarks>Keys, live events and rendering may arrive on different threads, so every state change takes one lock.</remarks>
+    /// <remarks>Widget state changes and rendering share a lock. Finish configuring the chart before construction and
+    /// do not mutate it afterwards; the widget caches its prepared geometry. Create a new widget for a changed chart.</remarks>
     public sealed partial class TopologyDiagram : LiveWidget {
         private const double NaturalPixelsPerColumn = 10.0;
+        private const int ValueColumns = 10;
         private readonly object _gate = new object();
         private readonly TopologyChart _chart;
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -33,6 +35,7 @@ namespace ConsoleMonster.Graphics {
         private bool _playing;
         private bool _showDetails = true;
         private TimeSpan? _playAnchor;
+        private TimeSpan? _lastPlaybackFrame;
         private int _playFrom;
 
         /// <summary>Creates a view of a topology. The first use case that resolves, when there is one, is selected without an active step.</summary>
@@ -45,7 +48,7 @@ namespace ConsoleMonster.Graphics {
             }
         }
 
-        /// <summary>The topology being drawn.</summary>
+        /// <summary>The topology being drawn. Treat it as immutable after construction; create a new widget for chart changes.</summary>
         public TopologyChart Chart => _chart;
         /// <summary>The selected use case id, or null.</summary>
         public string? ScenarioId { get { lock (_gate) { return _scenario?.Id; } } }
@@ -58,18 +61,21 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Whether the use case is playing; steps advance with the live session clock.</summary>
         public bool Playing { get { lock (_gate) { return _playing; } } }
         /// <summary>Whether the status legend is drawn under the diagram.</summary>
-        public bool ShowLegend { get; set; } = true;
+        public bool ShowLegend { get { lock (_gate) { return _showLegend; } } set { lock (_gate) { _showLegend = value; } } }
+        private bool _showLegend = true;
         /// <summary>Whether the use case panel (steps and payload) is drawn.</summary>
-        public bool ShowStepPanel { get; set; } = true;
+        public bool ShowStepPanel { get { lock (_gate) { return _showStepPanel; } } set { lock (_gate) { _showStepPanel = value; } } }
+        private bool _showStepPanel = true;
         /// <summary>Whether the focused node's details are drawn.</summary>
         public bool ShowDetails { get { lock (_gate) { return _showDetails; } } set { lock (_gate) { _showDetails = value; } } }
-        /// <summary>Whether the key hints line is drawn in the use case panel; <see cref="TopologyDiagramApp.Run"/> turns it on.</summary>
-        public bool ShowKeys { get; set; }
+        /// <summary>Whether hints for the available diagram actions are drawn; <see cref="TopologyDiagramApp.Run"/> turns them on.</summary>
+        public bool ShowKeys { get { lock (_gate) { return _showKeys; } } set { lock (_gate) { _showKeys = value; } } }
+        private bool _showKeys;
         /// <summary>The most payload lines shown for the active step.</summary>
-        public int MaxPayloadLines { get => _maxPayloadLines; set => _maxPayloadLines = Math.Max(1, value); }
+        public int MaxPayloadLines { get { lock (_gate) { return _maxPayloadLines; } } set { lock (_gate) { _maxPayloadLines = Math.Max(1, value); } } }
         private int _maxPayloadLines = 8;
         /// <summary>The most step lines shown around the active step.</summary>
-        public int MaxStepLines { get => _maxStepLines; set => _maxStepLines = Math.Max(1, value); }
+        public int MaxStepLines { get { lock (_gate) { return _maxStepLines; } } set { lock (_gate) { _maxStepLines = Math.Max(1, value); } } }
         private int _maxStepLines = 7;
         /// <summary>A copy of the live values shown on the nodes' second line.</summary>
         public IReadOnlyDictionary<string, string> Values { get { lock (_gate) { return new Dictionary<string, string>(_values, StringComparer.Ordinal); } } }
@@ -122,6 +128,7 @@ namespace ConsoleMonster.Graphics {
                 if (_step.HasValue && _step.Value >= _scenario.Steps.Count - 1) _step = null;
                 _playing = true;
                 _playAnchor = null;
+                _lastPlaybackFrame = null;
             }
         }
 
@@ -151,7 +158,8 @@ namespace ConsoleMonster.Graphics {
 
         /// <summary>Sets a live value and optional status on a node, such as a health percentage or a count.</summary>
         /// <param name="nodeId">The node id.</param>
-        /// <param name="value">The value text, or null to show the node's subtitle again.</param>
+        /// <param name="value">The value text, or null to show the node's subtitle again. Node boxes reserve ten
+        /// columns for live values; longer text is clipped there and remains available in the focused details.</param>
         /// <param name="status">An optional live status that replaces the node's own status. With a null value and no status, the live status is cleared too.</param>
         public void SetValue(string nodeId, string? value, TopologyHealthStatus? status = null) {
             if (string.IsNullOrWhiteSpace(nodeId)) throw new ArgumentException("A node id is required.", nameof(nodeId));
@@ -224,16 +232,17 @@ namespace ConsoleMonster.Graphics {
         public override void Render(Region region, RenderContext context) {
             lock (_gate) {
                 Advance(context.Elapsed);
-                Draw(region, Compose(region.Width, context), context);
+                Draw(region, Compose(WidthFor(region.Width), context), context);
             }
         }
 
         internal PreparedTopology Prepared { get { lock (_gate) { return _prepared ??= _chart.Prepare(); } } }
 
         internal TopologyCellLayout Layout(int width) {
-            int reserve = Math.Min(64, _values.Values.Select(value => DisplayWidth.Measure(value)).DefaultIfEmpty(0).Max());
-            if (_values.Count > 0) reserve = Math.Max(reserve, 8);
+            // Reserve before the first update too: changing values never moves a node or its routes.
+            const int reserve = ValueColumns;
             int columns = Math.Max(20, Math.Min(1000, width));
+            width = columns;
             // The projection fills the columns it is given, so a small diagram in a wide terminal would get huge boxes.
             // Aim for the diagram's natural size, about one cell per 10 layout pixels, without dropping any text for it.
             int natural = Math.Max(20, Math.Min(columns, (int)Math.Ceiling(Prepared.Width / NaturalPixelsPerColumn) + reserve));
@@ -273,12 +282,15 @@ namespace ConsoleMonster.Graphics {
             _step = Math.Max(0, Math.Min(_scenario.Steps.Count - 1, index));
         }
 
-        private void StopPlayback() { _playing = false; _playAnchor = null; }
+        private void StopPlayback() { _playing = false; _playAnchor = null; _lastPlaybackFrame = null; }
 
         private void Advance(TimeSpan elapsed) {
             if (!_playing || _scenario == null || _scenario.Steps.Count == 0) return;
-            if (!_playAnchor.HasValue || elapsed < _playAnchor.Value) {
-                // A new clock (another session, or a frame drawn outside the session) restarts from the current step.
+            // Resize/arrangement can render with a stored context at zero. Such a frame is not a new playback clock.
+            // Starting another session requires Play(), which explicitly establishes a fresh anchor.
+            if (_lastPlaybackFrame.HasValue && elapsed < _lastPlaybackFrame.Value) return;
+            _lastPlaybackFrame = elapsed;
+            if (!_playAnchor.HasValue) {
                 _playAnchor = elapsed;
                 _playFrom = _step ?? -1;
             }

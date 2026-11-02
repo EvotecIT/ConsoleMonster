@@ -25703,46 +25703,6 @@
       "Reason": "The command keeps the widget default of seven step lines around the active step.",
       "Alternative": "Get the widget with Show-ConsoleDiagram -AsWidget, set the property, and draw it with Show-ConsoleApp or Out-Console.",
       "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Widgets.FooterBar",
-      "Member": "FixedSlots",
-      "CSharpTypeName": "System.Boolean",
-      "Reason": "Native app footers can reserve a slot for every command and shorten labels. Show-ConsoleApp -FooterHints builds the ordinary adaptive hint list.",
-      "Alternative": "Use -FooterHints for the supported hint layout; pass a configured FooterBar through Show-ConsoleApp -Footer for native fixed-slot composition.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Widgets.FooterBar",
-      "Member": "HintsSource",
-      "CSharpTypeName": "System.Func`1[System.Collections.Generic.IEnumerable`1[ConsoleMonster.Widgets.KeyHint]]",
-      "Reason": "Native app registries can supply render-time hints for the current focus/dialog. The PowerShell hint parameter is a concrete hint sequence and does not turn a scriptblock into a render-thread callback.",
-      "Alternative": "Use -FooterHints for fixed hints, or pass a typed FooterBar with a thread-safe native HintsSource through -Footer.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Widgets.FooterBar",
-      "Member": "Indent",
-      "CSharpTypeName": "System.Int32",
-      "Reason": "Native footer composition can change its first drawing column. The PowerShell built-in footer retains the standard one-cell inset.",
-      "Alternative": "Use Show-ConsoleApp -FooterHints for the standard inset, or pass a configured FooterBar through -Footer.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Widgets.FooterBar",
-      "Member": "KeepLast",
-      "CSharpTypeName": "System.Boolean",
-      "Reason": "Native footers can preserve a final help/key-map hint when earlier hints overflow. The PowerShell footer keeps the standard adaptive list policy.",
-      "Alternative": "Choose the -FooterHints sequence for ordinary hints, or pass a configured FooterBar through -Footer for custom overflow retention.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Widgets.FooterBar",
-      "Member": "Message",
-      "CSharpTypeName": "ConsoleMonster.Text.StyledLine",
-      "Reason": "Native toast hosts can replace hints with a styled message line. PowerShell -FooterHints defines hints rather than a transient toast state.",
-      "Alternative": "Pass a configured FooterBar through Show-ConsoleApp -Footer for native message-state composition.",
-      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,

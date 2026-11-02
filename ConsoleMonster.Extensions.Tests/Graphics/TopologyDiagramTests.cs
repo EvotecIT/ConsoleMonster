@@ -9,6 +9,7 @@ using ConsoleMonster.Graphics;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Live;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Testing;
@@ -60,7 +61,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             string text = Text(view, 120, GlyphTier.Basic);
 
             foreach (string glyph in new[] { "╭", "╌", "╎", "━", "┏", "▶" }) Assert.DoesNotContain(glyph, text, StringComparison.Ordinal);
-            Assert.Contains("╔", text, StringComparison.Ordinal);
+            Assert.Contains("╒", text, StringComparison.Ordinal);
             Assert.Contains("►", text, StringComparison.Ordinal);
         }
 
@@ -101,16 +102,62 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.False(view.Playing);
         }
 
-        [Fact]
-        public void Playback_ClockGoingBackwards_RestartsFromTheCurrentStep() {
-            var view = new TopologyDiagram(TopologyFixtures.AdReplication().WithPlaybackForTest(400));
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Playback_ResizeFrame_DoesNotReanchorTheNextForwardFrame(bool loop) {
+            var chart = TopologyFixtures.AdReplication().WithPlaybackForTest(400);
+            foreach (var scenario in chart.Scenarios) scenario.LoopPlayback = loop;
+            var view = new TopologyDiagram(chart);
             view.Play();
             RenderContext context = Context(130);
             Render(view, context.WithClock(0, TimeSpan.FromSeconds(10.5)));
             Assert.Equal(0, view.StepIndex);
+            Render(view, context.WithClock(1, TimeSpan.FromSeconds(10.95)));
+            Assert.Equal(1, view.StepIndex);
             Render(view, context.WithClock(1, TimeSpan.Zero));
             Assert.Equal(1, view.StepIndex);
+            Render(view, context.WithClock(2, TimeSpan.FromSeconds(11.35)));
+            Assert.Equal(2, view.StepIndex);
             Assert.True(view.Playing);
+        }
+
+        [Fact]
+        public void Layout_UnderTwentyColumns_MeasureAndRepeatedRenderStayWithinTheViewport() {
+            var view = new TopologyDiagram(TopologyFixtures.AdReplication());
+            RenderContext context = Context(12);
+            var measured = view.Measure(new Constraints(12, Constraints.Unbounded), context);
+            var frame = new CellBuffer(12, 60);
+            view.Render(new Region(frame), context);
+            var next = new CellBuffer(12, 60);
+            view.Measure(new Constraints(12, Constraints.Unbounded), context);
+            view.Render(new Region(next), context);
+            Assert.InRange(measured.Width, 1, 12);
+            Assert.True(measured.Height > 0);
+            Assert.Equal(frame.ToPlainText(), next.ToPlainText());
+            Assert.Equal(12, frame.Width);
+            Assert.False(string.IsNullOrWhiteSpace(frame.ToPlainText()));
+        }
+
+        [Fact]
+        public void LiveValues_GrowingText_PreservesReservedNodePositions() {
+            var view = new TopologyDiagram(TopologyFixtures.AdReplication()) { ShowStepPanel = false };
+            Assert.Contains("DC04", Text(view, 130), StringComparison.Ordinal);
+            string[] borders = Borders(view);
+            foreach (string value in new[] { "1", "1234567890", new string('9', 80) }) {
+                view.SetValue("dc03", value);
+                Render(view, Context(130));
+                Assert.Equal(borders, Borders(view));
+            }
+            view.FocusNode("dc03");
+            Assert.Contains("Value: " + new string('9', 80), Text(view, 130), StringComparison.Ordinal);
+        }
+
+        private static string[] Borders(TopologyDiagram view) {
+            CellBuffer frame = FrameComposer.RenderBlock(view, 130, Context(130));
+            return Enumerable.Range(0, frame.Height).SelectMany(y => Enumerable.Range(0, frame.Width)
+                .Where(x => "┌┐└┘│─╭╮╰╯".Contains(frame[x, y].Glyph) && frame[x, y].Glyph.Length == 1)
+                .Select(x => x + "," + y + ":" + frame[x, y].Glyph)).ToArray();
         }
 
         [Fact]

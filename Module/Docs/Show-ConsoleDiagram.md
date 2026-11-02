@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.
 
-Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes, D shows the focused node's details and Esc ends the view. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.
+Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -63,7 +63,7 @@ Accept wildcard characters: False
 ```
 
 ### -AsWidget
-Returns the diagram widget without drawing it, for Show-ConsoleApp layouts or live updates.
+Returns the diagram widget without drawing it, for static display or live updates in Show-ConsoleApp layouts. The consumer must handle keys to enable diagram navigation and playback. Cannot be combined with -AsString or -StaticSnapshot.
 
 ```yaml
 Type: SwitchParameter
@@ -95,13 +95,13 @@ Accept wildcard characters: False
 ```
 
 ### -Mode
-Rich runs the keyboard view. Line, Accessible and None print the static view.
+Rich runs the keyboard view. Line, Accessible, None and Snapshot print the static view.
 
 ```yaml
 Type: InteractionMode
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Rich, Line, Accessible, None
+Possible values: Rich, Line, Accessible, None, Snapshot
 
 Required: False
 Position: named
@@ -195,7 +195,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 

@@ -17,7 +17,7 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows a ChartForgeX architecture or topology diagram in the terminal, with use case playback.</para>
-    /// <para type="description">Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes, D shows the focused node's details and Esc ends the view. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.</para>
+    /// <para type="description">Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Markup errors stop the command with the file line and diagnostic code; warnings are written as PowerShell warnings.</para>
     /// </summary>
     /// <example><para>Explore a diagram and its use cases with the keyboard.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md</code></example>
     /// <example><para>Print one step of a use case without reading keys.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot</code></example>
@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(1, int.MaxValue)]
         public int Step { get; set; }
 
-        /// <summary><para type="description">Rich runs the keyboard view. Line, Accessible and None print the static view.</para></summary>
+        /// <summary><para type="description">Rich runs the keyboard view. Line, Accessible, None and Snapshot print the static view.</para></summary>
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
@@ -62,7 +62,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public SwitchParameter StaticSnapshot { get; set; }
         /// <summary><para type="description">Returns the static view as one plain-text string.</para></summary>
         [Parameter] public SwitchParameter AsString { get; set; }
-        /// <summary><para type="description">Returns the diagram widget without drawing it, for Show-ConsoleApp layouts or live updates.</para></summary>
+        /// <summary><para type="description">Returns the diagram widget without drawing it, for static display or live updates in Show-ConsoleApp layouts. The consumer must handle keys to enable diagram navigation and playback. Cannot be combined with -AsString or -StaticSnapshot.</para></summary>
         [Parameter] public SwitchParameter AsWidget { get; set; }
 
         /// <inheritdoc />
@@ -70,13 +70,17 @@ namespace ConsoleMonster.PowerShell {
             // A null pipeline record still reaches this method; draw the diagram once.
             if (_shown) { return; }
             _shown = true;
-            Show();
+            try {
+                Show();
+            } finally {
+                _stop.Dispose();
+            }
         }
 
-        /// <inheritdoc />
-        protected override void EndProcessing() => _stop.Dispose();
-
         private void Show() {
+            if (AsWidget.IsPresent && (AsString.IsPresent || StaticSnapshot.IsPresent)) {
+                throw Failure("-AsWidget cannot be combined with -AsString or -StaticSnapshot.", "DiagramOutputModeInvalid", ErrorCategory.InvalidArgument, nameof(AsWidget));
+            }
             PSOutputExport.Validate(this);
             string path = ResolvePath();
             TopologyChart chart = Load(Read(path), path);
@@ -139,38 +143,33 @@ namespace ConsoleMonster.PowerShell {
                 return architecture.Document ?? throw Failure("The architecture file produced no diagram.", "DiagramNotFound", ErrorCategory.ObjectNotFound, path);
             }
 
-            // Parse each fence on its own so a broken fence elsewhere in the file does not hide the diagram you asked for.
-            VisualMarkupParser parser = new VisualMarkupParser();
+            // Parse once for file-wide generated ids; valid artifacts survive errors in other fences.
+            VisualMarkupParseResult result = new VisualMarkupParser().Parse(scan);
             List<Candidate> diagrams = new List<Candidate>();
-            List<MarkupDiagnostic> others = new List<MarkupDiagnostic>(scan.Diagnostics);
-            foreach (VisualMarkupBlock block in scan.Blocks) {
-                VisualMarkupParseResult result = parser.ParseBlocks(new[] { block });
-                bool found = false;
-                if (!result.HasErrors) {
-                    foreach (VisualArtifact artifact in result.Artifacts) {
-                        TopologyChart? chart = artifact.Model as TopologyChart ?? (artifact.Model is FlowArtifact flow ? flow.ToTopologyChart() : null);
-                        if (chart != null) { diagrams.Add(new Candidate(artifact.Id, chart, result.Diagnostics)); found = true; }
-                    }
-                }
-                if (!found) { others.AddRange(result.Diagnostics); }
+            foreach (VisualArtifact artifact in result.Artifacts) {
+                TopologyChart? chart = artifact.Model as TopologyChart ?? (artifact.Model is FlowArtifact flow ? flow.ToTopologyChart() : null);
+                if (chart != null) { diagrams.Add(new Candidate(artifact.Id, chart)); }
             }
 
             Candidate? selected = null;
             if (Diagram != null) {
-                selected = diagrams.FirstOrDefault(item => string.Equals(item.Id, Diagram, StringComparison.Ordinal));
+                List<Candidate> matches = diagrams.Where(item => string.Equals(item.Id, Diagram, StringComparison.Ordinal)).ToList();
+                if (matches.Count > 1) {
+                    throw Failure("More than one diagram has id '" + Diagram + "'; give each diagram a unique id.", "DiagramAmbiguous", ErrorCategory.InvalidArgument, Diagram);
+                }
+                selected = matches.FirstOrDefault();
             } else if (diagrams.Count == 1) {
                 selected = diagrams[0];
             }
             if (selected == null) {
                 // Nothing to show: the errors elsewhere in the file explain why.
-                Report(others, path, fatal: true);
+                Report(result.Diagnostics, path, fatal: true);
                 if (diagrams.Count == 0) { throw Failure("The file has no architecture, topology or flow diagram.", "DiagramNotFound", ErrorCategory.ObjectNotFound, path); }
                 if (Diagram != null) { throw Failure("No diagram has id '" + Diagram + "'. Diagrams: " + Ids(diagrams) + ".", "DiagramNotFound", ErrorCategory.ObjectNotFound, Diagram); }
                 throw Failure("The file has " + diagrams.Count.ToString(CultureInfo.InvariantCulture) + " diagrams; choose one with -Diagram: " + Ids(diagrams) + ".", "DiagramAmbiguous", ErrorCategory.InvalidArgument, path);
             }
 
-            Report(selected.Diagnostics, path, fatal: false);
-            Report(others, path, fatal: false);
+            Report(result.Diagnostics, path, fatal: false);
             return selected.Chart;
         }
 
@@ -223,7 +222,7 @@ namespace ConsoleMonster.PowerShell {
             return ex.ParamName == null ? message : message.Replace(" (Parameter '" + ex.ParamName + "')", string.Empty);
         }
 
-        private static string Ids(List<Candidate> diagrams) => string.Join(", ", diagrams.Select(item => item.Id));
+        private static string Ids(List<Candidate> diagrams) => string.Join(", ", diagrams.Select(item => item.Id).Distinct(StringComparer.Ordinal));
 
         // ThrowTerminatingError always throws; returning an exception lets callers write `throw Failure(...)` so the compiler sees the exit.
         private PipelineStoppedException Failure(string message, string errorId, ErrorCategory category, object target) {
@@ -237,15 +236,13 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private sealed class Candidate {
-            public Candidate(string id, TopologyChart chart, IEnumerable<MarkupDiagnostic> diagnostics) {
+            public Candidate(string id, TopologyChart chart) {
                 Id = id;
                 Chart = chart;
-                Diagnostics = new List<MarkupDiagnostic>(diagnostics);
             }
 
             public string Id { get; }
             public TopologyChart Chart { get; }
-            public List<MarkupDiagnostic> Diagnostics { get; }
         }
     }
 }

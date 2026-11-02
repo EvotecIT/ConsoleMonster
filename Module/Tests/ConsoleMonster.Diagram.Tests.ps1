@@ -40,6 +40,24 @@ Describe 'Show-ConsoleDiagram' {
             'server b "B"'
             '```'
         )
+        $script:UnnamedDiagramsPath = New-DiagramFile 'unnamed.md' @(
+            '```chartforgex architecture v1'
+            'server a "Alpha"'
+            '```'
+            ''
+            '```chartforgex architecture v1'
+            'server b "Beta"'
+            '```'
+        )
+        $script:DuplicateDiagramsPath = New-DiagramFile 'duplicate.md' @(
+            '```chartforgex architecture v1 {#repeated}'
+            'server a "Alpha"'
+            '```'
+            ''
+            '```chartforgex architecture v1 {#repeated}'
+            'server b "Beta"'
+            '```'
+        )
         $script:MixedPath = New-DiagramFile 'mixed.md' @(
             '```chartforgex architecture v1 {#good}'
             'server a "Alpha"'
@@ -82,6 +100,30 @@ Describe 'Show-ConsoleDiagram' {
     It 'asks for -Diagram when a file has several diagrams' {
         { Show-ConsoleDiagram -Path $script:TwoDiagramsPath -AsString } | Should -Throw -ErrorId 'DiagramAmbiguous,ConsoleMonster.PowerShell.CmdletShowConsoleDiagram'
         Show-ConsoleDiagram -Path $script:TwoDiagramsPath -Diagram second -Width 60 -AsString | Should -CMatch '\bB\b'
+    }
+
+    It 'selects each unnamed architecture fence by its file-wide generated id' {
+        $first = Show-ConsoleDiagram -Path $script:UnnamedDiagramsPath -Diagram architecture-1 -Width 60 -AsString
+        $first | Should -Match 'Alpha'
+        $first | Should -Not -Match 'Beta'
+        $second = Show-ConsoleDiagram -Path $script:UnnamedDiagramsPath -Diagram architecture-2 -Width 60 -AsString
+        $second | Should -Match 'Beta'
+        $second | Should -Not -Match 'Alpha'
+    }
+
+    It 'rejects a selected explicit id shared by two diagrams as ambiguous' {
+        { Show-ConsoleDiagram -Path $script:DuplicateDiagramsPath -Diagram repeated -AsString } |
+            Should -Throw -ErrorId 'DiagramAmbiguous,ConsoleMonster.PowerShell.CmdletShowConsoleDiagram'
+    }
+
+    It 'rejects -AsWidget combined with -<ConflictingSwitch>' -ForEach @(
+        @{ ConflictingSwitch = 'AsString' }
+        @{ ConflictingSwitch = 'StaticSnapshot' }
+    ) {
+        $parameters = @{ AsWidget = $true }
+        $parameters[$ConflictingSwitch] = $true
+        { Show-ConsoleDiagram -Path $script:PlainPath @parameters } |
+            Should -Throw -ErrorId 'DiagramOutputModeInvalid,ConsoleMonster.PowerShell.CmdletShowConsoleDiagram' -ExpectedMessage '*-AsWidget cannot be combined with -AsString or -StaticSnapshot.*'
     }
 
     It 'shows the chosen diagram when another fence has errors, and warns about the other fence' {

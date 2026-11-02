@@ -670,6 +670,7 @@
     "ConsoleMonster.PowerShell.CmdletShowConsole",
     "ConsoleMonster.PowerShell.CmdletShowConsoleApp",
     "ConsoleMonster.PowerShell.CmdletShowConsoleDemo",
+    "ConsoleMonster.PowerShell.CmdletShowConsoleDiagram",
     "ConsoleMonster.PowerShell.CmdletShowConsoleGrid",
     "ConsoleMonster.PowerShell.CmdletShowConsoleHelp",
     "ConsoleMonster.PowerShell.CmdletShowConsoleImage",
@@ -757,7 +758,10 @@
     "ConsoleMonster.Graphics.GraphicsFluent",
     "ConsoleMonster.Graphics.GraphicsFormat",
     "ConsoleMonster.Graphics.GraphicsPreset",
-    "ConsoleMonster.Graphics.PngFrameExportProvider"
+    "ConsoleMonster.Graphics.PngFrameExportProvider",
+    "ConsoleMonster.Graphics.TopologyDiagram",
+    "ConsoleMonster.Graphics.TopologyDiagramApp",
+    "ConsoleMonster.Graphics.TopologyDiagramHandle"
   ],
   "ConsoleMonster.Hosting": [
     "ConsoleMonster.Hosting.ConsoleDashboardMode",

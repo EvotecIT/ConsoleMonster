@@ -5,6 +5,7 @@ using System.Linq;
 using ChartForgeX.Topology;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -48,6 +49,11 @@ namespace ConsoleMonster.Graphics {
             List<Line> below = new List<Line>();
             if (ShowStepPanel && _scenario != null) AddStepPanel(below, step, ascii);
             if (_showDetails && _focus != null) AddDetails(below, ascii);
+            if (ShowKeys) AddKeyHints(below, ascii);
+            if (ascii) {
+                SanitizeLines(above, context);
+                SanitizeLines(below, context);
+            }
             return new Frame(layout.Paint(paint), above, below);
         }
 
@@ -80,11 +86,31 @@ namespace ConsoleMonster.Graphics {
             }
 
             if (last < scenario.Steps.Count) lines.Add(new Line((ascii ? "  v " : "  ↓ ") + (scenario.Steps.Count - last).ToString(CultureInfo.InvariantCulture) + " more", ThemeToken.Subtle));
-            if (ShowKeys) {
-                string keys = ascii
-                    ? "p play/pause  n/Right next  b/Left back  r restart  e end  s use case  Up/Down focus  Esc quit"
-                    : "p play/pause  n/→ next  b/← back  r restart  e end  s use case  ↑/↓ focus  Esc quit";
-                lines.Add(new Line(keys, ThemeToken.Subtle));
+        }
+
+        private void AddKeyHints(List<Line> lines, bool ascii) {
+            if (_scenario != null && _scenario.Steps.Count > 0) {
+                lines.Add(new Line(ascii ? "p play/pause  n/Right next  b/Left back" : "p play/pause  n/→ next  b/← back", ThemeToken.Subtle));
+                lines.Add(new Line("r/Home restart  e/End last  x clear step", ThemeToken.Subtle));
+            }
+            if (_chart.Scenarios.Count > 1) lines.Add(new Line("s/Tab next use case  Shift+Tab previous use case", ThemeToken.Subtle));
+            string navigation = ScrollKeyHints ? (ascii ? "Up/Down scroll" : "↑/↓ scroll")
+                : _chart.Nodes.Count > 0 ? (ascii ? "Up/Down focus" : "↑/↓ focus") : string.Empty;
+            if (_chart.Nodes.Count > 0) navigation += (navigation.Length > 0 ? "  " : string.Empty) + "d details";
+            if (navigation.Length > 0) lines.Add(new Line(navigation, ThemeToken.Subtle));
+        }
+
+        private static void SanitizeLines(List<Line> lines, RenderContext context) {
+            for (int index = 0; index < lines.Count; index++) {
+                Line line = lines[index];
+                string text = SymbolFallback.Apply(line.Text, GlyphTier.Ascii, context.Profile.WidthProfile);
+                // Apply preserves ordinary Unicode prose. This widget's explicit ASCII contract also needs
+                // the canonical fixed-cell fallback for any remaining non-ASCII graphemes.
+                text = string.Concat(DisplayWidth.Clusters(text, context.Profile.WidthProfile).Select(cluster => {
+                    string glyph = text.Substring(cluster.Start, cluster.Length);
+                    return glyph.All(ch => ch < 128) ? glyph : SymbolFallback.GetGlyph(glyph, GlyphTier.Ascii, context.Profile.WidthProfile);
+                }));
+                lines[index] = new Line(text, line.Token, line.Indent);
             }
         }
 
@@ -129,12 +155,15 @@ namespace ConsoleMonster.Graphics {
             }
 
             bool basic = context.Profile.Glyphs == GlyphTier.Basic;
+            bool ascii = context.Profile.Glyphs == GlyphTier.Ascii;
             for (int row = 0; row < frame.Canvas.Rows && y < region.Height; row++, y++) {
                 for (int column = 0; column < frame.Canvas.Columns && column < region.Width; column++) {
                     TopologyCell cell = frame.Canvas[column, row];
                     if (cell.Width == 0 || cell.Role == TopologyCellRole.Empty) continue;
                     if (column + cell.Width > region.Width) break;
-                    region.Put(column, y, basic ? BasicGlyph(cell.Glyph) : cell.Glyph, CellStyle(cell, context), cell.Width);
+                    string glyph = ascii ? SymbolFallback.GetGlyph(cell.Glyph, GlyphTier.Ascii, context.Profile.WidthProfile)
+                        : basic ? BasicGlyph(cell.Glyph) : cell.Glyph;
+                    region.Put(column, y, glyph, CellStyle(cell, context), ascii ? 1 : cell.Width);
                 }
             }
 
@@ -196,16 +225,17 @@ namespace ConsoleMonster.Graphics {
                 case "╌": case "┄": return "─";
                 case "╎": case "┆": return "│";
                 case "━": return "═";
-                case "┃": return "║";
-                case "┏": return "╔";
-                case "┓": return "╗";
-                case "┗": return "╚";
-                case "┛": return "╝";
-                case "┣": return "╠";
-                case "┫": return "╣";
-                case "┳": return "╦";
-                case "┻": return "╩";
-                case "╋": return "╬";
+                // Mixed strokes keep highlights distinct from the all-double focused box.
+                case "┃": return "│";
+                case "┏": return "╒";
+                case "┓": return "╕";
+                case "┗": return "╘";
+                case "┛": return "╛";
+                case "┣": return "╞";
+                case "┫": return "╡";
+                case "┳": return "╤";
+                case "┻": return "╧";
+                case "╋": return "╪";
                 case "▶": return "►";
                 case "◀": return "◄";
                 case "✕": return "x";

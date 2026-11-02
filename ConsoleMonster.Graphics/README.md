@@ -79,6 +79,10 @@ draws those cells, so the terminal shows the same diagram as the SVG and PNG
 exports. A diagram wider than the terminal drops subtitles, then shortens labels,
 then drops edge labels until it fits.
 
+Finish configuring the chart before constructing the widget and treat it as
+immutable afterwards. The widget caches the prepared geometry; create a new
+widget to display a changed chart.
+
 When the topology has use cases (ChartForgeX scenarios, for example from a
 `chartforgex architecture v1` file), the widget shows a player under the diagram:
 the steps, the active step highlighted on the diagram, and its request or
@@ -93,8 +97,9 @@ diagram.Run();
 
 Keys: `p` or Space play and pause, `n` or Right next step, `b` or Left previous
 step, `r` or Home restart, `e` or End last step, `x` clear the step, `s` or Tab
-next use case (Shift+Tab previous), Up and Down focus a node, `d` show or hide its
-details, Esc quit.
+next use case (Shift+Tab previous), Up and Down focus a node, and `d` show or hide
+its details. When the diagram is taller than the viewport, Up and Down scroll
+through it. The app footer shows the configured exit key (Esc by default).
 
 For dashboards, keep the diagram in a live session and update node values and
 statuses from any thread:
@@ -111,8 +116,9 @@ var nodes = diagram.Handle(session);
 nodes.Value("dc03", "lag 42 min", TopologyHealthStatus.Critical);
 ```
 
-Nodes keep room for values of up to eight cells, so typical values do not move
-the layout; a longer value lays the diagram out again once.
+Nodes reserve ten columns for live values from the first frame, so value
+updates keep boxes and routes in place. Longer values are clipped in the box;
+the focused details retain the full text.
 
 Full, Basic and ASCII glyph tiers are covered: Basic swaps rounded corners,
 dashes and heavy lines for their WGL4 equivalents. `diagram.ToPng()` renders the
@@ -130,6 +136,10 @@ Outside an interactive console it prints one static view:
 Show-ConsoleDiagram -Path ./ad-replication.md
 Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot
 ```
+
+`-AsWidget` returns a widget for static display or live updates in
+`Show-ConsoleApp`. The consumer handles keys when it needs diagram navigation
+or playback. `-AsWidget` cannot be combined with `-AsString` or `-StaticSnapshot`.
 
 JetBrains Mono is embedded under the SIL Open Font License; see
 `licenses/JetBrainsMono-OFL.txt`. Installed font and emoji/CJK fallbacks depend
