@@ -10,6 +10,6 @@ var flow = new Flow()
     .Node("db", "Database", StatusKind.Fail)
     .Edge("client", "proxy", ":443")
     .Edge("proxy", "api", "HTTP")
-    .Edge("api", "db", "timeout", StatusKind.Fail, cut: true);
+    .Edge("api", "db", "timeout", StatusKind.Fail, true);
 flow.Branch = new FlowBranch("db", "listener stopped", default, StatusKind.Fail);
 Terminal.Write(flow);

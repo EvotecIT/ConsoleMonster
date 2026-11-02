@@ -258,6 +258,7 @@ namespace SiteFrames {
                 if (Wants(only, "docs") || Wants(only, "text-diff")) {
                     TextDiffFigures.Capture(site);
                 }
+                if (Wants(only, "docs") || Wants(only, "object-drift")) { ObjectDriftFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
                 if (Wants(only, "interactive")) {
                     InteractivePage.Capture(site);
@@ -286,6 +287,7 @@ namespace SiteFrames {
             CommandLineHelpFigures.Render(site);
             ChartFigures.Render(site);
             TextDiffFigures.Render(site);
+            ObjectDriftFigures.Render(site);
             MarkdownFigures.Render(site);
             ImageFigures.Render(site);
             ThemeFilesPage.Render(site);

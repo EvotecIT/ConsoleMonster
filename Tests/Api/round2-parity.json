@@ -195,6 +195,63 @@
       "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
       "Bindings": [
         {
+          "Reason": "Returns ChangeView or BaselineView as an IWidget instead of drawing through the PowerShell host.",
+          "Conversion": "HostPolicy",
+          "MemberKind": "HostPolicy",
+          "Parameter": "AsWidget",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Sets": [
+            {
+              "Name": "Compare",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Default": false
+        },
+        {
+          "Reason": "An integer selects baselineIndex; a string selects baselineName using the comparison case rule.",
+          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Conversion": "NameOrIndex",
+          "Member": "CompareBaseline",
+          "MemberKind": "Method",
+          "Parameter": "Baseline",
+          "ParameterType": "System.Object",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Default": null
+        },
+        {
+          "CSharpTypeName": "System.Boolean",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Conversion": "Identity",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Member": "CaseSensitive",
+          "MemberKind": "Property",
+          "Static": false,
+          "Parameter": "CaseSensitive",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Default": false
+        },
+        {
           "Parameter": "CompareProperty",
           "ParameterType": "System.String[]",
           "Default": null,
@@ -240,7 +297,12 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Compare",
+              "Position": 1,
+              "Mandatory": true
+            },
+            {
+              "Name": "Confirm",
               "Position": 1,
               "Mandatory": true
             }
@@ -310,6 +372,84 @@
           "Static": false
         },
         {
+          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[System.Object]",
+          "MemberKind": "Method",
+          "Argument": "objects",
+          "ParameterType": "System.Object[]",
+          "Parameter": "InputObject",
+          "Default": null,
+          "Conversion": "PipelineCollection",
+          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Member": "CompareBaseline",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ]
+        },
+        {
+          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.String]",
+          "MemberKind": "Method",
+          "Argument": "names",
+          "ParameterType": "System.String[]",
+          "Parameter": "Name",
+          "Default": null,
+          "Conversion": "Collection",
+          "CSharpType": "ConsoleMonster.Changes.ObjectDiff",
+          "Member": "CompareBaseline",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ]
+        },
+        {
+          "Default": null,
+          "MemberKind": "Property",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Sets": [
+            {
+              "Name": "Baseline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Nullable": "Unknown",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "ParameterType": "System.String",
+          "Writable": false,
+          "Reason": "The baseline column heading uses the same named key selection as two-set matching.",
+          "Member": "Key",
+          "Conversion": "Collection",
+          "Parameter": "NameProperty",
+          "Static": false
+        },
+        {
+          "Default": null,
+          "MemberKind": "Property",
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Nullable": "Unknown",
+          "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.Func`2[System.Object,System.Object]]",
+          "ParameterType": "System.Collections.Hashtable",
+          "Writable": false,
+          "Reason": "Exact-path scriptblocks become comparison-only delegates on the owning pipeline thread.",
+          "Member": "Normalize",
+          "Conversion": "ScriptBlockDictionary",
+          "Parameter": "Normalize",
+          "Static": false
+        },
+        {
           "CSharpType": "ConsoleMonster.Changes.ChangePreviewOptions",
           "Member": "TypedWhenDestructive",
           "MemberKind": "Property",
@@ -336,6 +476,11 @@
           "Sets": [
             {
               "Name": "Compare",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Baseline",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -391,7 +536,12 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Compare",
+              "Position": 0,
+              "Mandatory": true
+            },
+            {
+              "Name": "Confirm",
               "Position": 0,
               "Mandatory": true
             }
@@ -21354,6 +21504,503 @@
       ]
     },
     {
+      "Command": "Show-ConsoleDiagram",
+      "Job": "Show-ConsoleDiagram",
+      "CSharpType": "ConsoleMonster.Widgets.Diagram",
+      "Bindings": [
+        {
+          "Parameter": "AsString",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ShellOutputPolicy",
+          "Reason": "Returns plain text from ConsoleExporter instead of writing it to the terminal."
+        },
+        {
+          "Parameter": "AsWidget",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ShellOutputPolicy",
+          "Reason": "Returns the constructed core Diagram without drawing it."
+        },
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "Nodes",
+          "MemberKind": "Property",
+          "Conversion": "ContentCollection",
+          "CSharpTypeName": "System.Collections.Generic.List`1[ConsoleMonster.Widgets.DiagramNode]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false,
+          "Reason": "Collects typed nodes, links, nested groups and use cases from the script block into the corresponding model collections."
+        },
+        {
+          "Parameter": "Diagram",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "Load",
+          "Argument": "diagramId",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Reason": "Selects the diagram id within a file containing multiple visual fences."
+        },
+        {
+          "Parameter": "Direction",
+          "ParameterType": "ConsoleMonster.Widgets.DiagramDirection",
+          "Default": "Right",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "Direction",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Widgets.DiagramDirection",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "From",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "FromLinks",
+          "Argument": "from",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Func`2[T,System.String]",
+          "Reason": "A property name or script block becomes the per-row source selector."
+        },
+        {
+          "Parameter": "Group",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "FromLinks",
+          "Argument": "group",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Func`2[T,System.String]",
+          "Reason": "A property name or script block selects the source node group."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "FromLinks",
+          "Argument": "rows",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[T]",
+          "Reason": "Connection rows become typed nodes and links; a single existing Diagram is passed through with only explicitly bound options applied."
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "FromLinks",
+          "Argument": "label",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Func`2[T,System.String]",
+          "Reason": "A property name or script block becomes the per-row connection label selector."
+        },
+        {
+          "Parameter": "MaxPayloadLines",
+          "ParameterType": "System.Int32",
+          "Default": 8,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "MaxPayloadLines",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "MaxStepLines",
+          "ParameterType": "System.Int32",
+          "Default": 7,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "MaxStepLines",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Mode",
+          "ParameterType": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
+          "Member": "Mode",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "NoSummary",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
+          "Member": "Summary",
+          "Argument": "show",
+          "MemberKind": "Method",
+          "Conversion": "BooleanInversion",
+          "CSharpTypeName": "System.Boolean",
+          "Reason": "The summary is enabled by default; NoSummary explicitly hides it."
+        },
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "Load",
+          "Argument": "path",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.String",
+          "Reason": "Resolves the provider path, preserves file diagnostics and selection rules, and loads the core Diagram through the registered Graphics provider."
+        },
+        {
+          "Parameter": "Scenario",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "SelectScenario",
+          "Argument": "id",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "ShowDetails",
+          "ParameterType": "System.Boolean",
+          "Default": true,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "ShowDetails",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ShowKeys",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
+          "Member": "ShowKeys",
+          "Argument": "show",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean"
+        },
+        {
+          "Parameter": "ShowLegend",
+          "ParameterType": "System.Boolean",
+          "Default": true,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "ShowLegend",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ShowStepPanel",
+          "ParameterType": "System.Boolean",
+          "Default": true,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "ShowStepPanel",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "StaticSnapshot",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SnapshotPolicy",
+          "Reason": "Draws the diagram once instead of opening Diagram.Run."
+        },
+        {
+          "Parameter": "Status",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "FromLinks",
+          "Argument": "status",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Func`2[T,ConsoleMonster.Styling.StatusKind]",
+          "Reason": "A property name or script block selects the shared StatusKind for each connection."
+        },
+        {
+          "Parameter": "Step",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "Step",
+          "Argument": "index",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Int32",
+          "Reason": "Converts a one-based PowerShell step to the zero-based model index."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "To",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Rows",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": "FromLinks",
+          "Argument": "to",
+          "MemberKind": "Method",
+          "Conversion": "HostAdaptation",
+          "CSharpTypeName": "System.Func`2[T,System.String]",
+          "Reason": "A property name or script block becomes the per-row destination selector."
+        },
+        {
+          "Parameter": "WidgetId",
+          "ParameterType": "System.String",
+          "Default": "diagram",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Diagram",
+          "Member": ".ctor",
+          "Argument": "widgetId",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "Width",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Export.ExportOptions",
+          "Member": "Width",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleDiagram",
       "Job": "New-ConsoleDiagram",
       "CSharpType": "ConsoleMonster.Widgets.Diagram",
@@ -22300,503 +22947,6 @@
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Boolean"
-        }
-      ]
-    },
-    {
-      "Command": "Show-ConsoleDiagram",
-      "Job": "Show-ConsoleDiagram",
-      "CSharpType": "ConsoleMonster.Widgets.Diagram",
-      "Bindings": [
-        {
-          "Parameter": "AsString",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "ShellOutputPolicy",
-          "Reason": "Returns plain text from ConsoleExporter instead of writing it to the terminal."
-        },
-        {
-          "Parameter": "AsWidget",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "ShellOutputPolicy",
-          "Reason": "Returns the constructed core Diagram without drawing it."
-        },
-        {
-          "Parameter": "Content",
-          "ParameterType": "System.Management.Automation.ScriptBlock",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": 0,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "Nodes",
-          "MemberKind": "Property",
-          "Conversion": "ContentCollection",
-          "CSharpTypeName": "System.Collections.Generic.List`1[ConsoleMonster.Widgets.DiagramNode]",
-          "Nullable": "Unknown",
-          "Writable": false,
-          "Static": false,
-          "Reason": "Collects typed nodes, links, nested groups and use cases from the script block into the corresponding model collections."
-        },
-        {
-          "Parameter": "Diagram",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "Load",
-          "Argument": "diagramId",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Reason": "Selects the diagram id within a file containing multiple visual fences."
-        },
-        {
-          "Parameter": "Direction",
-          "ParameterType": "ConsoleMonster.Widgets.DiagramDirection",
-          "Default": "Right",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "Direction",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Widgets.DiagramDirection",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "From",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "FromLinks",
-          "Argument": "from",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Func`2[T,System.String]",
-          "Reason": "A property name or script block becomes the per-row source selector."
-        },
-        {
-          "Parameter": "Group",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "FromLinks",
-          "Argument": "group",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Func`2[T,System.String]",
-          "Reason": "A property name or script block selects the source node group."
-        },
-        {
-          "Parameter": "InputObject",
-          "ParameterType": "System.Management.Automation.PSObject",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "FromLinks",
-          "Argument": "rows",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[T]",
-          "Reason": "Connection rows become typed nodes and links; a single existing Diagram is passed through with only explicitly bound options applied."
-        },
-        {
-          "Parameter": "Label",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "FromLinks",
-          "Argument": "label",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Func`2[T,System.String]",
-          "Reason": "A property name or script block becomes the per-row connection label selector."
-        },
-        {
-          "Parameter": "MaxPayloadLines",
-          "ParameterType": "System.Int32",
-          "Default": 8,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "MaxPayloadLines",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "MaxStepLines",
-          "ParameterType": "System.Int32",
-          "Default": 7,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "MaxStepLines",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "Mode",
-          "ParameterType": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
-          "Member": "Mode",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Interactive.InteractionMode]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "NoSummary",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
-          "Member": "Summary",
-          "Argument": "show",
-          "MemberKind": "Method",
-          "Conversion": "BooleanInversion",
-          "CSharpTypeName": "System.Boolean",
-          "Reason": "The summary is enabled by default; NoSummary explicitly hides it."
-        },
-        {
-          "Parameter": "Path",
-          "ParameterType": "System.String",
-          "Default": "",
-          "Sets": [
-            {
-              "Name": "Path",
-              "Position": 0,
-              "Mandatory": true
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "Load",
-          "Argument": "path",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.String",
-          "Reason": "Resolves the provider path, preserves file diagnostics and selection rules, and loads the core Diagram through the registered Graphics provider."
-        },
-        {
-          "Parameter": "Scenario",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "SelectScenario",
-          "Argument": "id",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
-        },
-        {
-          "Parameter": "ShowDetails",
-          "ParameterType": "System.Boolean",
-          "Default": true,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "ShowDetails",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "ShowKeys",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.DiagramBuilder",
-          "Member": "ShowKeys",
-          "Argument": "show",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean"
-        },
-        {
-          "Parameter": "ShowLegend",
-          "ParameterType": "System.Boolean",
-          "Default": true,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "ShowLegend",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "ShowStepPanel",
-          "ParameterType": "System.Boolean",
-          "Default": true,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "ShowStepPanel",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "StaticSnapshot",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "SnapshotPolicy",
-          "Reason": "Draws the diagram once instead of opening Diagram.Run."
-        },
-        {
-          "Parameter": "Status",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "FromLinks",
-          "Argument": "status",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Func`2[T,ConsoleMonster.Styling.StatusKind]",
-          "Reason": "A property name or script block selects the shared StatusKind for each connection."
-        },
-        {
-          "Parameter": "Step",
-          "ParameterType": "System.Int32",
-          "Default": 0,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "Step",
-          "Argument": "index",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Int32",
-          "Reason": "Converts a one-based PowerShell step to the zero-based model index."
-        },
-        {
-          "Parameter": "Title",
-          "ParameterType": "System.String",
-          "Default": "",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "Title",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "To",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Rows",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": "FromLinks",
-          "Argument": "to",
-          "MemberKind": "Method",
-          "Conversion": "HostAdaptation",
-          "CSharpTypeName": "System.Func`2[T,System.String]",
-          "Reason": "A property name or script block becomes the per-row destination selector."
-        },
-        {
-          "Parameter": "WidgetId",
-          "ParameterType": "System.String",
-          "Default": "diagram",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Diagram",
-          "Member": ".ctor",
-          "Argument": "widgetId",
-          "MemberKind": "Constructor",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
-        },
-        {
-          "Parameter": "Width",
-          "ParameterType": "System.Int32",
-          "Default": 0,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Export.ExportOptions",
-          "Member": "Width",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
         }
       ]
     }
@@ -26923,6 +27073,102 @@
       "Reason": "Native grid/menu/form runners add contextual row/step captions to the header. The Show-ConsoleApp shorthand keeps its supported title/subtitle/detail/status fields.",
       "Alternative": "Use Show-ConsoleApp -Detail/-Status for its status area, or compose a typed HeaderBar in -Content for independent right-hand text.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesMissing",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesEmpty",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesCaseOnly",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesCaseOnlyCount",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesBaseline",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesStatus",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesSame",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesDiffers",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels.",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native embedding hosts can replace this comparison label independently of the language catalogue.",
+      "Disposition": "CSharpOnly",
+      "Member": "ChangesMissingOn",
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels",
+      "Member": "ChangesOnePropertyShown",
+      "CSharpTypeName": "System.String",
+      "Disposition": "CSharpOnly",
+      "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels",
+      "Member": "ChangesPropertiesShown",
+      "CSharpTypeName": "System.String",
+      "Disposition": "CSharpOnly",
+      "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Localization.WidgetLabels",
+      "Member": "ChangesMatchingHidden",
+      "CSharpTypeName": "System.String",
+      "Disposition": "CSharpOnly",
+      "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
+      "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
     }
   ],
   "SchemaVersion": 2,
@@ -27125,7 +27371,8 @@
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView"
+    "ConsoleMonster.Widgets.WatchView",
+    "ConsoleMonster.Changes.BaselineView"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -27478,7 +27725,11 @@
     "ConsoleMonster.Widgets.TreeValuePlacement",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView"
+    "ConsoleMonster.Widgets.WatchView",
+    "ConsoleMonster.Changes.BaselineCell",
+    "ConsoleMonster.Changes.BaselineComparison",
+    "ConsoleMonster.Changes.BaselineRow",
+    "ConsoleMonster.Changes.BaselineView"
   ],
   "RelatedBindings": [
     {
@@ -29825,6 +30076,15 @@
       "Command": "New-ConsoleDiagramUseCase",
       "Parameter": "AutoPlay",
       "Reason": "The explicit diagram builder method configures this model property."
+    },
+    {
+      "Command": "Compare-ConsoleObject",
+      "CSharpTypeName": "System.String",
+      "Reason": "The baseline parameter set applies the same heading to BaselineView.",
+      "MemberId": "ConsoleMonster.Changes.BaselineView.Title",
+      "CSharpType": "ConsoleMonster.Changes.BaselineView",
+      "Member": "Title",
+      "Parameter": "Title"
     }
   ],
   "Endings": [

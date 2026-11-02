@@ -24,7 +24,10 @@ namespace ConsoleMonster.Changes {
         SideBySide,
 
         /// <summary>A unified text diff: <c>-</c> old and <c>+</c> new lines, with line diffs of multi-line values.</summary>
-        Unified
+        Unified,
+
+        /// <summary>A property matrix in Compare-ConsoleObject; C# uses BaselineView with BaselineComparison.</summary>
+        Baseline
     }
 
     /// <summary>A line of a text diff.</summary>
@@ -99,6 +102,7 @@ namespace ConsoleMonster.Changes {
         private Localization.WidgetLabels _labels = Localization.WidgetLabels.Current;
 
         private IWidget Build(RenderContext context) {
+            if (Mode == ChangeViewMode.Baseline) { throw new InvalidOperationException("Use BaselineView with an ObjectDiff.CompareBaseline result."); }
             _labels = context.Labels;
             List<IWidget> parts = new List<IWidget>();
             if (!string.IsNullOrEmpty(Title)) {
@@ -127,6 +131,11 @@ namespace ConsoleMonster.Changes {
             return parts.Count == 1 ? parts[0] : new Rows(parts.ToArray()) { Gap = 1 };
         }
 
+        private string PropertyLabel(PropertyChange property) => Markup.Escape(property.Path + (property.IsCaseOnly ? " (" + _labels.ChangesCaseOnly + ")" : ""));
+
+        private string ValueText(PropertyChange property, bool before) => (before ? property.HasBefore : property.HasAfter)
+            ? ObjectDiff.PairText(before ? property.Before : property.After, before ? property.After : property.Before) : _labels.ChangesMissing;
+
         private string Summary() {
             List<string> parts = new List<string> {
                 "[pass]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesAdded, Changes.Added.ToString(CultureInfo.InvariantCulture))) + "[/]",
@@ -134,6 +143,9 @@ namespace ConsoleMonster.Changes {
                 "[warn]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesChanged, Changes.Changed.ToString(CultureInfo.InvariantCulture))) + "[/]",
                 "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesUnchanged, Changes.Unchanged.ToString(CultureInfo.InvariantCulture))) + "[/]"
             };
+            if (Changes.CaseOnly > 0) {
+                parts.Add("[warn]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.ChangesCaseOnlyCount, Changes.CaseOnly.ToString(CultureInfo.InvariantCulture))) + "[/]");
+            }
             if (Changes.NotCompared.Count > 0) {
                 // Members whose getters stalled were skipped, not judged equal: say so, with their names when few.
                 string names = Changes.NotCompared.Count <= 3 ? " (" + string.Join(", ", Changes.NotCompared) + ")" : string.Empty;
@@ -153,16 +165,16 @@ namespace ConsoleMonster.Changes {
                     case ChangeKind.Removed:
                         AddObjectRows(table, change, marker, key);
                         break;
-                    case ChangeKind.Unchanged:
+                    case ChangeKind.Unchanged when change.Properties.Count == 0:
                         table.AddRow(marker, "[muted]" + key + "[/]", "", "", "");
                         break;
                     default:
                         bool first = true;
                         foreach (PropertyChange property in change.Properties) {
                             bool longValue = IsLong(property.Before) || IsLong(property.After);
-                            table.AddRow(first ? marker : "", first ? Tone(change.Kind, key) : "", Markup.Escape(property.Path),
-                                longValue ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[fail]" + Markup.Escape(property.BeforeText) + "[/]",
-                                longValue ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[pass]" + Markup.Escape(property.AfterText) + "[/]");
+                            table.AddRow(first ? marker : "", first ? Tone(change.Kind, key) : "", PropertyLabel(property),
+                                longValue && property.HasBefore ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[fail]" + Markup.Escape(ValueText(property, true)) + "[/]",
+                                longValue && property.HasAfter ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[pass]" + Markup.Escape(ValueText(property, false)) + "[/]");
                             first = false;
                         }
                         break;
@@ -189,7 +201,7 @@ namespace ConsoleMonster.Changes {
             for (int i = 0; i < shown; i++) {
                 PropertyChange property = change.Values[i];
                 string value = "[" + tone + "]" + Markup.Escape(Clip(ObjectDiff.Text(added ? property.After : property.Before))) + "[/]";
-                table.AddRow(i == 0 ? marker : "", i == 0 ? Tone(change.Kind, key) : "", Markup.Escape(property.Path), added ? "" : value, added ? value : "");
+                table.AddRow(i == 0 ? marker : "", i == 0 ? Tone(change.Kind, key) : "", PropertyLabel(property), added ? "" : value, added ? value : "");
             }
             int more = change.Values.Count - shown;
             if (more > 0) {
@@ -200,10 +212,10 @@ namespace ConsoleMonster.Changes {
         }
 
         private IEnumerable<IWidget> LongDiffs() {
-            foreach (ObjectChange change in Changes.Changes.Where(c => c.Kind == ChangeKind.Changed)) {
+            foreach (ObjectChange change in Changes.Changes.Where(c => c.Properties.Count > 0)) {
                 foreach (PropertyChange property in change.Properties.Where(p => IsLong(p.Before) || IsLong(p.After))) {
-                    List<string> lines = new List<string> { "[warn]~[/] " + Markup.Escape(change.Key) + " [muted]" + Markup.Escape(property.Path) + "[/]" };
-                    lines.AddRange(TextDiff(ObjectDiff.Text(property.Before), ObjectDiff.Text(property.After)).Select(DiffMarkup));
+                    List<string> lines = new List<string> { "[warn]~[/] " + Markup.Escape(change.Key) + " [muted]" + PropertyLabel(property) + "[/]" };
+                    lines.AddRange(TextDiff(ValueText(property, true), ValueText(property, false)).Select(DiffMarkup));
                     yield return new TextBlock(string.Join("\n", lines));
                 }
             }
@@ -211,10 +223,10 @@ namespace ConsoleMonster.Changes {
 
         private IEnumerable<IWidget> SideBySide() {
             foreach (ObjectChange change in Changes.Changes) {
-                if (change.Kind == ChangeKind.Unchanged) {
+                if (change.Kind == ChangeKind.Unchanged && change.Properties.Count == 0) {
                     continue;
                 }
-                if (change.Kind != ChangeKind.Changed && change.Values.Count == 0) {
+                if (change.Kind != ChangeKind.Changed && change.Kind != ChangeKind.Unchanged && change.Values.Count == 0) {
                     // A simple added or removed value: its key and the value.
                     yield return new TextBlock(Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)) + "  [muted]" + Markup.Escape(Clip(Describe(change))) + "[/]");
                     continue;
@@ -222,10 +234,10 @@ namespace ConsoleMonster.Changes {
                 Table table = new Table { Title = Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)), Border = TableBorder.Rounded };
                 table.AddColumn(Markup.Escape(_labels.ChangesProperty)).AddColumn(Markup.Escape(_labels.ChangesBefore)).AddColumn(Markup.Escape(_labels.ChangesAfter));
                 // Every property: changed ones with both sides, an added or removed object's with its one side.
-                foreach (PropertyChange property in change.Kind == ChangeKind.Changed ? change.Properties : change.Values) {
-                    string before = change.Kind == ChangeKind.Added ? "" : "[fail]" + Markup.Escape(property.BeforeText) + "[/]";
-                    string after = change.Kind == ChangeKind.Removed ? "" : "[pass]" + Markup.Escape(property.AfterText) + "[/]";
-                    table.AddRow(Markup.Escape(property.Path), before, after);
+                foreach (PropertyChange property in change.Kind == ChangeKind.Changed || change.Kind == ChangeKind.Unchanged ? change.Properties : change.Values) {
+                    string before = change.Kind == ChangeKind.Added ? "" : "[fail]" + Markup.Escape(ValueText(property, true)) + "[/]";
+                    string after = change.Kind == ChangeKind.Removed ? "" : "[pass]" + Markup.Escape(ValueText(property, false)) + "[/]";
+                    table.AddRow(PropertyLabel(property), before, after);
                 }
                 yield return table;
             }
@@ -241,17 +253,18 @@ namespace ConsoleMonster.Changes {
                     case ChangeKind.Removed:
                         lines.Add("[fail]- " + Markup.Escape(change.Key) + "[/]" + Note(change));
                         break;
+                    case ChangeKind.Unchanged when change.Properties.Count > 0:
                     case ChangeKind.Changed:
                         lines.Add("[warn]~ " + Markup.Escape(change.Key) + "[/]");
                         foreach (PropertyChange property in change.Properties) {
-                            string before = property.BeforeText;
-                            string after = property.AfterText;
+                            string before = ValueText(property, true);
+                            string after = ValueText(property, false);
                             if (before.IndexOf('\n') >= 0 || after.IndexOf('\n') >= 0) {
-                                lines.Add("  [muted]" + Markup.Escape(property.Path) + ":[/]");
+                                lines.Add("  [muted]" + PropertyLabel(property) + ":[/]");
                                 lines.AddRange(TextDiff(before, after).Select(line => "  " + DiffMarkup(line)));
                             } else {
-                                lines.Add("  [fail]- " + Markup.Escape(property.Path) + ": " + Markup.Escape(before) + "[/]");
-                                lines.Add("  [pass]+ " + Markup.Escape(property.Path) + ": " + Markup.Escape(after) + "[/]");
+                                lines.Add("  [fail]- " + PropertyLabel(property) + ": " + Markup.Escape(before) + "[/]");
+                                lines.Add("  [pass]+ " + PropertyLabel(property) + ": " + Markup.Escape(after) + "[/]");
                             }
                         }
                         break;

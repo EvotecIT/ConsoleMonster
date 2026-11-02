@@ -45,7 +45,7 @@ namespace ConsoleMonster.Values {
         private static readonly HashSet<string> PlumbingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             "PSPath", "PSParentPath", "PSChildName", "PSDrive", "PSProvider", "PSIsContainer", "PSStandardMembers",
             "PSShowComputerName", "PSComputerName", "CimClass", "CimInstanceProperties", "CimSystemProperties", "SyncRoot",
-            "IsSynchronized", "IsFixedSize", "Site", "Container", "OwnerDocument", "ParentNode", "SchemaInfo", "NamespaceURI",
+            "IsSynchronized", "IsFixedSize", "Container", "OwnerDocument", "ParentNode", "SchemaInfo", "NamespaceURI",
             "Prefix", "PreviousSibling", "NextSibling", "BaseURI", "PropertyNames", "PropertyCount", "AddedProperties",
             "RemovedProperties", "ModifiedProperties"
         };
@@ -423,7 +423,8 @@ namespace ConsoleMonster.Values {
             HashSet<string> seen = new HashSet<string>(data ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
             try {
                 foreach (InspectMember member in adapter.GetMembers(record)) {
-                    if ((!data && IsPlumbing(member.Name)) || !seen.Add(member.Name)) {
+                    bool componentSite = record is System.ComponentModel.IComponent && string.Equals(member.Name, "Site", StringComparison.OrdinalIgnoreCase);
+                    if ((!data && (IsPlumbing(member.Name) || componentSite)) || !seen.Add(member.Name)) {
                         continue;
                     }
                     fields.Add(member);

@@ -118,6 +118,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             foreach (PSPropertyInfo property in item.Properties) {
                 if (
                     !property.IsGettable
+                    || item.BaseObject is System.ComponentModel.IComponent && string.Equals(property.Name, "Site", StringComparison.OrdinalIgnoreCase)
                     || string.Equals(property.Name, "PSStandardMembers", StringComparison.OrdinalIgnoreCase)
                     || !added.Add(property.Name)
                 ) {
