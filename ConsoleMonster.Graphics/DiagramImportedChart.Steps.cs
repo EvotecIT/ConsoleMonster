@@ -11,7 +11,7 @@ namespace ConsoleMonster.Graphics {
 
         private void TrackSteps(DiagramUseCase useCase, TopologyScenario scenario) {
             var bindings = new Dictionary<DiagramStep, StepBinding>();
-            for (int i = 0; i < useCase.Steps.Count; i++) bindings[useCase.Steps[i]] = new StepBinding(useCase.Steps[i], scenario.Steps[i]);
+            for (int i = 0; i < useCase.Steps.Count; i++) bindings[useCase.Steps[i]] = new StepBinding(useCase.Steps[i], scenario.Steps[i], scenario.Steps[i].Payload != null);
             _stepBindings[useCase] = bindings;
         }
 
@@ -21,8 +21,10 @@ namespace ConsoleMonster.Graphics {
             var steps = new List<TopologyScenarioStep>();
             foreach (DiagramStep step in useCase.Steps) {
                 TopologyScenarioStep target;
-                string? payload = PayloadText(step);
-                if (previous.TryGetValue(step, out StepBinding? binding)) {
+                previous.TryGetValue(step, out StepBinding? binding);
+                bool rawPayloadCarrier = binding?.RawPayloadCarrier ?? false;
+                string? payload = PayloadText(step, rawPayloadCarrier);
+                if (binding != null) {
                     target = binding.Target;
                     bool kindChanged = binding.Kind != step.Kind;
                     bool wasNode = target.Kind == TopologyScenarioStepKind.Node;
@@ -39,7 +41,7 @@ namespace ConsoleMonster.Graphics {
                     if (binding.Label != step.Label) target.Label = step.Label;
                     if (binding.Payload != payload) {
                         target.Payload = payload;
-                        if (step.Payload.Count != 1 || !step.Payload.ContainsKey("Payload")) target.PayloadFormat = TopologyScenarioPayloadFormat.Text;
+                        if (!rawPayloadCarrier || step.Payload.Count != 1 || !step.Payload.ContainsKey("Payload")) target.PayloadFormat = TopologyScenarioPayloadFormat.Text;
                     }
                 } else {
                     TopologyEdge edge = StepEdge(step, edges);
@@ -49,7 +51,7 @@ namespace ConsoleMonster.Graphics {
                     };
                 }
                 steps.Add(target);
-                bindings[step] = new StepBinding(step, target);
+                bindings[step] = new StepBinding(step, target, rawPayloadCarrier);
             }
             scenario.Steps.Clear();
             scenario.Steps.AddRange(steps);
@@ -69,13 +71,14 @@ namespace ConsoleMonster.Graphics {
         private static TopologyScenarioInteraction Interaction(DiagramStepKind kind) => kind == DiagramStepKind.Reply ? TopologyScenarioInteraction.Response
             : kind == DiagramStepKind.Failed ? TopologyScenarioInteraction.Failure : kind == DiagramStepKind.Message ? TopologyScenarioInteraction.Message : TopologyScenarioInteraction.Request;
 
-        private static string? PayloadText(DiagramStep step) => step.Payload.Count == 0 ? null
-            : step.Payload.Count == 1 && step.Payload.TryGetValue("Payload", out object? value) ? Convert.ToString(value, CultureInfo.CurrentCulture)
+        private static string? PayloadText(DiagramStep step, bool rawPayloadCarrier) => step.Payload.Count == 0 ? null
+            : rawPayloadCarrier && step.Payload.Count == 1 && step.Payload.TryGetValue("Payload", out object? value) ? Convert.ToString(value, CultureInfo.CurrentCulture)
             : string.Join(Environment.NewLine, step.Payload.Select(pair => pair.Key + ": " + Convert.ToString(pair.Value, CultureInfo.CurrentCulture)));
 
         private sealed class StepBinding {
-            internal StepBinding(DiagramStep step, TopologyScenarioStep target) {
-                Target = target; From = step.From; To = step.To; Label = step.Label; Kind = step.Kind; Payload = PayloadText(step);
+            internal StepBinding(DiagramStep step, TopologyScenarioStep target, bool rawPayloadCarrier) {
+                Target = target; From = step.From; To = step.To; Label = step.Label; Kind = step.Kind;
+                RawPayloadCarrier = rawPayloadCarrier; Payload = PayloadText(step, rawPayloadCarrier);
             }
             internal TopologyScenarioStep Target { get; }
             internal string From { get; }
@@ -83,6 +86,7 @@ namespace ConsoleMonster.Graphics {
             internal string Label { get; }
             internal DiagramStepKind Kind { get; }
             internal string? Payload { get; }
+            internal bool RawPayloadCarrier { get; }
         }
     }
 }

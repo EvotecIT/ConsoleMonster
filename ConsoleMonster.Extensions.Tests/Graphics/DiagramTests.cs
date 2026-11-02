@@ -121,7 +121,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             diagram.Nodes.Add(new DiagramNode("Gateway"));
             diagram.Links.Add(new DiagramLink("dns", "Gateway"));
             diagram.UseCases[0].Steps[0].Label = "Check DNS after update";
-            diagram.UseCases[0].Steps.Add(new DiagramStep("dns", "Gateway", "Query Gateway"));
+            diagram.UseCases[0].Steps.Add(new DiagramStep("dns", "Gateway", "Query Gateway") { Payload = { ["Payload"] = "ordinary field" } });
             diagram.FocusNode("dns");
             diagram.Step(0);
             string text = Text(diagram, 200);
@@ -145,19 +145,25 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Equal(TopologyScenarioPayloadFormat.Json, chart.Scenarios[0].Steps[1].PayloadFormat);
             Assert.Equal("application/json", chart.Scenarios[0].Steps[1].Metadata["Content-Type"]);
             Assert.Equal(3, chart.Scenarios[0].Steps.Count);
+            Assert.Equal("Payload: ordinary field", chart.Scenarios[0].Steps[2].Payload);
             Assert.DoesNotContain(chart.Edges, edge => edge.SourceNodeId == "dns" && edge.TargetNodeId == "dns");
             diagram.UseCases[0].Steps[1].Payload["Payload"] = "{\"answer\":\"updated\"}";
             diagram.UseCases[0].Steps[1].Kind = DiagramStepKind.Failed;
+            diagram.UseCases[0].Steps[2].Payload["Payload"] = "updated ordinary field";
             diagram.UseCases[0].Steps[0].From = diagram.UseCases[0].Steps[0].To = "Gateway";
+            diagram.UseCases[0].Steps[0].Payload["Payload"] = "node field";
             Text(diagram, 200);
             Assert.Equal(TopologyScenarioStepKind.Node, chart.Scenarios[0].Steps[0].Kind);
             Assert.Equal("Gateway", chart.Scenarios[0].Steps[0].Id);
+            Assert.Equal("Payload: node field", chart.Scenarios[0].Steps[0].Payload);
+            Assert.Equal(TopologyScenarioPayloadFormat.Text, chart.Scenarios[0].Steps[0].PayloadFormat);
             Assert.Same(importedSteps[1], chart.Scenarios[0].Steps[1]);
             Assert.Equal("{\"answer\":\"updated\"}", chart.Scenarios[0].Steps[1].Payload);
             Assert.Equal(TopologyScenarioPayloadFormat.Json, chart.Scenarios[0].Steps[1].PayloadFormat);
             Assert.Equal(TopologyScenarioInteraction.Failure, chart.Scenarios[0].Steps[1].Interaction);
             Assert.Equal("application/json", chart.Scenarios[0].Steps[1].Metadata["Content-Type"]);
             Assert.Equal(750, chart.Scenarios[0].Steps[1].DurationMilliseconds);
+            Assert.Equal("Payload: updated ordinary field", chart.Scenarios[0].Steps[2].Payload);
             Assert.Equal(TopologyNodeKind.Generic, chart.Nodes.Single(node => node.Id == "dns").Kind);
             Assert.Equal(VisualLinkDirection.None, chart.Edges.Single(edge => edge.Id == "dns").Direction);
         }
