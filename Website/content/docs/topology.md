@@ -19,6 +19,34 @@ dotnet add package ConsoleMonster.Graphics
 
 {{< cm-demo id="topology" heading="h2" >}}
 
+## Write one
+
+Nodes, links, groups and use cases are the same model in C#, the fluent builder and PowerShell. Without Graphics registered, the core draws this as a tree:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var diagram = Ui.Diagram("Home network")
+    .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
+    .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
+        .Subtitle("192.168.1.1").Value("1 ms"))
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
+Terminal.Write(diagram);
+```
+
+The PowerShell module bundles Graphics and registers it for the diagram commands:
+
+```powershell
+Import-Module ConsoleMonster
+
+New-ConsoleDiagram -Title 'Home network' {
+    New-ConsoleDiagramNode 'Laptop' -Kind Workstation
+    New-ConsoleDiagramNode 'Router' -Kind Gateway -Subtitle '192.168.1.1' -Value '1 ms'
+    New-ConsoleDiagramLink 'Laptop' 'Router' -Label 'Wi-Fi'
+} | Show-ConsoleDiagram -StaticSnapshot
+```
+
 ## Use cases
 
 A use case is an ordered list of steps over the diagram: a request, its answer, a message nobody waits for, or a call that fails. The panel under the diagram lists the steps, the active one lights up on the diagram (answers point back, failures are red) and its payload is shown. In an interactive console:

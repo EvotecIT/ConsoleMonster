@@ -16,12 +16,4 @@ Show-ConsoleApp -Title Maintenance -Content {
             New-ConsoleToggle -Key Teams -Label 'Post to Teams'
         }
     })
-    # One line under the tabs follows every change.
-    New-ConsoleBinding -Content {
-        param($State)
-        $checks = if ($State.Enabled) { 'on' } else { 'off' }
-        $window = if ($State.Window) { $State.Window } else { 'none' }
-        $email = if ($State.Email) { 'yes' } else { 'no' }
-        "[muted]Checks[/] $checks  [muted]Window[/] $window  [muted]Email[/] $email"
-    }
 }

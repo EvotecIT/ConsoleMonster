@@ -1,4 +1,4 @@
-source 1719100c876a104f07535c7542316d2a
+source 9ea9dc37dcbd53c4165a824f88b08b3a
  Maintenance
  Schedule   Notify
 ╭─ › Run nightly checks ─────────────────────────────────────────────────────────────────╮
@@ -17,32 +17,10 @@ source 1719100c876a104f07535c7542316d2a
 │                                                                                        │
 │ Space anchor · Enter select range                                                      │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
-Checks on  Window none  Email no
 
 
- tab next  shift+tab back  esc quit07535c7542316d2a
- Maintenance
- Schedule   Notify
-╭─ › Run nightly checks ─────────────────────────────────────────────────────────────────╮
-│ [✓] Yes                                                                                │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Window ───────────────────────────────────────────────────────────────────────────────╮
-│ November 2026                                                                          │
-│                                                                                        │
-│ Week    Mo  Tu  We  Th  Fr  Sa  Su                                                     │
-│ W44                             01                                                     │
-│ W45     02  03  04  05  06  07  08                                                     │
-│ W46     09  10  11  12  13  14  15                                                     │
-│ W47     16  17  18  19  20  21  22                                                     │
-│ W48     23  24  25  26  27  28  29                                                     │
-│ W49     30                                                                             │
-│                                                                                        │
-│ Space anchor · Enter select range                                                      │
-╰────────────────────────────────────────────────────────────────────────────────────────╯
-Checks on  Window none  Email no
 
-
- tab next  shift+tab back  esc quit881a29abf0d8f962
+ tab next  shift+tab back  esc quit7c326be9a3fe2448
  Maintenance
  Schedule   Notify
 ╭─ › Email the report ───────────────────────────────────────────────────────────────────╮
@@ -51,7 +29,6 @@ Checks on  Window none  Email no
 ╭─ Post to Teams ────────────────────────────────────────────────────────────────────────╮
 │ [ ] No                                                                                 │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
-Checks off  Window 2026-11-20 – 2026-11-23  Email yes
 
 
 
@@ -64,7 +41,8 @@ Checks off  Window 2026-11-20 – 2026-11-23  Email yes
 
 
 
- tab next  shift+tab back  esc quit881a29abf0d8f962
+
+ tab next  shift+tab back  esc quit7c326be9a3fe2448
  Maintenance
  Schedule   Notify
 ╭─ › Email the report ───────────────────────────────────────────────────────────────────╮
@@ -73,7 +51,7 @@ Checks off  Window 2026-11-20 – 2026-11-23  Email yes
 ╭─ Post to Teams ────────────────────────────────────────────────────────────────────────╮
 │ [ ] No                                                                                 │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
-Checks off  Window 2026-11-20 – 2026-11-23  Email yes
+
 
 
 

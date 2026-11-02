@@ -15,10 +15,4 @@ var notify = new Rows(
     new Toggle("Teams") { Label = "Post to Teams" });
 var tabs = new Tabs().Add("Schedule", schedule).Add("Notify", notify);
 
-// One line under the tabs follows every change.
-var summary = new AppBinding(state => new TextBlock(
-    $"[muted]Checks[/] {(state.Get("Enabled", false) ? "on" : "off")}" +
-    $"  [muted]Window[/] {state["Window"] ?? "none"}" +
-    $"  [muted]Email[/] {(state.Get("Email", false) ? "yes" : "no")}"));
-
-ConsoleApp.Run(new Rows(new HeaderBar("Maintenance"), tabs, summary), new AppState());
+ConsoleApp.Run(new Rows(new HeaderBar("Maintenance"), tabs), new AppState());
