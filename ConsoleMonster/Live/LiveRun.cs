@@ -175,7 +175,7 @@ namespace ConsoleMonster.Live {
                 _tracker.Complete(); _complete = true; _stop.Set();
             }
             _pulse?.Join();
-            _session.Dispose();
+            _session.Stop();
             _stop.Dispose();
             ThrowIfFailed();
             return _tracker.Snapshot();
@@ -184,6 +184,10 @@ namespace ConsoleMonster.Live {
             if (_session.Failure != null) { throw new InvalidOperationException("Run output stopped before completion. The structured snapshot remains available.", _session.Failure); }
         }
         /// <inheritdoc />
-        public void Dispose() { Complete(); }
+        public void Dispose() {
+            try { Complete(); }
+            finally { _session.Dispose(); }
+            ThrowIfFailed();
+        }
     }
 }

@@ -170,13 +170,21 @@ namespace ConsoleMonster.Rendering {
             // A previous failed cleanup already restored native mode; reacquire it for this attempt.
             _outputMode ??= WindowsOutputModeScope.Activate(_writer);
             _sb.Clear();
-            bool drew = _drawn > 0;
+            int previousDrawn = _drawn;
+            bool drew = previousDrawn > 0;
             ClearArea();
             _sb.Append(Esc).Append("?2026l");
             _sb.Append(SgrEncoder.TerminalResetFor(Profile));
             _sb.Append(Esc).Append("?25h").Append(drew ? "\r" : "\r\n");
-            _previous = null;
-            try { Emit(); _live = false; }
+            try {
+                try { _writer.Write(_sb.ToString()); }
+                catch { _drawn = previousDrawn; throw; }
+                // The cursor/erase write reached the terminal. A flush failure must not move it up again.
+                _previous = null;
+                _sb.Clear();
+                _writer.Flush();
+                _live = false;
+            }
             finally {
                 _outputMode?.Dispose();
                 _outputMode = null;

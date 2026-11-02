@@ -106,33 +106,39 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData("full cleanup write failure")]
         [InlineData("inline cleanup write failure")]
         [InlineData("prompt cleanup write failure")]
+        [InlineData("full cleanup flush failure")]
+        [InlineData("inline cleanup flush failure")]
+        [InlineData("prompt cleanup flush failure")]
         public void TerminalRecovery_PreservesOwnershipAndReturnsACleanLine(string scenario) {
             var profile = TerminalProfile.Fixed(48, 12, ColorDepth.TrueColor, GlyphTier.Full);
             using var text = new ExitContractWriter();
             var target = new WriterTarget(text, profile);
             text.Write("\u001b[31mcaller partial");
-            if (scenario.Contains("cleanup write failure")) {
+            if (scenario.Contains("cleanup ")) {
                 if (scenario.StartsWith("prompt", StringComparison.Ordinal)) {
                     var surface = new InlineSurface(profile, target.Writer);
-                    surface.Present(TestTerminal.Render(new TextBlock("State"), 40), null);
-                    text.FailNextWrite = true;
+                    surface.Present(TestTerminal.Render(new TextBlock("State\nSecond"), 40), new Caret(2, 1));
+                    text.FailNextWrite = scenario.Contains("write failure");
+                    text.FailNextFlush = scenario.Contains("flush failure");
                     Assert.Throws<IOException>(() => surface.Complete(null));
                     surface.Dispose();
                 } else {
                     var output = scenario.StartsWith("full", StringComparison.Ordinal)
                         ? Terminal.CreateOutput(profile, target.Writer) : Terminal.CreateInlineOutput(profile, target.Writer);
                     output.BeginLive();
-                    output.RenderFrame(TestTerminal.Render(new TextBlock("State"), 40));
-                    text.FailNextWrite = true;
+                    output.RenderFrame(TestTerminal.Render(new TextBlock("State\nSecond"), 40));
+                    text.FailNextWrite = scenario.Contains("write failure");
+                    text.FailNextFlush = scenario.Contains("flush failure");
                     Assert.Throws<IOException>(() => output.EndLive());
                     output.Dispose();
                 }
             } else {
                 int failWindow = 0;
+                int promptThread = Thread.CurrentThread.ManagedThreadId;
                 using var session = new LiveSession(new TextBlock("State"), new LiveSessionOptions {
                     Target = target, Profile = profile, CaptureConsole = false, HandleCancelKey = false,
                     TaskbarProgress = false, PrintFinalState = false,
-                    WindowSource = () => Volatile.Read(ref failWindow) != 0
+                    WindowSource = () => Thread.CurrentThread.ManagedThreadId == promptThread && Volatile.Read(ref failWindow) != 0
                         ? throw new InvalidOperationException("overlay window failure") : new[] { 0, 0, 48, 12 }
                 });
                 session.Start();
@@ -159,6 +165,10 @@ namespace ConsoleMonster.Tests.Rendering {
                 session.Dispose();
             }
             AssertPromptReady(text.ToString());
+            var cleaned = new VtScreen(48, 12, keepScrollback: false);
+            cleaned.Feed(text.ToString());
+            Assert.DoesNotContain("State", cleaned.Snapshot().ToPlainText());
+            Assert.DoesNotContain("Second", cleaned.Snapshot().ToPlainText());
             text.Write("writer remains open");
             Assert.EndsWith("writer remains open", text.ToString());
         }
@@ -216,6 +226,11 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private sealed class ExitContractWriter : StringWriter {
             internal bool FailNextWrite;
+            internal bool FailNextFlush;
+            public override void Flush() {
+                if (FailNextFlush) { FailNextFlush = false; throw new IOException("contract cleanup flush failure"); }
+                base.Flush();
+            }
             public override void Write(string? value) {
                 if (FailNextWrite) { FailNextWrite = false; throw new IOException("contract cleanup write failure"); }
                 base.Write(value);
