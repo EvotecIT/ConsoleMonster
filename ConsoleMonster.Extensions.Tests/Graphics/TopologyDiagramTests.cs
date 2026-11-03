@@ -232,14 +232,25 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         }
 
         [Fact]
-        public void DetailsKey_FirstPress_FocusesTheFirstNode() {
-            var view = new TopologyDiagram(TopologyFixtures.TierBridge());
+        public void DetailsKey_FirstPress_FocusesTheFirstRenderedNode() {
+            TopologyChart chart = TopologyFixtures.TierBridge();
+            var view = new TopologyDiagram(chart);
+            string frame = Text(view, 120);
+            var visibleNodes = chart.Nodes
+                .Select(node => new { Node = node, Offset = frame.IndexOf(node.Label, StringComparison.Ordinal) })
+                .Where(item => item.Offset >= 0)
+                .OrderBy(item => item.Offset)
+                .ToArray();
+            Assert.NotEmpty(visibleNodes);
+            string firstNodeId = visibleNodes[0].Node.Id;
+            Assert.Null(view.FocusNodeId);
 
             Assert.True(view.HandleInput(InputEvent.Character('d')));
-            Assert.Equal("inspection", view.FocusNodeId);
+            Assert.Equal(firstNodeId, view.FocusNodeId);
             Assert.True(view.ShowDetails);
             Assert.True(view.HandleInput(InputEvent.Character('d')));
             Assert.False(view.ShowDetails);
+            Assert.Equal(firstNodeId, view.FocusNodeId);
         }
 
         [Fact]
