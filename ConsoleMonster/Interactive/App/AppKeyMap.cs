@@ -38,6 +38,13 @@ namespace ConsoleMonster.Interactive {
             return false;
         }
 
+        internal bool Claims(KeyChord chord) {
+            InputControl? focused = Focused();
+            return (focused != null && (focused.Takes(chord, _context) ||
+                focused.Bindings.Any(binding => binding.Claims.Contains(chord)))) ||
+                Later().Any(binding => binding.Claims.Contains(chord));
+        }
+
         internal void ForgetPending(KeyBinding? except = null) {
             foreach (KeyBinding binding in _focus.Controls.SelectMany(control => control.Bindings).Concat(Later())) {
                 if (!ReferenceEquals(binding, except)) { binding.ForgetPending(); }
@@ -59,7 +66,7 @@ namespace ConsoleMonster.Interactive {
                 List<KeyChord> claims = binding.Claims.ToList();
                 List<KeyChord> free = claims.Where(chord => !claimed.Contains(chord)
                     && (hostOwned || !hostFirst.Contains(chord))
-                    && (beforeInput || focused == null || !focused.Takes(chord, _context))).ToList();
+                    && (beforeInput || focused == null || (hostOwned && hostFirst.Contains(chord)) || !focused.Takes(chord, _context))).ToList();
                 foreach (KeyChord chord in free) { claimed.Add(chord); }
                 if ((free.Count == 0 && binding.Chords.Count > 0) || !binding.InFooter || string.IsNullOrEmpty(binding.Label)) { return; }
                 string keys = free.Count == claims.Count || binding.KeyText != null ? binding.DisplayKeys() : KeyBinding.Display(free[0]);

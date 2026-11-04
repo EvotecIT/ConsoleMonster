@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 47,
+      "count": 49,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -349,6 +349,11 @@
           "name": "New-ConsoleChart",
           "synopsis": "Creates one numeric chart representation from records or samples.",
           "url": "/powershell/commands/new-consolechart/"
+        },
+        {
+          "name": "New-ConsoleCollapsible",
+          "synopsis": "Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.",
+          "url": "/powershell/commands/new-consolecollapsible/"
         },
         {
           "name": "New-ConsoleColumns",
@@ -504,6 +509,11 @@
           "name": "New-ConsoleSelect",
           "synopsis": "Creates a named select input for Show-ConsoleApp.",
           "url": "/powershell/commands/new-consoleselect/"
+        },
+        {
+          "name": "New-ConsoleSplitter",
+          "synopsis": "Creates two panes with a divider that the mouse and keyboard can move.",
+          "url": "/powershell/commands/new-consolesplitter/"
         },
         {
           "name": "New-ConsoleStack",

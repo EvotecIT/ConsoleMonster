@@ -336,6 +336,9 @@ namespace ConsoleMonster.Widgets {
             return _sourceWidth > 0 ? x + _sourceWidth + 1 : x;
         }
 
+        // The message starts after the same measured columns used by the last render (including elapsed time and tags).
+        internal int MessageColumn(LogEntry entry) => PrefixWidth(entry, _levelColumn.Resolve(0));
+
         // A source keeps one series colour for the whole session, so the same job reads the same in every row.
         internal static Style SourceStyle(string source, RenderContext context) {
             uint hash = 2166136261;

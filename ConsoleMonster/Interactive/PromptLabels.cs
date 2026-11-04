@@ -74,6 +74,21 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: expand or collapse a group.</summary>
         public string KeyExpand { get; set; } = "expand/collapse";
 
+        /// <summary>Key hint: expand every section of an accordion.</summary>
+        public string KeyExpandAll { get; set; } = "expand all";
+
+        /// <summary>Key hint: fold every section of an accordion.</summary>
+        public string KeyCollapseAll { get; set; } = "collapse all";
+
+        /// <summary>Key hint: move the divider between two panes.</summary>
+        public string KeyResize { get; set; } = "resize";
+
+        /// <summary>The caption of the find bar.</summary>
+        public string Find { get; set; } = "Find";
+
+        /// <summary>The find bar's position among the matches: {0} is the current match, {1} the number of matches.</summary>
+        public string FindMatches { get; set; } = "{0} of {1}";
+
         /// <summary>Key hint: next field or page.</summary>
         public string KeyNext { get; set; } = "next";
 

@@ -3,19 +3,35 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "demos",
+  "requestedSet": "gallery",
   "filters": {
-    "SITEFRAMES_DEMOS": "topology"
+    "SITEFRAMES_GALLERY": "help-sections"
   },
   "allSetsCompleted": false,
   "files": {
-    "demos/topology.cast": {
+    "gallery/help-sections-0.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "a8b076fbbcbc674b469accd4206b3abe6f6edfeea49ebe6eef67e34cac0c9c68",
+      "sha256": "c7ad32a61d837e51566121efb33c6b27d92de369b08eea4b238cf884ff789901",
       "screen": "dark",
-      "width": 170,
-      "height": 32
+      "width": 88,
+      "height": 22
+    },
+    "gallery/help-sections-1.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "fa456aca66da89eac1e606a4dbf9de3a52c9184b44cd739e05a24f29421c3ded",
+      "screen": "dark",
+      "width": 88,
+      "height": 22
+    },
+    "gallery/help-sections-2.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9260caa583bb29386aaa4617b3eb0c5b4b94c320dcbc99adb7f8a426106cf0cc",
+      "screen": "dark",
+      "width": 88,
+      "height": 22
     }
   }
 }

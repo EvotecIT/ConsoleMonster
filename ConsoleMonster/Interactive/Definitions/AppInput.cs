@@ -67,6 +67,16 @@ namespace ConsoleMonster.Interactive {
             return toggle;
         }
 
+        /// <summary>Constructs a collapsible section using the same definition as New-ConsoleCollapsible.</summary>
+        /// <param name="options">Key, label, content, initial state and callback configuration.</param>
+        /// <returns>The persistent section.</returns>
+        public static Collapsible Collapsible(CollapsibleInputOptions options) {
+            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            var section = new Collapsible(options.Key, options.Content) { Expanded = options.Expanded, Summary = options.Summary };
+            Configure(section, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
+            return section;
+        }
+
         private static void Configure(InputControl control, string? label, bool disabled, int tabIndex, string? validationMessage, EventHandler<AppValueChangedEventArgs>? onChange) {
             control.Label = label; control.Disabled = disabled; control.TabIndex = tabIndex; control.ValidationMessage = validationMessage;
             if (onChange != null) { control.Changed += onChange; }

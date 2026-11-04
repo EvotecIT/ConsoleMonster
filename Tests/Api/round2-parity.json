@@ -4871,6 +4871,246 @@
       ]
     },
     {
+      "Command": "New-ConsoleCollapsible",
+      "Job": "New-ConsoleCollapsible",
+      "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+      "Bindings": [
+        {
+          "Parameter": "Accordion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Accordion",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Accordion",
+          "Member": ".ctor",
+          "Argument": "children",
+          "MemberKind": "Constructor",
+          "Conversion": "AccordionGroup",
+          "CSharpTypeName": "ConsoleMonster.Interactive.Collapsible[]",
+          "Reason": "Selects the group form: the sections emitted by Content become one Accordion that keeps a single section open."
+        },
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "Accordion",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "Content",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "AppliesToSets": [
+            "Section"
+          ]
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Expanded",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "Expanded",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": ".ctor",
+          "Argument": "key",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Summary",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "Summary",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ValidationMessage",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Section",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Collapsible",
+          "Member": "ValidationMessage",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        }
+      ],
+      "SetBindings": [
+        {
+          "Parameter": "Content",
+          "ParameterSet": "Accordion",
+          "CSharpType": "ConsoleMonster.Interactive.Accordion",
+          "Member": "Add",
+          "MemberKind": "Method",
+          "Argument": "section",
+          "CSharpTypeName": "ConsoleMonster.Interactive.Collapsible",
+          "Conversion": "SectionCollection",
+          "Reason": "With -Accordion, each section emitted by Content is added to the group in order."
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleColumns",
       "Job": "New-ConsoleColumns",
       "CSharpType": "ConsoleMonster.Layout.Columns",
@@ -10603,6 +10843,183 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleSplitter",
+      "Job": "New-ConsoleSplitter",
+      "CSharpType": "ConsoleMonster.Widgets.Splitter",
+      "Bindings": [
+        {
+          "Parameter": "Fill",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.WidgetLayout",
+          "Member": "Fill",
+          "MemberKind": "Method",
+          "Conversion": "LayoutDecorator",
+          "CSharpTypeName": null,
+          "Reason": "Wraps the constructed widget with fractional layout sizing."
+        },
+        {
+          "Parameter": "First",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Splitter",
+          "Member": "First",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Layout.LayoutSize",
+          "Member": "Fixed",
+          "MemberKind": "Method",
+          "Conversion": "LayoutDecorator",
+          "CSharpTypeName": "System.Int32",
+          "Argument": "cells",
+          "Reason": "Fixed height wraps the splitter with the same shared layout size used by every container."
+        },
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Splitter",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Ratio",
+          "ParameterType": "System.Double",
+          "Default": 0.5,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Splitter",
+          "Member": "Ratio",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Double",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Second",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Splitter",
+          "Member": "Second",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Vertical",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Splitter",
+          "Member": "Vertical",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Weight",
+          "ParameterType": "System.Double",
+          "Default": 0.0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.WidgetLayout",
+          "Member": "Fill",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Double",
+          "Argument": "weight"
         }
       ]
     },
@@ -27303,11 +27720,51 @@
       "Disposition": "CSharpOnly",
       "Reason": "Native embedding hosts can replace this baseline property-count label independently of the language catalogue.",
       "Alternative": "Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyExpandAll",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'expand all' caption (Key hint: expand every section of an accordion.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyExpandAll catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyCollapseAll",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'collapse all' caption (Key hint: fold every section of an accordion.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyCollapseAll catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyResize",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'resize' caption (Key hint: move the divider between two panes.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyResize catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "Find",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'Find' caption (The caption of the find bar.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.Find catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "FindMatches",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the '{0} of {1}' caption (The find bar's position among the matches: {0} is the current match, {1} the number of matches.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.FindMatches catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 99,
+  "ExpectedCount": 101,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -27331,6 +27788,7 @@
     "ConsoleMonster.Graphics.GraphicsExportOptions",
     "ConsoleMonster.Headless.BrowserHostOptions",
     "ConsoleMonster.Headless.DebugSocketOptions",
+    "ConsoleMonster.Interactive.Accordion",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
     "ConsoleMonster.Interactive.AppInputOptions",
@@ -27339,6 +27797,8 @@
     "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
+    "ConsoleMonster.Interactive.Collapsible",
+    "ConsoleMonster.Interactive.CollapsibleInputOptions",
     "ConsoleMonster.Interactive.CommandOptions",
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
@@ -27493,6 +27953,7 @@
     "ConsoleMonster.Widgets.ShellPrompt",
     "ConsoleMonster.Widgets.Sparkline",
     "ConsoleMonster.Widgets.Spinner",
+    "ConsoleMonster.Widgets.Splitter",
     "ConsoleMonster.Widgets.StackedBar",
     "ConsoleMonster.Widgets.StatusList",
     "ConsoleMonster.Widgets.SummaryBar",
@@ -27585,6 +28046,7 @@
     "ConsoleMonster.Input.IInputSource",
     "ConsoleMonster.Input.KeyChord",
     "ConsoleMonster.Input.KeyModifiers",
+    "ConsoleMonster.Interactive.Accordion",
     "ConsoleMonster.Interactive.AppActions",
     "ConsoleMonster.Interactive.AppBinding",
     "ConsoleMonster.Interactive.AppCommand",
@@ -27598,6 +28060,8 @@
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
     "ConsoleMonster.Interactive.Choice",
+    "ConsoleMonster.Interactive.Collapsible",
+    "ConsoleMonster.Interactive.CollapsibleInputOptions",
     "ConsoleMonster.Interactive.CommandOptions",
     "ConsoleMonster.Interactive.CommandStyle",
     "ConsoleMonster.Interactive.ConfirmPrompt",
@@ -27837,6 +28301,7 @@
     "ConsoleMonster.Widgets.ShellPrompt",
     "ConsoleMonster.Widgets.Sparkline",
     "ConsoleMonster.Widgets.Spinner",
+    "ConsoleMonster.Widgets.Splitter",
     "ConsoleMonster.Widgets.StackedBar",
     "ConsoleMonster.Widgets.StatusItem",
     "ConsoleMonster.Widgets.StatusList",
@@ -30199,6 +30664,33 @@
       "CSharpType": "ConsoleMonster.Changes.BaselineView",
       "Member": "Title",
       "Parameter": "Title"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
+      "Member": "Content",
+      "MemberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Content",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Command": "New-ConsoleCollapsible",
+      "Parameter": "Content",
+      "Reason": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
+      "Member": "Expanded",
+      "MemberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Expanded",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleCollapsible",
+      "Parameter": "Expanded",
+      "Reason": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
+      "Member": "Summary",
+      "MemberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Summary",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleCollapsible",
+      "Parameter": "Summary",
+      "Reason": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
     }
   ],
   "Endings": [
@@ -30347,6 +30839,13 @@
           "Command": "New-ConsoleScrollView",
           "CSharpType": "ConsoleMonster.Widgets.ScrollView",
           "FluentType": "ConsoleMonster.Widgets.WidgetsFluent",
+          "Member": "Content",
+          "InitializerPattern": "Content = widget"
+        },
+        {
+          "Command": "New-ConsoleCollapsible",
+          "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
+          "FluentType": "ConsoleMonster.Interactive.InteractiveFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         }
@@ -30841,6 +31340,28 @@
           "InitializerTypes": [
             "ConsoleMonster.Widgets.Diagram"
           ]
+        },
+        {
+          "Command": "New-ConsoleCollapsible",
+          "Noun": "Collapsible",
+          "ReturnType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Collapsible()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Collapsible",
+            "ConsoleMonster.Interactive.CollapsibleInputOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleSplitter",
+          "Noun": "Splitter",
+          "ReturnType": "ConsoleMonster.Widgets.Splitter",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Splitter()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Splitter"
+          ]
         }
       ],
       "NonWidgetCommands": [
@@ -30961,6 +31482,10 @@
         {
           "Noun": "FooterBar",
           "Reason": "Show-ConsoleApp -FooterHints builds the same footer; Footer accepts an explicitly composed widget."
+        },
+        {
+          "Noun": "Accordion",
+          "Reason": "Typed group of collapsible sections; PowerShell builds it with New-ConsoleCollapsible -Accordion."
         }
       ],
       "PrimaryInputs": [
