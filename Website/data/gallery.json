@@ -1926,8 +1926,8 @@
       "run": {
         "powershell": "Show-ConsoleDemo help-sections",
         "export": "$source = (Get-ConsoleDemo help-sections).Source\n[IO.File]::WriteAllText(\"$PWD/help-sections.ps1\", $source, [Text.UTF8Encoding]::new($true))",
-        "csharp": "dotnet new consolemonster --demo help-sections",
-        "csharpFluent": "dotnet new consolemonster --demo help-sections --DemoStyle Fluent"
+        "csharp": null,
+        "csharpFluent": null
       },
       "url": "/replays/gallery-help-sections.json",
       "duration": 3600,

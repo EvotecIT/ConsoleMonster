@@ -123,6 +123,9 @@ namespace SiteFrames.Pages {
         /// <summary>Checks all three source programs cell by cell and by encoded frame bytes, then generates gallery data and downloadable sources.</summary>
         public static void Render(Site site, string? review = null) {
             Demo[] demos = Read(site);
+            var template = JsonNode.Parse(File.ReadAllText(Path.Combine(site.Repository, "Templates", "ConsoleMonster.Templates", "content", "ConsoleMonsterApp", ".template.config", "template.json")))!;
+            var templateDemos = template["symbols"]!["demo"]!["choices"]!.AsArray()
+                .Select(choice => choice!["choice"]!.GetValue<string>()).ToHashSet(StringComparer.Ordinal);
             Site.Clean(site.Static("examples/gallery"));
             Site.Clean(site.Static("site/gallery"));
             JsonArray entries = new JsonArray();
@@ -166,8 +169,8 @@ namespace SiteFrames.Pages {
                     ["powershell"] = "Show-ConsoleDemo " + demo.Slug,
                     ["export"] = "$source = (Get-ConsoleDemo " + demo.Slug + ").Source\n" +
                         "[IO.File]::WriteAllText(\"$PWD/" + demo.Slug + ".ps1\", $source, [Text.UTF8Encoding]::new($true))",
-                    ["csharp"] = "dotnet new consolemonster --demo " + demo.Slug,
-                    ["csharpFluent"] = "dotnet new consolemonster --demo " + demo.Slug + " --DemoStyle Fluent"
+                    ["csharp"] = templateDemos.Contains(demo.Slug) ? "dotnet new consolemonster --demo " + demo.Slug : null,
+                    ["csharpFluent"] = templateDemos.Contains(demo.Slug) ? "dotnet new consolemonster --demo " + demo.Slug + " --DemoStyle Fluent" : null
                 };
                 if (demo.Steps > 1) {
                     string replay = PlayerData.Write(site, timeline, demo.Title, 10, Math.Max(1800, holdMilliseconds), out long duration, out int count);

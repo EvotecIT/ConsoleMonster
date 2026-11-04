@@ -153,19 +153,23 @@
       </li>
     </ol>
     <div class="cm-reel-shortcut">
-      <p class="cm-reel-shortcut__lead"><strong>Or skip the copying.</strong> Every demo ships with the module and the project template.</p>
+      <p class="cm-reel-shortcut__lead"><strong>Or skip the copying.</strong> Run the bundled program{{ if d.run.csharp }} or create it from the project template{{ end }}.</p>
       <div class="cm-reel__cmd cm-reel-shortcut__cmds" data-lang="powershell">
         {{~ cmd_lang = "powershell"; cmd_text = d.run.powershell ~}}{{ include "command" }}
         {{~ cmd_lang = "powershell"; cmd_text = d.run.export ~}}{{ include "command" }}
       </div>
+      {{~ if d.run.csharp ~}}
       <div class="cm-reel__cmd cm-reel-shortcut__cmds" data-lang="csharp">
         {{~ cmd_lang = "bash"; cmd_text = "dotnet new install ConsoleMonster.Templates" ~}}{{ include "command" }}
         {{~ cmd_lang = "bash"; cmd_text = d.run.csharp + " -n " + project ~}}{{ include "command" }}
       </div>
+      {{~ end ~}}
+      {{~ if d.run.csharpFluent ~}}
       <div class="cm-reel__cmd cm-reel-shortcut__cmds" data-lang="csharp-fluent">
         {{~ cmd_lang = "bash"; cmd_text = "dotnet new install ConsoleMonster.Templates" ~}}{{ include "command" }}
         {{~ cmd_lang = "bash"; cmd_text = d.run.csharpFluent + " -n " + project ~}}{{ include "command" }}
       </div>
+      {{~ end ~}}
     </div>
   </section>
 
