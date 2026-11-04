@@ -22,7 +22,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal static MouseReporting? Open(bool enabled, InteractiveOptions interactive, Capabilities.TerminalProfile profile, Input.IInputSource input, bool customOutput = false) {
-            if (!enabled || !(input is Input.ConsoleKeyInput) || customOutput || interactive.Capture != null
+            // Only the rich mode draws pointer targets. Accessible sessions keep the mouse for the terminal's own selection
+            // and screen-reader review; line, snapshot and unattended modes read no pointer input at all.
+            if (!enabled || !(input is Input.ConsoleKeyInput) || customOutput || interactive.Capture != null || interactive.ResolveMode() != InteractionMode.Rich
                 || !profile.SupportsVirtualTerminal || profile.IsContinuousIntegration || profile.IsOutputRedirected || profile.Mode != Capabilities.OutputMode.Interactive) { return null; }
             if (_current != null && _current._active) { return null; }
             ITerminalWriter? writer = interactive.ResolveTarget().Writer;

@@ -156,10 +156,11 @@ namespace ConsoleMonster.Interactive {
         private int? HeaderColumnAt(int x, int y) {
             if (_page == null || !_page.WindowHeader(out int top, out int height, out int[] columns, out int[] starts, out int[] widths)) { return null; }
             if (y < top || y >= top + height) { return null; }
-            bool marks = _grid.OutputMode == GridSelection.Multiple;
+            // The page starts with the focus gutter, then the mark column for multiple selection.
+            int leading = 1 + (_grid.OutputMode == GridSelection.Multiple ? 1 : 0);
             List<int> shown = ShownColumns();
             for (int v = 0; v < columns.Length; v++) {
-                int source = columns[v] - (marks ? 1 : 0);
+                int source = columns[v] - leading;
                 if (x >= starts[v] && x < starts[v] + widths[v] && source >= 0 && source < shown.Count) { return shown[source]; }
             }
             return null;

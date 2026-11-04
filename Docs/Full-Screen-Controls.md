@@ -229,6 +229,7 @@ Where the terminal reports the mouse, it works wherever the keyboard does, and e
 | Click in a `TextInput` or text area; drag | Places the caret; selects, as Shift with the arrows does. Typing replaces the selection. |
 | Double-click a row in a `DataGrid`, `TreeSelect` or list `Select` | Enter, so an `open` binding on the input opens the row. |
 | Click a `DataGrid` column header | F3 sorts by the next column, F4 reverses; a second click on the same header reverses. |
+| Click a diagram node, step line or use-case line | Up/Down and d (focus and details), n/b to that step, p to play or pause. |
 | Right-click | The Menu key or Shift+F10: a context menu listing what the keys reach now (the focused input's bindings, the screen's and the app's), each with its key. |
 
 Standalone prompts, menus, the palette, `Show-ConsoleGrid`, `Show-ConsoleObject`, forms and the document pager take

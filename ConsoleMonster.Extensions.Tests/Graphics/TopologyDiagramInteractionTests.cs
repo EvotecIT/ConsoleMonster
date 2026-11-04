@@ -265,6 +265,31 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             app.Handle(InputEvent.Mouse(column, row), true);
             app.Handle(InputEvent.Mouse(column, row, pressed: false), true);
             Assert.Equal("db", view.FocusNodeId);
+            // The details panel opens, as d does.
+            Assert.Contains(app.PrepareFrame(100, 30).ToPlainText().Split('\n'), line => line.Trim().EndsWith("connections", StringComparison.Ordinal) || line.Trim().EndsWith("connection", StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void StepAndUseCaseLines_ClickGoesToTheStepAndPlaysLikeTheirKeys() {
+            var view = new TopologyDiagram(SingleNodeChart().AddAutoNode("db", "Database", TopologyNodeKind.Database)
+                .AddScenario("flow", "Flow", scenario => scenario.WithPlayback(stepDurationMilliseconds: 60000)
+                    .AddNodeStep("worker", "Inspect").AddNodeStep("db", "Store").AddNodeStep("worker", "Reply")));
+            using var app = new AppController(view, new AppState(), Terminal.CreateContext(TerminalProfile.Fixed(100, 40)), 60);
+            string[] rows = app.PrepareFrame(100, 40).ToPlainText().Split('\n');
+            int step = Array.FindIndex(rows, line => line.Contains("3. "));
+            Assert.True(step >= 0, string.Join("\n", rows));
+            Click(app, rows[step].IndexOf("3. ", StringComparison.Ordinal), step);
+            Assert.Equal(2, view.StepIndex);
+            rows = app.PrepareFrame(100, 40).ToPlainText().Split('\n');
+            int header = Array.FindIndex(rows, line => line.Contains("step 3 of 3"));
+            Assert.True(header >= 0, string.Join("\n", rows));
+            Click(app, rows[header].IndexOf("Flow", StringComparison.Ordinal), header);
+            Assert.True(view.Playing);
+        }
+
+        private static void Click(AppController app, int column, int row) {
+            app.Handle(InputEvent.Mouse(column, row), true);
+            app.Handle(InputEvent.Mouse(column, row, pressed: false), true);
         }
         private static TopologyChart SingleNodeChart() => TopologyChart.Create()
             .WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)

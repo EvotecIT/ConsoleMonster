@@ -37,7 +37,8 @@ layout; revisit only if a product needs layouts edited outside code.
 
 ## Steps
 
-Each step is one PR. Steps 1 and 2 touch different files and can run at the same time; step 3 needs both.
+Each step is one PR. Steps 1 and 2 touch different files and can run at the same time; step 3 needs both, and step 4
+needs step 1.
 
 ### 1. The mouse wherever the keyboard works
 
@@ -81,7 +82,25 @@ expands to its details), Examples (each folded under its title) and Related link
 Done when `Show-ConsoleHelp` and Markdown documents use it, the website has a recording of it, and non-interactive
 output is unchanged.
 
-### 4. Later
+### 4. Charts you can explore
+
+Today `LineChart`, `BarChart`, `Chart`, `Sparkline` and `Flow` take no input; only the topology diagram does. This step
+replaces the backlog line on interactive terminal charts.
+
+- A crosshair: ←/→ or a click moves a cursor along X and shows every series' value at that point, with the values in
+  the footer for screen readers and the ASCII tier.
+- Clicking a legend entry, or pressing its number, hides or shows that series.
+- Zoom and pan: +/- and the wheel zoom, drag or Shift+←/→ pans, Home resets. Charts drawn through ChartForgeX use its
+  prepared X zoom levels (ChartForgeX #426), so navigation doesn't re-run the source chart; native `LineChart` gets a
+  simple X-range zoom.
+- Linked to tables: selecting a `DataGrid` row highlights its point, and clicking a point selects its row, through
+  shared app state rather than a direct reference between the two controls.
+- Done when a chart works inside `Show-ConsoleApp` as an ordinary focusable control, static output and exports are
+  unchanged, and the website has a recording of a chart linked to a table.
+
+Needs step 1 for the pointer conventions; it is independent of steps 2 and 3.
+
+### 5. Later
 
 - An in-app diagnostic overlay showing frame time, focus and the layout reasons the debug socket already reports.
 - A minimal chrome toggle for apps.

@@ -14,8 +14,10 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.Graphics {
     internal sealed partial class TopologyDiagram {
         private sealed class Line {
-            public Line(string text, ThemeToken token, int indent = 0) { Text = text; Token = token; Indent = indent; }
+            public Line(string text, ThemeToken token, int indent = 0, Action? click = null) { Text = text; Token = token; Indent = indent; Click = click; }
             public string Text { get; }
+            // In an app, a click on the line runs this, as its key does (a step line goes to that step).
+            public Action? Click { get; }
             public ThemeToken Token { get; }
             public int Indent { get; }
         }
@@ -79,7 +81,8 @@ namespace ConsoleMonster.Graphics {
             string state = _playing ? "  " + Mark(ascii) + "playing" : string.Empty;
             string count = _chart.Scenarios.Count > 1 ? "  (" + (_chart.Scenarios.FindIndex(item => item.Id == scenario.Id) + 1).ToString(CultureInfo.InvariantCulture) + "/" + _chart.Scenarios.Count.ToString(CultureInfo.InvariantCulture) + ")" : string.Empty;
             lines.Add(new Line(string.Empty, ThemeToken.Muted));
-            lines.Add(new Line(scenario.Label + count + Dot(ascii) + position + state, ThemeToken.Header));
+            // A click on the use-case line plays or pauses it, as p and Space do.
+            lines.Add(new Line(scenario.Label + count + Dot(ascii) + position + state, ThemeToken.Header, 0, TogglePlay));
             if (!string.IsNullOrWhiteSpace(scenario.Scenario.Description)) lines.Add(new Line(scenario.Scenario.Description!.Trim(), ThemeToken.Muted));
             int center = active?.Index ?? 0;
             int first = Math.Max(0, Math.Min(center - MaxStepLines / 2, scenario.Steps.Count - MaxStepLines));
@@ -93,7 +96,8 @@ namespace ConsoleMonster.Graphics {
                 string route = step.TargetNodeId == null ? step.SourceLabel : step.SourceLabel + arrow + step.TargetLabel;
                 string marker = current ? Mark(ascii) : "  ";
                 ThemeToken token = current ? (step.IsFailure ? ThemeToken.Fail : ThemeToken.Accent) : step.IsFailure ? ThemeToken.Fail : ThemeToken.Muted;
-                lines.Add(new Line(marker + (index + 1).ToString(CultureInfo.InvariantCulture).PadLeft(digits) + ". " + route + "  " + Kind(step) + "  " + step.Label, token));
+                int target = index;
+                lines.Add(new Line(marker + (index + 1).ToString(CultureInfo.InvariantCulture).PadLeft(digits) + ". " + route + "  " + Kind(step) + "  " + step.Label, token, 0, () => Step(target)));
                 if (current && !string.IsNullOrEmpty(step.Payload)) {
                     string[] payload = step.Payload!.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
                     foreach (string text in payload.Take(MaxPayloadLines)) lines.Add(new Line(text.TrimEnd(), ThemeToken.Info, digits + 4));
@@ -120,7 +124,7 @@ namespace ConsoleMonster.Graphics {
             for (int index = 0; index < lines.Count; index++) {
                 Line line = lines[index];
                 string text = DiagramText.ForTier(line.Text, context);
-                lines[index] = new Line(text, line.Token, line.Indent);
+                lines[index] = new Line(text, line.Token, line.Indent, line.Click);
             }
         }
 
@@ -161,7 +165,7 @@ namespace ConsoleMonster.Graphics {
             }
         }
 
-        // In an app, a click on a node's box focuses it, as Up and Down do in reading order.
+        // In an app, a click on a node's box focuses it and shows its details, as Up/Down and d do.
         private void RecordNodeTargets(Region region, TopologyCellCanvas canvas, int top) {
             var boxes = new Dictionary<string, int[]>(StringComparer.Ordinal);
             for (int row = 0; row < canvas.Rows && top + row < region.Height; row++) {
@@ -174,7 +178,7 @@ namespace ConsoleMonster.Graphics {
             }
             foreach (KeyValuePair<string, int[]> box in boxes) {
                 string id = box.Key;
-                Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + box.Value[0], region.Bounds.Y + top + box.Value[1], box.Value[2] - box.Value[0] + 1, box.Value[3] - box.Value[1] + 1), () => FocusNode(id));
+                Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + box.Value[0], region.Bounds.Y + top + box.Value[1], box.Value[2] - box.Value[0] + 1, box.Value[3] - box.Value[1] + 1), () => ShowNode(id));
             }
         }
 
@@ -224,7 +228,9 @@ namespace ConsoleMonster.Graphics {
 
             foreach (Line line in frame.Below) {
                 if (y >= region.Height) return;
-                region.Write(line.Indent, y++, line.Text, context.Style(line.Token), Math.Max(0, region.Width - line.Indent));
+                int end = region.Write(line.Indent, y, line.Text, context.Style(line.Token), Math.Max(0, region.Width - line.Indent));
+                if (line.Click != null && end > line.Indent) Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + line.Indent, region.Bounds.Y + y, end - line.Indent, 1), line.Click);
+                y++;
             }
         }
 
