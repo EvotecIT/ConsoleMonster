@@ -38,6 +38,13 @@ namespace ConsoleMonster.Interactive {
             return false;
         }
 
+        internal bool Claims(KeyChord chord) {
+            InputControl? focused = Focused();
+            return (focused != null && (focused.Takes(chord, _context) ||
+                focused.Bindings.Any(binding => binding.Claims.Contains(chord)))) ||
+                Later().Any(binding => binding.Claims.Contains(chord));
+        }
+
         internal void ForgetPending(KeyBinding? except = null) {
             foreach (KeyBinding binding in _focus.Controls.SelectMany(control => control.Bindings).Concat(Later())) {
                 if (!ReferenceEquals(binding, except)) { binding.ForgetPending(); }

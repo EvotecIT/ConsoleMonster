@@ -122,6 +122,31 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ResizeKeysLeaveScreenAndAppBindingsAvailable(bool screenBinding) {
+            var splitter = new Splitter(new Button("Apply"), TextBlock.Plain("details"));
+            var screen = new AppScreen("main", "Main", splitter);
+            var options = new ConsoleAppOptions();
+            bool invoked = false;
+            var binding = new KeyBinding("scoped action", () => invoked = true,
+                new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift));
+            if (screenBinding) { screen.Bindings.Add(binding); }
+            else { options.KeyBindings.Add(binding); }
+            using var app = new AppController(new AppScreens(screen), new AppState(), Context, 60, options);
+            CellBuffer before = app.PrepareFrame(120, 24);
+            int divider = Divider(before, "details");
+            Assert.Contains("scoped action", before.ToPlainText());
+            Press(app, ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            Assert.True(invoked);
+            CellBuffer after = app.PrepareFrame(120, 24);
+            Assert.Equal(divider, Divider(after, "details"));
+            Assert.DoesNotContain("resize", after.ToPlainText());
+            Press(app, ConsoleKey.LeftArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            Assert.Equal(divider - 2, Divider(app.PrepareFrame(120, 24), "details"));
+        }
+
+        [Theory]
         [InlineData(ColorDepth.TrueColor)]
         [InlineData(ColorDepth.None)]
         public void FindBarDrawsTheEditorCaretAndScrollsTheQuery(ColorDepth color) {

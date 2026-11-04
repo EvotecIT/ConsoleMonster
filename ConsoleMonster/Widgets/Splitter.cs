@@ -130,10 +130,10 @@ namespace ConsoleMonster.Widgets {
             return true;
         }
 
-        // The keys a footer lists while focus is inside this splitter.
-        internal static bool ResizeKeyIsFree(InputControl focused, KeyChord chord, RenderContext context) =>
+        private static bool ResizeKeyIsFree(InputControl focused, KeyChord chord, RenderContext context) =>
             !focused.Takes(chord, context) && !focused.Bindings.Any(binding => binding.Claims.Contains(chord));
 
+        // The keys a footer lists while focus is inside this splitter.
         internal KeyChord[] ResizeKeys => Vertical
             ? new[] { new KeyChord(ConsoleKey.UpArrow, KeyModifiers.Control | KeyModifiers.Shift), new KeyChord(ConsoleKey.DownArrow, KeyModifiers.Control | KeyModifiers.Shift) }
             : new[] { new KeyChord(ConsoleKey.LeftArrow, KeyModifiers.Control | KeyModifiers.Shift), new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift) };

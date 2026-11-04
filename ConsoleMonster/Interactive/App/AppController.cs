@@ -107,7 +107,7 @@ namespace ConsoleMonster.Interactive {
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
             if (input.Kind == InputEventKind.Mouse && mouse && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
-            if ((input.Kind != InputEventKind.Mouse || mouse) && _viewport.HandleContainerInput(input)) { Invalidate(); return; }
+            if ((input.Kind != InputEventKind.Mouse || mouse) && !ClaimedResizeKey(input) && _viewport.HandleContainerInput(input)) { Invalidate(); return; }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
             else if (input.Kind == InputEventKind.Resize) { PrepareFrame(input.Width, input.Height); }
@@ -134,6 +134,9 @@ namespace ConsoleMonster.Interactive {
             }
             if (input.Kind != InputEventKind.Mouse || input.MouseAction != MouseAction.Move || input.HeldButtons != 0 || pointerHandled) { Invalidate(); }
         }
+
+        private bool ClaimedResizeKey(InputEvent input) => input.Kind == InputEventKind.Key &&
+            _splitters.Any(splitter => splitter.ResizeKeys.Any(chord => chord.Matches(input) && _keys.Claims(chord)));
 
         internal void Refresh(LiveSession? session) {
             if (_actions.Poll()) { Invalidate(); }
@@ -198,7 +201,7 @@ namespace ConsoleMonster.Interactive {
             // Text editing keeps its chords; list resize only while the focused input leaves it free.
             InputControl? focused = _focus.Current;
             Splitter? around = focused == null ? null : _splitters.LastOrDefault(splitter => FocusManager.Discover(splitter).Contains(focused));
-            if (around != null && around.ResizeKeys.All(chord => Splitter.ResizeKeyIsFree(focused!, chord, _context))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
+            if (around != null && around.ResizeKeys.All(chord => !_keys.Claims(chord))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
             _actions.AddBindings(hints);
             return hints;
         }
