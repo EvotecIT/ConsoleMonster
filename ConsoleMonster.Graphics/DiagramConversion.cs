@@ -119,15 +119,19 @@ namespace ConsoleMonster.Graphics {
             }
             foreach (TopologyNode node in chart.Nodes) {
                 DiagramNodeKind kind = node.Kind == TopologyNodeKind.Endpoint ? DiagramNodeKind.Workstation : node.Kind == TopologyNodeKind.Application ? DiagramNodeKind.App : Enum.TryParse(node.Kind.ToString(), out DiagramNodeKind known) ? known : DiagramNodeKind.Service;
-                var item = new DiagramNode(node.Label) { Id = node.Id, Kind = kind, Subtitle = node.Subtitle, Status = Health(node.Status) };
+                var item = new DiagramNode(node.Label) { Id = node.Id, Kind = kind, Subtitle = node.Subtitle };
+                // ChartForgeX uses Unknown for "no status"; importing it would mark every undeclared node as needing attention.
+                if (node.Status != TopologyHealthStatus.Unknown) item.Status = Health(node.Status);
                 if (node.GroupId != null && groups.TryGetValue(node.GroupId, out DiagramGroup? group)) group.Nodes.Add(item); else model.Nodes.Add(item);
             }
             foreach (TopologyEdge edge in chart.Edges) {
                 bool backward = edge.Direction == VisualLinkDirection.Backward;
-                model.Links.Add(new DiagramLink(backward ? edge.TargetNodeId : edge.SourceNodeId, backward ? edge.SourceNodeId : edge.TargetNodeId) {
-                    Label = edge.Label, Status = Health(edge.Status), Both = edge.Direction == VisualLinkDirection.Bidirectional,
+                var link = new DiagramLink(backward ? edge.TargetNodeId : edge.SourceNodeId, backward ? edge.SourceNodeId : edge.TargetNodeId) {
+                    Label = edge.Label, Both = edge.Direction == VisualLinkDirection.Bidirectional,
                     Style = edge.LineStyle == TopologyEdgeLineStyle.Dotted ? DiagramLinkStyle.Dotted : edge.LineStyle == TopologyEdgeLineStyle.Dashed ? DiagramLinkStyle.Dashed : DiagramLinkStyle.Solid
-                });
+                };
+                if (edge.Status != TopologyHealthStatus.Unknown) link.Status = Health(edge.Status);
+                model.Links.Add(link);
             }
             foreach (TopologyScenario scenario in chart.Scenarios) {
                 var useCase = new DiagramUseCase(scenario.Label) { Id = scenario.Id, Delay = scenario.PlaybackDelayMilliseconds, AutoPlay = scenario.AutoPlay, Loop = scenario.LoopPlayback };
