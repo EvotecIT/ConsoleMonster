@@ -48,7 +48,8 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Contains("Work PASS", text.ToString());
             Assert.DoesNotContain("\u001b[?1049h", text.ToString());
             Assert.DoesNotContain("\u001b[2J", text.ToString());
-            AssertPromptReady(text.ToString());
+            // Model the terminal driver's LF-to-CRLF conversion for plain narration.
+            AssertPromptReady(text.ToString().Replace("\n", "\r\n"));
         }
 
         [Theory]

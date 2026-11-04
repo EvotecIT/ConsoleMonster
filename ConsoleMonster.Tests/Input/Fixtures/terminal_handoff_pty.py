@@ -56,10 +56,12 @@ def run(dotnet, host, result, runtime=None):
         before = termios.tcgetattr(slave)
         with open(result + ".start", "w", encoding="utf-8"):
             pass
-        wait_for(b"TTY handoff")
+        # The startup callback can hold a frame update. Acknowledge its ready
+        # file while draining output, before waiting for any painted title.
         deadline = time.monotonic() + 20
         while not os.path.exists(result + ".ready") and time.monotonic() < deadline:
-            time.sleep(0.01)
+            if select.select([master], [], [], 0.01)[0]:
+                output.extend(os.read(master, 65536))
         assert os.path.exists(result + ".ready"), "app startup callback was not reached"
         assert not termios.tcgetattr(slave)[3] & termios.ISIG, "app signal keys must remain input"
         with open(result + ".continue", "w", encoding="utf-8"):

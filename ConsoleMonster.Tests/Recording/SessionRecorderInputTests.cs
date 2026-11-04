@@ -186,12 +186,13 @@ namespace ConsoleMonster.Tests {
             options.Arguments.Add("stty -echo -icanon -isig; printf 'READY" + string.Concat(System.Linq.Enumerable.Repeat("\\033[6n", 10000)) + "'; sleep 30");
             using var recorder = SessionRecorder.Start(options);
             recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+            string input = new string('x', 1024 * 1024);
             using var cancellation = new CancellationTokenSource();
             if (cancel) {
                 cancellation.CancelAfter(250);
-                Assert.Throws<OperationCanceledException>(() => recorder.SendInputAfter(TimeSpan.FromMilliseconds(100), "input", cancellation.Token));
+                Assert.Throws<OperationCanceledException>(() => recorder.SendInputAfter(TimeSpan.FromMilliseconds(100), input, cancellation.Token));
             } else {
-                Assert.Throws<TimeoutException>(() => recorder.SendInputAfter(TimeSpan.FromMilliseconds(100), "input"));
+                Assert.Throws<TimeoutException>(() => recorder.SendInputAfter(TimeSpan.FromMilliseconds(100), input));
             }
             Assert.True(recorder.HasExited);
         }
