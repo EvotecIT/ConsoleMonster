@@ -5,7 +5,7 @@ Import-Module -Name ConsoleMonster
 
 # Layout: construct the widgets shown on screen.
 $content = {
-    New-ConsoleSplitter -Key Panes -Ratio 0.6 -First {
+    New-ConsoleSplitter -Key Panes -Ratio 0.6 -Fill -First {
         New-ConsoleCollapsible -Accordion -Content {
             New-ConsoleCollapsible -Key Synopsis -Expanded -Content {
                 'Lists servers and their roles from an inline inventory.'

@@ -52,9 +52,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {
-            if (_find.Open) { FindBar.AddKeys(bindings, Labels); return; }
-            bindings.Add(new KeyBinding(Labels.KeySearch, OpenFind, new KeyChord('/'), new KeyChord(ConsoleKey.F, KeyModifiers.Control)) { KeyText = "/", Order = 30, InFooter = false });
-            if (_find.Active) {
+            if (_find.Open) { FindBar.AddKeys(bindings, Labels); }
+            else bindings.Add(new KeyBinding(Labels.KeySearch, OpenFind, new KeyChord('/'), new KeyChord(ConsoleKey.F, KeyModifiers.Control)) { KeyText = "/", Order = 30, InFooter = false });
+            if (_find.Active && !_find.Open) {
                 bindings.Add(new KeyBinding(Labels.KeyNext, () => Step(1), new KeyChord('n')) { Order = 31 });
                 bindings.Add(new KeyBinding(Labels.KeyPrevious, () => Step(-1), new KeyChord('N')) { Order = 32 });
                 bindings.Add(new KeyBinding(string.Empty, () => _find.Close(false), new KeyChord(ConsoleKey.Escape)) { InFooter = false });

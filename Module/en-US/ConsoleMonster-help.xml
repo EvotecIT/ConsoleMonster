@@ -8594,6 +8594,325 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleCollapsible</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleCollapsible</command:noun>
+      <maml:description>
+        <maml:para>Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.</maml:para>
+        <maml:para>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content&apos;s inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.</maml:para>
+      <maml:para>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content&apos;s inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="Section">
+        <maml:name>New-ConsoleCollapsible</maml:name>
+          <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+            <maml:name>Key</maml:name>
+            <maml:description>
+              <maml:para>Unique key in the application&apos;s state; the value is whether the section is expanded.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+            <dev:type>
+              <maml:name>String</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+            <maml:name>Label</maml:name>
+            <maml:description>
+              <maml:para>Header text; defaults to the key.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+            <dev:type>
+              <maml:name>String</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Content</maml:name>
+            <maml:description>
+              <maml:para>The section&apos;s widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+            <dev:type>
+              <maml:name>Object</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Summary</maml:name>
+            <maml:description>
+              <maml:para>Muted text after the header while collapsed, such as a count.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+            <dev:type>
+              <maml:name>String</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Expanded</maml:name>
+            <maml:description>
+              <maml:para>Starts the section expanded.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+            <dev:type>
+              <maml:name>SwitchParameter</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Disabled</maml:name>
+            <maml:description>
+              <maml:para>Disables the header and removes it from keyboard focus traversal.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+            <dev:type>
+              <maml:name>SwitchParameter</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>TabIndex</maml:name>
+            <maml:description>
+              <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+            <dev:type>
+              <maml:name>Int32</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>OnChange</maml:name>
+            <maml:description>
+              <maml:para>Runs once each time the section folds or unfolds, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+            <dev:type>
+              <maml:name>ScriptBlock</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>ValidationMessage</maml:name>
+            <maml:description>
+              <maml:para>Validation text shown in the header.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+            <dev:type>
+              <maml:name>String</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Accordion">
+        <maml:name>New-ConsoleCollapsible</maml:name>
+          <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+            <maml:name>Content</maml:name>
+            <maml:description>
+              <maml:para>The section&apos;s widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+            <dev:type>
+              <maml:name>Object</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Accordion</maml:name>
+            <maml:description>
+              <maml:para>Groups the sections emitted by -Content so that opening one folds the others.</maml:para>
+            </maml:description>
+            <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+            <dev:type>
+              <maml:name>SwitchParameter</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Accordion</maml:name>
+        <maml:description>
+          <maml:para>Groups the sections emitted by -Content so that opening one folds the others.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>ValidationMessage</maml:name>
+        <maml:description>
+          <maml:para>Validation text shown in the header.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Key</maml:name>
+        <maml:description>
+          <maml:para>Unique key in the application&apos;s state; the value is whether the section is expanded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>The section&apos;s widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Label</maml:name>
+        <maml:description>
+          <maml:para>Header text; defaults to the key.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>OnChange</maml:name>
+        <maml:description>
+          <maml:para>Runs once each time the section folds or unfolds, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Disabled</maml:name>
+        <maml:description>
+          <maml:para>Disables the header and removes it from keyboard focus traversal.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>TabIndex</maml:name>
+        <maml:description>
+          <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Summary</maml:name>
+        <maml:description>
+          <maml:para>Muted text after the header while collapsed, such as a count.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Expanded</maml:name>
+        <maml:description>
+          <maml:para>Starts the section expanded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.Collapsible</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.Accordion</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleCollapsible -Accordion -Content {&#xD;
+                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { &apos;Gets the services on a computer.&apos; }&#xD;
+                    New-ConsoleCollapsible -Key Examples -Summary &apos;(2)&apos; -Content {&#xD;
+                        &apos;Get-Service -Name win*&apos;&#xD;
+                        &apos;Get-Service | Where-Object Status -eq Running&apos;&#xD;
+                    }&#xD;
+                }&#xD;
+            }</dev:code>
+        <dev:remarks>
+          <maml:para>Fold long sections of a help page and keep one open at a time.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleColumns</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleColumns</command:noun>
@@ -20040,6 +20359,255 @@ Description and RunText.</maml:para>
         <dev:code>New-ConsoleSelect -Key Environment -Choices 'Production', 'Staging' -Value Staging</dev:code>
         <dev:remarks>
           <maml:para>Choose initial values.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleSplitter</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleSplitter</command:noun>
+      <maml:description>
+        <maml:para>Creates two panes with a divider that the mouse and keyboard can move.</maml:para>
+        <maml:para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them, and so do Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) while an input in either pane has focus. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates two panes with a divider that the mouse and keyboard can move.</maml:para>
+      <maml:para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them, and so do Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) while an input in either pane has focus. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleSplitter</maml:name>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+            <maml:name>First</maml:name>
+            <maml:description>
+              <maml:para>The left pane, or the top pane with -Vertical: widgets, text or a script block that emits them.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+            <dev:type>
+              <maml:name>Object</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+            <maml:name>Second</maml:name>
+            <maml:description>
+              <maml:para>The right pane, or the bottom pane with -Vertical.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+            <dev:type>
+              <maml:name>Object</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Vertical</maml:name>
+            <maml:description>
+              <maml:para>Stacks the panes top and bottom with a horizontal divider.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+            <dev:type>
+              <maml:name>SwitchParameter</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Ratio</maml:name>
+            <maml:description>
+              <maml:para>The first pane&apos;s share of the space, from 0.05 to 0.95.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+            <dev:type>
+              <maml:name>Double</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Key</maml:name>
+            <maml:description>
+              <maml:para>Name the ratio is remembered under on each app screen.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+            <dev:type>
+              <maml:name>String</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Weight</maml:name>
+            <maml:description>
+              <maml:para>Share of the parent layout.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+            <dev:type>
+              <maml:name>Double</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Height</maml:name>
+            <maml:description>
+              <maml:para>Fixed height in cells.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+            <dev:type>
+              <maml:name>Int32</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+          <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+            <maml:name>Fill</maml:name>
+            <maml:description>
+              <maml:para>Use the available height.</maml:para>
+            </maml:description>
+            <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+            <dev:type>
+              <maml:name>SwitchParameter</maml:name>
+              <maml:uri />
+            </dev:type>
+            <dev:defaultValue>None</dev:defaultValue>
+          </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>First</maml:name>
+        <maml:description>
+          <maml:para>The left pane, or the top pane with -Vertical: widgets, text or a script block that emits them.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Key</maml:name>
+        <maml:description>
+          <maml:para>Name the ratio is remembered under on each app screen.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Second</maml:name>
+        <maml:description>
+          <maml:para>The right pane, or the bottom pane with -Vertical.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Fill</maml:name>
+        <maml:description>
+          <maml:para>Use the available height.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Weight</maml:name>
+        <maml:description>
+          <maml:para>Share of the parent layout.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>Fixed height in cells.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Ratio</maml:name>
+        <maml:description>
+          <maml:para>The first pane&apos;s share of the space, from 0.05 to 0.95.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
+        <dev:type>
+          <maml:name>Double</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Vertical</maml:name>
+        <maml:description>
+          <maml:para>Stacks the panes top and bottom with a horizontal divider.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Layout.IWidget</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleSplitter -Key Panes -Ratio 0.35 -Fill -First {&#xD;
+                    New-ConsoleSelect -Key Server -Choices &apos;web-01&apos;, &apos;web-02&apos;, &apos;db-01&apos;&#xD;
+                } -Second {&#xD;
+                    New-ConsoleBinding -Content { param($State) &quot;Details for $($State.Server)&quot; }&#xD;
+                }&#xD;
+            }</dev:code>
+        <dev:remarks>
+          <maml:para>Show a list beside its details and let the reader widen either side.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

@@ -1777,6 +1777,165 @@
       "fps": 10
     },
     {
+      "slug": "help-sections",
+      "title": "Help sections",
+      "pitch": "Fold long help into sections, keep one open and widen the pane you are reading.",
+      "category": "Terminal apps",
+      "tags": [
+        "collapsible",
+        "accordion",
+        "splitter"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 22
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the sections with your own command's help or a runbook.",
+        "Start long sections such as Examples folded and give them a count.",
+        "Put a list on the left and its details on the right of the splitter."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "tier": "starter",
+      "useCase": "Use it when a reference page is too long to read at once and readers jump between sections.",
+      "featured": false,
+      "capture": "scripted native program",
+      "id": "help-sections",
+      "source": {
+        "powershell": {
+          "file": "help-sections.ps1",
+          "text": "# Fold help sections and resize the pane beside them.\n\nImport-Module -Name ConsoleMonster\n# All data is synthetic and inline; no services are contacted or changed.\n\n# Layout: construct the widgets shown on screen.\n$content = {\n    New-ConsoleSplitter -Key Panes -Ratio 0.6 -Fill -First {\n        New-ConsoleCollapsible -Accordion -Content {\n            New-ConsoleCollapsible -Key Synopsis -Expanded -Content {\n                'Lists servers and their roles from an inline inventory.'\n            }\n            New-ConsoleCollapsible -Key Parameters -Summary '(3)' -Content {\n                '-Name    server name or wildcard'\n                '-Role    web, db or cache'\n                '-Online  only servers that answer'\n            }\n            New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {\n                'Get-Inventory -Role web'\n                'Get-Inventory -Name db* -Online'\n            }\n        }\n    } -Second {\n        New-ConsolePanel -Title Related -Content {\n            'Get-Service'\n            'Test-Connection'\n        }\n    }\n}\n\n# Behaviour: Enter folds a section, + expands all, Ctrl+Shift+Left/Right resizes; Escape exits.\nShow-ConsoleApp -Content $content",
+          "repo": "Website/examples/gallery/help-sections/help-sections.ps1"
+        },
+        "csharp": {
+          "file": "Program.cs",
+          "text": "// Fold help sections and resize the pane beside them.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\n// Layout: construct the widgets shown on screen.\nSplitter layout = new Splitter(\n    new Accordion(\n        new Collapsible(\"Synopsis\", new TextBlock(\"Lists servers and their roles from an inline inventory.\"))\n        {\n            Expanded = true\n        },\n        new Collapsible(\"Parameters\", new Rows(\n            new TextBlock(\"-Name    server name or wildcard\"),\n            new TextBlock(\"-Role    web, db or cache\"),\n            new TextBlock(\"-Online  only servers that answer\")))\n        {\n            Summary = \"(3)\"\n        },\n        new Collapsible(\"Examples\", new Rows(\n            new TextBlock(\"Get-Inventory -Role web\"),\n            new TextBlock(\"Get-Inventory -Name db* -Online\")))\n        {\n            Summary = \"(2)\"\n        }),\n    new Panel(new Rows(new TextBlock(\"Get-Service\"), new TextBlock(\"Test-Connection\"))) { Title = \"Related\" })\n{\n    Key = \"Panes\",\n    Ratio = 0.6\n};\n\n// Behaviour: Enter folds a section, + expands all, Ctrl+Shift+Left/Right resizes; Escape exits.\nConsoleApp.Run(layout);",
+          "repo": "Website/examples/gallery/help-sections/Program.cs"
+        },
+        "csharpFluent": {
+          "file": "Program.Fluent.cs",
+          "text": "// Fold help sections and resize the pane beside them.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\n// Layout: construct the widgets shown on screen.\nSplitter layout = Ui.Splitter().First(Ui.Accordion().Content(c2 =>\n{\n    c2.Collapsible(collapsible => collapsible.Key(\"Synopsis\")\n        .Content(Ui.Markup(\"Lists servers and their roles from an inline inventory.\"))\n        .Expanded());\n    c2.Collapsible(collapsible => collapsible.Key(\"Parameters\").Content(Ui.Rows().Content(c =>\n    {\n        c.Markup(\"-Name    server name or wildcard\");\n        c.Markup(\"-Role    web, db or cache\");\n        c.Markup(\"-Online  only servers that answer\");\n    })).Summary(\"(3)\"));\n    c2.Collapsible(collapsible => collapsible.Key(\"Examples\").Content(Ui.Rows().Content(c =>\n    {\n        c.Markup(\"Get-Inventory -Role web\");\n        c.Markup(\"Get-Inventory -Name db* -Online\");\n    })).Summary(\"(2)\"));\n})).Second(Ui.Panel().Title(\"Related\").Content(c2 =>\n{\n    c2.Rows(r => r.Content(c =>\n    {\n        c.Markup(\"Get-Service\");\n        c.Markup(\"Test-Connection\");\n    }));\n})).Key(\"Panes\").Ratio(0.6);\n\n// Behaviour: Enter folds a section, + expands all, Ctrl+Shift+Left/Right resizes; Escape exits.\nConsoleApp.Run(layout);\n",
+          "repo": "Website/examples/gallery/help-sections/Program.Fluent.cs"
+        }
+      },
+      "powershell": "# Fold help sections and resize the pane beside them.\n\nImport-Module -Name ConsoleMonster\n# All data is synthetic and inline; no services are contacted or changed.\n\n# Layout: construct the widgets shown on screen.\n$content = {\n    New-ConsoleSplitter -Key Panes -Ratio 0.6 -Fill -First {\n        New-ConsoleCollapsible -Accordion -Content {\n            New-ConsoleCollapsible -Key Synopsis -Expanded -Content {\n                'Lists servers and their roles from an inline inventory.'\n            }\n            New-ConsoleCollapsible -Key Parameters -Summary '(3)' -Content {\n                '-Name    server name or wildcard'\n                '-Role    web, db or cache'\n                '-Online  only servers that answer'\n            }\n            New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {\n                'Get-Inventory -Role web'\n                'Get-Inventory -Name db* -Online'\n            }\n        }\n    } -Second {\n        New-ConsolePanel -Title Related -Content {\n            'Get-Service'\n            'Test-Connection'\n        }\n    }\n}\n\n# Behaviour: Enter folds a section, + expands all, Ctrl+Shift+Left/Right resizes; Escape exits.\nShow-ConsoleApp -Content $content",
+      "csharp": "// Fold help sections and resize the pane beside them.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\n// Layout: construct the widgets shown on screen.\nSplitter layout = new Splitter(\n    new Accordion(\n        new Collapsible(\"Synopsis\", new TextBlock(\"Lists servers and their roles from an inline inventory.\"))\n        {\n            Expanded = true\n        },\n        new Collapsible(\"Parameters\", new Rows(\n            new TextBlock(\"-Name    server name or wildcard\"),\n            new TextBlock(\"-Role    web, db or cache\"),\n            new TextBlock(\"-Online  only servers that answer\")))\n        {\n            Summary = \"(3)\"\n        },\n        new Collapsible(\"Examples\", new Rows(\n            new TextBlock(\"Get-Inventory -Role web\"),\n            new TextBlock(\"Get-Inventory -Name db* -Online\")))\n        {\n            Summary = \"(2)\"\n        }),\n    new Panel(new Rows(new TextBlock(\"Get-Service\"), new TextBlock(\"Test-Connection\"))) { Title = \"Related\" })\n{\n    Key = \"Panes\",\n    Ratio = 0.6\n};\n\n// Behaviour: Enter folds a section, + expands all, Ctrl+Shift+Left/Right resizes; Escape exits.\nConsoleApp.Run(layout);",
+      "csharpFluent": "// Fold help sections and resize the pane beside them.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\n// Layout: construct the widgets shown on screen.\nSplitter layout = Ui.Splitter().First(Ui.Accordion().Content(c2 =>\n{\n    c2.Collapsible(collapsible => collapsible.Key(\"Synopsis\")\n        .Content(Ui.Markup(\"Lists servers and their roles from an inline inventory.\"))\n        .Expanded());\n    c2.Collapsible(collapsible => collapsible.Key(\"Parameters\").Content(Ui.Rows().Content(c =>\n    {\n        c.Markup(\"-Name    server name or wildcard\");\n        c.Markup(\"-Role    web, db or cache\");\n        c.Markup(\"-Online  only servers that answer\");\n    })).Summary(\"(3)\"));\n    c2.Collapsible(collapsible => collapsible.Key(\"Examples\").Content(Ui.Rows().Content(c =>\n    {\n        c.Markup(\"Get-Inventory -Role web\");\n        c.Markup(\"Get-Inventory -Name db* -Online\");\n    })).Summary(\"(2)\"));\n})).Second(Ui.Panel().Title(\"Related\").Content(c2 =>\n{\n    c2.Rows(r => r.Content(c =>\n    {\n        c.Markup(\"Get-Service\");\n        c.Markup(\"Test-Connection\");\n    }));\n})).Key(\"Panes\").Ratio(0.6);\n\n// Behaviour: Enter folds a section, + expands all, Ctrl+Shift+Left/Right resizes; Escape exits.\nConsoleApp.Run(layout);\n",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleSplitter",
+          "csharp": "new Splitter(…)",
+          "fluent": "Ui.Splitter()",
+          "memberId": "M:ConsoleMonster.Ui.Splitter",
+          "note": "Inside Content: c.Splitter(splitter => …)."
+        },
+        {
+          "powershell": "New-ConsoleSplitter -First …",
+          "csharp": "First = …",
+          "fluent": ".First(…)",
+          "memberId": "ConsoleMonster.Widgets.Splitter.First",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleCollapsible -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Interactive.InteractiveFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleCollapsible",
+          "csharp": "new Collapsible(…)",
+          "fluent": "Ui.Collapsible()",
+          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Collapsible",
+          "note": "Inside Content: c.Collapsible(collapsible => …)."
+        },
+        {
+          "powershell": "New-ConsoleText -Markup $text",
+          "csharp": "new TextBlock(text)",
+          "fluent": "Ui.Markup(text); c.Markup(text)",
+          "memberId": "M:ConsoleMonster.Ui.Markup",
+          "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
+        },
+        {
+          "powershell": "New-ConsoleCollapsible -Expanded",
+          "csharp": "Expanded = true",
+          "fluent": ".Expanded()",
+          "memberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Expanded",
+          "note": null
+        }
+      ],
+      "powershellRepo": "Website/examples/gallery/help-sections/help-sections.ps1",
+      "csharpRepo": "Website/examples/gallery/help-sections/Program.cs",
+      "csharpFluentRepo": "Website/examples/gallery/help-sections/Program.Fluent.cs",
+      "powershellFile": "help-sections.ps1",
+      "csharpFile": "Program.cs",
+      "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/help-sections/help-sections.ps1",
+      "csharpDownload": "/examples/gallery/help-sections/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/help-sections/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/help-sections/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 32,
+        "csharp": 34,
+        "csharpFluent": 35
+      },
+      "thumbnail": "/site/gallery/help-sections.svg",
+      "frame": {
+        "w": 88,
+        "h": 22,
+        "dark": "<i class=\"n ff1f5f9 k243b5e\">›</i><span class=c1> </span><i class=\"n ff1f5f9 k243b5e\">▾</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B c8\">Synopsis</span><span class=c44>                                            </span><i class=\"g2502 f60a5fa\">│</i><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Related</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c19\">───────────────────</i><i class=g256e>╮</i></span>\n<span class=c56>  Lists servers and their roles from an inline          </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29> Get-Service                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  inventory.                                            </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29> Test-Connection             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c2>  </span><i class=\"n f60a5fa\">▾</i><span class=c1> </span><span class=\"B c10\">Parameters</span><span class=c42>                                          </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  -Name    server name or wildcard                      </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  -Role    web, db or cache                             </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  -Online  only servers that answer                     </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c2>  </span><i class=\"n f60a5fa\">▾</i><span class=c1> </span><span class=\"B c8\">Examples</span><span class=c44>                                            </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  Get-Inventory -Role web                               </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  Get-Inventory -Name db* -Online                       </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c1> </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c18\"> expand/collapse  </span><span class=\"f60a5fa c1\">+</span><span class=\"f8b8f9a c13\"> expand all  </span><span class=\"f60a5fa c1\">-</span><span class=\"f8b8f9a c15\"> collapse all  </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=f8b8f9a> back</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        },
+        {
+          "step": 1,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        },
+        {
+          "step": 2,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        }
+      ],
+      "replay": {
+        "url": "/replays/gallery-help-sections.json",
+        "w": 88,
+        "h": 22,
+        "poster": {
+          "w": 88,
+          "h": 22,
+          "dark": "<i class=\"n ff1f5f9 k243b5e\">›</i><span class=c1> </span><i class=\"n ff1f5f9 k243b5e\">▾</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B c8\">Synopsis</span><span class=c44>                                            </span><i class=\"g2502 f60a5fa\">│</i><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Related</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c19\">───────────────────</i><i class=g256e>╮</i></span>\n<span class=c56>  Lists servers and their roles from an inline          </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29> Get-Service                 </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  inventory.                                            </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29> Test-Connection             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c2>  </span><i class=\"n f60a5fa\">▾</i><span class=c1> </span><span class=\"B c10\">Parameters</span><span class=c42>                                          </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  -Name    server name or wildcard                      </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  -Role    web, db or cache                             </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  -Online  only servers that answer                     </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c2>  </span><i class=\"n f60a5fa\">▾</i><span class=c1> </span><span class=\"B c8\">Examples</span><span class=c44>                                            </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  Get-Inventory -Role web                               </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>  Get-Inventory -Name db* -Online                       </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><i class=\"g2502 f4b5060\">│</i><span class=c29>                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c56>                                                        </span><i class=\"g2502 f60a5fa\">│</i><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c29\">─────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c1> </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c18\"> expand/collapse  </span><span class=\"f60a5fa c1\">+</span><span class=\"f8b8f9a c13\"> expand all  </span><span class=\"f60a5fa c1\">-</span><span class=\"f8b8f9a c15\"> collapse all  </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=f8b8f9a> back</span>"
+        },
+        "start": 1800,
+        "hero": 0
+      },
+      "run": {
+        "powershell": "Show-ConsoleDemo help-sections",
+        "export": "$source = (Get-ConsoleDemo help-sections).Source\n[IO.File]::WriteAllText(\"$PWD/help-sections.ps1\", $source, [Text.UTF8Encoding]::new($true))",
+        "csharp": "dotnet new consolemonster --demo help-sections",
+        "csharpFluent": "dotnet new consolemonster --demo help-sections --DemoStyle Fluent"
+      },
+      "url": "/replays/gallery-help-sections.json",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
       "slug": "license-usage",
       "title": "Microsoft 365 license usage",
       "pitch": "Put assigned against purchased for every SKU and price the seats nobody uses.",

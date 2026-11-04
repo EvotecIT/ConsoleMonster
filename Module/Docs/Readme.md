@@ -129,6 +129,11 @@ Creates one numeric chart representation from records or samples.
 
 Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.
 
+### [New-ConsoleCollapsible](New-ConsoleCollapsible.md)
+Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.
+
+A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.
+
 ### [New-ConsoleColumns](New-ConsoleColumns.md)
 Places console widgets side by side.
 
@@ -283,6 +288,11 @@ Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, 
 Creates a named select input for Show-ConsoleApp.
 
 Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.
+
+### [New-ConsoleSplitter](New-ConsoleSplitter.md)
+Creates two panes with a divider that the mouse and keyboard can move.
+
+The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them, and so do Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) while an input in either pane has focus. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.
 
 ### [New-ConsoleStack](New-ConsoleStack.md)
 Layers console widgets on top of each other in the same space.

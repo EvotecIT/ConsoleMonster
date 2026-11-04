@@ -30,9 +30,11 @@
         <TypeName>ConsoleMonster.Frames.DashboardFrame</TypeName>
         <TypeName>ConsoleMonster.Frames.Distribution</TypeName>
         <TypeName>ConsoleMonster.Graphics.ConsoleImage</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Accordion</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppScreens</TypeName>
         <TypeName>ConsoleMonster.Interactive.Button</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Collapsible</TypeName>
         <TypeName>ConsoleMonster.Interactive.DataGrid</TypeName>
         <TypeName>ConsoleMonster.Interactive.DatePicker</TypeName>
         <TypeName>ConsoleMonster.Interactive.LogViewport</TypeName>
@@ -101,6 +103,7 @@
         <TypeName>ConsoleMonster.Widgets.ShellPrompt</TypeName>
         <TypeName>ConsoleMonster.Widgets.Sparkline</TypeName>
         <TypeName>ConsoleMonster.Widgets.Spinner</TypeName>
+        <TypeName>ConsoleMonster.Widgets.Splitter</TypeName>
         <TypeName>ConsoleMonster.Widgets.StackedBar</TypeName>
         <TypeName>ConsoleMonster.Widgets.StatusList</TypeName>
         <TypeName>ConsoleMonster.Widgets.SummaryBar</TypeName>
