@@ -72,12 +72,11 @@ namespace ConsoleMonster.Interactive {
         // which only Windows can read without a terminal query (see ConsoleCursor). Elsewhere the mouse stays off inline.
         internal bool CanLocate => _ownsWriter && Output.ConsoleCursor.CanQuery;
 
-        internal int? PointerOrigin {
-            get {
-                if (!CanLocate || !_drawn || !Output.ConsoleCursor.TryGetPosition(out _, out int top)) { return null; }
-                try { return top - Console.WindowTop - _cursorRow; }
-                catch (Exception ex) when (ex is System.IO.IOException || ex is InvalidOperationException || ex is PlatformNotSupportedException) { return null; }
-            }
+        // bufferRows: the input counts screen-buffer rows (native console records), otherwise window rows (VT reports).
+        internal int? PointerOrigin(bool bufferRows) {
+            if (!CanLocate || !_drawn || !Output.ConsoleCursor.TryGetPosition(out _, out int top)) { return null; }
+            try { return top - (bufferRows ? 0 : Console.WindowTop) - _cursorRow; }
+            catch (Exception ex) when (ex is System.IO.IOException || ex is InvalidOperationException || ex is PlatformNotSupportedException) { return null; }
         }
 
         private bool Hyperlinks => _profile.SupportsHyperlinks;

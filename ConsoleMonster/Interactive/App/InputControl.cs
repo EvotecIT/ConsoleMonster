@@ -193,6 +193,8 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 _bounds = region.Bounds;
                 InputArrangement.Record(this, region.Bounds);
+                // In a standalone prompt or form the control takes the pointer inside its area; an app routes it through focus.
+                PointerTargets.RecordRegion(region.Bounds, input => HandleInput(input, context), null, CancelPointer);
                 if (!Chrome) {
                     if (_chrome) {
                         int gutter = Math.Min(2, region.Width);

@@ -152,6 +152,8 @@ namespace ConsoleMonster.Interactive {
                 HandleMouse(input);
                 return;
             }
+            // A press held across a resize or focus loss does not complete on the next release.
+            if (input.Kind == InputEventKind.Resize || input.Kind == InputEventKind.FocusLost) { _targets.Cancel(); _clicks.Reset(); }
             if (KeyMapOpen) {
                 if (input.Kind == InputEventKind.Key) {
                     KeyMapOpen = false;

@@ -55,7 +55,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     WidgetPagerView view = new WidgetPagerView(content, title ?? LabelText.Get("Document.Title", profile.Language), interactive.ResolveLabels(), contentWidth);
                     using IDisposable? mouse = InteractionLoop.OpenMouse(interactive, profile, lease.Source, surface, interactive.Surface != null);
-                    InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
+                    InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken, interactive.ResolveMouse());
                     surface.Complete(null);
                     return true;
                 } finally {

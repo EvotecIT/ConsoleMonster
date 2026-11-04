@@ -28,13 +28,19 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>A click on the area presses this key.</summary>
-        internal static void RecordKey(Rect area, KeyChord chord) => Add(new Target(area, chord, null, null));
+        internal static void RecordKey(Rect area, KeyChord chord) => Add(new Target(area, chord, null, null, "key:" + chord));
 
-        /// <summary>A click on the area runs this action on the input thread.</summary>
-        internal static void RecordAction(Rect area, Action action) => Add(new Target(area, null, action, null));
+        /// <summary>
+        /// A click on the area runs this action on the input thread. <paramref name="id"/> names what the area stands for
+        /// (a crumb's screen, a diagram step), so a press and release match only on the same thing even when it is drawn
+        /// again in between.
+        /// </summary>
+        internal static void RecordAction(Rect area, Action action, string id) => Add(new Target(area, null, action, null, id));
 
         /// <summary>Pointer events inside the area go to the handler in frame coordinates; a double click presses the key.</summary>
-        internal static void RecordRegion(Rect area, Func<InputEvent, bool> pointer, KeyChord? doubleClick) => Add(new Target(area, doubleClick, null, pointer));
+        /// <remarks><paramref name="cancel"/> drops a press the region holds when the frame changes under it (resize, focus loss).</remarks>
+        internal static void RecordRegion(Rect area, Func<InputEvent, bool> pointer, KeyChord? doubleClick, Action? cancel = null) =>
+            Add(new Target(area, doubleClick, cancel, pointer, null));
 
         /// <summary>Everything recorded so far is covered (a dialog is drawn over it).</summary>
         internal static void Cover() {
@@ -45,6 +51,11 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Drops targets that the rows from <paramref name="row"/> down no longer show (a toast over the footer).</summary>
         internal void CoverRows(int row) {
             lock (_gate) { _frame = Array.FindAll(_frame, target => target.Area.Bottom <= row); }
+        }
+
+        /// <summary>Drops targets a popup or menu is drawn over: the visible layer takes the pointer.</summary>
+        internal void CoverArea(Rect area) {
+            lock (_gate) { _frame = Array.FindAll(_frame, target => target.Area.Right <= area.X || target.Area.X >= area.Right || target.Area.Bottom <= area.Y || target.Area.Y >= area.Bottom); }
         }
 
         /// <summary>Drops targets inside <paramref name="body"/> (a dialog dims it); the footer below stays usable.</summary>
@@ -65,7 +76,7 @@ namespace ConsoleMonster.Interactive {
             if (current == null || (target.Pointer != null && !current._regions)) { return; }
             Rect area = InputArrangement.FrameBounds(target.Area);
             if (area.Width <= 0 || area.Height <= 0) { return; }
-            current._collecting.Add(new Target(area, target.Key, target.Action, target.Pointer));
+            current._collecting.Add(new Target(area, target.Key, target.Action, target.Pointer, target.Id));
         }
 
         /// <summary>
@@ -86,13 +97,15 @@ namespace ConsoleMonster.Interactive {
                 lock (_gate) { _pressed = null; }
                 if (pressed != null && pressed.Pointer == null) {
                     if (hit == null || !Same(hit, pressed)) { return true; }
-                    if (pressed.Action != null) { pressed.Action(); }
-                    else { key = pressed.Key; }
+                    // The current frame's action: a target drawn again since the press runs as it is now.
+                    if (hit.Action != null) { hit.Action(); }
+                    else { key = hit.Key; }
                     return true;
                 }
             }
             if (hit == null) { return false; }
             if (hit.Pointer != null) {
+                if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) { lock (_gate) { _pressed = hit; } }
                 bool used = hit.Pointer(input);
                 if (used && clicks >= 2 && input.MouseAction == MouseAction.Down && input.MouseButton == 1) { key = hit.Key; }
                 return used;
@@ -104,17 +117,23 @@ namespace ConsoleMonster.Interactive {
             return input.MouseAction != MouseAction.Move;
         }
 
-        internal void Cancel() { lock (_gate) { _pressed = null; } }
+        // A region's Action is its cancel hook.
+        internal void Cancel() {
+            Target? pressed;
+            lock (_gate) { pressed = _pressed; _pressed = null; }
+            if (pressed?.Pointer != null) { pressed.Action?.Invoke(); }
+        }
 
         internal bool IsEmpty { get { lock (_gate) { return _frame.Length == 0; } } }
 
-        private static bool Same(Target a, Target b) => a.Area.X == b.Area.X && a.Area.Y == b.Area.Y && a.Area.Width == b.Area.Width
-            && Nullable.Equals(a.Key, b.Key);
+        private static bool Same(Target a, Target b) => a.Pointer == null && b.Pointer == null && a.Id != null && a.Id == b.Id
+            && a.Area.X == b.Area.X && a.Area.Y == b.Area.Y && a.Area.Width == b.Area.Width && a.Area.Height == b.Area.Height;
 
         private static bool Contains(Rect area, int x, int y) => x >= area.X && x < area.Right && y >= area.Y && y < area.Bottom;
 
         private sealed class Target {
-            internal Target(Rect area, KeyChord? key, Action? action, Func<InputEvent, bool>? pointer) { Area = area; Key = key; Action = action; Pointer = pointer; }
+            internal Target(Rect area, KeyChord? key, Action? action, Func<InputEvent, bool>? pointer, string? id) { Area = area; Key = key; Action = action; Pointer = pointer; Id = id; }
+            internal string? Id { get; }
             internal Rect Area { get; }
             internal KeyChord? Key { get; }
             internal Action? Action { get; }

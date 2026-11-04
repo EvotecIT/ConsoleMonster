@@ -62,6 +62,8 @@ namespace ConsoleMonster.Interactive {
                 area.Fill(Style.Plain);
                 using (Overlay.Painting()) { popup.Content.Render(area, context); }
                 placed.Add(new Placed(popup.Owner, place, popup.Anchor));
+                // Hints and crumbs the popup covers are not clickable through it.
+                Targets.CoverArea(place);
             }
             AppContextMenu? menu;
             lock (_gate) { menu = _menu; }
@@ -76,6 +78,7 @@ namespace ConsoleMonster.Interactive {
                 area.Fill(Style.Plain);
                 using (Overlay.Painting()) { menu.Render(area, context); }
                 menu.Place(place);
+                Targets.CoverArea(place);
             }
             IWidget? dialog = _actions.ModalLayer(context, body.Width, body.Height, out int maxWidth);
             if (dialog != null) { Overlay.Paint(body, dialog, context, maxWidth, false, true); placed.Clear(); Targets.CoverBody(body.Bounds); }

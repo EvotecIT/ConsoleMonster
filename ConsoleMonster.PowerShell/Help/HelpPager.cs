@@ -42,13 +42,15 @@ namespace ConsoleMonster.PowerShell {
             try {
                 using (InputLease input = ConsoleInput.Acquire()) {
                     Interactive.InteractiveOptions options = Interactive.InteractiveOptions.Default;
-                    using Interactive.MouseReporting? mouse = Interactive.MouseReporting.Open(options.ResolveMouse(), options, profile, input.Source);
+                    bool pointer = options.ResolveMouse();
+                    using Interactive.MouseReporting? mouse = Interactive.MouseReporting.Open(pointer, options, profile, input.Source);
                     while (!cmdlet.Stopping) {
                         InputEvent? key = input.Source.Read(TimeSpan.FromMilliseconds(100), CancellationToken.None);
                         if (key == null) { continue; }
                         if (key.Kind == InputEventKind.Mouse) {
                             // The wheel pages like Space and b; a click goes on like Space.
-                            int? step = PointerStep(key);
+                            // Native Windows input reports the mouse even with reporting off, so the opt-out is checked here too.
+                            int? step = pointer ? PointerStep(key) : null;
                             if (step.HasValue) { return step.Value; }
                             continue;
                         }

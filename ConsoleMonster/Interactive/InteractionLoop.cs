@@ -16,7 +16,9 @@ namespace ConsoleMonster.Interactive {
         private static readonly TimeSpan AnimatedWait = TimeSpan.FromMilliseconds(80);
         private static readonly TimeSpan IdleWait = TimeSpan.FromMilliseconds(250);
 
-        public static void Run(InteractiveView view, IInputSource input, IPromptSurface surface, RenderContext context, CancellationToken cancellationToken) {
+        // pointer false drops mouse events (the opt-out): native Windows input reports them whether or not mouse
+        // reporting is on.
+        public static void Run(InteractiveView view, IInputSource input, IPromptSurface surface, RenderContext context, CancellationToken cancellationToken, bool pointer = true) {
             if (view == null) {
                 throw new ArgumentNullException(nameof(view));
             }
@@ -36,8 +38,9 @@ namespace ConsoleMonster.Interactive {
             }, e => {
                 if (e.Kind == InputEventKind.Resize) { surface.Refresh(); }
                 if (e.Kind == InputEventKind.Mouse) {
+                    if (!pointer) { return; }
                     // Frames are drawn from their own first row; an inline frame starts lower in the window.
-                    int? origin = PointerOrigin(surface);
+                    int? origin = PointerOrigin(surface, input);
                     if (origin == null || e.Row < origin.Value) { return; }
                     if (origin.Value != 0) { e = e.WithPosition(e.Column, e.Row - origin.Value); }
                 }
@@ -55,12 +58,13 @@ namespace ConsoleMonster.Interactive {
             return locatable ? MouseReporting.Open(options.ResolveMouse(), options, profile, input, customSurface) : null;
         }
 
-        // The window row of a frame's first row, or null when it is unknown. Recorded surfaces (tests, captures) use
-        // frame coordinates.
-        internal static int? PointerOrigin(IPromptSurface surface) {
+        // The row of a frame's first row in the input's coordinates, or null when it is unknown. Native Windows mouse
+        // records count screen-buffer rows, VT reports count window rows. Recorded surfaces (tests, captures) use frame
+        // coordinates.
+        internal static int? PointerOrigin(IPromptSurface surface, IInputSource input) {
             switch (surface) {
                 case ScreenSurface _: case RecordingSurface _: return 0;
-                case InlineSurface inline: return inline.PointerOrigin;
+                case InlineSurface inline: return inline.PointerOrigin(input is WindowsConsoleInput);
                 default: return null;
             }
         }

@@ -222,7 +222,7 @@ Where the terminal reports the mouse, it works wherever the keyboard does, and e
 
 | Pointer | Does what this key does |
 |---|---|
-| Click a footer hint | Presses its key. |
+| Click a footer hint | Presses its key. A hand-built hint names its key with `new KeyHint("f5", "refresh", new KeyChord(ConsoleKey.F5))`; PowerShell footer hints (`@{ F5 = 'refresh' }`) use their key text. |
 | Click a breadcrumb in a `HeaderBar` | Returns to that screen, as Escape does one step at a time. |
 | Click or drag a `ScrollView` scroll bar | Scrolls there (the bar appears when the content is taller than the view). |
 | Click a `Toggle` | Space. |

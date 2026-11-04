@@ -14,7 +14,8 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.Graphics {
     internal sealed partial class TopologyDiagram {
         private sealed class Line {
-            public Line(string text, ThemeToken token, int indent = 0, Action? click = null) { Text = text; Token = token; Indent = indent; Click = click; }
+            public Line(string text, ThemeToken token, int indent = 0, Action? click = null, string? clickId = null) { Text = text; Token = token; Indent = indent; Click = click; ClickId = clickId; }
+            public string? ClickId { get; }
             public string Text { get; }
             // In an app, a click on the line runs this, as its key does (a step line goes to that step).
             public Action? Click { get; }
@@ -70,8 +71,23 @@ namespace ConsoleMonster.Graphics {
                 if (ShowStepPanel && _scenario != null) AddStepPanel(lines, step, ascii);
                 if (ShowDetails && _focus != null) AddDetails(lines, ascii);
                 if (ShowKeys) AddKeyHints(lines, ascii);
-                return lines.Count == 0 ? null : new Rows(lines.Select(line => (IWidget)TextBlock.Plain(
-                    new string(' ', line.Indent) + DiagramText.ForTier(line.Text, context), line.Token)).ToArray());
+                return lines.Count == 0 ? null : new Rows(lines.Select(line => (IWidget)new PanelLine(TextBlock.Plain(
+                    new string(' ', line.Indent) + DiagramText.ForTier(line.Text, context), line.Token), line)).ToArray());
+            }
+        }
+
+        // A panel line keeps its click (a step goes to that step, the use case plays) where the panels are drawn apart
+        // from the diagram, as in the tree fallback.
+        private sealed class PanelLine : IWidget {
+            private readonly IWidget _text;
+            private readonly Line _line;
+            internal PanelLine(IWidget text, Line line) { _text = text; _line = line; }
+            public Size Measure(Constraints constraints, RenderContext context) => _text.Measure(constraints, context);
+            public void Render(Region region, RenderContext context) {
+                _text.Render(region, context);
+                if (_line.Click != null && region.Width > _line.Indent && region.Height > 0) {
+                    Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + _line.Indent, region.Bounds.Y, region.Width - _line.Indent, region.Height), _line.Click, _line.ClickId!);
+                }
             }
         }
 
@@ -82,7 +98,7 @@ namespace ConsoleMonster.Graphics {
             string count = _chart.Scenarios.Count > 1 ? "  (" + (_chart.Scenarios.FindIndex(item => item.Id == scenario.Id) + 1).ToString(CultureInfo.InvariantCulture) + "/" + _chart.Scenarios.Count.ToString(CultureInfo.InvariantCulture) + ")" : string.Empty;
             lines.Add(new Line(string.Empty, ThemeToken.Muted));
             // A click on the use-case line plays or pauses it, as p and Space do.
-            lines.Add(new Line(scenario.Label + count + Dot(ascii) + position + state, ThemeToken.Header, 0, TogglePlay));
+            lines.Add(new Line(scenario.Label + count + Dot(ascii) + position + state, ThemeToken.Header, 0, TogglePlay, "diagram-play"));
             if (!string.IsNullOrWhiteSpace(scenario.Scenario.Description)) lines.Add(new Line(scenario.Scenario.Description!.Trim(), ThemeToken.Muted));
             int center = active?.Index ?? 0;
             int first = Math.Max(0, Math.Min(center - MaxStepLines / 2, scenario.Steps.Count - MaxStepLines));
@@ -97,7 +113,7 @@ namespace ConsoleMonster.Graphics {
                 string marker = current ? Mark(ascii) : "  ";
                 ThemeToken token = current ? (step.IsFailure ? ThemeToken.Fail : ThemeToken.Accent) : step.IsFailure ? ThemeToken.Fail : ThemeToken.Muted;
                 int target = index;
-                lines.Add(new Line(marker + (index + 1).ToString(CultureInfo.InvariantCulture).PadLeft(digits) + ". " + route + "  " + Kind(step) + "  " + step.Label, token, 0, () => Step(target)));
+                lines.Add(new Line(marker + (index + 1).ToString(CultureInfo.InvariantCulture).PadLeft(digits) + ". " + route + "  " + Kind(step) + "  " + step.Label, token, 0, () => Step(target), "diagram-step:" + target.ToString(CultureInfo.InvariantCulture)));
                 if (current && !string.IsNullOrEmpty(step.Payload)) {
                     string[] payload = step.Payload!.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
                     foreach (string text in payload.Take(MaxPayloadLines)) lines.Add(new Line(text.TrimEnd(), ThemeToken.Info, digits + 4));
@@ -124,7 +140,7 @@ namespace ConsoleMonster.Graphics {
             for (int index = 0; index < lines.Count; index++) {
                 Line line = lines[index];
                 string text = DiagramText.ForTier(line.Text, context);
-                lines[index] = new Line(text, line.Token, line.Indent, line.Click);
+                lines[index] = new Line(text, line.Token, line.Indent, line.Click, line.ClickId);
             }
         }
 
@@ -178,7 +194,7 @@ namespace ConsoleMonster.Graphics {
             }
             foreach (KeyValuePair<string, int[]> box in boxes) {
                 string id = box.Key;
-                Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + box.Value[0], region.Bounds.Y + top + box.Value[1], box.Value[2] - box.Value[0] + 1, box.Value[3] - box.Value[1] + 1), () => ShowNode(id));
+                Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + box.Value[0], region.Bounds.Y + top + box.Value[1], box.Value[2] - box.Value[0] + 1, box.Value[3] - box.Value[1] + 1), () => ShowNode(id), "diagram-node:" + id);
             }
         }
 
@@ -229,7 +245,7 @@ namespace ConsoleMonster.Graphics {
             foreach (Line line in frame.Below) {
                 if (y >= region.Height) return;
                 int end = region.Write(line.Indent, y, line.Text, context.Style(line.Token), Math.Max(0, region.Width - line.Indent));
-                if (line.Click != null && end > line.Indent) Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + line.Indent, region.Bounds.Y + y, end - line.Indent, 1), line.Click);
+                if (line.Click != null && end > line.Indent) Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + line.Indent, region.Bounds.Y + y, end - line.Indent, 1), line.Click, line.ClickId!);
                 y++;
             }
         }

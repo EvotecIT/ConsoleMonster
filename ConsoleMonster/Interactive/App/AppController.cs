@@ -110,12 +110,22 @@ namespace ConsoleMonster.Interactive {
             }
             if (input.Kind == InputEventKind.Mouse && !mouse) { return; }
             if (_overlay.Menu is AppContextMenu menu && (input.Kind == InputEventKind.Key || input.Kind == InputEventKind.Mouse)) {
-                KeyChord? chosen = input.Kind == InputEventKind.Key ? menu.HandleKey(input, out bool close, out bool used) : menu.HandlePointer(input, out close, out used);
+                AppKeyMap.Entry? chosen = input.Kind == InputEventKind.Key ? menu.HandleKey(input, out bool close, out bool used) : menu.HandlePointer(input, out close, out used);
                 if (close) { _overlay.Menu = null; }
                 Invalidate();
-                if (chosen.HasValue) { HandleCore(chosen.Value.ToInput(), mouse, ref reachedKeys); return; }
+                // The entry runs only while its key still reaches the binding it named (a callback may have changed scope).
+                if (chosen != null) { if (StillReaches(chosen)) { HandleCore(chosen.Chord!.Value.ToInput(), mouse, ref reachedKeys); } return; }
                 if (used) { return; }
             }
+            // A scroll bar drag keeps the pointer until the button is released, wherever that happens.
+            if (input.Kind == InputEventKind.Mouse && _scrollCapture != null) {
+                if ((input.HeldButtons & 1) != 0) { _scrollCapture.DragScrollbar(input.Row); }
+                if (input.MouseAction == MouseAction.Up || (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) == 0)) { _scrollCapture = null; }
+                Invalidate();
+                return;
+            }
+            // An open popup is drawn over everything else, so it takes the pointer first; a press outside closes it.
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
             // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
             if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && _overlay.Targets.Route(input, clicks, out KeyChord? pressed)) {
                 Invalidate();
@@ -130,7 +140,7 @@ namespace ConsoleMonster.Interactive {
             }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
-            if (input.Kind == InputEventKind.Mouse && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
             if (_viewport.HandleContainerInput(input)) { Invalidate(); return; }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
@@ -138,10 +148,9 @@ namespace ConsoleMonster.Interactive {
             else if (AppHostKeys.Match(_options.Keys.NextFocus, input)) { _focus.MoveNext(); }
             else if (AppHostKeys.Match(_options.Keys.PreviousFocus, input)) { _focus.MovePrevious(); }
             else if (input.Kind == InputEventKind.Mouse) {
-                if (_scrollCapture != null || input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _pointerCapture == null && (_scrollCapture = _viewport.ScrollbarAt(input)) != null) {
-                    // Dragging a scroll bar keeps scrolling its view until the button is released.
-                    if ((input.HeldButtons & 1) != 0 || input.MouseAction == MouseAction.Down) { _scrollCapture.DragScrollbar(input.Row); }
-                    if (input.MouseAction == MouseAction.Up || (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) == 0)) { _scrollCapture = null; }
+                if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _pointerCapture == null && (_scrollCapture = _viewport.ScrollbarAt(input)) != null) {
+                    // A press on a scroll bar scrolls there; dragging keeps scrolling (above) until the release.
+                    _scrollCapture.DragScrollbar(input.Row);
                     Invalidate();
                     return;
                 }
@@ -209,7 +218,12 @@ namespace ConsoleMonster.Interactive {
         private bool Hidden(AppBinding binding) => _screens != null && _bindingScreens.TryGetValue(binding, out AppScreen? screen) && !_screens.IsShown(screen);
 
         // The hold ends before the snapshot is published, so the snapshot carries the focus version that matches it.
+        private bool StillReaches(AppKeyMap.Entry chosen) =>
+            chosen.Chord.HasValue && _keys.MenuEntries(HostBindings(), HostFirst()).Any(entry => ReferenceEquals(entry.Binding, chosen.Binding) && Nullable.Equals(entry.Chord, chosen.Chord));
+
         private void Navigated() {
+            // A menu lists one screen's bindings; it does not survive the switch.
+            _overlay.Menu = null;
             try { ConstrainFocus(); }
             finally { _focus.Release(); }
             Publish();

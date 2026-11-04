@@ -50,7 +50,8 @@ namespace ConsoleMonster.Examples.Showcases {
             options.Command.Add(work);
             options.Footer = new FooterBar {
                 FixedSlots = true,
-                HintsSource = () => labels.Select((label, i) => new KeyHint("F" + (i + 1), i == 5 ? (left.Focused ? "Right" : "Left") : label, (i != 7 || tabs.SelectedIndex == 0) && (i != 4 || !actions.Running)))
+                // Each slot names its function key, so a click on it presses that key.
+                HintsSource = () => labels.Select((label, i) => new KeyHint("F" + (i + 1), i == 5 ? (left.Focused ? "Right" : "Left") : label, new KeyChord(ConsoleKey.F1 + i), (i != 7 || tabs.SelectedIndex == 0) && (i != 4 || !actions.Running)))
             };
             options.HandleInput = (state, input) => {
                 int slot = 0;

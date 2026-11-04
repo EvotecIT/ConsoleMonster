@@ -64,7 +64,7 @@ namespace ConsoleMonster.Interactive {
                 MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
                 try {
                     using IDisposable? mouse = InteractionLoop.OpenMouse(interactive, profile, lease.Source, surface, interactive.Surface != null);
-                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
+                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken, interactive.ResolveMouse());
                 } finally {
                     app.Shutdown();
                 }

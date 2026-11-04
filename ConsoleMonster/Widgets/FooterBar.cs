@@ -20,10 +20,17 @@ namespace ConsoleMonster.Widgets {
             Chord = null;
         }
 
+        /// <summary>Creates a hint that a click in an app presses <paramref name="chord"/> for, as the keyboard would.</summary>
+        /// <param name="keys">The keys, lower case ("f5").</param>
+        /// <param name="label">What they do ("refresh").</param>
+        /// <param name="chord">The key a click on the hint presses.</param>
+        /// <param name="available">Whether the command can run in the current context; an unavailable hint does not click.</param>
+        public KeyHint(string keys, string label, Input.KeyChord chord, bool available = true) : this(keys, label, available) { Chord = chord; }
+
         internal KeyHint(string keys, string label, bool available, Input.KeyChord? chord) : this(keys, label, available) { Chord = chord; }
 
-        // The key a click on the hint presses; hints built by hand have none.
-        internal Input.KeyChord? Chord { get; }
+        /// <summary>The key a click on the hint presses in an app, or null for a hint that only describes keys.</summary>
+        public Input.KeyChord? Chord { get; }
 
         /// <summary>The keys.</summary>
         public string Keys { get; }

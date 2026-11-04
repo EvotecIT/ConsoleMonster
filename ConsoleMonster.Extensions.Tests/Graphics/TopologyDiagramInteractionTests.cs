@@ -287,6 +287,18 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.True(view.Playing);
         }
 
+        [Fact]
+        public void PanelsDrawnApart_KeepTheStepClicks() {
+            var view = new TopologyDiagram(SingleNodeChart().AddScenario("flow", "Flow", scenario => scenario
+                .AddNodeStep("worker", "Inspect").AddNodeStep("worker", "Store")));
+            var context = Terminal.CreateContext(TerminalProfile.Fixed(80, 20));
+            using var app = new AppController(view.Panels(context)!, new AppState(), context, 60);
+            string[] rows = app.PrepareFrame(80, 20).ToPlainText().Split('\n');
+            int step = Array.FindIndex(rows, line => line.Contains("2. "));
+            Assert.True(step >= 0, string.Join("\n", rows));
+            Click(app, rows[step].IndexOf("2. ", StringComparison.Ordinal), step);
+            Assert.Equal(1, view.StepIndex);
+        }
         private static void Click(AppController app, int column, int row) {
             app.Handle(InputEvent.Mouse(column, row), true);
             app.Handle(InputEvent.Mouse(column, row, pressed: false), true);

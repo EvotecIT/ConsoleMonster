@@ -75,11 +75,11 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == Input.MouseAction.Down && input.MouseButton == 1) {
                 if (!inside) { return false; }
                 _selecting = true;
-                _editor.PlaceCaret(IndexAt(input.Column - text.X, input.Row - text.Y), false);
+                _editor.PlaceCaret(IndexAt(input.Column - text.X, input.Row - text.Y, context.Glyphs.Tier), false);
                 return true;
             }
             if (input.MouseAction == Input.MouseAction.Move && _selecting && (input.HeldButtons & 1) != 0) {
-                _editor.PlaceCaret(IndexAt(input.Column - text.X, input.Row - text.Y), true);
+                _editor.PlaceCaret(IndexAt(input.Column - text.X, input.Row - text.Y, context.Glyphs.Tier), true);
                 return true;
             }
             if (input.MouseAction == Input.MouseAction.Up && _selecting) {
@@ -93,7 +93,10 @@ namespace ConsoleMonster.Interactive {
         internal override void CancelPointer() => _selecting = false;
 
         // The caret index nearest a visible cell; rows above or below the view clamp to its first or last row.
-        private int IndexAt(int column, int row) {
+        // Cells as drawn: the glyph tier can draw a character narrower than its natural width (an emoji as "+").
+        private static int Cells(string text, Capabilities.GlyphTier tier) => DisplayWidth.Measure(Glyphs.SymbolFallback.Constrain(text, tier));
+
+        private int IndexAt(int column, int row, Capabilities.GlyphTier tier) {
             if (_editor.Rows.Count == 0) { return 0; }
             int index = Math.Max(0, Math.Min(_editor.Rows.Count - 1, ScrollRow + row));
             string value = _editor.Text;
@@ -103,7 +106,7 @@ namespace ConsoleMonster.Interactive {
             int used = 0;
             for (int i = span[0]; i < end;) {
                 int next = i + (char.IsHighSurrogate(value[i]) && i + 1 < end ? 2 : 1);
-                int width = DisplayWidth.Measure(value.Substring(i, next - i));
+                int width = Cells(value.Substring(i, next - i), tier);
                 if (column < used + (width + 1) / 2) { return i; }
                 used += width;
                 i = next;
@@ -157,8 +160,8 @@ namespace ConsoleMonster.Interactive {
                 if (_editor.HasSelection) {
                     int from = Math.Max(row[0], _editor.SelectionStart), to = Math.Min(row[0] + shown.Length, _editor.SelectionEnd);
                     if (to > from) {
-                        int start = DisplayWidth.Measure(text.Substring(row[0], from - row[0]));
-                        int end = Math.Min(width, start + DisplayWidth.Measure(text.Substring(from, to - from)));
+                        int start = Cells(text.Substring(row[0], from - row[0]), context.Glyphs.Tier);
+                        int end = Math.Min(width, start + Cells(text.Substring(from, to - from), context.Glyphs.Tier));
                         for (int x = start; x < end; x++) { region.SetStyle(2 + x, y, region.Get(2 + x, y).Style.With(TextDecoration.Reverse)); }
                     }
                 }

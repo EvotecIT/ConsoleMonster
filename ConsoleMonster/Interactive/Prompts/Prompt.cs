@@ -147,7 +147,7 @@ namespace ConsoleMonster.Interactive {
                     PromptView<T> view = CreateView(labels);
                     try {
                         using IDisposable? mouse = InteractionLoop.OpenMouse(options, profile, lease.Source, surface, options.Surface != null);
-                        InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
+                        InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken, options.ResolveMouse());
                     } catch {
                         surface.Complete(new[] { CancelledLine(context, labels) });
                         throw;

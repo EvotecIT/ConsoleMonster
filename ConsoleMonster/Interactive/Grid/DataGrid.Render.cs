@@ -128,12 +128,13 @@ namespace ConsoleMonster.Interactive {
                 // A click on a column header sorts by it, and a second click reverses the order (F3 and F4 on the keyboard).
                 if (_sortColumn == column) { _descending = !_descending; } else { _sortColumn = column; _descending = false; }
                 Rebuild();
+                _pressOnRow = false;
                 return true;
             }
             int hit = _rowLines.FindLastIndex(y => y <= relative);
             if (hit < 0 || hit + _top >= _visible.Count || relative >= _rowEnds[hit] || relative == _positionLine) { return false; }
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
-                _cursor = hit + _top; _dragAnchor = _cursor;
+                _cursor = hit + _top; _dragAnchor = _cursor; _pressOnRow = true;
                 if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.OutputMode == GridSelection.Multiple) {
                     object id = _rows[_visible[_cursor]].Id;
                     if (!_marked.Remove(id)) { _marked.Add(id); }
@@ -167,7 +168,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal override void CancelPointer() => _dragAnchor = -1;
-        internal override bool OpensOnDoubleClick => true;
+        // Only a double click on a row opens it; one on a header sorts twice instead.
+        internal override bool OpensOnDoubleClick => _pressOnRow;
+        private bool _pressOnRow;
         internal bool Pointer(InputEvent input, RenderContext context) => HandleInput(input, context);
     }
 }

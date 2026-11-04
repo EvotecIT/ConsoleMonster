@@ -36,5 +36,18 @@ namespace ConsoleMonster.Interactive {
             }
             return spans;
         }
+
+        /// <summary>
+        /// Makes a row drawn by <see cref="Spans"/> clickable: <paramref name="x"/> is where it starts in
+        /// <paramref name="row"/>, and a click on a caption runs <paramref name="click"/> with its index, as its key does.
+        /// </summary>
+        public static void Record(Canvas.Rect row, int x, IReadOnlyList<string> captions, System.Action<int> click, string id) {
+            for (int i = 0; i < captions.Count; i++) {
+                int width = DisplayWidth.Measure(captions[i]) + 2;
+                int index = i;
+                PointerTargets.RecordAction(new Canvas.Rect(row.X + x, row.Y, width, 1), () => click(index), id + ":" + i.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                x += width + 1;
+            }
+        }
     }
 }

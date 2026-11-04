@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
@@ -202,6 +203,155 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal("gamma", new SelectPrompt<string>("Pick", values).Show(new InteractiveOptions { Input = clicks, Capture = second }));
         }
 
+        [Fact]
+        public void TextPrompt_ClickPlacesTheCaretInThePrefilledText() {
+            Func<TextPrompt> prompt = () => new TextPrompt("Edit") { Default = "abcdef", PrefillDefault = true };
+            (int column, int row) = Find(capture => prompt().TryShow(out _, new InteractiveOptions { Input = new ScriptedInput("Escape"), Capture = capture }), "abcdef");
+            using ScriptedInput input = new ScriptedInput(new[] { InputEvent.Mouse(column, row), InputEvent.Mouse(column, row, pressed: false), InputEvent.Character('X'), InputEvent.Press(ConsoleKey.Enter) });
+            Assert.Equal("Xabcdef", prompt().Show(new InteractiveOptions { Input = input, Capture = new ScreenCapture(60, 12) }));
+        }
+
+        [Fact]
+        public void ConfirmPrompt_ClickOnNoAnswersNo() {
+            Func<ConfirmPrompt> prompt = () => new ConfirmPrompt("Delete?") { Default = true };
+            (int column, int row) = Find(capture => prompt().TryShow(out _, new InteractiveOptions { Input = new ScriptedInput("Escape"), Capture = capture }), "Yes   No");
+            using ScriptedInput input = new ScriptedInput(new[] { InputEvent.Mouse(column + 6, row), InputEvent.Mouse(column + 6, row, pressed: false) });
+            Assert.False(prompt().Show(new InteractiveOptions { Input = input, Capture = new ScreenCapture(60, 12) }));
+        }
+
+        [Fact]
+        public void MouseOff_StandalonePromptIgnoresPointerInput() {
+            string[] values = { "alpha", "beta", "gamma" };
+            (int column, int row) = Find(capture => new SelectPrompt<string>("Pick", values).TryShow(out _, new InteractiveOptions { Input = new ScriptedInput("Escape"), Capture = capture }), "gamma");
+            using ScriptedInput input = new ScriptedInput(new[] {
+                InputEvent.Mouse(column, row), InputEvent.Mouse(column, row, pressed: false),
+                InputEvent.Mouse(column, row), InputEvent.Mouse(column, row, pressed: false), InputEvent.Press(ConsoleKey.Escape)
+            });
+            Assert.False(new SelectPrompt<string>("Pick", values).TryShow(out _, new InteractiveOptions { Input = input, Capture = new ScreenCapture(60, 12), Mouse = false }));
+        }
+
+        [Fact]
+        public void TextArea_HitTestingUsesTheCellsTheGlyphTierDraws() {
+            RenderContext ascii = new RenderContext(TerminalProfile.Fixed(80, 16, ColorDepth.None, GlyphTier.Ascii), Theme.Dark);
+            TextArea notes = new TextArea("notes", "\U0001F44Dabc");
+            using AppController app = new AppController(new Rows(new Toggle("other"), notes), new AppState(), ascii, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 16));
+            int row = Array.FindIndex(rows, line => line.Contains("abc"));
+            Click(app, rows[row].IndexOf("bc", StringComparison.Ordinal), row);
+            app.Handle(InputEvent.Character('X'), true);
+            Assert.Equal("\U0001F44DaXbc", notes.Value);
+        }
+
+        [Fact]
+        public void OpenDropdown_TakesClicksOverTheCrumbsItCovers() {
+            Select schedule = new Select("schedule", new[] { new Choice("Hourly"), new Choice("Nightly"), new Choice("Weekly") }) { Dropdown = true };
+            AppScreens screens = new AppScreens(new AppScreen("home", "Home", TextBlock.Plain("home")), new AppScreen("detail", "Detail", TextBlock.Plain("detail")));
+            using AppController app = new AppController(new Rows().Add(schedule, LayoutSize.Fixed(3)).Add(TextBlock.Plain("filler"), LayoutSize.Fixed(3)).Add(new HeaderBar("Shop"), LayoutSize.Fixed(1)).Add(screens, LayoutSize.Fraction()), new AppState(), Context, 60);
+            screens.Push("detail");
+            app.Refresh(null);
+            int header = Array.FindIndex(Rows(app.PrepareFrame(80, 14)), line => line.Contains("Home"));
+            Click(app, 5, 1);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int row = Array.FindIndex(rows, line => line.Contains("Nightly"));
+            // The list item is drawn on the row the crumbs were on.
+            Assert.Equal(header, row);
+            Click(app, rows[row].IndexOf("Nightly", StringComparison.Ordinal), row);
+            Assert.Equal("Nightly", schedule.Value);
+            Assert.Equal("detail", screens.Current.Key);
+        }
+
+        [Fact]
+        public void DataGrid_DoubleClickOnAHeaderSortsWithoutOpeningARow() {
+            Grid grid = new Grid("Services");
+            grid.AddColumn("Name"); grid.AddRow("a", "alpha"); grid.AddRow("b", "bravo");
+            DataGrid services = new DataGrid("services", grid);
+            int opened = 0;
+            services.Bindings.Add(new KeyBinding("open", () => opened++, new KeyChord(ConsoleKey.Enter)));
+            using AppController app = new AppController(services, new AppState(), Context, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int row = Array.FindIndex(rows, line => line.Contains("Name"));
+            int column = rows[row].IndexOf("Name", StringComparison.Ordinal);
+            Click(app, column, row);
+            Click(app, column, row);
+            Assert.Equal(0, opened);
+            Assert.True(services.Descending);
+        }
+
+        [Fact]
+        public void ContextMenu_ClosesWhenTheScreenChanges() {
+            int home = 0, detail = 0;
+            AppScreen first = new AppScreen("home", "Home", new TextInput("query"));
+            first.Bindings.Add(new KeyBinding("refresh", () => home++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            AppScreen second = new AppScreen("detail", "Detail", TextBlock.Plain("detail"));
+            second.Bindings.Add(new KeyBinding("reload", () => detail++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            AppScreens screens = new AppScreens(first, second);
+            using AppController app = new AppController(screens, new AppState(), Context, 60);
+            app.PrepareFrame(80, 12);
+            app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
+            Assert.Contains("refresh", app.PrepareFrame(80, 12).ToPlainText());
+            screens.Push("detail");
+            app.Refresh(null);
+            Assert.DoesNotContain("refresh", app.PrepareFrame(80, 12).ToPlainText());
+            app.Handle(InputEvent.Press(ConsoleKey.Enter), true);
+            Assert.Equal((0, 0), (home, detail));
+        }
+
+        [Fact]
+        public void ScrollBarRelease_OverAFooterHintEndsTheDragWithoutPressingIt() {
+            int refreshed = 0;
+            ConsoleAppOptions options = new ConsoleAppOptions();
+            options.KeyBindings.Add(new KeyBinding("refresh", () => refreshed++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            ScrollView scroll = new ScrollView(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
+            TextInput query = new TextInput("query");
+            using AppController app = new AppController(new Rows().Add(query, LayoutSize.Fixed(3)).Add(scroll, LayoutSize.Fixed(8)), new AppState(), Context, 60, options);
+            string[] rows = Rows(app.PrepareFrame(60, 14));
+            int hint = rows[13].IndexOf("ctrl+r", StringComparison.Ordinal);
+            app.Handle(InputEvent.Mouse(59, 3), true);
+            app.Handle(InputEvent.Pointer(hint, 13, MouseAction.Move, heldButtons: 1), true);
+            app.Handle(InputEvent.Mouse(hint, 13, pressed: false), true);
+            int offset = scroll.ScrollOffset;
+            Click(app, 4, 1);
+            app.Handle(InputEvent.Character('x'), true);
+            Assert.Equal((0, offset, "x"), (refreshed, scroll.ScrollOffset, query.Value));
+        }
+
+        [Fact]
+        public void RedrawnTarget_ReleaseRunsOnlyWhenItStillStandsForTheSameThing() {
+            PointerTargets targets = new PointerTargets(regions: false);
+            string ran = string.Empty;
+            Rect area = new Rect(2, 2, 6, 1);
+            using (targets.Collect()) { PointerTargets.RecordAction(area, () => ran += "old", "step:1"); }
+            targets.Route(InputEvent.Mouse(3, 2), 1, out _);
+            using (targets.Collect()) { PointerTargets.RecordAction(area, () => ran += "other", "step:2"); }
+            targets.Route(InputEvent.Mouse(3, 2, pressed: false), 0, out _);
+            Assert.Equal(string.Empty, ran);
+            targets.Route(InputEvent.Mouse(3, 2), 1, out _);
+            using (targets.Collect()) { PointerTargets.RecordAction(area, () => ran += "current", "step:2"); }
+            targets.Route(InputEvent.Mouse(3, 2, pressed: false), 0, out _);
+            Assert.Equal("current", ran);
+        }
+
+        [Fact]
+        public void CustomFooterHint_WithAKeyClicksLikeThatKey() {
+            int refreshed = 0;
+            ConsoleAppOptions options = new ConsoleAppOptions { Footer = new FooterBar { HintsSource = () => new[] { new KeyHint("f5", "refresh", new KeyChord(ConsoleKey.F5)) } } };
+            options.KeyBindings.Add(new KeyBinding("refresh", () => refreshed++, new KeyChord(ConsoleKey.F5)) { InFooter = false });
+            using AppController app = new AppController(new TextInput("query"), new AppState(), Context, 60, options);
+            app.Refresh(null);
+            string[] rows = Rows(app.PrepareFrame(80, 12));
+            Click(app, rows[11].IndexOf("f5", StringComparison.Ordinal), 11);
+            Assert.Equal(1, refreshed);
+        }
+
+        // The cell where a prompt first draws text, from a run that is cancelled straight away.
+        private static (int Column, int Row) Find(Action<ScreenCapture> run, string text) {
+            ScreenCapture capture = new ScreenCapture(60, 12);
+            run(capture);
+            string[] rows = capture.Frames.First().ToPlainText().Split('\n');
+            int row = Array.FindIndex(rows, line => line.Contains(text));
+            Assert.True(row >= 0, "[" + string.Join("|\n", rows) + "]");
+            return (rows[row].IndexOf(text, StringComparison.Ordinal), row);
+        }
         private static void Click(AppController app, int column, int row) {
             app.Handle(InputEvent.Mouse(column, row), true);
             app.Handle(InputEvent.Mouse(column, row, pressed: false), true);

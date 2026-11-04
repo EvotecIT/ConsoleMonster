@@ -35,8 +35,8 @@ namespace ConsoleMonster.Interactive {
 
         internal void Place(Rect area) { lock (_gate) { _area = area; } }
 
-        /// <summary>Keys while open. Returns the key to press, or null; <paramref name="close"/> says the menu is done.</summary>
-        internal KeyChord? HandleKey(InputEvent input, out bool close, out bool handled) {
+        /// <summary>Keys while open. Returns the chosen entry, or null; <paramref name="close"/> says the menu is done.</summary>
+        internal AppKeyMap.Entry? HandleKey(InputEvent input, out bool close, out bool handled) {
             close = false; handled = true;
             if (input.Is(ConsoleKey.UpArrow)) { _cursor = Next(_cursor, -1); return null; }
             if (input.Is(ConsoleKey.DownArrow)) { _cursor = Next(_cursor, 1); return null; }
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Pointer while open: a press and release on an entry chooses it; a press elsewhere closes the menu.</summary>
-        internal KeyChord? HandlePointer(InputEvent input, out bool close, out bool handled) {
+        internal AppKeyMap.Entry? HandlePointer(InputEvent input, out bool close, out bool handled) {
             close = false; handled = true;
             int index = IndexAt(input);
             if (input.MouseAction == MouseAction.Wheel) {
@@ -77,7 +77,7 @@ namespace ConsoleMonster.Interactive {
 
         internal static bool IsOpenKey(InputEvent input) => input.Is(ConsoleKey.Applications) || input.Is(ConsoleKey.F10, KeyModifiers.Shift);
 
-        private KeyChord? Chosen(int index) => index >= 0 && index < _entries.Count && Available(index) ? _entries[index].Chord : null;
+        private AppKeyMap.Entry? Chosen(int index) => index >= 0 && index < _entries.Count && Available(index) ? _entries[index] : null;
 
         private bool Available(int index) => _entries[index].Binding.IsAvailable;
 
