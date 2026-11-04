@@ -196,8 +196,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal override void CancelPointer() { _pointerDown = false; _dragged = false; _pointerOrigin = null; }
-        // A double click on a row runs Enter, so an "open" binding on the list opens the row. A closed dropdown has no rows.
-        internal override bool OpensOnDoubleClick => !Dropdown && _pointerDown;
+        // A double click on a row runs Enter, so an "open" binding on the list opens the row. A closed dropdown has no rows,
+        // and in a multiple selection each click already toggles, so Enter would toggle the row a third time.
+        internal override bool OpensOnDoubleClick => !Dropdown && !_multiple && _pointerDown;
 
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) {

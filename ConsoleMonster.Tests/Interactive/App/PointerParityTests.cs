@@ -474,6 +474,19 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.NotEqual(divider, moved);
             Assert.Equal(moved, Array.Find(Rows(app.PrepareFrame(80, 12)), line => line.Contains("details"))!.IndexOf("details", StringComparison.Ordinal) - 1);
         }
+        [Fact]
+        public void MultiSelect_DoubleClickLeavesTheRowAsTwoClicksDo() {
+            int opened = 0;
+            MultiSelect targets = new MultiSelect("targets", new[] { new Choice("alpha", "Alpha"), new Choice("beta", "Beta") });
+            targets.Bindings.Add(new KeyBinding("open", () => opened++, new KeyChord(ConsoleKey.Enter)));
+            using AppController app = new AppController(targets, new AppState(), Context, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int row = Array.FindIndex(rows, line => line.Contains("Beta"));
+            Click(app, 5, row);
+            Click(app, 5, row);
+            Assert.Empty(targets.Value);
+            Assert.Equal(0, opened);
+        }
         private static void ChooseFromMenu(AppController app, string label) {
             app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
             string[] rows = Rows(app.PrepareFrame(80, 14));

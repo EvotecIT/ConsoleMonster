@@ -76,6 +76,8 @@ namespace ConsoleMonster.Interactive {
             using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(full), context); }
             Dictionary<InputControl, int> wanted = _arrangement.Heights();
             CellBuffer fit = new CellBuffer(region.Width, region.Height);
+            // The fit is a probe too until it is accepted: a rejected fit must not move a nested scroll view.
+            using (Widgets.ScrollView.Probing())
             using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(fit), context); }
             Dictionary<InputControl, int> got = _arrangement.Heights();
             HashSet<InputControl> inputs = new HashSet<InputControl>(_focus.Controls);
@@ -83,13 +85,11 @@ namespace ConsoleMonster.Interactive {
                 if (!inputs.Contains(input.Key)) { continue; }
                 if (!got.TryGetValue(input.Key, out int rows) || rows < Math.Min(input.Value, 3)) { return false; }
             }
-            InputControl? before = _focus.Current;
             _focus.SetMounted(_arrangement.Mounted, arrangedAt);
-            if (before != _focus.Current) {
-                fit = new CellBuffer(region.Width, region.Height);
-                _arrangement.Focused = _focus.Current;
-                using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(fit), context); }
-            }
+            // Accepted: drawn once more for real, so scroll views keep this frame's state (and focus the reconciled input).
+            fit = new CellBuffer(region.Width, region.Height);
+            _arrangement.Focused = _focus.Current;
+            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(fit), context); }
             _scroll = 0;
             region.Buffer.Blit(fit, 0, 0, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
             return true;
