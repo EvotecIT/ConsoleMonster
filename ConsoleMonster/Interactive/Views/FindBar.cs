@@ -65,7 +65,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Finds every match in the lines; the current match becomes the first one at or after <paramref name="anchor"/>.</summary>
-        internal void Search(IReadOnlyList<string> lines, int anchor) {
+        internal void Search(IReadOnlyList<string> lines, int anchor, int column = 0) {
             _matches.Clear();
             Current = -1;
             string query = _editor.Text;
@@ -75,7 +75,7 @@ namespace ConsoleMonster.Interactive {
                 string text = lines[line] ?? string.Empty;
                 for (int at = text.IndexOf(query, comparison); at >= 0; at = text.IndexOf(query, at + query.Length, comparison)) {
                     _matches.Add(new Match(line, at, query.Length));
-                    if (Current < 0 && line >= anchor) { Current = _matches.Count - 1; }
+                    if (Current < 0 && (line > anchor || (line == anchor && at >= column))) { Current = _matches.Count - 1; }
                 }
             }
             if (Current < 0 && _matches.Count > 0) { Current = 0; }
@@ -156,6 +156,16 @@ namespace ConsoleMonster.Interactive {
         private static StringComparison Comparison(string query) {
             foreach (char c in query) { if (char.IsUpper(c)) { return StringComparison.Ordinal; } }
             return StringComparison.OrdinalIgnoreCase;
+        }
+
+        // Owners with soft-wrapped source text map each match fragment into display cells themselves.
+        internal void HighlightCells(Region region, int y, int from, int to, bool current, RenderContext context) {
+            Style style = current ? context.Style(ThemeToken.Accent).With(TextDecoration.Bold | TextDecoration.Reverse)
+                : context.Style(ThemeToken.Highlight).With(TextDecoration.Bold | TextDecoration.Underline);
+            for (int x = Math.Max(0, from); x < Math.Min(to, region.Width); x++) {
+                Cell cell = region.Get(x, y);
+                if (!cell.IsContinuation) { region.Put(x, y, cell.Glyph, cell.Style.WithColor(style.Color).With(style.Decoration), Math.Max(1, (int)cell.Width)); }
+            }
         }
 
         internal readonly struct Match {

@@ -61,11 +61,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ValidationMessage
-Validation text shown in the header.
+### -Content
+The section's widgets, text or a script block that emits them. With -Accordion, the sections of the group.
 
 ```yaml
-Type: String
+Type: Object
+Parameter Sets: Section, Accordion
+Aliases: None
+Possible values:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Disabled
+Disables the header and removes it from keyboard focus traversal.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Section
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Expanded
+Starts the section expanded.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: Section
 Aliases: None
 Possible values:
@@ -88,22 +120,6 @@ Possible values:
 
 Required: True
 Position: 0
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Content
-The section's widgets, text or a script block that emits them. With -Accordion, the sections of the group.
-
-```yaml
-Type: Object
-Parameter Sets: Section, Accordion
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -141,11 +157,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Disabled
-Disables the header and removes it from keyboard focus traversal.
+### -Summary
+Muted text after the header while collapsed, such as a count.
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: Section
 Aliases: None
 Possible values:
@@ -173,27 +189,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Summary
-Muted text after the header while collapsed, such as a count.
+### -ValidationMessage
+Validation text shown in the header.
 
 ```yaml
 Type: String
-Parameter Sets: Section
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Expanded
-Starts the section expanded.
-
-```yaml
-Type: SwitchParameter
 Parameter Sets: Section
 Aliases: None
 Possible values:
@@ -210,7 +210,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- None
+- `None`
 
 ## OUTPUTS
 

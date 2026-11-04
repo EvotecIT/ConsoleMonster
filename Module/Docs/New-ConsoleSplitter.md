@@ -38,6 +38,22 @@ Show a list beside its details and let the reader widen either side.
 
 ## PARAMETERS
 
+### -Fill
+Use the available height.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -First
 The left pane, or the top pane with -Vertical: widgets, text or a script block that emits them.
 
@@ -54,11 +70,43 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Height
+Fixed height in cells.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Key
 Name the ratio is remembered under on each app screen.
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Ratio
+The first pane's share of the space, from 0.05 to 0.95.
+
+```yaml
+Type: Double
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -86,8 +134,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Fill
-Use the available height.
+### -Vertical
+Stacks the panes top and bottom with a horizontal divider.
 
 ```yaml
 Type: SwitchParameter
@@ -118,60 +166,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Height
-Fixed height in cells.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Ratio
-The first pane's share of the space, from 0.05 to 0.95.
-
-```yaml
-Type: Double
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Vertical
-Stacks the panes top and bottom with a horizontal divider.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-- None
+- `None`
 
 ## OUTPUTS
 

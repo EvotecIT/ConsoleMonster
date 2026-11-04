@@ -209,13 +209,19 @@ namespace ConsoleMonster.Interactive {
             if (_options.Keys.NextFocus.HasValue) { first.Add(_options.Keys.NextFocus.Value); }
             if (_options.Keys.PreviousFocus.HasValue) { first.Add(_options.Keys.PreviousFocus.Value); }
             if (_hasTabs) { first.Add(new KeyChord(ConsoleKey.PageUp, KeyModifiers.Control)); first.Add(new KeyChord(ConsoleKey.PageDown, KeyModifiers.Control)); }
-            foreach (Splitter splitter in _splitters) { foreach (KeyChord chord in splitter.ResizeKeys) { first.Add(chord); } }
+            InputControl? focused = _focus.Current;
+            foreach (Splitter splitter in _splitters) {
+                if (focused != null && FocusManager.Discover(splitter).Contains(focused)) {
+                    foreach (KeyChord chord in splitter.ResizeKeys) { first.Add(chord); }
+                }
+            }
             return first;
         }
 
         private void Discover(IWidget widget, int reflowBelow, AppScreen? owner = null) {
             if (widget is FooterBar footer) { _footers.Add(footer); }
             if (widget is Tabs) { _hasTabs = true; }
+            if (widget is Accordion accordion) { accordion.UseLabels(PromptLabels.For(_context.Profile.Language)); }
             if (widget is Splitter splitter) { _splitters.Add(splitter); }
             if (widget is LogRegion region && _logRegion == null) { _logRegion = region; }
             if (widget is AppScreens screens) {

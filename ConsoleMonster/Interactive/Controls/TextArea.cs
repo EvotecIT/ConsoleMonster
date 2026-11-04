@@ -42,7 +42,10 @@ namespace ConsoleMonster.Interactive {
         public int ScrollRow { get; set; }
 
         /// <summary>The multiline text value.</summary>
-        public string Value { get => Read(() => _editor.Text); set => Change(() => _editor.Text = value); }
+        public string Value { get => Read(() => _editor.Text); set => Change(() => {
+            _editor.Text = value;
+            if (_find != null && _find.Active) { _find.Search(Lines(), CaretLine()); }
+        }); }
 
         /// <summary>The maximum text length, in UTF-16 units.</summary>
         public int MaxLength { get => Read(() => _editor.MaxLength); set => Change(() => _editor.MaxLength = value); }
@@ -154,18 +157,17 @@ namespace ConsoleMonster.Interactive {
                 region.Write(2, y, Glyphs.SymbolFallback.Constrain(shown, context.Glyphs.Tier), style, width);
             }
             if (_find != null && _find.Active) {
-                int current = _find.Current >= 0 ? Offset(_find.Matches[_find.Current]) : -1;
-                for (int y = 0; y < region.Height && ScrollRow + y < _editor.Rows.Count; y++) {
-                    int[] row = _editor.Rows[ScrollRow + y];
-                    int ordinal = -1;
-                    if (current >= row[0] && current < row[1]) {
-                        ordinal = 0;
-                        foreach (FindBar.Match match in _find.Matches) {
-                            int at = Offset(match);
-                            if (at >= row[0] && at < current) { ordinal++; }
-                        }
+                for (int i = 0; i < _find.Matches.Count; i++) {
+                    FindBar.Match match = _find.Matches[i];
+                    int at = Offset(match);
+                    for (int y = 0; y < region.Height && ScrollRow + y < _editor.Rows.Count; y++) {
+                        int[] row = _editor.Rows[ScrollRow + y];
+                        int start = Math.Max(at, row[0]), end = Math.Min(at + match.Length, row[1]);
+                        if (start >= end) { continue; }
+                        int from = 2 + _editor.ProjectedWidth(text.Substring(row[0], start - row[0]));
+                        int to = 2 + _editor.ProjectedWidth(text.Substring(row[0], end - row[0]));
+                        _find.HighlightCells(region, y, from, to, i == _find.Current, context);
                     }
-                    _find.Highlight(region, y, 2, ordinal, context);
                 }
             }
             if (_find != null && _find.Open) { InputArrangement.RecordBar(this, _find.Widget(PromptLabels.For(context.Profile.Language))); }

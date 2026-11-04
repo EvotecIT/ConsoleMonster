@@ -59,9 +59,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void AccordionHintsFollowTheAppLanguage() {
+            var context = Terminal.CreateContext(TerminalProfile.Fixed(120, 24).WithLanguage(new System.Globalization.CultureInfo("pl-PL")));
+            using var app = new AppController(new Accordion(new Collapsible("Details")), new AppState(), context, 60);
+            string frame = app.PrepareFrame(120, 24).ToPlainText();
+            Assert.Contains("rozwiń wszystko", frame);
+            Assert.Contains("zwiń wszystko", frame);
+        }
+
+        [Fact]
         public void ResizeKeysMoveTheDividerOnlyWhileAPaneHasFocus() {
             var splitter = new Splitter(new TextInput("Filter"), TextBlock.Plain("details"));
-            using var app = new AppController(new Rows(splitter, new TextInput("Outside")), new AppState(), Context, 60);
+            bool invoked = false;
+            var outside = new TextInput("Outside");
+            outside.Bindings.Add(new KeyBinding("outside action", () => invoked = true, new KeyChord(ConsoleKey.LeftArrow, KeyModifiers.Control | KeyModifiers.Shift)));
+            using var app = new AppController(new Rows(splitter, outside), new AppState(), Context, 60);
             int before = Divider(app.PrepareFrame(80, 24), "details");
             Press(app, ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
             int moved = Divider(app.PrepareFrame(80, 24), "details");
@@ -71,6 +83,68 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal("Outside", app.Focus.Current!.Key);
             Press(app, ConsoleKey.LeftArrow, KeyModifiers.Control | KeyModifiers.Shift);
             Assert.Equal(moved, Divider(app.PrepareFrame(80, 24), "details"));
+            Assert.True(invoked);
+            Assert.Contains("outside action", app.PrepareFrame(120, 24).ToPlainText());
+        }
+
+        [Fact]
+        public void LogFindTracksAppendsEvictionsAndFilters() {
+            var log = new LogViewport("Output") { ShowElapsed = false, Capacity = 3 };
+            log.Write("error-a");
+            using var app = new AppController(log, new AppState(), Context, 60);
+            app.PrepareFrame(80, 24);
+            Type(app, "/error");
+            Assert.Contains("1 of 1", app.PrepareFrame(80, 24).ToPlainText());
+            log.Write("error-b");
+            Assert.Contains("1 of 2", app.PrepareFrame(80, 24).ToPlainText());
+            log.Write("other\nlast");
+            Assert.Contains("1 of 1", app.PrepareFrame(80, 24).ToPlainText());
+            log.Filter = new LogFilter(text: "last");
+            Assert.Contains("No matches", app.PrepareFrame(80, 24).ToPlainText());
+            Press(app, ConsoleKey.Escape);
+            Type(app, "n");
+            Assert.Contains("last", app.PrepareFrame(80, 24).ToPlainText());
+            Assert.DoesNotContain("error-b", app.PrepareFrame(80, 24).ToPlainText());
+        }
+
+        [Fact]
+        public void TextAreaFindHighlightsAMatchAcrossSoftWrappedRows() {
+            var notes = new TextArea("Notes", "abcdefghijklmnop");
+            using var app = new AppController(notes, new AppState(), Context, 60);
+            app.PrepareFrame(14, 12);
+            Press(app, ConsoleKey.F, KeyModifiers.Control);
+            Type(app, "defghijk");
+            CellBuffer frame = app.PrepareFrame(14, 12);
+            Assert.True(Styled(frame, "defgh", TextDecoration.Reverse));
+            Assert.True(Styled(frame, "ijk", TextDecoration.Reverse));
+            notes.Value = "short";
+            Assert.Contains("No matches", app.PrepareFrame(80, 24).ToPlainText());
+        }
+
+        [Fact]
+        public void LogFindRevealsMatchesBeyondTheRightEdge() {
+            var log = new LogViewport("Output");
+            log.Write(new string('x', 60) + "needle");
+            using var app = new AppController(log, new AppState(), Context, 60);
+            app.PrepareFrame(30, 15);
+            Type(app, "/needle");
+            app.PrepareFrame(30, 15);
+            Press(app, ConsoleKey.Escape);
+            CellBuffer frame = app.PrepareFrame(30, 15);
+            Assert.True(Styled(frame, "needle", TextDecoration.Reverse));
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void DividerDragEndsWhenFocusIsLostOrTheTerminalResizes(bool resize) {
+            var splitter = new Splitter(TextBlock.Plain("left"), TextBlock.Plain("right"));
+            using var app = new AppController(splitter, new AppState(), Context, 60);
+            int start = Divider(app.PrepareFrame(80, 24), "right");
+            app.Handle(InputEvent.Pointer(start, 0, MouseAction.Down, button: 1), true);
+            app.Handle(resize ? InputEvent.Resized(80, 24) : InputEvent.Focus(false), true);
+            app.Handle(InputEvent.Pointer(20, 0, MouseAction.Move), true);
+            Assert.Equal(start, Divider(app.PrepareFrame(80, 24), "right"));
         }
 
         [Fact]

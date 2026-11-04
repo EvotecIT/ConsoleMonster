@@ -107,6 +107,10 @@ namespace ConsoleMonster.Widgets {
         }
 
         bool IAppInputContainer.HandleContainerInput(InputEvent input, InputControl? focused) {
+            if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) {
+                lock (_gate) { _dragging = false; }
+                return false;
+            }
             if (input.Kind == InputEventKind.Mouse) { return Pointer(input); }
             if (input.Kind != InputEventKind.Key || focused == null || !FocusManager.Discover(this).Contains(focused)) { return false; }
             ConsoleKey shrink = Vertical ? ConsoleKey.UpArrow : ConsoleKey.LeftArrow;

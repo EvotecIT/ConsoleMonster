@@ -16,6 +16,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<Collapsible, KeyBinding[]> _keys = new Dictionary<Collapsible, KeyBinding[]>();
         private Rows _rows = new Rows();
         private bool _all;
+        private PromptLabels _labels = PromptLabels.Default;
 
         /// <summary>Creates a group.</summary>
         /// <param name="children">The sections, in order.</param>
@@ -40,16 +41,30 @@ namespace ConsoleMonster.Interactive {
                 _sections.Add(section);
                 _rows.Add(section);
             }
-            PromptLabels labels = PromptLabels.Default;
-            KeyBinding[] keys = {
-                new KeyBinding(labels.KeyExpandAll, ExpandAll, new KeyChord('+')) { Order = 2 },
-                new KeyBinding(labels.KeyCollapseAll, CollapseAll, new KeyChord('-')) { Order = 3 }
-            };
+            KeyBinding[] keys = CreateKeys();
             foreach (KeyBinding key in keys) { section.Bindings.Add(key); }
             lock (_gate) { _keys[section] = keys; }
             section.Changed += Folded;
             return this;
         }
+
+        // The app's explicit language can differ from the default used when the sections were constructed.
+        internal void UseLabels(PromptLabels labels) {
+            lock (_gate) {
+                _labels = labels;
+                foreach (Collapsible section in _sections) {
+                    foreach (KeyBinding key in _keys[section]) { section.Bindings.Remove(key); }
+                    KeyBinding[] keys = CreateKeys();
+                    foreach (KeyBinding key in keys) { section.Bindings.Add(key); }
+                    _keys[section] = keys;
+                }
+            }
+        }
+
+        private KeyBinding[] CreateKeys() => new[] {
+            new KeyBinding(_labels.KeyExpandAll, ExpandAll, new KeyChord('+')) { Order = 2 },
+            new KeyBinding(_labels.KeyCollapseAll, CollapseAll, new KeyChord('-')) { Order = 3 }
+        };
 
         /// <summary>Expands every section until one is folded or opened on its own again.</summary>
         public void ExpandAll() {

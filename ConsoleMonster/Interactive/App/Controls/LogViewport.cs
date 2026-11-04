@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
@@ -22,6 +23,8 @@ namespace ConsoleMonster.Interactive {
         private int _capacity = 1000;
         private int _height = 8;
         private int _horizontalOffset;
+        private int _contentWidth;
+        private GlyphTier _glyphTier;
         private int _stateRows = -1;
         private readonly FindBar _find = new FindBar();
 
@@ -52,7 +55,7 @@ namespace ConsoleMonster.Interactive {
         public bool ShowElapsed { get => Read(() => _tail.Region.ShowElapsed); set => Change(() => _tail.Region.ShowElapsed = value); }
 
         /// <summary>Which entries are shown, or null for all. Hidden entries stay in the history and return when the filter changes.</summary>
-        public LogFilter? Filter { get => Read(() => _tail.Filter); set => Change(() => _tail.Filter = value); }
+        public LogFilter? Filter { get => Read(() => _tail.Filter); set => ChangeLog(() => _tail.Filter = value); }
 
         /// <summary>Whether the view follows the newest shown line.</summary>
         public bool Following => Read(() => _tail.Following);
@@ -83,7 +86,7 @@ namespace ConsoleMonster.Interactive {
         /// <param name="level">The level: info, warn, err, verbose, debug, pass, skip or a PowerShell stream word.</param>
         /// <param name="time">Session time shown when <see cref="ShowElapsed"/> is on.</param>
         /// <param name="tag">The source (a job, component or item name), or null.</param>
-        public void Write(string text, string level = "info", TimeSpan time = default, string? tag = null) => Change(() => {
+        public void Write(string text, string level = "info", TimeSpan time = default, string? tag = null) => ChangeLog(() => {
             text = text ?? string.Empty;
             if (text.Length > 16384) { text = text.Substring(0, 16384); }
             _tail.Region.WriteLiteral(text, level, time, null, tag);
@@ -92,7 +95,7 @@ namespace ConsoleMonster.Interactive {
         string ILiveTarget.WidgetId => Key;
 
         void ILiveTarget.Apply(LiveEvent liveEvent) {
-            if (liveEvent.Operation == "write") { Change(() => _tail.Region.Write(liveEvent)); }
+            if (liveEvent.Operation == "write") { ChangeLog(() => _tail.Region.Write(liveEvent)); }
         }
 
         string? ILiveTarget.Describe(LiveEvent liveEvent) => _tail.Region.Describe(liveEvent);
@@ -145,7 +148,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal override bool Takes(KeyChord chord, RenderContext context) => (Read(() => _find.Open) && FindBar.Takes(chord))
-            || chord.Equals(new KeyChord('/')) || (Read(() => _find.Active) && (chord.Equals(new KeyChord('n')) || chord.Equals(new KeyChord('N')) || chord.Equals(new KeyChord(ConsoleKey.Escape))))
+            || chord.Equals(new KeyChord('/')) || chord.Equals(new KeyChord(ConsoleKey.F, KeyModifiers.Control))
+            || (Read(() => _find.Active) && (chord.Equals(new KeyChord('n')) || chord.Equals(new KeyChord('N')) || chord.Equals(new KeyChord(ConsoleKey.Escape))))
             || chord.Modifiers == KeyModifiers.None && (chord.Key == ConsoleKey.UpArrow || chord.Key == ConsoleKey.DownArrow
             || chord.Key == ConsoleKey.PageUp || chord.Key == ConsoleKey.PageDown || chord.Key == ConsoleKey.Home || chord.Key == ConsoleKey.End
             || chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow);
@@ -162,6 +166,8 @@ namespace ConsoleMonster.Interactive {
 
         /// <inheritdoc />
         protected override void RenderContent(Region region, RenderContext context) {
+            _contentWidth = region.Width;
+            _glyphTier = context.Glyphs.Tier;
             // The state line takes the last row only while there is something to say: paused or filtered.
             int stateRows = _tail.HasState && region.Height >= 2 ? 1 : 0;
             // Pausing adds the state line under the log; move the window by one so the rows on screen stay where they were.
@@ -180,7 +186,16 @@ namespace ConsoleMonster.Interactive {
             }
             if (_find.Active) {
                 int first = FirstShown();
-                for (int y = 0; y < rows; y++) { _find.Highlight(region, y, 0, _find.CurrentOrdinal(first + y), context); }
+                List<LogEntry> entries = _tail.Region.Entries.Where(entry => _tail.Region.Shows(entry)).ToList();
+                for (int i = 0; i < _find.Matches.Count; i++) {
+                    FindBar.Match match = _find.Matches[i];
+                    int y = match.Line - first;
+                    if (y < 0 || y >= rows) { continue; }
+                    LogEntry entry = entries[match.Line];
+                    int from = MatchColumn(entry, match.Start) - _horizontalOffset;
+                    int to = MatchColumn(entry, match.Start + match.Length) - _horizontalOffset;
+                    _find.HighlightCells(region, y, from, to, i == _find.Current, context);
+                }
             }
             if (_find.Open) { InputArrangement.RecordBar(this, _find.Widget(PromptLabels.For(context.Profile.Language))); }
         }
@@ -195,6 +210,27 @@ namespace ConsoleMonster.Interactive {
             return lines;
         }
 
+        // Appends, capacity eviction and filtering change the search document even when the query stays the same.
+        private void ChangeLog(Action edit) => Change(() => {
+            LogEntry? anchor = null;
+            int column = 0;
+            if (_find.Active && _find.Current >= 0) {
+                FindBar.Match current = _find.Matches[_find.Current];
+                anchor = _tail.Region.Entries.Where(entry => _tail.Region.Shows(entry)).ElementAtOrDefault(current.Line);
+                column = current.Start;
+            }
+            edit();
+            if (!_find.Active) { return; }
+            List<string> lines = new List<string>();
+            int line = -1;
+            foreach (LogEntry entry in _tail.Region.Entries) {
+                if (!_tail.Region.Shows(entry)) { continue; }
+                if (ReferenceEquals(entry, anchor)) { line = lines.Count; }
+                lines.Add(entry.Text);
+            }
+            _find.Search(lines, line >= 0 ? line : FirstShown(), line >= 0 ? column : 0);
+        });
+
         // The shown line drawn on the first visible row.
         private int FirstShown() {
             int shown = 0;
@@ -205,7 +241,15 @@ namespace ConsoleMonster.Interactive {
         // Scrolls the current match into view, about a third of the way down the rows.
         private void Reveal() {
             if (_find.Current < 0) { return; }
-            int line = _find.Matches[_find.Current].Line;
+            FindBar.Match match = _find.Matches[_find.Current];
+            int line = match.Line;
+            LogEntry entry = _tail.Region.Entries.Where(item => _tail.Region.Shows(item)).ElementAt(line);
+            int from = MatchColumn(entry, match.Start), to = MatchColumn(entry, match.Start + match.Length);
+            if (from < _horizontalOffset) { _horizontalOffset = from; }
+            else if (_contentWidth > 0 && to >= _horizontalOffset + _contentWidth) {
+                // Reserve the last cell for the log renderer's truncation marker.
+                _horizontalOffset = Math.Max(0, to - _contentWidth + 1);
+            }
             int rows = Math.Max(1, _tail.VisibleRows);
             int first = FirstShown();
             if (line >= first && line < first + rows) { return; }
@@ -213,5 +257,8 @@ namespace ConsoleMonster.Interactive {
             int top = Math.Max(0, Math.Min(Math.Max(0, shown - rows), line - rows / 3));
             _tail.ScrollTo(shown - rows - top);
         }
+
+        private int MatchColumn(LogEntry entry, int offset) => _tail.Region.MessageColumn(entry)
+            + Text.DisplayWidth.Measure(SymbolFallback.Constrain(entry.Text.Substring(0, offset), _glyphTier));
     }
 }
