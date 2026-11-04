@@ -69,7 +69,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void ResizeKeysMoveTheDividerOnlyWhileAPaneHasFocus() {
-            var splitter = new Splitter(new TextInput("Filter"), TextBlock.Plain("details"));
+            var splitter = new Splitter(new Button("Apply"), TextBlock.Plain("details"));
             bool invoked = false;
             var outside = new TextInput("Outside");
             outside.Bindings.Add(new KeyBinding("outside action", () => invoked = true, new KeyChord(ConsoleKey.LeftArrow, KeyModifiers.Control | KeyModifiers.Shift)));
@@ -85,6 +85,69 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal(moved, Divider(app.PrepareFrame(80, 24), "details"));
             Assert.True(invoked);
             Assert.Contains("outside action", app.PrepareFrame(120, 24).ToPlainText());
+        }
+
+        [Fact]
+        public void ResizeKeysLeaveTextEditingToTheFocusedInput() {
+            var filter = new TextInput("Filter", "alpha beta");
+            var apply = new Button("Apply");
+            var splitter = new Splitter(new Rows(filter, apply), TextBlock.Plain("details"));
+            using var app = new AppController(splitter, new AppState(), Context, 60);
+            int before = Divider(app.PrepareFrame(120, 24), "details");
+            Press(app, ConsoleKey.Home);
+            app.PrepareFrame(120, 24);
+            int home = filter.CurrentCaret!.Value.X;
+            Press(app, ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            CellBuffer edited = app.PrepareFrame(120, 24);
+            Assert.Equal(before, Divider(edited, "details"));
+            Assert.DoesNotContain("resize", edited.ToPlainText());
+            Assert.True(filter.CurrentCaret!.Value.X > home);
+
+            Press(app, ConsoleKey.Tab);
+            Press(app, ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            CellBuffer resized = app.PrepareFrame(120, 24);
+            Assert.Equal(before + 2, Divider(resized, "details"));
+            Assert.Contains("resize", resized.ToPlainText());
+
+            bool invoked = false;
+            var custom = new Button("Custom");
+            custom.Bindings.Add(new KeyBinding("custom action", () => invoked = true, new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift)));
+            using var boundApp = new AppController(new Splitter(custom, TextBlock.Plain("details")), new AppState(), Context, 60);
+            CellBuffer bound = boundApp.PrepareFrame(120, 24);
+            int boundDivider = Divider(bound, "details");
+            Assert.DoesNotContain("resize", bound.ToPlainText());
+            Press(boundApp, ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            Assert.True(invoked);
+            Assert.Equal(boundDivider, Divider(boundApp.PrepareFrame(120, 24), "details"));
+        }
+
+        [Theory]
+        [InlineData(ColorDepth.TrueColor)]
+        [InlineData(ColorDepth.None)]
+        public void FindBarDrawsTheEditorCaretAndScrollsTheQuery(ColorDepth color) {
+            var find = new FindBar();
+            find.Start();
+            foreach (char c in "abc") { find.Handle(InputEvent.Character(c)); }
+            find.Handle(InputEvent.Press(ConsoleKey.LeftArrow));
+            find.Handle(InputEvent.Press(ConsoleKey.LeftArrow));
+            var context = Terminal.CreateContext(TerminalProfile.Fixed(40, 1, color));
+            var frame = new CellBuffer(40, 1);
+            find.Draw(new Region(frame), context, new PromptLabels());
+            Assert.Equal(color == ColorDepth.None ? "_" : "b", frame[7, 0].Glyph);
+            if (color != ColorDepth.None) { Assert.True((frame[7, 0].Style.Decoration & TextDecoration.Reverse) != 0); }
+
+            find.Handle(InputEvent.Press(ConsoleKey.End));
+            foreach (char c in "defghijklmnopqrstuvwxyz") { find.Handle(InputEvent.Character(c)); }
+            frame = new CellBuffer(30, 1);
+            find.Draw(new Region(frame), context, new PromptLabels());
+            Assert.Contains("pqrstuvwxyz", frame.ToPlainText());
+            Assert.Equal(color == ColorDepth.None ? "_" : " ", frame[17, 0].Glyph);
+            if (color != ColorDepth.None) { Assert.True((frame[17, 0].Style.Decoration & TextDecoration.Reverse) != 0); }
+
+            find.Handle(InputEvent.Press(ConsoleKey.Home));
+            find.Draw(new Region(frame), context, new PromptLabels());
+            Assert.Equal(color == ColorDepth.None ? "_" : "a", frame[6, 0].Glyph);
+            Assert.Contains("bcdefghijk", frame.ToPlainText());
         }
 
         [Fact]
@@ -119,6 +182,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.True(Styled(frame, "ijk", TextDecoration.Reverse));
             notes.Value = "short";
             Assert.Contains("No matches", app.PrepareFrame(80, 24).ToPlainText());
+        }
+
+        [Theory]
+        [InlineData(80)]
+        [InlineData(6)]
+        public void EmptyTextAreaKeepsItsFindBarVisible(int width) {
+            var notes = new TextArea("Notes") { Placeholder = "Type notes here" };
+            using var app = new AppController(notes, new AppState(), Context, 60);
+            app.PrepareFrame(width, 12);
+            Press(app, ConsoleKey.F, KeyModifiers.Control);
+            Type(app, "query");
+            string frame = app.PrepareFrame(width, 12).ToPlainText();
+            Assert.Contains("Find:", frame);
+            Assert.Equal(string.Empty, notes.Value);
+            if (width == 80) { Assert.Contains("Find: query", frame); }
         }
 
         [Fact]

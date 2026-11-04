@@ -118,6 +118,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <inheritdoc />
         protected override void RenderContent(Region region, RenderContext context) {
+            if (_find != null && _find.Open) { InputArrangement.RecordBar(this, _find.Widget(PromptLabels.For(context.Profile.Language))); }
             if (region.Width < 4 || region.Height <= 0) {
                 return;
             }
@@ -170,7 +171,6 @@ namespace ConsoleMonster.Interactive {
                     }
                 }
             }
-            if (_find != null && _find.Open) { InputArrangement.RecordBar(this, _find.Widget(PromptLabels.For(context.Profile.Language))); }
             if (ScrollRow > 0) {
                 region.Write(0, 0, context.Glyphs.Get(Glyphs.Glyph.ArrowUp), context.Style(ThemeToken.Muted));
             }

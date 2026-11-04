@@ -158,7 +158,8 @@ New-ConsoleCollapsible -Accordion -Content {
 
 `Splitter` puts two panes side by side, or top and bottom with `Vertical`. Drag
 the divider with the mouse, or press Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down
-when vertical) while an input in either pane has focus. Give it a `Key` inside a
+when vertical) while an input in either pane has focus and leaves those keys
+free. Text editing takes precedence; dragging remains available. Give it a `Key` inside a
 screen stack and the screen keeps its ratio, also when a binding rebuilds the
 splitter. PowerShell uses `New-ConsoleSplitter -First { … } -Second { … }`.
 

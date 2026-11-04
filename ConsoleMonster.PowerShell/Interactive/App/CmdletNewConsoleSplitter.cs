@@ -6,7 +6,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates two panes with a divider that the mouse and keyboard can move.</para>
-    /// <para type="description">The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them, and so do Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) while an input in either pane has focus. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</para>
+    /// <para type="description">The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input leaves those keys free; text editing takes precedence. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</para>
     /// </summary>
     /// <example><para>Show a list beside its details and let the reader widen either side.</para><code>Show-ConsoleApp -Content {
     ///     New-ConsoleSplitter -Key Panes -Ratio 0.35 -Fill -First {

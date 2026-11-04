@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates two panes with a divider that the mouse and keyboard can move.
 
-The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them, and so do Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) while an input in either pane has focus. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.
+The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input leaves those keys free; text editing takes precedence. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.
 
 ## SYNTAX
 ### __AllParameterSets

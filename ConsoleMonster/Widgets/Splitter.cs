@@ -11,7 +11,8 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// Two panes with a divider between them. Dragging the divider resizes the panes, and so do Ctrl+Shift+←/→
-    /// (Ctrl+Shift+↑/↓ when <see cref="Vertical"/>) while an input in either pane has focus. Inside an app with screens, a
+    /// (Ctrl+Shift+↑/↓ when <see cref="Vertical"/>) when the focused input leaves those keys free. Text editing takes
+    /// precedence. Inside an app with screens, a
     /// splitter with a <see cref="Key"/> remembers its ratio for the screen it is on, also when its layout is rebuilt.
     /// </summary>
     public sealed class Splitter : IContainer, IAppInputContainer {
@@ -25,6 +26,7 @@ namespace ConsoleMonster.Widgets {
         private bool _dragging;
         private AppScreen? _screen;
         private bool _restored;
+        private RenderContext? _context;
 
         /// <summary>Creates a splitter with empty panes.</summary>
         public Splitter() : this(new Rows(), new Rows()) { }
@@ -82,6 +84,7 @@ namespace ConsoleMonster.Widgets {
             IWidget first, second;
             bool dragging;
             lock (_gate) {
+                _context = context;
                 Restore();
                 first = _first; second = _second; dragging = _dragging;
             }
@@ -117,6 +120,9 @@ namespace ConsoleMonster.Widgets {
             ConsoleKey grow = Vertical ? ConsoleKey.DownArrow : ConsoleKey.RightArrow;
             KeyModifiers chord = KeyModifiers.Control | KeyModifiers.Shift;
             if (!input.Is(shrink, chord) && !input.Is(grow, chord)) { return false; }
+            RenderContext? context;
+            lock (_gate) { context = _context; }
+            if (context == null || !ResizeKeyIsFree(focused, new KeyChord(input.Key, input.Modifiers), context)) { return false; }
             lock (_gate) {
                 int extent = Math.Max(1, Vertical ? _area.Height : _area.Width);
                 Resize(Split(extent) + (input.Is(grow, chord) ? Step : -Step), extent);
@@ -125,6 +131,9 @@ namespace ConsoleMonster.Widgets {
         }
 
         // The keys a footer lists while focus is inside this splitter.
+        internal static bool ResizeKeyIsFree(InputControl focused, KeyChord chord, RenderContext context) =>
+            !focused.Takes(chord, context) && !focused.Bindings.Any(binding => binding.Claims.Contains(chord));
+
         internal KeyChord[] ResizeKeys => Vertical
             ? new[] { new KeyChord(ConsoleKey.UpArrow, KeyModifiers.Control | KeyModifiers.Shift), new KeyChord(ConsoleKey.DownArrow, KeyModifiers.Control | KeyModifiers.Shift) }
             : new[] { new KeyChord(ConsoleKey.LeftArrow, KeyModifiers.Control | KeyModifiers.Shift), new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift) };

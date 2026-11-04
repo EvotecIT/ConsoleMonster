@@ -8609,7 +8609,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
     <command:syntax>
       <command:syntaxItem parameterSetName="Section">
         <maml:name>New-ConsoleCollapsible</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Content</maml:name>
           <maml:description>
             <maml:para>The section's widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
@@ -20365,7 +20365,7 @@ Description and RunText.</maml:para>
       <command:noun>ConsoleSplitter</command:noun>
       <maml:description>
         <maml:para>Creates two panes with a divider that the mouse and keyboard can move.</maml:para>
-        <maml:para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them, and so do Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) while an input in either pane has focus. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</maml:para>
+        <maml:para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input leaves those keys free; text editing takes precedence. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>

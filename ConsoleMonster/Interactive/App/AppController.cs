@@ -195,10 +195,10 @@ namespace ConsoleMonster.Interactive {
             if (_options.Keys.NextFocus.HasValue) { hints.Add(new KeyBinding(labels.KeyNext, _focus.MoveNext, _options.Keys.NextFocus.Value)); }
             if (_options.Keys.PreviousFocus.HasValue) { hints.Add(new KeyBinding(labels.KeyBack, _focus.MovePrevious, _options.Keys.PreviousFocus.Value) { InFooter = _screens == null }); }
             if (_options.Keys.Exit.HasValue) { hints.Add(new KeyBinding(labels.KeyQuit, _state.RequestExit, _options.Keys.Exit.Value)); }
-            // The splitter around the focused input takes its resize keys before the input; the footer says so.
+            // Text editing keeps its chords; list resize only while the focused input leaves it free.
             InputControl? focused = _focus.Current;
             Splitter? around = focused == null ? null : _splitters.LastOrDefault(splitter => FocusManager.Discover(splitter).Contains(focused));
-            if (around != null) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
+            if (around != null && around.ResizeKeys.All(chord => Splitter.ResizeKeyIsFree(focused!, chord, _context))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
             _actions.AddBindings(hints);
             return hints;
         }
@@ -209,12 +209,6 @@ namespace ConsoleMonster.Interactive {
             if (_options.Keys.NextFocus.HasValue) { first.Add(_options.Keys.NextFocus.Value); }
             if (_options.Keys.PreviousFocus.HasValue) { first.Add(_options.Keys.PreviousFocus.Value); }
             if (_hasTabs) { first.Add(new KeyChord(ConsoleKey.PageUp, KeyModifiers.Control)); first.Add(new KeyChord(ConsoleKey.PageDown, KeyModifiers.Control)); }
-            InputControl? focused = _focus.Current;
-            foreach (Splitter splitter in _splitters) {
-                if (focused != null && FocusManager.Discover(splitter).Contains(focused)) {
-                    foreach (KeyChord chord in splitter.ResizeKeys) { first.Add(chord); }
-                }
-            }
             return first;
         }
 

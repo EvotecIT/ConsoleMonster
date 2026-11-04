@@ -164,9 +164,6 @@
         },
         {
           "choice": "container-status"
-        },
-        {
-          "choice": "help-sections"
         }
       ],
       "defaultValue": "none"
@@ -790,22 +787,6 @@
         "container-status/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"container-status\")"
-    },
-    {
-      "source": "gallery/",
-      "target": "./",
-      "include": [
-        "help-sections/Program.cs",
-        "help-sections/Program.Fluent.cs"
-      ],
-      "copyOnly": [
-        "**/*.cs"
-      ],
-      "rename": {
-        "help-sections/Program.cs": "Program.cs",
-        "help-sections/Program.Fluent.cs": "Program.Fluent.cs"
-      },
-      "condition": "(demo == \"help-sections\")"
     }
   ]
 }

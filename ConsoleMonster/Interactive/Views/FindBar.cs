@@ -105,15 +105,32 @@ namespace ConsoleMonster.Interactive {
                 : PromptLabels.Format(labels.FindMatches, (Current + 1).ToString(CultureInfo.CurrentCulture), _matches.Count.ToString(CultureInfo.CurrentCulture));
             int statusWidth = DisplayWidth.Measure(status);
             int x = row.Write(0, 0, labels.Find + ": ", context.Style(Open ? ThemeToken.Focus : ThemeToken.Muted).With(TextDecoration.Bold));
-            int room = Math.Max(1, row.Width - x - statusWidth - 2);
-            string query = _editor.Text;
-            if (DisplayWidth.Measure(query) > room - 1) { query = TextWrapper.Truncate(query, room - 1, context.Ellipsis); }
-            int end = row.Write(x, 0, query, context.Style(ThemeToken.Text));
-            if (Open && end < row.Width) {
-                if (context.HasColor) { row.Write(end, 0, " ", context.Style(ThemeToken.Text).With(TextDecoration.Reverse)); }
-                else { row.Write(end, 0, "_", context.Style(ThemeToken.Text)); }
+            bool showStatus = status.Length > 0 && statusWidth < row.Width - x - 2;
+            int room = Math.Max(0, row.Width - x - (showStatus ? statusWidth + 2 : 0));
+            if (room > 0) {
+                string text = _editor.Text;
+                string query = Glyphs.SymbolFallback.Constrain(text, context.Glyphs.Tier);
+                int caret = DisplayWidth.Measure(Glyphs.SymbolFallback.Constrain(text.Substring(0, Math.Min(text.Length, _editor.Caret)), context.Glyphs.Tier));
+                int offset = _editor.ScrollOffset;
+                if (caret - offset >= room) { offset = caret - room + 1; }
+                if (caret < offset) { offset = Math.Max(0, caret - room / 3); }
+                if (DisplayWidth.Measure(query) < room) { offset = 0; }
+                _editor.ScrollOffset = offset;
+                int column = 0;
+                foreach (TextCell cell in DisplayWidth.Cells(query)) {
+                    int at = column - offset;
+                    if (at >= 0 && at + cell.Width <= room) { row.Put(x + at, 0, cell.Glyph, context.Style(ThemeToken.Text), cell.Width); }
+                    column += cell.Width;
+                    if (column - offset >= room) { break; }
+                }
+                if (Open) {
+                    int cursor = x + Math.Min(room - 1, caret - offset);
+                    Cell cell = row.Get(cursor, 0);
+                    if (context.HasColor) { row.Put(cursor, 0, cell.Glyph, cell.Style.With(TextDecoration.Reverse), Math.Max(1, (int)cell.Width)); }
+                    else { row.Write(cursor, 0, "_", context.Style(ThemeToken.Text)); }
+                }
             }
-            if (status.Length > 0 && statusWidth < row.Width - x) {
+            if (showStatus) {
                 row.Write(row.Width - statusWidth, 0, status, context.Style(_matches.Count == 0 ? ThemeToken.Warn : ThemeToken.Muted));
             }
         }
