@@ -7,7 +7,9 @@ using ConsoleMonster.Widgets;
 // Layout: construct the widgets shown on screen.
 Splitter layout = new Splitter(
     new Accordion(
-        new Collapsible("Synopsis", new TextBlock("Lists servers and their roles from an inline inventory."))
+        new Collapsible(
+            "Synopsis",
+            new TextBlock("Lists servers and their roles from an inline inventory."))
         {
             Expanded = true
         },
@@ -24,7 +26,9 @@ Splitter layout = new Splitter(
         {
             Summary = "(2)"
         }),
-    new Panel(new Rows(new TextBlock("Get-Service"), new TextBlock("Test-Connection"))) { Title = "Related" })
+    new Panel(new Rows(
+        new TextBlock("Get-Service"),
+        new TextBlock("Test-Connection"))) { Title = "Related" })
 {
     Key = "Panes",
     Ratio = 0.6
