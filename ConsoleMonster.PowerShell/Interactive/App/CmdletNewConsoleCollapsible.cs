@@ -5,10 +5,8 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.</para>
-    /// <para type="description">A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.</para>
-    /// </summary>
+    /// <summary>Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.</summary>
+    /// <remarks>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.</remarks>
     /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>Show-ConsoleApp -Content {
     ///     New-ConsoleCollapsible -Accordion -Content {
     ///         New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }

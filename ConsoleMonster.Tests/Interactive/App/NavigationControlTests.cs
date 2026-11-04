@@ -147,6 +147,32 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Theory]
+        [InlineData("next", false)]
+        [InlineData("previous", false)]
+        [InlineData("quit", false)]
+        [InlineData("next", true)]
+        public void ResizeKeysLeaveConfiguredHostGesturesAvailable(string gesture, bool editor) {
+            InputControl first = editor ? new TextInput("First", "words to select") : new Button("First");
+            var splitter = new Splitter(new Rows(first, new Button("Middle"), new Button("Last")), TextBlock.Plain("details"));
+            var options = new ConsoleAppOptions();
+            var chord = new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            if (gesture == "next") { options.Keys.NextFocus = chord; }
+            else if (gesture == "previous") { options.Keys.PreviousFocus = chord; }
+            else { options.Keys.Exit = chord; }
+            var state = new AppState();
+            using var app = new AppController(splitter, state, Context, 60, options);
+            CellBuffer before = app.PrepareFrame(120, 24);
+            int divider = Divider(before, "details");
+            Press(app, ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift);
+            Assert.Equal(gesture == "next" ? "Middle" : gesture == "previous" ? "Last" : "First", app.Focus.Current!.Key);
+            Assert.Equal(gesture == "quit", state.ExitRequested);
+            CellBuffer after = app.PrepareFrame(120, 24);
+            Assert.Equal(divider, Divider(after, "details"));
+            Assert.DoesNotContain("resize", after.ToPlainText());
+            Assert.Contains(gesture == "previous" ? "back" : gesture, before.ToPlainText());
+        }
+
+        [Theory]
         [InlineData(ColorDepth.TrueColor)]
         [InlineData(ColorDepth.None)]
         public void FindBarDrawsTheEditorCaretAndScrollsTheQuery(ColorDepth color) {

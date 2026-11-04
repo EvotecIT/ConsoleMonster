@@ -2,7 +2,7 @@
 Module Name: ConsoleMonster
 Module Guid: 7ef2133c-55a5-47e6-809e-6010f6e65e09
 Download Help Link: https://consolemonster.dev/
-Help Version: 2.1.2
+Help Version: 2.1.3
 Locale: en-US
 ---
 # ConsoleMonster Module
@@ -131,8 +131,6 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 
 ### [New-ConsoleCollapsible](New-ConsoleCollapsible.md)
 Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.
-
-A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.
 
 ### [New-ConsoleColumns](New-ConsoleColumns.md)
 Places console widgets side by side.
@@ -291,8 +289,6 @@ Choices use the shared prompt conversion and retain original objects as values. 
 
 ### [New-ConsoleSplitter](New-ConsoleSplitter.md)
 Creates two panes with a divider that the mouse and keyboard can move.
-
-The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input leaves those keys free; text editing takes precedence. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.
 
 ### [New-ConsoleStack](New-ConsoleStack.md)
 Layers console widgets on top of each other in the same space.

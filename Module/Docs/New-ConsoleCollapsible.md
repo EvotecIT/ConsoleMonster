@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.
 
-A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.
-
 ## SYNTAX
 ### Section (Default)
 ```powershell
@@ -22,8 +20,6 @@ New-ConsoleCollapsible [-Content] <Object> -Accordion [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.
-
 A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.
 
 ## EXAMPLES

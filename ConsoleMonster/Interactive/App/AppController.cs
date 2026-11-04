@@ -136,7 +136,9 @@ namespace ConsoleMonster.Interactive {
         }
 
         private bool ClaimedResizeKey(InputEvent input) => input.Kind == InputEventKind.Key &&
-            _splitters.Any(splitter => splitter.ResizeKeys.Any(chord => chord.Matches(input) && _keys.Claims(chord)));
+            _splitters.Any(splitter => splitter.ResizeKeys.Any(chord => chord.Matches(input) && ResizeKeyClaimed(chord)));
+
+        private bool ResizeKeyClaimed(KeyChord chord) => _keys.Claims(chord) || HostFirst().Contains(chord) || Equals(_options.Keys.Exit, chord);
 
         internal void Refresh(LiveSession? session) {
             if (_actions.Poll()) { Invalidate(); }
@@ -201,7 +203,7 @@ namespace ConsoleMonster.Interactive {
             // Text editing keeps its chords; list resize only while the focused input leaves it free.
             InputControl? focused = _focus.Current;
             Splitter? around = focused == null ? null : _splitters.LastOrDefault(splitter => FocusManager.Discover(splitter).Contains(focused));
-            if (around != null && around.ResizeKeys.All(chord => !_keys.Claims(chord))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
+            if (around != null && around.ResizeKeys.All(chord => !ResizeKeyClaimed(chord))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
             _actions.AddBindings(hints);
             return hints;
         }
