@@ -122,13 +122,13 @@ namespace ConsoleMonster.Interactive {
             int[] span = _editor.Rows[index];
             int end = Math.Min(span[1], value.Length);
             if (end > span[0] && value[end - 1] == '\n') { end--; }
+            // Whole display clusters, as the layout measures them: a click never lands inside a joined emoji.
+            string line = value.Substring(span[0], end - span[0]);
             int used = 0;
-            for (int i = span[0]; i < end;) {
-                int next = i + (char.IsHighSurrogate(value[i]) && i + 1 < end ? 2 : 1);
-                int width = Cells(value.Substring(i, next - i), tier);
-                if (column < used + (width + 1) / 2) { return i; }
+            foreach (TextCluster cluster in DisplayWidth.Clusters(line)) {
+                int width = Cells(line.Substring(cluster.Start, cluster.Length), tier);
+                if (column < used + (width + 1) / 2) { return span[0] + cluster.Start; }
                 used += width;
-                i = next;
             }
             return end;
         }

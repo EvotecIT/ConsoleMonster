@@ -487,6 +487,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Empty(targets.Value);
             Assert.Equal(0, opened);
         }
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TextClick_AfterAJoinedEmojiLandsBetweenClusters(bool area) {
+            const string astronaut = "\U0001F469‍\U0001F680";
+            InputControl input = area ? new TextArea("notes", astronaut + "x") : (InputControl)new TextInput("name", astronaut + "x");
+            using AppController app = new AppController(new Rows(new Toggle("other"), input), new AppState(), Context, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 16));
+            int row = Array.FindIndex(rows, line => line.Contains(astronaut + "x"));
+            // Cell columns: the line before the cluster is plain ASCII, so the cluster starts at its text index.
+            int cell = rows[row].IndexOf(astronaut, StringComparison.Ordinal) + 2;
+            Click(app, cell, row);
+            app.Handle(InputEvent.Character('Y'), true);
+            Assert.Equal(astronaut + "Yx", input.CurrentValue);
+        }
         private static void ChooseFromMenu(AppController app, string label) {
             app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
             string[] rows = Rows(app.PrepareFrame(80, 14));

@@ -84,14 +84,13 @@ namespace ConsoleMonster.Interactive {
 
         // The caret index nearest a display column: a click on the right half of a character goes after it.
         private int IndexAt(int column, RenderContext context) {
+            // Whole display clusters, as drawn: a click never lands inside a joined emoji.
             string value = _editor.Text;
             int used = 0;
-            for (int i = 0; i < value.Length;) {
-                int next = i + (char.IsHighSurrogate(value[i]) && i + 1 < value.Length ? 2 : 1);
-                int width = DisplayWidth.Measure(Display(value.Substring(i, next - i), context));
-                if (column < used + (width + 1) / 2) { return i; }
+            foreach (TextCluster cluster in DisplayWidth.Clusters(value)) {
+                int width = DisplayWidth.Measure(Display(value.Substring(cluster.Start, cluster.Length), context));
+                if (column < used + (width + 1) / 2) { return cluster.Start; }
                 used += width;
-                i = next;
             }
             return value.Length;
         }
