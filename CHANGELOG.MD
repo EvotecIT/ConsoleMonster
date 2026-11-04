@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Added `Collapsible` and `Accordion` (`New-ConsoleCollapsible`, with `-Accordion` for a group), a `Splitter` with a draggable divider and keyboard resize that keeps its ratio per screen (`New-ConsoleSplitter`), and a find bar with match counts, n/N and highlighting in `LogViewport`, `TextArea` and the document pager.
+
 - Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.
 
 - Added the `Diagram` model, widget-returning fluent chains and PowerShell diagram commands for nodes, links, nested groups, connection rows and playable use cases.

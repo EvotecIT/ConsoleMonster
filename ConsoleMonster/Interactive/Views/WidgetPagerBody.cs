@@ -7,10 +7,12 @@ namespace ConsoleMonster.Interactive {
     internal sealed class WidgetPagerBody : IWidget {
         private readonly CellBuffer _document;
         private readonly int _top;
+        private readonly FindBar? _find;
 
-        internal WidgetPagerBody(CellBuffer document, int top) {
+        internal WidgetPagerBody(CellBuffer document, int top, FindBar? find = null) {
             _document = document;
             _top = top;
+            _find = find;
         }
 
         public Size Measure(Constraints constraints, RenderContext context) =>
@@ -24,6 +26,7 @@ namespace ConsoleMonster.Interactive {
                         region.Put(x, y, cell.Glyph, cell.Style, cell.Width);
                     }
                 }
+                _find?.Highlight(region, y, 0, _find.CurrentOrdinal(y + _top), context);
             }
         }
     }

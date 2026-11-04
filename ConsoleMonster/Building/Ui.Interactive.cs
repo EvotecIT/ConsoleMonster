@@ -51,6 +51,18 @@ namespace ConsoleMonster {
         /// <returns>The boolean control definition; Build delegates to AppInput.Toggle.</returns>
         public static ToggleInputOptions Toggle() => new ToggleInputOptions();
 
+        /// <summary>Collapsible section definition; Build delegates to AppInput.Collapsible.</summary>
+        /// <returns>The collapsible section definition; Build delegates to AppInput.Collapsible.</returns>
+        public static CollapsibleInputOptions Collapsible() => new CollapsibleInputOptions();
+
+        /// <summary>A group of collapsible sections that keeps one open.</summary>
+        /// <returns>The empty group.</returns>
+        public static Accordion Accordion() => new Accordion();
+
+        /// <summary>Two panes with a draggable divider.</summary>
+        /// <returns>The splitter with empty panes.</returns>
+        public static Splitter Splitter() => new Splitter();
+
         /// <summary>State-dependent display definition.</summary>
         /// <returns>The state-dependent display definition.</returns>
         public static BindingOptions Binding() => new BindingOptions();

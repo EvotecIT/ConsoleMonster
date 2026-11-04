@@ -17,6 +17,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<AppBinding, AppScreen> _bindingScreens = new Dictionary<AppBinding, AppScreen>();
         private LiveSession? _session;
         private bool _hasTabs;
+        private readonly List<Splitter> _splitters = new List<Splitter>();
         private LogRegion? _logRegion;
         private readonly List<FooterBar> _footers = new List<FooterBar>();
         private readonly FocusManager _focus;
@@ -194,6 +195,10 @@ namespace ConsoleMonster.Interactive {
             if (_options.Keys.NextFocus.HasValue) { hints.Add(new KeyBinding(labels.KeyNext, _focus.MoveNext, _options.Keys.NextFocus.Value)); }
             if (_options.Keys.PreviousFocus.HasValue) { hints.Add(new KeyBinding(labels.KeyBack, _focus.MovePrevious, _options.Keys.PreviousFocus.Value) { InFooter = _screens == null }); }
             if (_options.Keys.Exit.HasValue) { hints.Add(new KeyBinding(labels.KeyQuit, _state.RequestExit, _options.Keys.Exit.Value)); }
+            // The splitter around the focused input takes its resize keys before the input; the footer says so.
+            InputControl? focused = _focus.Current;
+            Splitter? around = focused == null ? null : _splitters.LastOrDefault(splitter => FocusManager.Discover(splitter).Contains(focused));
+            if (around != null) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
             _actions.AddBindings(hints);
             return hints;
         }
@@ -204,12 +209,14 @@ namespace ConsoleMonster.Interactive {
             if (_options.Keys.NextFocus.HasValue) { first.Add(_options.Keys.NextFocus.Value); }
             if (_options.Keys.PreviousFocus.HasValue) { first.Add(_options.Keys.PreviousFocus.Value); }
             if (_hasTabs) { first.Add(new KeyChord(ConsoleKey.PageUp, KeyModifiers.Control)); first.Add(new KeyChord(ConsoleKey.PageDown, KeyModifiers.Control)); }
+            foreach (Splitter splitter in _splitters) { foreach (KeyChord chord in splitter.ResizeKeys) { first.Add(chord); } }
             return first;
         }
 
         private void Discover(IWidget widget, int reflowBelow, AppScreen? owner = null) {
             if (widget is FooterBar footer) { _footers.Add(footer); }
             if (widget is Tabs) { _hasTabs = true; }
+            if (widget is Splitter splitter) { _splitters.Add(splitter); }
             if (widget is LogRegion region && _logRegion == null) { _logRegion = region; }
             if (widget is AppScreens screens) {
                 if (_screens != null) { throw new ArgumentException("An app has one screen stack.", nameof(widget)); }

@@ -23,6 +23,7 @@ namespace ConsoleMonster.Interactive {
         private int _height = 8;
         private int _horizontalOffset;
         private int _stateRows = -1;
+        private readonly FindBar _find = new FindBar();
 
         /// <summary>Creates a named log viewport.</summary>
         public LogViewport(string key) : base(key) {
@@ -101,6 +102,24 @@ namespace ConsoleMonster.Interactive {
 
         /// <inheritdoc />
         protected override bool HandleInputCore(InputEvent input, RenderContext context) {
+            if (_find.Open) {
+                switch (_find.Handle(input)) {
+                    case FindKey.Edited: _find.Search(Lines(), FirstShown()); Reveal(); return true;
+                    case FindKey.Next: if (_find.Step(1)) { Reveal(); } return true;
+                    case FindKey.Previous: if (_find.Step(-1)) { Reveal(); } return true;
+                    case FindKey.Closed: _find.Close(true); return true;
+                    case FindKey.Kept: return true;
+                }
+            } else if (input.Is(ConsoleKey.F, KeyModifiers.Control) || (input.Kind == InputEventKind.Key && input.Char == '/' && (input.Modifiers & (KeyModifiers.Control | KeyModifiers.Alt)) == 0)) {
+                _find.Start();
+                _find.Search(Lines(), FirstShown());
+                return true;
+            } else if (_find.Active) {
+                // With the bar closed, n and N keep moving through the matches and Escape clears them.
+                if (input.Kind == InputEventKind.Key && input.Char == 'n' && input.Modifiers == KeyModifiers.None) { if (_find.Step(1)) { Reveal(); } return true; }
+                if (input.Kind == InputEventKind.Key && input.Char == 'N' && (input.Modifiers & ~KeyModifiers.Shift) == KeyModifiers.None) { if (_find.Step(-1)) { Reveal(); } return true; }
+                if (input.Is(ConsoleKey.Escape)) { _find.Close(false); return true; }
+            }
             string? operation = LogTail.Operation(input);
             if (operation != null) { _tail.Navigate(operation); }
             else if (input.Is(ConsoleKey.LeftArrow)) { _horizontalOffset = Math.Max(0, _horizontalOffset - 4); }
@@ -111,6 +130,13 @@ namespace ConsoleMonster.Interactive {
 
         // The app footer lists the keys this panel handles itself: history always, and the way back to the newest line while paused.
         internal override void AddOwnKeys(List<KeyBinding> keys, RenderContext context) {
+            PromptLabels prompt = PromptLabels.For(context.Profile.Language);
+            if (Read(() => _find.Open)) { FindBar.AddKeys(keys, prompt); return; }
+            keys.Add(new KeyBinding(prompt.KeySearch, () => { }, new KeyChord('/')) { Order = 70 });
+            if (Read(() => _find.Active)) {
+                keys.Add(new KeyBinding(prompt.KeyNext, () => { }, new KeyChord('n')) { Order = 4 });
+                keys.Add(new KeyBinding(prompt.KeyPrevious, () => { }, new KeyChord('N')) { Order = 5 });
+            }
             Localization.WidgetLabels labels = context.Labels;
             keys.Add(new KeyBinding(labels.TailKeyHistory, () => { }, new KeyChord(ConsoleKey.PageUp)) { Order = 1 });
             if (!Read(() => _tail.Following)) {
@@ -118,7 +144,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        internal override bool Takes(KeyChord chord, RenderContext context) => chord.Modifiers == KeyModifiers.None && (chord.Key == ConsoleKey.UpArrow || chord.Key == ConsoleKey.DownArrow
+        internal override bool Takes(KeyChord chord, RenderContext context) => (Read(() => _find.Open) && FindBar.Takes(chord))
+            || chord.Equals(new KeyChord('/')) || (Read(() => _find.Active) && (chord.Equals(new KeyChord('n')) || chord.Equals(new KeyChord('N')) || chord.Equals(new KeyChord(ConsoleKey.Escape))))
+            || chord.Modifiers == KeyModifiers.None && (chord.Key == ConsoleKey.UpArrow || chord.Key == ConsoleKey.DownArrow
             || chord.Key == ConsoleKey.PageUp || chord.Key == ConsoleKey.PageDown || chord.Key == ConsoleKey.Home || chord.Key == ConsoleKey.End
             || chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow);
 
@@ -144,10 +172,46 @@ namespace ConsoleMonster.Interactive {
             _tail.ClampScroll();
             if (stateRows > 0) { _tail.RenderState(region, rows, context, false); }
             if (rows <= 0) { return; }
-            if (_horizontalOffset == 0) { _tail.Region.Render(region.Sub(0, 0, region.Width, rows), context); return; }
-            var content = new CellBuffer(region.Width + _horizontalOffset, rows);
-            _tail.Region.Render(new Region(content), context);
-            region.Buffer.Blit(content, _horizontalOffset, 0, region.Width, rows, region.Bounds.X, region.Bounds.Y);
+            if (_horizontalOffset == 0) { _tail.Region.Render(region.Sub(0, 0, region.Width, rows), context); }
+            else {
+                var content = new CellBuffer(region.Width + _horizontalOffset, rows);
+                _tail.Region.Render(new Region(content), context);
+                region.Buffer.Blit(content, _horizontalOffset, 0, region.Width, rows, region.Bounds.X, region.Bounds.Y);
+            }
+            if (_find.Active) {
+                int first = FirstShown();
+                for (int y = 0; y < rows; y++) { _find.Highlight(region, y, 0, _find.CurrentOrdinal(first + y), context); }
+            }
+            if (_find.Open) { InputArrangement.RecordBar(this, _find.Widget(PromptLabels.For(context.Profile.Language))); }
+        }
+
+        // A click outside the find bar closes it; the matches stay highlighted for n and N.
+        internal override void ClosePopupCore() { if (_find.Open) { _find.Close(true); } }
+
+        // The shown (filtered) lines, oldest first, as the find bar searches them.
+        private List<string> Lines() {
+            List<string> lines = new List<string>();
+            foreach (LogEntry entry in _tail.Region.Entries) { if (_tail.Region.Shows(entry)) { lines.Add(entry.Text); } }
+            return lines;
+        }
+
+        // The shown line drawn on the first visible row.
+        private int FirstShown() {
+            int shown = 0;
+            foreach (LogEntry entry in _tail.Region.Entries) { if (_tail.Region.Shows(entry)) { shown++; } }
+            return Math.Max(0, shown - _tail.Offset - Math.Max(1, _tail.VisibleRows));
+        }
+
+        // Scrolls the current match into view, about a third of the way down the rows.
+        private void Reveal() {
+            if (_find.Current < 0) { return; }
+            int line = _find.Matches[_find.Current].Line;
+            int rows = Math.Max(1, _tail.VisibleRows);
+            int first = FirstShown();
+            if (line >= first && line < first + rows) { return; }
+            int shown = Lines().Count;
+            int top = Math.Max(0, Math.Min(Math.Max(0, shown - rows), line - rows / 3));
+            _tail.ScrollTo(shown - rows - top);
         }
     }
 }

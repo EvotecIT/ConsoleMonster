@@ -40,7 +40,7 @@ namespace SiteFrames.Capture {
                 if (chartType != null) { noun = "Chart"; }
                 if (progress) { noun = "Progress"; }
                 bool options = type.Name.EndsWith("Options", StringComparison.Ordinal);
-                bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button";
+                bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button" or "Collapsible";
                 if (type.Name == "MultiSelect") { noun = "Select"; }
                 string? question = QuestionNoun(type);
                 if (question != null) { noun = question; }
@@ -195,7 +195,7 @@ namespace SiteFrames.Capture {
                 if (factory.ArgumentList.Arguments.Count > 0) {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)));
                 }
-                bool definition = noun is "Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Binding";
+                bool definition = noun is "Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Binding";
                 ExpressionSyntax unwrapped = value is ParenthesizedExpressionSyntax { Expression: CastExpressionSyntax cast } ? cast.Expression : value;
                 bool endsWithBuild = unwrapped is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Build" } };
                 if (definition && !endsWithBuild) {
