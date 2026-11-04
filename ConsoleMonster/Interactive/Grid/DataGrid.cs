@@ -168,9 +168,27 @@ namespace ConsoleMonster.Interactive {
                 case ConsoleKey.Spacebar: return _grid.OutputMode == GridSelection.Multiple || QuickSearch && chord.Modifiers == KeyModifiers.None;
                 case ConsoleKey.Insert: return _grid.OutputMode == GridSelection.Multiple;
                 case ConsoleKey.Escape: case ConsoleKey.Backspace: return QuickSearch && _quickSearch.Length > 0;
+                case ConsoleKey.F3: return chord.Modifiers == KeyModifiers.None || chord.Modifiers == KeyModifiers.Shift;
+                case ConsoleKey.F4: return chord.Modifiers == KeyModifiers.None;
             }
             return QuickSearch && chord.IsCharacter;
         });
+        // Sorting is the keyboard path of a header click, so the app footer lists it.
+        internal override void AddOwnKeys(List<KeyBinding> keys, RenderContext context) {
+            PromptLabels labels = PromptLabels.For(context.Profile.Language);
+            keys.Add(new KeyBinding(labels.KeySort, () => { }, new KeyChord(ConsoleKey.F3)) { KeyText = "f3", Order = 32 });
+            keys.Add(new KeyBinding(string.Empty, () => { }, new KeyChord(ConsoleKey.F3, KeyModifiers.Shift)) { InFooter = false });
+            keys.Add(new KeyBinding(labels.KeyOrder, () => { }, new KeyChord(ConsoleKey.F4)) { KeyText = "f4", Order = 33, InFooter = false });
+        }
+        // F3 sorts by the next shown column (Shift+F3 the previous one), and back to listing order after the last; F4 reverses.
+        private void CycleSortCore(int direction) {
+            List<int> shown = ShownColumns();
+            int position = shown.IndexOf(_sortColumn);
+            int next = position < 0 ? (direction > 0 ? 0 : shown.Count - 1) : position + direction;
+            _sortColumn = next < 0 || next >= shown.Count ? -1 : shown[next];
+            _descending = false;
+            Rebuild();
+        }
         /// <inheritdoc />
         protected override bool HandleInputCore(InputEvent input, RenderContext context) {
             if (input.Is(ConsoleKey.UpArrow)) { _cursor = Clamp(_cursor - 1); }
@@ -179,6 +197,9 @@ namespace ConsoleMonster.Interactive {
             else if (input.Is(ConsoleKey.PageDown)) { _cursor = Clamp(_cursor + _pageRows); }
             else if (input.Is(ConsoleKey.Home)) { _cursor = 0; }
             else if (input.Is(ConsoleKey.End)) { _cursor = Clamp(_visible.Count - 1); }
+            else if (input.Is(ConsoleKey.F3)) { CycleSortCore(1); }
+            else if (input.Is(ConsoleKey.F3, KeyModifiers.Shift)) { CycleSortCore(-1); }
+            else if (input.Is(ConsoleKey.F4)) { if (_sortColumn < 0) { return false; } _descending = !_descending; Rebuild(); }
             else if (input.Is(ConsoleKey.Spacebar) || input.Is(ConsoleKey.Insert) || input.IsText && input.Char == ' ') {
                 if (_grid.OutputMode != GridSelection.Multiple) { return false; }
                 GridRow? row = CurrentRowCore;

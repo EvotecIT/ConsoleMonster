@@ -21,6 +21,7 @@ ConsoleMonster 2.1.0 is the first version I consider complete: one consistent AP
 - Retained data grids with independent focus, stable row identities, marks, prefix search and lazy cells for visible rows; typed forms, date/range controls, tabs, trees and log viewports. The same controls power grid and object-explorer views. (#79)
 - Terminal handoff with screen, input-mode and focus restoration after exit, startup failure, timeout or cancellation, plus a bounded last-output view. (#79)
 - Interactive apps and controls: `Show-ConsoleApp`, inputs, focus, mouse and key bindings. (#41)
+- The mouse wherever the keyboard works: footer hints, breadcrumbs, scroll bars, toggles, text selection, double-click to open, header sorting and a right-click context menu (also on the Menu key and Shift+F10), in apps and in standalone prompts, menus, grids, the explorer and pagers. `CONSOLEMONSTER_NOMOUSE=1` turns it off everywhere.
 - Large runs: `Start-ConsoleRun`, `Invoke-ConsoleRun` and `Complete-ConsoleRun`, keeping finished items in scrollback while a bounded view shows active work and problems. (#18, #43)
 - `Show-ConsoleObject` for exploring nested objects, `Compare-ConsoleText` for text and file diffs, and `Show-ConsoleOverview` for a host snapshot. (#27, #30, #41)
 - Terminal session recording to asciicast with redaction and chapter markers: `Invoke-ConsoleRecording`, `Stop-ConsoleRecording`, `Add-ConsoleRecordingMarker`, `Export-ConsoleRecording`. (#46)

@@ -102,9 +102,15 @@ namespace ConsoleMonster.Widgets {
                 left.Add(new TextSpan(span.Text, accent.Combine(span.Style)));
             }
             string breadcrumb = " " + InteractiveGlyphs.For(context).Breadcrumb + " ";
-            foreach (string crumb in Crumbs.Count > 0 ? Crumbs : AppScreens.AmbientCrumbs ?? (IEnumerable<string>)Crumbs) {
+            bool ambient = Crumbs.Count == 0 && AppScreens.AmbientCrumbs != null;
+            List<int[]> crumbCells = new List<int[]>();
+            int column = new StyledLine(left).Width;
+            foreach (string crumb in ambient ? AppScreens.AmbientCrumbs! : (IEnumerable<string>)Crumbs) {
                 left.Add(new TextSpan(breadcrumb, quiet));
                 left.Add(new TextSpan(crumb, text));
+                column += DisplayWidth.Measure(breadcrumb);
+                crumbCells.Add(new[] { column, DisplayWidth.Measure(crumb) });
+                column += DisplayWidth.Measure(crumb);
             }
             if (!string.IsNullOrEmpty(Subtitle)) {
                 left.Add(new TextSpan(separator, quiet));
@@ -114,6 +120,14 @@ namespace ConsoleMonster.Widgets {
             }
             StyledLine leftLine = TextWrapper.Truncate(new StyledLine(left), Math.Max(0, (rightLine.Width > 0 ? rightX - 2 : bar.Width - 1) - 1), context.Ellipsis);
             bar.Write(1, 0, leftLine);
+            if (ambient) {
+                // A click on an open screen's crumb returns to it.
+                for (int i = 0; i < crumbCells.Count; i++) {
+                    int width = Math.Min(crumbCells[i][1], leftLine.Width - crumbCells[i][0]);
+                    Action? back = AppScreens.AmbientCrumbAction(i);
+                    if (back != null && width > 0) { PointerTargets.RecordAction(new Rect(bar.Bounds.X + 1 + crumbCells[i][0], bar.Bounds.Y, width, 1), back); }
+                }
+            }
             if (rightLine.Width > 0 && rightX > leftLine.Width + 1) {
                 bar.Write(rightX, 0, rightLine);
             }

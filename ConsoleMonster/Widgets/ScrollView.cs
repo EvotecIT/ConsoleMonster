@@ -33,6 +33,15 @@ namespace ConsoleMonster.Widgets {
         /// <param name="rows">Positive values move down.</param>
         public void ScrollBy(int rows) { lock (_gate) { _offset = (int)Math.Max(0, Math.Min(_maximum, (long)_offset + rows)); } }
         internal void RevealFocus() { lock (_gate) { _revealRequested = true; } }
+        // Whether the last frame drew a scroll bar in the rightmost column (the content was taller than the view).
+        internal bool HasScrollbar { get { lock (_gate) { return _maximum > 0; } } }
+        // A press or drag on the bar: the top of the bar shows the start, the bottom the end.
+        internal void ScrollToFraction(int row, int height) {
+            lock (_gate) {
+                _offset = height <= 1 ? 0 : (int)Math.Max(0, Math.Min(_maximum, Math.Round((double)Math.Max(0, Math.Min(height - 1, row)) * _maximum / (height - 1))));
+                _revealRequested = false;
+            }
+        }
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             Validate();
@@ -44,12 +53,20 @@ namespace ConsoleMonster.Widgets {
             lock (_gate) {
                 Validate();
                 int height = Math.Max(region.Height, Math.Min(MaxContentHeight, Content.Measure(new Constraints(region.Width, MaxContentHeight), context).Height));
+                // Taller content gives up the rightmost column to a scroll bar, which can be clicked and dragged.
+                int width = region.Width;
+                if (height > region.Height && region.Width > 2) {
+                    width = region.Width - 1;
+                    height = Math.Max(region.Height, Math.Min(MaxContentHeight, Content.Measure(new Constraints(width, MaxContentHeight), context).Height));
+                }
                 _maximum = height - region.Height;
                 _offset = Math.Min(_offset, _maximum);
                 InputArrangement.Record(this, region.Bounds);
-                CellBuffer content = new CellBuffer(region.Width, height);
+                Rect view = new Rect(region.Bounds.X, region.Bounds.Y, width, region.Height);
+                CellBuffer content = new CellBuffer(width, height);
                 int before = _offset;
-                using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, region.Bounds)) {
+                int mark = PointerTargets.Mark();
+                using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, view)) {
                     Content.Render(new Region(content), context);
                     Rect? focus = InputArrangement.FocusWithin(Content);
                     InputControl? current = InputArrangement.CurrentFocus;
@@ -63,10 +80,24 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 if (before != _offset) {
-                    content = new CellBuffer(region.Width, height);
-                    using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, region.Bounds)) { Content.Render(new Region(content), context); }
+                    content = new CellBuffer(width, height);
+                    PointerTargets.Rewind(mark);
+                    using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, view)) { Content.Render(new Region(content), context); }
                 }
-                region.Buffer.Blit(content, 0, _offset, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
+                region.Buffer.Blit(content, 0, _offset, width, region.Height, region.Bounds.X, region.Bounds.Y);
+                if (width < region.Width) { DrawScrollbar(region, context); }
+            }
+        }
+
+        private void DrawScrollbar(Region region, RenderContext context) {
+            InteractiveGlyphs glyphs = InteractiveGlyphs.For(context);
+            int height = region.Height;
+            int total = height + _maximum;
+            int thumb = Math.Max(1, height * height / total);
+            int top = (int)Math.Round((height - thumb) * (_offset / (double)Math.Max(1, _maximum)));
+            for (int y = 0; y < height; y++) {
+                bool onThumb = y >= top && y < top + thumb;
+                region.Put(region.Width - 1, y, onThumb ? glyphs.ScrollThumb : glyphs.ScrollTrack, context.Style(onThumb ? Styling.ThemeToken.Muted : Styling.ThemeToken.Subtle));
             }
         }
         private void Validate() { if (MaxContentHeight < 1) { throw new InvalidOperationException("MaxContentHeight must be positive."); } }

@@ -40,6 +40,7 @@ namespace ConsoleMonster.Interactive {
                 try {
                     // The view applies the remembered choices, then options.Preset, then values the app applied before.
                     view = new FormHostView(form, labels, store, options.RememberLastChoices, options, surface, lease.Source, context, cancellationToken);
+                    using IDisposable? mouse = InteractionLoop.OpenMouse(interactive, profile, lease.Source, surface, interactive.Surface != null);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     FormResult result = view.Result ?? new FormResult(false, form.GetValues(), form.BuildCommand(), null);
                     result.RunResult = view.RunResult;

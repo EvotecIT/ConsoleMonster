@@ -74,9 +74,53 @@ namespace ConsoleMonster.Interactive {
             if (KeyMapOpen) {
                 List<KeyBinding> bindings = new List<KeyBinding>();
                 AddBindings(bindings, frame);
-                return new Overlay(content, new KeyMapWidget(bindings, Labels), dim: !frame.Inline) { Inline = frame.Inline };
+                content = new Overlay(content, new KeyMapWidget(bindings, Labels), dim: !frame.Inline) { Inline = frame.Inline };
             }
-            return content;
+            return new Collecting(content, _targets);
+        }
+
+        private readonly PointerTargets _targets = new PointerTargets();
+        private readonly ClickCounter _clicks = new ClickCounter();
+
+        // Records the pointer targets (footer hints, lists) while the frame renders.
+        private sealed class Collecting : IWidget {
+            private readonly IWidget _content;
+            private readonly PointerTargets _targets;
+            internal Collecting(IWidget content, PointerTargets targets) { _content = content; _targets = targets; }
+            public Size Measure(Constraints constraints, RenderContext context) => _content.Measure(constraints, context);
+            public void Render(Region region, RenderContext context) { using (_targets.Collect()) { _content.Render(region, context); } }
+        }
+
+        /// <summary>
+        /// A pointer event, in frame coordinates. A click on a footer hint presses its key, a list takes clicks, drags and
+        /// the wheel on its rows, and a double click on a row presses the list's key (Enter, or Space where it toggles);
+        /// anything else goes to the view's own handlers, then the wheel to the arrow keys. While the key map shows, a
+        /// click closes it like a key.
+        /// </summary>
+        private void HandleMouse(InputEvent input) {
+            int clicks = _clicks.Count(input);
+            if (KeyMapOpen) {
+                if (input.MouseAction == MouseAction.Down) { KeyMapOpen = false; }
+                return;
+            }
+            if (_targets.Route(input, clicks, out KeyChord? key)) {
+                if (key.HasValue) { _clicks.Reset(); Handle(key.Value.ToInput()); }
+                return;
+            }
+            // Views with pointer handling of their own (a grid, a date picker) get the rest.
+            if (HandlePriorityInput(input) || HandleUnbound(input)) { return; }
+            ScrollWithArrows(input);
+        }
+
+        // The wheel goes the way the arrow keys do in views with nothing of their own to scroll.
+        private bool ScrollWithArrows(InputEvent input) {
+            if (input.MouseAction != MouseAction.Wheel || input.WheelDelta == 0 || _frame == null) { return false; }
+            InputEvent arrow = InputEvent.Press(input.WheelDelta > 0 ? ConsoleKey.UpArrow : ConsoleKey.DownArrow);
+            List<KeyBinding> bindings = new List<KeyBinding>();
+            AddBindings(bindings, _frame);
+            bool moved = false;
+            for (int i = 0; i < 3; i++) { moved |= KeyFooter.Dispatch(bindings, arrow); }
+            return moved;
         }
 
         protected abstract IWidget Build(ViewFrame frame);
@@ -102,6 +146,10 @@ namespace ConsoleMonster.Interactive {
 
         public void Handle(InputEvent input) {
             if (_frame == null) {
+                return;
+            }
+            if (input.Kind == InputEventKind.Mouse) {
+                HandleMouse(input);
                 return;
             }
             if (KeyMapOpen) {

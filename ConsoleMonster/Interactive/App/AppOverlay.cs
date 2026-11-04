@@ -48,6 +48,7 @@ namespace ConsoleMonster.Interactive {
             // A frame reconciles focus only against the focus the snapshot it draws was published with.
             Snapshot? snapshot = _carrier.Content as Snapshot;
             _viewport.BeginFrame(snapshot?.FocusVersion);
+            using (Targets.Collect())
             using (AppScreens.Scope(snapshot?.View))
             using (FooterBar.FrameHints(snapshot?.Footer, snapshot?.Hints))
             using (LayoutNotes.Frame()) { _content.Render(region, context); }
@@ -62,15 +63,40 @@ namespace ConsoleMonster.Interactive {
                 using (Overlay.Painting()) { popup.Content.Render(area, context); }
                 placed.Add(new Placed(popup.Owner, place, popup.Anchor));
             }
+            AppContextMenu? menu;
+            lock (_gate) { menu = _menu; }
+            if (menu != null) {
+                Rect anchor = new Rect(Math.Max(body.Bounds.X, Math.Min(menu.Column, body.Bounds.Right - 1)), Math.Max(body.Bounds.Y, Math.Min(menu.Row, body.Bounds.Bottom - 1)), 1, 1);
+                Size size = menu.Measure(new Constraints(body.Width, body.Height), context);
+                // Below and to the right of the pointer when it fits, otherwise moved back inside the body.
+                int x = Math.Max(body.Bounds.X, Math.Min(anchor.X, body.Bounds.Right - size.Width));
+                int y = anchor.Y + size.Height <= body.Bounds.Bottom ? anchor.Y : Math.Max(body.Bounds.Y, anchor.Y + 1 - size.Height);
+                Rect place = new Rect(x, y, size.Width, Math.Min(size.Height, body.Bounds.Bottom - y));
+                Region area = region.Sub(place.X - region.Bounds.X, place.Y - region.Bounds.Y, place.Width, place.Height);
+                area.Fill(Style.Plain);
+                using (Overlay.Painting()) { menu.Render(area, context); }
+                menu.Place(place);
+            }
             IWidget? dialog = _actions.ModalLayer(context, body.Width, body.Height, out int maxWidth);
-            if (dialog != null) { Overlay.Paint(body, dialog, context, maxWidth, false, true); placed.Clear(); }
+            if (dialog != null) { Overlay.Paint(body, dialog, context, maxWidth, false, true); placed.Clear(); Targets.CoverBody(body.Bounds); }
             Toast? toast;
             lock (_gate) { _popups.Clear(); _popups.AddRange(placed); toast = _toast; }
             if (toast != null) {
+                Targets.CoverRows(region.Bounds.Y + region.Height - 1);
                 Region row = region.Sub(0, region.Height - 1, region.Width, 1);
                 row.Fill(Style.Plain);
                 new FooterBar { Message = toast.Line(context, Style.Plain) }.Render(row, context);
             }
+        }
+
+        /// <summary>The footer hints and breadcrumbs the last frame drew.</summary>
+        internal PointerTargets Targets { get; } = new PointerTargets(regions: false);
+
+        private AppContextMenu? _menu;
+
+        internal AppContextMenu? Menu {
+            get { lock (_gate) { return _menu; } }
+            set { lock (_gate) { _menu = value; } }
         }
 
         internal void ShowToast(Toast toast) {

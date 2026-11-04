@@ -75,7 +75,8 @@ namespace ConsoleMonster.Interactive {
                     live.Output = new AppCaptureOutput(interactive.Capture, profile);
                     live.WindowSource = () => Volatile.Read(ref captureWindow);
                 }
-                using (MouseReporting? mouse = MouseReporting.Open(settings.Mouse, interactive, profile, lease!.Source, live.Output != null))
+                bool pointer = settings.Mouse && interactive.ResolveMouse();
+                using (MouseReporting? mouse = MouseReporting.Open(pointer, interactive, profile, lease!.Source, live.Output != null))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Register(app.Log);
                     session.Start();
@@ -91,7 +92,7 @@ namespace ConsoleMonster.Interactive {
                                 if (interactive.Capture != null && input.Kind == InputEventKind.Resize && input.Width > 0 && input.Height > 0) {
                                     Interlocked.Exchange(ref captureWindow, new[] { 0, 0, input.Width, input.Height });
                                 }
-                                app.Handle(input, settings.Mouse);
+                                app.Handle(input, pointer);
                                 // Drain pipeline-owned callbacks before another event can capture an action's selection.
                                 settings.ProcessEvents?.Invoke(values);
                                 app.Refresh(session);

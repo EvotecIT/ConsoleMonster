@@ -131,7 +131,7 @@ namespace ConsoleMonster.Interactive {
                     owns = true;
                 }
                 try {
-                    using MouseReporting? mouse = MouseReporting.Open(true, interactive, profile, lease.Source, interactive.Surface != null);
+                    using IDisposable? mouse = InteractionLoop.OpenMouse(interactive, profile, lease.Source, surface, interactive.Surface != null);
                     using GridView view = new GridView(grid, options, labels, cancellationToken, interactive.ActionClock);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     surface.Complete(view.Summary(context));

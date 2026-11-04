@@ -134,6 +134,8 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Handles pointer input while the same value/render lock is held. Coordinates are in the control's arranged buffer.</summary>
         protected virtual bool HandlePointerCore(InputEvent input, RenderContext context) => false;
         internal virtual void CancelPointer() { }
+        // Lists, trees and grids: a double click on a row presses Enter, so it opens the row the way the keyboard does.
+        internal virtual bool OpensOnDoubleClick => false;
 
         // A pointer event inside this control's popup on the app overlay layer, in frame coordinates.
         internal bool HandlePopupInput(InputEvent input, RenderContext context) {

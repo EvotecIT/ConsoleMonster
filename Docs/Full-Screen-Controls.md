@@ -216,6 +216,28 @@ addressed to its key, the route `Write-ConsoleLogEntry -WidgetId <key> -Tag <sou
 full-screen `Watch-ConsoleLog` view runs on the same follow, pause and filter model. No terminal
 output bypasses the live frame.
 
+## The mouse
+
+Where the terminal reports the mouse, it works wherever the keyboard does, and every pointer action has a key:
+
+| Pointer | Does what this key does |
+|---|---|
+| Click a footer hint | Presses its key. |
+| Click a breadcrumb in a `HeaderBar` | Returns to that screen, as Escape does one step at a time. |
+| Click or drag a `ScrollView` scroll bar | Scrolls there (the bar appears when the content is taller than the view). |
+| Click a `Toggle` | Space. |
+| Click in a `TextInput` or text area; drag | Places the caret; selects, as Shift with the arrows does. Typing replaces the selection. |
+| Double-click a row in a `DataGrid`, `TreeSelect` or list `Select` | Enter, so an `open` binding on the input opens the row. |
+| Click a `DataGrid` column header | F3 sorts by the next column, F4 reverses; a second click on the same header reverses. |
+| Right-click | The Menu key or Shift+F10: a context menu listing what the keys reach now (the focused input's bindings, the screen's and the app's), each with its key. |
+
+Standalone prompts, menus, the palette, `Show-ConsoleGrid`, `Show-ConsoleObject`, forms and the document pager take
+clicks on their footer hints and lists, the wheel and double-clicks the same way; `Show-ConsoleHelp` pages with the
+wheel or a click. An inline prompt takes the mouse on Windows only, where its position on the screen can be read
+without a terminal query. `Show-ConsoleApp -NoMouse` (`ConsoleAppOptions.Mouse = false`) turns it off for one app;
+`InteractiveOptions.Mouse = false` or `CONSOLEMONSTER_NOMOUSE=1` turns it off everywhere and leaves selection and
+scrollback to the terminal. Recordings, exports and redirected or CI output never enable mouse reporting.
+
 Run `dotnet run --project ConsoleMonster.Examples --framework net8.0 --
 fullscreen-controls` for the service-browser and operations-calendar example.
 It uses fictional records and does not modify files or services. At 80 columns

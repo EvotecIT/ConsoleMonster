@@ -26,11 +26,38 @@ namespace ConsoleMonster.Interactive {
                 _text.Clear();
                 _text.Append(Clean(value ?? string.Empty));
                 Caret = _text.Length;
+                Anchor = -1;
                 PreferredColumn = -1;
             }
         }
 
         public int Caret { get; private set; }
+
+        /// <summary>Where the selection started (Shift with a movement key, or a drag), or -1.</summary>
+        public int Anchor { get; private set; } = -1;
+
+        public bool HasSelection => Anchor >= 0 && Anchor != Caret;
+        public int SelectionStart => HasSelection ? Math.Min(Anchor, Caret) : Caret;
+        public int SelectionEnd => HasSelection ? Math.Max(Anchor, Caret) : Caret;
+
+        /// <summary>Moves the caret to a pointer position; with <paramref name="extend"/> the selection grows to it.</summary>
+        internal void PlaceCaret(int index, bool extend) {
+            index = Math.Max(0, Math.Min(_text.Length, index));
+            if (index > 0 && index < _text.Length && char.IsLowSurrogate(_text[index]) && char.IsHighSurrogate(_text[index - 1])) { index--; }
+            if (extend) { if (Anchor < 0) { Anchor = Caret; } }
+            else { Anchor = index; }
+            Caret = index;
+            PreferredColumn = -1;
+        }
+
+        internal void ClearSelection() => Anchor = -1;
+
+        private bool DeleteSelection() {
+            if (!HasSelection) { Anchor = -1; return false; }
+            Delete(SelectionStart, SelectionEnd);
+            Anchor = -1;
+            return true;
+        }
 
         public int Length => _text.Length;
 
@@ -61,6 +88,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Applies an edit or caret movement; returns true when the event was one.</summary>
         public bool Handle(InputEvent e) {
             if (e.Kind == InputEventKind.Paste) {
+                DeleteSelection();
                 Insert(Clean(e.Text ?? string.Empty));
                 return true;
             }
@@ -69,8 +97,27 @@ namespace ConsoleMonster.Interactive {
             }
             bool ctrl = (e.Modifiers & KeyModifiers.Control) != 0;
             if (e.IsText && !ctrl) {
+                DeleteSelection();
                 Insert(e.Char.ToString());
                 return true;
+            }
+            // Shift with a movement key selects (as dragging does); a plain movement drops the selection, and a deletion
+            // removes the selected text first.
+            switch (e.Key) {
+                case ConsoleKey.LeftArrow: case ConsoleKey.RightArrow: case ConsoleKey.Home: case ConsoleKey.End:
+                case ConsoleKey.UpArrow: case ConsoleKey.DownArrow: case ConsoleKey.PageUp: case ConsoleKey.PageDown:
+                    if ((e.Modifiers & KeyModifiers.Shift) != 0) { if (Anchor < 0) { Anchor = Caret; } }
+                    else { Anchor = -1; }
+                    break;
+                case ConsoleKey.Backspace: case ConsoleKey.Delete:
+                    if (DeleteSelection()) { return true; }
+                    break;
+                case ConsoleKey.Enter when !ctrl:
+                    DeleteSelection();
+                    break;
+                default:
+                    Anchor = -1;
+                    break;
             }
             switch (e.Key) {
                 case ConsoleKey.Enter when !ctrl:

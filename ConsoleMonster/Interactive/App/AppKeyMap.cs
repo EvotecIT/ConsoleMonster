@@ -51,9 +51,24 @@ namespace ConsoleMonster.Interactive {
         /// <see cref="KeyBinding.Order"/>, with the key-map binding kept last.
         /// </summary>
         internal IReadOnlyList<KeyHint> Hints(IEnumerable<KeyBinding> host, ICollection<KeyChord> hostFirst, bool scoped, out bool keepLast) {
+            List<Entry> entries = Entries(host, hostFirst, scoped, true);
+            List<KeyHint> hints = entries.Where(entry => entry.Binding.Order < KeyFooter.HelpOrder).OrderBy(entry => entry.Binding.Order).Select(Hint).ToList();
+            Entry? help = entries.LastOrDefault(entry => entry.Binding.Order >= KeyFooter.HelpOrder);
+            if (help != null) { hints.Add(Hint(help)); }
+            keepLast = help != null;
+            return hints;
+        }
+
+        /// <summary>
+        /// The context menu: every labelled binding that a key still reaches, nearest scope first, with the key that reaches
+        /// it. Unlike the footer it lists bindings kept out of the footer too.
+        /// </summary>
+        internal IReadOnlyList<Entry> MenuEntries(IEnumerable<KeyBinding> host, ICollection<KeyChord> hostFirst) =>
+            Entries(host, hostFirst, true, false).Where(entry => entry.Chord.HasValue).ToList();
+
+        private List<Entry> Entries(IEnumerable<KeyBinding> host, ICollection<KeyChord> hostFirst, bool scoped, bool footer) {
             HashSet<KeyChord> claimed = new HashSet<KeyChord>();
-            List<KeyValuePair<KeyBinding, string>> shown = new List<KeyValuePair<KeyBinding, string>>();
-            KeyValuePair<KeyBinding, string>? help = null;
+            List<Entry> shown = new List<Entry>();
             InputControl? focused = scoped ? Focused() : null;
             void Consider(KeyBinding binding, bool hostOwned, bool beforeInput) {
                 List<KeyChord> claims = binding.Claims.ToList();
@@ -61,10 +76,9 @@ namespace ConsoleMonster.Interactive {
                     && (hostOwned || !hostFirst.Contains(chord))
                     && (beforeInput || focused == null || !focused.Takes(chord, _context))).ToList();
                 foreach (KeyChord chord in free) { claimed.Add(chord); }
-                if ((free.Count == 0 && binding.Chords.Count > 0) || !binding.InFooter || string.IsNullOrEmpty(binding.Label)) { return; }
+                if ((free.Count == 0 && binding.Chords.Count > 0) || (footer && !binding.InFooter) || string.IsNullOrEmpty(binding.Label)) { return; }
                 string keys = free.Count == claims.Count || binding.KeyText != null ? binding.DisplayKeys() : KeyBinding.Display(free[0]);
-                if (binding.Order >= KeyFooter.HelpOrder) { help = new KeyValuePair<KeyBinding, string>(binding, keys); }
-                else { shown.Add(new KeyValuePair<KeyBinding, string>(binding, keys)); }
+                shown.Add(new Entry(binding, keys, free.Count > 0 ? free[0] : (KeyChord?)null));
             }
             if (focused != null) {
                 foreach (KeyBinding binding in focused.Bindings) { Consider(binding, false, true); }
@@ -74,10 +88,7 @@ namespace ConsoleMonster.Interactive {
             }
             if (scoped) { foreach (KeyBinding binding in Later()) { Consider(binding, false, false); } }
             foreach (KeyBinding binding in host) { Consider(binding, true, false); }
-            List<KeyHint> hints = shown.OrderBy(pair => pair.Key.Order).Select(pair => Hint(pair.Key, pair.Value)).ToList();
-            if (help.HasValue) { hints.Add(Hint(help.Value.Key, help.Value.Value)); }
-            keepLast = help.HasValue;
-            return hints;
+            return shown;
         }
 
         // Focus keys and Ctrl+C reach the host before any binding, so a binding on them could never run.
@@ -94,7 +105,15 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private static KeyHint Hint(KeyBinding binding, string keys) => new KeyHint(keys, binding.Label, binding.IsAvailable);
+        private static KeyHint Hint(Entry entry) => new KeyHint(entry.Keys, entry.Binding.Label, entry.Binding.IsAvailable, entry.Chord);
+
+        /// <summary>A binding with the keys shown for it and the first key that still reaches it.</summary>
+        internal sealed class Entry {
+            internal Entry(KeyBinding binding, string keys, KeyChord? chord) { Binding = binding; Keys = keys; Chord = chord; }
+            internal KeyBinding Binding { get; }
+            internal string Keys { get; }
+            internal KeyChord? Chord { get; }
+        }
 
         private InputControl? Focused() {
             InputControl? current = _focus.Current;

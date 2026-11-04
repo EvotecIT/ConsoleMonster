@@ -52,8 +52,11 @@ namespace ConsoleMonster.Input {
             return IsCharacter ? input.IsChar(Char) || KeyLayout.SameKey(Char, input) : input.Key == Key && input.Modifiers == Modifiers;
         }
 
+        // The key press this chord matches, so a click on a footer hint or menu entry goes the keyboard's way.
+        internal InputEvent ToInput() => IsCharacter ? InputEvent.Character(Char) : InputEvent.Press(Key, Modifiers);
+
         /// <summary>
-        /// Parses <c>Ctrl+K</c>, <c>Alt+Enter</c>, <c>Shift+Tab</c>, <c>F5</c>, <c>PgDn</c>, <c>Space</c> or a single
+        /// Parses <c>Ctrl+K</c>,<c>Alt+Enter</c>, <c>Shift+Tab</c>, <c>F5</c>, <c>PgDn</c>, <c>Space</c> or a single
         /// character such as <c>?</c>. Modifier and key names are case-insensitive.
         /// </summary>
         /// <param name="text">The text.</param>

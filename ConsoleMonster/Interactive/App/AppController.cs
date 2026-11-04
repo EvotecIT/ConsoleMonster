@@ -28,6 +28,8 @@ namespace ConsoleMonster.Interactive {
         private bool _disposed;
         private readonly AppCommandHost _actions;
         private InputControl? _pointerCapture;
+        private InputArrangement.ScrollbarDrag? _scrollCapture;
+        private readonly ClickCounter _clicks = new ClickCounter();
         private volatile bool _tooSmall;
         private AppScreens? _screens;
         private readonly AppKeyMap _keys;
@@ -100,25 +102,60 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             bool pointerHandled = false;
-            if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) { _pointerCapture?.CancelPointer(); _pointerCapture = null; }
-            if ((_actions.HasCommands || _actions.HasModal) && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
+            int clicks = mouse ? _clicks.Count(input) : 0;
+            if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) {
+                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _overlay.Targets.Cancel(); _clicks.Reset();
+                if (_overlay.Menu != null) { _overlay.Menu = null; Invalidate(); }
+            }
+            if (input.Kind == InputEventKind.Mouse && !mouse) { return; }
+            if (_overlay.Menu is AppContextMenu menu && (input.Kind == InputEventKind.Key || input.Kind == InputEventKind.Mouse)) {
+                KeyChord? chosen = input.Kind == InputEventKind.Key ? menu.HandleKey(input, out bool close, out bool used) : menu.HandlePointer(input, out close, out used);
+                if (close) { _overlay.Menu = null; }
+                Invalidate();
+                if (chosen.HasValue) { HandleCore(chosen.Value.ToInput(), mouse, ref reachedKeys); return; }
+                if (used) { return; }
+            }
+            // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && _overlay.Targets.Route(input, clicks, out KeyChord? pressed)) {
+                Invalidate();
+                if (pressed.HasValue) { HandleCore(pressed.Value.ToInput(), mouse, ref reachedKeys); }
+                return;
+            }
+            if ((_actions.HasCommands || _actions.HasModal) && _actions.Handle(input)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 3) {
+                _viewport.FocusAt(input.Column, input.Row);
+                OpenMenu(input.Column, input.Row);
+                return;
+            }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
-            if (input.Kind == InputEventKind.Mouse && mouse && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
-            if ((input.Kind != InputEventKind.Mouse || mouse) && _viewport.HandleContainerInput(input)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (_viewport.HandleContainerInput(input)) { Invalidate(); return; }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
             else if (input.Kind == InputEventKind.Resize) { PrepareFrame(input.Width, input.Height); }
             else if (AppHostKeys.Match(_options.Keys.NextFocus, input)) { _focus.MoveNext(); }
             else if (AppHostKeys.Match(_options.Keys.PreviousFocus, input)) { _focus.MovePrevious(); }
             else if (input.Kind == InputEventKind.Mouse) {
-                if (mouse) {
-                    if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
-                    InputControl? target = _pointerCapture ?? _focus.Current;
-                    if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { Invalidate(); return; }
-                    if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
-                    if (input.MouseAction == MouseAction.Up) { _pointerCapture = null; }
+                if (_scrollCapture != null || input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _pointerCapture == null && (_scrollCapture = _viewport.ScrollbarAt(input)) != null) {
+                    // Dragging a scroll bar keeps scrolling its view until the button is released.
+                    if ((input.HeldButtons & 1) != 0 || input.MouseAction == MouseAction.Down) { _scrollCapture.DragScrollbar(input.Row); }
+                    if (input.MouseAction == MouseAction.Up || (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) == 0)) { _scrollCapture = null; }
+                    Invalidate();
+                    return;
                 }
+                if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
+                InputControl? target = _pointerCapture ?? _focus.Current;
+                if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { Invalidate(); return; }
+                if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
+                // A double click opens the row, as Enter does: the input's own bindings first, then the input, then the
+                // screen's and the app's bindings. Focus does not move on, as it would after an unused Enter.
+                if (clicks == 2 && input.MouseButton == 1 && pointerHandled && target != null && target.OpensOnDoubleClick && ReferenceEquals(target, _focus.Current)) {
+                    InputEvent enter = InputEvent.Press(ConsoleKey.Enter);
+                    if (!_keys.DispatchFocused(enter) && !target.HandleInput(enter, _context)) { _keys.Dispatch(enter); }
+                    reachedKeys = true;
+                }
+                if (input.MouseAction == MouseAction.Up) { _pointerCapture = null; }
             } else {
                 InputControl? current = _focus.Current;
                 if (current != null && !current.Enabled) { _focus.MoveNext(); current = _focus.Current; }
@@ -127,10 +164,24 @@ namespace ConsoleMonster.Interactive {
                 reachedKeys = handled;
                 if (!handled) { handled = current?.HandleInput(input, _context) ?? false; }
                 if (!handled) { handled = _keys.Dispatch(input); reachedKeys = true; }
+                // The Menu key and Shift+F10 open the context menu at the focused input, unless a binding took them.
+                if (!handled && AppContextMenu.IsOpenKey(input) && !_actions.HasModal) {
+                    Rect? at = current == null ? null : _viewport.FrameBounds(current);
+                    OpenMenu(at?.X + 1 ?? 0, at?.Y + 1 ?? 0);
+                    handled = true;
+                }
                 if (!handled && AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
                 else if (!handled && input.Is(ConsoleKey.Enter)) { _focus.MoveNext(); }
             }
             if (input.Kind != InputEventKind.Mouse || input.MouseAction != MouseAction.Move || input.HeldButtons != 0 || pointerHandled) { Invalidate(); }
+        }
+
+        // Lists what the keys reach right now; an empty menu does not open.
+        private void OpenMenu(int column, int row) {
+            if (_actions.HasModal) { return; }
+            AppContextMenu menu = new AppContextMenu(_keys.MenuEntries(HostBindings(), HostFirst()), column, row);
+            if (!menu.IsEmpty) { _overlay.Menu = menu; }
+            Invalidate();
         }
 
         internal void Refresh(LiveSession? session) {

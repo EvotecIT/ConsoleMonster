@@ -125,7 +125,12 @@ namespace ConsoleMonster.Interactive {
             private readonly ExplorerView _view;
             public ExplorerBody(ExplorerView view) { _view = view; }
             public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? Math.Max(1, _view._tree.VisibleCount) : constraints.MaxHeight);
-            public void Render(Region region, RenderContext context) => _view._tree.RenderBody(region, context);
+            public void Render(Region region, RenderContext context) {
+                _view._tree.RenderBody(region, context);
+                // Rows take clicks and the wheel; a double click drills in, as Enter does.
+                TreeSelect tree = _view._tree;
+                PointerTargets.RecordRegion(region.Bounds, input => tree.HandleInput(input, context), new KeyChord(ConsoleKey.Enter));
+            }
         }
 
         private sealed class ExplorerSnapshot : IWidget {

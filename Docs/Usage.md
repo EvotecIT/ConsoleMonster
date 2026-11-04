@@ -442,6 +442,7 @@ Prompts asked from a menu action appear in front of the app.
 | CI, redirected input, `pwsh -NonInteractive`, `CONSOLEMONSTER_NONINTERACTIVE=1` | Return the default, or fail: *Prompt 'Environment' needs a value in a non-interactive session; pass -Environment or set a default.* |
 | Remoting, the ISE | Ask through the host: numbered choices and `PromptForChoice`. |
 | `CONSOLEMONSTER_ACCESSIBLE=1` | Plain numbered questions with no redraws; every answer is confirmed as text. |
+| `CONSOLEMONSTER_NOMOUSE=1` | The usual prompts, with the mouse left to the terminal (selection, scrollback). `InteractiveOptions.Mouse = false` does the same in C#. |
 
 Esc and Ctrl+C end a prompt with a `PromptCanceled` error (a typed confirmation answers `$false` instead).
 

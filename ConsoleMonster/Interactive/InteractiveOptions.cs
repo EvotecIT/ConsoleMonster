@@ -24,6 +24,15 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Treats the session as non-interactive (PowerShell's <c>-NonInteractive</c>): prompts use defaults or fail.</summary>
         public bool NonInteractive { get; set; }
 
+        /// <summary>
+        /// Whether prompts, menus, pagers and apps take mouse input where the terminal reports it (default true). False,
+        /// or <c>CONSOLEMONSTER_NOMOUSE=1</c>, leaves the mouse to the terminal (selection, scrollback); every action keeps
+        /// its key.
+        /// </summary>
+        public bool Mouse { get; set; } = true;
+
+        internal bool ResolveMouse() => Mouse && !IsSet("CONSOLEMONSTER_NOMOUSE");
+
         /// <summary>An input source instead of the console (a script in tests and demos).</summary>
         public IInputSource? Input {
             get {

@@ -61,6 +61,7 @@ namespace ConsoleMonster.Interactive {
                 surface ??= PromptHost.Resolve(context, actual.ResolveTarget()) ?? new ScreenSurface(profile, actual.ResolveSurfaceWriter(), actual.ResolveSurfaceSize());
                 try {
                     ExplorerView view = new ExplorerView(this, actual.ResolveLabels());
+                    using IDisposable? mouse = InteractionLoop.OpenMouse(actual, profile, lease.Source, surface, actual.Surface != null);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken);
                     surface.Complete(null);
                     return view.Accepted ? view.Selected : null;
