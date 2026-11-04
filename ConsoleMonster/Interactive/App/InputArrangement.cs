@@ -30,6 +30,14 @@ namespace ConsoleMonster.Interactive {
             Rect anchor = entry.Bounds.Intersect(entry.Clip);
             if (anchor.Width > 0 && anchor.Height > 0) { scope.Owner._popups.Add(new Popup(owner, popup, anchor)); }
         }
+        // A one-row bar painted over the control's last row (a find bar): anchored to the row above it, so the overlay
+        // places it below that row, or above it when the control sits on the last body row.
+        internal static void RecordBar(InputControl owner, IWidget bar) {
+            Scope? scope = _current;
+            if (scope == null || !scope.Owner._inputs.TryGetValue(owner, out Entry? entry) || entry.Bounds.Height <= 0) { return; }
+            Rect anchor = new Rect(entry.Bounds.X, entry.Bounds.Y + Math.Max(0, entry.Bounds.Height - 2), entry.Bounds.Width, 1).Intersect(entry.Clip);
+            if (anchor.Width > 0 && anchor.Height > 0) { scope.Owner._popups.Add(new Popup(owner, bar, anchor)); }
+        }
         internal static void Record(IAppInputContainer container) => _current?.Owner._containers.Add(container);
         internal bool HandleContainerInput(InputEvent input, InputControl? focused) {
             for (int i = _containers.Count - 1; i >= 0; i--) { if (_containers[i].HandleContainerInput(input, focused)) { return true; } }

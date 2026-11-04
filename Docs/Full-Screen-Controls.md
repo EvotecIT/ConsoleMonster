@@ -139,6 +139,37 @@ PowerShell composes the same pages with title/content records inside
 `New-ConsoleTabs -SelectedIndex 0 -Content { @{ Title = 'Files'; Content = $files } }`,
 where `$files` is the page's widget.
 
+## Folding, panes and find
+
+`Collapsible` is a section with a header row: ▸/▾ in the Full tier, ►/▼ in Basic
+and `+`/`-` in ASCII. Enter, Space, Left/Right and a click on the header fold and
+unfold it, and its value in app state is whether it is expanded. While it is
+collapsed the header shows `Summary` ("Examples (2)") and the inputs inside it
+leave the focus order, like an inactive tab. An `Accordion` groups sections and
+keeps one open; while a header has focus, `+` expands every section and `-`
+folds them all, and the footer lists both keys.
+
+```powershell
+New-ConsoleCollapsible -Accordion -Content {
+    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
+    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content { 'Get-Service -Name win*' }
+}
+```
+
+`Splitter` puts two panes side by side, or top and bottom with `Vertical`. Drag
+the divider with the mouse, or press Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down
+when vertical) while an input in either pane has focus and leaves those keys
+free. Text editing takes precedence; dragging remains available. Give it a `Key` inside a
+screen stack and the screen keeps its ratio, also when a binding rebuilds the
+splitter. PowerShell uses `New-ConsoleSplitter -First { … } -Second { … }`.
+
+`LogViewport`, `TextArea` and the document pager have a find bar. Press `/` in a
+log or the pager (Ctrl+F in a text area, where `/` is typing) and type: every
+match is highlighted, the bar shows "2 of 5", Enter and Shift+Enter move to the
+next and previous match, and Escape closes the bar. In a log or the pager the
+matches stay highlighted after the bar closes, so `n` and `N` keep moving, and a
+second Escape clears them. A query with a capital letter matches case.
+
 ## Forms and background operations
 
 `AppDialogs.Show` opens a `FormDialog<T>` inside the running host. Its content

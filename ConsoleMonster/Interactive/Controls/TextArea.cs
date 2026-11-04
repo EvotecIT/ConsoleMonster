@@ -15,6 +15,7 @@ namespace ConsoleMonster.Interactive {
         private readonly TextAreaEditor _editor;
         private readonly CaretSlot? _caret;
         private int _layoutWidth;
+        private readonly FindBar? _find;
 
         /// <summary>Creates a named multiline input using the shared text-area editor.</summary>
         /// <param name="key">The application-state key.</param>
@@ -22,6 +23,7 @@ namespace ConsoleMonster.Interactive {
         public TextArea(string key, string? value = null) : base(key) {
             _editor = new TextAreaEditor(value);
             _caret = new CaretSlot();
+            _find = new FindBar();
         }
 
         internal TextArea(TextAreaEditor editor, CaretSlot? caret) : base(nameof(TextArea), false) {
@@ -40,7 +42,10 @@ namespace ConsoleMonster.Interactive {
         public int ScrollRow { get; set; }
 
         /// <summary>The multiline text value.</summary>
-        public string Value { get => Read(() => _editor.Text); set => Change(() => _editor.Text = value); }
+        public string Value { get => Read(() => _editor.Text); set => Change(() => {
+            _editor.Text = value;
+            if (_find != null && _find.Active) { _find.Search(Lines(), CaretLine()); }
+        }); }
 
         /// <summary>The maximum text length, in UTF-16 units.</summary>
         public int MaxLength { get => Read(() => _editor.MaxLength); set => Change(() => _editor.MaxLength = value); }
@@ -50,7 +55,7 @@ namespace ConsoleMonster.Interactive {
         /// <inheritdoc />
         protected override object ReadValueCore() => _editor.Text;
 
-        internal override bool Takes(Input.KeyChord chord, RenderContext context) => LineEditor.Takes(chord) || chord.Key == ConsoleKey.Enter || chord.Key == ConsoleKey.UpArrow
+        internal override bool Takes(Input.KeyChord chord, RenderContext context) => (_find != null && (Read(() => _find.Open) && FindBar.Takes(chord) || chord.Equals(new Input.KeyChord(ConsoleKey.F, Input.KeyModifiers.Control)))) || LineEditor.Takes(chord) || chord.Key == ConsoleKey.Enter || chord.Key == ConsoleKey.UpArrow
             || chord.Key == ConsoleKey.DownArrow || chord.Key == ConsoleKey.PageUp || chord.Key == ConsoleKey.PageDown;
 
         /// <inheritdoc />
@@ -60,6 +65,19 @@ namespace ConsoleMonster.Interactive {
             if (_layoutWidth <= 0 || _editor.Glyphs != context.Glyphs.Tier) {
                 _layoutWidth = _layoutWidth > 0 ? _layoutWidth : Math.Max(1, context.Profile.Width - 6);
                 _editor.Layout(_layoutWidth, context.Glyphs.Tier);
+            }
+            if (_find != null) {
+                if (_find.Open) {
+                    switch (_find.Handle(input)) {
+                        case FindKey.Edited: _find.Search(Lines(), CaretLine()); Reveal(); return true;
+                        case FindKey.Next: if (_find.Step(1)) { Reveal(); } return true;
+                        case FindKey.Previous: if (_find.Step(-1)) { Reveal(); } return true;
+                        case FindKey.Closed: _find.Close(false); return true;
+                        case FindKey.Kept: return true;
+                        default: return false;
+                    }
+                }
+                if (input.Is(ConsoleKey.F, Input.KeyModifiers.Control)) { _find.Start(); _find.Search(Lines(), CaretLine()); return true; }
             }
             return _editor.Handle(input);
         }
@@ -115,11 +133,43 @@ namespace ConsoleMonster.Interactive {
             return end;
         }
 
+        internal override void AddOwnKeys(List<KeyBinding> keys, RenderContext context) {
+            if (_find == null) { return; }
+            PromptLabels labels = PromptLabels.For(context.Profile.Language);
+            if (Read(() => _find.Open)) { FindBar.AddKeys(keys, labels); }
+            else { keys.Add(new KeyBinding(labels.KeySearch, () => { }, new Input.KeyChord(ConsoleKey.F, Input.KeyModifiers.Control)) { Order = 70 }); }
+        }
+
+        internal override void ClosePopupCore() { if (_find != null && _find.Open) { _find.Close(false); } }
+
+        private List<string> Lines() => new List<string>(_editor.Text.Split('\n'));
+
+        private int CaretLine() {
+            string text = _editor.Text;
+            int line = 0;
+            for (int i = 0; i < _editor.Caret && i < text.Length; i++) { if (text[i] == '\n') { line++; } }
+            return line;
+        }
+
+        // The current match as an offset into the text.
+        private int Offset(FindBar.Match match) {
+            string text = _editor.Text;
+            int line = 0, index = 0;
+            while (line < match.Line && index < text.Length) { if (text[index++] == '\n') { line++; } }
+            return index + match.Start;
+        }
+
+        // Moves the caret to the current match; drawing scrolls it into view.
+        private void Reveal() {
+            if (_find != null && _find.Current >= 0) { _editor.MoveTo(Offset(_find.Matches[_find.Current])); }
+        }
+
         /// <inheritdoc />
         protected override Size MeasureContent(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(Math.Max(1, Height), constraints.IsHeightUnbounded ? Height : constraints.MaxHeight));
 
         /// <inheritdoc />
         protected override void RenderContent(Region region, RenderContext context) {
+            if (_find != null && _find.Open) { InputArrangement.RecordBar(this, _find.Widget(PromptLabels.For(context.Profile.Language))); }
             if (region.Width < 4 || region.Height <= 0) {
                 return;
             }
@@ -164,6 +214,20 @@ namespace ConsoleMonster.Interactive {
                         int start = Cells(text.Substring(row[0], from - row[0]), context.Glyphs.Tier);
                         int end = Math.Min(width, start + Cells(text.Substring(from, to - from), context.Glyphs.Tier));
                         for (int x = start; x < end; x++) { region.SetStyle(2 + x, y, region.Get(2 + x, y).Style.With(TextDecoration.Reverse)); }
+                    }
+                }
+            }
+            if (_find != null && _find.Active) {
+                for (int i = 0; i < _find.Matches.Count; i++) {
+                    FindBar.Match match = _find.Matches[i];
+                    int at = Offset(match);
+                    for (int y = 0; y < region.Height && ScrollRow + y < _editor.Rows.Count; y++) {
+                        int[] row = _editor.Rows[ScrollRow + y];
+                        int start = Math.Max(at, row[0]), end = Math.Min(at + match.Length, row[1]);
+                        if (start >= end) { continue; }
+                        int from = 2 + _editor.ProjectedWidth(text.Substring(row[0], start - row[0]));
+                        int to = 2 + _editor.ProjectedWidth(text.Substring(row[0], end - row[0]));
+                        _find.HighlightCells(region, y, from, to, i == _find.Current, context);
                     }
                 }
             }

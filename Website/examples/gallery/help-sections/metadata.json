@@ -1,0 +1,43 @@
+{
+  "slug": "help-sections",
+  "title": "Help sections",
+  "pitch": "Fold long help into sections, keep one open and widen the pane you are reading.",
+  "category": "Terminal apps",
+  "tags": [
+    "collapsible",
+    "accordion",
+    "splitter"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 22
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the sections with your own command's help or a runbook.",
+    "Start long sections such as Examples folded and give them a count.",
+    "Put a list on the left and its details on the right of the splitter."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when a reference page is too long to read at once and readers jump between sections.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "Tab Tab Enter Escape"
+      },
+      {
+        "keys": "+ Ctrl+Shift+Right Ctrl+Shift+Right Escape"
+      }
+    ]
+  }
+}

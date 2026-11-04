@@ -20,5 +20,17 @@ namespace ConsoleMonster.Layout {
         public ContentBuilder Tabs(Action<Tabs>? configure = null) { var tabs = Ui.Tabs(); configure?.Invoke(tabs); return Add(tabs); }
         /// <summary>Adds retained tabs.</summary><param name="tabs">The tabs.</param><returns>This builder.</returns>
         public ContentBuilder Tabs(Tabs tabs) => Add(tabs);
+        /// <summary>Adds a configured collapsible section.</summary><param name="configure">Definition settings.</param><returns>This builder.</returns>
+        public ContentBuilder Collapsible(Action<CollapsibleInputOptions> configure) { var definition = Ui.Collapsible(); configure(definition); return Collapsible(definition); }
+        /// <summary>Adds a materialized collapsible section.</summary><param name="definition">The definition.</param><returns>This builder.</returns>
+        public ContentBuilder Collapsible(CollapsibleInputOptions definition) => Add(definition.Build());
+        /// <summary>Adds a configured accordion.</summary><param name="configure">Group settings.</param><returns>This builder.</returns>
+        public ContentBuilder Accordion(Action<Accordion>? configure = null) { var accordion = Ui.Accordion(); configure?.Invoke(accordion); return Add(accordion); }
+        /// <summary>Adds an accordion.</summary><param name="accordion">The group.</param><returns>This builder.</returns>
+        public ContentBuilder Accordion(Accordion accordion) => Add(accordion);
+        /// <summary>Adds a configured splitter.</summary><param name="configure">Splitter settings.</param><returns>This builder.</returns>
+        public ContentBuilder Splitter(Action<Splitter>? configure = null) { var splitter = Ui.Splitter(); configure?.Invoke(splitter); return Add(splitter); }
+        /// <summary>Adds a splitter.</summary><param name="splitter">The splitter.</param><returns>This builder.</returns>
+        public ContentBuilder Splitter(Splitter splitter) => Add(splitter);
     }
 }

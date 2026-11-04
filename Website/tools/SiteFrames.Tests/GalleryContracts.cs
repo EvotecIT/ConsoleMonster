@@ -100,6 +100,18 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
+        public void GalleryKeepsProgramsWithoutAdvertisingUnavailableTemplateChoices() {
+            JsonArray demos = JsonNode.Parse(File.ReadAllText(Repository().Data("gallery")))!["demos"]!.AsArray();
+            JsonNode help = demos.Single(demo => demo!["slug"]!.GetValue<string>() == "help-sections")!;
+            Assert.Null(help["run"]!["csharp"]);
+            Assert.Null(help["run"]!["csharpFluent"]);
+            Assert.Contains("Splitter", help["source"]!["csharp"]!["text"]!.GetValue<string>());
+            Assert.Contains("Splitter", help["source"]!["csharpFluent"]!["text"]!.GetValue<string>());
+            JsonNode stress = demos.Single(demo => demo!["slug"]!.GetValue<string>() == "stress")!;
+            Assert.Equal("dotnet new consolemonster --demo stress", stress["run"]!["csharp"]!.GetValue<string>());
+        }
+
+        [Fact]
         public void PublishedDetailPagesMatchTheCatalogueMetadata() {
             Site site = Repository();
             GalleryPage.Demo[] demos = GalleryPage.Read(site);

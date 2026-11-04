@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **99 commands**, **1145 parameters** and **354 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **101 commands**, **1165 parameters** and **358 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -60,6 +60,8 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleTabs` | `Ui.Tabs()` | `c.Tabs(tabs => …)` |
 | `New-ConsoleDialog` | `Ui.Dialog()` | Definition, not display content |
 | `New-ConsoleDiagram` | `Ui.Diagram()` | `c.Diagram(diagram => …)` |
+| `New-ConsoleCollapsible` | `Ui.Collapsible()` | `c.Collapsible(collapsible => …)` |
+| `New-ConsoleSplitter` | `Ui.Splitter()` | `c.Splitter(splitter => …)` |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |
@@ -86,6 +88,7 @@ A structural parameter set can select a different request model. The metadata ga
 
 | Command and parameter | Set | C# member | Conversion |
 | --- | --- | --- | --- |
+| `New-ConsoleCollapsible -Content` | Accordion | `ConsoleMonster.Interactive.Accordion.Add` | With -Accordion, each section emitted by Content is added to the group in order. |
 | `New-ConsoleTable -InputObject` | Live | `ConsoleMonster.Widgets.LiveTable.Set` | Live rows retain a stable key and projected values; model reuse adapts input records through the same keyed Set operation. |
 | `Update-Console -Detail` | Run | `ConsoleMonster.Live.RunUpdate.Detail` | Identity |
 | `Update-Console -Index` | Run | `ConsoleMonster.Live.RunUpdate.Index` | Run requires exactly one index; the cmdlet rejects zero or several elements before using the sole scalar position. |
@@ -625,6 +628,11 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Localization.WidgetLabels.ChangesOnePropertyShown` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 | `ConsoleMonster.Localization.WidgetLabels.ChangesPropertiesShown` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 | `ConsoleMonster.Localization.WidgetLabels.ChangesMatchingHidden` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyExpandAll` | CSharpOnly: Native prompt hosts can replace the 'expand all' caption (Key hint: expand every section of an accordion.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyExpandAll catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyCollapseAll` | CSharpOnly: Native prompt hosts can replace the 'collapse all' caption (Key hint: fold every section of an accordion.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyCollapseAll catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyResize` | CSharpOnly: Native prompt hosts can replace the 'resize' caption (Key hint: move the divider between two panes.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyResize catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.Find` | CSharpOnly: Native prompt hosts can replace the 'Find' caption (The caption of the find bar.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.Find catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.FindMatches` | CSharpOnly: Native prompt hosts can replace the '{0} of {1}' caption (The find bar's position among the matches: {0} is the current match, {1} the number of matches.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.FindMatches catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 
 ## .NET host integrations
 

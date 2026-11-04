@@ -12,7 +12,7 @@ $records = @(1..300 | ForEach-Object { [pscustomobject]@{ Name = ('audit-item-{0
 $auditErrors = @()
 $parameters = @{ ErrorAction = 'SilentlyContinue'; ErrorVariable = 'auditErrors' }
 switch ($Name) {
-    { $_ -in @('New-ConsoleButton', 'New-ConsoleDatePicker', 'New-ConsoleField', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'New-ConsoleTreeSelect') } { $parameters.Key = 'audit' }
+    { $_ -in @('New-ConsoleButton', 'New-ConsoleCollapsible', 'New-ConsoleDatePicker', 'New-ConsoleField', 'New-ConsoleTextInput', 'New-ConsoleToggle', 'New-ConsoleTreeSelect') } { $parameters.Key = 'audit' }
     'New-ConsoleTreeSelect' { $parameters.InputObject = [pscustomobject]@{ Name = 'sample' } }
     'New-ConsoleCommand' { $parameters.Key = 'audit'; $parameters.ScriptBlock = {} }
     'New-ConsoleSelect' { $parameters.Key = 'audit'; $parameters.Choices = @('choice') }

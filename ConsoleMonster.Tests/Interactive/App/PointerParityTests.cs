@@ -453,6 +453,27 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("line 39", frame);
         }
 
+        [Fact]
+        public void SplitterDrag_ReleasedOverAFooterHintEndsTheDragWithoutPressingIt() {
+            int refreshed = 0;
+            ConsoleAppOptions options = new ConsoleAppOptions();
+            options.KeyBindings.Add(new KeyBinding("refresh", () => refreshed++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            Splitter splitter = new Splitter(new TextInput("left"), TextBlock.Plain("details"));
+            using AppController app = new AppController(splitter, new AppState(), Context, 60, options);
+            string[] rows = Rows(app.PrepareFrame(80, 12));
+            int row = Array.FindIndex(rows, line => line.Contains("details"));
+            int divider = rows[row].IndexOf("details", StringComparison.Ordinal) - 1;
+            int hint = rows[11].IndexOf("ctrl+r", StringComparison.Ordinal);
+            app.Handle(InputEvent.Mouse(divider, row), true);
+            app.Handle(InputEvent.Pointer(hint, 11, MouseAction.Move, heldButtons: 1), true);
+            app.Handle(InputEvent.Mouse(hint, 11, pressed: false), true);
+            int moved = Array.Find(Rows(app.PrepareFrame(80, 12)), line => line.Contains("details"))!.IndexOf("details", StringComparison.Ordinal) - 1;
+            // The release ended the drag: a later motion with no button does not move the divider again.
+            app.Handle(InputEvent.Pointer(divider, row, MouseAction.Move), true);
+            Assert.Equal(0, refreshed);
+            Assert.NotEqual(divider, moved);
+            Assert.Equal(moved, Array.Find(Rows(app.PrepareFrame(80, 12)), line => line.Contains("details"))!.IndexOf("details", StringComparison.Ordinal) - 1);
+        }
         private static void ChooseFromMenu(AppController app, string label) {
             app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
             string[] rows = Rows(app.PrepareFrame(80, 14));

@@ -132,6 +132,12 @@
       "dark": "/site/nav/demos/fleet-filter-dark.svg",
       "light": "/site/nav/demos/fleet-filter-light.svg"
     },
+    "demos/help-sections": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/help-sections-dark.svg",
+      "light": "/site/nav/demos/help-sections-light.svg"
+    },
     "demos/license-usage": {
       "w": 96,
       "h": 60,

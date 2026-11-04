@@ -267,6 +267,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        // Places the caret (a find match), as a caret movement.
+        internal void MoveTo(int index) => Move(index);
+
         private void Move(int index) {
             Caret = Math.Max(0, Math.Min(_text.Length, index));
             PreferredColumn = -1;

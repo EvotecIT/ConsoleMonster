@@ -17,6 +17,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<AppBinding, AppScreen> _bindingScreens = new Dictionary<AppBinding, AppScreen>();
         private LiveSession? _session;
         private bool _hasTabs;
+        private readonly List<Splitter> _splitters = new List<Splitter>();
         private LogRegion? _logRegion;
         private readonly List<FooterBar> _footers = new List<FooterBar>();
         private readonly FocusManager _focus;
@@ -29,6 +30,7 @@ namespace ConsoleMonster.Interactive {
         private readonly AppCommandHost _actions;
         private InputControl? _pointerCapture;
         private InputArrangement.ScrollbarDrag? _scrollCapture;
+        private bool _containerCapture;
         private readonly ClickCounter _clicks = new ClickCounter();
         private volatile bool _tooSmall;
         private AppScreens? _screens;
@@ -105,15 +107,15 @@ namespace ConsoleMonster.Interactive {
             bool pointerHandled = false;
             int clicks = mouse ? _clicks.Count(input) : 0;
             if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) {
-                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _overlay.Targets.Cancel(); _clicks.Reset();
+                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _containerCapture = false; _overlay.Targets.Cancel(); _clicks.Reset();
                 if (_overlay.Menu != null) { _overlay.Menu = null; Invalidate(); }
             }
             if (input.Kind == InputEventKind.Mouse && !mouse) { return; }
             // A dialog a callback opened takes the pointer at once, before a frame shows it: what was pressed, dragged or
             // drawn under it (a popup, a menu, the hints of the last frame) no longer gets events.
             bool modal = _actions.HasModal;
-            if (modal && (_pointerCapture != null || _scrollCapture != null || _overlay.Menu != null)) {
-                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _overlay.Menu = null; _overlay.Targets.Cancel();
+            if (modal && (_pointerCapture != null || _scrollCapture != null || _containerCapture || _overlay.Menu != null)) {
+                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _containerCapture = false; _overlay.Menu = null; _overlay.Targets.Cancel();
                 Invalidate();
             }
             if (_overlay.Menu is AppContextMenu menu && (input.Kind == InputEventKind.Key || input.Kind == InputEventKind.Mouse)) {
@@ -123,6 +125,13 @@ namespace ConsoleMonster.Interactive {
                 // The entry runs only while its key still reaches the binding it named (a callback may have changed scope).
                 if (chosen != null) { if (StillReaches(chosen)) { HandleCore(chosen.Chord!.Value.ToInput(), mouse, ref reachedKeys); } return; }
                 if (used) { return; }
+            }
+            // A drag a container started (a splitter's divider) keeps its moves and release, also over hints or popups.
+            if (input.Kind == InputEventKind.Mouse && _containerCapture) {
+                _viewport.HandleContainerInput(input);
+                if (input.MouseAction == MouseAction.Up || (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) == 0)) { _containerCapture = false; }
+                Invalidate();
+                return;
             }
             // A scroll bar drag keeps the pointer until the button is released, wherever that happens.
             if (input.Kind == InputEventKind.Mouse && _scrollCapture != null) {
@@ -148,7 +157,11 @@ namespace ConsoleMonster.Interactive {
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
             if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
-            if (_viewport.HandleContainerInput(input)) { Invalidate(); return; }
+            if (!ClaimedResizeKey(input) && _viewport.HandleContainerInput(input)) {
+                if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _containerCapture = true; }
+                Invalidate();
+                return;
+            }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
             else if (input.Kind == InputEventKind.Resize) { PrepareFrame(input.Width, input.Height); }
@@ -200,6 +213,11 @@ namespace ConsoleMonster.Interactive {
             if (!menu.IsEmpty) { _overlay.Menu = menu; }
             Invalidate();
         }
+
+        private bool ClaimedResizeKey(InputEvent input) => input.Kind == InputEventKind.Key &&
+            _splitters.Any(splitter => splitter.ResizeKeys.Any(chord => chord.Matches(input) && ResizeKeyClaimed(chord)));
+
+        private bool ResizeKeyClaimed(KeyChord chord) => _keys.Claims(chord) || HostFirst().Contains(chord) || Equals(_options.Keys.Exit, chord);
 
         internal void Refresh(LiveSession? session) {
             if (_actions.Poll()) { Invalidate(); }
@@ -269,6 +287,10 @@ namespace ConsoleMonster.Interactive {
             if (_options.Keys.NextFocus.HasValue) { hints.Add(new KeyBinding(labels.KeyNext, _focus.MoveNext, _options.Keys.NextFocus.Value)); }
             if (_options.Keys.PreviousFocus.HasValue) { hints.Add(new KeyBinding(labels.KeyBack, _focus.MovePrevious, _options.Keys.PreviousFocus.Value) { InFooter = _screens == null }); }
             if (_options.Keys.Exit.HasValue) { hints.Add(new KeyBinding(labels.KeyQuit, _state.RequestExit, _options.Keys.Exit.Value)); }
+            // Text editing keeps its chords; list resize only while the focused input leaves it free.
+            InputControl? focused = _focus.Current;
+            Splitter? around = focused == null ? null : _splitters.LastOrDefault(splitter => FocusManager.Discover(splitter).Contains(focused));
+            if (around != null && around.ResizeKeys.All(chord => !ResizeKeyClaimed(chord))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
             _actions.AddBindings(hints);
             return hints;
         }
@@ -285,6 +307,8 @@ namespace ConsoleMonster.Interactive {
         private void Discover(IWidget widget, int reflowBelow, AppScreen? owner = null) {
             if (widget is FooterBar footer) { _footers.Add(footer); }
             if (widget is Tabs) { _hasTabs = true; }
+            if (widget is Accordion accordion) { accordion.UseLabels(PromptLabels.For(_context.Profile.Language)); }
+            if (widget is Splitter splitter) { _splitters.Add(splitter); }
             if (widget is LogRegion region && _logRegion == null) { _logRegion = region; }
             if (widget is AppScreens screens) {
                 if (_screens != null) { throw new ArgumentException("An app has one screen stack.", nameof(widget)); }

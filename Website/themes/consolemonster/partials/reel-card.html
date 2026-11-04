@@ -22,12 +22,16 @@
     <div class="cm-reel__cmd" data-lang="powershell">
       {{~ cmd_lang = "powershell"; cmd_text = card_demo.run.powershell ~}}{{ include "command" }}
     </div>
+    {{~ if card_demo.run.csharp ~}}
     <div class="cm-reel__cmd" data-lang="csharp">
       {{~ cmd_lang = "bash"; cmd_text = card_demo.run.csharp ~}}{{ include "command" }}
     </div>
+    {{~ end ~}}
+    {{~ if card_demo.run.csharpFluent ~}}
     <div class="cm-reel__cmd" data-lang="csharp-fluent">
       {{~ cmd_lang = "bash"; cmd_text = card_demo.run.csharpFluent ~}}{{ include "command" }}
     </div>
+    {{~ end ~}}
   </div>
 </article>
 {{~ reel = null; reel_wide = false ~}}
