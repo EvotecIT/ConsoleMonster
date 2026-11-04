@@ -33,7 +33,7 @@
       "failOnDrift": true,
       "requireImmutableRef": false,
       "repository": "EvotecIT/PSPublishModule",
-      "ref": "actions-next",
+      "ref": "e6515ef091e579cd8a403e9a97374b177ef0371b",
       "channel": "next",
       "reportPath": "./_reports/engine-lock.json",
       "summaryPath": "./_reports/engine-lock.md"

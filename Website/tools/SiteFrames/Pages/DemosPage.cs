@@ -222,11 +222,12 @@ namespace SiteFrames.Pages {
                 PowerShellTwin = "Website/examples/demos/logging/Run.ps1",
                 Static = true
             };
-            // A ChartForgeX architecture file drawn in the terminal; the first use case plays, then the recording presses Ctrl+C.
+            // A ChartForgeX architecture file drawn by the app; the recording checkpoints all eight playback steps.
             yield return new Demo("topology", "dotnet run", 170, 32) {
                 Project = Path.Combine("Website", "examples", "demos", "topology", "Topology.csproj"),
                 PowerShellTwin = "Website/examples/demos/topology/Run.ps1",
-                Interrupt = TimeSpan.FromSeconds(11),
+                ProjectArguments = "--capture",
+                LogicalCheckpoints = true,
                 EndsOn = "step 8 of 8",
                 PosterShare = 0.6
             };
@@ -404,8 +405,10 @@ namespace SiteFrames.Pages {
                         Build(site, demo.Project!, output);
                         string dll = Path.Combine(output, Path.GetFileNameWithoutExtension(demo.Project!) + ".dll");
                         // The drive root as the working directory: a host logs its content root, which should not be this checkout.
-                        chunks = CSharpRunner.Record(dll, demo.ProjectArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt,
-                            demo.InputReadyText, demo.InputKeys, demo.InputDelay, recording: recorded);
+                        chunks = demo.LogicalCheckpoints
+                            ? CSharpRunner.RecordCheckpoints(dll, demo.ProjectArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), output, TimeSpan.FromMinutes(2))
+                            : CSharpRunner.Record(dll, demo.ProjectArguments.Split(' ', StringSplitOptions.RemoveEmptyEntries), demo.Width, demo.Height, PowerShellRunner.Environment("dark"), Path.GetPathRoot(site.Repository) ?? site.Repository, TimeSpan.FromMinutes(2), demo.Interrupt,
+                                demo.InputReadyText, demo.InputKeys, demo.InputDelay, recording: recorded);
                     } finally {
                         Site.RemoveTemporary(output);
                     }

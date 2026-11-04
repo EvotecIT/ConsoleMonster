@@ -3,35 +3,19 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "gallery",
+  "requestedSet": "demos",
   "filters": {
-    "SITEFRAMES_GALLERY": "service-browser"
+    "SITEFRAMES_DEMOS": "topology"
   },
   "allSetsCompleted": false,
   "files": {
-    "gallery/service-browser-0.ps7.ansi": {
+    "demos/topology.cast": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9501856b0bdb702b59e56f2dbf88982f82de506650b89c718f10505b75015da3",
+      "sha256": "236f9b1e9229bbcaaa1f7d36db6f2827a4b4c5ed53207e06d4e807afd06d6a3c",
       "screen": "dark",
-      "width": 100,
-      "height": 30
-    },
-    "gallery/service-browser-1.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "a46b75b0a830869341905ba9eadc461be6d0c71cd8e2e1cc2cc8a9a8c4e1e312",
-      "screen": "dark",
-      "width": 100,
-      "height": 30
-    },
-    "gallery/service-browser-2.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "261b73e6ca117d5db8e809a0120fc7f77bc801fdc38b5e94c02fed0d3c755ad0",
-      "screen": "dark",
-      "width": 100,
-      "height": 30
+      "width": 170,
+      "height": 32
     }
   }
 }
