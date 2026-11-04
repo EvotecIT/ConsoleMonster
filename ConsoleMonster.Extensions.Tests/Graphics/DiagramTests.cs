@@ -117,6 +117,22 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             }
         }
 
+        [Fact]
+        public void ImportedTopology_ReportsOnlyTheStatusesItDeclares() {
+            var chart = TopologyChart.Create().WithTitle("Replication")
+                .AddAutoNode("admin", "Admin", TopologyNodeKind.Person)
+                .AddAutoNode("dc01", "DC01", TopologyNodeKind.Server, TopologyHealthStatus.Healthy)
+                .AddAutoNode("dc03", "DC03", TopologyNodeKind.Server, TopologyHealthStatus.Warning)
+                .AddEdge("admin-dc01", "admin", "dc01", "LDAP")
+                .AddEdge("dc01-dc03", "dc01", "dc03", "RPC");
+            Diagram diagram = chart.ToDiagram();
+            string text = ConsoleExporter.ToText(diagram, new ExportOptions { Width = 120, Glyphs = GlyphTier.Full, ColorDepth = ColorDepth.None });
+            Assert.DoesNotContain("◌", text);
+            string[] attention = text.Split('\n').SkipWhile(line => !line.Contains("Needs attention")).Skip(1).Where(line => line.Trim().Length > 0).ToArray();
+            Assert.Contains(attention, line => line.Contains("DC03"));
+            Assert.DoesNotContain(attention, line => line.Contains("Admin") || line.Contains("DC01"));
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
