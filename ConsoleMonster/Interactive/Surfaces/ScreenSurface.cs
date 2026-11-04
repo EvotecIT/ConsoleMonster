@@ -80,15 +80,14 @@ namespace ConsoleMonster.Interactive {
             if (_ended) {
                 return;
             }
-            _ended = true;
             _output.EndLive();
+            _ended = true;
         }
 
         public void Dispose() {
-            End();
-            if (_ownsWriter) {
-                _writer.Dispose();
-            }
+            try { End(); }
+            catch { try { End(); } catch { } throw; }
+            finally { if (_ownsWriter) { _writer.Dispose(); } }
         }
 
         private void ReadSize(out int width, out int height) {

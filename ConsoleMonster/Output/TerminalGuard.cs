@@ -1,16 +1,29 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
 
     /// <summary>Restores the screen and saved Windows output mode on disposal, termination or a second Ctrl+C.</summary>
     public sealed class TerminalGuard : IDisposable {
+        private static readonly object ActiveGate = new object();
+        private static readonly List<TerminalGuard> Active = new List<TerminalGuard>();
+
+        static TerminalGuard() {
+            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        }
+
         private readonly Action _restore;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly CancellationToken _cancellation;
         private readonly bool _handleCancelKey;
         private readonly WindowsOutputModeScope _outputMode;
+        private readonly TaskCompletionSource<bool> _restoreCompletion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _restoringThread;
+        private int _resumeEmergency;
         private int _restored;
         private int _cancelPresses;
         private int _disposed;
@@ -26,8 +39,7 @@ namespace ConsoleMonster.Output {
             if (handleCancelKey) {
                 Console.CancelKeyPress += OnCancelKeyPress;
             }
-            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            lock (ActiveGate) { Active.Add(this); }
         }
 
         /// <summary>Cancelled on the first Ctrl+C or when the guard is disposed.</summary>
@@ -41,6 +53,7 @@ namespace ConsoleMonster.Output {
             if (Interlocked.CompareExchange(ref _restored, 1, 0) != 0) {
                 return;
             }
+            Volatile.Write(ref _restoringThread, Thread.CurrentThread.ManagedThreadId);
             try {
                 try {
                     _restore();
@@ -51,10 +64,13 @@ namespace ConsoleMonster.Output {
                 // An exit handler must not cause a second failure.
             } finally {
                 Volatile.Write(ref _restored, 2);
+                _restoreCompletion.TrySetResult(true);
+                if (Volatile.Read(ref _disposed) != 0) { lock (ActiveGate) { Active.Remove(this); } }
+                if (Interlocked.Exchange(ref _resumeEmergency, 0) != 0) { RestoreAll(); }
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>Releases the guard after any restoration already running on another thread completes.</summary>
         public void Dispose() {
             if (Interlocked.Exchange(ref _disposed, 1) != 0) {
                 return;
@@ -62,9 +78,11 @@ namespace ConsoleMonster.Output {
             if (_handleCancelKey) {
                 Console.CancelKeyPress -= OnCancelKeyPress;
             }
-            AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
-            AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
             Restore();
+            if (!RestoreCompleted && Volatile.Read(ref _restoringThread) != Thread.CurrentThread.ManagedThreadId) {
+                _restoreCompletion.Task.GetAwaiter().GetResult();
+            }
+            if (RestoreCompleted) { lock (ActiveGate) { Active.Remove(this); } }
             Cancel();
             _cts.Dispose();
         }
@@ -76,7 +94,7 @@ namespace ConsoleMonster.Output {
                 Cancel();
                 return true;
             }
-            Restore();
+            RestoreAll();
             return false;
         }
 
@@ -89,7 +107,27 @@ namespace ConsoleMonster.Output {
         }
 
         private void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e) => e.Cancel = RequestCancellation();
-        private void OnProcessExit(object? sender, EventArgs e) => Restore();
-        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) => Restore();
+        private static void RestoreAll() {
+            TerminalGuard[] guards;
+            lock (ActiveGate) { guards = Active.ToArray(); }
+            // Native mode snapshots nest with their resources. The entry snapshot must be restored last.
+            for (int i = guards.Length - 1; i >= 0; i--) {
+                TerminalGuard guard = guards[i];
+                guard.Restore();
+                if (guard.RestoreCompleted) { continue; }
+                if (Volatile.Read(ref guard._restoringThread) == Thread.CurrentThread.ManagedThreadId) {
+                    // A restore callback can request emergency cleanup itself. Resume outward after its native mode
+                    // has been restored; waiting for this same stack would deadlock.
+                    Volatile.Write(ref guard._resumeEmergency, 1);
+                    return;
+                }
+                // A concurrent normal disposal still owns this inner mode. Wait without holding ActiveGate or an
+                // outer resource's callback, so it cannot overwrite the entry snapshot after we finish.
+                guard._restoreCompletion.Task.GetAwaiter().GetResult();
+            }
+        }
+
+        private static void OnProcessExit(object? sender, EventArgs e) => RestoreAll();
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e) => RestoreAll();
     }
 }

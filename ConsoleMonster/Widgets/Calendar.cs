@@ -147,7 +147,7 @@ namespace ConsoleMonster.Widgets {
                     if (status.HasValue) {
                         style = context.Style(status.Value.ToToken());
                         if (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii) { style = style.With(TextDecoration.Reverse | TextDecoration.Bold); }
-                        else { marker = Symbol(status.Value, context); }
+                        marker = Symbol(status.Value, context);
                     }
                     if (Today.HasValue && Today.Value.Date == date) { style = style.With(TextDecoration.Underline | TextDecoration.Bold); if (!status.HasValue) { style = context.Style(ThemeToken.Focus).With(TextDecoration.Bold | TextDecoration.Underline); if (!context.HasColor || context.Glyphs.Tier == GlyphTier.Ascii) { marker = "@"; } } }
                     style = DayStyle?.Invoke(date) ?? style;

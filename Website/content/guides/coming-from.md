@@ -29,6 +29,17 @@ This small inventory report uses the same object rows as the PowerShell comparis
 
 {{< cm-try ids="migration-report-100" project="InventoryReport" >}}
 
+## What ConsoleMonster adds
+
+Most migrations start with tables and prompts. These are the parts people usually don't expect from a terminal library:
+
+- **One model for C# and PowerShell.** Every widget has a C# object, a fluent form and a cmdlet that draw the same cells; the [widget gallery](/widgets/) shows all three for each one, on PowerShell 7 and Windows PowerShell 5.1.
+- **Live runs, not just progress bars.** Per-item lanes, phase strips that fan out to their items, log tails with source tags and filters, and dashboards that keep a summary in the scrollback when they finish. See [live dashboards](/live/) and [large runs](/docs/large-runs/).
+- **Full-screen apps.** Forms, grids, tabs, dialogs, menus, focus and mouse, with a command palette and a footer of key hints. See [interactive apps](/docs/interactive-apps/).
+- **Testable and recordable.** The same app runs on a headless terminal for golden-file tests, records to asciicast, GIF, APNG or an HTML player, opens in a local browser page, and can be driven by an agent through a debug socket. See [test, record and drive apps](/docs/testing/) and [recording and replay](/docs/recording/).
+- **Adaptive output.** Colour depth, glyph set, width, language and redirection are detected, so the same script prints a rich report in Windows Terminal, plain text in a CI log and readable output over SSH. See [capabilities](/docs/capabilities/).
+- **No package dependencies** in the core library, which targets netstandard2.0, net472, net8.0 and net10.0.
+
 ## Next
 
 [Install ConsoleMonster](/docs/install/), explore the [widget gallery](/widgets/), or compare [native Format-Table](/guides/format-table/) and [Write-Color](/guides/write-color/).

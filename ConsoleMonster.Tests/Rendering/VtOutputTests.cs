@@ -62,7 +62,7 @@ namespace ConsoleMonster.Tests.Rendering {
             output.EndLive();
             output.EndLive();
             output.Dispose();
-            Assert.Equal("\u001b[0m\u001b[?25h\u001b[?1049l", writer.ToString());
+            Assert.Equal("\u001b[?2026l\u001b[?1049l\u001b[0m\u001b[?25h\r\n", writer.ToString());
         }
 
         [Fact]

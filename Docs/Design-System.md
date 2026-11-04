@@ -96,7 +96,7 @@ token such as `[doc]` or a face such as `:(`. ASCII success uses `+` for a cell 
 `SymbolFallback.Apply` is for prose: it keeps badges, replaces whole Unicode graphemes (including ZWJ sequences),
 and pads a narrower emoji replacement before adjacent text. Existing spaces are retained without doubling them.
 Basic/ASCII have a generic fallback for unknown emoji; ASCII decorative fallbacks are printable 7-bit text.
-Ordinary multilingual content is preserved. Full keeps the original symbols. Hint (`*`) and search (`?`) remain
+Full preserves multilingual content and original symbols. Basic output stays within WGL4 and ASCII output stays within printable ASCII, including caller text; unsupported graphemes use `?`. See the [behaviour contract](Behaviour-Contract.md). Hint (`*`) and search (`?`) remain
 distinct from warning (`!`). Styled text follows the same rules across span boundaries.
 
 Menu toggles and actions use cell APIs: `☐` is `·` / `-`, `☑` is `√` / `+`, `☒` is `×` / `x`,

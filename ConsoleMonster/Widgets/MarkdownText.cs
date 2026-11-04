@@ -22,16 +22,25 @@ namespace ConsoleMonster.Widgets {
             // Append the destination once after the complete run, rather than once per styled word.
             List<RichSegment> segments = new List<RichSegment>();
             StringBuilder label = new StringBuilder();
+            int runStart = 0;
             for (int i = 0; i < text.Segments.Count; i++) {
                 RichSegment segment = text.Segments[i];
                 string? link = segment.Style.Link;
+                if (i == 0 || text.Segments[i - 1].Style.Link != link) runStart = segments.Count;
                 string? target = context.Profile.SupportsHyperlinks ? Rendering.HyperlinkTarget.From(link) : null;
                 segments.Add(new RichSegment(segment.Text, segment.Style.WithLink(target), segment.IsMarkup));
                 if (link != null) {
                     label.Append(segment.IsMarkup ? Markup.Strip(segment.Text) : segment.Text);
                 }
                 if (link != null && (i + 1 == text.Segments.Count || text.Segments[i + 1].Style.Link != link)) {
-                    string? suffix = target == null ? Rendering.LinkTargets.Suffix(label.ToString(), link) : null;
+                    string shown = label.ToString();
+                    string? printed = Rendering.LinkTargets.PrintedLabel(shown, link, context.Glyphs.Tier);
+                    if (printed != null) {
+                        RichStyle style = segments[runStart].Style;
+                        segments.RemoveRange(runStart, segments.Count - runStart);
+                        segments.Add(new RichSegment(printed, style, false));
+                    }
+                    string? suffix = target == null ? Rendering.LinkTargets.Suffix(shown, link, context.Glyphs.Tier) : null;
                     if (suffix != null) {
                         segments.Add(new RichSegment(suffix, new RichStyle(ThemeToken.Muted), false));
                     }

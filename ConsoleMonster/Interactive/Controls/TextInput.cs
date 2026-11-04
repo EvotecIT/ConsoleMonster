@@ -64,11 +64,11 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == Input.MouseAction.Down && input.MouseButton == 1) {
                 if (!inside) { return false; }
                 _selecting = true;
-                _editor.PlaceCaret(IndexAt(input.Column - text.X + _editor.ScrollOffset), false);
+                _editor.PlaceCaret(IndexAt(input.Column - text.X + _editor.ScrollOffset, context), false);
                 return true;
             }
             if (input.MouseAction == Input.MouseAction.Move && _selecting && (input.HeldButtons & 1) != 0) {
-                _editor.PlaceCaret(IndexAt(Math.Max(0, input.Column - text.X + _editor.ScrollOffset)), true);
+                _editor.PlaceCaret(IndexAt(Math.Max(0, input.Column - text.X + _editor.ScrollOffset), context), true);
                 return true;
             }
             if (input.MouseAction == Input.MouseAction.Up && _selecting) {
@@ -82,12 +82,12 @@ namespace ConsoleMonster.Interactive {
         internal override void CancelPointer() => _selecting = false;
 
         // The caret index nearest a display column: a click on the right half of a character goes after it.
-        private int IndexAt(int column) {
+        private int IndexAt(int column, RenderContext context) {
             string value = _editor.Text;
             int used = 0;
             for (int i = 0; i < value.Length;) {
                 int next = i + (char.IsHighSurrogate(value[i]) && i + 1 < value.Length ? 2 : 1);
-                int width = DisplayWidth.Measure(Display(value.Substring(i, next - i)));
+                int width = DisplayWidth.Measure(Display(value.Substring(i, next - i), context));
                 if (column < used + (width + 1) / 2) { return i; }
                 used += width;
                 i = next;
@@ -110,14 +110,14 @@ namespace ConsoleMonster.Interactive {
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
                 // Public controls paint their own caret; existing prompt compositions own its surrounding space.
                 int placeholderColumn = Focused && _reservePlaceholderCell ? 1 : 0;
-                region.Write(placeholderColumn, 0, TextWrapper.Truncate(Placeholder!, Math.Max(0, width - placeholderColumn - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
+                region.Write(placeholderColumn, 0, TextWrapper.Truncate(Glyphs.SymbolFallback.Constrain(Placeholder!, context.Glyphs.Tier), Math.Max(0, width - placeholderColumn - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
                 if (Focused) {
                     _caret?.Set(region.Bounds.X, region.Bounds.Y);
                 }
                 return;
             }
-            string shown = Display(_editor.Text);
-            string beforeCaret = Display(_editor.Text.Substring(0, _editor.Caret));
+            string shown = Display(_editor.Text, context);
+            string beforeCaret = Display(_editor.Text.Substring(0, _editor.Caret), context);
             int caretColumn = DisplayWidth.Measure(beforeCaret);
             int usable = Math.Max(1, width - 1);
             int offset = _editor.ScrollOffset;
@@ -131,8 +131,8 @@ namespace ConsoleMonster.Interactive {
                 offset = 0;
             }
             _editor.ScrollOffset = offset;
-            int selectFrom = _editor.HasSelection ? DisplayWidth.Measure(Display(_editor.Text.Substring(0, _editor.SelectionStart))) : -1;
-            int selectTo = _editor.HasSelection ? DisplayWidth.Measure(Display(_editor.Text.Substring(0, _editor.SelectionEnd))) : -1;
+            int selectFrom = _editor.HasSelection ? DisplayWidth.Measure(Display(_editor.Text.Substring(0, _editor.SelectionStart), context)) : -1;
+            int selectTo = _editor.HasSelection ? DisplayWidth.Measure(Display(_editor.Text.Substring(0, _editor.SelectionEnd), context)) : -1;
             Style selected = style.With(TextDecoration.Reverse);
             int x = 0;
             int column = 0;
@@ -160,9 +160,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private string Display(string text) {
+        private string Display(string text, RenderContext context) {
             if (Mask == null) {
-                return text;
+                return Glyphs.SymbolFallback.Constrain(text, context.Glyphs.Tier);
             }
             if (Mask.Length == 0) {
                 return string.Empty;
@@ -177,7 +177,7 @@ namespace ConsoleMonster.Interactive {
             for (int i = 0; i < count; i++) {
                 parts.Add(Mask);
             }
-            return string.Concat(parts);
+            return Glyphs.SymbolFallback.Constrain(string.Concat(parts), context.Glyphs.Tier);
         }
     }
 }

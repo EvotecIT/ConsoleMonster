@@ -37,22 +37,30 @@
         "incomplete": true
       },
       {
-        "keys": "n wait:1000 Down Enter",
+        "startKeys": "n",
+        "ready": "5 of 5 selected",
+        "keys": "Down Enter",
         "incomplete": true,
         "realTime": true
       },
       {
-        "keys": "n wait:1000 PageDown Enter",
+        "startKeys": "n",
+        "ready": "5 of 5 selected",
+        "keys": "PageDown Enter",
         "incomplete": true,
         "realTime": true
       },
       {
-        "keys": "n wait:1000 PageDown PageDown",
+        "startKeys": "n",
+        "ready": "5 of 5 selected",
+        "keys": "PageDown PageDown",
         "incomplete": true,
         "realTime": true
       },
       {
-        "keys": "n wait:1000 PageDown PageDown PageDown",
+        "startKeys": "n",
+        "ready": "5 of 5 selected",
+        "keys": "PageDown PageDown PageDown",
         "incomplete": true,
         "realTime": true
       },
@@ -63,7 +71,9 @@
         "contains": "When"
       },
       {
-        "keys": "n wait:1000 PageDown PageDown PageDown Enter",
+        "startKeys": "n",
+        "ready": "5 of 5 selected",
+        "keys": "PageDown PageDown PageDown Enter",
         "realTime": true,
         "incomplete": true,
         "checkpoint": 9,
@@ -71,7 +81,9 @@
         "first": true
       },
       {
-        "keys": "n wait:1000 PageDown PageDown PageDown Enter",
+        "startKeys": "n",
+        "ready": "5 of 5 selected",
+        "keys": "PageDown PageDown PageDown Enter",
         "incomplete": true,
         "contains": "Fleet check finished",
         "realTime": true

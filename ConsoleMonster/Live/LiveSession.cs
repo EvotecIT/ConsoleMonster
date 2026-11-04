@@ -52,7 +52,7 @@ namespace ConsoleMonster.Live {
         private long _resizes;
         private long _renderErrors;
         private Output.ConsoleFontWatcher? _fontWatcher;
-        private bool _began; // BeginLive succeeded: only then may stopping draw a final frame and summary.
+        private bool _began; // Output initialization succeeded, including append-only sessions: stopping can print the final state.
         private Exception? _failure; // The first fatal rendering, required-recording or output exception.
         private readonly System.Collections.Concurrent.ConcurrentDictionary<string, long> _unknownTargets = new System.Collections.Concurrent.ConcurrentDictionary<string, long>(StringComparer.Ordinal);
         private int _state; // 0: new, 1: running, 2: stopping, 3: stopped
@@ -176,7 +176,9 @@ namespace ConsoleMonster.Live {
         public Exception? Failure => Volatile.Read(ref _failure);
 
         // Read after Start: the selected output, including host policy and explicit overrides, owns this capability.
-        internal bool SupportsLiveFrames => _output?.SupportsLiveFrames == true;
+        // A menu can lend a real live surface while its detected process profile is stream/redirected.
+        // Keep that explicit host contract; accessibility and Live=false still require append-only output.
+        internal bool SupportsLiveFrames => !_options.AppendOnly && _context?.Profile.IsAccessible != true && _output?.SupportsLiveFrames == true;
 
         /// <summary>
         /// A snapshot of the session's counters, the target names that received updates but do not exist, and the errors,
@@ -310,7 +312,7 @@ namespace ConsoleMonster.Live {
             if (work == null) { throw new ArgumentNullException(nameof(work)); }
             Start();
             try { work(this); }
-            finally { Stop(); }
+            finally { Dispose(); }
         }
 
         /// <summary>Runs asynchronous work with linked caller and session cancellation.</summary>
@@ -323,12 +325,24 @@ namespace ConsoleMonster.Live {
             using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(ct, Cancellation))
             using (ct.Register(RequestCancellation)) {
                 try { await work(this, linked.Token).ConfigureAwait(false); }
-                finally { Stop(); }
+                finally {
+                    Stop();
+                    if (Thread.CurrentThread != _thread && !Monitor.IsEntered(_finishGate)) {
+                        await _outputStopped.Task.ConfigureAwait(false);
+                    }
+                }
             }
         }
 
-        /// <inheritdoc />
-        public void Dispose() => Stop();
+        /// <summary>Stops the session and waits for final output and terminal restoration. A dispatcher callback requests its own loop to finish.</summary>
+        public void Dispose() {
+            Stop();
+            // Stop can hand blocked callbacks back to the dispatcher after its bounded join.
+            // A completed public lifetime must wait for its last write and terminal restoration.
+            if (Thread.CurrentThread != _thread && !Monitor.IsEntered(_finishGate)) {
+                _outputStopped.Task.GetAwaiter().GetResult();
+            }
+        }
 
         // Default ids are per kind (a bar chart is "bars"), so two widgets of one kind in a live tree need their own ids.
         internal static string DuplicateWidgetId(string widgetId, ILiveTarget? first, ILiveTarget second) =>

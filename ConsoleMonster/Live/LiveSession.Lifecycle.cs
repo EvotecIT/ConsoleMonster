@@ -43,6 +43,10 @@ namespace ConsoleMonster.Live {
                         _onConsole = _options.Output == null && targetWriter == null;
                         _theme = _options.Theme ?? target.Theme;
                         TerminalProfile profile = _options.Profile != null ? Terminal.ApplyProfilePolicy(_options.Profile) : Terminal.GetTargetProfile(target);
+                        profile = AccessibilityPolicy.Resolve(profile, _options.ReducedMotion);
+                        if (profile.IsAccessible) {
+                            profile = profile.WithMode(profile.Mode == OutputMode.Plain ? OutputMode.Plain : OutputMode.Stream);
+                        }
                         if (_options.Output?.Profile.Mode == OutputMode.Plain) {
                             profile = profile.WithMode(OutputMode.Plain);
                         } else if (_options.AppendOnly) {
@@ -86,7 +90,7 @@ namespace ConsoleMonster.Live {
                             }
                         }
                         // Everything that can fail without touching the screen has been validated above.
-                        _output.BeginLive();
+                        if (!profile.IsAccessible && !_options.AppendOnly) _output.BeginLive();
                         _began = true;
                         ApplyWidthProbe(profile);
                         if (profile.Kind == TerminalKind.Conhost && _onConsole && _output is VtOutput) {
@@ -159,7 +163,8 @@ namespace ConsoleMonster.Live {
         /// Stops admission, cancels work and joins for up to StopTimeout (two seconds by default).
         /// Accepted events are drained on the stopping caller after joining, before restoration.
         /// If user code blocks the render thread, console capture is restored immediately and final cleanup is deferred
-        /// until that callback returns. A call from the render thread also defers final cleanup to its loop exit.
+        /// until that callback returns. Dispose, Run and RunAsync wait for that final cleanup before their lifetime ends.
+        /// A call from the render thread also defers final cleanup to its loop exit.
         /// </summary>
         public void Stop() {
             Thread? thread;
@@ -231,10 +236,16 @@ namespace ConsoleMonster.Live {
                 // Ctrl+C, an exception or process exit: the tab and taskbar must not keep showing progress.
                 TaskbarProgress.Clear();
             }
-            lock (_outputGate) {
-                if (_restored) { return; }
-                _restored = true;
-                _output?.EndLive(); // Outputs flush their writers here; there is no separate Flush contract.
+            // A normal stopper may finish restoring the screen while an emergency guard is waiting for
+            // this lock. Observe that completion without making guard disposal wait on its own output lock.
+            while (!Volatile.Read(ref _restored)) {
+                if (!Monitor.TryEnter(_outputGate, 50)) { continue; }
+                try {
+                    if (_restored) { return; }
+                    _output?.EndLive();
+                    Volatile.Write(ref _restored, true);
+                    return;
+                } finally { Monitor.Exit(_outputGate); }
             }
         }
 
@@ -252,7 +263,7 @@ namespace ConsoleMonster.Live {
                 Attempt(() => RecordSlotSnapshots(true), fatal: RecordingRequired);
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;
-                if (drawn) { Attempt(RenderFinal, fatal: true); }
+                if (drawn) { Attempt(() => RenderFinal(finalState: true), fatal: true); }
                 Attempt(RestoreTerminal, fatal: true);
                 if (_taskbarUsed) {
                     Attempt(TaskbarProgress.Clear);

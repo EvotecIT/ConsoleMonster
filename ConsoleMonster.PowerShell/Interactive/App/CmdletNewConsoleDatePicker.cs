@@ -9,6 +9,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.</para>
     /// </summary>
     /// <example><para>Choose a maintenance range.</para><code>New-ConsoleDatePicker -Key Window -Range -Value ([datetime]'2026-10-08')</code></example>
+    /// <example><para>Configure today and the first weekday with a hashtable.</para><code>New-ConsoleDatePicker -Key Window -Range -Selection @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleDatePicker")]
     [OutputType(typeof(DatePicker))]
     public sealed class CmdletNewConsoleDatePicker : AppInputCmdlet {
@@ -16,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, AllowNull] public object? Value { get; set; }
         /// <summary><para type="description">Commits one inclusive DateRange.</para></summary>
         [Parameter] public SwitchParameter Range { get; set; }
-        /// <summary><para type="description">Shared bounds, culture, today and marked-day model.</para></summary>
+        /// <summary><para type="description">Shared bounds, culture, today and marked-day model. Supply a hashtable such as @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }; PowerShell converts its entries to the shared selection model.</para></summary>
         [Parameter] public DateSelectionOptions Selection { get; set; } = new DateSelectionOptions();
         /// <inheritdoc />
         protected override void EndProcessing() {

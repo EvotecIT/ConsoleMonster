@@ -127,7 +127,7 @@ namespace ConsoleMonster.Interactive {
             IPane? pane = CurrentPane;
             string title = Current?.PanelTitle ?? Current?.Title ?? _root.Title;
             IWidget inner = pane == null ? (IWidget)UiLine.Empty : pane.Build(frame, focused);
-            return new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape(title)) {
+            return new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape((focused ? InteractiveGlyphs.For(frame.Context).Pointer + " " : string.Empty) + title)) {
                 HeaderRight = pane?.Caption == null ? null : Markup.Escape(pane.Caption),
                 BorderRole = focused && UsesSidebar ? ThemeToken.Accent : ThemeToken.Border
             };
@@ -163,7 +163,7 @@ namespace ConsoleMonster.Interactive {
                 Size measured = inner.Measure(new Constraints(width - 4), frame.Context);
                 height = Math.Min(frame.Height - 2, Math.Max(8, measured.Height + 3));
             }
-            Panel card = new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape(title)) {
+            Panel card = new Panel(new Padding(inner, 1, 1, 1, 0), Markup.Escape((_modals.Count == 0 ? InteractiveGlyphs.For(frame.Context).Pointer + " " : string.Empty) + title)) {
                 HeaderRight = pane?.Caption == null ? null : Markup.Escape(pane.Caption),
                 BorderRole = ThemeToken.Accent,
                 Height = Math.Max(6, height)

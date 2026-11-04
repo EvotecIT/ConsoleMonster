@@ -60,6 +60,9 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Hides default-on category progress.</para></summary>
         [Parameter] public SwitchParameter NoGroups { get; set; }
+        /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
+        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             List<RunItem> items = new List<RunItem>();
@@ -69,7 +72,7 @@ namespace ConsoleMonster.PowerShell {
             TerminalProfile profile = Terminal.GetCurrentProfile();
             bool host = HostOutput.UseHost(this, profile);
             HostQueueWriter? queue = host ? new HostQueueWriter() : null;
-            LiveSessionOptions session = new LiveSessionOptions();
+            LiveSessionOptions session = new LiveSessionOptions { ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null };
             session.CaptureConsole = !host;
             session.Discoverable = false;
             if (host) { session.Profile = profile.WithMode(OutputMode.Plain); session.Output = new LineOutput(queue!, session.Profile); }

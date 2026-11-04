@@ -53,6 +53,25 @@
 
 
 
+    It 'prints one default polling snapshot when <Entry> output is piped' -ForEach @(
+        @{ Entry = 'watch'; Command = "Watch-Console -Title Poll { 'State' } | Out-String" }
+        @{ Entry = 'tail'; Command = 'Watch-ConsoleLog -Path $path | Out-String' }
+    ) {
+        $body = @'
+$profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(80, 12)
+$target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile, '')
+$path = [IO.Path]::GetTempFileName()
+try {
+    [IO.File]::WriteAllText($path, "State`n")
+    Use-ConsoleTarget -Target $target {
+        $text = __COMMAND__
+        "SNAPSHOTS=$([regex]::Matches(($text -join ''), 'State').Count)"
+    }
+} finally { [IO.File]::Delete($path) }
+'@
+        (Invoke-PromptChild $body.Replace('__COMMAND__', $Command)) | Should -Match 'SNAPSHOTS=1'
+    }
+
     It 'prints initialized prompts without returning answers or reading input in snapshot mode' {
         $body = @'
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(80, 30, 'None', 'Ascii')
@@ -205,14 +224,16 @@ try { Read-ConsoleForm $missing -ErrorAction Stop } catch { "error=$($_.Exceptio
             $text | Should -Match "error=Prompt 'Folder' needs a value in a non-interactive session; pass -Path or set a default\."
         }
 
-        It 'refuses to show a menu without a user' {
+        It 'prints a menu without selecting or running an item when no user can answer' {
             $text = Invoke-PromptChild -Script @'
-$menu = New-ConsoleMenu 'Tool' -Content { New-ConsoleMenuItem 'Run' -Action { 'ran' } }
-try { Show-ConsoleMenu $menu -ErrorAction Stop } catch { "error=$($_.Exception.Message)" }
-try { $menu | Show-ConsoleMenu -ErrorAction Stop } catch { "pipeline=$($_.Exception.Message)" }
+$menu = New-ConsoleMenu 'Tool' -Content { New-ConsoleMenuItem 'Run' -Action { throw 'ACTION_RAN_UNEXPECTEDLY' } }
+$first = @(Show-ConsoleMenu $menu -ErrorAction Stop)
+$second = @($menu | Show-ConsoleMenu -ErrorAction Stop)
+"selected=$($first.Count)+$($second.Count)"
 '@
-            $text | Should -Match "error=Menu 'Tool' needs an interactive session\."
-            $text | Should -Match "pipeline=Menu 'Tool' needs an interactive session\."
+            $text | Should -Match 'Tool'
+            $text | Should -Match 'selected=0\+0'
+            $text | Should -Not -Match 'ACTION_RAN_UNEXPECTEDLY'
         }
     }
 
@@ -353,13 +374,14 @@ $top = @($rows | Show-ConsoleGrid -Property Name, Cpu -SortBy Cpu -Descending -O
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+Enter')
 $none = @($rows | Show-ConsoleGrid -OutputMode None)
 "picked=$($picked.Name -join '+') type=$($picked[0].GetType().Name) top=$($top.Name) none=$($none.Count)"
-try { $rows | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { "error=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+$static = @($rows | Show-ConsoleGrid -Mode None -ErrorAction Stop)
+"static=$($static.Count)"
 '@
             $text | Should -Match 'picked=SRV01\+SRV04 type=PSCustomObject top=SRV08 none=0'
-            $text | Should -Match 'error=Prompt'
+            $text | Should -Match 'static=0'
         }
 
-        It 'prints the rows as a table with a warning when no one can pick, and returns nothing' {
+        It 'prints the rows once without warnings or selections when no one can pick' {
             . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
             $lines = @(
                 "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
@@ -367,13 +389,13 @@ try { $rows | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { "error=$($
                 "`$rows = @([pscustomobject] @{ Name = 'alpha'; Role = 'web' }, [pscustomobject] @{ Name = 'beta'; Role = 'sql' })"
                 "`$picked = @(`$rows | Show-ConsoleGrid -Title 'Servers' -WarningVariable warned -WarningAction SilentlyContinue)"
                 "'PICKED=' + `$picked.Count"
-                "'WARNED=' + (`$warned -join ' ')"
+                "'WARNED=' + @(`$warned).Count"
             )
             $text = (Invoke-TestChild -Runtime ([System.Diagnostics.Process]::GetCurrentProcess().Path) -Script ($lines -join "`n")) -join "`n"
             $text | Should -Match 'alpha'
             $text | Should -Match 'beta'
             $text | Should -Match 'PICKED=0'
-            $text | Should -Match 'WARNED=.*interactive console'
+            $text | Should -Match 'WARNED=0'
         }
 
         It 'cancels with a PromptCanceled error on Esc' {

@@ -6,197 +6,12 @@ using System.Linq;
 using ConsoleMonster.Data;
 
 namespace ConsoleMonster.Changes {
-    /// <summary>How an object or a value changed.</summary>
-    public enum ChangeKind {
-        /// <summary>No change.</summary>
-        Unchanged,
-
-        /// <summary>Only in the new set.</summary>
-        Added,
-
-        /// <summary>Only in the old set.</summary>
-        Removed,
-
-        /// <summary>In both, with different values.</summary>
-        Changed
-    }
-
-    /// <summary>One changed property of an object (a nested path such as <c>Address.City</c> for nested objects).</summary>
-    public sealed class PropertyChange {
-        /// <summary>Creates a property change.</summary>
-        /// <param name="path">The property path.</param>
-        /// <param name="before">The old value.</param>
-        /// <param name="after">The new value.</param>
-        public PropertyChange(string path, object? before, object? after) {
-            Path = path ?? throw new ArgumentNullException(nameof(path));
-            Before = before;
-            After = after;
-        }
-
-        /// <summary>The property path.</summary>
-        public string Path { get; }
-
-        /// <summary>The old value.</summary>
-        public object? Before { get; }
-
-        /// <summary>The new value.</summary>
-        public object? After { get; }
-
-        /// <summary>The old value as display text; dates that differ only below a minute show their seconds.</summary>
-        public string BeforeText => ObjectDiff.PairText(Before, After);
-
-        /// <summary>The new value as display text; dates that differ only below a minute show their seconds.</summary>
-        public string AfterText => ObjectDiff.PairText(After, Before);
-
-        /// <inheritdoc />
-        public override string ToString() => Path + ": " + BeforeText + " -> " + AfterText;
-    }
-
-    /// <summary>One object of a comparison: added, removed, changed (with its property changes) or unchanged.</summary>
-    public sealed class ObjectChange {
-        /// <summary>Creates an object change.</summary>
-        /// <param name="kind">The kind.</param>
-        /// <param name="key">The key the objects were matched by.</param>
-        /// <param name="before">The old object, or null when added.</param>
-        /// <param name="after">The new object, or null when removed.</param>
-        /// <param name="properties">The changed properties.</param>
-        public ObjectChange(ChangeKind kind, string key, object? before, object? after, IReadOnlyList<PropertyChange>? properties = null) {
-            Kind = kind;
-            Key = key ?? string.Empty;
-            Before = before;
-            After = after;
-            Properties = properties ?? new PropertyChange[0];
-        }
-
-        /// <summary>The kind.</summary>
-        public ChangeKind Kind { get; }
-
-        /// <summary>The key the objects were matched by.</summary>
-        public string Key { get; }
-
-        /// <summary>The old object, or null when added.</summary>
-        public object? Before { get; }
-
-        /// <summary>The new object, or null when removed.</summary>
-        public object? After { get; }
-
-        /// <summary>The changed properties (empty unless <see cref="Kind"/> is Changed).</summary>
-        public IReadOnlyList<PropertyChange> Properties { get; }
-
-        /// <summary>
-        /// A short description of an added or removed object (its first compared properties, such as
-        /// <c>Title: Admin; Enabled: True</c>), or the value itself for simple values; null when not described.
-        /// </summary>
-        public string? Summary { get; internal set; }
-
-        /// <summary>
-        /// The compared simple properties of an added or removed object (not its key, not empty), each with the value on its
-        /// side: <see cref="PropertyChange.After"/> for added objects, <see cref="PropertyChange.Before"/> for removed ones.
-        /// Empty for other kinds and for simple values.
-        /// </summary>
-        public IReadOnlyList<PropertyChange> Values { get; internal set; } = new PropertyChange[0];
-    }
-
-    /// <summary>The result of a comparison, with counts by kind.</summary>
-    public sealed class ChangeSet {
-        /// <summary>Creates a change set.</summary>
-        /// <param name="changes">The object changes.</param>
-        public ChangeSet(IReadOnlyList<ObjectChange> changes) {
-            Changes = changes ?? throw new ArgumentNullException(nameof(changes));
-            foreach (ObjectChange change in changes) {
-                switch (change.Kind) {
-                    case ChangeKind.Added:
-                        Added++;
-                        break;
-                    case ChangeKind.Removed:
-                        Removed++;
-                        break;
-                    case ChangeKind.Changed:
-                        Changed++;
-                        break;
-                    default:
-                        Unchanged++;
-                        break;
-                }
-            }
-        }
-
-        /// <summary>Every object, in a stable order (changes first by kind, then unchanged ones).</summary>
-        public IReadOnlyList<ObjectChange> Changes { get; }
-
-        /// <summary>Objects only in the new set.</summary>
-        public int Added { get; }
-
-        /// <summary>Objects only in the old set.</summary>
-        public int Removed { get; }
-
-        /// <summary>Objects in both with different values.</summary>
-        public int Changed { get; }
-
-        /// <summary>Creates a change set that also counts unchanged objects that are not listed.</summary>
-        /// <param name="changes">The object changes.</param>
-        /// <param name="unchanged">The number of unchanged objects, listed or not.</param>
-        public ChangeSet(IReadOnlyList<ObjectChange> changes, int unchanged) : this(changes) {
-            Unchanged = Math.Max(Unchanged, unchanged);
-        }
-
-        /// <summary>Objects in both with the same values (counted even when not listed).</summary>
-        public int Unchanged { get; private set; }
-
-        /// <summary>Whether anything was added, removed or changed.</summary>
-        public bool HasChanges => Added + Removed + Changed > 0;
-
-        /// <summary>Whether the change removes objects: the case for a typed confirmation.</summary>
-        public bool IsDestructive => Removed > 0;
-
-        /// <summary>The member paths that were not compared because reading them stalled (neither changed nor the same).</summary>
-        public IReadOnlyList<string> NotCompared { get; internal set; } = new string[0];
-    }
-
-    /// <summary>Options for <see cref="ObjectDiff"/>.</summary>
-    public sealed class DiffOptions {
-        /// <summary>The members whose values identify an object (like Compare-Object -Property for matching). Empty: Id, Name, Key...</summary>
-        public IList<string> Key { get; } = new List<string>();
-
-        /// <summary>A function that returns an object's key, instead of <see cref="Key"/>.</summary>
-        public Func<object, object?>? KeySelector { get; set; }
-
-        /// <summary>The members to compare, or empty for all of them.</summary>
-        public IList<string> Properties { get; } = new List<string>();
-
-        /// <summary>Members (or paths such as <c>Address.City</c>, with <c>*</c> wildcards) left out of the comparison.</summary>
-        public IList<string> Ignore { get; } = new List<string>();
-
-        /// <summary>How deep nested objects are compared (default 3).</summary>
-        public int Depth { get; set; } = 3;
-
-        /// <summary>Whether unchanged objects are listed too (they are always counted).</summary>
-        public bool IncludeUnchanged { get; set; }
-
-        /// <summary>Turns a host wrapper into the value to compare (for example a PowerShell object around a dictionary), or null.</summary>
-        public Func<object, object>? Unwrap { get; set; }
-
-        /// <summary>How long getters may stall in one comparison before slow members stop being read (default 2 seconds).</summary>
-        public TimeSpan TimeBudget { get; set; } = TimeSpan.FromSeconds(2);
-
-        // The stall guard of the comparison in progress, and the field cache shared by every read in it.
-        internal Values.ShapeBudget? Budget { get; set; }
-
-        internal Values.ShapeOptions? Shape { get; set; }
-
-        // Member paths skipped in the current comparison because reading them stalled.
-        internal List<string> NotCompared { get; } = new List<string>();
-
-        /// <summary>Member sources tried before reflection (PowerShell objects, dictionaries, JSON).</summary>
-        public IList<IMemberSource> Sources { get; } = new List<IMemberSource>();
-    }
-
     /// <summary>
     /// Compares objects and collections: objects are matched by key, then compared property by property (nested objects
     /// by path), giving added, removed and changed objects with counts. Show the result with <see cref="ChangeView"/> or
     /// ask before acting with <see cref="ChangePreview"/>.
     /// </summary>
-    public static class ObjectDiff {
+    public static partial class ObjectDiff {
         private static readonly string[] DefaultKeys = { "Id", "Key", "Name", "FullName", "DistinguishedName", "SamAccountName", "DisplayName", "Path" };
         private static readonly IMemberSource Reflection = new ReflectionMemberSource();
         private static readonly IMemberSource Dictionaries = new DictionaryMemberSource();
@@ -235,8 +50,8 @@ namespace ConsoleMonster.Changes {
                 return new ChangeSet(new[] { Described(new ObjectChange(ChangeKind.Removed, key, before, null), before, options) });
             }
             IReadOnlyList<PropertyChange> properties = CompareObjectsCore(before, after, options);
-            ObjectChange change = new ObjectChange(properties.Count > 0 ? ChangeKind.Changed : ChangeKind.Unchanged, key, before, after, properties);
-            return new ChangeSet(change.Kind == ChangeKind.Unchanged && !options.IncludeUnchanged ? new ObjectChange[0] : new[] { change }).WithUnchanged(change.Kind == ChangeKind.Unchanged ? 1 : 0);
+            ObjectChange change = new ObjectChange(properties.Any(p => !p.IsCaseOnly) ? ChangeKind.Changed : ChangeKind.Unchanged, key, before, after, properties);
+            return new ChangeSet(change.Kind == ChangeKind.Unchanged && properties.Count == 0 && !options.IncludeUnchanged ? new ObjectChange[0] : new[] { change }, change.Kind == ChangeKind.Unchanged ? 1 : 0);
         }
 
         /// <summary>Compares two collections: items are matched by key and compared property by property.</summary>
@@ -256,7 +71,7 @@ namespace ConsoleMonster.Changes {
         private static ChangeSet CompareMany(IEnumerable<object?> before, IEnumerable<object?> after, DiffOptions options) {
             List<object> oldItems = (before ?? new object?[0]).Where(item => item != null).Select(item => item!).ToList();
             List<object> newItems = (after ?? new object?[0]).Where(item => item != null).Select(item => item!).ToList();
-            Dictionary<string, Queue<object>> oldByKey = new Dictionary<string, Queue<object>>(StringComparer.Ordinal);
+            Dictionary<string, Queue<object>> oldByKey = new Dictionary<string, Queue<object>>(options.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
             for (int i = 0; i < oldItems.Count; i++) {
                 string key = KeyOf(oldItems[i], options, i);
                 if (!oldByKey.TryGetValue(key, out Queue<object>? queue)) {
@@ -273,12 +88,12 @@ namespace ConsoleMonster.Changes {
                 if (oldByKey.TryGetValue(key, out Queue<object>? queue) && queue.Count > 0) {
                     object old = queue.Dequeue();
                     IReadOnlyList<PropertyChange> properties = CompareObjectsCore(old, newItems[i], options);
-                    if (properties.Count > 0) {
+                    if (properties.Any(p => !p.IsCaseOnly)) {
                         changed.Add(new ObjectChange(ChangeKind.Changed, key, old, newItems[i], properties));
                     } else {
                         same++;
-                        if (options.IncludeUnchanged) {
-                            unchanged.Add(new ObjectChange(ChangeKind.Unchanged, key, old, newItems[i]));
+                        if (options.IncludeUnchanged || properties.Count > 0) {
+                            unchanged.Add(new ObjectChange(ChangeKind.Unchanged, key, old, newItems[i], properties));
                         }
                     }
                 } else {
@@ -296,7 +111,7 @@ namespace ConsoleMonster.Changes {
             all.AddRange(changed);
             all.AddRange(added);
             all.AddRange(unchanged);
-            return new ChangeSet(all).WithUnchanged(same - unchanged.Count);
+            return new ChangeSet(all, same);
         }
 
         /// <summary>The changed properties of two objects (nested objects by path, up to <see cref="DiffOptions.Depth"/>).</summary>
@@ -309,6 +124,7 @@ namespace ConsoleMonster.Changes {
             // A direct call is its own comparison: fresh stall guard and field cache, even when the options are reused.
             options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
             options.Shape = null;
+            options.NotCompared.Clear();
             return CompareObjectsCore(before, after, options);
         }
 
@@ -357,7 +173,11 @@ namespace ConsoleMonster.Changes {
         /// <param name="value">The value.</param>
         /// <param name="other">The value on the other side.</param>
         /// <returns>The text.</returns>
-        public static string PairText(object? value, object? other) {
+        public static string PairText(object? value, object? other) => PairText(value, other, Localization.WidgetLabels.Current);
+
+        internal static string PairText(object? value, object? other, Localization.WidgetLabels labels) {
+            string? marker = Values.ValueDisplay.ComparisonMarker(value, labels);
+            if (marker != null) return marker;
             string text = Text(value);
             if ((value is DateTime || value is DateTimeOffset) && (other is DateTime || other is DateTimeOffset) && !Equals(value, other) && Text(other) == text) {
                 string precise = Presenters.DatePresenter.Text(value, null, true) ?? text;
@@ -369,7 +189,9 @@ namespace ConsoleMonster.Changes {
             return text;
         }
 
-        private static void CompareInto(List<PropertyChange> changes, string path, object? before, object? after, DiffOptions options, int depth) {
+        private static void CompareInto(List<PropertyChange> changes, string path, object? before, object? after, DiffOptions options, int depth, bool hasBefore = true, bool hasAfter = true, bool normalize = true) {
+            before = before == null ? null : options.Unwrap?.Invoke(before) ?? before;
+            after = after == null ? null : options.Unwrap?.Invoke(after) ?? after;
             if (before is Values.BudgetExceeded || after is Values.BudgetExceeded) {
                 // A member that stopped being read (its getter kept stalling) is not compared: neither changed nor the same.
                 // The change set lists it, so the view can say so.
@@ -379,15 +201,34 @@ namespace ConsoleMonster.Changes {
                 }
                 return;
             }
+            string label = path.Length == 0 ? "(value)" : path;
+            if ((!hasBefore || !hasAfter) &&
+                (options.Normalize.ContainsKey(label) || depth >= options.Depth || IsCollection(before) ||
+                    IsCollection(after) || IsLeaf(before) && IsLeaf(after))) {
+                changes.Add(new PropertyChange(label, before, after, hasBefore, hasAfter));
+                return;
+            }
+            if (normalize && options.Normalize.TryGetValue(label, out Func<object?, object?>? normalizer)) {
+                var normalized = new List<PropertyChange>();
+                CompareInto(normalized, path, normalizer(before), normalizer(after), options, depth, hasBefore, hasAfter, normalize: false);
+                if (normalized.Count > 0) {
+                    changes.Add(new PropertyChange(label, before, after, hasBefore, hasAfter, isCaseOnly: normalized.All(p => p.IsCaseOnly)));
+                }
+                return;
+            }
             if (IsLeaf(before) && IsLeaf(after) || depth >= options.Depth) {
-                if (!ValuesEqual(before, after)) {
-                    changes.Add(new PropertyChange(path.Length == 0 ? "(value)" : path, before, after));
+                bool equal = ValuesEqual(before, after, options.CaseSensitive);
+                bool caseOnly = equal && !options.CaseSensitive && !ValuesEqual(before, after, true);
+                if (!equal || caseOnly) {
+                    changes.Add(new PropertyChange(label, before, after, isCaseOnly: caseOnly));
                 }
                 return;
             }
             if (IsCollection(before) || IsCollection(after)) {
-                if (!CollectionsEqual(before, after, options, depth)) {
-                    changes.Add(new PropertyChange(path.Length == 0 ? "(value)" : path, before, after));
+                var items = new List<PropertyChange>();
+                bool equal = CollectionsEqual(before, after, options, depth, items);
+                if (!equal || items.Count > 0) {
+                    changes.Add(new PropertyChange(label, before, after, isCaseOnly: equal));
                 }
                 return;
             }
@@ -399,6 +240,10 @@ namespace ConsoleMonster.Changes {
                     names.Add(name);
                 }
             }
+            if (names.Count == 0 && (!hasBefore || !hasAfter)) {
+                changes.Add(new PropertyChange(label, before, after, hasBefore, hasAfter));
+                return;
+            }
             foreach (string name in names) {
                 string child = path.Length == 0 ? name : path + "." + name;
                 if (depth == 0 && options.Properties.Count > 0 && !options.Properties.Any(p => string.Equals(p, name, StringComparison.OrdinalIgnoreCase))) {
@@ -407,9 +252,9 @@ namespace ConsoleMonster.Changes {
                 if (Ignored(child, name, options)) {
                     continue;
                 }
-                oldMembers.TryGetValue(name, out object? oldValue);
-                newMembers.TryGetValue(name, out object? newValue);
-                CompareInto(changes, child, oldValue, newValue, options, depth + 1);
+                bool oldPresent = oldMembers.TryGetValue(name, out object? oldValue);
+                bool newPresent = newMembers.TryGetValue(name, out object? newValue);
+                CompareInto(changes, child, oldValue, newValue, options, depth + 1, oldPresent, newPresent);
             }
         }
 
@@ -428,7 +273,7 @@ namespace ConsoleMonster.Changes {
                     || !IsLeaf(member.Value) || member.Value == null || Text(member.Value).Length == 0) {
                     continue;
                 }
-                values.Add(new PropertyChange(member.Key, added ? null : member.Value, added ? member.Value : null));
+                values.Add(new PropertyChange(member.Key, added ? null : member.Value, added ? member.Value : null, !added, added));
             }
             change.Values = values;
             List<string> parts = values.Take(5).Select(v => v.Path + ": " + Text(added ? v.After : v.Before)).ToList();
@@ -523,7 +368,10 @@ namespace ConsoleMonster.Changes {
             }
         }
 
-        private static bool ValuesEqual(object? a, object? b) {
+        private static bool ValuesEqual(object? a, object? b, bool caseSensitive) {
+            if (a is string leftText && b is string rightText) {
+                return string.Equals(leftText, rightText, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+            }
             // Secure strings cannot be compared without revealing them; two of them count as the same value.
             if (a is System.Security.SecureString && b is System.Security.SecureString) {
                 return true;
@@ -548,7 +396,7 @@ namespace ConsoleMonster.Changes {
             return false;
         }
 
-        private static bool CollectionsEqual(object? before, object? after, DiffOptions options, int depth) {
+        private static bool CollectionsEqual(object? before, object? after, DiffOptions options, int depth, List<PropertyChange> differences) {
             if (!IsCollection(before) || !IsCollection(after)) { return false; }
             using (IEnumerator<object?> left = Items(before).GetEnumerator())
             using (IEnumerator<object?> right = Items(after).GetEnumerator()) {
@@ -556,7 +404,8 @@ namespace ConsoleMonster.Changes {
                     if (!right.MoveNext()) { return false; }
                     List<PropertyChange> itemChanges = new List<PropertyChange>();
                     CompareInto(itemChanges, string.Empty, left.Current, right.Current, options, depth + 1);
-                    if (itemChanges.Count > 0) { return false; }
+                    differences.AddRange(itemChanges);
+                    if (itemChanges.Any(p => !p.IsCaseOnly)) { return false; }
                 }
                 return !right.MoveNext();
             }
@@ -582,7 +431,5 @@ namespace ConsoleMonster.Changes {
         private static bool IsNumber(object value) => value is int || value is long || value is double || value is float || value is decimal
             || value is short || value is byte || value is uint || value is ulong || value is ushort || value is sbyte;
 
-        // Unchanged objects not listed still count.
-        private static ChangeSet WithUnchanged(this ChangeSet set, int extra) => extra <= 0 ? set : new ChangeSet(set.Changes, set.Unchanged + extra);
     }
 }

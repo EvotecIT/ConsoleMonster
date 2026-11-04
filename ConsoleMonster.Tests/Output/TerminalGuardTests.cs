@@ -5,6 +5,7 @@ using ConsoleMonster.Output;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Output {
+    [Collection("Live sessions")]
     public sealed class TerminalGuardTests {
         [Fact]
         public void RestoreRunsOnceAndNeverThrowsEvenWhenCallbackFails() {

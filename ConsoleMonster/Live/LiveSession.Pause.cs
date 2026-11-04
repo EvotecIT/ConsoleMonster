@@ -29,6 +29,24 @@ namespace ConsoleMonster.Live {
             return new LivePause(this, backdrop);
         }
 
+        // Input controls change on the app thread; bindings arrive through the dispatcher. Keep drawing paused
+        // until the queue reaches the end of that input update, so both become visible in the same frame.
+        internal IDisposable UpdateFrame() {
+            lock (_outputGate) { Interlocked.Increment(ref _paused); }
+            return new FrameUpdate(this, new LivePause(this, null, redraw: false));
+        }
+
+        private sealed class FrameUpdate : IDisposable {
+            private readonly LiveSession _session;
+            private LivePause? _pause;
+            internal FrameUpdate(LiveSession session, LivePause pause) { _session = session; _pause = pause; }
+            public void Dispose() {
+                LivePause? pause = Interlocked.Exchange(ref _pause, null);
+                if (pause == null) return;
+                if (!_session.TryPost(new LiveEvent("$frame", "resume") { Payload = pause })) pause.Dispose();
+            }
+        }
+
         /// <summary>
         /// A copy of the last dashboard frame drawn or captured as a skipped-delay recording checkpoint (for exports
         /// and screenshots), or null before the first frame and for line-based outputs without checkpoints.
@@ -54,7 +72,7 @@ namespace ConsoleMonster.Live {
             return IsRunning && TryPost(new LiveEvent("$console", "write-block") { Payload = item });
         }
 
-        internal bool CanOverlay => IsRunning && _output != null && _output.SupportsLiveFrames && !_restored;
+        internal bool CanOverlay => IsRunning && _output != null && SupportsLiveFrames && !_restored;
 
         // Append-only recording outputs still have a checkpoint backdrop for an in-memory prompt overlay.
         internal bool CanCaptureOverlay(RecordingTarget target) => IsRunning && !_restored &&
@@ -69,21 +87,23 @@ namespace ConsoleMonster.Live {
             }
         }
 
-        internal void Resume() {
-            if (Interlocked.Decrement(ref _paused) <= 0) {
-                Volatile.Write(ref _paused, 0);
-                Invalidate();
-            }
+        internal void Resume(bool redraw) {
+            // A real overlay may have replaced terminal cells; an app update has not. Preserve that
+            // invalidation through nested pauses, and never overwrite a concurrently acquired pause.
+            if (redraw) Invalidate();
+            Interlocked.Decrement(ref _paused);
         }
     }
 
     /// <summary>A pause of a live session's drawing; dispose it to resume.</summary>
     public sealed class LivePause : IDisposable {
         private readonly LiveSession _session;
+        private readonly bool _redraw;
         private int _disposed;
 
-        internal LivePause(LiveSession session, CellBuffer? backdrop) {
+        internal LivePause(LiveSession session, CellBuffer? backdrop, bool redraw = true) {
             _session = session;
+            _redraw = redraw;
             Backdrop = backdrop;
         }
 
@@ -100,7 +120,7 @@ namespace ConsoleMonster.Live {
         /// <summary>Resumes drawing.</summary>
         public void Dispose() {
             if (Interlocked.Exchange(ref _disposed, 1) == 0) {
-                _session.Resume();
+                _session.Resume(_redraw);
             }
         }
     }

@@ -1,0 +1,36 @@
+// A directory change replicating from the PDC emulator in HQ to the branch office.
+title "Active Directory replication"
+direction right
+
+user admin "Admin"
+group hq "Site: HQ"
+  server dc01 "DC01" subtitle:"PDC emulator"
+  server dc02 "DC02" subtitle:"Bridgehead"
+end
+group warsaw "Site: Warsaw"
+  server dc03 "DC03" subtitle:"Bridgehead" status:warning
+  server dc04 "DC04" subtitle:"Branch DC"
+end
+
+admin -> dc01 "LDAP"
+dc01 -> dc02 "RPC"
+dc02 -> dc03 "Site link"
+dc03 -> dc04 "RPC"
+
+usecase replicate "Replicate a change" delay:900 spotlight:true
+  admin -> dc01 "LDAP modify" json { "replace": { "title": "Site manager" } }
+  dc01 --> admin "Success"
+  dc01 ->> dc02 "Change notification"
+  dc02 -> dc01 "DRSGetNCChanges"
+  dc01 --> dc02 "1 object"
+  dc03 -> dc02 "Scheduled pull"
+  dc02 --> dc03 "Changes"
+  dc03 ->> dc04 "Change notification"
+end
+
+usecase sitelink "Site link down" delay:900 spotlight:true
+  admin -> dc01 "LDAP modify"
+  dc01 --> admin "Success"
+  dc01 ->> dc02 "Change notification"
+  dc03 -x dc02 "Scheduled pull" text "RPC server unavailable (1722)"
+end

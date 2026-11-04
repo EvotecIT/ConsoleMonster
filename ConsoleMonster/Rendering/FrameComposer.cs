@@ -20,6 +20,7 @@ namespace ConsoleMonster.Rendering {
                 throw new ArgumentNullException(nameof(context));
             }
             CellBuffer buffer = reuse ?? new CellBuffer(width, height);
+            buffer.GlyphTier = context.Glyphs.Tier;
             if (buffer.Width != width || buffer.Height != height) {
                 buffer.Resize(width, height);
             } else {
@@ -47,7 +48,7 @@ namespace ConsoleMonster.Rendering {
                 throw new ArgumentNullException(nameof(context));
             }
             Size size = widget.Measure(new Constraints(width), context);
-            CellBuffer buffer = new CellBuffer(width, size.Height);
+            CellBuffer buffer = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
             widget.Render(new Region(buffer), context);
             return buffer;
         }

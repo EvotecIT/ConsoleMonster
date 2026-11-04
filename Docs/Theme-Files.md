@@ -5,6 +5,11 @@ markup. Start with a built-in preset, export it, edit the tokens you need, then
 load the file in a session or your PowerShell profile. Widgets keep their layout;
 their colours and decorations follow the selected theme.
 
+Set `CONSOLEMONSTER_THEME=highcontrast` or `colorblind` to select `Theme.HighContrast` or `Theme.ColorBlindSafe`
+without a theme file. `light`, `dark` and `auto` remain available. With `auto` or no theme preference, Windows
+High Contrast selects the high contrast palette before background detection. Other platforms keep background
+detection. An explicit theme object, loaded file or named light/dark palette wins over system detection.
+
 ## PowerShell
 
 ```powershell

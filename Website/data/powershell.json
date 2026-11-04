@@ -157,17 +157,17 @@
         "ps7": {
           "host": "PowerShell 7.6",
           "frame": {
-            "w": 85,
-            "h": 3,
-            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8"
+            "w": 100,
+            "h": 4,
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n<span class=c76>[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links </span><span class=f8b8f9a>(https://consolemonster.</span>\n<span class=\"f8b8f9a c4\">dev)</span> use OSC 8"
           }
         },
         "ps5": {
           "host": "Windows PowerShell 5.1",
           "frame": {
-            "w": 85,
-            "h": 3,
-            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links use OSC 8"
+            "w": 100,
+            "h": 4,
+            "dark": "<span class=\"fe74856 B c6\">Markup</span><span class=c8> in the </span><span class=\"I c15\">Spectre.Console</span><span class=c10> dialect: </span><span class=\"f5faf87 c9\">cadetblue</span><span class=c2>, </span><span class=\"f808080 c6\">grey50</span><span class=c2>, </span><span class=f0087af>deepskyblue3</span>\n<span class=\"fff8800 c7\">#ff8800</span><span class=c2>, </span><span class=\"f78c85a c15\">rgb(120,200,90)</span><span class=c2>, </span><span class=\"fff8700 c10\">color(208)</span><span class=c5> and </span><span class=\"ff2f2f2 kf87171\"> theme roles </span>\n<span class=c76>[brackets] are literal, [nosuchcolour] is an escaped literal tag, and links </span><span class=f8b8f9a>(https://consolemonster.</span>\n<span class=\"f8b8f9a c4\">dev)</span> use OSC 8"
           }
         }
       }
@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 41,
+      "count": 47,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -374,6 +374,36 @@
           "name": "New-ConsoleDatePicker",
           "synopsis": "Creates a persistent civil-date or inclusive range picker.",
           "url": "/powershell/commands/new-consoledatepicker/"
+        },
+        {
+          "name": "New-ConsoleDiagram",
+          "synopsis": "Builds a diagram from a script block or connection rows.",
+          "url": "/powershell/commands/new-consolediagram/"
+        },
+        {
+          "name": "New-ConsoleDiagramGroup",
+          "synopsis": "Groups components and nested diagram groups.",
+          "url": "/powershell/commands/new-consolediagramgroup/"
+        },
+        {
+          "name": "New-ConsoleDiagramLink",
+          "synopsis": "Connects two diagram components.",
+          "url": "/powershell/commands/new-consolediagramlink/"
+        },
+        {
+          "name": "New-ConsoleDiagramNode",
+          "synopsis": "Creates a diagram component.",
+          "url": "/powershell/commands/new-consolediagramnode/"
+        },
+        {
+          "name": "New-ConsoleDiagramStep",
+          "synopsis": "Creates a request, message, reply or failed interaction.",
+          "url": "/powershell/commands/new-consolediagramstep/"
+        },
+        {
+          "name": "New-ConsoleDiagramUseCase",
+          "synopsis": "Builds a playable sequence of diagram interactions.",
+          "url": "/powershell/commands/new-consolediagramusecase/"
         },
         {
           "name": "New-ConsoleDialog",
@@ -592,7 +622,7 @@
     },
     {
       "verb": "Show",
-      "count": 13,
+      "count": 14,
       "commands": [
         {
           "name": "Show-Console",
@@ -608,6 +638,11 @@
           "name": "Show-ConsoleDemo",
           "synopsis": "Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.",
           "url": "/powershell/commands/show-consoledemo/"
+        },
+        {
+          "name": "Show-ConsoleDiagram",
+          "synopsis": "Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.",
+          "url": "/powershell/commands/show-consolediagram/"
         },
         {
           "name": "Show-ConsoleGrid",
@@ -736,7 +771,7 @@
       "commands": [
         {
           "name": "Compare-ConsoleObject",
-          "synopsis": "Compares two sets of objects and shows what was added, removed and changed, property by property.",
+          "synopsis": "Compares object sets or shows property drift across a baseline matrix.",
           "url": "/powershell/commands/compare-consoleobject/"
         },
         {

@@ -1,3 +1,24 @@
+## Unreleased
+
+- Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.
+
+- Added the `Diagram` model, widget-returning fluent chains and PowerShell diagram commands for nodes, links, nested groups, connection rows and playable use cases.
+- Kept diagram models and grouped tree rendering in the dependency-free core. The optional Graphics provider adds ChartForgeX import, routed topology rendering, keyboard navigation and PNG export.
+- Added full-text attention summaries, a lossless narrow tree view, and addressed node values and shared `StatusKind` updates through C# handles and `Update-Console`.
+- Unified baseline selection in `DiffOptions.Baseline` and documented hashtable configuration for PowerShell date pickers.
+- Kept omitted diagram statuses unmarked, nested tree hierarchies, preserved wrapped guides and used compact natural topology sizing.
+- Let live value boxes grow in bounded steps without shrinking between updates, and made the attention heading bold.
+- Reject pipeline input with Show-ConsoleDiagram -Path once, before reading the file.
+- Kept node attention details separate from connection failures, using each node's own value or subtitle.
+- Preserved imported chart and scenario-step metadata through Diagram edits, measured ASCII captions before topology projection, and kept automatic key hints out of static Diagram runs.
+- Kept expanding ASCII captions and tab hit areas aligned, and counted unchanged single-object comparisons once.
+- Accessible diagrams keep status, focus and active failures in their tree text even when companion panels are hidden; reduced motion freezes playback and resumes without skipping.
+- Preserved Unicode diagram example text in Windows PowerShell 5.1 and PowerShell 7.
+- Added the typed `TopologyChart.ToDiagram()` extension in Graphics, keeping the core free of ChartForgeX types and dependencies.
+- Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.
+- Tables, cards, records, key/value lists, trees and diffs distinguish missing, null and empty data. Record sheets show empty fields by default; explicit empty-field filtering remains available.
+- ASCII and Basic output constrain caller text to ASCII and WGL4 respectively. Grid and live-table string sorting use stable ordinal case-insensitive order. See the [behaviour contract](Docs/Behaviour-Contract.md).
+
 ### 2.1.0 - the everyday path
 
 ## Public API

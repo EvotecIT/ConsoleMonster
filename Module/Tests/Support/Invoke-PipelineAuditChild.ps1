@@ -38,6 +38,7 @@ switch ($Name) {
     'Invoke-ConsoleDashboard' { $parameters.Dashboard = New-ConsoleText 'audit'; $parameters.ScriptBlock = {}; $parameters.Parallel = $true }
     'Invoke-ConsoleRecording' { $parameters.ScriptBlock = {}; $parameters.Path = 'audit.cast' }
     'Set-ConsoleFormValue' { $parameters.Form = New-ConsoleForm -Title 'audit' -Content { New-ConsoleField -Key 'Name' } }
+    'Show-ConsoleDiagram' { Set-Content -LiteralPath 'audit.cfx' -Value "server a ""A""`nserver b ""B""`na -> b ""calls"""; $parameters.Path = 'audit.cfx'; $parameters.StaticSnapshot = $true }
     'Show-ConsoleReplay' { $parameters.Dashboard = New-ConsoleText 'audit' }
     'New-ConsoleDataGrid' { $type = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.Grid'); $parameters.Grid = $type::new('audit'); $parameters.Key = 'audit' }
     'Update-Console' { $parameters.WidgetId = 'audit'; $parameters.Status = 'Pending' }

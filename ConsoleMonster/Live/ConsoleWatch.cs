@@ -18,8 +18,11 @@ namespace ConsoleMonster.Live {
         /// <summary>The shortest interval (50 ms), so a watch never spins.</summary>
         public static readonly TimeSpan MinimumInterval = TimeSpan.FromMilliseconds(50);
 
-        /// <summary>How many runs, or 0 (default) until cancelled.</summary>
+        /// <summary>How many runs; zero (default) follows until cancelled interactively, or prints one snapshot without a user.</summary>
         public int Count { get; set; }
+
+        // PowerShell's process flag is independent of whether its standard handles are attached to a TTY.
+        internal bool NonInteractive { get; set; }
 
         /// <summary>Whether cells that changed since the previous run are highlighted.</summary>
         public bool Differences { get; set; }
@@ -69,7 +72,8 @@ namespace ConsoleMonster.Live {
     /// <summary>
     /// Runs a function again and again and shows its latest result as a live view (the way <c>watch</c> does): the heading
     /// counts the runs, changed cells can be highlighted, a failed run shows its error and the watch goes on. On a terminal
-    /// that is not interactive (redirected output, CI) every run is printed instead. Watch-Console is the PowerShell face.
+    /// that is not interactive (redirected output, CI) the current view is printed once, or Count times when supplied.
+    /// Watch-Console is the PowerShell face.
     /// </summary>
     public static class ConsoleWatch {
         /// <summary>Watches until cancelled or <see cref="WatchOptions.Count"/> runs have finished.</summary>
@@ -83,16 +87,31 @@ namespace ConsoleMonster.Live {
             }
             WatchOptions o = options ?? new WatchOptions();
             WatchView view = new WatchView { Title = o.Title, PollInterval = o.PollInterval, Differences = o.Differences };
-            bool live = o.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
+            Output.ITerminalTarget target = o.Session?.Target ?? Terminal.Target;
+            TerminalProfile profile = Terminal.ApplyProfilePolicy(o.Session?.Profile ?? Terminal.GetTargetProfile(target));
+            if (o.Session?.Culture != null) profile = profile.WithCulture(o.Session.Culture);
+            Styling.ITheme theme = o.Session?.Theme ?? target.Theme ?? Terminal.Theme;
+            bool interactive = profile.IsLive && !profile.IsOutputRedirected && !profile.IsContinuousIntegration
+                && !o.NonInteractive && !Interactive.InteractiveOptions.Default.IsNonInteractive
+                && (target is Output.RecordingTarget || !Console.IsInputRedirected);
+            bool live = interactive && (o.Live ?? true);
+            int count = !interactive && o.Count <= 0 ? 1 : o.Count;
+            Action<IWidget> print = o.Print ?? (widget => {
+                using (Terminal.Use(target)) {
+                    if (o.Session?.Output is Rendering.ITerminalOutput output) {
+                        foreach (Canvas.CellBuffer block in Terminal.RenderChunks(widget, profile.Width, Terminal.CreateContext(profile, theme))) output.WriteBlock(block);
+                    } else { Terminal.Write(widget, profile, target.Writer, theme); }
+                }
+            });
             if (!live) {
-                return Loop(produce, o, view, null, cancellationToken);
+                return Loop(produce, o, view, null, count, print, cancellationToken);
             }
             LiveSessionOptions session = o.Session ?? new LiveSessionOptions { Mode = LiveMode.Inline, PrintFinalState = true };
             using (LiveSession running = new LiveSession(view, session)) {
                 running.Start();
                 using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, running.Cancellation)) {
                     try {
-                        return Loop(produce, o, view, running, linked.Token);
+                        return Loop(produce, o, view, running, count, print, linked.Token);
                     } finally {
                         running.Stop();
                     }
@@ -100,9 +119,9 @@ namespace ConsoleMonster.Live {
             }
         }
 
-        private static int Loop(Func<int, IWidget> produce, WatchOptions o, WatchView view, LiveSession? session, CancellationToken token) {
+        private static int Loop(Func<int, IWidget> produce, WatchOptions o, WatchView view, LiveSession? session, int count, Action<IWidget> print, CancellationToken token) {
             int runs = 0;
-            while (!token.IsCancellationRequested && (o.Count <= 0 || runs < o.Count)) {
+            while (!token.IsCancellationRequested && (count <= 0 || runs < count)) {
                 runs++;
                 IWidget content;
                 string? status = null;
@@ -127,13 +146,9 @@ namespace ConsoleMonster.Live {
                     if (!Delay(session, TimeSpan.Zero, token)) { break; }
                 } else {
                     view.Update(content, runs, status);
-                    if (o.Print != null) {
-                        o.Print(view);
-                    } else {
-                        Terminal.Write(view);
-                    }
+                    print(view);
                 }
-                if (o.Count > 0 && runs >= o.Count) {
+                if (count > 0 && runs >= count) {
                     break;
                 }
                 if (o.Delay != null) {

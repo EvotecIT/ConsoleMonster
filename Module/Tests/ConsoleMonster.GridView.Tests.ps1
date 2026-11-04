@@ -273,7 +273,7 @@ Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Erro
 $values = @([pscustomobject]@{Name='alpha'; Id=1}, [pscustomobject]@{Name='beta';Id=2})
 $warnings = @()
 $capture = @($values | Out-GridView -PassThru -WarningVariable warnings)
-if ($capture.Count -ne 0 -or $warnings.Count -ne 1) { throw 'Noninteractive result differs.' }
+    if ($capture.Count -ne 0 -or $warnings.Count -ne 0) { throw 'Noninteractive result differs.' }
 $text = $values | Out-GridView -OutputMode Single -WarningAction SilentlyContinue | Out-String
 if ($text) { throw 'Display text leaked into success output.' }
 Disable-ConsoleFormatting

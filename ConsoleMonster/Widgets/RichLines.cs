@@ -12,7 +12,7 @@ namespace ConsoleMonster.Widgets {
         /// </summary>
         internal static StyledLine Line(RichText? rich, string? fallback, Style baseStyle, RenderContext context) {
             if (rich == null) {
-                return StyledLine.From(fallback ?? string.Empty, baseStyle);
+                return StyledLine.From(Glyphs.SymbolFallback.Constrain(fallback ?? string.Empty, context.Glyphs.Tier), baseStyle);
             }
             StyledText text = rich.ToStyledText(context);
             if (text.Lines.Count == 1) {

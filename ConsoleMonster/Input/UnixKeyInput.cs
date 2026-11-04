@@ -18,6 +18,7 @@ namespace ConsoleMonster.Input {
         private VtInputDecoder _decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
         private readonly Stopwatch _quiet = new Stopwatch();
         private bool _active;
+        private bool _suspended;
         private bool _disposed;
         private bool _cancelKeyProcessing;
 
@@ -78,7 +79,13 @@ namespace ConsoleMonster.Input {
 
         internal void Suspend() {
             if (_disposed) { throw new ObjectDisposedException(nameof(UnixKeyInput)); }
+            _suspended = true;
             if (_active) { Restore(); _active = false; }
+        }
+
+        /// <summary>Restores the saved mode if a nested read reactivated a suspended input.</summary>
+        internal void RestoreSuspendedMode() {
+            if (!_disposed && _suspended) { Suspend(); }
         }
 
         /// <summary>Lets the TTY deliver SIGINT while a live runner reads its other keys.</summary>
@@ -95,6 +102,7 @@ namespace ConsoleMonster.Input {
             _utf8.Reset();
             _quiet.Reset();
             Activate(true);
+            _suspended = false;
         }
 
         /// <summary>Applies the leased mode before callbacks or rendering, preserving queued input unless resuming from work.</summary>

@@ -40,7 +40,7 @@ namespace ConsoleMonster.Tests.Widgets {
                 .Select(status => Frame(new Flow().Add(new FlowNode("n", "hop", status)), 48, tier).ToPlainText()).ToArray();
             Assert.Equal(5, rendered.Distinct().Count());
             string cut = Frame(Chain(true), 120, tier).ToPlainText();
-            Assert.Contains(tier == GlyphTier.Ascii ? " x " : " ✗ ", cut);
+            Assert.Contains(tier == GlyphTier.Ascii ? " x " : tier == GlyphTier.Basic ? " × " : " ✗ ", cut);
             if (tier == GlyphTier.Ascii) Assert.All(cut, c => Assert.InRange((int)c, 0, 127));
         }
         [Theory]

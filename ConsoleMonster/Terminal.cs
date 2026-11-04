@@ -83,8 +83,8 @@ namespace ConsoleMonster {
         }
 
         /// <summary>
-        /// Chooses the light or dark theme: <c>CONSOLEMONSTER_THEME=light|dark</c> wins; otherwise interactive consoles use
-        /// the detected background (console colour table, startup OSC 11 query, COLORFGBG) and everything else the dark theme.
+        /// Chooses the named light, dark, high contrast or colour-blind-safe palette. Automatic profiles first honor Windows
+        /// High Contrast, then the detected terminal background; other output uses the dark palette.
         /// </summary>
         /// <param name="profile">The terminal profile.</param>
         /// <returns>The theme.</returns>
@@ -93,6 +93,10 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(profile));
             }
             switch (profile.ThemePreference) {
+                case ThemePreference.HighContrast:
+                    return Styling.Theme.HighContrast;
+                case ThemePreference.ColorBlind:
+                    return Styling.Theme.ColorBlindSafe;
                 case ThemePreference.Light:
                     return Styling.Theme.Light;
                 case ThemePreference.Dark:
@@ -119,6 +123,8 @@ namespace ConsoleMonster {
                 }
                 // Host callbacks and flow-local preferences must not be cached or invoked while holding Gate.
                 switch (ApplyProfilePolicy(profile).ThemePreference) {
+                    case ThemePreference.HighContrast: return Styling.Theme.HighContrast;
+                    case ThemePreference.ColorBlind: return Styling.Theme.ColorBlindSafe;
                     case ThemePreference.Light: return Styling.Theme.Light;
                     case ThemePreference.Dark: return Styling.Theme.Dark;
                     default: return detected;
@@ -217,13 +223,15 @@ namespace ConsoleMonster {
         /// <param name="widget">The widget.</param>
         /// <param name="profile">The profile, or <c>null</c> for <see cref="GetCurrentProfile"/>.</param>
         /// <param name="writer">The sink, or <c>null</c> for the console. The caller keeps ownership of a given writer.</param>
-        public static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer) {
+        public static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer) => Write(widget, profile, writer, null);
+
+        internal static void Write(IWidget widget, TerminalProfile? profile, ITerminalWriter? writer, ITheme? theme) {
             if (widget == null) {
                 throw new ArgumentNullException(nameof(widget));
             }
             TerminalProfile p = profile ?? GetCurrentProfile();
             writer = writer ?? Target.Writer;
-            RenderContext context = CreateContext(p);
+            RenderContext context = CreateContext(p, theme);
             Live.LiveSession? owner = writer == null ? ConsoleOwner : null;
             if (owner != null) {
                 Live.ConsoleWriteBlock prepared = new Live.ConsoleWriteBlock(RenderChunks(widget, p.Width, context));
@@ -364,7 +372,7 @@ namespace ConsoleMonster {
         /// <param name="theme">The theme, or <c>null</c> for <see cref="Theme"/>.</param>
         /// <returns>The context.</returns>
         public static RenderContext CreateContext(TerminalProfile? profile = null, ITheme? theme = null) {
-            return new RenderContext(profile ?? Profile, theme ?? Theme);
+            return new RenderContext(AccessibilityPolicy.Resolve(profile ?? Profile), theme ?? Theme);
         }
 
         /// <summary>Creates the output for a profile: VT when live rendering is possible, line-based otherwise.</summary>
@@ -372,10 +380,10 @@ namespace ConsoleMonster {
         /// <param name="writer">The sink, or <c>null</c> for the console (the output then owns it).</param>
         /// <returns>The output; dispose it when done.</returns>
         public static ITerminalOutput CreateOutput(TerminalProfile? profile = null, ITerminalWriter? writer = null) {
-            TerminalProfile p = profile ?? Profile;
+            TerminalProfile p = AccessibilityPolicy.Resolve(profile ?? Profile);
             bool owns = writer == null;
             ITerminalWriter w = writer ?? TerminalWriterFactory.Create(p);
-            if (p.Mode == OutputMode.Interactive && p.SupportsVirtualTerminal) {
+            if (p.IsLive) {
                 return new VtOutput(w, p, owns);
             }
             return new LineOutput(w, p, owns);
@@ -389,10 +397,10 @@ namespace ConsoleMonster {
         /// <param name="writer">The sink, or <c>null</c> for the console (then owned by the output).</param>
         /// <returns>The output.</returns>
         public static ITerminalOutput CreateInlineOutput(TerminalProfile? profile = null, ITerminalWriter? writer = null) {
-            TerminalProfile p = profile ?? Profile;
+            TerminalProfile p = AccessibilityPolicy.Resolve(profile ?? Profile);
             bool owns = writer == null;
             ITerminalWriter w = writer ?? TerminalWriterFactory.Create(p);
-            if (p.Mode == OutputMode.Interactive && p.SupportsVirtualTerminal) {
+            if (p.IsLive) {
                 return new InlineOutput(w, p, owns);
             }
             return new LineOutput(w, p, owns);
@@ -404,7 +412,7 @@ namespace ConsoleMonster {
         /// <param name="theme">The theme, or <c>null</c> for <see cref="Theme"/>.</param>
         /// <returns>The rendered block.</returns>
         public static CellBuffer Render(IWidget widget, TerminalProfile profile, ITheme? theme = null) {
-            return FrameComposer.RenderBlock(widget, profile.Width, new RenderContext(profile, theme ?? Theme));
+            return FrameComposer.RenderBlock(widget, profile.Width, CreateContext(profile, theme));
         }
 
         /// <summary>Renders a widget to plain text lines (trailing spaces trimmed).</summary>

@@ -79,6 +79,10 @@ namespace SiteFrames.Pages {
             // Each key waits for the screen it acts on, so the PowerShell and C# twins draw the same screens on a busy machine.
             yield return Story.Stepped("screens", "Screens and keys", "Two screens declared once. Type a number to open a server and Escape goes back. The footer lists the keys that work on each screen, and the header shows where you are.",
                 90, 16, ("Type a number", "wait:900 '2'"), ("SQL01 is the", "wait:1200 Escape"), ("Type a number", "wait:900 '3'"), ("FS11 is the", "wait:1200 Escape"), ("Type a number", "wait:700 Escape"));
+            yield return Story.Stepped("controls", "Tabs, toggles and dates", "Retained tabs with Ctrl+PageDown, toggles that Space flips, and a date picker where Space marks the start and end of a range. The line underneath follows every change.",
+                90, 22, ("Run nightly checks", "wait:600 Space"), ("[ ] No", "wait:600 Tab"), ("› Window", "wait:500 Right"), ("› Window", "wait:500 Right"),
+                ("› Window", "wait:500 Space"), ("› Window", "wait:500 Right"), ("› Window", "wait:500 Right"), ("› Window", "wait:500 Space"),
+                ("› Window", "wait:900 Ctrl+PageDown"), ("Email the report", "wait:700 Space"), ("Email yes", "wait:1200 Escape"));
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
         }

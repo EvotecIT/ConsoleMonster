@@ -55,6 +55,8 @@ namespace ConsoleMonster.Interactive {
 
         public bool Accepted { get; private set; }
 
+        internal IWidget Snapshot(RenderContext context) => _data.Snapshot(context);
+
         internal Task ActionCompletion => _actions?.Completion ?? Task.CompletedTask;
 
         public void ShowModal(Modal modal) => _modals.Add(modal);

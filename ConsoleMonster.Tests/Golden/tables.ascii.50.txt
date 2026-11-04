@@ -1,4 +1,4 @@
-evotec.xyz · DNS records via Cloudflare DoH  - ...
+evotec.xyz * DNS records via Cloudflare DoH  - ...
 
 evotec.xyz
   Type        A
@@ -56,7 +56,7 @@ evotec.xyz
   Latency     15 ms
   Cache file  /var/cache/dns/evotec.xyz/CAA.json
 
-evotec.xyz · mail security checks  -  7 records
+evotec.xyz * mail security checks  -  7 records
 
 SPF
   Status  [OK]
@@ -101,8 +101,9 @@ BIMI
   Status  [INFO]
   Detail  no record; optional
   Took    19 ms
+  RFC     -
 
-mail.evotec.xyz  -  TLS certificate · ECDSA P-2...
+mail.evotec.xyz  -  TLS certificate * ECDSA P-2...
 
 Certificate
   Subject           CN=mail.evotec.xyz
@@ -129,7 +130,7 @@ Certificate
     CN=ISRG Root X1          in 8 y          RSA
                                              4096
 
-Nightly checks · run summary  -  7 records
+Nightly checks * run summary  -  7 records
 
 Domains  2
   ad.adatum.com
@@ -191,7 +192,7 @@ Total
   Duration  2 m 04 s
   Score     80.14 %
 
-Build artifacts · ConsoleMonster 2.0.0  -  Show...
+Build artifacts * ConsoleMonster 2.0.0  -  Show...
 
 ConsoleMonster.2.0.0.nupkg
   Kind      NuGet

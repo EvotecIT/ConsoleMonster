@@ -40,7 +40,7 @@ namespace ConsoleMonster.Widgets {
         // a grouped table's few rows.
         private RecordView BuildCards(PresenterContext presenter, bool summary = true) {
             PresenterContext[] contexts = ColumnContexts(presenter);
-            RecordView view = new RecordView(Title) { Presentation = Presentation };
+            RecordView view = new RecordView(Title) { Presentation = Presentation, HideEmpty = false };
             int key = KeyColumn;
             int shown = DisplayedRowCount;
             int all = TotalRowCount ?? _rows.Count;

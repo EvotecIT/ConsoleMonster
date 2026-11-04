@@ -185,7 +185,7 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void Select_ColourFrame_UsesTheFocusBandAndAccentBar() {
+        public void Select_ColourFrame_UsesTheFocusBandAndActivePointer() {
             RecordingSurface surface = new RecordingSurface(48, 12, true);
             InteractiveOptions options = PromptHarness.Options("Enter", surface, GlyphTier.Full, ColorDepth.TrueColor);
             new SelectPrompt<object?>("Target", Servers()).Show(options);
@@ -195,7 +195,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Style focus = context.Style(ThemeToken.Focus);
             int row = Enumerable.Range(0, frame.Height).First(y => frame.GetRowText(y).Contains("FS01"));
             Assert.Equal(focus.BackgroundColor, frame[10, row].Style.BackgroundColor);
-            Assert.Equal("▌", frame[2, row].Glyph);
+            Assert.Equal("›", frame[2, row].Glyph);
             Assert.DoesNotContain("[FS01]", frame.GetRowText(row));
         }
     }

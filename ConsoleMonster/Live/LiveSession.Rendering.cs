@@ -36,7 +36,7 @@ namespace ConsoleMonster.Live {
                     RecordSlotSnapshots(false);
                     // Capture checkpoints own their render schedule. Background frames would make width history
                     // and animations depend on the producer's speed instead of the selected updates.
-                    if (_output!.SupportsLiveFrames && _recordingTarget?.SkipDelays != true) {
+                    if (SupportsLiveFrames && _recordingTarget?.SkipDelays != true) {
                         if (Volatile.Read(ref _paused) == 0) {
                             RenderFinal();
                         }
@@ -71,6 +71,11 @@ namespace ConsoleMonster.Live {
         }
 
         private void ApplyOne(LiveEvent liveEvent) {
+            if (liveEvent.WidgetId == "$frame" && liveEvent.Operation == "resume" && liveEvent.Payload is LivePause pause) {
+                pause.Dispose();
+                Interlocked.Increment(ref _eventsApplied);
+                return;
+            }
             if (liveEvent.WidgetId == "$checkpoint" && liveEvent.Payload is System.Threading.Tasks.TaskCompletionSource<bool> checkpoint) {
                 ApplyCheckpoint(checkpoint);
                 return;
@@ -122,12 +127,12 @@ namespace ConsoleMonster.Live {
             if (widgetWrite) {
                 // Render on the dispatcher so queued block writes use the current width and theme in every output mode.
                 int width = _context!.Profile.Width;
-                if (_output?.SupportsLiveFrames == true) {
+                if (SupportsLiveFrames) {
                     if (TryReadWindow(out _, out _, out int currentWidth, out _) && currentWidth > 0) { width = currentWidth; }
                 }
                 CellBuffer block = FrameComposer.RenderBlock((IWidget)liveEvent.Payload!, width, _context);
                 RouteConsoleWrite(new ConsoleWriteBlock(new[] { block }));
-            } else if (target is Widgets.LogRegion scrollback && scrollback.Scrollback && liveEvent.Operation == "write" && _output?.SupportsLiveFrames == true) {
+            } else if (target is Widgets.LogRegion scrollback && scrollback.Scrollback && liveEvent.Operation == "write" && SupportsLiveFrames) {
                 StyledText text = scrollback.ScrollbackText(liveEvent, _context!);
                 _unroutedLines.Enqueue(new ConsoleWriteBlock(text.Lines, true));
             }
@@ -139,7 +144,7 @@ namespace ConsoleMonster.Live {
             if (_recorder != null) {
                 RecordApplied(target!, liveEvent);
             }
-            if (_output != null && !_output.SupportsLiveFrames && !widgetWrite) {
+            if (_output != null && !SupportsLiveFrames && !widgetWrite) {
                 string? description = null;
                 Attempt(() => {
                     // Events left at stop are applied on the stopping thread, so the language is scoped here too.
@@ -159,8 +164,10 @@ namespace ConsoleMonster.Live {
             }
         }
 
-        private void RenderFinal() {
-            if (_output == null || !_output.SupportsLiveFrames || _context == null) {
+        private TimeSpan? _lastMotionFrame;
+
+        private void RenderFinal(bool finalState = false) {
+            if (_output == null || !SupportsLiveFrames || _context == null) {
                 return;
             }
             int width = _context.Profile.Width;
@@ -175,9 +182,11 @@ namespace ConsoleMonster.Live {
             }
             CheckFont();
             lock (_outputGate) {
-                if (_restored) {
+                if (_restored || Volatile.Read(ref _paused) != 0) {
                     return;
                 }
+                TimeSpan now = _watch.Elapsed;
+                if (_context.ReducedMotion && !finalState && _lastMotionFrame.HasValue && now - _lastMotionFrame.Value < TimeSpan.FromSeconds(1)) return;
                 bool resized = _frame != null && (_frame.Width != width || (!(_output is InlineOutput) && _frame.Height != height));
                 bool moved = !(_output is InlineOutput) && (left != _windowLeft || top != _windowTop);
                 if (resized) {
@@ -217,6 +226,7 @@ namespace ConsoleMonster.Live {
                     _frame = RenderErrorFrame(width, height, context, ex);
                 }
                 _output.RenderFrame(_frame);
+                _lastMotionFrame = _watch.Elapsed;
                 Interlocked.Increment(ref _framesRendered);
                 UpdateTaskbar();
             }
@@ -241,7 +251,7 @@ namespace ConsoleMonster.Live {
 
         // The terminal's progress indicator follows the widgets that report progress (see ITaskbarProgressSource).
         private void UpdateTaskbar() {
-            if (!_options.TaskbarProgress || !_onConsole || _context == null || !TaskbarProgress.IsSupported(_context.Profile)) {
+            if (_context?.ReducedMotion == true || !_options.TaskbarProgress || !_onConsole || _context == null || !TaskbarProgress.IsSupported(_context.Profile)) {
                 return;
             }
             List<KeyValuePair<TaskbarState, double>> sources = new List<KeyValuePair<TaskbarState, double>>();

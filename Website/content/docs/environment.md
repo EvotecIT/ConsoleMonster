@@ -17,13 +17,14 @@ Variables are read when the profile is detected. An invalid value is ignored and
 | `CONSOLEMONSTER_COLOR` | `none`, `16`, `256`, `truecolor` or `24bit` | The colour depth. |
 | `CONSOLEMONSTER_GLYPHS` | `full`, `basic`, `ascii` | The glyph tier: box drawing, block and braille characters, status symbols and spinners. |
 | `CONSOLEMONSTER_MODE` | `interactive` (or `live`), `stream`, `plain` | Interactive redraws in place; stream writes append-only lines; plain writes ASCII lines without colour or escape sequences. |
-| `CONSOLEMONSTER_THEME` | `dark`, `light`, `auto` | The theme preference. `auto` reads the background in conhost. |
+| `CONSOLEMONSTER_THEME` | `dark`, `light`, `highcontrast`, `colorblind`, `auto` | The palette. `auto` honors Windows High Contrast before reading the console background; an explicit theme takes precedence. |
 | `CONSOLEMONSTER_CULTURE` | a culture name, `invariant` or `current` | Numbers and dates in tables and presenters. An unknown name is ignored. |
 | `CONSOLEMONSTER_LANGUAGE` | a language name such as `de` or `pl` | The language of built-in labels, separately from the number culture. German, Spanish, French and Italian are built in; others fall back to English. |
 | `CONSOLEMONSTER_EMOJI_WIDTH` | `1`, `2` or `auto` | The width of emoji, for consoles that draw them narrow. |
 | `CONSOLEMONSTER_AMBIGUOUS_WIDTH` | `1`, `2` or `auto` | The width of East Asian ambiguous characters. |
 | `CONSOLEMONSTER_NONINTERACTIVE` | `1` | Prompts return their default or fail with a message that names the parameter to pass. |
-| `CONSOLEMONSTER_ACCESSIBLE` | `1` | Prompts ask plain numbered questions with no redraws, and every answer is confirmed as text. |
+| `CONSOLEMONSTER_ACCESSIBLE` | `1` | Numbered prompts, static apps, menus and grids, and append-only live narration. Status symbols stay visible and reduced motion is implied. |
+| `CONSOLEMONSTER_MOTION` | `reduced` | Keeps the normal layout with static spinners and at most one redraw per second. |
 | `CONSOLEMONSTER_NOMOUSE` | `1` | Prompts, menus, pagers, the object explorer and apps leave the mouse to the terminal, for its own selection and scrollback. Every action keeps its key. |
 | `CONSOLEMONSTER_HYPERLINKS` | `on`, `off`, `auto` (also `true`/`1`, `false`/`0`) | Clickable OSC 8 links for URLs and file paths. Detection turns them on in Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole; redirected, CI, stream and plain output never get them and print the target after the text instead, as `text (url)`. |
 | `CONSOLEMONSTER_NOW` | an ISO 8601 time with `Z` or an offset, such as `2026-10-21T12:00:00Z` | The "now" that relative dates (`3 h ago`) are counted from, for recordings and tests. Read each time a value is shown; unset or invalid uses the clock. |
@@ -32,6 +33,8 @@ Variables are read when the profile is detected. An invalid value is ignored and
 Detection also reads `CI` and the variables of common CI systems (GitHub Actions, Azure Pipelines, Jenkins, GitLab, TeamCity), `TERM` (`dumb` selects plain mode), `COLORTERM` and `WT_SESSION`.
 
 Redirected output (files, pipes and CI build logs) is as wide as `COLUMNS` when it is set. Without it, PowerShell commands use the width the host reports and other programs use 100 columns; `Get-ConsoleCapability` reports the width that applies. A terminal window always uses its own width.
+
+[Accessibility](/docs/accessibility/) explains accessible output, reduced motion and the high-contrast and colour-blind palettes, with frames.
 
 ## The same table under overrides
 

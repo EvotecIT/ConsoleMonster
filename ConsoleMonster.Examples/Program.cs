@@ -14,6 +14,10 @@ namespace ConsoleMonster.Examples {
         public static int Main(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "query";
             switch (name) {
+                case "diagram":
+                    int level = args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 1;
+                    Terminal.Write(Diagrams.DiagramLadder.Create(level, args.Length > 2 && args[2] == "fluent"));
+                    return 0;
                 case "fullscreen-controls":
                     FullScreenControls.Show();
                     return 0;

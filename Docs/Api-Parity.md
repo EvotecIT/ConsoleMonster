@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **92 commands**, **1060 parameters** and **340 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **99 commands**, **1145 parameters** and **354 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -59,6 +59,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleDatePicker` | `Ui.DatePicker()` | `c.DatePicker(datePicker => …)` |
 | `New-ConsoleTabs` | `Ui.Tabs()` | `c.Tabs(tabs => …)` |
 | `New-ConsoleDialog` | `Ui.Dialog()` | Definition, not display content |
+| `New-ConsoleDiagram` | `Ui.Diagram()` | `c.Diagram(diagram => …)` |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |
@@ -77,6 +78,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `Ui.Rule(title)` | `New-ConsoleRule -Title` | The rule title is the primary separator input. |
 | `Ui.Markup(markup)` | `New-ConsoleText -Markup` | Explicit -Markup value; unlike Text it is named in PowerShell, because a string cannot select two positional parameter meanings. |
 | `Ui.Phases(widgetId)` | `New-ConsoleStatusList -WidgetId` | Layout Strip creates Phases using the same primary live identity as the List layout. |
+| `Ui.Diagram(title)` | `New-ConsoleDiagram -Title` | The diagram title is a named PowerShell option and an optional Ui.Diagram argument. |
 
 ## Parameter-set mappings
 
@@ -610,6 +612,18 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.HeaderBar.Crumbs` | CSharpOnly: Native menu/form runners generate breadcrumb steps from their navigation stack; the Show-ConsoleApp header shorthand exposes title/subtitle rather than an independent breadcrumb collection. | Use menu/submenu navigation for generated breadcrumbs, or compose a typed HeaderBar in Show-ConsoleApp -Content. |
 | `ConsoleMonster.Widgets.HeaderBar.Elapsed` | CSharpOnly: Native header hosts can pin the clock value instead of the render context clock. PowerShell dashboards use the session clock and do not expose a second header clock. | Use Invoke-ConsoleDashboard -Clock for a deterministic session clock, or compose a typed HeaderBar for an independent clock value. |
 | `ConsoleMonster.Widgets.HeaderBar.HeaderRight` | CSharpOnly: Native grid/menu/form runners add contextual row/step captions to the header. The Show-ConsoleApp shorthand keeps its supported title/subtitle/detail/status fields. | Use Show-ConsoleApp -Detail/-Status for its status area, or compose a typed HeaderBar in -Content for independent right-hand text. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesMissing` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesEmpty` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesCaseOnly` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesCaseOnlyCount` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesBaseline` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesStatus` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesSame` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesDiffers` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesMissingOn` | CSharpOnly: Native embedding hosts can replace this comparison label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesOnePropertyShown` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesPropertiesShown` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
+| `ConsoleMonster.Localization.WidgetLabels.ChangesMatchingHidden` | CSharpOnly: Native embedding hosts can replace this baseline property-count label independently of the language catalogue. | Use CONSOLEMONSTER_LANGUAGE or the terminal profile language for translated comparison labels. |
 
 ## .NET host integrations
 

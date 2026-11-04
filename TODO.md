@@ -37,7 +37,13 @@ The review's high findings and M1-M4, M6 and M7 were fixed. Recheck these histor
 ## Website follow-ups
 - Monster hero on phones: the fleet health app is a 140 x 40 recording, so on a phone it is drawn small and scrolls
   sideways. Record a compact phone rendering (a `data-compact` replay with its own poster moment, as the assessment
-  replay on /live/ has) and use it below 700 px.
+  replay on /live/ has) and use it below 700 px. The fleet demo's scripted keys run out at 64 columns (the narrow
+  layout needs a different key path), so the example needs that first.
+
+## After the Diagram API
+- Nerd Font glyph tier, opt-in only (`CONSOLEMONSTER_GLYPHS=nerd`, since the font cannot be detected): real icons for
+  diagram node kinds (server, database, cloud, user, the kinds ChartForgeX already has icons for), status lists and
+  trees. Without it nothing changes. Many PowerShell users already have Nerd Fonts for Oh My Posh.
 
 ## Future work (only with a real consumer)
 - Declarative JSON layouts with data binding.

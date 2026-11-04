@@ -19,7 +19,8 @@ namespace SiteFrames.Pages {
             ("text", "Text", "Markup, rules and pixel lettering. Text is measured in terminal cells, so emoji and CJK keep the grid."),
             ("layout", "Layout", "Containers that place other widgets. Any widget can sit inside any container, including a live dashboard."),
             ("status", "Status and progress", "The widgets a live session updates: facts, steps, trees, bars, phases, spinners and the log region."),
-            ("charts", "Charts", "Bars, stacked bars, sparklines, histograms and braille line and scatter charts, all scaled to their cells.")
+            ("charts", "Charts", "Bars, stacked bars, sparklines, histograms and braille line and scatter charts, all scaled to their cells."),
+            ("overview", "Overview", "Month calendars, status maps, flows, worker lanes and run summaries: the shapes an operations report is built from.")
         };
 
         /// <summary>One gallery entry: the programs are examples/widgets/{Id}.cs and {Id}.ps1.</summary>
@@ -63,7 +64,12 @@ namespace SiteFrames.Pages {
             new Example("histogram", "Histogram", "charts", "Values counted into buckets with labelled edges."),
             new Example("line", "Line chart", "charts", "Braille line series with an axis and a legend."),
             new Example("scatter", "Scatter chart", "charts", "The same braille canvas as points instead of lines."),
-            new Example("logo", "Logo", "text", "Large pixel lettering with a gradient and a tagline, for the top of a tool.")
+            new Example("logo", "Logo", "text", "Large pixel lettering with a gradient and a tagline, for the top of a tool."),
+            new Example("calendar", "Calendar", "overview", "A month with a status per date: the worst event of the day wins and today is outlined.", 40),
+            new Example("cellmap", "Status map", "overview", "One cell per item in labelled rows, with a legend that counts each status."),
+            new Example("flow", "Flow", "overview", "Steps joined by labelled connections; a cut connection shows where a path breaks.", 72),
+            new Example("lanes", "Lanes", "overview", "One progress lane per worker or server, each with its own counts and detail.", 72),
+            new Example("summarybar", "Run summary", "overview", "One line for a whole run: bar, counters, elapsed time and time left.", 84)
         };
 
         private static string Script(Site site, string id) => Twins.Script(site, "widgets", id);

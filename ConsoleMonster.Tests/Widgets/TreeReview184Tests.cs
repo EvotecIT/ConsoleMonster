@@ -75,7 +75,7 @@ namespace ConsoleMonster.Tests.Widgets {
             foreach (string rendered in new[] { capture.Raw.ToPlainText(), capture.Decoded }) {
                 string foreignRow = Assert.Single(rendered.Split('\n'), row => row.Contains("Foreign.Off"));
                 string localRow = Assert.Single(rendered.Split('\n'), row => row.Contains("Local.On"));
-                Assert.Contains("<-> Foreign.Off  disabled · cross-forest", foreignRow);
+                Assert.Contains(tier == GlyphTier.Ascii ? "<-> Foreign.Off  disabled * cross-forest" : "<-> Foreign.Off  disabled · cross-forest", foreignRow);
                 Assert.True(foreignRow.IndexOf("disabled", StringComparison.Ordinal) < foreignRow.IndexOf("part", StringComparison.Ordinal), foreignRow);
                 Assert.DoesNotContain("enabled", foreignRow);
                 Assert.Contains("enabled", localRow);
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Tests.Widgets {
             node.Values["State"] = TableCell.FromValue("cross-forest");
             node.Values["Depth"] = TableCell.FromValue(1);
             Review184Capture capture = new Review184Capture(tree, 39, tier, depth);
-            string expected = (tier == GlyphTier.Ascii ? "<->" : "⇄") + " Ops  cross-forest partner.test";
+            string expected = (tier == GlyphTier.Ascii ? "<->" : tier == GlyphTier.Basic ? "↔" : "⇄") + " Ops  cross-forest partner.test";
             Assert.Contains(expected, capture.Raw.ToPlainText());
             Assert.Contains(expected, capture.Decoded);
             Assert.DoesNotContain("cross-forest  cross-forest", capture.Decoded);
@@ -298,7 +298,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Theory]
         [InlineData(GlyphTier.Full, "⇄")]
-        [InlineData(GlyphTier.Basic, "⇄")]
+        [InlineData(GlyphTier.Basic, "↔")]
         [InlineData(GlyphTier.Ascii, "<->")]
         public void Render_CustomBoundaryMarker_ReplacesStatusGlyphAndKeepsInfoToneWithoutFallbackOverrides(GlyphTier tier, string marker) {
             Tree tree = new Tree();

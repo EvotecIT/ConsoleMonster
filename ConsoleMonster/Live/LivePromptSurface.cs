@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Glyphs;
@@ -26,7 +27,12 @@ namespace ConsoleMonster.Live {
             _pause = pause;
             _context = context;
             _capture = capture;
-            Refresh();
+            try {
+                Refresh();
+            } catch {
+                _pause.Dispose();
+                throw;
+            }
         }
 
         public static IPromptSurface? TryCreate(RenderContext context, ITerminalTarget target, RecordingTarget? recording = null) {
@@ -36,6 +42,8 @@ namespace ConsoleMonster.Live {
             }
             return new LivePromptSurface(session, session.Pause(), context, recording?.Screens);
         }
+
+        internal CancellationToken Cancellation => _session.Cancellation;
 
         public int Width => Math.Max(20, Math.Min(_width - 6, 96));
 

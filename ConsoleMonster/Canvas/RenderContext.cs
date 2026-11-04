@@ -12,7 +12,7 @@ namespace ConsoleMonster.Canvas {
     /// </summary>
     public sealed class RenderContext {
         private readonly Style[] _tokenStyles;
-        private readonly Dictionary<string, StyledText> _markupCache = new Dictionary<string, StyledText>(StringComparer.Ordinal);
+        private readonly Dictionary<string, (StyledText Source, StyledText Output)> _markupCache = new Dictionary<string, (StyledText, StyledText)>(StringComparer.Ordinal);
 
         /// <summary>Creates a context.</summary>
         /// <param name="profile">The terminal profile.</param>
@@ -24,7 +24,7 @@ namespace ConsoleMonster.Canvas {
             Profile = profile ?? throw new ArgumentNullException(nameof(profile));
             Theme = theme ?? throw new ArgumentNullException(nameof(theme));
             Glyphs = glyphs ?? GlyphSet.For(profile.Glyphs);
-            Tick = tick;
+            _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = new Style[(int)ThemeToken.Gap + 1];
             for (int i = 0; i < _tokenStyles.Length; i++) {
@@ -56,7 +56,11 @@ namespace ConsoleMonster.Canvas {
         private Localization.WidgetLabels? _labels;
 
         /// <summary>Animation frame counter.</summary>
-        public long Tick { get; }
+        public long Tick => ReducedMotion ? 0 : _tick;
+        private readonly long _tick;
+
+        /// <summary>Whether animated glyphs and motion must remain static.</summary>
+        public bool ReducedMotion => Profile.ReducedMotion;
 
         /// <summary>Time since the session started.</summary>
         public TimeSpan Elapsed { get; }
@@ -80,18 +84,24 @@ namespace ConsoleMonster.Canvas {
         public Style Series(int index) => _tokenStyles[(int)ThemeToken.Series1 + (Math.Abs(index) % 6)];
 
         /// <summary>
-        /// Parses markup with this context's theme and colour depth (cached). The text stays as written on every glyph tier:
-        /// only ConsoleMonster's own markers, borders and spinners follow the tier. Where the output cannot carry a
+        /// Parses markup with this context's theme, colour depth and glyph repertoire (cached). Where the output cannot carry a
         /// hyperlink, a link whose text differs from its target is followed by the target, as <c>text (url)</c>.
         /// </summary>
         /// <param name="markup">The markup.</param>
         /// <returns>The styled text.</returns>
-        public StyledText Markup(string markup) {
+        public StyledText Markup(string markup) => ParseMarkup(markup).Output;
+
+        // Semantic separators must be split before repertoire conversion changes their spelling.
+        internal StyledText SourceMarkup(string markup) => ParseMarkup(markup).Source;
+
+        private (StyledText Source, StyledText Output) ParseMarkup(string markup) {
             if (markup == null) {
-                return StyledText.FromPlain(string.Empty);
+                StyledText empty = StyledText.FromPlain(string.Empty);
+                return (empty, empty);
             }
-            if (!_markupCache.TryGetValue(markup, out StyledText? text)) {
-                text = Rendering.LinkTargets.Show(Text.Markup.Parse(markup, Theme, Depth), this);
+            if (!_markupCache.TryGetValue(markup, out var text)) {
+                StyledText source = Rendering.LinkTargets.Show(Text.Markup.Parse(markup, Theme, Depth), this);
+                text = (source, SymbolFallback.ForOutput(source, Glyphs.Tier));
                 if (_markupCache.Count < 4096) {
                     _markupCache[markup] = text;
                 }
@@ -108,11 +118,11 @@ namespace ConsoleMonster.Canvas {
             return next;
         }
 
-        private RenderContext(TerminalProfile profile, ITheme theme, IGlyphSet glyphs, long tick, TimeSpan elapsed, Style[] tokenStyles, Dictionary<string, StyledText> markupCache) {
+        private RenderContext(TerminalProfile profile, ITheme theme, IGlyphSet glyphs, long tick, TimeSpan elapsed, Style[] tokenStyles, Dictionary<string, (StyledText Source, StyledText Output)> markupCache) {
             Profile = profile;
             Theme = theme;
             Glyphs = glyphs;
-            Tick = tick;
+            _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = tokenStyles;
             _markupCache = markupCache;

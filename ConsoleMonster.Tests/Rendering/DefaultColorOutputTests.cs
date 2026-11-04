@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConsoleMonster.Canvas;
@@ -73,7 +74,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData("line", "no-color")]
         [InlineData("vt", "no-color")]
         [InlineData("inline", "no-color")]
-        public void Write_ColorDisabled_WithBaselineEmitsNoSgrIncludingLiveCleanup(string kind, string setting) {
+        public void Write_ColorDisabled_DrawsWithoutColoursAndResetsLiveAttributesOnExit(string kind, string setting) {
             TerminalProfile profile = setting == "plain" ? Profile().WithMode(OutputMode.Plain)
                 : setting == "none" ? Profile().WithColorDepth(ColorDepth.None)
                 : new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> { ["TERM"] = "xterm", ["NO_COLOR"] = "1" })).Detect();
@@ -89,7 +90,8 @@ namespace ConsoleMonster.Tests.Rendering {
                     output.EndLive();
                 }
             }
-            Assert.Empty(Regex.Matches(writer.ToString(), "\u001b\\[[0-9;]*m"));
+            string[] sgr = Regex.Matches(writer.ToString(), "\u001b\\[[0-9;]*m").Cast<Match>().Select(match => match.Value).ToArray();
+            Assert.Equal(kind == "line" ? Array.Empty<string>() : new[] { "\u001b[0m" }, sgr);
             Assert.Contains("DFBED", writer.ToString());
         }
 
@@ -113,7 +115,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 Assert.Equal(Baseline, LastSgr(writer.ToString()));
                 writer.Clear();
                 output.EndLive();
-                Assert.EndsWith("\u001b[?1049l" + Baseline, writer.ToString(), StringComparison.Ordinal);
+                Assert.EndsWith("\u001b[?1049l" + Baseline + "\u001b[?25h\r\n", writer.ToString(), StringComparison.Ordinal);
             }
         }
 
@@ -126,7 +128,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 Assert.Contains(Baseline + "\u001b[K", writer.ToString(), StringComparison.Ordinal);
                 writer.Clear();
                 output.EndLive();
-                Assert.EndsWith(Baseline + "\u001b[?25h", writer.ToString(), StringComparison.Ordinal);
+                Assert.EndsWith(Baseline + "\u001b[?25h\r", writer.ToString(), StringComparison.Ordinal);
             }
         }
 

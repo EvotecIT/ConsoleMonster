@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Runs native input controls and dependent displays in a console application.
 
-Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
+Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-KeyBinding <Object>] [-TerminalHandoff <TerminalHandoff>] [-Dialogs <AppDialogs>] [-Actions <AppActions>] [-Footer <Object>] [-Title <Object>] [-Subtitle <Object>] [-Detail <Object>] [-Status <StatusKind>] [-MinimumWidth <int>] [-MinimumHeight <int>] [-PassThru] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-ReflowBelow <int>] [<CommonParameters>]
+Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-KeyBinding <Object>] [-TerminalHandoff <TerminalHandoff>] [-Dialogs <AppDialogs>] [-Actions <AppActions>] [-Footer <Object>] [-Title <Object>] [-Subtitle <Object>] [-Detail <Object>] [-Status <StatusKind>] [-MinimumWidth <int>] [-MinimumHeight <int>] [-PassThru] [-NoMouse] [-Command <AppCommand[]>] [-SelectionKey <string>] [-Mode <InteractionMode>] [-InputSource <IInputSource>] [-Capture <ScreenCapture>] [-Profile <TerminalProfile>] [-Theme <ITheme>] [-ReflowBelow <int>] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Runs native input controls and dependent displays in a console application.
 
-Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
+Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ## EXAMPLES
 
@@ -255,7 +255,7 @@ Accept wildcard characters: False
 ```
 
 ### -Mode
-Interaction mode override, as in Read-ConsoleText. A running app requires Rich; use -Mode Snapshot without interactive input.
+Interaction mode override, as in Read-ConsoleText. Rich runs interactively when input is available; other modes print initialized values once.
 
 ```yaml
 Type: InteractionMode
@@ -307,6 +307,22 @@ Terminal capabilities and dimensions; defaults to the existing interactive profi
 
 ```yaml
 Type: TerminalProfile
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

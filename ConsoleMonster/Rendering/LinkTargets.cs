@@ -18,11 +18,25 @@ namespace ConsoleMonster.Rendering {
                 || profile.Kind != TerminalKind.Unknown);
 
         /// <summary>The text that follows a link's label, <c> (url)</c>, or null when the label already is the target.</summary>
-        internal static string? Suffix(string label, string link) {
-            string address = TextSanitizer.Clean(link);
+        internal static string? Suffix(string label, string link, GlyphTier tier = GlyphTier.Full) {
+            string original = TextSanitizer.Clean(link);
+            string address = HyperlinkTarget.ForText(link, tier);
             string text = label.Trim();
-            return string.Equals(text, address, StringComparison.Ordinal) || string.Equals("mailto:" + text, address, StringComparison.Ordinal)
+            return string.Equals(text, original, StringComparison.Ordinal) || string.Equals(text, address, StringComparison.Ordinal)
+                || string.Equals("mailto:" + text, original, StringComparison.Ordinal)
                 ? null : " (" + address + ")";
+        }
+
+        // A label that is itself the resource address must be escaped too; a human caption remains prose.
+        internal static string? PrintedLabel(string label, string link, GlyphTier tier) {
+            if (tier == GlyphTier.Full) return null;
+            string original = TextSanitizer.Clean(link);
+            string text = label.Trim();
+            if (!string.Equals(text, original, StringComparison.Ordinal) && !string.Equals("mailto:" + text, original, StringComparison.Ordinal)) return null;
+            string encoded = HyperlinkTarget.ForText(link, tier);
+            if (encoded == original) return null;
+            int start = label.IndexOf(text, StringComparison.Ordinal);
+            return label.Substring(0, start) + encoded + label.Substring(start + text.Length);
         }
 
         /// <summary>
@@ -39,8 +53,14 @@ namespace ConsoleMonster.Rendering {
             StringBuilder label = new StringBuilder();
             foreach (StyledLine line in text.Lines) {
                 List<TextSpan>? spans = null;
+                int runSource = 0;
+                int runOutput = 0;
                 for (int i = 0; i < line.Count; i++) {
                     TextSpan span = line[i];
+                    if (i == 0 || !string.Equals(line[i - 1].Style.Link, span.Style.Link, StringComparison.Ordinal)) {
+                        runSource = i;
+                        runOutput = spans?.Count ?? i;
+                    }
                     spans?.Add(span);
                     string? link = span.Style.Link;
                     if (link == null) {
@@ -54,9 +74,10 @@ namespace ConsoleMonster.Rendering {
                     // that already shows the target (a bare link split across lines) needs nothing more.
                     string shown = label.ToString();
                     string? suffix = asText || (!(HyperlinkTarget.IsSafe(link) || HyperlinkTarget.From(link) != null)
-                        && !(link.IndexOf('\n') >= 0 && link.IndexOf(shown.Trim(), StringComparison.Ordinal) >= 0)) ? Suffix(shown, link) : null;
+                        && !(link.IndexOf('\n') >= 0 && link.IndexOf(shown.Trim(), StringComparison.Ordinal) >= 0)) ? Suffix(shown, link, context.Glyphs.Tier) : null;
+                    string? printed = PrintedLabel(shown, link, context.Glyphs.Tier);
                     label.Clear();
-                    if (suffix == null) {
+                    if (suffix == null && printed == null) {
                         continue;
                     }
                     if (spans == null) {
@@ -65,7 +86,11 @@ namespace ConsoleMonster.Rendering {
                             spans.Add(line[j]);
                         }
                     }
-                    spans.Add(new TextSpan(suffix, context.Style(ThemeToken.Muted)));
+                    if (printed != null) {
+                        spans.RemoveRange(runOutput, spans.Count - runOutput);
+                        spans.Add(new TextSpan(printed, line[runSource].Style));
+                    }
+                    if (suffix != null) spans.Add(new TextSpan(suffix, context.Style(ThemeToken.Muted)));
                 }
                 changed |= spans != null;
                 lines.Add(spans == null ? line : new StyledLine(spans));

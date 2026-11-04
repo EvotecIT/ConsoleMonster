@@ -23,10 +23,16 @@ namespace ConsoleMonster.PowerShell {
     /// runspace so they never block the screen.
     /// </summary>
     internal static class PSInteractive {
+        // A checkpoint recorder is an explicit synthetic live destination, even in a -NonInteractive producer process.
+        internal static bool IsNonInteractivePolling => IsNonInteractiveSession() && Input.ConsoleInput.Override == null && Terminal.Target.Input == null
+            && !(Terminal.Target is Output.RecordingTarget recording && recording.CaptureViewport);
+
         /// <summary>The options for a prompt asked by a cmdlet in its host.</summary>
         public static InteractiveOptions Options(PSCmdlet cmdlet, InteractionMode? mode) {
             InteractiveOptions options = InteractiveOptions.Default.Clone();
+            options.SnapshotOutput = widget => HostOutput.Write(cmdlet, widget, options.ResolveProfile(), explicitWidth: options.Profile != null, theme: options.ResolveTheme());
             if (mode.HasValue) {
+                if (IsNonInteractiveSession() && options.Input == null && Input.ConsoleInput.Override == null) options.NonInteractive = true;
                 options.Mode = mode.Value;
                 if (mode.Value == InteractionMode.Line || mode.Value == InteractionMode.Accessible) {
                     options.LineConsole = HostConsole(cmdlet);

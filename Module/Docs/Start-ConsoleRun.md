@@ -13,7 +13,7 @@ Declares the queued items and returns a LiveRun handle. Use Update-Console as wo
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Start-ConsoleRun -InputObject <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-ShowTrend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [-NoGroups] [<CommonParameters>]
+Start-ConsoleRun -InputObject <psobject[]> [-Title <string>] [-Label <Object>] [-Target <Object>] [-Group <Object>] [-NoLive] [-InteractiveKeys] [-ShowTrend] [-HeightPercent <int>] [-ProgressEvery <int>] [-ProgressIntervalSeconds <double>] [-ReportPath <string>] [-NoGroups] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -182,6 +182,22 @@ Print CI progress at this interval in seconds (default 10). Zero disables the ti
 
 ```yaml
 Type: Double
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

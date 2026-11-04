@@ -19,7 +19,6 @@ namespace ConsoleMonster.Interactive {
         /// <param name="options">Input and rendering configuration.</param>
         /// <param name="cancellationToken">Cancels input and restores the terminal before returning control.</param>
         /// <returns>The final state, including every named input's committed value.</returns>
-        /// <exception cref="PromptUnavailableException">Interactive input is unavailable and a static snapshot was not requested.</exception>
         /// <exception cref="OperationCanceledException">Cancellation was requested.</exception>
         /// <exception cref="ArgumentException">Inline live mode was requested; interactive apps require a stable full-screen origin.</exception>
         public static AppState Run(IWidget layout, AppState? state = null, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default) {
@@ -31,12 +30,12 @@ namespace ConsoleMonster.Interactive {
             // own guard starts later, so retain the entry mode across initialization and all exit paths.
             using TerminalGuard outputMode = new TerminalGuard(() => { }, false);
             InteractiveOptions interactive = (settings.Interactive ?? InteractiveOptions.Default).Clone();
-            if (interactive.Capture == null && interactive.ResolveTarget() is RecordingTarget recording) {
+            if (settings.Live?.Live != false && interactive.Capture == null && interactive.ResolveMode() == InteractionMode.Rich && interactive.ResolveTarget() is RecordingTarget recording) {
                 interactive.Capture = recording.Screens;
             }
-            TerminalProfile profile = interactive.ResolveProfile();
-            bool snapshot = interactive.ResolveMode() == InteractionMode.Snapshot || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
-            if (!snapshot && interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException(AppMessages.Get("Unavailable", profile.Language)); }
+            TerminalProfile profile = AccessibilityPolicy.Resolve(interactive.ResolveProfile(), settings.ReducedMotion ?? settings.Live?.ReducedMotion);
+            interactive.Profile = profile;
+            bool snapshot = settings.Live?.Live == false || interactive.ResolveMode() != InteractionMode.Rich || (SnapshotRequested() && interactive.Input == null && ConsoleInput.Override == null);
             cancellationToken.ThrowIfCancellationRequested();
             AppState values = state ?? new AppState();
             values.BeginRun();
@@ -49,14 +48,11 @@ namespace ConsoleMonster.Interactive {
                 console.Activate();
             }
             RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock)) {
+            using (AppController app = new AppController(layout, values, context, settings.ReflowBelow, settings, cancellationToken, interactive.ActionClock, staticView: snapshot)) {
                 if (snapshot) {
-                    CellBuffer frame = FrameComposer.RenderBlock(app.Root, profile.Width, context);
-                    if (interactive.Capture != null) { interactive.Capture.Surface.Present(frame, null); }
-                    else if (settings.Live?.Output != null) { settings.Live.Output.WriteBlock(frame); }
-                    else {
-                        using (ITerminalOutput output = Terminal.CreateOutput(profile, interactive.ResolveTarget().Writer)) { output.WriteBlock(frame); }
-                    }
+                    if (settings.Live?.Output != null && interactive.Capture == null) {
+                        settings.Live.Output.WriteBlock(FrameComposer.RenderBlock(app.Root, profile.Width, context));
+                    } else { interactive.PrintSnapshot(app.Root); }
                     return values;
                 }
                 CellBuffer initial = app.PrepareFrame(profile.Width, profile.Height);
@@ -65,6 +61,7 @@ namespace ConsoleMonster.Interactive {
                     CaptureConsole = interactive.Capture == null, TaskbarProgress = interactive.Capture == null
                 };
                 live.Profile ??= profile;
+                live.ReducedMotion = settings.ReducedMotion ?? live.ReducedMotion;
                 live.Theme ??= context.Theme;
                 live.Target ??= interactive.ResolveTarget();
                 live.PrintFinalState = false;
@@ -77,6 +74,12 @@ namespace ConsoleMonster.Interactive {
                 }
                 bool pointer = settings.Mouse && interactive.ResolveMouse();
                 using (MouseReporting? mouse = MouseReporting.Open(pointer, interactive, profile, lease!.Source, live.Output != null))
+                // The session guard owns screen output. This scope owns input and mouse state on
+                // process exit too, when normal stack unwinding cannot be relied upon.
+                using (TerminalGuard inputGuard = new TerminalGuard(() => {
+                    try { mouse?.Dispose(); }
+                    finally { lease.Dispose(); }
+                }, false))
                 using (LiveSession session = new LiveSession(app.Root, live)) {
                     session.Register(app.Log);
                     session.Start();
@@ -84,10 +87,12 @@ namespace ConsoleMonster.Interactive {
                     bool eventsProcessed = false;
                     try {
                         AppEventLoop.Run(lease.Source, () => values.ExitRequested || !session.IsRunning, () => {
+                            using IDisposable frameUpdate = session.UpdateFrame();
                             if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
                             eventsProcessed = false;
                             app.Refresh(session);
                         }, input => {
+                                using IDisposable frameUpdate = session.UpdateFrame();
 
                                 if (interactive.Capture != null && input.Kind == InputEventKind.Resize && input.Width > 0 && input.Height > 0) {
                                     Interlocked.Exchange(ref captureWindow, new[] { 0, 0, input.Width, input.Height });
@@ -99,11 +104,12 @@ namespace ConsoleMonster.Interactive {
                                 eventsProcessed = true;
                         }, cancellationToken, endOnInputClosed: true);
                         if (session.Failure == null) {
+                            using IDisposable frameUpdate = session.UpdateFrame();
                             if (!eventsProcessed) { settings.ProcessEvents?.Invoke(values); }
                             app.Refresh(session);
                         }
                     } finally {
-                        session.Stop();
+                        session.Dispose();
                         if (session.Failure == null && interactive.Capture != null) {
                             int[] finalWindow = Volatile.Read(ref captureWindow);
                             interactive.Capture.Surface.Present(app.PrepareFrame(finalWindow[2], finalWindow[3]), null);

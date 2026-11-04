@@ -38,7 +38,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             string text = ConsoleExporter.ToText(widget, options);
             string markdown = MarkdownExporter.Export(widget, options);
             Assert.Contains("| Host | Status | Amount |\n| :--- | :--- | ---: |", markdown);
-            Assert.Contains("| 日本 | Ready | 12,5 |", markdown);
+            Assert.Contains(glyphs == GlyphTier.Ascii ? "| ?? | Ready | 12,5 |" : "| 日本 | Ready | 12,5 |", markdown);
             Assert.Equal("~~~text\n" + text + "~~~\n", MarkdownExporter.Export(widget, options, fenced: true));
             Assert.Contains("Ready", markdown);
             Assert.Contains("12,5", markdown);

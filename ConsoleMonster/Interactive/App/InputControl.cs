@@ -193,7 +193,16 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 _bounds = region.Bounds;
                 InputArrangement.Record(this, region.Bounds);
-                if (!Chrome) { RenderContent(region, context); return; }
+                if (!Chrome) {
+                    if (_chrome) {
+                        int gutter = Math.Min(2, region.Width);
+                        Region content = region.Sub(gutter, 0, region.Width - gutter, region.Height);
+                        _contentBounds = content.Bounds;
+                        RenderContent(content, context);
+                        if (_focused && _enabled) region.Write(0, 0, InteractiveGlyphs.For(context).Pointer, context.Style(ThemeToken.Focus));
+                    } else RenderContent(region, context);
+                    return;
+                }
                 string title = Label ?? Key;
                 if (!_enabled) { title = PromptLabels.Format(PromptLabels.For(context.Profile.Language).Disabled, title); }
                 else if (_focused) { title = InteractiveGlyphs.For(context).Pointer + " " + title; }

@@ -13,7 +13,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs native input controls and dependent displays in a console application.</para>
-    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Use -Mode Snapshot to capture or print initialized values without interactive input. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
+    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
     /// </summary>
     /// <example>
     /// <para>Filter application data without leaving PowerShell</para>
@@ -96,7 +96,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? SelectionKey { get; set; }
 
-        /// <summary><para type="description">Interaction mode override, as in Read-ConsoleText. A running app requires Rich; use -Mode Snapshot without interactive input.</para></summary>
+        /// <summary><para type="description">Interaction mode override, as in Read-ConsoleText. Rich runs interactively when input is available; other modes print initialized values once.</para></summary>
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
@@ -118,6 +118,9 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Default width below which columns stack; explicit column thresholds take precedence.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public int ReflowBelow { get; set; } = 60;
+
+        /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
+        [Parameter] public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -149,6 +152,7 @@ namespace ConsoleMonster.PowerShell {
                 using (PSAppCallbacks callbacks = new PSAppCallbacks(this, state)) {
                     callbacks.Attach(layout);
                     ConsoleAppOptions options = new ConsoleAppOptions {
+                        ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null,
                         Interactive = interactive,
                         Mouse = !NoMouse.IsPresent,
                         ReflowBelow = ReflowBelow,

@@ -426,7 +426,7 @@
     },
     "reported": {
       "title": "Reported in the repository",
-      "body": "Figures stated in the ConsoleMonster 2.0 pull request and the README, measured by the maintainers on their machines.",
+      "body": "Figures stated in the release notes and the README, measured by the maintainers on their machines.",
       "rows": [
         {
           "measure": "Frame rate during the stress test",
@@ -805,6 +805,27 @@
           }
         ],
         "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Hosting/README.md"
+      }
+    },
+    "topology": {
+      "title": "Architecture diagrams that play in the terminal",
+      "body": "An AD replication diagram from a ChartForgeX architecture file: two sites, four domain controllers and a use case whose steps light up on the diagram, with the payload of each step under it.",
+      "label": "An Active Directory replication diagram playing its use case step by step in the terminal",
+      "try": {
+        "project": "Topology",
+        "packages": [
+          "ConsoleMonster.Graphics"
+        ],
+        "note": "Save ad-replication.cfx beside Program.cs. Esc quits."
+      },
+      "use": {
+        "links": [
+          {
+            "title": "Architecture diagrams",
+            "url": "/docs/topology/"
+          }
+        ],
+        "github": "https://github.com/EvotecIT/ConsoleMonster/blob/master/ConsoleMonster.Graphics/README.md"
       }
     },
     "logging": {

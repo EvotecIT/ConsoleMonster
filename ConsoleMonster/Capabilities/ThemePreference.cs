@@ -7,6 +7,10 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Prefer a light theme.</summary>
         Light,
         /// <summary>Prefer a dark theme.</summary>
-        Dark
+        Dark,
+        /// <summary>Use the high contrast palette.</summary>
+        HighContrast,
+        /// <summary>Use the colour-blind-safe palette.</summary>
+        ColorBlind
     }
 }

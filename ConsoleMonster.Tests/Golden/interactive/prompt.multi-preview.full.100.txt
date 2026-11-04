@@ -2,7 +2,7 @@
 ? Servers
   › type to filter        0 of 4 selected  ╭─ FS01 ────────────────────────────────────────────────╮
     ▾ [ ] Warsaw                      0/2  │ Details of fs01                                       │
-  ▌   [ ] [FS01]                     File  │                                                       │
+  ›   [ ] [FS01]                     File  │                                                       │
       [ ] WEB01                       Web  │                                                       │
     ▾ [ ] Berlin                      0/1  │                                                       │
       [ ] PRN11                     Print  │                                                       │
@@ -16,7 +16,7 @@
   › type to filter        1 of 4 selected  ╭─ WEB01 ───────────────────────────────────────────────╮
     ▾ [–] Warsaw                      1/2  │ Details of web01                                      │
       [ ] FS01                       File  │                                                       │
-  ▌   [✓] [WEB01]                     Web  │                                                       │
+  ›   [✓] [WEB01]                     Web  │                                                       │
     ▾ [ ] Berlin                      0/1  │                                                       │
       [ ] PRN11                     Print  │                                                       │
       [ ] FS11                       File  │                                                       │

@@ -36,7 +36,7 @@ namespace ConsoleMonster.Interactive {
         private readonly AppOverlay _overlay;
         private readonly FooterBar? _defaultFooter;
 
-        internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null) {
+        internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null, bool staticView = false) {
             _options = options ?? new ConsoleAppOptions();
             _state = state;
             _context = context;
@@ -60,7 +60,8 @@ namespace ConsoleMonster.Interactive {
                 }
                 state.Changed += StateChanged;
                 if (_options.Footer == null) { _defaultFooter = new FooterBar(); _footers.Add(_defaultFooter); }
-                IWidget frame = new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? _defaultFooter!, LayoutSize.Fixed(1));
+                IWidget frame = staticView ? _actions.Wrap(_viewport)
+                    : new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? _defaultFooter!, LayoutSize.Fixed(1));
                 _actions.ModalOnOverlay = true;
                 Log = new AppLog(_actions, _focus.Controls.OfType<LogViewport>().FirstOrDefault(), _logRegion);
                 _overlay = new AppOverlay(frame, _viewport, _actions, _screens, actionClock ?? (() => toastClock.Elapsed));

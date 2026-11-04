@@ -43,14 +43,14 @@ namespace ConsoleMonster.Widgets {
             }
             if (layout.Record != null) {
                 Size size = layout.Record.Measure(new Constraints(width), context);
-                CellBuffer record = new CellBuffer(width, size.Height);
+                CellBuffer record = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
                 layout.Record.Render(new Region(record), context);
                 yield return record;
                 yield break;
             }
             int head = HeadHeight(layout, layout.MergeFirstGroup);
             if (head > 0) {
-                CellBuffer buffer = new CellBuffer(width, head);
+                CellBuffer buffer = new CellBuffer(width, head) { GlyphTier = context.Glyphs.Tier };
                 DrawHead(new Region(buffer), 0, layout, context, layout.MergeFirstGroup);
                 yield return buffer;
             }
@@ -70,7 +70,7 @@ namespace ConsoleMonster.Widgets {
                     lines += layout.Rows[end].Height;
                     end++;
                 }
-                CellBuffer buffer = new CellBuffer(width, lines);
+                CellBuffer buffer = new CellBuffer(width, lines) { GlyphTier = context.Glyphs.Tier };
                 DrawRows(new Region(buffer), 0, layout, index, end, context, index == 0 && layout.MergeFirstGroup && !ShowHeader);
                 for (int i = index; i < end; i++) {
                     // Drawn: release the row's text so memory stays at one block.
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Widgets {
             }
             int tail = TailHeight(layout);
             if (tail > 0) {
-                CellBuffer buffer = new CellBuffer(width, tail);
+                CellBuffer buffer = new CellBuffer(width, tail) { GlyphTier = context.Glyphs.Tier };
                 DrawTail(new Region(buffer), 0, layout, context);
                 yield return buffer;
             }
@@ -128,7 +128,7 @@ namespace ConsoleMonster.Widgets {
                 rowLines.Add(headHeight + lines);
                 lines += row.Height;
             }
-            CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines));
+            CellBuffer buffer = new CellBuffer(width, Math.Max(1, headHeight + lines)) { GlyphTier = context.Glyphs.Tier };
             Region region = new Region(buffer);
             DrawHead(region, 0, layout, context, merge, first);
             DrawRows(region, headHeight, layout, first, end, context, merge && !ShowHeader);
@@ -203,7 +203,7 @@ namespace ConsoleMonster.Widgets {
                     // Close header columns above a spanning section; a cross would leave downward stubs.
                     DrawRule(region, y++, layout, box.LeftJoint, section ? box.BottomJoint : box.Cross, box.RightJoint, box.Horizontal, border);
                 } else if ((Border == TableBorder.Minimal || Border == TableBorder.Rule)) {
-                    DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border);
+                    DrawRule(region, y++, layout, string.Empty, " ", string.Empty, context.Glyphs.Get(Glyph.RuleLine), border, skipBlankHeaders: true);
                 }
             }
             return y;
@@ -259,7 +259,7 @@ namespace ConsoleMonster.Widgets {
                 region.Write(indent, y, caption);
             }
         }
-        private void DrawRule(Region region, int y, TableLayout layout, string left, string joint, string right, string line, Style style) {
+        private void DrawRule(Region region, int y, TableLayout layout, string left, string joint, string right, string line, Style style, bool skipBlankHeaders = false) {
             if (y >= region.Height) {
                 return;
             }
@@ -269,7 +269,8 @@ namespace ConsoleMonster.Widgets {
             }
             for (int v = 0; v < layout.Widths.Length; v++) {
                 int span = layout.Widths[v] + (IsBoxed ? 2 : 0);
-                if (Border != TableBorder.Rule || Markup.Strip(_columns[layout.Visible[v]].Header).Length > 0) { region.HorizontalLine(x, y, span, line, style); }
+                TableColumn column = _columns[layout.Visible[v]];
+                if (!(Border == TableBorder.Rule || skipBlankHeaders) || ((!skipBlankHeaders || column.HeaderSeparator) && !string.IsNullOrWhiteSpace(Markup.Strip(column.Header)))) { region.HorizontalLine(x, y, span, line, style); }
                 x += span;
                 if (v < layout.Widths.Length - 1) {
                     if (IsBoxed) {

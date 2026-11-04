@@ -34,7 +34,7 @@ namespace ConsoleMonster.Widgets {
                 widths[c] = Math.Max(1, column.Width ?? Math.Max(column.MinWidth ?? 1, Math.Min(column.MaxWidth ?? int.MaxValue, desired)));
                 visible.Add(c);
             }
-            foreach (TreeRow row in rows) labelDesired = Math.Max(labelDesired, row.Width(context, includePadding: false) + ValueWidth(row.Node, presenter));
+            foreach (TreeRow row in rows) labelDesired = Math.Max(labelDesired, row.Width(context, includePadding: false) + (width >= 120 ? ValueWidth(row.Node, presenter) : 0));
             int labelReserve = width >= 120 ? (int)Math.Ceiling(width * 0.4) : Math.Min(labelDesired, 28);
             if (width >= 120) ShrinkColumns(visible, widths, Math.Max(0, width - labelReserve));
             while (width >= 60 && visible.Count > 0 && ColumnsWidth(visible, widths) + labelReserve > width) {
@@ -160,7 +160,7 @@ namespace ConsoleMonster.Widgets {
         private static StyledLine ColumnValue(TreeNode node, TableColumn column, PresenterContext presenter) =>
             node.Values.TryGetValue(column.Id, out TableCell? value)
                 ? CellRendering.Content(value, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules, presenter).Lines[0]
-                : StyledLine.Empty;
+                : CellRendering.Content(TableCell.FromValue(System.Reflection.Missing.Value), column.Presenter, null, presenter).Lines[0];
 
         private static void AppendColumn(List<TextSpan> spans, StyledLine value, int width, HorizontalAlignment alignment, RenderContext context) {
             StyledLine fitted = TextWrapper.Truncate(value, width, context.Ellipsis);

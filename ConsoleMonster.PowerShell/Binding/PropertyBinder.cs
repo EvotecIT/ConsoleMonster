@@ -153,7 +153,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             // Dictionary keys are the data (a key named Count beats the Count property); for other data values (files, data
             // rows, XML) PowerShell's own properties come first (Mode, PSParentPath), then the shared fields.
             if (prepared is IDictionary)
-                return Values.ValueShaper.TryGetField(prepared, propertyName, out object? key, shape) ? Unwrap(key) : null;
+                return Values.ValueShaper.TryGetField(prepared, propertyName, out object? key, shape) ? Unwrap(key) : System.Reflection.Missing.Value;
             // A dedicated source (directory entries) reads its own fields; PowerShell's adapter would bind to the directory.
             // Other names (an LDAP attribute asked for with -Property) still go to PowerShell's adapter below.
             if (prepared != null && shape.Sources.Any(s => !(s is PSObjectMemberSource) && s.CanRead(prepared)) && Values.ValueShaper.TryGetField(prepared, propertyName, out object? own, shape))
@@ -163,7 +163,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             if (property == null || !property.IsGettable) {
                 if (prepared != null && !(prepared is PSObject) && Values.ValueShaper.TryGetField(prepared, propertyName, out object? other, shape))
                     return Unwrap(other);
-                return null;
+                return System.Reflection.Missing.Value;
             }
             return Unwrap(property.Value);
         }

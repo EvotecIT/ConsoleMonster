@@ -55,8 +55,8 @@ detailed health guide (https://example.org/health). An
 autolink keeps its own label: https://example.org/releases.
 
 Escaped punctuation stays literal: *asterisks*, [brackets],
-and #markers. Character references decode to text: &, ©, and
-Ω.
+and #markers. Character references decode to text: &, ?, and
+?.
 
 This source line continues the same paragraph after a soft
 break.
@@ -78,7 +78,7 @@ close.</div>
 ### Compact terminal reading
 
 This deliberately longer paragraph checks wrapping at sixty
-columns while retaining Polish text such as zażółć gęślą
-jaźń, Japanese text such as 検証, and an emoji such as ✅.
+columns while retaining Polish text such as zazolc gesla
+jazn, Japanese text such as ??, and an emoji such as [OK].
 The pager must retain every paragraph and table row when the
 document exceeds the visible screen.

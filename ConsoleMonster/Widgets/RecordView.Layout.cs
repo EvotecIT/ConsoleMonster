@@ -94,7 +94,7 @@ namespace ConsoleMonster.Widgets {
             for (int i = start; i < end; i++) {
                 RecordItem item = _items[i];
                 CellContent content = CellRendering.Content(item.Cell!, item.Presenter, item.Rules, presenter);
-                if (HideEmpty && content.IsEmpty) {
+                if (HideEmpty && IsEmptyField(item, content)) {
                     continue;
                 }
                 fields.Add(item);
@@ -129,6 +129,9 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
+        private static bool IsEmptyField(RecordItem item, CellContent content) => content.IsEmpty
+            || (item.Cell!.HasValue && item.Cell.Value is System.Reflection.Missing);
+
         // A heading is shown when anything visible follows it before the next heading at the same or a higher level.
         private bool HasVisibleContent(int headingIndex, PresenterContext presenter) {
             int level = _items[headingIndex].Level;
@@ -140,7 +143,7 @@ namespace ConsoleMonster.Widgets {
                 if (item.Kind == RecordItemKind.Widget) {
                     return true;
                 }
-                if (item.Kind == RecordItemKind.Field && !CellRendering.Content(item.Cell!, item.Presenter, item.Rules, presenter).IsEmpty) {
+                if (item.Kind == RecordItemKind.Field && !IsEmptyField(item, CellRendering.Content(item.Cell!, item.Presenter, item.Rules, presenter))) {
                     return true;
                 }
             }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ConsoleMonster.Input;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Interactive {
@@ -12,6 +14,7 @@ namespace ConsoleMonster.Interactive {
     /// </summary>
     internal sealed class TextAreaEditor {
         private readonly StringBuilder _text = new StringBuilder();
+        private int _layoutWidth;
 
         public TextAreaEditor(string? text = null) {
             if (!string.IsNullOrEmpty(text)) {
@@ -79,14 +82,19 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        /// <summary>The visual rows of the last layout as [start, end) character ranges (kept by the widget).</summary>
+        /// <summary>The visual rows of the last layout as [start, end) character ranges in the most recent view layout.</summary>
         public List<int[]> Rows { get; } = new List<int[]>();
 
         /// <summary>The column the caret keeps when moving up and down.</summary>
         public int PreferredColumn { get; set; } = -1;
 
+        // The view sets the same repertoire before layout and before handling edits.
+        internal GlyphTier Glyphs { get; set; } = GlyphTier.Full;
+        internal int ProjectedWidth(string text) => DisplayWidth.Measure(SymbolFallback.Constrain(text, Glyphs));
+
         /// <summary>Applies an edit or caret movement; returns true when the event was one.</summary>
         public bool Handle(InputEvent e) {
+            if (_layoutWidth > 0) Layout(_layoutWidth, Glyphs);
             if (e.Kind == InputEventKind.Paste) {
                 DeleteSelection();
                 Insert(Clean(e.Text ?? string.Empty));
@@ -214,6 +222,48 @@ namespace ConsoleMonster.Interactive {
             return sb.ToString();
         }
 
+        // Soft-wraps each line at word boundaries (or mid-word for words longer than the width).
+        internal void Layout(int width, GlyphTier glyphs) {
+            _layoutWidth = Math.Max(1, width);
+            width = _layoutWidth;
+            Glyphs = glyphs;
+            string text = Text;
+            List<int[]> rows = Rows;
+            rows.Clear();
+            int lineStart = 0;
+            while (true) {
+                int lineEnd = text.IndexOf('\n', lineStart);
+                int contentEnd = lineEnd < 0 ? text.Length : lineEnd;
+                string line = text.Substring(lineStart, contentEnd - lineStart);
+                var clusters = new List<TextCluster>(DisplayWidth.Clusters(line));
+                int first = 0;
+                while (true) {
+                    int column = 0;
+                    int index = first;
+                    int lastBreak = -1;
+                    while (index < clusters.Count) {
+                        TextCluster cluster = clusters[index];
+                        int cells = ProjectedWidth(line.Substring(cluster.Start, cluster.Length));
+                        if (column + cells > width) break;
+                        column += cells;
+                        if (line[cluster.Start] == ' ') lastBreak = index + 1;
+                        index++;
+                    }
+                    int start = first < clusters.Count ? lineStart + clusters[first].Start : contentEnd;
+                    if (index >= clusters.Count) {
+                        rows.Add(new[] { start, lineEnd < 0 ? text.Length : lineEnd + 1 });
+                        break;
+                    }
+                    int cut = lastBreak > first ? lastBreak : Math.Max(index, first + 1);
+                    int end = cut < clusters.Count ? lineStart + clusters[cut].Start : contentEnd;
+                    rows.Add(new[] { start, end });
+                    first = cut;
+                }
+                if (lineEnd < 0) break;
+                lineStart = lineEnd + 1;
+            }
+        }
+
         private void Move(int index) {
             Caret = Math.Max(0, Math.Min(_text.Length, index));
             PreferredColumn = -1;
@@ -235,20 +285,18 @@ namespace ConsoleMonster.Interactive {
             int row = RowIndex(Caret);
             int target = Math.Max(0, Math.Min(Rows.Count - 1, row + delta));
             if (PreferredColumn < 0) {
-                PreferredColumn = DisplayWidth.Measure(_text.ToString(Rows[row][0], Caret - Rows[row][0]));
+                PreferredColumn = ProjectedWidth(_text.ToString(Rows[row][0], Caret - Rows[row][0]));
             }
             int start = Rows[target][0];
             int end = RowEnd(Rows[target]);
             int column = 0;
             int index = start;
-            while (index < end) {
-                int next = Next(index);
-                int width = DisplayWidth.Measure(_text.ToString(index, next - index));
-                if (column + width > PreferredColumn) {
-                    break;
-                }
+            string targetText = _text.ToString(start, end - start);
+            foreach (TextCluster cluster in DisplayWidth.Clusters(targetText)) {
+                int width = ProjectedWidth(targetText.Substring(cluster.Start, cluster.Length));
+                if (column + width > PreferredColumn) break;
                 column += width;
-                index = next;
+                index = start + cluster.Start + cluster.Length;
             }
             int keep = PreferredColumn;
             Caret = index;

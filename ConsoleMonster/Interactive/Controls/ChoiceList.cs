@@ -539,7 +539,7 @@ namespace ConsoleMonster.Interactive {
                 if (context.HasColor) {
                     bar = bar.WithBackgroundColor(focus.BackgroundColor);
                 }
-                row.Put(0, 0, g.FocusBar, bar);
+                row.Put(0, 0, g.Pointer, bar);
             }
             if (marked) {
                 row.Put(0, 0, g.FocusBar, context.Style(ThemeToken.Muted));

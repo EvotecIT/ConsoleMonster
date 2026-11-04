@@ -1,4 +1,4 @@
-Host inventory · synthetic data
+Host inventory * synthetic data
 
 +- > Query ------------------------------------------------+
 | | Host, role, site or status                             |

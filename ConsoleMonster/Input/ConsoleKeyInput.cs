@@ -33,6 +33,8 @@ namespace ConsoleMonster.Input {
 
         void IConsoleInputMode.Suspend() => _unix?.Suspend();
 
+        void IConsoleInputMode.RestoreSuspendedMode() => _unix?.RestoreSuspendedMode();
+
         void IConsoleInputMode.Resume() => _unix?.Resume();
 
         /// <inheritdoc />

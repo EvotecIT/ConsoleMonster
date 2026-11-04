@@ -154,12 +154,12 @@ $captured
         $content[-1] | Should -BeExactly 'end'
     }
 
-    It 'keeps cell text verbatim on the ASCII glyph tier while borders fall back' {
+    It 'constrains caller text and borders to the ASCII glyph tier' {
         $text = Invoke-ContentChild -Environment @{ CONSOLEMONSTER_GLYPHS = 'ascii' } -Script @'
 [pscustomobject] @{ Check = "$([char]0x2705) backup"; Result = 'ok' } | Show-ConsoleTable -Width 40
 '@
-        $text | Should -Match "\| $([char]0x2705) backup +\|"
-        $text | Should -Not -Match '\[OK\] backup'
+        $text | Should -Match '\[OK\] backup'
+        $text | Should -Not -Match ([char]0x2705)
     }
 
     It 'updates cells, the summary bar and activities by name, keeping the bar''s total' {

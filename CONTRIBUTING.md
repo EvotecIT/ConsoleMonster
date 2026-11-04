@@ -83,6 +83,7 @@ module runs inside its PowerShell host and is not a standalone Native AOT applic
 
 ## More reading
 
+- [Behaviour contract](Docs/Behaviour-Contract.md): shared interaction, matching, value, glyph and layout rules.
 - [Usage guide](Docs/Usage.md): rich text, tables, prompts, forms, Pester output, exports and testing APIs.
 - [Design system](Docs/Design-System.md): terminal layout, focus, status and interaction conventions.
 - [PowerShell conventions](Docs/PowerShell-Conventions.md): every widget's cmdlet form, live update command and .NET
