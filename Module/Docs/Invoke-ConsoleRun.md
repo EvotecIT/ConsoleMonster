@@ -13,7 +13,7 @@ $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleRun [-ScriptBlock] <scriptblock> [-InputObject <psobject>] [-Parallel] [-ThrottleLimit <int>] [-TimeoutSeconds <double>] [-RetryCount <int>] [-RetryDelaySeconds <double>] [-Unordered] [-Label <Object>] [-Title <Object>] [-NoLive] [<CommonParameters>]
+Invoke-ConsoleRun [-ScriptBlock] <scriptblock> [-InputObject <psobject>] [-Parallel] [-ThrottleLimit <int>] [-TimeoutSeconds <double>] [-RetryCount <int>] [-RetryDelaySeconds <double>] [-Unordered] [-Label <Object>] [-Title <Object>] [-NoLive] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -106,6 +106,22 @@ Accept wildcard characters: False
 
 ### -Parallel
 Runs items at the same time, each in its own runspace (pass caller variables with $using:name).
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReducedMotion
+Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.
 
 ```yaml
 Type: SwitchParameter

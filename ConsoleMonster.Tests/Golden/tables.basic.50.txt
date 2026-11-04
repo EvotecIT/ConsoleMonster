@@ -101,6 +101,7 @@ BIMI
   Status  ♦ INFO
   Detail  no record; optional
   Took    19 ms
+  RFC     —
 
 mail.evotec.xyz  ·  TLS certificate · ECDSA P-256…
 

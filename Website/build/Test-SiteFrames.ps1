@@ -8,7 +8,8 @@ try {
     $generated = @(
         'Website/data', 'Website/content/pages/demos', 'Website/static/frames', 'Website/static/replays',
         'Website/static/recordings', 'Website/static/site', 'Website/static/css/frames.css',
-        'Website/static/assets/player', 'Website/tools/SiteFrames/glyphs.txt'
+        'Website/static/assets/player', 'Website/tools/SiteFrames/glyphs.txt',
+        'Website/content/docs/api-parity.md', 'Docs/Api-Parity.md'
     )
     $changes = @(git status --porcelain --untracked-files=all -- $generated)
     if ($LASTEXITCODE -ne 0) { throw 'Could not inspect generated website output.' }

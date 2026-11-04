@@ -139,9 +139,12 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
         [Parameter] public SwitchParameter NoLive { get; set; }
 
+        /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
+        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+
         /// <inheritdoc />
         protected override void BeginProcessing() {
-            LiveSessionOptions options = new LiveSessionOptions {
+            LiveSessionOptions options = new LiveSessionOptions { ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null,
                 FramesPerSecond = FramesPerSecond,
                 Live = !NoLive.IsPresent,
                 Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,

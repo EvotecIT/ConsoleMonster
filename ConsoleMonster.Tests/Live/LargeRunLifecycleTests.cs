@@ -388,7 +388,7 @@ namespace ConsoleMonster.Tests.Live {
             })) {
                 Assert.False(run.IsLive); Assert.False(run.HandleKey('p'));
                 run.Finished(0, StatusKind.Pass); run.Complete();
-                Assert.Contains("progress 1/1 · OK1", writer.ToString()); Assert.True(!writer.ToString().Contains("\u001b"), writer.ToString().Replace("\u001b", "<ESC>"));
+                Assert.Contains("progress 1/1 * OK1", writer.ToString()); Assert.True(!writer.ToString().Contains("\u001b"), writer.ToString().Replace("\u001b", "<ESC>"));
             }
         }
 

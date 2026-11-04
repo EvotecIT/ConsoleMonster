@@ -12,6 +12,8 @@ namespace ConsoleMonster.Canvas {
     public sealed class CellBuffer {
         private Cell[] _cells;
 
+        internal Capabilities.GlyphTier GlyphTier { get; set; } = Capabilities.GlyphTier.Full;
+
         /// <summary>Creates a blank buffer.</summary>
         /// <param name="width">Width in cells (at least 0).</param>
         /// <param name="height">Height in cells (at least 0).</param>
@@ -72,6 +74,12 @@ namespace ConsoleMonster.Canvas {
             if (string.IsNullOrEmpty(glyph)) {
                 glyph = " ";
             }
+            string constrained = Glyphs.SymbolFallback.Constrain(glyph, GlyphTier);
+            if (!string.Equals(constrained, glyph, StringComparison.Ordinal)) {
+                // Put/Blit have already checked their region using the original width. A fallback must never expand it.
+                glyph = DisplayWidth.Measure(constrained) <= 1 ? constrained : Glyphs.SymbolFallback.GetGlyph(glyph, GlyphTier);
+                width = Math.Max(1, DisplayWidth.Measure(glyph));
+            }
             if (width <= 0) {
                 width = Math.Max(1, DisplayWidth.Measure(glyph));
             }
@@ -114,6 +122,7 @@ namespace ConsoleMonster.Canvas {
         /// <param name="maxX">Exclusive right clip edge; defaults to the buffer width.</param>
         /// <returns>The column after the last written cell.</returns>
         public int Write(int x, int y, string text, Style style, int maxX = int.MaxValue) {
+            text = Glyphs.SymbolFallback.Constrain(text, GlyphTier);
             int limit = Math.Min(maxX, Width);
             int column = x;
             foreach (TextCell cell in DisplayWidth.Cells(text)) {

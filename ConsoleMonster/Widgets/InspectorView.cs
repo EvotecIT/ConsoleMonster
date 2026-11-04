@@ -18,6 +18,7 @@ namespace ConsoleMonster.Widgets {
         private const int MaxText = 500;
         private RecordView? _view;
         private Localization.WidgetLabels? _labels;
+        private bool _showHeader;
 
         /// <summary>Inspects a value and creates the view.</summary>
         /// <param name="value">The value.</param>
@@ -57,8 +58,9 @@ namespace ConsoleMonster.Widgets {
         public void Render(Region region, RenderContext context) => View(context).Render(region, context);
 
         private RecordView View(RenderContext context) {
-            if (_view == null || !ReferenceEquals(_labels, context.Labels)) {
+            if (_view == null || !ReferenceEquals(_labels, context.Labels) || _showHeader != ShowHeader) {
                 _labels = context.Labels;
+                _showHeader = ShowHeader;
                 _view = Build(context.Labels);
             }
             return _view;
@@ -157,7 +159,7 @@ namespace ConsoleMonster.Widgets {
         private static object? CellValue(InspectNode? node, Localization.WidgetLabels labels) {
             switch (node) {
                 case null:
-                    return null;
+                    return System.Reflection.Missing.Value;
                 case InspectScalar scalar:
                     return Clip(scalar.Value);
                 case InspectCollection collection:

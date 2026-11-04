@@ -10,8 +10,10 @@ namespace ConsoleMonster.Live.Tails {
         /// <summary>Maximum retained history lines (default 1000; minimum 1). Pending source updates are lossless.</summary>
         public int Capacity { get; set; } = 1000;
 
-        /// <summary>Source-read iterations; one processes one complete snapshot, zero follows until cancelled or quit.</summary>
+        /// <summary>Source-read iterations; zero follows interactively until cancelled or quit, or reads one snapshot without a user.</summary>
         public long Count { get; set; }
+
+        internal bool NonInteractive { get; set; }
 
         /// <summary>Literal, ordinal case-insensitive substring required in the original line; null or empty accepts all.</summary>
         public string? Filter { get; set; }

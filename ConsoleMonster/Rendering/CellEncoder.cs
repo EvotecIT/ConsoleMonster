@@ -15,13 +15,13 @@ namespace ConsoleMonster.Rendering {
             if (!hyperlinks) {
                 foreach (TextSpan span in line) {
                     SgrEncoder.Append(sb, span.Style, depth, profile);
-                    TextSanitizer.Append(sb, span.Text);
+                    sb.Append(Glyphs.SymbolFallback.Constrain(TextSanitizer.Clean(span.Text), profile?.Glyphs ?? GlyphTier.Full));
                 }
                 return;
             }
             List<TextSpan> spans = new List<TextSpan>(line.Count);
             for (int i = 0; i < line.Count; i++) {
-                spans.Add(new TextSpan(TextSanitizer.Clean(line[i].Text), line[i].Style));
+                spans.Add(new TextSpan(Glyphs.SymbolFallback.Constrain(TextSanitizer.Clean(line[i].Text), profile?.Glyphs ?? GlyphTier.Full), line[i].Style));
             }
             StyledLine clean = new StyledLine(spans);
             int width = clean.Width;
@@ -58,6 +58,7 @@ namespace ConsoleMonster.Rendering {
                 if (hyperlinks && !ReferenceEquals(raw, address)) {
                     raw = address;
                     target = HyperlinkTarget.IsSafe(raw) ? raw : HyperlinkTarget.From(raw);
+                    if (profile != null && profile.Glyphs != GlyphTier.Full) { target = HyperlinkTarget.ToAscii(target); }
                 }
                 if (hyperlinks && !string.Equals(link, target, StringComparison.Ordinal)) {
                     // OSC 8: open (or close, with an empty target) a hyperlink around the following cells.
@@ -82,7 +83,7 @@ namespace ConsoleMonster.Rendering {
                     sb.Append("  ");
                     AppendColumn(sb, x);
                 }
-                sb.Append(cell.Glyph);
+                sb.Append(Glyphs.SymbolFallback.Constrain(cell.Glyph, profile?.Glyphs ?? GlyphTier.Full));
                 drifting = !trusted;
             }
             if (link != null) {

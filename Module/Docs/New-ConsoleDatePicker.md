@@ -30,6 +30,13 @@ New-ConsoleDatePicker -Key Window -Range -Value ([datetime]'2026-10-08')
 
 Choose a maintenance range.
 
+### EXAMPLE 2
+```powershell
+New-ConsoleDatePicker -Key Window -Range -Selection @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }
+```
+
+Configure today and the first weekday with a hashtable.
+
 ## PARAMETERS
 
 ### -Disabled
@@ -113,7 +120,7 @@ Accept wildcard characters: False
 ```
 
 ### -Selection
-Shared bounds, culture, today and marked-day model.
+Shared bounds, culture, today and marked-day model. Supply a hashtable such as @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }; PowerShell converts its entries to the shared selection model.
 
 ```yaml
 Type: DateSelectionOptions

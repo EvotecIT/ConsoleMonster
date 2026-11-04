@@ -11,7 +11,7 @@ namespace ConsoleMonster.Tests.Values {
             Terminal.RenderText(table, TerminalProfile.Fixed(90, 10, ColorDepth.None, tier), Theme.Dark);
 
         [Fact]
-        public void ConsoleMonsterPlaceholdersFollowTheTierWhileCallerTextStaysVerbatim() {
+        public void PlaceholdersAndCallerTextFollowTheDestinationTier() {
             var table = new Table { RecordViewRows = 0 };
             table.AddColumn("Note");
             table.AddColumn("Tags");
@@ -19,17 +19,15 @@ namespace ConsoleMonster.Tests.Values {
             table.AddValues("café — ✓ …", ValueShaper.Cell(new string[0]), ValueShaper.Cell(Enumerable.Range(1, 9).Select(i => "m" + i).ToList()));
 
             string ascii = Render(table, GlyphTier.Ascii);
-            Assert.Contains("café — ✓ …", ascii);
+            Assert.Contains("cafe - + ...", ascii);
             Assert.Contains("m5 ... +4", ascii);
-            Assert.Contains("| -", ascii);
-            Assert.Equal(1, ascii.Count(c => c == '…'));
-            Assert.Equal(1, ascii.Count(c => c == '—'));
+            Assert.DoesNotContain("(empty)", ascii);
+            Assert.All(ascii, c => Assert.InRange((int)c, 0, 127));
 
             string full = Render(table, GlyphTier.Full);
             Assert.Contains("m5 … +4", full);
-            Assert.Contains("│ —", full);
-            // The public text keeps the Unicode placeholders for logs, exports and string consumers.
-            Assert.Equal("—", ValueShaper.Text(new string[0]));
+            Assert.DoesNotContain("(empty)", full);
+            Assert.Equal(string.Empty, ValueShaper.Text(new string[0]));
         }
     }
 }

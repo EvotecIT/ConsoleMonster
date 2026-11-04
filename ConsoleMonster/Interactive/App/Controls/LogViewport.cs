@@ -43,7 +43,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>
         /// The frame drawn around the log with its label and focus marker. <see cref="BoxStyle.None"/> leaves framing to a
-        /// surrounding panel; the viewport then draws no label or focus marker of its own.
+        /// surrounding panel; the viewport retains a small focus gutter without a label.
         /// </summary>
         public BoxStyle Border { get => Read(() => FrameBorder); set => Change(() => FrameBorder = value); }
 

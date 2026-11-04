@@ -1,4 +1,4 @@
-param([string[]] $ExampleName)
+﻿param([string[]] $ExampleName)
 
 BeforeDiscovery {
     $script:RepositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
@@ -319,6 +319,7 @@ BeforeAll {
         'Website/examples/docs/object-explorer.ps1' = @{ Input = 'F10'; Paced = $true; Screen = '120x30'; Expect = @('Server configuration', '$server', 'Owner', 'Services', 'Enabled') }
         # Keep native help's external-pager choice independent of the launcher's PAGER setting in headless runs.
         'Website/examples/help-formatting/help.ps1' = @{ NoNativePager = $true }
+        'Module/Examples/Example-DatePicker-Selection.ps1' = @{ Input = 'Escape'; Screen = '80x24'; Expect = @('Maintenance window') }
         'Module/Examples/Example-InlineProgress.ps1' = @{ Arguments = '-Delay 5' }
         'Module/Examples/Example-InlinePrompts.ps1'  = @{ Arguments = "-Environment Staging -Component web -Release '2026.10' -Force" }
         'Module/Examples/Example-LoginOverview.ps1'  = @{ Arguments = '-Sample' }

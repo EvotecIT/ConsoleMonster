@@ -57,7 +57,10 @@ namespace ConsoleMonster.Interactive {
         protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) {
             // Input and callbacks can change text several times before the renderer draws again.
             // Rebuild under InputControl's edit/render lock, using the most recent content width.
-            Layout(_editor.Text, _layoutWidth > 0 ? _layoutWidth : Math.Max(1, context.Profile.Width - 6));
+            if (_layoutWidth <= 0 || _editor.Glyphs != context.Glyphs.Tier) {
+                _layoutWidth = _layoutWidth > 0 ? _layoutWidth : Math.Max(1, context.Profile.Width - 6);
+                _editor.Layout(_layoutWidth, context.Glyphs.Tier);
+            }
             return _editor.Handle(input);
         }
 
@@ -77,9 +80,9 @@ namespace ConsoleMonster.Interactive {
             int width = region.Width - 2;
             _layoutWidth = width;
             string text = _editor.Text;
-            Layout(text, width);
+            _editor.Layout(width, context.Glyphs.Tier);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
-                region.Write(2, 0, TextWrapper.Truncate(Placeholder!, width, context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
+                region.Write(2, 0, TextWrapper.Truncate(Glyphs.SymbolFallback.Constrain(Placeholder!, context.Glyphs.Tier), width, context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
                 if (Focused) {
                     _caret?.Set(region.Bounds.X + 2, region.Bounds.Y);
                 }
@@ -102,7 +105,7 @@ namespace ConsoleMonster.Interactive {
             for (int y = 0; y < region.Height && ScrollRow + y < _editor.Rows.Count; y++) {
                 int[] row = _editor.Rows[ScrollRow + y];
                 string shown = text.Substring(row[0], Math.Max(0, row[1] - row[0])).TrimEnd('\n');
-                region.Write(2, y, shown, style, width);
+                region.Write(2, y, Glyphs.SymbolFallback.Constrain(shown, context.Glyphs.Tier), style, width);
             }
             if (ScrollRow > 0) {
                 region.Write(0, 0, context.Glyphs.Get(Glyphs.Glyph.ArrowUp), context.Style(ThemeToken.Muted));
@@ -112,49 +115,10 @@ namespace ConsoleMonster.Interactive {
             }
             if (Focused) {
                 int[] caret = _editor.Rows[caretRow];
-                int column = DisplayWidth.Measure(text.Substring(caret[0], _editor.Caret - caret[0]));
+                int column = _editor.ProjectedWidth(text.Substring(caret[0], _editor.Caret - caret[0]));
                 _caret?.Set(region.Bounds.X + 2 + Math.Min(width - 1, column), region.Bounds.Y + caretRow - ScrollRow);
             }
         }
 
-        // Soft-wraps each line at word boundaries (or mid-word for words longer than the width).
-        private void Layout(string text, int width) {
-            List<int[]> rows = _editor.Rows;
-            rows.Clear();
-            int lineStart = 0;
-            while (true) {
-                int lineEnd = text.IndexOf('\n', lineStart);
-                int contentEnd = lineEnd < 0 ? text.Length : lineEnd;
-                int start = lineStart;
-                while (true) {
-                    int column = 0;
-                    int index = start;
-                    int lastBreak = -1;
-                    while (index < contentEnd) {
-                        int next = index + (char.IsHighSurrogate(text[index]) && index + 1 < contentEnd ? 2 : 1);
-                        int cell = DisplayWidth.Measure(text.Substring(index, next - index));
-                        if (column + cell > width) {
-                            break;
-                        }
-                        column += cell;
-                        if (text[index] == ' ') {
-                            lastBreak = next;
-                        }
-                        index = next;
-                    }
-                    if (index >= contentEnd) {
-                        rows.Add(new[] { start, lineEnd < 0 ? text.Length : lineEnd + 1 });
-                        break;
-                    }
-                    int cut = lastBreak > start ? lastBreak : Math.Max(index, start + 1);
-                    rows.Add(new[] { start, cut });
-                    start = cut;
-                }
-                if (lineEnd < 0) {
-                    break;
-                }
-                lineStart = lineEnd + 1;
-            }
-        }
     }
 }

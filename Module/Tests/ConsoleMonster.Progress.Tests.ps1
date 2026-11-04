@@ -23,14 +23,15 @@ Describe 'Progress columns and translated labels' {
 
     It 'renders lanes through the chosen columns' {
         $text = Invoke-ProgressChild -Script @'
+$env:CONSOLEMONSTER_GLYPHS = 'Ascii'
 $lanes = New-ConsoleLanes -Content { @{ Key = 'SRV01'; Total = 10 }; @{ Key = 'SRV02'; Total = 10 } } -Columns Description, Percent, Count, Status
 $lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('lanes', 'state', 'SRV01', 'copying', 'running', 0, 0, 0))
 $lanes.Apply(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('lanes', 'advance', 'SRV01', 'copying', 'pass', 4, 0, 1000))
 $lanes | Show-Console -Width 60
 '@
         $lines = @($text -split "`n")
-        ($lines | Where-Object { $_ -match '^SRV01' }) | Should -Match '^SRV01\s+40%\s+4/10\s+copying$'
-        ($lines | Where-Object { $_ -match '^SRV02' }) | Should -Match '^SRV02\s+queued$'
+        ($lines | Where-Object { $_ -match '^\|\s+SRV01' }) | Should -Match '^\|\s+SRV01\s+40%\s+4/10\s+copying$'
+        ($lines | Where-Object { $_ -match '^\.\s+SRV02' }) | Should -Match '^\.\s+SRV02\s+queued$'
     }
 
     It 'rejects an unknown column name' {

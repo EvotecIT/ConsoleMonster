@@ -9,16 +9,16 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Glyphs {
     /// <summary>
     /// What emoji and special symbols become on glyph tiers that cannot show them: ✅ is √ on the Basic tier and [OK] on
-    /// ASCII, ⚠️ is !, ❌ is × or x, ➜ is → or ->. Rendering never applies it to the caller's text (labels, titles, table
-    /// cells, log lines), which stays as written on every tier; the <c>Emoji</c> cell presenter and apps that want it for
-    /// their own symbols call it explicitly. The Full tier shows the text as written. Apps add or change entries with
+    /// ASCII, ⚠️ is !, ❌ is × or x, ➜ is → or ->. Rendering also constrains caller text to the destination repertoire:
+    /// ASCII is printable ASCII and Basic is WGL4, with ? for unsupported graphemes. The Full tier shows text as written.
+    /// Apps add or change symbol entries with
     /// <see cref="Register"/>.
     /// </summary>
     public static partial class SymbolFallback {
         private static readonly object Gate = new object();
         private static Dictionary<string, string[]> _map = Build();
 
-        /// <summary>Whether the fallback is applied (default true).</summary>
+        /// <summary>Whether optional prose symbol substitution is applied (default true). Output still enforces the destination repertoire.</summary>
         public static bool Enabled { get; set; } = true;
 
         /// <summary>Adds or replaces the fallback for a symbol.</summary>
@@ -268,6 +268,8 @@ namespace ConsoleMonster.Glyphs {
             Add("●", "*", "●");
             Add("○", "o", "○", "◯");
             Add("—", "-", "—");
+            Add("↔", "<->", "⇄");
+            Add("·", "*", "·");
             Add("–", "-", "–");
             Add("*", "*", "💡");
             Add("#", "#", "🔒", "🔐");

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Dates;
@@ -119,7 +119,9 @@ namespace ConsoleMonster.Interactive {
                 try { _cursor = _cursor.AddMonths(-Math.Sign(input.WheelDelta)); } catch (ArgumentOutOfRangeException) { }
                 return true;
             }
-            if (!_calendar.TryDateAt(input.Column - _calendarBounds.X, input.Row - _calendarBounds.Y, out DateTime date)) {
+            bool insideCalendar = input.Column >= _calendarBounds.X && input.Column < _calendarBounds.Right
+                && input.Row >= _calendarBounds.Y && input.Row < _calendarBounds.Bottom;
+            if (!insideCalendar || !_calendar.TryDateAt(input.Column - _calendarBounds.X, input.Row - _calendarBounds.Y, out DateTime date)) {
                 if (_dragging && input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0) {
                     int direction = input.Row < _calendarBounds.Y ? -1 : input.Row >= _calendarBounds.Bottom ? 1 : 0;
                     if (direction != 0 && (_lastEdgeNavigation == TimeSpan.MinValue || _navigationClock.Elapsed - _lastEdgeNavigation >= TimeSpan.FromMilliseconds(250))) {
@@ -152,8 +154,21 @@ namespace ConsoleMonster.Interactive {
                 if (selection != null && date >= selection.Start && date <= selection.End || _value is DateTime selected && date == selected) { return context.Style(ThemeToken.Accent).With(TextDecoration.Underline | TextDecoration.Bold); }
                 return null;
             };
-            _calendar.Render(region, context);
-            if (region.Height > 9) { region.Write(0, region.Height - 1, Text.TextWrapper.Truncate(Range ? "Space anchor · Enter select range" : "Enter select date", region.Width, context.Ellipsis), context.Style(ThemeToken.Muted)); }
+            string? selectedText = selection != null ? "Selected: " + selection.Start.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".." + selection.End.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                : _value is DateTime committed ? "Selected: " + committed.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : null;
+            int summaryRows = Math.Min(region.Height, selectedText != null || region.Height > 10 ? 2 : region.Height > 9 ? 1 : 0);
+            Region calendarRegion = region.Sub(0, 0, region.Width, region.Height - summaryRows);
+            _calendarBounds = calendarRegion.Bounds;
+            _calendar.Render(calendarRegion, context);
+            if (summaryRows > 1 || (summaryRows == 1 && selectedText == null)) {
+                string cursor = (Focused ? InteractiveGlyphs.For(context).Pointer + " " : string.Empty) + "Cursor: " + _cursor.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                region.Write(0, region.Height - summaryRows, Text.TextWrapper.Truncate(cursor, region.Width, context.Ellipsis), context.Style(ThemeToken.Text));
+            }
+            if (summaryRows > 1 || (summaryRows == 1 && selectedText != null)) {
+                string detail = selectedText ?? (Range ? "Space anchor · Enter select range" : "Enter select date");
+                region.Write(0, region.Height - 1, Text.TextWrapper.Truncate(detail, region.Width, context.Ellipsis), context.Style(ThemeToken.Muted));
+            }
         }
     }
 }

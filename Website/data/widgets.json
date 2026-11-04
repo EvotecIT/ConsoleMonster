@@ -23,6 +23,12 @@
       "title": "Charts",
       "summary": "Bars, stacked bars, sparklines, histograms and braille line and scatter charts, all scaled to their cells.",
       "count": 6
+    },
+    {
+      "id": "overview",
+      "title": "Overview",
+      "summary": "Month calendars, status maps, flows, worker lanes and run summaries: the shapes an operations report is built from.",
+      "count": 5
     }
   ],
   "colors": [
@@ -1153,8 +1159,8 @@
       "frame": {
         "w": 60,
         "h": 5,
-        "dark": "<span class=c19>Domain controllers </span><i class=\"g2586 c38 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=f8b8f9a>14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c24 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c16>                </span><span class=f8b8f9a>9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c16 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c24>                        </span><span class=f8b8f9a>6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c11 ff87171\">▆▆▆▆▆▆▆▆▆▆▆</i><span class=c29>                             </span><span class=f8b8f9a>4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 ff87171\">▆▆▆▆▆</i><span class=c35>                                   </span><span class=f8b8f9a>2</span>",
-        "light": "<span class=c19>Domain controllers </span><i class=\"g2586 c38 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=f6b7280>14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c24 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c16>                </span><span class=f6b7280>9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c16 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c24>                        </span><span class=f6b7280>6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c11 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆</i><span class=c29>                             </span><span class=f6b7280>4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 fb91c1c\">▆▆▆▆▆</i><span class=c35>                                   </span><span class=f6b7280>2</span>"
+        "dark": "<span class=c19>Domain controllers </span><i class=\"g2586 c36 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=ff87171><i class=n>✗</i> 14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c23 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c15>               </span><span class=ff87171><i class=n>✗</i> 9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c15 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c23>                       </span><span class=ff87171><i class=n>✗</i> 6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c10 ff87171\">▆▆▆▆▆▆▆▆▆▆</i><span class=c28>                            </span><span class=ff87171><i class=n>✗</i> 4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 ff87171\">▆▆▆▆▆</i><span class=c33>                                 </span><span class=ff87171><i class=n>✗</i> 2</span>",
+        "light": "<span class=c19>Domain controllers </span><i class=\"g2586 c36 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=fb91c1c><i class=n>✗</i> 14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c23 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c15>               </span><span class=fb91c1c><i class=n>✗</i> 9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c15 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c23>                       </span><span class=fb91c1c><i class=n>✗</i> 6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c10 fb91c1c\">▆▆▆▆▆▆▆▆▆▆</i><span class=c28>                            </span><span class=fb91c1c><i class=n>✗</i> 4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 fb91c1c\">▆▆▆▆▆</i><span class=c33>                                 </span><span class=fb91c1c><i class=n>✗</i> 2</span>"
       },
       "csharpRepo": "Website/examples/widgets/bar.cs",
       "csharpFluent": "((BarChart)Ui.Chart()\n    .Type(ChartType.Bar)\n    .Role(ThemeToken.Fail)\n    .Build()).Add(\"Domain controllers\", 14)\n    .Add(\"Group Policy\", 9)\n    .Add(\"Kerberos\", 6)\n    .Add(\"DNS\", 4)\n    .Add(\"PKI\", 2)\n    .Show();\n",
@@ -1217,8 +1223,8 @@
       "frame": {
         "w": 60,
         "h": 3,
-        "dark": "<i class=\"g2588 c49 f4ade80\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 ffbbf24\">██████</i><i class=\"g2588 c3 ff87171\">███</i><i class=\"g2588 c2 fa1a1aa\">██</i>\n<i class=\"g2588 f4ade80\">█</i><span class=c13> Passed   412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2588 ffbbf24\">█</i><span class=c13> Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2588 ff87171\">█</i><span class=c13> Failed    23</span><span class=\"f8b8f9a c5\">   5%</span><span class=c3>   </span><i class=\"g2588 fa1a1aa\">█</i><span class=c13> Skipped   14</span><span class=f8b8f9a>   3%</span>",
-        "light": "<i class=\"g2588 c49 f15803d\">█████████████████████████████████████████████████</i><i class=\"g2588 c6 fb45309\">██████</i><i class=\"g2588 c3 fb91c1c\">███</i><i class=\"g2588 c2 f71717a\">██</i>\n<i class=\"g2588 f15803d\">█</i><span class=c13> Passed   412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2588 fb45309\">█</i><span class=c13> Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2588 fb91c1c\">█</i><span class=c13> Failed    23</span><span class=\"f6b7280 c5\">   5%</span><span class=c3>   </span><i class=\"g2588 f71717a\">█</i><span class=c13> Skipped   14</span><span class=f6b7280>   3%</span>"
+        "dark": "<i class=\"g2588 c49 f4ade80\">█████████████████████████████████████████████████</i><i class=\"g2593 c6 ffbbf24\">▓▓▓▓▓▓</i><i class=\"g2592 c3 ff87171\">▒▒▒</i><i class=\"g2591 c2 fa1a1aa\">░░</i>\n<i class=\"g2588 f4ade80\">█</i><span class=c1> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c12>Passed   412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2593 ffbbf24\">▓</i><span class=c1> </span><span class=\"ffbbf24 c2\"><i class=n>▴</i> </span><span class=c12>Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2592 ff87171\">▒</i><span class=c1> </span><span class=\"ff87171 c2\"><i class=n>✗</i> </span><span class=c12>Failed    23</span><span class=\"f8b8f9a c5\">   5%</span><span class=c3>   </span><i class=\"g2591 fa1a1aa\">░</i><span class=c1> </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span><span class=c12>Skipped   14</span><span class=f8b8f9a>   3%</span>",
+        "light": "<i class=\"g2588 c49 f15803d\">█████████████████████████████████████████████████</i><i class=\"g2593 c6 fb45309\">▓▓▓▓▓▓</i><i class=\"g2592 c3 fb91c1c\">▒▒▒</i><i class=\"g2591 c2 f71717a\">░░</i>\n<i class=\"g2588 f15803d\">█</i><span class=c1> </span><span class=\"f15803d c2\"><i class=n>✓</i> </span><span class=c12>Passed   412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2593 fb45309\">▓</i><span class=c1> </span><span class=\"fb45309 c2\"><i class=n>▴</i> </span><span class=c12>Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2592 fb91c1c\">▒</i><span class=c1> </span><span class=\"fb91c1c c2\"><i class=n>✗</i> </span><span class=c12>Failed    23</span><span class=\"f6b7280 c5\">   5%</span><span class=c3>   </span><i class=\"g2591 f71717a\">░</i><span class=c1> </span><span class=\"f71717a c2\"><i class=n>–</i> </span><span class=c12>Skipped   14</span><span class=f6b7280>   3%</span>"
       },
       "csharpRepo": "Website/examples/widgets/stacked.cs",
       "csharpFluent": "((StackedBar)Ui.Chart().Type(ChartType.Stacked).Build()).Add(\"Passed\", 412, ThemeToken.Pass)\n    .Add(\"Warnings\", 51, ThemeToken.Warn)\n    .Add(\"Failed\", 23, ThemeToken.Fail)\n    .Add(\"Skipped\", 14, ThemeToken.Skip)\n    .Show();\n",
@@ -1425,8 +1431,8 @@
       "frame": {
         "w": 60,
         "h": 8,
-        "dark": "<span class=\"f8b8f9a c2\">31</span><i class=\"g2502 f4b5060\">│</i><span class=c5>     </span><span class=f60a5fa><i class=g2880>⢀</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2814>⠔</i><i class=g280a>⠊</i><i class=g2811>⠑</i><i class=g2822>⠢</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=\"f60a5fa c6\"><i class=g2880>⢀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span><span class=c15>               </span><span class=\"f60a5fa c6\"><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c25>                         </span><span class=f60a5fa><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><i class=\"g2801 f60a5fa\">⠁</i><span class=c26>                          </span><span class=\"f60a5fa c6\"><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span><span class=c15>               </span><span class=f60a5fa><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2824>⠤</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c32>                                </span><span class=f60a5fa><i class=g2811>⠑</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2884>⢄</i><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=\"ff87171 c3\"><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c31>                               </span><span class=ff87171><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2840>⡀</i></span>\n<span class=c1> </span><span class=\"f8b8f9a c1\">0</span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"ff87171 c32\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c6>      </span><span class=ff87171><i class=g2808>⠈</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i></span>\n<span class=c2>  </span><span class=f4b5060><i class=g2514>└</i><i class=\"g2500 c57\">─────────────────────────────────────────────────────────</i></span>\n<span class=c3>   </span><i class=\"g2588 f60a5fa\">█</i><span class=\"f8b8f9a c10\"> completed</span><span class=c3>   </span><i class=\"g2588 ff87171\">█</i><span class=f8b8f9a> failed</span>",
-        "light": "<span class=\"f6b7280 c2\">31</span><i class=\"g2502 f8a8a94\">│</i><span class=c5>     </span><span class=f2563eb><i class=g2880>⢀</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2814>⠔</i><i class=g280a>⠊</i><i class=g2811>⠑</i><i class=g2822>⠢</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=\"f2563eb c6\"><i class=g2880>⢀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span><span class=c15>               </span><span class=\"f2563eb c6\"><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c25>                         </span><span class=f2563eb><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2801 f2563eb\">⠁</i><span class=c26>                          </span><span class=\"f2563eb c6\"><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span><span class=c15>               </span><span class=f2563eb><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2824>⠤</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=c32>                                </span><span class=f2563eb><i class=g2811>⠑</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2884>⢄</i><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=\"fb91c1c c3\"><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c31>                               </span><span class=fb91c1c><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2840>⡀</i></span>\n<span class=c1> </span><span class=\"f6b7280 c1\">0</span><i class=\"g2502 f8a8a94\">│</i><span class=c3>   </span><span class=\"fb91c1c c32\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c6>      </span><span class=fb91c1c><i class=g2808>⠈</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i></span>\n<span class=c2>  </span><span class=f8a8a94><i class=g2514>└</i><i class=\"g2500 c57\">─────────────────────────────────────────────────────────</i></span>\n<span class=c3>   </span><i class=\"g2588 f2563eb\">█</i><span class=\"f6b7280 c10\"> completed</span><span class=c3>   </span><i class=\"g2588 fb91c1c\">█</i><span class=f6b7280> failed</span>"
+        "dark": "<span class=\"f8b8f9a c2\">31</span><i class=\"g2502 f4b5060\">│</i><span class=c5>     </span><span class=f60a5fa><i class=g2880>⢀</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2814>⠔</i><i class=g280a>⠊</i><i class=g2811>⠑</i><i class=g2822>⠢</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=\"f60a5fa c6\"><i class=g2880>⢀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span><span class=c15>               </span><span class=\"f60a5fa c6\"><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c25>                         </span><span class=f60a5fa><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i>1</span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><i class=\"g2801 f60a5fa\">⠁</i><span class=c26>                          </span><span class=\"f60a5fa c6\"><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span><span class=c15>               </span><span class=f60a5fa><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2824>⠤</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c32>                                </span><span class=f60a5fa><i class=g2811>⠑</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2884>⢄</i><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=\"ff87171 c3\"><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c31>                               </span><span class=ff87171><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2840>⡀</i></span>\n<span class=c1> </span><span class=\"f8b8f9a c1\">0</span><i class=\"g2502 f4b5060\">│</i><span class=c3>   </span><span class=\"ff87171 c32\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c6>      </span><span class=ff87171><i class=g2808>⠈</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i>2</span>\n<span class=c2>  </span><span class=f4b5060><i class=g2514>└</i><i class=\"g2500 c57\">─────────────────────────────────────────────────────────</i></span>\n<span class=c3>   </span><span class=\"f60a5fa c1\">1</span><span class=\"f8b8f9a c10\"> completed</span><span class=c3>   </span><span class=\"ff87171 c3\">2 <i class=n>✗</i></span><span class=f8b8f9a> failed</span>",
+        "light": "<span class=\"f6b7280 c2\">31</span><i class=\"g2502 f8a8a94\">│</i><span class=c5>     </span><span class=f2563eb><i class=g2880>⢀</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2814>⠔</i><i class=g280a>⠊</i><i class=g2811>⠑</i><i class=g2822>⠢</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=\"f2563eb c6\"><i class=g2880>⢀</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span><span class=c15>               </span><span class=\"f2563eb c6\"><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c25>                         </span><span class=f2563eb><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i>1</span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><i class=\"g2801 f2563eb\">⠁</i><span class=c26>                          </span><span class=\"f2563eb c6\"><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2840>⡀</i></span><span class=c15>               </span><span class=f2563eb><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2824>⠤</i><i class=g280a>⠊</i><i class=g2801>⠁</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=c32>                                </span><span class=f2563eb><i class=g2811>⠑</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2884>⢄</i><i class=g2860>⡠</i><i class=g2814>⠔</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g280a>⠊</i></span>\n<span class=c2>  </span><i class=\"g2502 f8a8a94\">│</i><span class=\"fb91c1c c3\"><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c31>                               </span><span class=fb91c1c><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2840>⡀</i></span>\n<span class=c1> </span><span class=\"f6b7280 c1\">0</span><i class=\"g2502 f8a8a94\">│</i><span class=c3>   </span><span class=\"fb91c1c c32\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c6>      </span><span class=fb91c1c><i class=g2808>⠈</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i>2</span>\n<span class=c2>  </span><span class=f8a8a94><i class=g2514>└</i><i class=\"g2500 c57\">─────────────────────────────────────────────────────────</i></span>\n<span class=c3>   </span><span class=\"f2563eb c1\">1</span><span class=\"f6b7280 c10\"> completed</span><span class=c3>   </span><span class=\"fb91c1c c3\">2 <i class=n>✗</i></span><span class=f6b7280> failed</span>"
       },
       "csharpRepo": "Website/examples/widgets/line.cs",
       "csharpFluent": "LineChart chart = (LineChart)Ui.Chart().Type(ChartType.Line).Height(7).Build();\nchart.AddSeries(\"completed\", ThemeToken.Accent);\nchart.AddSeries(\"failed\", ThemeToken.Fail);\nfor (int i = 0; i < 48; i++)\n{\n    chart.Add(\"completed\", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));\n    chart.Add(\"failed\", 3 + (2 * Math.Cos(i / 5.0)));\n}\n\nchart.Show();\n",
@@ -1588,6 +1594,391 @@
           "fluent": ".Tagline(…)",
           "memberId": "ConsoleMonster.Widgets.Logo.Tagline",
           "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
+      "parity": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "calendar",
+      "title": "Calendar",
+      "group": "overview",
+      "summary": "A month with a status per date: the worst event of the day wins and today is outlined.",
+      "width": 40,
+      "csharp": "// Each date takes the most severe status of its events; today is outlined.\nvar calendar = new Calendar(2026, 11, new[] {\n    new CalendarMark(new DateTime(2026, 11, 3), StatusKind.Pass, \"Backup verified\"),\n    new CalendarMark(new DateTime(2026, 11, 10), StatusKind.Fail, \"Backup failed\"),\n    new CalendarMark(new DateTime(2026, 11, 17), StatusKind.Pass, \"Backup verified\"),\n    new CalendarMark(new DateTime(2026, 11, 19), StatusKind.Warn, \"Certificate expires\"),\n    new CalendarMark(new DateTime(2026, 11, 24), StatusKind.Info, \"Change window\"),\n    new CalendarMark(new DateTime(2026, 11, 27), StatusKind.Pending, \"Restore drill\")\n}) {\n    FirstDayOfWeek = DayOfWeek.Monday,\n    Today = new DateTime(2026, 11, 18)\n};\nTerminal.Write(calendar);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Dates;\nusing ConsoleMonster.Styling;\nusing Calendar = ConsoleMonster.Widgets.Calendar;\n\n// Each date takes the most severe status of its events; today is outlined.\nvar calendar = new Calendar(2026, 11, new[] {\n    new CalendarMark(new DateTime(2026, 11, 3), StatusKind.Pass, \"Backup verified\"),\n    new CalendarMark(new DateTime(2026, 11, 10), StatusKind.Fail, \"Backup failed\"),\n    new CalendarMark(new DateTime(2026, 11, 17), StatusKind.Pass, \"Backup verified\"),\n    new CalendarMark(new DateTime(2026, 11, 19), StatusKind.Warn, \"Certificate expires\"),\n    new CalendarMark(new DateTime(2026, 11, 24), StatusKind.Info, \"Change window\"),\n    new CalendarMark(new DateTime(2026, 11, 27), StatusKind.Pending, \"Restore drill\")\n}) {\n    FirstDayOfWeek = DayOfWeek.Monday,\n    Today = new DateTime(2026, 11, 18)\n};\nTerminal.Write(calendar);",
+      "csharpFile": "Program.cs",
+      "powershell": "# Each date takes the most severe status of its events; today is outlined.\n@(\n    @{ Date = [datetime]'2026-11-03'; Status = 'Pass'; Label = 'Backup verified' }\n    @{ Date = [datetime]'2026-11-10'; Status = 'Fail'; Label = 'Backup failed' }\n    @{ Date = [datetime]'2026-11-17'; Status = 'Pass'; Label = 'Backup verified' }\n    @{ Date = [datetime]'2026-11-19'; Status = 'Warn'; Label = 'Certificate expires' }\n    @{ Date = [datetime]'2026-11-24'; Status = 'Info'; Label = 'Change window' }\n    @{ Date = [datetime]'2026-11-27'; Status = 'Pending'; Label = 'Restore drill' }\n) | ForEach-Object { [pscustomobject] $_ } |\n    New-ConsoleCalendar -Year 2026 -Month 11 -FirstDayOfWeek Monday -Today '2026-11-18' |\n    Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n# Each date takes the most severe status of its events; today is outlined.\n@(\n    @{ Date = [datetime]'2026-11-03'; Status = 'Pass'; Label = 'Backup verified' }\n    @{ Date = [datetime]'2026-11-10'; Status = 'Fail'; Label = 'Backup failed' }\n    @{ Date = [datetime]'2026-11-17'; Status = 'Pass'; Label = 'Backup verified' }\n    @{ Date = [datetime]'2026-11-19'; Status = 'Warn'; Label = 'Certificate expires' }\n    @{ Date = [datetime]'2026-11-24'; Status = 'Info'; Label = 'Change window' }\n    @{ Date = [datetime]'2026-11-27'; Status = 'Pending'; Label = 'Restore drill' }\n) | ForEach-Object { [pscustomobject] $_ } |\n    New-ConsoleCalendar -Year 2026 -Month 11 -FirstDayOfWeek Monday -Today '2026-11-18' |\n    Show-Console",
+      "powershellFile": "calendar.ps1",
+      "frame": {
+        "w": 40,
+        "h": 11,
+        "dark": "<span class=B>November 2026</span>\n\n<span class=\"f8b8f9a c4\">Week</span><span class=c4>    </span><span class=\"B c2\">Mo</span><span class=c2>  </span><span class=\"B c2\">Tu</span><span class=c2>  </span><span class=\"B c2\">We</span><span class=c2>  </span><span class=\"B c2\">Th</span><span class=c2>  </span><span class=\"B c2\">Fr</span><span class=c2>  </span><span class=\"B c2\">Sa</span><span class=c2>  </span><span class=B>Su</span>\n<span class=\"f8b8f9a c3\">W44</span><span class=c29>                             </span><span class=f8b8f9a>01</span>\n<span class=\"f8b8f9a c3\">W45</span><span class=c9>     02  </span><span class=\"f0c0c0c k4ade80 B c2\">03</span><i class=\"n f4ade80\">✓</i><span class=c13> 04  05  06  </span><span class=\"f8b8f9a c2\">07</span><span class=c2>  </span><span class=f8b8f9a>08</span>\n<span class=\"f8b8f9a c3\">W46</span><span class=c9>     09  </span><span class=\"f0c0c0c kf87171 B c2\">10</span><i class=\"n ff87171\">✗</i><span class=c13> 11  12  13  </span><span class=\"f8b8f9a c2\">14</span><span class=c2>  </span><span class=f8b8f9a>15</span>\n<span class=\"f8b8f9a c3\">W47</span><span class=c9>     16  </span><span class=\"f0c0c0c k4ade80 B c2\">17</span><i class=\"n f4ade80\">✓</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B U c2\">18</span><span class=c2>  </span><span class=\"f0c0c0c kfbbf24 B c2\">19</span><i class=\"n ffbbf24\">▴</i><span class=c5> 20  </span><span class=\"f8b8f9a c2\">21</span><span class=c2>  </span><span class=f8b8f9a>22</span>\n<span class=\"f8b8f9a c3\">W48</span><span class=c9>     23  </span><span class=\"f0c0c0c k38bdf8 B c2\">24</span><i class=\"n f38bdf8\">◆</i><span class=c9> 25  26  </span><span class=\"f0c0c0c k71717a B c2\">27</span><i class=\"n f71717a\">○</i><span class=c1> </span><span class=\"f8b8f9a c2\">28</span><span class=c2>  </span><span class=f8b8f9a>29</span>\n<span class=\"f8b8f9a c3\">W49</span>     30\n<span class=f8b8f9a><i class=n>✗</i> Fail  <i class=n>▴</i> Warn  <i class=n>○</i> Pending  <i class=n>✓</i> Pass</span>\n<span class=f8b8f9a><i class=n>◆</i> Info  Today 18 Nov</span>",
+        "light": "<span class=\"f111827 B\">November 2026</span>\n\n<span class=\"f6b7280 c4\">Week</span><span class=c4>    </span><span class=\"f374151 B c2\">Mo</span><span class=c2>  </span><span class=\"f374151 B c2\">Tu</span><span class=c2>  </span><span class=\"f374151 B c2\">We</span><span class=c2>  </span><span class=\"f374151 B c2\">Th</span><span class=c2>  </span><span class=\"f374151 B c2\">Fr</span><span class=c2>  </span><span class=\"f374151 B c2\">Sa</span><span class=c2>  </span><span class=\"f374151 B\">Su</span>\n<span class=\"f6b7280 c3\">W44</span><span class=c29>                             </span><span class=f6b7280>01</span>\n<span class=\"f6b7280 c3\">W45</span><span class=c9>     02  </span><span class=\"fffffff k15803d B c2\">03</span><i class=\"n f15803d\">✓</i><span class=c13> 04  05  06  </span><span class=\"f6b7280 c2\">07</span><span class=c2>  </span><span class=f6b7280>08</span>\n<span class=\"f6b7280 c3\">W46</span><span class=c9>     09  </span><span class=\"fffffff kb91c1c B c2\">10</span><i class=\"n fb91c1c\">✗</i><span class=c13> 11  12  13  </span><span class=\"f6b7280 c2\">14</span><span class=c2>  </span><span class=f6b7280>15</span>\n<span class=\"f6b7280 c3\">W47</span><span class=c9>     16  </span><span class=\"fffffff k15803d B c2\">17</span><i class=\"n f15803d\">✓</i><span class=c1> </span><span class=\"f0f172a kd6e4fa B U c2\">18</span><span class=c2>  </span><span class=\"fffffff kb45309 B c2\">19</span><i class=\"n fb45309\">▴</i><span class=c5> 20  </span><span class=\"f6b7280 c2\">21</span><span class=c2>  </span><span class=f6b7280>22</span>\n<span class=\"f6b7280 c3\">W48</span><span class=c9>     23  </span><span class=\"fffffff k0369a1 B c2\">24</span><i class=\"n f0369a1\">◆</i><span class=c9> 25  26  </span><span class=\"fffffff k858590 B c2\">27</span><i class=\"n f858590\">○</i><span class=c1> </span><span class=\"f6b7280 c2\">28</span><span class=c2>  </span><span class=f6b7280>29</span>\n<span class=\"f6b7280 c3\">W49</span>     30\n<span class=f6b7280><i class=n>✗</i> Fail  <i class=n>▴</i> Warn  <i class=n>○</i> Pending  <i class=n>✓</i> Pass</span>\n<span class=f6b7280><i class=n>◆</i> Info  Today 18 Nov</span>"
+      },
+      "csharpRepo": "Website/examples/widgets/calendar.cs",
+      "csharpFluent": "// Each date takes the most severe status of its events; today is outlined.\nvar calendar = Ui.Calendar()\n    .Year(2026)\n    .Month(11)\n    .Marks(new[]\n    {\n        new CalendarMark(new DateTime(2026, 11, 3), StatusKind.Pass, \"Backup verified\"),\n        new CalendarMark(new DateTime(2026, 11, 10), StatusKind.Fail, \"Backup failed\"),\n        new CalendarMark(new DateTime(2026, 11, 17), StatusKind.Pass, \"Backup verified\"),\n        new CalendarMark(new DateTime(2026, 11, 19), StatusKind.Warn, \"Certificate expires\"),\n        new CalendarMark(new DateTime(2026, 11, 24), StatusKind.Info, \"Change window\"),\n        new CalendarMark(new DateTime(2026, 11, 27), StatusKind.Pending, \"Restore drill\")\n    })\n    .FirstDayOfWeek(DayOfWeek.Monday)\n    .Today(new DateTime(2026, 11, 18));\ncalendar.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Dates;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// Each date takes the most severe status of its events; today is outlined.\nvar calendar = Ui.Calendar()\n    .Year(2026)\n    .Month(11)\n    .Marks(new[]\n    {\n        new CalendarMark(new DateTime(2026, 11, 3), StatusKind.Pass, \"Backup verified\"),\n        new CalendarMark(new DateTime(2026, 11, 10), StatusKind.Fail, \"Backup failed\"),\n        new CalendarMark(new DateTime(2026, 11, 17), StatusKind.Pass, \"Backup verified\"),\n        new CalendarMark(new DateTime(2026, 11, 19), StatusKind.Warn, \"Certificate expires\"),\n        new CalendarMark(new DateTime(2026, 11, 24), StatusKind.Info, \"Change window\"),\n        new CalendarMark(new DateTime(2026, 11, 27), StatusKind.Pending, \"Restore drill\")\n    })\n    .FirstDayOfWeek(DayOfWeek.Monday)\n    .Today(new DateTime(2026, 11, 18));\ncalendar.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleCalendar",
+          "csharp": "new Calendar(…)",
+          "fluent": "Ui.Calendar()",
+          "memberId": "M:ConsoleMonster.Ui.Calendar",
+          "note": "Inside Content: c.Calendar(calendar => …)."
+        },
+        {
+          "powershell": "New-ConsoleCalendar -Year …",
+          "csharp": "Year = …",
+          "fluent": ".Year(…)",
+          "memberId": "ConsoleMonster.Widgets.Calendar.Year",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleCalendar -Month …",
+          "csharp": "Month = …",
+          "fluent": ".Month(…)",
+          "memberId": "ConsoleMonster.Widgets.Calendar.Month",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleCalendar -FirstDayOfWeek …",
+          "csharp": "FirstDayOfWeek = …",
+          "fluent": ".FirstDayOfWeek(…)",
+          "memberId": "ConsoleMonster.Widgets.Calendar.FirstDayOfWeek",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleCalendar -Today …",
+          "csharp": "Today = …",
+          "fluent": ".Today(…)",
+          "memberId": "ConsoleMonster.Widgets.Calendar.Today",
+          "note": null
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
+      "parity": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "cellmap",
+      "title": "Status map",
+      "group": "overview",
+      "summary": "One cell per item in labelled rows, with a legend that counts each status.",
+      "width": 60,
+      "csharp": "// One cell per host and port, filled row by row, with a legend of counts.\nvar map = new CellMap { Columns = 4, LegendLines = 2 };\nforeach (string host in new[] { \"web-01\", \"web-02\", \"api-01\", \"db-01\" }) {\n    map.RowLabels.Add(host);\n}\nStatusKind[] states = {\n    StatusKind.Pass, StatusKind.Pass, StatusKind.Skip, StatusKind.Skip,\n    StatusKind.Pass, StatusKind.Warn, StatusKind.Skip, StatusKind.Skip,\n    StatusKind.Pass, StatusKind.Pass, StatusKind.Fail, StatusKind.Pass,\n    StatusKind.Skip, StatusKind.Skip, StatusKind.Pass, StatusKind.Pass\n};\nforeach (StatusKind state in states) {\n    map.Add(state);\n}\nTerminal.Write(map);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// One cell per host and port, filled row by row, with a legend of counts.\nvar map = new CellMap { Columns = 4, LegendLines = 2 };\nforeach (string host in new[] { \"web-01\", \"web-02\", \"api-01\", \"db-01\" }) {\n    map.RowLabels.Add(host);\n}\nStatusKind[] states = {\n    StatusKind.Pass, StatusKind.Pass, StatusKind.Skip, StatusKind.Skip,\n    StatusKind.Pass, StatusKind.Warn, StatusKind.Skip, StatusKind.Skip,\n    StatusKind.Pass, StatusKind.Pass, StatusKind.Fail, StatusKind.Pass,\n    StatusKind.Skip, StatusKind.Skip, StatusKind.Pass, StatusKind.Pass\n};\nforeach (StatusKind state in states) {\n    map.Add(state);\n}\nTerminal.Write(map);",
+      "csharpFile": "Program.cs",
+      "powershell": "# One cell per host and port, filled row by row, with a legend of counts.\n$states = @(\n    'Pass', 'Pass', 'Skip', 'Skip'\n    'Pass', 'Warn', 'Skip', 'Skip'\n    'Pass', 'Pass', 'Fail', 'Pass'\n    'Skip', 'Skip', 'Pass', 'Pass'\n)\nNew-ConsoleCellMap -InputObject $states -Columns 4 -LegendLines 2 `\n    -RowLabels 'web-01', 'web-02', 'api-01', 'db-01' | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n# One cell per host and port, filled row by row, with a legend of counts.\n$states = @(\n    'Pass', 'Pass', 'Skip', 'Skip'\n    'Pass', 'Warn', 'Skip', 'Skip'\n    'Pass', 'Pass', 'Fail', 'Pass'\n    'Skip', 'Skip', 'Pass', 'Pass'\n)\nNew-ConsoleCellMap -InputObject $states -Columns 4 -LegendLines 2 `\n    -RowLabels 'web-01', 'web-02', 'api-01', 'db-01' | Show-Console",
+      "powershellFile": "cellmap.ps1",
+      "frame": {
+        "w": 60,
+        "h": 5,
+        "dark": "<span class=\"f8b8f9a c6\">web-01</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i>\n<span class=\"f8b8f9a c6\">web-02</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n ffbbf24\">▴</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i>\n<span class=\"f8b8f9a c6\">api-01</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c1> </span><i class=\"n f4ade80\">✓</i>\n<span class=\"f8b8f9a c5\">db-01</span><span class=c2>  </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i>\n<span class=\"f4ade80 c10\"><i class=n>✓</i> 8 passed</span><span class=c2>  </span><span class=\"ff87171 c10\"><i class=n>✗</i> 1 failed</span><span class=c2>  </span><span class=\"ffbbf24 c11\"><i class=n>▴</i> 1 warning</span><span class=c2>  </span><span class=fa1a1aa><i class=n>–</i> 6 skipped</span>",
+        "light": "<span class=\"f6b7280 c6\">web-01</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i>\n<span class=\"f6b7280 c6\">web-02</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n fb45309\">▴</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i>\n<span class=\"f6b7280 c6\">api-01</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c1> </span><i class=\"n f15803d\">✓</i>\n<span class=\"f6b7280 c5\">db-01</span><span class=c2>  </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i>\n<span class=\"f15803d c10\"><i class=n>✓</i> 8 passed</span><span class=c2>  </span><span class=\"fb91c1c c10\"><i class=n>✗</i> 1 failed</span><span class=c2>  </span><span class=\"fb45309 c11\"><i class=n>▴</i> 1 warning</span><span class=c2>  </span><span class=f71717a><i class=n>–</i> 6 skipped</span>"
+      },
+      "csharpRepo": "Website/examples/widgets/cellmap.cs",
+      "csharpFluent": "// One cell per host and port, filled row by row, with a legend of counts.\nvar map = Ui.CellMap().Columns(4).LegendLines(2);\nforeach (string host in new[] { \"web-01\", \"web-02\", \"api-01\", \"db-01\" }\n\n)\n{\n    map.RowLabels.Add(host);\n}\n\nStatusKind[] states =\n{\n    StatusKind.Pass,\n    StatusKind.Pass,\n    StatusKind.Skip,\n    StatusKind.Skip,\n    StatusKind.Pass,\n    StatusKind.Warn,\n    StatusKind.Skip,\n    StatusKind.Skip,\n    StatusKind.Pass,\n    StatusKind.Pass,\n    StatusKind.Fail,\n    StatusKind.Pass,\n    StatusKind.Skip,\n    StatusKind.Skip,\n    StatusKind.Pass,\n    StatusKind.Pass\n};\nforeach (StatusKind state in states)\n{\n    map.Add(state);\n}\n\nmap.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// One cell per host and port, filled row by row, with a legend of counts.\nvar map = Ui.CellMap().Columns(4).LegendLines(2);\nforeach (string host in new[] { \"web-01\", \"web-02\", \"api-01\", \"db-01\" }\n\n)\n{\n    map.RowLabels.Add(host);\n}\n\nStatusKind[] states =\n{\n    StatusKind.Pass,\n    StatusKind.Pass,\n    StatusKind.Skip,\n    StatusKind.Skip,\n    StatusKind.Pass,\n    StatusKind.Warn,\n    StatusKind.Skip,\n    StatusKind.Skip,\n    StatusKind.Pass,\n    StatusKind.Pass,\n    StatusKind.Fail,\n    StatusKind.Pass,\n    StatusKind.Skip,\n    StatusKind.Skip,\n    StatusKind.Pass,\n    StatusKind.Pass\n};\nforeach (StatusKind state in states)\n{\n    map.Add(state);\n}\n\nmap.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleCellMap",
+          "csharp": "new CellMap(…)",
+          "fluent": "Ui.CellMap()",
+          "memberId": "M:ConsoleMonster.Ui.CellMap",
+          "note": "Inside Content: c.CellMap(cellMap => …)."
+        },
+        {
+          "powershell": "New-ConsoleCellMap -Columns …",
+          "csharp": "Columns = …",
+          "fluent": ".Columns(…)",
+          "memberId": "ConsoleMonster.Widgets.CellMap.Columns",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleCellMap -LegendLines …",
+          "csharp": "LegendLines = …",
+          "fluent": ".LegendLines(…)",
+          "memberId": "ConsoleMonster.Widgets.CellMap.LegendLines",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleCellMap -InputObject …",
+          "csharp": "CellMap.Add(…)",
+          "fluent": "CellMap.Add(…)",
+          "memberId": "A:ConsoleMonster.Widgets.CellMap.Add.state",
+          "note": "Adds one initial state for each supplied cell status. The state argument receives …."
+        },
+        {
+          "powershell": "| Show-Console",
+          "csharp": "Terminal.Write(widget)",
+          "fluent": ".Show()",
+          "memberId": "M:ConsoleMonster.Terminal.Write"
+        }
+      ],
+      "parity": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "flow",
+      "title": "Flow",
+      "group": "overview",
+      "summary": "Steps joined by labelled connections; a cut connection shows where a path breaks.",
+      "width": 72,
+      "csharp": "// Steps joined by labelled connections; a cut connection shows where the path breaks.\nvar flow = new Flow()\n    .Node(\"client\", \"Client\", StatusKind.Pass)\n    .Node(\"proxy\", \"Proxy\", StatusKind.Pass)\n    .Node(\"api\", \"API\", StatusKind.Warn)\n    .Node(\"db\", \"Database\", StatusKind.Fail)\n    .Edge(\"client\", \"proxy\", \":443\")\n    .Edge(\"proxy\", \"api\", \"HTTP\")\n    .Edge(\"api\", \"db\", \"timeout\", StatusKind.Fail, true);\nflow.Branch = new FlowBranch(\"db\", \"listener stopped\", default, StatusKind.Fail);\nTerminal.Write(flow);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// Steps joined by labelled connections; a cut connection shows where the path breaks.\nvar flow = new Flow()\n    .Node(\"client\", \"Client\", StatusKind.Pass)\n    .Node(\"proxy\", \"Proxy\", StatusKind.Pass)\n    .Node(\"api\", \"API\", StatusKind.Warn)\n    .Node(\"db\", \"Database\", StatusKind.Fail)\n    .Edge(\"client\", \"proxy\", \":443\")\n    .Edge(\"proxy\", \"api\", \"HTTP\")\n    .Edge(\"api\", \"db\", \"timeout\", StatusKind.Fail, true);\nflow.Branch = new FlowBranch(\"db\", \"listener stopped\", default, StatusKind.Fail);\nTerminal.Write(flow);",
+      "csharpFile": "Program.cs",
+      "powershell": "# Steps joined by labelled connections; a cut connection shows where the path breaks.\nNew-ConsoleFlow -Content {\n    [pscustomobject] @{ Kind = 'Node'; Key = 'client'; Label = 'Client'; Status = 'Pass' }\n    [pscustomobject] @{ Kind = 'Node'; Key = 'proxy'; Label = 'Proxy'; Status = 'Pass' }\n    [pscustomobject] @{ Kind = 'Node'; Key = 'api'; Label = 'API'; Status = 'Warn' }\n    [pscustomobject] @{ Kind = 'Node'; Key = 'db'; Label = 'Database'; Status = 'Fail' }\n    [pscustomobject] @{ Kind = 'Edge'; From = 'client'; To = 'proxy'; Label = ':443' }\n    [pscustomobject] @{ Kind = 'Edge'; From = 'proxy'; To = 'api'; Label = 'HTTP' }\n    [pscustomobject] @{ Kind = 'Edge'; From = 'api'; To = 'db'; Label = 'timeout'; Status = 'Fail'\n        Cut = $true }\n    [pscustomobject] @{ Kind = 'Branch'; From = 'db'; Label = 'listener stopped'; Status = 'Fail' }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n# Steps joined by labelled connections; a cut connection shows where the path breaks.\nNew-ConsoleFlow -Content {\n    [pscustomobject] @{ Kind = 'Node'; Key = 'client'; Label = 'Client'; Status = 'Pass' }\n    [pscustomobject] @{ Kind = 'Node'; Key = 'proxy'; Label = 'Proxy'; Status = 'Pass' }\n    [pscustomobject] @{ Kind = 'Node'; Key = 'api'; Label = 'API'; Status = 'Warn' }\n    [pscustomobject] @{ Kind = 'Node'; Key = 'db'; Label = 'Database'; Status = 'Fail' }\n    [pscustomobject] @{ Kind = 'Edge'; From = 'client'; To = 'proxy'; Label = ':443' }\n    [pscustomobject] @{ Kind = 'Edge'; From = 'proxy'; To = 'api'; Label = 'HTTP' }\n    [pscustomobject] @{ Kind = 'Edge'; From = 'api'; To = 'db'; Label = 'timeout'; Status = 'Fail'\n        Cut = $true }\n    [pscustomobject] @{ Kind = 'Branch'; From = 'db'; Label = 'listener stopped'; Status = 'Fail' }\n} | Show-Console",
+      "powershellFile": "flow.ps1",
+      "frame": {
+        "w": 72,
+        "h": 6,
+        "dark": "<span class=\"f4ade80 c12\"><i class=g250c>┌</i><i class=\"g2500 c10\">──────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f8b8f9a c4\">:443</span><span class=c1> </span><span class=\"f4ade80 c11\"><i class=g250c>┌</i><i class=\"g2500 c9\">─────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f8b8f9a c4\">HTTP</span><span class=c1> </span><span class=\"ffbbf24 c9\"><i class=g250c>┌</i><i class=\"g2500 c7\">───────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"ff87171 c9\"><i class=n>✗</i> timeout</span><span class=c1> </span><span class=ff87171><i class=g250c>┌</i><i class=\"g2500 c12\">────────────</i><i class=g2510>┐</i></span>\n<i class=\"g2502 f4ade80\">│</i><span class=c1> </span><span class=\"f4ade80 c8\"><i class=n>✓</i> Client</span><span class=c1> </span><i class=\"g2502 f4ade80\">│</i><span class=\"f8b8f9a c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 f4ade80\">│</i><span class=c1> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> Proxy</span><span class=c1> </span><i class=\"g2502 f4ade80\">│</i><span class=\"f8b8f9a c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 ffbbf24\">│</i><span class=c1> </span><span class=\"ffbbf24 c5\"><i class=n>▴</i> API</span><span class=c1> </span><i class=\"g2502 ffbbf24\">│</i><span class=\"ff87171 c12\"><i class=\"g2500 c4\">────</i> <i class=n>✗</i> <i class=\"g2500 c3\">───</i><i class=n>→</i><i class=g2502>│</i></span><span class=c1> </span><span class=\"ff87171 c10\"><i class=n>✗</i> Database</span><span class=c1> </span><i class=\"g2502 ff87171\">│</i>\n<span class=\"f4ade80 c12\"><i class=g2514>└</i><i class=\"g2500 c10\">──────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"f4ade80 c11\"><i class=g2514>└</i><i class=\"g2500 c9\">─────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"ffbbf24 c9\"><i class=g2514>└</i><i class=\"g2500 c7\">───────</i><i class=g2518>┘</i></span><span class=c11>           </span><span class=ff87171><i class=g2514>└</i><i class=\"g2500 c12\">────────────</i><i class=g2518>┘</i></span>\n<span class=c62>                                                              </span><i class=\"g2502 ff87171\">│</i>\n<span class=c62>                                                              </span><span class=ff87171><i class=g2514>└</i><i class=\"g2500 c2\">──</i><i class=n>→</i></span>\n<span class=c54>                                                      </span><span class=ff87171><i class=n>✗</i> listener stopped</span>",
+        "light": "<span class=\"f15803d c12\"><i class=g250c>┌</i><i class=\"g2500 c10\">──────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f6b7280 c4\">:443</span><span class=c1> </span><span class=\"f15803d c11\"><i class=g250c>┌</i><i class=\"g2500 c9\">─────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f6b7280 c4\">HTTP</span><span class=c1> </span><span class=\"fb45309 c9\"><i class=g250c>┌</i><i class=\"g2500 c7\">───────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"fb91c1c c9\"><i class=n>✗</i> timeout</span><span class=c1> </span><span class=fb91c1c><i class=g250c>┌</i><i class=\"g2500 c12\">────────────</i><i class=g2510>┐</i></span>\n<i class=\"g2502 f15803d\">│</i><span class=c1> </span><span class=\"f15803d c8\"><i class=n>✓</i> Client</span><span class=c1> </span><i class=\"g2502 f15803d\">│</i><span class=\"f6b7280 c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 f15803d\">│</i><span class=c1> </span><span class=\"f15803d c7\"><i class=n>✓</i> Proxy</span><span class=c1> </span><i class=\"g2502 f15803d\">│</i><span class=\"f6b7280 c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 fb45309\">│</i><span class=c1> </span><span class=\"fb45309 c5\"><i class=n>▴</i> API</span><span class=c1> </span><i class=\"g2502 fb45309\">│</i><span class=\"fb91c1c c12\"><i class=\"g2500 c4\">────</i> <i class=n>✗</i> <i class=\"g2500 c3\">───</i><i class=n>→</i><i class=g2502>│</i></span><span class=c1> </span><span class=\"fb91c1c c10\"><i class=n>✗</i> Database</span><span class=c1> </span><i class=\"g2502 fb91c1c\">│</i>\n<span class=\"f15803d c12\"><i class=g2514>└</i><i class=\"g2500 c10\">──────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"f15803d c11\"><i class=g2514>└</i><i class=\"g2500 c9\">─────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"fb45309 c9\"><i class=g2514>└</i><i class=\"g2500 c7\">───────</i><i class=g2518>┘</i></span><span class=c11>           </span><span class=fb91c1c><i class=g2514>└</i><i class=\"g2500 c12\">────────────</i><i class=g2518>┘</i></span>\n<span class=c62>                                                              </span><i class=\"g2502 fb91c1c\">│</i>\n<span class=c62>                                                              </span><span class=fb91c1c><i class=g2514>└</i><i class=\"g2500 c2\">──</i><i class=n>→</i></span>\n<span class=c54>                                                      </span><span class=fb91c1c><i class=n>✗</i> listener stopped</span>"
+      },
+      "csharpRepo": "Website/examples/widgets/flow.cs",
+      "csharpFluent": "// Steps joined by labelled connections; a cut connection shows where the path breaks.\nvar flow = Ui.Flow()\n    .Node(\"client\", \"Client\", StatusKind.Pass)\n    .Node(\"proxy\", \"Proxy\", StatusKind.Pass)\n    .Node(\"api\", \"API\", StatusKind.Warn)\n    .Node(\"db\", \"Database\", StatusKind.Fail)\n    .Edge(\"client\", \"proxy\", \":443\")\n    .Edge(\"proxy\", \"api\", \"HTTP\")\n    .Edge(\"api\", \"db\", \"timeout\", StatusKind.Fail, true)\n    .Branch(new FlowBranch(\"db\", \"listener stopped\", default, StatusKind.Fail));\nflow.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// Steps joined by labelled connections; a cut connection shows where the path breaks.\nvar flow = Ui.Flow()\n    .Node(\"client\", \"Client\", StatusKind.Pass)\n    .Node(\"proxy\", \"Proxy\", StatusKind.Pass)\n    .Node(\"api\", \"API\", StatusKind.Warn)\n    .Node(\"db\", \"Database\", StatusKind.Fail)\n    .Edge(\"client\", \"proxy\", \":443\")\n    .Edge(\"proxy\", \"api\", \"HTTP\")\n    .Edge(\"api\", \"db\", \"timeout\", StatusKind.Fail, true)\n    .Branch(new FlowBranch(\"db\", \"listener stopped\", default, StatusKind.Fail));\nflow.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleFlow",
+          "csharp": "new Flow(…)",
+          "fluent": "Ui.Flow()",
+          "memberId": "M:ConsoleMonster.Ui.Flow",
+          "note": "Inside Content: c.Flow(flow => …)."
+        },
+        {
+          "powershell": "New-ConsoleFlow -InputObject …",
+          "csharp": "Branch = …",
+          "fluent": ".Branch(…)",
+          "memberId": "ConsoleMonster.Widgets.Flow.Branch",
+          "note": "A Kind=Branch record configures the single side branch through the same validated Branch property."
+        },
+        {
+          "powershell": "@{ Kind = 'Branch'; From = … } | New-ConsoleFlow",
+          "csharp": "From = …",
+          "fluent": ".From(…)",
+          "memberId": "ConsoleMonster.Widgets.FlowBranch.From",
+          "note": "The parent record field From supplies this typed item member."
+        },
+        {
+          "powershell": "@{ Kind = 'Branch'; Label = … } | New-ConsoleFlow",
+          "csharp": "Label = …",
+          "fluent": ".Label(…)",
+          "memberId": "ConsoleMonster.Widgets.FlowBranch.Label",
+          "note": "The parent record field Label supplies this typed item member."
+        },
+        {
+          "powershell": "@{ Kind = 'Branch'; To = … } | New-ConsoleFlow",
+          "csharp": "To = …",
+          "fluent": ".To(…)",
+          "memberId": "ConsoleMonster.Widgets.FlowBranch.To",
+          "note": "The parent record field To supplies this typed item member."
+        },
+        {
+          "powershell": "@{ Kind = 'Branch'; Status = … } | New-ConsoleFlow",
+          "csharp": "Status = …",
+          "fluent": ".Status(…)",
+          "memberId": "ConsoleMonster.Widgets.FlowBranch.Status",
+          "note": "The parent record field Status supplies this typed item member."
+        }
+      ],
+      "parity": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "lanes",
+      "title": "Lanes",
+      "group": "overview",
+      "summary": "One progress lane per worker or server, each with its own counts and detail.",
+      "width": 72,
+      "csharp": "// One lane per worker: its own bar, counts and current detail.\nvar lanes = new Lanes(\"servers\");\nLane dc01 = lanes.Add(\"DC01\", \"DC01\", 40);\ndc01.Value = 40;\ndc01.Passed = 40;\ndc01.Status = StatusKind.Pass;\nLane dc02 = lanes.Add(\"DC02\", \"DC02\", 40);\ndc02.Value = 22;\ndc02.Passed = 21;\ndc02.Warned = 1;\ndc02.Status = StatusKind.Running;\ndc02.Detail = \"replication\";\nLane dc03 = lanes.Add(\"DC03\", \"DC03\", 40);\ndc03.Value = 9;\ndc03.Passed = 7;\ndc03.Failed = 2;\ndc03.Status = StatusKind.Running;\ndc03.Detail = \"DNS records\";\nlanes.Add(\"DC04\", \"DC04\", 40);\nTerminal.Write(lanes);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// One lane per worker: its own bar, counts and current detail.\nvar lanes = new Lanes(\"servers\");\nLane dc01 = lanes.Add(\"DC01\", \"DC01\", 40);\ndc01.Value = 40;\ndc01.Passed = 40;\ndc01.Status = StatusKind.Pass;\nLane dc02 = lanes.Add(\"DC02\", \"DC02\", 40);\ndc02.Value = 22;\ndc02.Passed = 21;\ndc02.Warned = 1;\ndc02.Status = StatusKind.Running;\ndc02.Detail = \"replication\";\nLane dc03 = lanes.Add(\"DC03\", \"DC03\", 40);\ndc03.Value = 9;\ndc03.Passed = 7;\ndc03.Failed = 2;\ndc03.Status = StatusKind.Running;\ndc03.Detail = \"DNS records\";\nlanes.Add(\"DC04\", \"DC04\", 40);\nTerminal.Write(lanes);",
+      "csharpFile": "Program.cs",
+      "powershell": "# One lane per worker: its own bar, counts and current detail.\nNew-ConsoleLanes -WidgetId servers -Content {\n    [pscustomobject] @{ Key = 'DC01'; Total = 40; Value = 40; Passed = 40; Status = 'Pass' }\n    [pscustomobject] @{ Key = 'DC02'; Total = 40; Value = 22; Passed = 21; Warned = 1\n        Status = 'Running'; Detail = 'replication' }\n    [pscustomobject] @{ Key = 'DC03'; Total = 40; Value = 9; Passed = 7; Failed = 2\n        Status = 'Running'; Detail = 'DNS records' }\n    [pscustomobject] @{ Key = 'DC04'; Total = 40 }\n} | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n# One lane per worker: its own bar, counts and current detail.\nNew-ConsoleLanes -WidgetId servers -Content {\n    [pscustomobject] @{ Key = 'DC01'; Total = 40; Value = 40; Passed = 40; Status = 'Pass' }\n    [pscustomobject] @{ Key = 'DC02'; Total = 40; Value = 22; Passed = 21; Warned = 1\n        Status = 'Running'; Detail = 'replication' }\n    [pscustomobject] @{ Key = 'DC03'; Total = 40; Value = 9; Passed = 7; Failed = 2\n        Status = 'Running'; Detail = 'DNS records' }\n    [pscustomobject] @{ Key = 'DC04'; Total = 40 }\n} | Show-Console",
+      "powershellFile": "lanes.ps1",
+      "frame": {
+        "w": 72,
+        "h": 4,
+        "dark": "<i class=\"n f4ade80\">✓</i><span class=c7> DC01  </span><i class=\"g2501 c20 f8b8f9a\">━━━━━━━━━━━━━━━━━━━━</i><span class=c1> </span><span class=\"f8b8f9a c4\">100%</span><span class=c2>  </span><span class=\"f8b8f9a c3\"><i class=n>✓</i>40</span><span class=c1> </span><i class=\"n f8b8f9a\">✗</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c1> </span><i class=\"n f8b8f9a\">▴</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c2>  </span><span class=f8b8f9a>done</span>\n<i class=\"g2819 f60a5fa\">⠙</i><span class=c7> DC02  </span><i class=\"g2501 c11 f60a5fa\">━━━━━━━━━━━</i><i class=\"g2500 c9 f3a3d45\">─────────</i><span class=c2>  </span><span class=\"f8b8f9a c3\">55%</span><span class=c2>  </span><span class=\"f8b8f9a c3\"><i class=n>✓</i>21</span><span class=c1> </span><i class=\"n f8b8f9a\">✗</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c1> </span><i class=\"n ffbbf24\">▴</i><span class=c1> </span><span class=\"ffbbf24 c1\">1</span><span class=c2>  </span><span class=f8b8f9a>replication</span>\n<i class=\"g2839 f60a5fa\">⠹</i><span class=c7> DC03  </span><span class=\"f60a5fa c5\"><i class=\"g2501 c4\">━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c15 f3a3d45\">───────────────</i><span class=c2>  </span><span class=\"f8b8f9a c3\">22%</span><span class=c2>  </span><i class=\"n f8b8f9a\">✓</i><span class=c1> </span><span class=\"f8b8f9a c1\">7</span><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c1> </span><span class=\"ff87171 c1\">2</span><span class=c1> </span><i class=\"n f8b8f9a\">▴</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c2>  </span><span class=f8b8f9a>DNS records</span>\n<i class=\"n f71717a\">○</i><span class=c1> </span><span class=\"f8b8f9a c4\">DC04</span><span class=c2>  </span><i class=\"g2500 c20 f3a3d45\">────────────────────</i><span class=c20>                    </span><span class=f8b8f9a>queued</span>",
+        "light": "<i class=\"n f15803d\">✓</i><span class=c7> DC01  </span><i class=\"g2501 c20 f6b7280\">━━━━━━━━━━━━━━━━━━━━</i><span class=c1> </span><span class=\"f6b7280 c4\">100%</span><span class=c2>  </span><span class=\"f6b7280 c3\"><i class=n>✓</i>40</span><span class=c1> </span><i class=\"n f6b7280\">✗</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c1> </span><i class=\"n f6b7280\">▴</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c2>  </span><span class=f6b7280>done</span>\n<i class=\"g2819 f2563eb\">⠙</i><span class=c7> DC02  </span><i class=\"g2501 c11 f2563eb\">━━━━━━━━━━━</i><i class=\"g2500 c9 fd4d4d8\">─────────</i><span class=c2>  </span><span class=\"f6b7280 c3\">55%</span><span class=c2>  </span><span class=\"f6b7280 c3\"><i class=n>✓</i>21</span><span class=c1> </span><i class=\"n f6b7280\">✗</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c1> </span><i class=\"n fb45309\">▴</i><span class=c1> </span><span class=\"fb45309 c1\">1</span><span class=c2>  </span><span class=f6b7280>replication</span>\n<i class=\"g2839 f2563eb\">⠹</i><span class=c7> DC03  </span><span class=\"f2563eb c5\"><i class=\"g2501 c4\">━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c15 fd4d4d8\">───────────────</i><span class=c2>  </span><span class=\"f6b7280 c3\">22%</span><span class=c2>  </span><i class=\"n f6b7280\">✓</i><span class=c1> </span><span class=\"f6b7280 c1\">7</span><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c1> </span><span class=\"fb91c1c c1\">2</span><span class=c1> </span><i class=\"n f6b7280\">▴</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c2>  </span><span class=f6b7280>DNS records</span>\n<i class=\"n f858590\">○</i><span class=c1> </span><span class=\"f6b7280 c4\">DC04</span><span class=c2>  </span><i class=\"g2500 c20 fd4d4d8\">────────────────────</i><span class=c20>                    </span><span class=f6b7280>queued</span>"
+      },
+      "csharpRepo": "Website/examples/widgets/lanes.cs",
+      "csharpFluent": "// One lane per worker: its own bar, counts and current detail.\nvar lanes = Ui.Lanes(\"servers\");\nLane dc01 = lanes.Add(\"DC01\", \"DC01\", 40).Value(40).Passed(40).Status(StatusKind.Pass);\nLane dc02 = lanes.Add(\"DC02\", \"DC02\", 40)\n    .Value(22)\n    .Passed(21)\n    .Warned(1)\n    .Status(StatusKind.Running)\n    .Detail(\"replication\");\nLane dc03 = lanes.Add(\"DC03\", \"DC03\", 40)\n    .Value(9)\n    .Passed(7)\n    .Failed(2)\n    .Status(StatusKind.Running)\n    .Detail(\"DNS records\");\nlanes.Add(\"DC04\", \"DC04\", 40);\nlanes.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// One lane per worker: its own bar, counts and current detail.\nvar lanes = Ui.Lanes(\"servers\");\nLane dc01 = lanes.Add(\"DC01\", \"DC01\", 40).Value(40).Passed(40).Status(StatusKind.Pass);\nLane dc02 = lanes.Add(\"DC02\", \"DC02\", 40)\n    .Value(22)\n    .Passed(21)\n    .Warned(1)\n    .Status(StatusKind.Running)\n    .Detail(\"replication\");\nLane dc03 = lanes.Add(\"DC03\", \"DC03\", 40)\n    .Value(9)\n    .Passed(7)\n    .Failed(2)\n    .Status(StatusKind.Running)\n    .Detail(\"DNS records\");\nlanes.Add(\"DC04\", \"DC04\", 40);\nlanes.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleLanes",
+          "csharp": "new Lanes(…)",
+          "fluent": "Ui.Lanes()",
+          "memberId": "M:ConsoleMonster.Ui.Lanes",
+          "note": "Inside Content: c.Lanes(lanes => …)."
+        },
+        {
+          "powershell": "@{ Value = … } | New-ConsoleLanes",
+          "csharp": "Value = …",
+          "fluent": ".Value(…)",
+          "memberId": "ConsoleMonster.Widgets.Lane.Value",
+          "note": "The parent record field Value supplies this typed item member."
+        },
+        {
+          "powershell": "@{ Passed = … } | New-ConsoleLanes",
+          "csharp": "Passed = …",
+          "fluent": ".Passed(…)",
+          "memberId": "ConsoleMonster.Widgets.Lane.Passed",
+          "note": "The parent record field Passed supplies this typed item member."
+        },
+        {
+          "powershell": "@{ Status = … } | New-ConsoleLanes",
+          "csharp": "Status = …",
+          "fluent": ".Status(…)",
+          "memberId": "ConsoleMonster.Widgets.Lane.Status",
+          "note": "The parent record field Status supplies this typed item member. Lane.Status uses ConsoleMonster.Styling.StatusKind."
+        },
+        {
+          "powershell": "@{ Warned = … } | New-ConsoleLanes",
+          "csharp": "Warned = …",
+          "fluent": ".Warned(…)",
+          "memberId": "ConsoleMonster.Widgets.Lane.Warned",
+          "note": "The parent record field Warned supplies this typed item member."
+        },
+        {
+          "powershell": "@{ Detail = … } | New-ConsoleLanes",
+          "csharp": "Detail = …",
+          "fluent": ".Detail(…)",
+          "memberId": "ConsoleMonster.Widgets.Lane.Detail",
+          "note": "The parent record field Detail supplies this typed item member."
+        }
+      ],
+      "parity": {
+        "ps7": {
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
+          "identical": true
+        }
+      }
+    },
+    {
+      "id": "summarybar",
+      "title": "Run summary",
+      "group": "overview",
+      "summary": "One line for a whole run: bar, counters, elapsed time and time left.",
+      "width": 84,
+      "csharp": "// One line for the whole run: a bar, counters, elapsed time and the time left.\nvar summary = new SummaryBar { Elapsed = TimeSpan.FromSeconds(42) }\n    .SetProgress(30, 40)\n    .SetCounter(\"passed\", 27, StatusKind.Pass)\n    .SetCounter(\"failed\", 2, StatusKind.Fail)\n    .SetCounter(\"skipped\", 1, StatusKind.Skip);\nTerminal.Write(summary);",
+      "csharpFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// One line for the whole run: a bar, counters, elapsed time and the time left.\nvar summary = new SummaryBar { Elapsed = TimeSpan.FromSeconds(42) }\n    .SetProgress(30, 40)\n    .SetCounter(\"passed\", 27, StatusKind.Pass)\n    .SetCounter(\"failed\", 2, StatusKind.Fail)\n    .SetCounter(\"skipped\", 1, StatusKind.Skip);\nTerminal.Write(summary);",
+      "csharpFile": "Program.cs",
+      "powershell": "# One line for the whole run: a bar, counters, elapsed time and the time left.\nNew-ConsoleSummaryBar -Value 30 -Total 40 -ElapsedSeconds 42 `\n    -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console",
+      "powershellFull": "Import-Module ConsoleMonster\n\n# One line for the whole run: a bar, counters, elapsed time and the time left.\nNew-ConsoleSummaryBar -Value 30 -Total 40 -ElapsedSeconds 42 `\n    -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console",
+      "powershellFile": "summarybar.ps1",
+      "frame": {
+        "w": 84,
+        "h": 1,
+        "dark": "<i class=\"g2501 c15 f60a5fa\">━━━━━━━━━━━━━━━</i><i class=\"g2500 c5 f3a3d45\">─────</i><span class=c12>  30/40  75%</span><span class=\"f8b8f9a c15\">  ~14s left  <i class=n>·</i> </span><span class=\"f4ade80 c11\"><i class=n>✓</i> 27 passed</span><span class=\"f8b8f9a c2\">  </span><span class=\"ff87171 c10\"><i class=n>✗</i> 2 failed</span><span class=\"f8b8f9a c2\">  </span><span class=fa1a1aa><i class=n>–</i> 1 skipped</span>",
+        "light": "<i class=\"g2501 c15 f2563eb\">━━━━━━━━━━━━━━━</i><i class=\"g2500 c5 fd4d4d8\">─────</i><span class=c12>  30/40  75%</span><span class=\"f6b7280 c15\">  ~14s left  <i class=n>·</i> </span><span class=\"f15803d c11\"><i class=n>✓</i> 27 passed</span><span class=\"f6b7280 c2\">  </span><span class=\"fb91c1c c10\"><i class=n>✗</i> 2 failed</span><span class=\"f6b7280 c2\">  </span><span class=f71717a><i class=n>–</i> 1 skipped</span>"
+      },
+      "csharpRepo": "Website/examples/widgets/summarybar.cs",
+      "csharpFluent": "// One line for the whole run: a bar, counters, elapsed time and the time left.\nvar summary = Ui.SummaryBar()\n    .Elapsed(TimeSpan.FromSeconds(42))\n    .SetProgress(30, 40)\n    .SetCounter(\"passed\", 27, StatusKind.Pass)\n    .SetCounter(\"failed\", 2, StatusKind.Fail)\n    .SetCounter(\"skipped\", 1, StatusKind.Skip);\nsummary.Show();\n",
+      "csharpFluentFull": "using ConsoleMonster;\nusing ConsoleMonster.Styling;\nusing ConsoleMonster.Widgets;\n\n// One line for the whole run: a bar, counters, elapsed time and the time left.\nvar summary = Ui.SummaryBar()\n    .Elapsed(TimeSpan.FromSeconds(42))\n    .SetProgress(30, 40)\n    .SetCounter(\"passed\", 27, StatusKind.Pass)\n    .SetCounter(\"failed\", 2, StatusKind.Fail)\n    .SetCounter(\"skipped\", 1, StatusKind.Skip);\nsummary.Show();\n",
+      "csharpFluentFile": "Program.cs",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleSummaryBar",
+          "csharp": "new SummaryBar(…)",
+          "fluent": "Ui.SummaryBar()",
+          "memberId": "M:ConsoleMonster.Ui.SummaryBar",
+          "note": "Inside Content: c.SummaryBar(summaryBar => …)."
+        },
+        {
+          "powershell": "New-ConsoleSummaryBar -ElapsedSeconds …",
+          "csharp": "Elapsed = TimeSpan.FromSeconds(…)",
+          "fluent": ".Elapsed(TimeSpan.FromSeconds(…))",
+          "memberId": "ConsoleMonster.Widgets.SummaryBar.Elapsed",
+          "note": "SecondsToTimeSpan"
+        },
+        {
+          "powershell": "New-ConsoleSummaryBar -Value …",
+          "csharp": "SummaryBar.SetProgress(…)",
+          "fluent": "SummaryBar.SetProgress(…)",
+          "memberId": "A:ConsoleMonster.Widgets.SummaryBar.SetProgress.value",
+          "note": " The value argument receives …."
+        },
+        {
+          "powershell": "New-ConsoleSummaryBar -Total …",
+          "csharp": "SummaryBar.SetProgress(…)",
+          "fluent": "SummaryBar.SetProgress(…)",
+          "memberId": "A:ConsoleMonster.Widgets.SummaryBar.SetProgress.total",
+          "note": " The total argument receives …."
+        },
+        {
+          "powershell": "New-ConsoleSummaryBar -Counter …",
+          "csharp": "SummaryBar.SetCounter(…)",
+          "fluent": "SummaryBar.SetCounter(…)",
+          "memberId": "A:ConsoleMonster.Widgets.SummaryBar.SetCounter.count",
+          "note": "The parameter selects the documented operation or adapts pipeline data to its typed argument. The count argument receives …."
         },
         {
           "powershell": "| Show-Console",

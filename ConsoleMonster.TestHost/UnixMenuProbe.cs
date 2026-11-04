@@ -28,6 +28,12 @@ namespace ConsoleMonster.TestHost
                 {
                     context.Run(new TextBlock("Working"), run =>
                     {
+                        report(new { phase = "nested_prompt_ready" });
+                        if (!context.Ask(new ConfirmPrompt("Continue working?", true)))
+                        {
+                            throw new InvalidOperationException("The nested prompt did not accept Enter.");
+                        }
+                        report(new { phase = "nested_prompt_pass" });
                         report(new { phase = "signal_ready" });
                         run.CancellationToken.WaitHandle.WaitOne();
                         cancelled = run.CancellationToken.IsCancellationRequested;

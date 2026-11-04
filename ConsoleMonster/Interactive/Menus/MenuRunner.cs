@@ -5,6 +5,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
+using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -12,35 +13,63 @@ namespace ConsoleMonster.Interactive {
     /// <summary>Runs a menu in the layout and interaction mode that fit the session.</summary>
     internal static class MenuRunner {
         public static void Run(Menu menu, MenuOptions options, CancellationToken cancellationToken) {
+            InputLease? lease = null;
+            IPromptSurface? ownedSurface = null;
+            void Restore() {
+                try {
+                    Interlocked.Exchange(ref ownedSurface, null)?.Dispose();
+                } finally {
+                    lease?.Dispose();
+                }
+            }
+            // Resolving labels can detect capabilities and enable Windows VT before a surface exists.
+            // Raw input handles Ctrl+C; nested live runs own signal interception while input is suspended.
+            using TerminalGuard guard = new TerminalGuard(Restore, false);
             InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
             PromptLabels labels = interactive.ResolveLabels();
             InteractionMode mode = interactive.ResolveMode();
-            ChoiceStore store = new ChoiceStore(options.AppName ?? menu.Title, options.StorageRoot);
-            if (mode == InteractionMode.None || mode == InteractionMode.Snapshot) {
-                throw new PromptUnavailableException("Menu '" + menu.Title + "' needs an interactive session.") { Prompt = menu.Title };
+            cancellationToken.ThrowIfCancellationRequested();
+            if (mode == InteractionMode.None || mode == InteractionMode.Snapshot
+                || (mode == InteractionMode.Accessible && interactive.LineConsole == null)) {
+                var rows = new Rows(new Widgets.HeaderBar(menu.Title) { Subtitle = menu.Subtitle });
+                RenderContext context = Terminal.CreateContext(interactive.ResolveProfile(), interactive.ResolveTheme());
+                if (!string.IsNullOrEmpty(menu.Description)) rows.Add(new Widgets.TextBlock(menu.Description!));
+                foreach (MenuItem item in menu.Items) {
+                    if (item.Kind == MenuItemKind.Separator) { rows.Add(new Widgets.Rule(item.Label)); continue; }
+                    string? disabled = item.CurrentDisabledReason;
+                    string? icon = item.IconText(context.Glyphs);
+                    string text = (string.IsNullOrEmpty(icon) ? "" : Markup.Escape(icon!) + " ") + Markup.Escape(item.Label);
+                    string? badge = item.CurrentBadge?.ToMarkup();
+                    if (!string.IsNullOrEmpty(badge)) text += "  " + badge;
+                    string? detail = item.CurrentDetail;
+                    if (!string.IsNullOrEmpty(detail)) text += "  [muted]" + Markup.Escape(detail!) + "[/]";
+                    if (!string.IsNullOrEmpty(item.Description)) text += "  [muted]" + Markup.Escape(item.Description!) + "[/]";
+                    if (!string.IsNullOrEmpty(disabled)) text += "  [muted](" + Markup.Escape(disabled!) + ")[/]";
+                    rows.Add(new Widgets.TextBlock(text));
+                }
+                interactive.PrintSnapshot(rows);
+                return;
             }
+            ChoiceStore store = new ChoiceStore(options.AppName ?? menu.Title, options.StorageRoot);
             MenuLayout layout = options.Layout != MenuLayout.Auto ? options.Layout : menu.Layout != MenuLayout.Auto ? menu.Layout : menu.HasContent ? MenuLayout.Shell : MenuLayout.Classic;
             if (mode != InteractionMode.Rich || layout == MenuLayout.Inline) {
                 new InlineMenu(menu, options, labels, store, cancellationToken).Run();
                 return;
             }
-            using (InputLease lease = ConsoleInput.Acquire(interactive.Input)) {
+            try {
+                lease = ConsoleInput.Acquire(interactive.Input);
                 Capabilities.TerminalProfile profile = interactive.ResolveProfile();
                 RenderContext context = Terminal.CreateContext(profile, interactive.ResolveTheme());
-                IPromptSurface surface = interactive.Surface ?? new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize());
+                IPromptSurface surface = interactive.Surface ?? (ownedSurface = new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
+                MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
                 try {
-                    MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
-                    try {
-                        InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
-                    } finally {
-                        app.Shutdown();
-                    }
-                    surface.Complete(null);
+                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
                 } finally {
-                    if (interactive.Surface == null) {
-                        surface.Dispose();
-                    }
+                    app.Shutdown();
                 }
+                surface.Complete(null);
+            } finally {
+                Restore();
             }
         }
     }
@@ -256,7 +285,7 @@ namespace ConsoleMonster.Interactive {
             } catch (Exception ex) {
                 result = new MenuRunResult(context.Item?.Label ?? _root.Title, StatusKind.Fail) { Error = ex };
             } finally {
-                session.Stop();
+                session.Dispose();
             }
             // The run's time on the session clock: real time, or the simulated clock the options give.
             if (result.Elapsed == TimeSpan.Zero) {

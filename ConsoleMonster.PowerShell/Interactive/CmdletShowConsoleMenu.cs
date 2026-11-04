@@ -6,7 +6,7 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows a menu until the user exits.</para>
-    /// <para type="description">Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.</para>
+    /// <para type="description">Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Redirected output, CI, -Mode None and non-interactive sessions print the current menu once without running actions. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.</para>
     /// </summary>
     /// <example>
     /// <para>Run a menu as an application</para>

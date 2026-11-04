@@ -12,7 +12,8 @@ namespace ConsoleMonster.Presenters {
                 ? Values.Placeholders.Resolve(Values.ValueShaper.ShapedText(value, new Values.ShapeOptions { UseReflection = false, Culture = context.Culture }),
                     context.Render.Glyphs.Tier)
                 : PresenterValues.ToText(value, context.Culture);
-            string text = raw.Replace("\r\n", " ").Replace('\n', ' ').Replace('\t', ' ');
+            string text = Glyphs.SymbolFallback.Constrain(Glyphs.SymbolFallback.Apply(raw, context.Render.Glyphs.Tier), context.Render.Glyphs.Tier)
+                .Replace("\r\n", " ").Replace('\n', ' ').Replace('\t', ' ');
             return new PresentedValue(StyledLine.From(text, context.Render.Style(ThemeToken.Text))) { IsEmpty = text.Length == 0 };
         }
     }

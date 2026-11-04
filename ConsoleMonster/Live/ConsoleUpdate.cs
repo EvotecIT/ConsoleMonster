@@ -60,6 +60,7 @@ namespace ConsoleMonster.Live {
             if (target is StatusList) { return "Key Label Detail Status"; }
             if (target is SummaryBar) { return "Value Total Counter Status"; }
             if (target is KeyValueList) { return "Key Value Status"; }
+            if (target is Diagram) { return "Key Value Status"; }
             if (target is BarChart || target is StackedBar) { return "Key Value Increment"; }
             if (target is LineChart || target is Sparkline || target is Histogram) { return "Append Key Value"; }
             if (target is RegionWidget) { return "Content"; }
@@ -77,7 +78,11 @@ namespace ConsoleMonster.Live {
             }
             if (u.Has(nameof(u.Total))) { Nonnegative(u.Total, nameof(u.Total)); }
             if (u.Has(nameof(u.Increment))) { Number(u.Increment, nameof(u.Increment)); }
-            if (u.Has(nameof(u.Value)) && !(target is KeyValueList)) { Number(Numeric(u.Value), nameof(u.Value)); }
+            if (u.Has(nameof(u.Value)) && !(target is KeyValueList) && !(target is Diagram)) { Number(Numeric(u.Value), nameof(u.Value)); }
+            if (target is Diagram diagram) {
+                RequireKey(u.Key);
+                if (!diagram.Resolve().Any(node => node.Id == u.Key)) throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown diagram node '" + u.Key + "'.");
+            }
             if (u.Remaining < TimeSpan.Zero) { throw new ArgumentOutOfRangeException(nameof(u.Remaining)); }
             if (target is Flow flow) {
                 bool node = u.Has(nameof(u.NodeKey)), edge = u.Has(nameof(u.EdgeKey));

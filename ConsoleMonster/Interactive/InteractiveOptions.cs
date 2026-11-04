@@ -24,6 +24,8 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Treats the session as non-interactive (PowerShell's <c>-NonInteractive</c>): prompts use defaults or fail.</summary>
         public bool NonInteractive { get; set; }
 
+        internal bool IsNonInteractive => NonInteractive || IsSet("CONSOLEMONSTER_NONINTERACTIVE");
+
         /// <summary>An input source instead of the console (a script in tests and demos).</summary>
         public IInputSource? Input {
             get {
@@ -82,9 +84,12 @@ namespace ConsoleMonster.Interactive {
 
         internal ILineConsole ResolveLineConsole() => LineConsole ?? ConsoleLineConsole.Instance;
 
-        internal TerminalProfile ResolveProfile() => Profile != null ? Terminal.ApplyProfilePolicy(Profile)
-            : Capture != null ? Terminal.ApplyProfilePolicy(TerminalProfile.Fixed(Capture.Width, Capture.Height))
-            : Terminal.GetTargetProfile(ResolveTarget());
+        internal TerminalProfile ResolveProfile() {
+            TerminalProfile profile = Profile != null ? Terminal.ApplyProfilePolicy(Profile)
+                : Capture != null ? Terminal.ApplyProfilePolicy(TerminalProfile.Fixed(Capture.Width, Capture.Height))
+                : Terminal.GetTargetProfile(ResolveTarget());
+            return Mode == InteractionMode.Accessible ? profile.WithAccessibility(true, true) : profile;
+        }
 
         /// <summary>
         /// Where the prompt runs (see <see cref="ITerminalTarget"/>), or null for <see cref="Terminal.Target"/>. A target
@@ -111,8 +116,30 @@ namespace ConsoleMonster.Interactive {
 
         internal ITheme ResolveTheme() => Theme ?? Terminal.Theme;
 
+        // Host adapters keep static fallback on their ordinary output channel (for example PowerShell information records).
+        internal Action<Layout.IWidget>? SnapshotOutput { get; set; }
+
+        /// <summary>Writes one static view through the configured target, theme and capture without acquiring input.</summary>
+        internal void PrintSnapshot(Layout.IWidget widget) {
+            TerminalProfile profile = ResolveProfile();
+            Canvas.RenderContext context = Terminal.CreateContext(profile, ResolveTheme());
+            if (Capture != null) {
+                Capture.Surface.Present(Rendering.FrameComposer.RenderBlock(widget, profile.Width, context), null);
+                return;
+            }
+            if (SnapshotOutput != null && ResolveTarget() is ConsoleTarget) {
+                using (Terminal.Use(ResolveTarget())) SnapshotOutput(widget);
+                return;
+            }
+            using (Rendering.ITerminalOutput output = Terminal.CreateOutput(profile, ResolveTarget().Writer)) {
+                foreach (Canvas.CellBuffer block in Terminal.RenderChunks(widget, profile.Width, context)) output.WriteBlock(block);
+            }
+            ResolveTarget().Writer?.Flush();
+        }
+
         /// <summary>
-        /// Picks the interaction mode: an explicit <see cref="Mode"/> wins; then non-interactive sessions (the
+        /// Picks the interaction mode: snapshot and non-interactive guards apply first; accessible environment/defaults precede a requested rich mode; then
+        /// non-interactive sessions (the
         /// <see cref="NonInteractive"/> flag, <c>CONSOLEMONSTER_NONINTERACTIVE=1</c>, CI, redirected input without an input
         /// source) get <see cref="InteractionMode.None"/>; <c>CONSOLEMONSTER_ACCESSIBLE=1</c> gets
         /// <see cref="InteractionMode.Accessible"/>; consoles without VT get <see cref="InteractionMode.Line"/>; everything
@@ -120,13 +147,18 @@ namespace ConsoleMonster.Interactive {
         /// </summary>
         /// <returns>The mode.</returns>
         public InteractionMode ResolveMode() {
-            if (Mode.HasValue) {
-                return Mode.Value;
-            }
-            if (NonInteractive || IsSet("CONSOLEMONSTER_NONINTERACTIVE")) {
+            if (Mode == InteractionMode.Snapshot) return InteractionMode.Snapshot;
+            if (IsNonInteractive || Mode == InteractionMode.None) {
                 return InteractionMode.None;
             }
-            bool accessible = IsSet("CONSOLEMONSTER_ACCESSIBLE");
+            TerminalProfile profile = ResolveProfile();
+            if (Input == null && ConsoleInput.Override == null && LineConsole == null
+                && (profile.IsContinuousIntegration || profile.IsOutputRedirected || profile.Mode != OutputMode.Interactive)) {
+                return InteractionMode.None;
+            }
+            bool accessible = profile.IsAccessible || Mode == InteractionMode.Accessible;
+            if (Mode.HasValue) return accessible ? InteractionMode.Accessible : Mode.Value;
+            if (accessible && LineConsole != null) return InteractionMode.Accessible;
             if (_input == null && Capture == null && !(ResolveTarget() is ConsoleTarget)) {
                 // Another target answers with its own input, or nobody can answer.
                 return Input != null ? (accessible ? InteractionMode.Accessible : InteractionMode.Rich) : InteractionMode.None;
@@ -134,7 +166,6 @@ namespace ConsoleMonster.Interactive {
             if (Input != null || ConsoleInput.Override != null) {
                 return accessible ? InteractionMode.Accessible : InteractionMode.Rich;
             }
-            TerminalProfile profile = ResolveProfile();
             if (profile.IsContinuousIntegration) {
                 return InteractionMode.None;
             }

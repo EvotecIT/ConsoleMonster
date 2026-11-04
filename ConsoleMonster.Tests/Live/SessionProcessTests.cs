@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -43,6 +43,19 @@ namespace ConsoleMonster.Tests.Live {
         [InlineData("normal")]
         [InlineData("startup")]
         [InlineData("cancel")]
+        [InlineData("nested-prompt-signal")]
+        [InlineData("guard-overlap")]
+        [InlineData("guard-reentrant")]
+        [InlineData("terminate")]
+        [InlineData("menu-terminate")]
+        [InlineData("menu-normal")]
+        [InlineData("menu-cancel")]
+        [InlineData("menu-exception")]
+        [InlineData("menu-startup")]
+        [InlineData("prompt-normal")]
+        [InlineData("prompt-cancel")]
+        [InlineData("prompt-exception")]
+        [InlineData("prompt-startup")]
         public async Task FirstUseApp_RestoresNativeOutputMode(string scenario) {
             string receipt = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".txt");
             try {
@@ -87,7 +100,7 @@ namespace ConsoleMonster.Tests.Live {
             } finally { if (File.Exists(receipt)) { File.Delete(receipt); } }
         }
 
-        private static async Task<(int Exit, string Output, string Error)> Run(string arguments) {
+        internal static async Task<(int Exit, string Output, string Error)> Run(string arguments) {
             string assembly = typeof(TestHost.Program).Assembly.Location;
 #if NETFRAMEWORK
             // xUnit shadow-copies referenced assemblies into separate directories; execute the original built host.

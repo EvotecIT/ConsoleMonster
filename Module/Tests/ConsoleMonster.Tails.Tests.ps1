@@ -78,11 +78,14 @@
     }
 
     It 'uses the shared encoding names for a BOMless file and gives an existing BOM precedence' {
+        $policy = [ConsoleMonster.Terminal]::UseProfilePolicy({ param($profile) $profile.WithGlyphs('Full') })
+        try {
         $path = Join-Path $TestDrive 'encoding.log'
         [IO.File]::WriteAllText($path, "INFO Zażółć`n", [Text.UnicodeEncoding]::new($false, $false))
         @(Watch-ConsoleLog -Path $path -Encoding unicode -Count 1 -NoLive) | Should -Be @('INFO Zażółć')
         [IO.File]::WriteAllText($path, "WARN 日本語`n", [Text.UTF32Encoding]::new($true, $true))
         @(Watch-ConsoleLog -Path $path -Encoding ascii -Count 1 -NoLive) | Should -Be @('WARN 日本語')
+        } finally { $policy.Dispose() }
     }
 
     It 'does not acquire a configured keyboard source in plain mode, including empty snapshots' {

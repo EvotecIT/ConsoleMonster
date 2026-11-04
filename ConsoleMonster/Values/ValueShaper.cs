@@ -45,7 +45,7 @@ namespace ConsoleMonster.Values {
         private static readonly HashSet<string> PlumbingNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             "PSPath", "PSParentPath", "PSChildName", "PSDrive", "PSProvider", "PSIsContainer", "PSStandardMembers",
             "PSShowComputerName", "PSComputerName", "CimClass", "CimInstanceProperties", "CimSystemProperties", "SyncRoot",
-            "IsSynchronized", "IsFixedSize", "Site", "Container", "OwnerDocument", "ParentNode", "SchemaInfo", "NamespaceURI",
+            "IsSynchronized", "IsFixedSize", "Container", "OwnerDocument", "ParentNode", "SchemaInfo", "NamespaceURI",
             "Prefix", "PreviousSibling", "NextSibling", "BaseURI", "PropertyNames", "PropertyCount", "AddedProperties",
             "RemovedProperties", "ModifiedProperties"
         };
@@ -423,7 +423,8 @@ namespace ConsoleMonster.Values {
             HashSet<string> seen = new HashSet<string>(data ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
             try {
                 foreach (InspectMember member in adapter.GetMembers(record)) {
-                    if ((!data && IsPlumbing(member.Name)) || !seen.Add(member.Name)) {
+                    bool componentSite = record is System.ComponentModel.IComponent && string.Equals(member.Name, "Site", StringComparison.OrdinalIgnoreCase);
+                    if ((!data && (IsPlumbing(member.Name) || componentSite)) || !seen.Add(member.Name)) {
                         continue;
                     }
                     fields.Add(member);
@@ -685,9 +686,9 @@ namespace ConsoleMonster.Values {
         internal static string ShapedText(object? value, ShapeOptions options, ShapeBudget? budget = null) => TextAt(Prepare(value, options), options, budget, 0, null);
 
         private static string TextAt(object? value, ShapeOptions options, ShapeBudget? budget, int depth, HashSet<object>? visiting) {
+            string? marker = ValueDisplay.Marker(value);
+            if (marker != null || value == null) return marker!;
             switch (value) {
-                case null:
-                    return string.Empty;
                 case FieldError error:
                     return Placeholders.Warning + " " + error.Message;
                 case BudgetExceeded _:
@@ -770,7 +771,7 @@ namespace ConsoleMonster.Values {
             return options.Collections == CollectionDisplay.FirstN ? joined + " +" + tail + " more" : joined + " " + Placeholders.Ellipsis + " +" + tail;
         }
 
-        private const string EmptyText = Placeholders.Missing;
+        private static string EmptyText => string.Empty;
 
         private static string ItemCount(int count, CultureInfo culture) =>
             count == 1 ? "1 item" : count.ToString("N0", culture) + " items";
@@ -844,6 +845,7 @@ namespace ConsoleMonster.Values {
         public static object? Cell(object? value, ShapeOptions? options = null, ShapeBudget? budget = null) {
             ShapeOptions o = options ?? new ShapeOptions();
             object? prepared = Prepare(value, o);
+            if (prepared is System.Reflection.Missing) return prepared;
             switch (prepared) {
                 case null:
                     return null;

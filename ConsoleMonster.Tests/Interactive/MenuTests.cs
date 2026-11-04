@@ -190,11 +190,5 @@ namespace ConsoleMonster.Tests.Interactive
             Assert.Equal(new[] { "clean" }, log.ToArray());
         }
 
-        [Fact]
-        public void Run_NonInteractive_FailsClearly()
-        {
-            PromptUnavailableException error = Assert.Throws<PromptUnavailableException>(() => Toolbox(new List<string>()).Run(new MenuOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.None } }));
-            Assert.Equal("Menu 'Toolbox' needs an interactive session.", error.Message);
-        }
     }
 }

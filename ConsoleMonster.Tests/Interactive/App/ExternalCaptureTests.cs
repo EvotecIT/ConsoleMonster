@@ -86,7 +86,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
                     Assert.Equal("initial", state.Get<string>("Query"));
                     Assert.False(state.ExitRequested);
                 }
-                Assert.Single(snapshot.Screens.Frames);
+                Assert.Contains("initial", snapshot.Text);
+                Assert.Empty(snapshot.Screens.Frames);
                 var scripted = TestTerminal.Target(80, 24, keys: "\"edited\" Escape");
                 using (Terminal.Use(scripted)) {
                     Assert.Equal("edited", ConsoleApp.Run(new TextInput("Query")).Get<string>("Query"));

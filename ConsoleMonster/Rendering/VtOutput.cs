@@ -186,14 +186,16 @@ namespace ConsoleMonster.Rendering {
             if (!_live) {
                 return;
             }
-            _live = false;
+            // A previous failed cleanup already restored native mode; reacquire it for this attempt.
+            _outputMode ??= WindowsOutputModeScope.Activate(_writer);
             _previous = null;
             try {
-                string reset = SgrEncoder.ResetFor(Profile);
-                // DEC 1049 can restore saved attributes. Reapply an opted-in baseline on the normal screen too.
-                string restore = Profile.DefaultForeground.IsDefault && Profile.DefaultBackground.IsDefault ? string.Empty : reset;
-                _writer.Write(reset + Esc + "?25h" + Esc + "?1049l" + restore);
+                string reset = SgrEncoder.TerminalResetFor(Profile);
+                // DEC 1049 restores the main screen's cursor and attributes. Reset after that switch,
+                // then finish any caller's partial line before the shell redraws its prompt.
+                _writer.Write(Esc + "?2026l" + Esc + "?1049l" + reset + Esc + "?25h\r\n");
                 _writer.Flush();
+                _live = false;
             } finally {
                 _outputMode?.Dispose();
                 _outputMode = null;
@@ -203,6 +205,11 @@ namespace ConsoleMonster.Rendering {
         /// <inheritdoc />
         public void Dispose() {
             try { EndLive(); }
+            catch {
+                // A transient writer failure must not disable the disposal recovery attempt.
+                try { EndLive(); } catch { }
+                throw;
+            }
             finally {
                 if (_ownsWriter) { _writer.Dispose(); }
             }

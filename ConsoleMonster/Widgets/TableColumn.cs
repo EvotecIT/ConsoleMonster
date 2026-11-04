@@ -28,6 +28,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The header (markup).</summary>
         public string Header { get; set; }
 
+        // Interactive indicator columns keep their header glyph without an underline.
+        internal bool HeaderSeparator { get; set; } = true;
+
         /// <summary>An optional short header used when the full header exceeds its value-driven width.</summary>
         public string? ShortHeader { get; set; }
 

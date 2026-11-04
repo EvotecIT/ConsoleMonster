@@ -67,6 +67,15 @@ namespace ConsoleMonster.Rendering {
 
         internal static void AppendReset(StringBuilder builder, TerminalProfile profile) => Append(builder, Style.Plain, DepthFor(profile), profile);
 
+        // Session cleanup restores terminal attributes even when drawing deliberately used no colours.
+        internal static string TerminalResetFor(TerminalProfile profile) {
+            StringBuilder builder = new StringBuilder(32);
+            if (profile.SupportsHyperlinks) { builder.Append("\u001b]8;;\u001b\\"); }
+            if (DepthFor(profile) == ColorDepth.None) { builder.Append(Reset); }
+            else { AppendReset(builder, profile); }
+            return builder.ToString();
+        }
+
         internal static string ResetFor(TerminalProfile profile) {
             StringBuilder builder = new StringBuilder(24);
             AppendReset(builder, profile);

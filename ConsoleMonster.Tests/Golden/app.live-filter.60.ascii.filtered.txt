@@ -1,4 +1,4 @@
-Host inventory · synthetic data
+Host inventory * synthetic data
 
 +- > Query ------------------------------------------------+
 | sql|                                                     |

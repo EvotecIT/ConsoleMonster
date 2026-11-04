@@ -166,31 +166,37 @@ namespace ConsoleMonster.Interactive {
             if (_completed) {
                 return;
             }
-            _completed = true;
             _sb.Clear();
+            int previousCursorRow = _cursorRow;
             if (_drawn) {
                 MoveTo(0);
                 _sb.Append('\r').Append(Csi).Append('J');
             }
+            if (!_drawn) { _sb.Append("\r\n"); }
             if (summary != null) {
                 foreach (StyledLine line in summary) {
                     AppendLine(line);
                     _sb.Append("\r\n");
                 }
             }
-            _sb.Append(Csi).Append("?25h");
-            Emit();
+            _sb.Append(Csi).Append("?2026l");
+            _sb.Append(SgrEncoder.TerminalResetFor(_profile));
+            _sb.Append(Csi).Append("?25h\r");
+            try { _writer.Write(_sb.ToString()); }
+            catch { _cursorRow = previousCursorRow; throw; }
+            // Keep bookkeeping aligned with accepted bytes even if the subsequent flush fails.
             _rows.Clear();
             _drawn = false;
+            _cursorRow = _cursorColumn = 0;
+            _sb.Clear();
+            _writer.Flush();
+            _completed = true;
         }
 
         public void Dispose() {
-            if (!_completed) {
-                Complete(null);
-            }
-            if (_ownsWriter) {
-                _writer.Dispose();
-            }
+            try { if (!_completed) { Complete(null); } }
+            catch { try { Complete(null); } catch { } throw; }
+            finally { if (_ownsWriter) { _writer.Dispose(); } }
         }
 
         private string EncodeRow(CellBuffer frame, int y, out int width) {

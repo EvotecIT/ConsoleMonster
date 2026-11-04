@@ -58,7 +58,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <summary>Creates a value cell: the column's presenter formats it, and totals and tone rules read it.</summary>
-        /// <param name="value">The raw value (null is an empty cell).</param>
+        /// <param name="value">The raw value; null and System.Reflection.Missing.Value use a muted placeholder, and an empty string stays blank.</param>
         /// <returns>The cell.</returns>
         public static TableCell FromValue(object? value) => new TableCell(value, true);
 

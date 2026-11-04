@@ -100,6 +100,12 @@ namespace ConsoleMonster.Capabilities {
             ThemePreference themePreference = ThemePreference.Auto;
             string themeValue = Get("CONSOLEMONSTER_THEME");
             switch (themeValue.ToLowerInvariant()) {
+                case "highcontrast":
+                    themePreference = ThemePreference.HighContrast;
+                    break;
+                case "colorblind":
+                    themePreference = ThemePreference.ColorBlind;
+                    break;
                 case "light":
                     themePreference = ThemePreference.Light;
                     break;
@@ -113,6 +119,14 @@ namespace ConsoleMonster.Capabilities {
                     decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'");
                     break;
             }
+            if (themePreference == ThemePreference.Auto && env.IsWindows && env.HighContrast) {
+                themePreference = ThemePreference.HighContrast;
+                decisions.Add("theme: Windows High Contrast setting");
+            }
+            bool accessible = AccessibilityPolicy.Enabled(Get("CONSOLEMONSTER_ACCESSIBLE"));
+            bool reducedMotion = accessible || Equal(Get("CONSOLEMONSTER_MOTION"), "reduced");
+            decisions.Add("accessible: " + accessible);
+            decisions.Add("reduced motion: " + reducedMotion);
             if (mode == OutputMode.Plain) {
                 color = ColorDepth.None;
                 glyphs = GlyphTier.Ascii;
@@ -146,7 +160,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
                 env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
                 WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource
-            };
+            }.WithAccessibility(accessible, reducedMotion);
         }
 
         // CONSOLEMONSTER_CULTURE: a culture name (en-US, pl-PL), "invariant", or empty/"current" for the current culture.
@@ -219,7 +233,7 @@ namespace ConsoleMonster.Capabilities {
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
                 profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) { ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource }.WithLanguage(profile.Language)
-                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground);
+                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {

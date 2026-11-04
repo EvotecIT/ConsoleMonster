@@ -215,7 +215,7 @@ namespace ConsoleMonster.Widgets {
             if (a == null || b == null) {
                 return a == null ? (b == null ? 0 : -1) : 1;
             }
-            if (a is IComparable comparable && a.GetType() == b.GetType()) {
+            if (!(a is string) && a is IComparable comparable && a.GetType() == b.GetType()) {
                 return comparable.CompareTo(b);
             }
             if (IsNumber(a) && IsNumber(b)) {

@@ -67,14 +67,14 @@ namespace ConsoleMonster.Interactive {
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
                 // Public controls paint their own caret; existing prompt compositions own its surrounding space.
                 int placeholderColumn = Focused && _reservePlaceholderCell ? 1 : 0;
-                region.Write(placeholderColumn, 0, TextWrapper.Truncate(Placeholder!, Math.Max(0, width - placeholderColumn - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
+                region.Write(placeholderColumn, 0, TextWrapper.Truncate(Glyphs.SymbolFallback.Constrain(Placeholder!, context.Glyphs.Tier), Math.Max(0, width - placeholderColumn - 1), context.Ellipsis), context.Style(ThemeToken.Muted).With(TextDecoration.Italic));
                 if (Focused) {
                     _caret?.Set(region.Bounds.X, region.Bounds.Y);
                 }
                 return;
             }
-            string shown = Display(_editor.Text);
-            string beforeCaret = Display(_editor.Text.Substring(0, _editor.Caret));
+            string shown = Display(_editor.Text, context);
+            string beforeCaret = Display(_editor.Text.Substring(0, _editor.Caret), context);
             int caretColumn = DisplayWidth.Measure(beforeCaret);
             int usable = Math.Max(1, width - 1);
             int offset = _editor.ScrollOffset;
@@ -114,9 +114,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        private string Display(string text) {
+        private string Display(string text, RenderContext context) {
             if (Mask == null) {
-                return text;
+                return Glyphs.SymbolFallback.Constrain(text, context.Glyphs.Tier);
             }
             if (Mask.Length == 0) {
                 return string.Empty;
@@ -131,7 +131,7 @@ namespace ConsoleMonster.Interactive {
             for (int i = 0; i < count; i++) {
                 parts.Add(Mask);
             }
-            return string.Concat(parts);
+            return Glyphs.SymbolFallback.Constrain(string.Concat(parts), context.Glyphs.Tier);
         }
     }
 }

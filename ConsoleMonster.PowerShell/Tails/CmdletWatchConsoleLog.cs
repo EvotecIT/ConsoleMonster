@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -9,7 +9,7 @@ using ConsoleMonster.Output;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Follows a log file or a local Windows event log with a live, scrollable log view.</para>
-    /// <para type="description">File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows until q, Escape or Ctrl+C. Capacity bounds retained history. The default interval is 0.25 seconds.</para>
+    /// <para type="description">File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows interactively until q, Escape or Ctrl+C and reads one snapshot without a user. Capacity bounds retained history. The default interval is 0.25 seconds.</para>
     /// </summary>
     /// <example>
     /// <para>Inspect an existing log and highlight a component</para>
@@ -53,7 +53,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 100000)]
         public int Tail { get; set; } = 10;
 
-        /// <summary><para type="description">Source polls before returning, or zero to follow until cancelled.</para></summary>
+        /// <summary><para type="description">Source polls before returning; zero follows interactively until cancelled, or reads one snapshot without a user.</para></summary>
         [Parameter]
         [ValidateRange(0L, long.MaxValue)]
         public long Count { get; set; }
@@ -101,6 +101,7 @@ namespace ConsoleMonster.PowerShell {
                     TerminalProfile profile = Terminal.GetCurrentProfile();
                     bool last = MyInvocation.PipelinePosition >= MyInvocation.PipelineLength;
                     LogTailOptions options = new LogTailOptions {
+                        NonInteractive = PSInteractive.IsNonInteractivePolling || !last,
                         Count = Count, PollInterval = TimeSpan.FromSeconds(PollIntervalSeconds), Capacity = Capacity,
                         Filter = Filter, Level = Level, Highlight = Highlight, TimestampFormat = TimestampFormat, HandleCancelKey = false, Profile = profile,
                         Live = !NoLive.IsPresent && last && !HostOutput.UseHost(this, profile) && profile.Mode == OutputMode.Interactive,

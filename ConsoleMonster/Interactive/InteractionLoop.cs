@@ -23,12 +23,15 @@ namespace ConsoleMonster.Interactive {
             Stopwatch clock = Stopwatch.StartNew();
             long tick = 0;
             bool dirty = true;
+            TimeSpan? lastFrame = null;
             AppEventLoop.Run(input, () => view.IsDone, () => {
                 if (surface.Refresh()) { dirty = true; }
                 if (view.Poll(clock.Elapsed)) { dirty = true; }
-                if (!view.IsDone && (dirty || view.IsAnimating)) {
+                if (!view.IsDone && (dirty || (view.IsAnimating && !context.ReducedMotion))
+                    && (!context.ReducedMotion || !lastFrame.HasValue || clock.Elapsed - lastFrame.Value >= TimeSpan.FromSeconds(1))) {
                     Draw(view, surface, context, tick++, clock.Elapsed);
                     dirty = false;
+                    lastFrame = clock.Elapsed;
                 }
             }, e => {
                 if (e.Kind == InputEventKind.Resize) { surface.Refresh(); }

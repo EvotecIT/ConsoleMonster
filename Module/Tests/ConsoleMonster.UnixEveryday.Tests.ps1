@@ -4,7 +4,7 @@
         $script:Runtime = [Diagnostics.Process]::GetCurrentProcess().Path
     }
 
-    It 'uses Unix host views with empty directory sizes, link sizes and explicit property overrides' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
+    It 'uses Unix host views with directory size placeholders, link sizes and explicit property overrides' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
         $files = Join-Path $TestDrive 'files'
         $directory = New-Item -ItemType Directory -Path (Join-Path $files 'directory-row') -Force
         $dataFile = Join-Path $files 'file-row.json'
@@ -47,7 +47,7 @@ Get-Process -Id $PID | Format-Table -Property Id, Handles
             $rows = $listing -split '\r?\n'
             $directoryRow = @($rows | Where-Object { $_ -match '│\s+directory-row\s*│' })
             $directoryRow.Count | Should -Be 1
-            ($directoryRow[0] -split '│')[-3].Trim() | Should -BeNullOrEmpty
+            ($directoryRow[0] -split '│')[-3].Trim() | Should -BeExactly '—'
             foreach ($name in 'file-row.json', 'link-row', 'link-directory-row') {
                 $row = @($rows | Where-Object { $_ -match "│\s+$([regex]::Escape($name))\s*│" })
                 $row.Count | Should -Be 1

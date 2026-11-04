@@ -12,7 +12,10 @@ namespace ConsoleMonster.Live {
             string id = target.WidgetId;
             void Add(string operation, string? key = null, string? text = null, string? status = null, double value = 0, double total = 0, object? payload = null) =>
                 events.Add(new LiveEvent(id, operation, key, text, status, value, total) { Payload = payload });
-            if (target is Dashboard) {
+            if (target is Diagram) {
+                if (u.Has(nameof(u.Value))) Add("value", u.Key, u.Value == null ? null : Convert.ToString(u.Value, CultureInfo.CurrentCulture), u.Has(nameof(u.Status)) ? u.Status.ToString() : null);
+                else if (u.Has(nameof(u.Status))) Add("status", u.Key, status: u.Status.ToString());
+            } else if (target is Dashboard) {
                 if (u.Has(nameof(u.Label))) { Add("title", text: u.Label); }
                 if (u.Has(nameof(u.Detail))) { Add("detail", text: u.Detail); }
                 if (u.Has(nameof(u.Status))) { Add("state", status: u.Status.ToString()); }

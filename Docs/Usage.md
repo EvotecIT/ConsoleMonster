@@ -1,4 +1,4 @@
-# ConsoleMonster usage guide
+﻿# ConsoleMonster usage guide
 
 See [the README](../README.md) for installation and first examples, or [consolemonster.dev](https://consolemonster.dev/) for the interactive gallery and references.
 
@@ -441,7 +441,7 @@ Prompts asked from a menu action appear in front of the app.
 |---|---|
 | CI, redirected input, `pwsh -NonInteractive`, `CONSOLEMONSTER_NONINTERACTIVE=1` | Return the default, or fail: *Prompt 'Environment' needs a value in a non-interactive session; pass -Environment or set a default.* |
 | Remoting, the ISE | Ask through the host: numbered choices and `PromptForChoice`. |
-| `CONSOLEMONSTER_ACCESSIBLE=1` | Plain numbered questions with no redraws; every answer is confirmed as text. |
+| `CONSOLEMONSTER_ACCESSIBLE=1` or `-Mode Accessible` | Numbered questions confirm each answer as text. Apps, menus and grids print one static view; live sessions narrate updates on new lines. |
 
 Esc and Ctrl+C end a prompt with a `PromptCanceled` error (a typed confirmation answers `$false` instead).
 
@@ -829,6 +829,94 @@ as line diffs. An added or removed object lists its compared properties one per 
 (`-View SideBySide` or `-PassThru` shows them all). `-View` picks `Summary`, `Table`, `SideBySide` or `Unified`;
 `-Ignore` takes names, paths and wildcards; `-PassThru` returns the changes as objects instead
 (`ConsoleMonster.Changes.ObjectChange`, with `Values` for added and removed objects).
+
+Keys and string values use ordinal case-insensitive comparison by default. `-CaseSensitive` applies to both.
+Case-only differences stay visible in every view and in `ObjectChange.Properties` with `IsCaseOnly = true`;
+the object remains `Unchanged` unless another property differs. They are listed even without `-IncludeEqual`,
+and the summary reports their count separately. In C#, use `DiffOptions.CaseSensitive` and `ChangeSet.CaseOnly`.
+`PropertyChange.HasBefore` and `HasAfter` distinguish missing properties from present null or empty values.
+Missing values render as `(missing)` using the current language's `WidgetLabels.ChangesMissing` label.
+Present null and empty strings keep their equality semantics and render as `(null)` and `(empty)`;
+empty collections render as `(empty)` too. Ordinary views use quiet placeholders instead of these comparison markers.
+
+For settings collected from several machines, use a baseline matrix:
+
+```powershell
+$controllers = @(
+    [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389; GlobalCatalog = $true; DnsEnabled = $true; Security = @{ Signing = 'Required' } }
+    [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636; GlobalCatalog = $true; DnsEnabled = $true; Security = @{ Signing = 'Required' } }
+    [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $false; DnsEnabled = $true; Security = @{ Signing = 'Negotiate' } }
+    [pscustomobject]@{ Name = 'dc04'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $true; Security = @{ Signing = 'Required' } }
+)
+$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc01 -Ignore Name -Title 'Domain controller drift'
+```
+
+The matrix has one row per property path and one column per input object. The first object is the reference by
+default; `-Baseline dc02` selects a name and `-Baseline 1` selects the second column. Numeric strings are names,
+and duplicate names require an integer index. Names follow `-CaseSensitive`. `-Name First,Second,Third,Fourth`
+supplies explicit headings; otherwise `-NameProperty`, `-Property`, or the usual key discovery supplies them.
+`-Ignore Name` omits the identifier from the compared rows while retaining it in the headings.
+Equal rows are hidden unless `-IncludeEqual` is set. Changed cells use the warning tone, properties absent on
+the reference use the added tone, and missing cells use the removed tone. The status says `same`, `differs`,
+`case only`, or `missing on N`; a row that differs and has missing values reports both. Status words use their
+matching tones, while the reference column uses accent and bold emphasis. The footer counts the property rows
+shown and matching rows hidden by default, with `-IncludeEqual` as the hint to show them. In C#,
+`BaselineComparison.HiddenMatchingCount` provides the hidden count. Narrow widths use the standard table
+wrapping and record-card fallback.
+`-PassThru` returns `BaselineRow` records with `Path`, ordered `Cells`, `MissingCount`, `HasDifferences`, and
+`HasCaseDifferences`. Each `BaselineCell` retains its original `Value`, `IsPresent`, `Kind`, and `IsCaseOnly`.
+
+The same matrix in C#:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Changes;
+
+object[] controllers = {
+    new { Name = "dc01", Site = "HQ", LdapPort = 389, GlobalCatalog = true, DnsEnabled = true, Security = new { Signing = "Required" } },
+    new { Name = "dc02", Site = "HQ", LdapPort = 636, GlobalCatalog = true, DnsEnabled = true, Security = new { Signing = "Required" } },
+    new { Name = "dc03", Site = "Branch", LdapPort = 389, GlobalCatalog = false, DnsEnabled = true, Security = new { Signing = "Negotiate" } },
+    new { Name = "dc04", Site = "Branch", LdapPort = 389, GlobalCatalog = true, Security = new { Signing = "Required" } }
+};
+var options = new DiffOptions { Baseline = "dc01" };
+options.Ignore.Add("Name");
+BaselineComparison comparison = ObjectDiff.CompareBaseline(controllers, options);
+Terminal.Write(new BaselineView(comparison) { Title = "Domain controller drift" });
+```
+
+`CompareBaseline` also accepts explicit `names`. `DiffOptions.Baseline` selects one reference column by
+zero-based integer index or unique name; null uses the first column, and a numeric string remains a name.
+Name matching follows `CaseSensitive`. `DiffOptions.Properties`,
+`Ignore`, `Depth`, `IncludeUnchanged`, `CaseSensitive`, and `Normalize` apply to both comparison modes.
+Collections within properties compare in order and retain the existing collection display, while nested records
+use dotted paths. Member reads that exhaust the comparison budget appear in `NotCompared`.
+
+Normalize known noise before comparing without replacing displayed values:
+
+```powershell
+$normalizers = @{
+    ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' }
+    'Metadata.CheckedAt' = { $null }
+}
+Compare-ConsoleObject $before $after -Property Name -Normalize $normalizers
+$controllers | Compare-ConsoleObject -View Baseline -Normalize $normalizers -Ignore Name
+```
+
+Normalization keys are exact paths with case-insensitive lookup, not wildcard patterns. Scriptblocks receive
+the property value as `$_` and `$PSItem`; a collection property is passed as one value. They run synchronously
+on the calling pipeline thread. Errors propagate to the caller. C# assigns the equivalent delegate:
+`options.Normalize["Metadata.CheckedAt"] = value => null;`. Original values remain in both result models.
+Normalization does not replace match keys; select stable identity properties with `-Property` or `DiffOptions.Key`.
+
+`-AsWidget` returns a `ChangeView` or `BaselineView` without drawing. It is mutually exclusive with `-PassThru`
+and is unavailable with `-Question`. Both widgets implement `IWidget`, so they can be placed inside
+`Show-ConsoleApp` content or exported through the regular frame exporter:
+
+```powershell
+$matrix = $controllers | Compare-ConsoleObject -View Baseline -Ignore Name -AsWidget
+$matrix | Export-ConsoleFrame -Format Html -Width 120 -Path ./controller-drift.html
+Show-ConsoleApp -Title 'Settings' -Content { $matrix }
+```
 
 `Compare-ConsoleObject -Question 'Apply these changes?'` is the what-if pattern for your own functions: it shows the preview, asks, and returns `$true` or
 `$false`. Changes that remove objects ask for the number of removals to be typed (or `-TypedConfirmation` text). It
@@ -1223,8 +1311,9 @@ try {
 - Font changes: in conhost, the console font is polled about once a second, and a new face or size re-derives the
   glyph tier and the emoji/ambiguous widths. In Windows Terminal, widths are measured again after every resize, which
   also covers Ctrl+= and Ctrl+0 zoom.
-- Theme: `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code. `auto` reads
-  the console background colour in conhost. Windows Terminal doesn't expose its colour scheme to console programs
+- Theme: `CONSOLEMONSTER_THEME=light|dark|highcontrast|colorblind|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code. `auto` reads
+  Windows High Contrast first, then the console background colour in conhost. Explicit `light`, `dark`, `highcontrast`
+  or `colorblind` selects that palette; `Theme`/`Set-ConsoleTheme` and a supplied target/session theme take precedence. Windows Terminal doesn't expose its colour scheme to console programs
   (ConPTY reports the default dark colour table), and ConsoleMonster never reads console input to ask the terminal
   (OSC 11). So in Windows Terminal with a light scheme, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light`.
   The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background.
@@ -1234,6 +1323,36 @@ try {
   re-lay it out: in conhost with "Wrap text output on resize" on, a narrower window re-wraps wide lines into
   fragments, and with the option off, wide lines are clipped behind a horizontal scroll bar. Use `-Width` (or a
   `TerminalProfile.Fixed` profile) when output must fit a known width.
+
+## Accessible output and motion
+
+I use `CONSOLEMONSTER_ACCESSIBLE=1` for a session that needs screen-reader-friendly output. Prompts use numbered
+questions and confirm answers as text. Apps, menus and grids print a static view with their title and content (menus and grids can use numbered choices
+when a line console is explicitly supplied);
+live sessions use append-only `Describe(LiveEvent)`/`ILiveSummary` narration. Status symbols remain visible,
+including when a renderer's optional key or numeric values are hidden. Accessible output implies reduced motion.
+`InteractiveOptions.Default.Mode = InteractionMode.Accessible` applies the same policy to live sessions;
+an individual `InteractiveOptions.Mode` or PowerShell `-Mode Accessible` applies it to that interaction.
+
+`CONSOLEMONSTER_MOTION=reduced` disables animated glyphs and limits live frames and interactive redraws to once a
+second of real time, independently of a simulation/replay clock, while retaining the normal layout. Input and queued state changes are still processed promptly; the next
+frame contains their combined state. Shutdown always prints its final state when configured. Spinners use a static
+running glyph; ConsoleMonster does not emit blink or marquee animations. Explicit recording checkpoints still
+capture the states requested by the recording program. A status line coalesces rapid updates and publishes the latest
+state even with its spinner and clocks disabled. On terminals without a safe cursor-position query, a manual status
+update waits for its next allowed write instead of scheduling a redraw after the caller returns.
+
+Set `LiveSessionOptions.ReducedMotion` or `ConsoleAppOptions.ReducedMotion` in C#. In PowerShell use
+`-ReducedMotion` on `Show-ConsoleApp`, `Invoke-ConsoleDashboard`, `Use-ConsoleProgress`, `Start-ConsoleRun`,
+`Invoke-ConsoleRun` or `Watch-Console`. `ConsoleAppOptions.Live.Live = false` selects the static app fallback. An explicit `false` (PowerShell `-ReducedMotion:$false`) overrides the motion
+environment setting. An app's option overrides its nested live-session option. Accessible mode always keeps reduced
+motion, even when the caller requests `false`, rich input or `Live = true`.
+
+`CONSOLEMONSTER_MODE=plain` keeps its ASCII, colour-free output when accessibility is enabled. `stream` stays
+append-only; `interactive`/`live` cannot override accessibility. Non-interactive and snapshot guards apply before
+accessible questions: defaults or one clear error still apply when nobody can answer. `NO_COLOR` changes colour,
+not interaction or motion. After changing environment preferences on an already detected console, call
+`Terminal.Refresh()` to discard that cached snapshot (PowerShell: `[ConsoleMonster.Terminal]::Refresh()`). Named themes change the palette, not glyphs, focus cues or narration.
 
 ## Edge values
 

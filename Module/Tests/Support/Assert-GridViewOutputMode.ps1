@@ -22,10 +22,7 @@ $row = [pscustomobject]@{ Name = 'alpha'; Id = 1 }
 Enable-ConsoleFormatting -Include GridView -Exclude Output, FormatCommands, Errors, Streams, ReadLine
 if ('__ENTRY__' -eq 'Fallback') { $picked = @($row | Out-GridView -PassThru -ErrorAction Stop) }
 elseif ('__SCENARIO__' -eq 'Unavailable') {
-    $failed = $false
-    try { $row | Show-ConsoleGrid -Mode None -ErrorAction Stop } catch { $failed = $true }
-    if (-not $failed) { throw 'The unavailable grid did not fail.' }
-    $picked = @()
+    $picked = @($row | Show-ConsoleGrid -Mode None -ErrorAction Stop)
 } else { $picked = @($row | Show-ConsoleGrid -ErrorAction Stop) }
 if ('__SCENARIO__' -eq 'Accepted') {
     if ($picked.Count -ne 1 -or -not [object]::ReferenceEquals($picked[0], $row)) { throw 'The selected row changed.' }

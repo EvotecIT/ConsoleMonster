@@ -22,16 +22,16 @@ permissions:
   id-token: write
 
 concurrency:
-  group: website-deploy
+  group: website-deploy-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
   deploy:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@actions-next
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@e6515ef091e579cd8a403e9a97374b177ef0371b
     with:
       website_root: Website
       pipeline_config: Website/pipeline.json
       site_output_path: Website/_site
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
       powerforge_repository: EvotecIT/PSPublishModule
-      powerforge_ref: actions-next
+      powerforge_ref: e6515ef091e579cd8a403e9a97374b177ef0371b

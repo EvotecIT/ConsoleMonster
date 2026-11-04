@@ -98,7 +98,7 @@ namespace ConsoleMonster.Live {
                 lock (_outputGate) {
                     FlushUnrouted();
                     RecordingTarget target = _recordingTarget!;
-                    if (target.CaptureViewport && !_output!.SupportsLiveFrames) {
+                    if (target.CaptureViewport && !SupportsLiveFrames) {
                         if (_options.StreamHeartbeat > TimeSpan.Zero && Elapsed - _checkpointHeartbeat >= _options.StreamHeartbeat) {
                             Heartbeat();
                             _checkpointHeartbeat = Elapsed;

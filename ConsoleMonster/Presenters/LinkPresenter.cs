@@ -1,4 +1,5 @@
 using System;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
@@ -30,6 +31,9 @@ namespace ConsoleMonster.Presenters {
             string raw = AddressSelector?.Invoke(value) ?? (value is System.IO.FileSystemInfo file ? file.FullName : PresenterValues.ToText(value, context.Culture));
             string address = Clean(raw);
             string text = TextSelector?.Invoke(value) ?? address;
+            if (string.Equals(text, address, StringComparison.Ordinal)) text = Rendering.HyperlinkTarget.ForText(address, context.Render.Glyphs.Tier);
+            else text = SymbolFallback.Constrain(text, context.Render.Glyphs.Tier);
+            address = Rendering.HyperlinkTarget.ForText(address, context.Render.Glyphs.Tier);
             string? target = Rendering.HyperlinkTarget.From(raw);
             Style style = context.Render.Style(ThemeToken.Accent).With(TextDecoration.Underline);
             if (context.Hyperlinks && target != null) {

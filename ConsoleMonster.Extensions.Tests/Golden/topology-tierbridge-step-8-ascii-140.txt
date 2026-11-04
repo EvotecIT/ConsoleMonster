@@ -1,0 +1,31 @@
+TierBridge file journey
+
+
+                                                                                                       .. Target zone (Tier 0) ...
+                                             .. TierBridge .........................................   :                         :
+                                             :                                                     :   : +---------------+       :
+                 .. Source zone (Tier 2) ... :                   +-------------+                   :   : | Target share  |       :
+                 :                         : :                   | Inspection  |                   :  +->|               |       :
+ +------------+  : +-------------+         : : +------------+  +>|             |    #============# :  |: +---------------+       :
+ | Requester  |  : | Drop share  |         : : |  Watcher   |--+ +-------------+    #  Approval  #<===#:                         :
+ |            |--->|             |------------>|            |--+                  +>#            #----#'.........................'
+ +------------+  : +-------------+         : : +------------+  |                  | #============# :  #
+                 :                         : :                 | +-------------+  |                :  #  #===============#
+                 '.........................' :                 | | Quarantine !|  |                :  #  #   Approver    #
+                                             :                 +>|             |--+                :  #==#               #
+                                             :                   +-------------+                   :     #===============#
+                                             :                                                     :
+                                             '.....................................................'
+
+
+! Warning   ==> active step
+
+Approved file  -  step 8 of 9
+  ^ 2 earlier
+  3. Watcher -> Inspection  request  Inspect
+  4. Inspection -> Watcher  response  Needs approval
+  5. Watcher -> Quarantine  request  Hold
+  6. Quarantine -> Approval  message  Request approval
+  7. Approval -> Approver  message  Ask the owner
+> 8. Approver -> Approval  request  Approve
+  9. Approval -> Target share  request  Release

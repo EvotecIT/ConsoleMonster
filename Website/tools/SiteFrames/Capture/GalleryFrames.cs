@@ -25,6 +25,7 @@ namespace SiteFrames.Capture {
             if (target.Input is ConsoleMonster.Input.ScriptedInput input) {
                 input.RealTime = state["realTime"]?.GetValue<bool>() ?? false;
                 if (ready != null) {
+                    input.Append(state["startKeys"]?.GetValue<string>() ?? string.Empty);
                     input.WaitForOutput(target.Screens, ready, TimeSpan.FromSeconds(30));
                     input.Append(state["keys"]?.GetValue<string>() ?? string.Empty);
                 }

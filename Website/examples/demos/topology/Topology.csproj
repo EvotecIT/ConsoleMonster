@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- The topology demo's project: what `dotnet new console -n Topology` plus the packages on the page gives, except that it
+         references this repository's ConsoleMonster.Graphics instead of the package. The site records Program.cs built from here. -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\ConsoleMonster.Graphics\ConsoleMonster.Graphics.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="ad-replication.cfx" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+</Project>

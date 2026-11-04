@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
@@ -28,6 +30,9 @@ namespace ConsoleMonster.Output {
         private string _clockFormat = "HH:mm:ss";
         private Timer? _timer;
         private long _frame;
+        private bool _pending;
+        private readonly Stopwatch _redrawClock = Stopwatch.StartNew();
+        private TimeSpan? _lastRender;
         private int _cursorLeft = -1;
         private int _cursorTop = -1;
 
@@ -46,6 +51,7 @@ namespace ConsoleMonster.Output {
         /// <param name="timestampFormat">The time format for the clock.</param>
         /// <param name="final">Whether the line completes (the next output starts below it).</param>
         public static void Show(TerminalProfile profile, RichText content, StatusKind? status, bool spinner, bool showTimestamp, bool showElapsed, string timestampFormat, bool final) {
+            profile = AccessibilityPolicy.Resolve(profile);
             lock (Gate) {
                 StatusLine line = _current != null && _current.CursorUnchanged() ? _current : new StatusLine(profile);
                 _current?.StopTimer();
@@ -55,17 +61,19 @@ namespace ConsoleMonster.Output {
                 line._clock = showTimestamp;
                 line._elapsed = showElapsed;
                 line._clockFormat = string.IsNullOrEmpty(timestampFormat) ? "HH:mm:ss" : timestampFormat;
-                line.Render(final);
+                if (!line.Render(final)) {
+                    _current = null;
+                    TaskbarProgress.Clear();
+                    return;
+                }
                 if (final) {
                     _current = null;
                     TaskbarProgress.Clear();
                     return;
                 }
-                TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
+                if (!profile.ReducedMotion) TaskbarProgress.Set(status == StatusKind.Fail ? TaskbarState.Error : status == StatusKind.Warn ? TaskbarState.Paused : TaskbarState.Indeterminate);
                 _current = line;
-                if (spinner || showTimestamp || showElapsed) {
-                    line._timer = new Timer(_ => line.Tick(), null, 100, 100);
-                }
+                line.Schedule(profile);
             }
         }
 
@@ -89,7 +97,7 @@ namespace ConsoleMonster.Output {
             } else if (spinner && !final) {
                 IReadOnlyList<string> frames = context.Glyphs.SpinnerFrames;
                 if (frames.Count > 0) {
-                    spans.Add(new TextSpan(frames[(int)(frame % frames.Count)] + " ", context.Style(ThemeToken.Running)));
+                    spans.Add(new TextSpan((context.ReducedMotion ? context.Glyphs.Get(Glyph.Running) : frames[(int)(frame % frames.Count)]) + " ", context.Style(ThemeToken.Running)));
                 }
             }
             if (showTimestamp) {
@@ -126,29 +134,51 @@ namespace ConsoleMonster.Output {
                     _current = null;
                     return;
                 }
+                StopTimer();
                 _frame++;
-                Render(false);
+                if (Render(false)) Schedule(Terminal.GetCurrentProfile());
+                else { _current = null; TaskbarProgress.Clear(); }
             }
         }
 
-        private void Render(bool final) {
+        private void Schedule(TerminalProfile profile) {
+            if (profile.IsAccessible || IsUntracked || (!_pending && !_spinner && !_clock && !_elapsed)) return;
+            int delay = profile.ReducedMotion && _lastRender.HasValue
+                ? Math.Max(1, (int)Math.Ceiling(1000 - (_redrawClock.Elapsed - _lastRender.Value).TotalMilliseconds)) : 100;
+            _timer = new Timer(_ => Tick(), null, delay, Timeout.Infinite);
+        }
+
+        private bool Render(bool final) {
             try {
                 TerminalProfile profile = Terminal.GetCurrentProfile();
+                if (!profile.IsAccessible && profile.ReducedMotion && !final && _lastRender.HasValue) {
+                    TimeSpan remaining = TimeSpan.FromSeconds(1) - (_redrawClock.Elapsed - _lastRender.Value);
+                    if (remaining > TimeSpan.Zero) {
+                        if (IsUntracked) {
+                            // Without a safe cursor query, finish this caller's update before returning to a prompt.
+                            Thread.Sleep((int)Math.Ceiling(remaining.TotalMilliseconds));
+                        } else { _pending = true; return true; }
+                    }
+                }
+                _pending = false;
                 RenderContext context = Terminal.CreateContext(profile);
                 StyledLine line = Compose(context, _content, _status, _spinner, _clock, _elapsed, _clockFormat, _started, _frame, final);
                 // One cell short of the window, so the line never wraps.
                 line = TextWrapper.Truncate(line, Math.Max(1, profile.Width - 1), context.Ellipsis);
                 using (ITerminalOutput output = Terminal.CreateOutput(profile)) {
-                    if (output is VtOutput vt) {
+                    if (!profile.IsAccessible && output is VtOutput vt) {
                         vt.WriteInPlace(line, final);
-                    } else if (final) {
+                    } else if (final || profile.IsAccessible) {
                         output.WriteLine(line);
                     }
                 }
+                _lastRender = _redrawClock.Elapsed;
                 RememberCursor();
+                return true;
             } catch (Exception) {
                 // A console that went away (closed window, redirected mid-run): stop refreshing.
                 StopTimer();
+                return false;
             }
         }
 
