@@ -98,7 +98,7 @@ namespace ConsoleMonster.Graphics {
             string count = _chart.Scenarios.Count > 1 ? "  (" + (_chart.Scenarios.FindIndex(item => item.Id == scenario.Id) + 1).ToString(CultureInfo.InvariantCulture) + "/" + _chart.Scenarios.Count.ToString(CultureInfo.InvariantCulture) + ")" : string.Empty;
             lines.Add(new Line(string.Empty, ThemeToken.Muted));
             // A click on the use-case line plays or pauses it, as p and Space do.
-            lines.Add(new Line(scenario.Label + count + Dot(ascii) + position + state, ThemeToken.Header, 0, TogglePlay, "diagram-play"));
+            lines.Add(new Line(scenario.Label + count + Dot(ascii) + position + state, ThemeToken.Header, 0, TogglePlay, ScenarioScope + ":play"));
             if (!string.IsNullOrWhiteSpace(scenario.Scenario.Description)) lines.Add(new Line(scenario.Scenario.Description!.Trim(), ThemeToken.Muted));
             int center = active?.Index ?? 0;
             int first = Math.Max(0, Math.Min(center - MaxStepLines / 2, scenario.Steps.Count - MaxStepLines));
@@ -113,7 +113,7 @@ namespace ConsoleMonster.Graphics {
                 string marker = current ? Mark(ascii) : "  ";
                 ThemeToken token = current ? (step.IsFailure ? ThemeToken.Fail : ThemeToken.Accent) : step.IsFailure ? ThemeToken.Fail : ThemeToken.Muted;
                 int target = index;
-                lines.Add(new Line(marker + (index + 1).ToString(CultureInfo.InvariantCulture).PadLeft(digits) + ". " + route + "  " + Kind(step) + "  " + step.Label, token, 0, () => Step(target), "diagram-step:" + target.ToString(CultureInfo.InvariantCulture)));
+                lines.Add(new Line(marker + (index + 1).ToString(CultureInfo.InvariantCulture).PadLeft(digits) + ". " + route + "  " + Kind(step) + "  " + step.Label, token, 0, () => Step(target), ScenarioScope + ":step:" + target.ToString(CultureInfo.InvariantCulture)));
                 if (current && !string.IsNullOrEmpty(step.Payload)) {
                     string[] payload = step.Payload!.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
                     foreach (string text in payload.Take(MaxPayloadLines)) lines.Add(new Line(text.TrimEnd(), ThemeToken.Info, digits + 4));
@@ -194,9 +194,14 @@ namespace ConsoleMonster.Graphics {
             }
             foreach (KeyValuePair<string, int[]> box in boxes) {
                 string id = box.Key;
-                Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + box.Value[0], region.Bounds.Y + top + box.Value[1], box.Value[2] - box.Value[0] + 1, box.Value[3] - box.Value[1] + 1), () => ShowNode(id), "diagram-node:" + id);
+                Interactive.PointerTargets.RecordAction(new Rect(region.Bounds.X + box.Value[0], region.Bounds.Y + top + box.Value[1], box.Value[2] - box.Value[0] + 1, box.Value[3] - box.Value[1] + 1), () => ShowNode(id), TargetScope + ":node:" + id);
             }
         }
+
+        // Click targets name this diagram and, for steps and playback, the use case they belong to, so a press is not
+        // completed by another diagram's or another use case's line drawn in the same place.
+        private string TargetScope => "diagram:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this).ToString(CultureInfo.InvariantCulture);
+        private string ScenarioScope => TargetScope + ":" + (_scenario?.Id ?? string.Empty);
 
         private static bool IsNodeCell(TopologyCellRole role) => role == TopologyCellRole.NodeBorder || role == TopologyCellRole.NodeFill
             || role == TopologyCellRole.NodeLabel || role == TopologyCellRole.NodeDetail || role == TopologyCellRole.NodeStatus;

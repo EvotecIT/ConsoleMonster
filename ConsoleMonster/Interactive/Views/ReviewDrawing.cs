@@ -29,7 +29,9 @@ namespace ConsoleMonster.Interactive {
         /// Draws the review into a region: rows from the top, the command box under them, problems directly above the button
         /// row at the bottom right (so they sit next to the blocked Run button they explain).
         /// </summary>
-        public static void Draw(Region region, RenderContext context, IList<KeyValuePair<string, string>> rows, IList<string> problems, string? command, string commandTitle, IReadOnlyList<string> buttons, int focus, bool active, int blocked = -1) {
+        // click runs a button as its key does when it is clicked (a blocked Run explains itself, as Enter does); null keeps
+        // the row keyboard-only.
+        public static void Draw(Region region, RenderContext context, IList<KeyValuePair<string, string>> rows, IList<string> problems, string? command, string commandTitle, IReadOnlyList<string> buttons, int focus, bool active, int blocked = -1, Action<int>? click = null, string id = "review") {
             int labelWidth = LabelWidth(rows, region.Width);
             int valueX = 2 + labelWidth;
             List<string> commandLines = new List<string>();
@@ -69,7 +71,11 @@ namespace ConsoleMonster.Interactive {
                 region.Write(2, problemTop + i, TextWrapper.Truncate(ChoicePane.Problem(text, context), Math.Max(1, region.Width - 3), context.Ellipsis));
             }
             StyledLine buttonRow = new StyledLine(Buttons.Spans(buttons, focus, context, active, null, blocked));
-            region.Write(Math.Max(0, region.Width - buttonRow.Width - 1), region.Height - 1, buttonRow);
+            int buttonX = Math.Max(0, region.Width - buttonRow.Width - 1);
+            region.Write(buttonX, region.Height - 1, buttonRow);
+            if (click != null && buttonRow.Width <= region.Width - 1) {
+                Buttons.Record(new Canvas.Rect(region.Bounds.X, region.Bounds.Y + region.Height - 1, region.Width, 1), buttonX, buttons, click, id);
+            }
         }
         private sealed class Lines : IWidget {
             private readonly List<string> _lines;

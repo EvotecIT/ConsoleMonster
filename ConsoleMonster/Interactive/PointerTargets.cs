@@ -39,8 +39,13 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Pointer events inside the area go to the handler in frame coordinates; a double click presses the key.</summary>
         /// <remarks><paramref name="cancel"/> drops a press the region holds when the frame changes under it (resize, focus loss).</remarks>
-        internal static void RecordRegion(Rect area, Func<InputEvent, bool> pointer, KeyChord? doubleClick, Action? cancel = null) =>
-            Add(new Target(area, doubleClick, cancel, pointer, null));
+        /// <remarks>
+        /// <paramref name="id"/> names what the region edits across frames (a text field's editor, rebuilt with each frame):
+        /// a drag pressed in it keeps going to the region of the same name, also outside its bounds, and is cancelled when
+        /// a frame no longer has it.
+        /// </remarks>
+        internal static void RecordRegion(Rect area, Func<InputEvent, bool> pointer, KeyChord? doubleClick, Action? cancel = null, string? id = null) =>
+            Add(new Target(area, doubleClick, cancel, pointer, id));
 
         /// <summary>Everything recorded so far is covered (a dialog is drawn over it).</summary>
         internal static void Cover() {
@@ -89,6 +94,20 @@ namespace ConsoleMonster.Interactive {
             Target[] frame;
             Target? pressed;
             lock (_gate) { frame = _frame; pressed = _pressed; }
+            // A press held in a region keeps its drag and release, wherever the pointer is.
+            if (pressed?.Pointer != null && ((input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0) || (input.MouseAction == MouseAction.Up && input.MouseButton == 1))) {
+                Target? owner = pressed.Id == null ? pressed : Array.FindLast(frame, target => target.Pointer != null && target.Id == pressed.Id);
+                if (input.MouseAction == MouseAction.Up) { lock (_gate) { _pressed = null; } }
+                if (owner == null) {
+                    // The frame no longer has what was pressed (another screen, a closed dialog): the drag ends there.
+                    lock (_gate) { _pressed = null; }
+                    pressed.Action?.Invoke();
+                    return true;
+                }
+                if (owner != pressed && input.MouseAction == MouseAction.Move) { lock (_gate) { _pressed = owner; } }
+                owner.Pointer!(input);
+                return true;
+            }
             Target? hit = null;
             for (int i = frame.Length - 1; i >= 0; i--) {
                 if (Contains(frame[i].Area, input.Column, input.Row)) { hit = frame[i]; break; }

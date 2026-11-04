@@ -150,6 +150,15 @@ namespace ConsoleMonster.Interactive {
         internal static IDisposable Scope(View? view) => new CrumbScope(view);
         internal static IReadOnlyList<string>? AmbientCrumbs => _ambient?.Crumbs;
 
+        // What a crumb stands for: this stack and the path up to that screen, so a crumb drawn at the same place for another
+        // path is a different target.
+        internal static string? AmbientCrumbId(int index) {
+            View? view = _ambient;
+            if (view == null || index < 0 || index >= view.Keys.Length) { return null; }
+            return "crumb:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(view.Owner).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + ":" + string.Join("/", view.Keys, 0, index + 1);
+        }
+
         // A click on a crumb returns to that screen, as Back does one step at a time; the current screen's crumb does nothing.
         internal static Action? AmbientCrumbAction(int index) {
             View? view = _ambient;

@@ -40,7 +40,7 @@ namespace ConsoleMonster.Interactive {
                 if (e.Kind == InputEventKind.Mouse) {
                     if (!pointer) { return; }
                     // Frames are drawn from their own first row; an inline frame starts lower in the window.
-                    int? origin = PointerOrigin(surface, input);
+                    int? origin = PointerOrigin(surface);
                     if (origin == null || e.Row < origin.Value) { return; }
                     if (origin.Value != 0) { e = e.WithPosition(e.Column, e.Row - origin.Value); }
                 }
@@ -58,13 +58,12 @@ namespace ConsoleMonster.Interactive {
             return locatable ? MouseReporting.Open(options.ResolveMouse(), options, profile, input, customSurface) : null;
         }
 
-        // The row of a frame's first row in the input's coordinates, or null when it is unknown. Native Windows mouse
-        // records count screen-buffer rows, VT reports count window rows. Recorded surfaces (tests, captures) use frame
+        // The window row of a frame's first row, or null when it is unknown. Recorded surfaces (tests, captures) use frame
         // coordinates.
-        internal static int? PointerOrigin(IPromptSurface surface, IInputSource input) {
+        internal static int? PointerOrigin(IPromptSurface surface) {
             switch (surface) {
                 case ScreenSurface _: case RecordingSurface _: return 0;
-                case InlineSurface inline: return inline.PointerOrigin(input is WindowsConsoleInput);
+                case InlineSurface inline: return inline.PointerOrigin;
                 default: return null;
             }
         }

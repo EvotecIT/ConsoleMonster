@@ -299,6 +299,21 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Click(app, rows[step].IndexOf("2. ", StringComparison.Ordinal), step);
             Assert.Equal(1, view.StepIndex);
         }
+        [Fact]
+        public void StepPressedThenUseCaseSwitched_ReleaseDoesNotRunTheOtherUseCasesStep() {
+            var view = new TopologyDiagram(SingleNodeChart()
+                .AddScenario("a", "Alpha", scenario => scenario.AddNodeStep("worker", "One").AddNodeStep("worker", "Two"))
+                .AddScenario("b", "Bravo", scenario => scenario.AddNodeStep("worker", "Uno").AddNodeStep("worker", "Dos")));
+            using var app = new AppController(view, new AppState(), Terminal.CreateContext(TerminalProfile.Fixed(100, 40)), 60);
+            string[] rows = app.PrepareFrame(100, 40).ToPlainText().Split('\n');
+            int step = Array.FindIndex(rows, line => line.Contains("2. "));
+            int column = rows[step].IndexOf("2. ", StringComparison.Ordinal);
+            app.Handle(InputEvent.Mouse(column, step), true);
+            view.NextScenario(1);
+            Assert.Equal(step, Array.FindIndex(app.PrepareFrame(100, 40).ToPlainText().Split('\n'), line => line.Contains("2. ")));
+            app.Handle(InputEvent.Mouse(column, step, pressed: false), true);
+            Assert.Null(view.StepIndex);
+        }
         private static void Click(AppController app, int column, int row) {
             app.Handle(InputEvent.Mouse(column, row), true);
             app.Handle(InputEvent.Mouse(column, row, pressed: false), true);

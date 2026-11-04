@@ -55,6 +55,9 @@ namespace ConsoleMonster.Interactive {
 
         internal void ClearSelection() => Anchor = -1;
 
+        // A pointer drag is selecting (kept here, so the text box drawn for the next frame continues it).
+        internal bool Dragging { get; set; }
+
         private bool DeleteSelection() {
             if (!HasSelection) { Anchor = -1; return false; }
             Delete(SelectionStart, SelectionEnd);

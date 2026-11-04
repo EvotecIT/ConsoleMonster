@@ -788,6 +788,47 @@ namespace ConsoleMonster.Interactive {
             return captions;
         }
 
+        // Click targets name this form, so a press is only completed by the same form's field or button.
+        private string PointerScope => "form:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this).ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        // A click on a field row: focus it as the arrows do, then what Space or Enter does there (a toggle flips, a choice
+        // or text area opens); a text field takes the caret from its own box.
+        private void ClickField(int index) {
+            List<Field> fields = VisibleFields(_page);
+            if (_editor != null || OnReview || index < 0 || index >= fields.Count) { return; }
+            if (index != _focus) { Leave(); _focus = index; }
+            Field field = fields[index];
+            FieldState state = _states[field];
+            switch (field.Kind) {
+                case FieldKind.Toggle:
+                    SetToggle(field, !(field.Value is true));
+                    break;
+                case FieldKind.Choice:
+                case FieldKind.MultiChoice:
+                    if (!state.Loading && state.LoadError == null) { Open((ChoiceField)field); }
+                    break;
+                case FieldKind.TextArea:
+                    EditText((TextAreaField)field);
+                    break;
+            }
+        }
+
+        // A click on Back, Next or Run: focus the button row and press it, as Enter does there.
+        private void ClickButton(int index) {
+            List<string> captions = ButtonCaptions();
+            if (_editor != null || OnReview || index < 0 || index >= captions.Count) { return; }
+            Leave();
+            _focus = VisibleFields(_page).Count;
+            _button = index;
+            ActivateButton();
+        }
+
+        private void ClickReview(int index) {
+            if (_editor != null || !OnReview || index < 0 || index >= ReviewCaptions().Count) { return; }
+            _button = index;
+            ActivateReview();
+        }
+
         private void ActivateButton() {
             List<string> captions = ButtonCaptions();
             if (captions[_button] == Labels.Back && _page > 0) {

@@ -34,6 +34,14 @@ namespace ConsoleMonster.Widgets {
         /// <param name="rows">Positive values move down.</param>
         public void ScrollBy(int rows) { lock (_gate) { _offset = (int)Math.Max(0, Math.Min(_maximum, (long)Math.Min(_offset, _maximum) + rows)); _shown = _offset; } }
         internal void RevealFocus() { lock (_gate) { _revealRequested = true; } }
+        [ThreadStatic] private static int _probing;
+        // While a layout is measured before it is fitted, scroll views draw without changing what they show.
+        internal static IDisposable Probing() => new ProbeScope();
+        private sealed class ProbeScope : IDisposable {
+            private bool _done;
+            internal ProbeScope() { _probing++; }
+            public void Dispose() { if (!_done) { _done = true; _probing--; } }
+        }
         // Whether the last frame drew a scroll bar in the rightmost column (the content was taller than the view).
         internal bool HasScrollbar { get { lock (_gate) { return _maximum > 0; } } }
         // A press or drag on the bar: the top of the bar shows the start, the bottom the end.
@@ -61,10 +69,12 @@ namespace ConsoleMonster.Widgets {
                     width = region.Width - 1;
                     height = Math.Max(region.Height, Math.Min(MaxContentHeight, Content.Measure(new Constraints(width, MaxContentHeight), context).Height));
                 }
-                _maximum = height - region.Height;
-                // The requested offset survives a pass drawn at another height (a layout measured before it is fitted);
-                // each pass clamps its own copy.
-                int offset = Math.Min(_offset, _maximum);
+                int maximum = height - region.Height;
+                // A probe (the app measuring its layout before fitting it) draws without changing the view: the requested
+                // offset, the bar range and the focus-reveal memory belong to the pass that is shown.
+                bool probe = _probing > 0;
+                if (!probe) { _maximum = maximum; }
+                int offset = Math.Min(_offset, maximum);
                 InputArrangement.Record(this, region.Bounds);
                 Rect view = new Rect(region.Bounds.X, region.Bounds.Y, width, region.Height);
                 CellBuffer content = new CellBuffer(width, height);
@@ -74,13 +84,15 @@ namespace ConsoleMonster.Widgets {
                     Content.Render(new Region(content), context);
                     Rect? focus = InputArrangement.FocusWithin(Content);
                     InputControl? current = InputArrangement.CurrentFocus;
-                    bool reveal = _revealRequested || _hasRendered && (current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height);
-                    _hasRendered = true;
-                    _lastFocus = current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
+                    bool reveal = !probe && (_revealRequested || _hasRendered && (current != _lastFocus || _lastSize.Width != region.Width || _lastSize.Height != region.Height));
+                    if (!probe) {
+                        _hasRendered = true;
+                        _lastFocus = current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
+                    }
                     if (reveal && focus.HasValue) {
                         if (focus.Value.Y < offset) { offset = focus.Value.Y; }
                         else if (focus.Value.Bottom > offset + region.Height) { offset = focus.Value.Bottom - region.Height; }
-                        offset = Math.Max(0, Math.Min(_maximum, offset));
+                        offset = Math.Max(0, Math.Min(maximum, offset));
                         _offset = offset;
                     }
                 }
@@ -89,18 +101,18 @@ namespace ConsoleMonster.Widgets {
                     PointerTargets.Rewind(mark);
                     using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - offset, view)) { Content.Render(new Region(content), context); }
                 }
-                _shown = offset;
+                if (!probe) { _shown = offset; }
                 region.Buffer.Blit(content, 0, offset, width, region.Height, region.Bounds.X, region.Bounds.Y);
-                if (width < region.Width) { DrawScrollbar(region, context); }
+                if (width < region.Width) { DrawScrollbar(region, context, offset, maximum); }
             }
         }
 
-        private void DrawScrollbar(Region region, RenderContext context) {
+        private static void DrawScrollbar(Region region, RenderContext context, int offset, int maximum) {
             InteractiveGlyphs glyphs = InteractiveGlyphs.For(context);
             int height = region.Height;
-            int total = height + _maximum;
+            int total = height + maximum;
             int thumb = Math.Max(1, height * height / total);
-            int top = (int)Math.Round((height - thumb) * (_shown / (double)Math.Max(1, _maximum)));
+            int top = (int)Math.Round((height - thumb) * (offset / (double)Math.Max(1, maximum)));
             for (int y = 0; y < height; y++) {
                 bool onThumb = y >= top && y < top + thumb;
                 region.Put(region.Width - 1, y, onThumb ? glyphs.ScrollThumb : glyphs.ScrollTrack, context.Style(onThumb ? Styling.ThemeToken.Muted : Styling.ThemeToken.Subtle));

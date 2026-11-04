@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -357,6 +358,112 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal(1, refreshed);
         }
 
+        [Fact]
+        public void TextPrompt_DragSelectsAcrossRedrawsAndTypingReplacesIt() {
+            PromptView<string> view = new TextPrompt("Edit") { Default = "abcdef", PrefillDefault = true }.CreateView(new PromptLabels());
+            string[] rows = Draw(view);
+            int row = Array.FindIndex(rows, line => line.Contains("abcdef"));
+            int column = rows[row].IndexOf("abcdef", StringComparison.Ordinal);
+            view.Handle(InputEvent.Mouse(column, row)); Draw(view);
+            view.Handle(InputEvent.Pointer(column + 3, row, MouseAction.Move, heldButtons: 1)); Draw(view);
+            // Released outside the text box: the drag still ends in it.
+            view.Handle(InputEvent.Mouse(column + 3, row + 4, pressed: false)); Draw(view);
+            view.Handle(InputEvent.Character('X'));
+            view.Handle(InputEvent.Press(ConsoleKey.Enter));
+            Assert.Equal("Xdef", view.Result);
+        }
+
+        [Fact]
+        public void Form_ClicksFlipAToggleTurnThePageAndRun() {
+            Func<Form> build = () => { Form form = new Form("Setup"); form.Text("first", "First"); form.Toggle("enabled", "Enabled"); form.Text("second", "Second"); return form; };
+            PromptLabels labels = new PromptLabels();
+            // Each click is found on the frame the previous clicks lead to.
+            List<InputEvent> clicks = new List<InputEvent>();
+            void ClickOn(Func<string[], (int Column, int Row)> locate) {
+                ScreenCapture probe = new ScreenCapture(70, 16);
+                try { build().Show(new FormOptions { Interactive = new InteractiveOptions { Input = new ScriptedInput(clicks.Concat(new[] { InputEvent.Press(ConsoleKey.C, KeyModifiers.Control) })) { Paced = true }, Capture = probe } }); } catch (PromptCanceledException) { }
+                (int column, int row) = locate(probe.LastFrame!.ToPlainText().Split('\n'));
+                clicks.Add(InputEvent.Mouse(column, row)); clicks.Add(InputEvent.Mouse(column, row, pressed: false));
+            }
+            ClickOn(rows => { int row = Array.FindIndex(rows, line => line.Contains("Enabled")); return (rows[row].IndexOf("[ ]", StringComparison.Ordinal) + 1, row); });
+            ClickOn(rows => { int row = Array.FindLastIndex(rows, line => line.Contains(labels.Review)); return (rows[row].LastIndexOf(labels.Review, StringComparison.Ordinal) + 1, row); });
+            ClickOn(rows => { int row = Array.FindLastIndex(rows, line => line.Contains(labels.Run)); return (rows[row].LastIndexOf(labels.Run, StringComparison.Ordinal) + 1, row); });
+            using ScriptedInput input = new ScriptedInput(clicks) { Paced = true };
+            FormResult result = build().Show(new FormOptions { Interactive = new InteractiveOptions { Input = input, Capture = new ScreenCapture(70, 16) } });
+            Assert.True(result.Submitted);
+            Assert.True(result.Values.Get<bool>("enabled"));
+        }
+        [Fact]
+        public void ContextMenu_RunsGeneratedHostAndControlEntries() {
+            Grid grid = new Grid("Services");
+            grid.AddColumn("Name"); grid.AddRow("b", "bravo"); grid.AddRow("a", "alpha");
+            DataGrid services = new DataGrid("services", grid);
+            AppState state = new AppState();
+            using AppController app = new AppController(services, state, Context, 60);
+            app.PrepareFrame(80, 14);
+            ChooseFromMenu(app, "sort");
+            Assert.Equal(0, services.SortColumn);
+            ChooseFromMenu(app, "quit");
+            Assert.True(state.ExitRequested);
+        }
+
+        [Fact]
+        public void Breadcrumb_PressedThenReplacedOnAnotherPath_DoesNotNavigate() {
+            AppScreens screens = new AppScreens(new AppScreen("home", "Home", TextBlock.Plain("home")), new AppScreen("a", "Same", TextBlock.Plain("a")),
+                new AppScreen("b", "Same", TextBlock.Plain("b")), new AppScreen("leaf", "Leaf", TextBlock.Plain("leaf")));
+            using AppController app = new AppController(new Rows().Add(new HeaderBar("Shop"), LayoutSize.Fixed(1)).Add(screens, LayoutSize.Fraction()), new AppState(), Context, 60);
+            screens.Push("a"); screens.Push("leaf"); app.Refresh(null);
+            string header = Rows(app.PrepareFrame(80, 10))[0];
+            int same = header.IndexOf("Same", StringComparison.Ordinal);
+            app.Handle(InputEvent.Mouse(same + 1, 0), true);
+            // While the button is held the path changes to one with a crumb of the same title in the same place.
+            screens.Push("home"); screens.Push("b"); screens.Push("leaf"); app.Refresh(null);
+            Assert.Equal(same, Rows(app.PrepareFrame(80, 10))[0].IndexOf("Same", StringComparison.Ordinal));
+            app.Handle(InputEvent.Mouse(same + 1, 0, pressed: false), true);
+            Assert.Equal("leaf", screens.Current.Key);
+        }
+
+        [Fact]
+        public void DialogOpenedByACallback_TakesThePointerBeforeTheNextFrame() {
+            Select schedule = new Select("schedule", new[] { new Choice("Hourly"), new Choice("Nightly"), new Choice("Weekly") }) { Dropdown = true, Value = "Hourly" };
+            AppDialogs dialogs = new AppDialogs();
+            ConsoleAppOptions options = new ConsoleAppOptions { Dialogs = dialogs };
+            using AppController app = new AppController(new Rows().Add(schedule, LayoutSize.Fixed(3)).Add(TextBlock.Plain("below"), LayoutSize.Fraction()), new AppState(), Context, 60, options);
+            app.PrepareFrame(80, 14);
+            Click(app, 5, 1);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int row = Array.FindIndex(rows, line => line.Contains("Weekly"));
+            int column = rows[row].IndexOf("Weekly", StringComparison.Ordinal);
+            dialogs.Show(new FormDialog<string>("Name", new TextInput("name"), values => values.Get<string>("name")), _ => { });
+            Click(app, column, row);
+            Assert.Equal("Hourly", schedule.Value);
+        }
+
+        [Fact]
+        public void ScrollViewBar_KeepsAManualPositionWhenFocusIsInsideTheView() {
+            TextInput inside = new TextInput("inside");
+            ScrollView scroll = new ScrollView(new Rows().Add(inside, LayoutSize.Fixed(3)).Add(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))), LayoutSize.Fixed(40)));
+            using AppController app = new AppController(new Rows().Add(TextBlock.Plain("heading\nsecond\nthird"), LayoutSize.Fixed(3)).Add(scroll, LayoutSize.Fraction()), new AppState(), Context, 60);
+            app.PrepareFrame(80, 24);
+            Assert.True(inside.Focused);
+            Click(app, 79, 22);
+            app.PrepareFrame(80, 24);
+            string frame = app.PrepareFrame(80, 24).ToPlainText();
+            Assert.True(scroll.ScrollOffset > 0);
+            Assert.Contains("line 39", frame);
+        }
+
+        private static void ChooseFromMenu(AppController app, string label) {
+            app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int row = Array.FindIndex(rows, line => line.Contains(" " + label + " ") && line.Contains("│"));
+            Assert.True(row >= 0, string.Join("\n", rows));
+            Click(app, rows[row].IndexOf(" " + label + " ", StringComparison.Ordinal) + 1, row);
+            app.PrepareFrame(80, 14);
+        }
+
+        private static string[] Draw(InteractiveView view, int width = 60, int height = 12) =>
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, width, height, false, TimeSpan.Zero)), width, height, Context).ToPlainText().Split('\n');
         // The cell where a prompt first draws text, from a run that is cancelled straight away.
         private static (int Column, int Row) Find(Action<ScreenCapture> run, string text) {
             ScreenCapture capture = new ScreenCapture(60, 12);

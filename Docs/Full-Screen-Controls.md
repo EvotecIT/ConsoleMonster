@@ -226,6 +226,7 @@ Where the terminal reports the mouse, it works wherever the keyboard does, and e
 | Click a breadcrumb in a `HeaderBar` | Returns to that screen, as Escape does one step at a time. |
 | Click or drag a `ScrollView` scroll bar | Scrolls there (the bar appears when the content is taller than the view). |
 | Click a `Toggle` | Space. |
+| Click a form field, a page button, a review action or a dialog's Yes/No | The arrows to focus it, then Space or Enter there: a toggle flips, a choice or text area opens, a button runs. A blocked Run explains itself as Enter does. |
 | Click in a `TextInput` or text area; drag | Places the caret; selects, as Shift with the arrows does. Typing replaces the selection. |
 | Double-click a row in a `DataGrid`, `TreeSelect` or list `Select` | Enter, so an `open` binding on the input opens the row. |
 | Click a `DataGrid` column header | F3 sorts by the next column, F4 reverses; a second click on the same header reverses. |

@@ -109,6 +109,13 @@ namespace ConsoleMonster.Interactive {
                 if (_overlay.Menu != null) { _overlay.Menu = null; Invalidate(); }
             }
             if (input.Kind == InputEventKind.Mouse && !mouse) { return; }
+            // A dialog a callback opened takes the pointer at once, before a frame shows it: what was pressed, dragged or
+            // drawn under it (a popup, a menu, the hints of the last frame) no longer gets events.
+            bool modal = _actions.HasModal;
+            if (modal && (_pointerCapture != null || _scrollCapture != null || _overlay.Menu != null)) {
+                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _overlay.Menu = null; _overlay.Targets.Cancel();
+                Invalidate();
+            }
             if (_overlay.Menu is AppContextMenu menu && (input.Kind == InputEventKind.Key || input.Kind == InputEventKind.Mouse)) {
                 AppKeyMap.Entry? chosen = input.Kind == InputEventKind.Key ? menu.HandleKey(input, out bool close, out bool used) : menu.HandlePointer(input, out close, out used);
                 if (close) { _overlay.Menu = null; }
@@ -125,9 +132,9 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             // An open popup is drawn over everything else, so it takes the pointer first; a press outside closes it.
-            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
             // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
-            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && _overlay.Targets.Route(input, clicks, out KeyChord? pressed)) {
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && (!modal || _overlay.ModalDrawn) && _overlay.Targets.Route(input, clicks, out KeyChord? pressed)) {
                 Invalidate();
                 if (pressed.HasValue) { HandleCore(pressed.Value.ToInput(), mouse, ref reachedKeys); }
                 return;
@@ -218,8 +225,11 @@ namespace ConsoleMonster.Interactive {
         private bool Hidden(AppBinding binding) => _screens != null && _bindingScreens.TryGetValue(binding, out AppScreen? screen) && !_screens.IsShown(screen);
 
         // The hold ends before the snapshot is published, so the snapshot carries the focus version that matches it.
+        // Host and control entries are built again for every list, so an entry is recognised by what it says and the key
+        // that reaches it in the current scope; a screen that reuses the key for something else does not match.
         private bool StillReaches(AppKeyMap.Entry chosen) =>
-            chosen.Chord.HasValue && _keys.MenuEntries(HostBindings(), HostFirst()).Any(entry => ReferenceEquals(entry.Binding, chosen.Binding) && Nullable.Equals(entry.Chord, chosen.Chord));
+            chosen.Chord.HasValue && _keys.MenuEntries(HostBindings(), HostFirst()).Any(entry => Nullable.Equals(entry.Chord, chosen.Chord)
+                && string.Equals(entry.Binding.Label, chosen.Binding.Label, StringComparison.Ordinal) && string.Equals(entry.Keys, chosen.Keys, StringComparison.Ordinal));
 
         private void Navigated() {
             // A menu lists one screen's bindings; it does not survive the switch.

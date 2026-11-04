@@ -121,7 +121,8 @@ namespace ConsoleMonster.Interactive {
                 rows.Add(new UiParagraph(_message!, ThemeToken.Text, 6));
                 rows.Add(UiLine.Empty);
             }
-            rows.Add(new UiLine(context => new StyledLine(Buttons.Spans(new[] { _labels.Yes, _labels.No }, _focus, context))));
+            rows.Add(new ButtonRow(new[] { _labels.Yes, _labels.No }, () => _focus, index => Answer(index == 0),
+                "confirm:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this).ToString(System.Globalization.CultureInfo.InvariantCulture)));
             return DialogChrome.Frame(rows, _title, _destructive ? ThemeToken.Warn : ThemeToken.Accent);
         }
 

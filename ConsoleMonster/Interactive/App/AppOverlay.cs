@@ -82,6 +82,7 @@ namespace ConsoleMonster.Interactive {
             }
             IWidget? dialog = _actions.ModalLayer(context, body.Width, body.Height, out int maxWidth);
             if (dialog != null) { Overlay.Paint(body, dialog, context, maxWidth, false, true); placed.Clear(); Targets.CoverBody(body.Bounds); }
+            _modalDrawn = dialog != null;
             Toast? toast;
             lock (_gate) { _popups.Clear(); _popups.AddRange(placed); toast = _toast; }
             if (toast != null) {
@@ -96,6 +97,10 @@ namespace ConsoleMonster.Interactive {
         internal PointerTargets Targets { get; } = new PointerTargets(regions: false);
 
         private AppContextMenu? _menu;
+        private volatile bool _modalDrawn;
+
+        // Whether the last frame drew a dialog, so its hints (the dialog's keys) are the ones on screen.
+        internal bool ModalDrawn => _modalDrawn;
 
         internal AppContextMenu? Menu {
             get { lock (_gate) { return _menu; } }

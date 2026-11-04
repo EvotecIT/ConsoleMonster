@@ -134,6 +134,9 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Handles pointer input while the same value/render lock is held. Coordinates are in the control's arranged buffer.</summary>
         protected virtual bool HandlePointerCore(InputEvent input, RenderContext context) => false;
         internal virtual void CancelPointer() { }
+        // What a pointer drag edits. A prompt builds its text box again for each frame around the same editor, so the
+        // editor, not the box, keeps a drag across frames.
+        internal virtual object PointerIdentity => this;
         // Lists, trees and grids: a double click on a row presses Enter, so it opens the row the way the keyboard does.
         internal virtual bool OpensOnDoubleClick => false;
 
@@ -194,7 +197,8 @@ namespace ConsoleMonster.Interactive {
                 _bounds = region.Bounds;
                 InputArrangement.Record(this, region.Bounds);
                 // In a standalone prompt or form the control takes the pointer inside its area; an app routes it through focus.
-                PointerTargets.RecordRegion(region.Bounds, input => HandleInput(input, context), null, CancelPointer);
+                PointerTargets.RecordRegion(region.Bounds, input => HandleInput(input, context), null, CancelPointer,
+                    "control:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(PointerIdentity).ToString(System.Globalization.CultureInfo.InvariantCulture));
                 if (!Chrome) {
                     if (_chrome) {
                         int gutter = Math.Min(2, region.Width);

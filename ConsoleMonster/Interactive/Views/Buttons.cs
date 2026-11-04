@@ -50,4 +50,25 @@ namespace ConsoleMonster.Interactive {
             }
         }
     }
+
+    /// <summary>A row of buttons starting at its left edge; a click on a caption runs it, as its key does.</summary>
+    internal sealed class ButtonRow : Layout.IWidget {
+        private readonly IReadOnlyList<string> _captions;
+        private readonly System.Func<int> _focus;
+        private readonly System.Action<int> _click;
+        private readonly string _id;
+
+        internal ButtonRow(IReadOnlyList<string> captions, System.Func<int> focus, System.Action<int> click, string id) {
+            _captions = captions; _focus = focus; _click = click; _id = id;
+        }
+
+        public Layout.Size Measure(Layout.Constraints constraints, RenderContext context) => new Layout.Size(constraints.MaxWidth, System.Math.Min(1, constraints.MaxHeight));
+
+        public void Render(Region region, RenderContext context) {
+            if (region.Width <= 0 || region.Height <= 0) { return; }
+            StyledLine line = new StyledLine(Buttons.Spans(_captions, _focus(), context));
+            region.Write(0, 0, line, region.Width);
+            if (line.Width <= region.Width) { Buttons.Record(new Canvas.Rect(region.Bounds.X, region.Bounds.Y, region.Width, 1), 0, _captions, _click, _id); }
+        }
+    }
 }

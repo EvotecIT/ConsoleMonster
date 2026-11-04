@@ -72,6 +72,7 @@ namespace ConsoleMonster.Interactive {
             CellBuffer full = new CellBuffer(region.Width, natural);
             _arrangement.Focused = _focus.Current;
             using (LayoutNotes.Pause())
+            using (Widgets.ScrollView.Probing())
             using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(full), context); }
             Dictionary<InputControl, int> wanted = _arrangement.Heights();
             CellBuffer fit = new CellBuffer(region.Width, region.Height);

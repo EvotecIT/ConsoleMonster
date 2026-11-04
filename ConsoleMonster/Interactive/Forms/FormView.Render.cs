@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -192,6 +193,12 @@ namespace ConsoleMonster.Interactive {
                 if (y + height <= 0 || y >= area) {
                     continue;
                 }
+                // A click on a field row focuses the field and does what Space or Enter does on it; drawn first, so the
+                // focused text box inside it keeps its own clicks.
+                int top = Math.Max(0, y);
+                int index = i;
+                PointerTargets.RecordAction(new Rect(region.Bounds.X, region.Bounds.Y + top, region.Width, Math.Min(area, y + height) - top), () => ClickField(index),
+                    PointerScope + ":field:" + _page.ToString(CultureInfo.InvariantCulture) + ":" + fields[i].Key);
                 DrawField(region, context, frame, fields[i], i == _focus && active, y, labelWidth, valueX, valueWidth, area);
             }
             if (total > area) {
@@ -210,7 +217,11 @@ namespace ConsoleMonster.Interactive {
             List<string> captions = ButtonCaptions();
             List<TextSpan> spans = Buttons.Spans(captions, _button, context, active && OnButtons);
             StyledLine buttons = new StyledLine(spans);
-            region.Write(Math.Max(0, region.Width - buttons.Width - 1), region.Height - 1, buttons);
+            int buttonX = Math.Max(0, region.Width - buttons.Width - 1);
+            region.Write(buttonX, region.Height - 1, buttons);
+            if (buttons.Width <= region.Width - 1) {
+                Buttons.Record(new Rect(region.Bounds.X, region.Bounds.Y + region.Height - 1, region.Width, 1), buttonX, captions, ClickButton, PointerScope + ":page:" + _page.ToString(CultureInfo.InvariantCulture));
+            }
         }
 
         private void DrawField(Region region, RenderContext context, ViewFrame frame, Field field, bool focused, int y, int labelWidth, int valueX, int valueWidth, int area) {
@@ -336,7 +347,8 @@ namespace ConsoleMonster.Interactive {
                 }
             }
             string? command = string.IsNullOrEmpty(_form.Command) ? null : _form.BuildCommand();
-            ReviewDrawing.Draw(region, context, rows, new string[0], command, Labels.EquivalentCommand, ReviewCaptions(), _button, active);
+            ReviewDrawing.Draw(region, context, rows, new string[0], command, Labels.EquivalentCommand, ReviewCaptions(), _button, active,
+                click: index => ClickReview(index), id: PointerScope + ":review");
         }
     }
 }

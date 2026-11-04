@@ -54,7 +54,7 @@ namespace ConsoleMonster.Interactive {
         protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) => _editor.Handle(input);
 
         private Rect _textBounds;
-        private bool _selecting;
+
 
         /// <inheritdoc />
         protected override bool HandlePointerCore(Input.InputEvent input, RenderContext context) {
@@ -63,23 +63,24 @@ namespace ConsoleMonster.Interactive {
             bool inside = input.Column >= text.X && input.Column < text.Right && input.Row >= text.Y && input.Row < text.Bottom;
             if (input.MouseAction == Input.MouseAction.Down && input.MouseButton == 1) {
                 if (!inside) { return false; }
-                _selecting = true;
+                _editor.Dragging = true;
                 _editor.PlaceCaret(IndexAt(input.Column - text.X + _editor.ScrollOffset, context), false);
                 return true;
             }
-            if (input.MouseAction == Input.MouseAction.Move && _selecting && (input.HeldButtons & 1) != 0) {
+            if (input.MouseAction == Input.MouseAction.Move && _editor.Dragging && (input.HeldButtons & 1) != 0) {
                 _editor.PlaceCaret(IndexAt(Math.Max(0, input.Column - text.X + _editor.ScrollOffset), context), true);
                 return true;
             }
-            if (input.MouseAction == Input.MouseAction.Up && _selecting) {
-                _selecting = false;
+            if (input.MouseAction == Input.MouseAction.Up && _editor.Dragging) {
+                _editor.Dragging = false;
                 if (!_editor.HasSelection) { _editor.ClearSelection(); }
                 return true;
             }
             return false;
         }
 
-        internal override void CancelPointer() => _selecting = false;
+        internal override void CancelPointer() => _editor.Dragging = false;
+        internal override object PointerIdentity => _editor;
 
         // The caret index nearest a display column: a click on the right half of a character goes after it.
         private int IndexAt(int column, RenderContext context) {

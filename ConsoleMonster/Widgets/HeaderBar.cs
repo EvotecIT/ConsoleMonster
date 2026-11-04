@@ -125,7 +125,7 @@ namespace ConsoleMonster.Widgets {
                 for (int i = 0; i < crumbCells.Count; i++) {
                     int width = Math.Min(crumbCells[i][1], leftLine.Width - crumbCells[i][0]);
                     Action? back = AppScreens.AmbientCrumbAction(i);
-                    if (back != null && width > 0) { PointerTargets.RecordAction(new Rect(bar.Bounds.X + 1 + crumbCells[i][0], bar.Bounds.Y, width, 1), back, "crumb:" + i.ToString(System.Globalization.CultureInfo.InvariantCulture)); }
+                    if (back != null && width > 0) { PointerTargets.RecordAction(new Rect(bar.Bounds.X + 1 + crumbCells[i][0], bar.Bounds.Y, width, 1), back, AppScreens.AmbientCrumbId(i)!); }
                 }
             }
             if (rightLine.Width > 0 && rightX > leftLine.Width + 1) {
