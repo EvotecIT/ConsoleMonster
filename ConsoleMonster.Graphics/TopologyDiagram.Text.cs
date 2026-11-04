@@ -6,12 +6,13 @@ using ConsoleMonster.Glyphs;
 
 namespace ConsoleMonster.Graphics {
     internal sealed partial class TopologyDiagram {
-        /// <summary>Lets the engine measure expanding ASCII text before projecting its detached cell geometry.</summary>
-        private PreparedTopology PrepareAscii() {
+        /// <summary>Lets the engine measure tier-specific text and status cues before projecting detached geometry.</summary>
+        private PreparedTopology PrepareText(GlyphTier tier) {
+            string Constrain(string text) => tier == GlyphTier.Ascii ? SymbolFallback.Constrain(text, tier) : text;
             var restore = new List<Action>();
             try {
                 foreach (TopologyNode node in _chart.Nodes) {
-                    string label = SymbolFallback.Constrain(node.Label, GlyphTier.Ascii);
+                    string label = Constrain(node.Label);
                     if (label != node.Label) {
                         var original = node.LabelContent;
                         restore.Add(() => node.LabelContent = original);
@@ -19,20 +20,23 @@ namespace ConsoleMonster.Graphics {
                     }
                     if (node.Subtitle != null) {
                         string original = node.Subtitle;
-                        string subtitle = SymbolFallback.Constrain(original, GlyphTier.Ascii);
+                        string subtitle = Constrain(original);
                         if (subtitle != original) { restore.Add(() => node.Subtitle = original); node.Subtitle = subtitle; }
                     }
                 }
                 foreach (TopologyGroup group in _chart.Groups) {
-                    string label = SymbolFallback.Constrain(group.Label, GlyphTier.Ascii);
+                    string label = Constrain(group.Label);
                     if (label == group.Label) continue;
                     var original = group.LabelContent;
                     restore.Add(() => group.LabelContent = original);
                     group.Label = label;
                 }
                 foreach (TopologyEdge edge in _chart.Edges) {
-                    if (edge.Label == null) continue;
-                    string label = SymbolFallback.Constrain(edge.Label, GlyphTier.Ascii);
+                    string? label = edge.Label == null ? null : Constrain(edge.Label);
+                    if (_linkStatusKinds.TryGetValue(edge.Id, out var status)) {
+                        IGlyphSet glyphs = tier == GlyphTier.Ascii ? GlyphSet.Ascii : GlyphSet.Full;
+                        label = glyphs.StatusSymbol(status) + (string.IsNullOrEmpty(label) ? string.Empty : " " + label);
+                    }
                     if (label == edge.Label) continue;
                     var original = edge.LabelContent;
                     restore.Add(() => edge.LabelContent = original);

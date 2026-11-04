@@ -82,6 +82,28 @@ namespace ConsoleMonster.Tests.Changes {
             Assert.Equal(443, port.After);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void NormalizedNestedRecord_PreservesMissingPropertyInBothComparisons(bool sameNormalizedValue) {
+            object before = new Dictionary<string, object?> { ["Config"] = new Dictionary<string, object?> { ["Port"] = 443 } };
+            object after = new Dictionary<string, object?>();
+            var options = new DiffOptions();
+            options.Normalize["Config"] = value => sameNormalizedValue || value != null ? "configured" : null;
+            PropertyChange property = Assert.Single(ObjectDiff.CompareObjects(before, after, options));
+            Assert.Equal("Config", property.Path);
+            Assert.True(property.HasBefore);
+            Assert.False(property.HasAfter);
+            string detailed = TestTerminal.RenderText(new ChangeView(ObjectDiff.Compare(before, after, options), ChangeViewMode.Full), 100, 0, GlyphTier.Ascii);
+            Assert.Contains("(missing)", detailed);
+            BaselineComparison baseline = ObjectDiff.CompareBaseline(new[] { before, after }, options);
+            BaselineRow row = Assert.Single(baseline.Rows);
+            Assert.Equal("Config", row.Path);
+            Assert.Equal(ChangeKind.Removed, row.Cells[1].Kind);
+            Assert.False(row.Cells[1].IsPresent);
+            Assert.Contains("(missing)", TestTerminal.RenderText(new BaselineView(baseline), 100, 0, GlyphTier.Ascii));
+        }
+
         [Fact]
         public void BaselineMatrix_UsesSelectedReferenceAndInputOrder_WithMissingAndEqualRows() {
             object[] objects = {

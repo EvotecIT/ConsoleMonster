@@ -79,6 +79,58 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.Contains("Disk91%", words);
         }
 
+        [Theory]
+        [InlineData(StatusKind.Fail, GlyphTier.Full, "✗", true, "HTTPS")]
+        [InlineData(StatusKind.Fail, GlyphTier.Basic, "×", false, "HTTPS")]
+        [InlineData(StatusKind.Fail, GlyphTier.Ascii, "x", false, "HTTPS")]
+        [InlineData(StatusKind.Warn, GlyphTier.Ascii, "!", false, "HTTPS")]
+        [InlineData(StatusKind.Skip, GlyphTier.Ascii, "-", false, "HTTPS")]
+        [InlineData(StatusKind.Info, GlyphTier.Ascii, "i", false, "HTTPS")]
+        [InlineData(StatusKind.Pending, GlyphTier.Ascii, ".", false, "HTTPS")]
+        [InlineData(StatusKind.Running, GlyphTier.Ascii, "*", false, "HTTPS")]
+        [InlineData(StatusKind.Unknown, GlyphTier.Ascii, "o", false, "HTTPS")]
+        [InlineData(StatusKind.Fail, GlyphTier.Ascii, "x", false, null)]
+        public void LinkStatus_RemainsVisibleWithoutCompanionSections(StatusKind status, GlyphTier tier, string marker, bool imported, string? label) {
+            TopologyChart? chart = imported ? TopologyChart.Create().WithTitle("Connections")
+                .AddAutoNode("A", "A", TopologyNodeKind.Service)
+                .AddAutoNode("B", "B", TopologyNodeKind.Service)
+                .AddEdge("connection", "A", "B", label, status: TopologyHealthStatus.Critical) : null;
+            Diagram diagram = chart != null ? chart.ToDiagram() : new Diagram("Connections") {
+                Links = { new DiagramLink("A", "B") { Label = label, Status = status } }
+            };
+            diagram.ShowSummary = false;
+            diagram.ShowLegend = false;
+            string text = ConsoleExporter.ToText(diagram, new ExportOptions { Width = 120, Glyphs = tier, ColorDepth = ColorDepth.None });
+            Assert.Matches("[┌╭+][─-]+[┐╮+]", text);
+            Assert.DoesNotContain("Needs attention", text);
+            Assert.Contains(label == null ? marker : marker + " " + label, text);
+            if (chart != null) Assert.Equal(label, chart.Edges[0].Label);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ClearedScenario_SurvivesGeometryRebuild(bool imported) {
+            Diagram diagram;
+            if (imported) {
+                var chart = TopologyChart.Create().WithTitle("Before").AddAutoNode("A", "A", TopologyNodeKind.Service);
+                chart.AddScenario("inspect", "Inspect", scenario => scenario.AddNodeStep("A", "Request"));
+                diagram = chart.ToDiagram();
+            } else {
+                diagram = Ui.Diagram("Before").UseCase("Inspect", useCase => useCase.Step("A", "B", "Request"));
+            }
+            Assert.NotNull(diagram.ScenarioId);
+            diagram.SelectScenario(null);
+            Assert.DoesNotContain("Inspect", Text(diagram, 120));
+            diagram.Title = "After";
+            string text = Text(diagram, 120);
+            Assert.Contains("After", text);
+            Assert.Null(diagram.ScenarioId);
+            Assert.Null(diagram.StepIndex);
+            Assert.False(diagram.Playing);
+            Assert.DoesNotContain("Inspect", text);
+        }
+
         [Fact]
         public void ModelChanges_InvalidateGeometryWithoutReplacingThePublicWidget() {
             var diagram = new Diagram("First") { Nodes = { new DiagramNode("A") } };

@@ -208,9 +208,9 @@ namespace ConsoleMonster.Changes {
             }
             if (normalize && options.Normalize.TryGetValue(label, out Func<object?, object?>? normalizer)) {
                 var normalized = new List<PropertyChange>();
-                CompareInto(normalized, path, normalizer(before), normalizer(after), options, depth, normalize: false);
+                CompareInto(normalized, path, normalizer(before), normalizer(after), options, depth, hasBefore, hasAfter, normalize: false);
                 if (normalized.Count > 0) {
-                    changes.Add(new PropertyChange(label, before, after, isCaseOnly: normalized.All(p => p.IsCaseOnly)));
+                    changes.Add(new PropertyChange(label, before, after, hasBefore, hasAfter, isCaseOnly: normalized.All(p => p.IsCaseOnly)));
                 }
                 return;
             }

@@ -170,6 +170,7 @@ namespace ConsoleMonster.Graphics {
 
             bool basic = context.Profile.Glyphs == GlyphTier.Basic;
             bool ascii = context.Profile.Glyphs == GlyphTier.Ascii;
+            var markedLinks = new HashSet<string>(StringComparer.Ordinal);
             for (int row = 0; row < frame.Canvas.Rows && y < region.Height; row++, y++) {
                 for (int column = 0; column < frame.Canvas.Columns && column < region.Width; column++) {
                     TopologyCell cell = frame.Canvas[column, row];
@@ -179,7 +180,13 @@ namespace ConsoleMonster.Graphics {
                     if (column + cell.Width > region.Width) break;
                     string glyph = ascii ? SymbolFallback.GetGlyph(cell.Glyph, GlyphTier.Ascii, context.Profile.WidthProfile)
                         : basic ? BasicGlyph(cell.Glyph) : cell.Glyph;
-                    region.Put(column, y, glyph, CellStyle(cell, context), ascii ? 1 : cell.Width);
+                    Style style = CellStyle(cell, context);
+                    if (cell.Role == TopologyCellRole.EdgeLabel && cell.ElementId != null &&
+                        _linkStatusKinds.TryGetValue(cell.ElementId, out StatusKind linkStatus) && markedLinks.Add(cell.ElementId)) {
+                        glyph = context.Glyphs.StatusSymbol(linkStatus);
+                        style = context.Style(linkStatus);
+                    }
+                    region.Put(column, y, glyph, style, ascii ? 1 : cell.Width);
                 }
             }
 

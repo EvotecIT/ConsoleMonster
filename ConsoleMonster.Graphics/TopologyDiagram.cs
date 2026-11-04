@@ -23,8 +23,18 @@ namespace ConsoleMonster.Graphics {
         internal readonly HashSet<string> BorderlessGroups = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, StatusKind> _statusKinds = new Dictionary<string, StatusKind>(StringComparer.Ordinal);
         private readonly Dictionary<string, DiagramNodeKind> _nodeKinds = new Dictionary<string, DiagramNodeKind>(StringComparer.Ordinal);
+        private readonly Dictionary<string, StatusKind> _linkStatusKinds = new Dictionary<string, StatusKind>(StringComparer.Ordinal);
         private readonly HashSet<string> _unmarkedNodes = new HashSet<string>(StringComparer.Ordinal);
         internal void SetNodeMetadata(string nodeId, StatusKind status, DiagramNodeKind kind, bool hasStatus = true) { lock (_gate) { _statusKinds[nodeId] = status; _nodeKinds[nodeId] = kind; if (hasStatus) _unmarkedNodes.Remove(nodeId); else _unmarkedNodes.Add(nodeId); } }
+        internal void SetLinkMetadata(string edgeId, StatusKind status, bool hasStatus) {
+            lock (_gate) {
+                if (!hasStatus || status == StatusKind.Pass || status == StatusKind.None) return;
+                _linkStatusKinds[edgeId] = status;
+                _prepared = _asciiPrepared = null;
+                _layout = null;
+                _naturalColumns = 0;
+            }
+        }
         private int _naturalColumns;
         private const double NaturalPixelsPerColumn = 10.0;
         private const int ValueColumns = 10;
@@ -250,12 +260,12 @@ namespace ConsoleMonster.Graphics {
             }
         }
 
-        internal PreparedTopology Prepared { get { lock (_gate) { return _prepared ??= _chart.Prepare(); } } }
+        internal PreparedTopology Prepared { get { lock (_gate) { return _prepared ??= PrepareText(GlyphTier.Full); } } }
 
         internal TopologyCellLayout Layout(int width, GlyphTier? glyphs = null) {
             GlyphTier projection = glyphs == GlyphTier.Ascii ? GlyphTier.Ascii : glyphs.HasValue ? GlyphTier.Full : _projectionGlyphs;
             if (projection != _projectionGlyphs) { _projectionGlyphs = projection; _layout = null; _naturalColumns = 0; }
-            PreparedTopology prepared = projection == GlyphTier.Ascii ? _asciiPrepared ??= PrepareAscii() : Prepared;
+            PreparedTopology prepared = projection == GlyphTier.Ascii ? _asciiPrepared ??= PrepareText(GlyphTier.Ascii) : Prepared;
             // Grow only at reservation boundaries, and never shrink when a live value gets shorter.
             int longest = _values.Count == 0 ? 0 : _values.Values.Max(value => DisplayWidth.Measure(projection == GlyphTier.Ascii ? SymbolFallback.Constrain(value, GlyphTier.Ascii) : value));
             int requested = longest <= ValueColumns ? ValueColumns : Math.Min(MaximumValueColumns, ((longest + 7) / 8) * 8);

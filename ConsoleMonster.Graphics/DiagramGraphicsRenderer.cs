@@ -36,7 +36,8 @@ namespace ConsoleMonster.Graphics {
                         _key = key;
                         SetBoundaries();
                         int index = _model.UseCases.FindIndex(c => c.Id == scenario);
-                        if (index >= 0) _view.SelectScenario(_imported?.ScenarioId(_model.UseCases[index]) ?? "case-" + index.ToString(CultureInfo.InvariantCulture));
+                        if (scenario == null) _view.SelectScenario(null);
+                        else if (index >= 0) _view.SelectScenario(_imported?.ScenarioId(_model.UseCases[index]) ?? "case-" + index.ToString(CultureInfo.InvariantCulture));
                         if (step.HasValue) _view.Step(step.Value);
                         if (focus != null) _view.FocusNode(focus);
                         if (playing) _view.Play();
@@ -67,6 +68,10 @@ namespace ConsoleMonster.Graphics {
             }
             if (_imported == null) foreach (DiagramGroup group in _model.Groups) Group(group);
             else foreach (string id in _imported.BorderlessGroups) _view.BorderlessGroups.Add(id);
+            var links = _model.AllLinks().ToList();
+            for (int link = 0; link < links.Count && link < _view.Chart.Edges.Count; link++) {
+                _view.SetLinkMetadata(_view.Chart.Edges[link].Id, links[link].Status, links[link].HasStatus);
+            }
         }
         public IWidget View(int width, RenderContext context) {
             if (width >= Constraints.Unbounded / 2) width = 120;
