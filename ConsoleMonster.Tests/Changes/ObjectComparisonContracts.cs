@@ -83,24 +83,29 @@ namespace ConsoleMonster.Tests.Changes {
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void NormalizedNestedRecord_PreservesMissingPropertyInBothComparisons(bool sameNormalizedValue) {
+        [InlineData("scalar", false)]
+        [InlineData("constant", false)]
+        [InlineData("record", false)]
+        [InlineData("record", true)]
+        public void NormalizedNestedRecord_PreservesMissingPropertyInBothComparisons(string normalizer, bool added) {
             object before = new Dictionary<string, object?> { ["Config"] = new Dictionary<string, object?> { ["Port"] = 443 } };
             object after = new Dictionary<string, object?>();
             var options = new DiffOptions();
-            options.Normalize["Config"] = value => sameNormalizedValue || value != null ? "configured" : null;
+            options.Normalize["Config"] = value => normalizer == "record"
+                ? new Dictionary<string, object?> { ["Port"] = 443 }
+                : normalizer == "constant" || value != null ? "configured" : null;
+            if (added) { object present = before; before = after; after = present; }
             PropertyChange property = Assert.Single(ObjectDiff.CompareObjects(before, after, options));
             Assert.Equal("Config", property.Path);
-            Assert.True(property.HasBefore);
-            Assert.False(property.HasAfter);
+            Assert.Equal(!added, property.HasBefore);
+            Assert.Equal(added, property.HasAfter);
             string detailed = TestTerminal.RenderText(new ChangeView(ObjectDiff.Compare(before, after, options), ChangeViewMode.Full), 100, 0, GlyphTier.Ascii);
             Assert.Contains("(missing)", detailed);
             BaselineComparison baseline = ObjectDiff.CompareBaseline(new[] { before, after }, options);
             BaselineRow row = Assert.Single(baseline.Rows);
             Assert.Equal("Config", row.Path);
-            Assert.Equal(ChangeKind.Removed, row.Cells[1].Kind);
-            Assert.False(row.Cells[1].IsPresent);
+            Assert.Equal(added ? ChangeKind.Added : ChangeKind.Removed, row.Cells[1].Kind);
+            Assert.Equal(added, row.Cells[1].IsPresent);
             Assert.Contains("(missing)", TestTerminal.RenderText(new BaselineView(baseline), 100, 0, GlyphTier.Ascii));
         }
 

@@ -202,7 +202,9 @@ namespace ConsoleMonster.Changes {
                 return;
             }
             string label = path.Length == 0 ? "(value)" : path;
-            if ((!hasBefore || !hasAfter) && (depth >= options.Depth || IsCollection(before) || IsCollection(after) || IsLeaf(before) && IsLeaf(after))) {
+            if ((!hasBefore || !hasAfter) &&
+                (options.Normalize.ContainsKey(label) || depth >= options.Depth || IsCollection(before) ||
+                    IsCollection(after) || IsLeaf(before) && IsLeaf(after))) {
                 changes.Add(new PropertyChange(label, before, after, hasBefore, hasAfter));
                 return;
             }

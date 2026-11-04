@@ -100,11 +100,21 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             };
             diagram.ShowSummary = false;
             diagram.ShowLegend = false;
+            var captionBefore = chart?.Edges[0].LabelContent;
             string text = ConsoleExporter.ToText(diagram, new ExportOptions { Width = 120, Glyphs = tier, ColorDepth = ColorDepth.None });
             Assert.Matches("[┌╭+][─-]+[┐╮+]", text);
             Assert.DoesNotContain("Needs attention", text);
-            Assert.Contains(label == null ? marker : marker + " " + label, text);
-            if (chart != null) Assert.Equal(label, chart.Edges[0].Label);
+            string caption = Assert.Single(text.Split('\n'), line => line.Contains(label ?? marker));
+            int markerStart = label == null ? caption.IndexOf(marker, StringComparison.Ordinal)
+                : caption.IndexOf(label, StringComparison.Ordinal) - marker.Length - 1;
+            Assert.True(markerStart > 0);
+            Assert.Equal(marker, caption.Substring(markerStart, marker.Length));
+            Assert.Equal(' ', caption[markerStart - 1]);
+            Assert.Equal(' ', caption[markerStart + marker.Length]);
+            if (chart != null) {
+                Assert.Equal(label, chart.Edges[0].Label);
+                Assert.Same(captionBefore, chart.Edges[0].LabelContent);
+            }
         }
 
         [Theory]

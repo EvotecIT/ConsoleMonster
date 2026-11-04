@@ -181,7 +181,7 @@ namespace ConsoleMonster.Graphics {
                     string glyph = ascii ? SymbolFallback.GetGlyph(cell.Glyph, GlyphTier.Ascii, context.Profile.WidthProfile)
                         : basic ? BasicGlyph(cell.Glyph) : cell.Glyph;
                     Style style = CellStyle(cell, context);
-                    if (cell.Role == TopologyCellRole.EdgeLabel && cell.ElementId != null &&
+                    if (cell.Role == TopologyCellRole.EdgeLabel && cell.ElementId != null && cell.Glyph != " " &&
                         _linkStatusKinds.TryGetValue(cell.ElementId, out StatusKind linkStatus) && markedLinks.Add(cell.ElementId)) {
                         glyph = context.Glyphs.StatusSymbol(linkStatus);
                         style = context.Style(linkStatus);
