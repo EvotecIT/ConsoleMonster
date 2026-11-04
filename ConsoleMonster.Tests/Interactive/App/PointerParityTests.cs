@@ -59,6 +59,20 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void ScrollViewBar_DragReachesTheEndWhenTheLayoutIsFittedToTheWindow() {
+            // The view takes the rest of a window too short for its content, so the app fits the layout after measuring it.
+            ScrollView scroll = new ScrollView(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
+            using AppController app = new AppController(new Rows().Add(new TextInput("query"), LayoutSize.Fixed(3)).Add(scroll, LayoutSize.Fraction()), new AppState(), Context, 60);
+            app.PrepareFrame(80, 24);
+            app.Handle(InputEvent.Mouse(79, 4), true);
+            app.PrepareFrame(80, 24);
+            app.Handle(InputEvent.Pointer(79, 22, MouseAction.Move, heldButtons: 1), true);
+            app.PrepareFrame(80, 24);
+            app.Handle(InputEvent.Mouse(79, 22, pressed: false), true);
+            Assert.Contains("line 39", app.PrepareFrame(80, 24).ToPlainText());
+            Assert.Equal(20, scroll.ScrollOffset);
+        }
+        [Fact]
         public void Toggle_ClickFlipsLikeSpace() {
             Toggle agree = new Toggle("agree");
             using AppController app = new AppController(new Rows(new TextInput("name"), agree), new AppState(), Context, 60);

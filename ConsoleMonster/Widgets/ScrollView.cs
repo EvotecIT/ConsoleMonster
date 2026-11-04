@@ -26,12 +26,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Maximum rows composed for non-virtualized content. Use a list, grid or log for larger data.</summary>
         public int MaxContentHeight { get; set; } = 16384;
         /// <summary>The first visible content row, clamped after measurement.</summary>
-        public int ScrollOffset { get { lock (_gate) { return _offset; } } set { lock (_gate) { _offset = Math.Max(0, value); _revealRequested = false; } } }
+        public int ScrollOffset { get { lock (_gate) { return _hasRendered ? _shown : _offset; } } set { lock (_gate) { _offset = Math.Max(0, value); _shown = _offset; _revealRequested = false; } } }
+        private int _shown;
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => new[] { Content };
         /// <summary>Moves the viewport by a number of rows.</summary>
         /// <param name="rows">Positive values move down.</param>
-        public void ScrollBy(int rows) { lock (_gate) { _offset = (int)Math.Max(0, Math.Min(_maximum, (long)_offset + rows)); } }
+        public void ScrollBy(int rows) { lock (_gate) { _offset = (int)Math.Max(0, Math.Min(_maximum, (long)Math.Min(_offset, _maximum) + rows)); _shown = _offset; } }
         internal void RevealFocus() { lock (_gate) { _revealRequested = true; } }
         // Whether the last frame drew a scroll bar in the rightmost column (the content was taller than the view).
         internal bool HasScrollbar { get { lock (_gate) { return _maximum > 0; } } }
@@ -39,6 +40,7 @@ namespace ConsoleMonster.Widgets {
         internal void ScrollToFraction(int row, int height) {
             lock (_gate) {
                 _offset = height <= 1 ? 0 : (int)Math.Max(0, Math.Min(_maximum, Math.Round((double)Math.Max(0, Math.Min(height - 1, row)) * _maximum / (height - 1))));
+                _shown = _offset;
                 _revealRequested = false;
             }
         }
@@ -60,13 +62,15 @@ namespace ConsoleMonster.Widgets {
                     height = Math.Max(region.Height, Math.Min(MaxContentHeight, Content.Measure(new Constraints(width, MaxContentHeight), context).Height));
                 }
                 _maximum = height - region.Height;
-                _offset = Math.Min(_offset, _maximum);
+                // The requested offset survives a pass drawn at another height (a layout measured before it is fitted);
+                // each pass clamps its own copy.
+                int offset = Math.Min(_offset, _maximum);
                 InputArrangement.Record(this, region.Bounds);
                 Rect view = new Rect(region.Bounds.X, region.Bounds.Y, width, region.Height);
                 CellBuffer content = new CellBuffer(width, height);
-                int before = _offset;
+                int before = offset;
                 int mark = PointerTargets.Mark();
-                using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, view)) {
+                using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - offset, view)) {
                     Content.Render(new Region(content), context);
                     Rect? focus = InputArrangement.FocusWithin(Content);
                     InputControl? current = InputArrangement.CurrentFocus;
@@ -74,17 +78,19 @@ namespace ConsoleMonster.Widgets {
                     _hasRendered = true;
                     _lastFocus = current; _lastSize = new Size(region.Width, region.Height); _revealRequested = false;
                     if (reveal && focus.HasValue) {
-                        if (focus.Value.Y < _offset) { _offset = focus.Value.Y; }
-                        else if (focus.Value.Bottom > _offset + region.Height) { _offset = focus.Value.Bottom - region.Height; }
-                        _offset = Math.Max(0, Math.Min(_maximum, _offset));
+                        if (focus.Value.Y < offset) { offset = focus.Value.Y; }
+                        else if (focus.Value.Bottom > offset + region.Height) { offset = focus.Value.Bottom - region.Height; }
+                        offset = Math.Max(0, Math.Min(_maximum, offset));
+                        _offset = offset;
                     }
                 }
-                if (before != _offset) {
+                if (before != offset) {
                     content = new CellBuffer(width, height);
                     PointerTargets.Rewind(mark);
-                    using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - _offset, view)) { Content.Render(new Region(content), context); }
+                    using (InputArrangement.Translate(region.Bounds.X, region.Bounds.Y - offset, view)) { Content.Render(new Region(content), context); }
                 }
-                region.Buffer.Blit(content, 0, _offset, width, region.Height, region.Bounds.X, region.Bounds.Y);
+                _shown = offset;
+                region.Buffer.Blit(content, 0, offset, width, region.Height, region.Bounds.X, region.Bounds.Y);
                 if (width < region.Width) { DrawScrollbar(region, context); }
             }
         }
@@ -94,7 +100,7 @@ namespace ConsoleMonster.Widgets {
             int height = region.Height;
             int total = height + _maximum;
             int thumb = Math.Max(1, height * height / total);
-            int top = (int)Math.Round((height - thumb) * (_offset / (double)Math.Max(1, _maximum)));
+            int top = (int)Math.Round((height - thumb) * (_shown / (double)Math.Max(1, _maximum)));
             for (int y = 0; y < height; y++) {
                 bool onThumb = y >= top && y < top + thumb;
                 region.Put(region.Width - 1, y, onThumb ? glyphs.ScrollThumb : glyphs.ScrollTrack, context.Style(onThumb ? Styling.ThemeToken.Muted : Styling.ThemeToken.Subtle));
