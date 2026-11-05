@@ -491,7 +491,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(false)]
         [InlineData(true)]
         public void TextClick_AfterAJoinedEmojiLandsBetweenClusters(bool area) {
-            const string astronaut = "\U0001F469‍\U0001F680";
+            const string astronaut = "\U0001F469\u200D\U0001F680";
             InputControl input = area ? new TextArea("notes", astronaut + "x") : (InputControl)new TextInput("name", astronaut + "x");
             using AppController app = new AppController(new Rows(new Toggle("other"), input), new AppState(), Context, 60);
             string[] rows = Rows(app.PrepareFrame(80, 16));
@@ -545,6 +545,34 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal((0, 1), (a, b));
         }
 
+        [Fact]
+        public void TextAreaClick_AfterKeysShortenedTheTextBeforeAFrame_UsesTheCurrentRows() {
+            TextArea notes = new TextArea("notes", "a\nb");
+            using AppController app = new AppController(notes, new AppState(), Context, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int second = Array.FindIndex(rows, line => line.Contains("b"));
+            int column = rows[second].IndexOf("b", StringComparison.Ordinal);
+            // The caret goes to the end, then the second row is deleted; the click lands on the row the last frame drew.
+            app.Handle(InputEvent.Press(ConsoleKey.End, KeyModifiers.Control), true);
+            app.Handle(InputEvent.Press(ConsoleKey.Backspace), true);
+            app.Handle(InputEvent.Press(ConsoleKey.Backspace), true);
+            Click(app, column + 1, second);
+            app.Handle(InputEvent.Character('Y'), true);
+            Assert.Equal("aY", notes.CurrentValue);
+        }
+
+        [Fact]
+        public void MaskedTextInput_DrawsAndClicksOneCellPerCluster() {
+            TextInput secret = new TextInput("secret", "e\u0301x") { Mask = "*" };
+            using AppController app = new AppController(new Rows(new Toggle("other"), secret), new AppState(), Context, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 14));
+            int row = Array.FindIndex(rows, line => line.Contains("**"));
+            Assert.True(row >= 0, string.Join("\n", rows));
+            Assert.DoesNotContain("***", rows[row]);
+            Click(app, rows[row].IndexOf("**", StringComparison.Ordinal) + 1, row);
+            app.Handle(InputEvent.Character('Y'), true);
+            Assert.Equal("e\u0301Yx", secret.CurrentValue);
+        }
         private static void ChooseFromMenu(AppController app, string label) {
             app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
             // An ordinary redraw in the same scope keeps the menu.

@@ -89,6 +89,9 @@ namespace ConsoleMonster.Interactive {
         protected override bool HandlePointerCore(Input.InputEvent input, RenderContext context) {
             // A click places the caret; dragging selects, as Shift with the movement keys does.
             Rect text = _textBounds;
+            // Keys handled since the last frame may have changed the text: hit-test against rows laid out for it now.
+            _layoutWidth = _layoutWidth > 0 ? _layoutWidth : Math.Max(1, context.Profile.Width - 6);
+            _editor.Layout(_layoutWidth, context.Glyphs.Tier);
             bool inside = input.Column >= text.X - 2 && input.Column < text.Right && input.Row >= text.Y && input.Row < text.Bottom;
             if (input.MouseAction == Input.MouseAction.Down && input.MouseButton == 1) {
                 if (!inside) { return false; }
@@ -120,14 +123,15 @@ namespace ConsoleMonster.Interactive {
             int index = Math.Max(0, Math.Min(_editor.Rows.Count - 1, ScrollRow + row));
             string value = _editor.Text;
             int[] span = _editor.Rows[index];
-            int end = Math.Min(span[1], value.Length);
-            if (end > span[0] && value[end - 1] == '\n') { end--; }
+            int start = Math.Min(span[0], value.Length);
+            int end = Math.Max(start, Math.Min(span[1], value.Length));
+            if (end > start && value[end - 1] == '\n') { end--; }
             // Whole display clusters, as the layout measures them: a click never lands inside a joined emoji.
-            string line = value.Substring(span[0], end - span[0]);
+            string line = value.Substring(start, end - start);
             int used = 0;
             foreach (TextCluster cluster in DisplayWidth.Clusters(line)) {
                 int width = Cells(line.Substring(cluster.Start, cluster.Length), tier);
-                if (column < used + (width + 1) / 2) { return span[0] + cluster.Start; }
+                if (column < used + (width + 1) / 2) { return start + cluster.Start; }
                 used += width;
             }
             return end;

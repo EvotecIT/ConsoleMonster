@@ -167,11 +167,10 @@ namespace ConsoleMonster.Interactive {
             if (Mask.Length == 0) {
                 return string.Empty;
             }
+            // One mask per display cluster, the unit the caret and a click move by, so an accented letter is one cell.
             int count = 0;
-            for (int i = 0; i < text.Length; i++) {
-                if (!char.IsLowSurrogate(text[i])) {
-                    count++;
-                }
+            foreach (TextCluster _ in DisplayWidth.Clusters(text)) {
+                count++;
             }
             List<string> parts = new List<string>(count);
             for (int i = 0; i < count; i++) {
