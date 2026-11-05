@@ -25,6 +25,7 @@ namespace ConsoleMonster.Interactive {
 
         public Size Measure(Constraints constraints, RenderContext context) {
             lock (_gate) {
+                using IDisposable state = _arrangement.StateScope();
                 ConstrainInputs(constraints.MaxHeight);
                 Size natural = _content.Measure(new Constraints(constraints.MaxWidth), context);
                 return new Size(natural.Width, Math.Min(natural.Height, constraints.MaxHeight));
@@ -33,6 +34,7 @@ namespace ConsoleMonster.Interactive {
 
         public void Render(Region region, RenderContext context) {
             lock (_gate) {
+                using IDisposable state = _arrangement.StateScope();
                 _bounds = region.Bounds;
                 _mark = PointerTargets.Mark();
                 if (region.Width == 0 || region.Height == 0) { return; }

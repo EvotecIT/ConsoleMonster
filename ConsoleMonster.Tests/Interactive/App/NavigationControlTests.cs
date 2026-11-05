@@ -334,6 +334,28 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal(0.75, state["Panes"]);
         }
 
+        // A rebuilt keyed splitter measures with the ratio the app state holds, so the first frame after each binding
+        // rebuild already draws both panes in full, with the following row below them.
+        [Fact]
+        public void AKeyedVerticalSplitterWithASavedRatioDrawsBothPanesOnTheFirstFrameAfterEachRebuild() {
+            var state = new AppState();
+            state["Panes"] = 0.8;
+            var layout = new Rows(
+                new AppBinding(s => new Splitter(TextBlock.Plain("top " + s.Get("Round", 0)), TextBlock.Plain("bottom\nmore\nlast")) { Vertical = true, Key = "Panes" }),
+                TextBlock.Plain("AFTER"));
+            using var app = new AppController(layout, state, Context, 60);
+            for (int round = 1; round <= 3; round++) {
+                state["Round"] = round;
+                app.Refresh(null);
+                string[] lines = app.PrepareFrame(30, 60).ToPlainText().Split('\n').Select(line => line.TrimEnd()).ToArray();
+                int bottom = Array.IndexOf(lines, "bottom");
+                Assert.True(Array.IndexOf(lines, "top " + round) >= 0 && bottom >= 0, string.Join("\n", lines));
+                Assert.Equal(new[] { "more", "last" }, lines.Skip(bottom + 1).Take(2));
+                Assert.True(Array.IndexOf(lines, "AFTER") > bottom + 2, string.Join("\n", lines));
+            }
+            Assert.Equal(0.8, state["Panes"]);
+        }
+
         // Sized to its content, a vertical splitter draws both panes in full at any ratio, and what follows it stays below.
         [Theory]
         [InlineData(0.5)]

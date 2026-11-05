@@ -68,13 +68,14 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             IWidget first, second;
-            lock (_gate) { first = _first; second = _second; }
+            double ratio;
+            lock (_gate) { first = _first; second = _second; ratio = EffectiveRatio(InputArrangement.CurrentState); }
             if (Vertical) {
                 int top = first.Measure(new Constraints(constraints.MaxWidth), context).Height;
                 int bottom = second.Measure(new Constraints(constraints.MaxWidth), context).Height;
-                return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, FittingHeight(top, bottom, constraints.MaxHeight)));
+                return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, FittingHeight(top, bottom, constraints.MaxHeight, ratio)));
             }
-            int left = Split(constraints.MaxWidth);
+            int left = Split(constraints.MaxWidth, ratio);
             int right = Math.Max(0, constraints.MaxWidth - left - 1);
             int height = Math.Max(first.Measure(constraints.Width(left), context).Height, second.Measure(constraints.Width(right), context).Height);
             return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, height));
@@ -178,11 +179,11 @@ namespace ConsoleMonster.Widgets {
 
         // The least height whose split by the ratio gives the top pane at least its rows and the bottom pane at least its own,
         // so a splitter sized to its content draws both panes in full.
-        private int FittingHeight(int top, int bottom, int limit) {
+        private static int FittingHeight(int top, int bottom, int limit, double ratio) {
             int height = top + 1 + bottom;
             int most = limit == Constraints.Unbounded ? height * 21 : limit;
             for (int candidate = Math.Max(3, height); candidate <= most; candidate++) {
-                int split = Split(candidate);
+                int split = Split(candidate, ratio);
                 if (split >= top && candidate - split - 1 >= bottom) { return candidate; }
             }
             return height;
@@ -192,9 +193,13 @@ namespace ConsoleMonster.Widgets {
         internal int FirstExtent(int extent) => Split(extent);
 
         private int Split(int extent) {
-            if (extent < 3) { return Math.Max(0, extent - 1) / 2; }
             double ratio;
             lock (_gate) { ratio = _ratio; }
+            return Split(extent, ratio);
+        }
+
+        private static int Split(int extent, double ratio) {
+            if (extent < 3) { return Math.Max(0, extent - 1) / 2; }
             return Math.Max(1, Math.Min(extent - 2, (int)Math.Floor(extent * ratio)));
         }
 
@@ -202,10 +207,17 @@ namespace ConsoleMonster.Widgets {
         // Returns false when a keyed splitter in an app finds no ratio under its key, so the caller publishes its own.
         private bool Restore() {
             if (_state == null || string.IsNullOrEmpty(Key)) { return true; }
-            if (!_state.TryGetValue(Key!, out object? stored)) { return false; }
-            double? ratio = stored is double d ? d : stored is float f ? f : stored is decimal m ? (double)m : stored is int i ? i : (double?)null;
-            if (ratio.HasValue && !double.IsNaN(ratio.Value)) { _ratio = Math.Max(0.05, Math.Min(0.95, ratio.Value)); }
+            if (!_state.TryGetValue(Key!, out _)) { return false; }
+            _ratio = EffectiveRatio(_state);
             return true;
+        }
+
+        // The ratio a keyed splitter uses with this state: the number stored under its key, else its own. Read-only, so
+        // measuring (which can run before the splitter is drawn, and on a rebuilt instance) agrees with drawing.
+        private double EffectiveRatio(AppState? state) {
+            if (state == null || string.IsNullOrEmpty(Key) || !state.TryGetValue(Key!, out object? stored)) { return _ratio; }
+            double? ratio = stored is double d ? d : stored is float f ? f : stored is decimal m ? (double)m : stored is int i ? i : (double?)null;
+            return ratio.HasValue && !double.IsNaN(ratio.Value) ? Math.Max(0.05, Math.Min(0.95, ratio.Value)) : _ratio;
         }
 
         // Writes the ratio to the app state after the splitter lock is released: the write notifies the app and its bindings.
