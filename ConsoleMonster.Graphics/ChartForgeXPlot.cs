@@ -50,9 +50,11 @@ namespace ConsoleMonster.Graphics {
             return color.HasValue ? Style.Plain.WithColor(CmColor.FromRgb(color.Value.R, color.Value.G, color.Value.B)).Downsample(context.Depth)
                 : context.Style((ThemeToken)((int)ThemeToken.Series1 + (series % 6)));
         }
-        // Every series is read at the selected point's X; a series without a point there has no value.
+        // The first series supplies the points, so it reads its own point; every other series is read at that point's X
+        // (its first point there), and a series without a point there has no value.
         public override double? Value(int series, int index) {
             if (index < 0 || index >= _x.Length || series < 0 || series >= _chart.Series.Count) { return null; }
+            if (series == 0) { return _chart.Series[0].Points[index].Y; }
             _values ??= new Dictionary<double, double>?[_chart.Series.Count];
             Dictionary<double, double> byX = _values[series] ??= ByX(_chart.Series[series].Points);
             return byX.TryGetValue(_x[index], out double value) ? value : (double?)null;

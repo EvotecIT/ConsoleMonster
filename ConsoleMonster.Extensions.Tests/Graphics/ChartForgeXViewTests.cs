@@ -96,6 +96,21 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             await run;
         }
 
+        // Points of the first series that share an X keep their own values under the crosshair.
+        [Fact]
+        public async Task PointsThatShareAnXReadTheirOwnValues() {
+            Chart chart = Chart.Create();
+            chart.AddSeries(new ChartSeries(new ChartSeriesId("a"), "a", ChartSeriesKind.Line, new[] { new ChartPoint(0, 1), new ChartPoint(1, 10), new ChartPoint(1, 20), new ChartPoint(2, 3) }));
+            using var terminal = new HeadlessTerminal(90, 22);
+            Task<AppState> run = Run(terminal, new ChartView("steps", chart.ToChartPlot()));
+            terminal.WaitForText("2: a 3", Wait);
+            terminal.Send("Left");
+            terminal.WaitForText("1: a 20", Wait);
+            terminal.Send("Left");
+            terminal.WaitForText("1: a 10", Wait);
+            terminal.Send("Escape");
+            await run;
+        }
         private static Task<AppState> Run(HeadlessTerminal terminal, IWidget layout) =>
             ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {
                 Interactive = new InteractiveOptions { Target = terminal, Labels = new PromptLabels() },

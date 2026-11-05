@@ -112,6 +112,47 @@ namespace ConsoleMonster.Tests.Interactive.App {
             await run;
         }
 
+        // Opening a dropdown and moving over its list change nothing, so a value a callback wrote stays in state.
+        [Fact]
+        public async Task InputThatLeavesASelectionWhereItWasDoesNotOverwriteTheSharedValue() {
+            var pick = new Select("pick", Enumerable.Range(1, 3).Select(i => new Choice(i, "minute " + i))) { SelectionKey = "minute", Dropdown = true };
+            var state = new AppState();
+            ConsoleAppOptions options = null!;
+            DataGrid below = Samples();
+            below.SelectionKey = null;
+            using var terminal = new HeadlessTerminal(80, 30);
+            options = Options(terminal);
+            options.KeyBindings.Add(new KeyBinding("far", () => state["minute"] = 99, new KeyChord(ConsoleKey.F5)));
+            Task<AppState> run = ConsoleApp.RunAsync(new Rows(pick, below), state, options);
+            terminal.WaitForText("pick", Wait);
+            terminal.Send("F5");
+            Until(() => Equals(state.Get<object?>("minute"), 99));
+            Click(terminal, "▾");
+            terminal.WaitForText("minute 3", Wait);
+            string[] rows = terminal.Snapshot().ToPlainText().Split('\n');
+            int y = Array.FindLastIndex(rows, row => row.Contains("minute 1"));
+            terminal.Send(InputEvent.Pointer(rows[y].IndexOf("minute 1", StringComparison.Ordinal) + 1, y, MouseAction.Move));
+            terminal.Send("F6");
+            terminal.WaitForText("minute 3", Wait);
+            Assert.Equal(99, state.Get<object?>("minute"));
+            terminal.Send("Escape Escape");
+            await run;
+        }
+
+        // A handler that moves the shared key while the grid publishes moves the grid too.
+        [Fact]
+        public async Task APublisherFollowsANestedWriteToAnotherPosition() {
+            DataGrid table = Samples();
+            var state = new AppState();
+            state.Changed += (_, change) => { if (change.Key == "minute" && Equals(change.Value, 2)) { state["minute"] = 5; } };
+            using var terminal = new HeadlessTerminal(80, 20);
+            Task<AppState> run = ConsoleApp.RunAsync(table, state, Options(terminal));
+            terminal.WaitForText("Samples", Wait);
+            terminal.Send("Down Down");
+            Until(() => Equals(state.Get<object?>("minute"), 5) && table.Cursor == 5);
+            terminal.Send("Escape");
+            await run;
+        }
         private static ConsoleAppOptions Options(HeadlessTerminal terminal) => new ConsoleAppOptions {
             Interactive = new InteractiveOptions { Target = terminal, Labels = new PromptLabels() },
             Live = new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false }
