@@ -140,6 +140,9 @@ namespace ConsoleMonster.Interactive {
         // Lists, trees and grids: a double click on a row presses Enter, so it opens the row the way the keyboard does.
         internal virtual bool OpensOnDoubleClick => false;
 
+        // A focus stop that only moves between views (a tab strip); initial focus goes to the first other control.
+        internal virtual bool NavigationOnly => false;
+
         // A pointer event inside this control's popup on the app overlay layer, in frame coordinates.
         internal bool HandlePopupInput(InputEvent input, RenderContext context) {
             object? before;

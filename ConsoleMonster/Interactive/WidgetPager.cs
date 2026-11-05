@@ -20,8 +20,18 @@ namespace ConsoleMonster.Interactive {
         /// <param name="cancellationToken">Cancels the interaction.</param>
         /// <param name="contentWidth">An optional maximum document width, retained when the physical surface resizes.</param>
         /// <returns>True if a pager ran, including when the reader quit; false if static output is appropriate.</returns>
+        /// <remarks>
+        /// Markdown with headings and a command's help open in the document viewer: an outline beside the text, the
+        /// current section pinned at the top, folding headings, tabs for a help topic's parts, find, links with back and
+        /// forward history, and Ctrl+K to go to a section or parameter. Other content scrolls as a plain page.
+        /// </remarks>
         public static bool TryShow(IWidget content, string? title = null, InteractiveOptions? options = null,
-            CancellationToken cancellationToken = default, int? contentWidth = null) {
+            CancellationToken cancellationToken = default, int? contentWidth = null) =>
+            TryShow(content, title, options, cancellationToken, contentWidth, null);
+
+        /// <summary>As the public overload, with a resolver for help links: it returns the view of a named command or topic, or null.</summary>
+        internal static bool TryShow(IWidget content, string? title, InteractiveOptions? options,
+            CancellationToken cancellationToken, int? contentWidth, Func<string, IWidget?>? openHelp) {
             if (content == null) {
                 throw new ArgumentNullException(nameof(content));
             }
@@ -53,7 +63,11 @@ namespace ConsoleMonster.Interactive {
                         surface = PromptHost.Resolve(context, interactive.ResolveTarget()) ?? new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize());
                         owns = true;
                     }
-                    WidgetPagerView view = new WidgetPagerView(content, title ?? LabelText.Get("Document.Title", profile.Language), interactive.ResolveLabels(), contentWidth);
+                    string heading = title ?? LabelText.Get("Document.Title", profile.Language);
+                    DocumentModel? model = DocumentModel.From(content, heading, context, openHelp != null);
+                    InteractiveView view = model != null
+                        ? new DocumentView(content, heading, model, interactive.ResolveLabels(), contentWidth, openHelp)
+                        : new WidgetPagerView(content, heading, interactive.ResolveLabels(), contentWidth);
                     using IDisposable? mouse = InteractionLoop.OpenMouse(interactive, profile, lease.Source, surface, interactive.Surface != null);
                     InteractionLoop.Run(view, lease.Source, surface, context, cancellationToken, interactive.ResolveMouse());
                     surface.Complete(null);

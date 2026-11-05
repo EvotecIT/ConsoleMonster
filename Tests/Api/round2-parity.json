@@ -17582,6 +17582,21 @@
           "CSharpTypeName": "System.Boolean"
         },
         {
+          "Parameter": "NoPager",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Writes the help instead of opening the document viewer; C# hosts choose between WidgetPager.TryShow and Terminal.Write."
+        },
+        {
           "Parameter": "NoParameters",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -24177,6 +24192,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Help.HelpTopic",
+      "Member": "Module",
+      "CSharpTypeName": "System.String",
+      "Reason": "PowerShell reads Module from native Get-Help/command metadata; C# application hosts construct their own help model.",
+      "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
+      "Disposition": "RuntimeModel"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Help.HelpTopic",
       "Member": "Notes",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "PowerShell reads Notes from native Get-Help/command metadata; C# application hosts construct their own help model.",
@@ -24209,6 +24232,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Help.HelpTopic",
+      "Member": "SupportsWhatIf",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "PowerShell reads SupportsWhatIf from native Get-Help/command metadata; C# application hosts construct their own help model.",
+      "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
+      "Disposition": "RuntimeModel"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Help.HelpTopic",
       "Member": "Synopsis",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell reads Synopsis from native Get-Help/command metadata; C# application hosts construct their own help model.",
@@ -24220,6 +24251,14 @@
       "Member": "Syntax",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Help.HelpSyntax]",
       "Reason": "PowerShell reads Syntax from native Get-Help/command metadata; C# application hosts construct their own help model.",
+      "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
+      "Disposition": "RuntimeModel"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Help.HelpTopic",
+      "Member": "Version",
+      "CSharpTypeName": "System.String",
+      "Reason": "PowerShell reads Version from native Get-Help/command metadata; C# application hosts construct their own help model.",
       "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
       "Disposition": "RuntimeModel"
     },
@@ -28345,6 +28384,70 @@
       "Command": "New-ConsoleScreen",
       "Parameter": "Title",
       "Reason": "A script block title becomes TitleSource and runs with $State on the app input thread."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyTabs",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'tabs' caption (Key hint: move between the tabs of a tab strip.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyTabs catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyOpenTab",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'open tab' caption (Key hint: the number keys that open a tab.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyOpenTab catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyOutline",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'outline' caption (Key hint: show or hide a document's outline.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyOutline catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyGoTo",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'go to' caption (Key hint: go to a section or parameter of a document.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyGoTo catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyLinks",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'links' caption (Key hint: move between the links of a document.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyLinks catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyFollow",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'open/fold' caption (Key hint: follow the selected link, or fold the current section.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyFollow catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyBackForward",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'back/forward' caption (Key hint: go back and forward through the places a document's links led to.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyBackForward catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "LinkUnavailable",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.SelectionInputBase",
