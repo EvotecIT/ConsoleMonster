@@ -58,7 +58,7 @@ Removes the breadcrumb from keyboard focus traversal and pointer input.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: Segment, Outline
 Aliases: None
 Possible values:
 
@@ -74,7 +74,7 @@ Unique key in the application's state; the value is the last segment opened.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Segment, Outline
 Aliases: None
 Possible values:
 
@@ -90,7 +90,7 @@ Runs once each time a segment is opened, on the owning input thread. Receives pa
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: (All)
+Parameter Sets: Segment, Outline
 Aliases: None
 Possible values:
 
@@ -138,7 +138,7 @@ Keyboard focus order. Equal values preserve layout declaration order.
 
 ```yaml
 Type: Int32
-Parameter Sets: (All)
+Parameter Sets: Segment, Outline
 Aliases: None
 Possible values:
 

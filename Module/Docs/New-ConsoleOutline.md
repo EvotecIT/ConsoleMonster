@@ -39,7 +39,7 @@ Disables the outline and removes it from keyboard focus traversal.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -55,7 +55,7 @@ The entries: titles, or records with Title, Level (1 for the top) and Target (a 
 
 ```yaml
 Type: Object[]
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -71,7 +71,7 @@ Unique key in the application's state; the value is the current entry's title.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -87,7 +87,7 @@ Runs once each time an entry is opened, on the owning input thread. Receives par
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -103,7 +103,7 @@ The index of the entry that starts current; -1 (the default) for none.
 
 ```yaml
 Type: Int32
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -119,7 +119,7 @@ Keyboard focus order. Equal values preserve layout declaration order.
 
 ```yaml
 Type: Int32
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 

@@ -6878,7 +6878,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>Segments</maml:name>
           <maml:description>
             <maml:para>The segments, outermost first.</maml:para>
@@ -6905,7 +6905,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Outline">
         <maml:name>New-ConsoleBreadcrumb</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Ancestors</maml:name>
           <maml:description>
             <maml:para>Segments shown before the outline's headings, such as the screen or tab name.</maml:para>
@@ -6980,7 +6980,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Ancestors</maml:name>
         <maml:description>
           <maml:para>Segments shown before the outline's headings, such as the screen or tab name.</maml:para>
@@ -7040,7 +7040,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>Segments</maml:name>
         <maml:description>
           <maml:para>The segments, outermost first.</maml:para>
@@ -7082,10 +7082,10 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1&#xD;
-            Show-ConsoleApp -Content {&#xD;
-                New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections&#xD;
-                $sections&#xD;
-            }</dev:code>
+Show-ConsoleApp -Content {&#xD;
+    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections&#xD;
+    $sections&#xD;
+}</dev:code>
         <dev:remarks>
           <maml:para>Show where the reader is in an outline.</maml:para>
         </dev:remarks>
@@ -8944,7 +8944,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PointLabels</maml:name>
           <maml:description>
             <maml:para>Labels for the points along X, such as times, read out with their values.</maml:para>
@@ -9067,7 +9067,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PointLabels</maml:name>
         <maml:description>
           <maml:para>Labels for the points along X, such as times, read out with their values.</maml:para>
@@ -9121,12 +9121,12 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }&#xD;
-            $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(&#xD;
-                @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })&#xD;
-            Show-ConsoleApp -Content {&#xD;
-                New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute&#xD;
-                New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 8 -LinkKey Minute&#xD;
-            }</dev:code>
+$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(&#xD;
+    @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })&#xD;
+Show-ConsoleApp -Content {&#xD;
+    New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute&#xD;
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -LinkKey Minute&#xD;
+}</dev:code>
         <dev:remarks>
           <maml:para>Explore CPU and memory samples next to the table they came from</maml:para>
         </dev:remarks>
@@ -10325,7 +10325,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>InputObject</maml:name>
           <maml:description>
             <maml:para>The objects to list, one row each; the row is the object a selection returns.</maml:para>
@@ -10397,7 +10397,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Property</maml:name>
           <maml:description>
             <maml:para>Columns: names, wildcards and calculated properties with the Show-ConsoleTable column options.</maml:para>
@@ -10472,7 +10472,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>InputObject</maml:name>
         <maml:description>
           <maml:para>The objects to list, one row each; the row is the object a selection returns.</maml:para>
@@ -10544,7 +10544,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Property</maml:name>
         <maml:description>
           <maml:para>Columns: names, wildcards and calculated properties with the Show-ConsoleTable column options.</maml:para>
@@ -18565,7 +18565,7 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>Items</maml:name>
           <maml:description>
             <maml:para>The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).</maml:para>
@@ -18640,7 +18640,7 @@ Description and RunText.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>Items</maml:name>
         <maml:description>
           <maml:para>The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).</maml:para>
@@ -18718,12 +18718,12 @@ Description and RunText.</maml:para>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }&#xD;
-            $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }&#xD;
-            Show-ConsoleApp -Content {&#xD;
-                New-ConsoleSplitter -Ratio 0.3 -First {&#xD;
-                    New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })&#xD;
-                } -Second { $proxy; $dns }&#xD;
-            }</dev:code>
+$dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }&#xD;
+Show-ConsoleApp -Content {&#xD;
+    New-ConsoleSplitter -Ratio 0.3 -First {&#xD;
+        New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })&#xD;
+    } -Second { $proxy; $dns }&#xD;
+}</dev:code>
         <dev:remarks>
           <maml:para>Jump between the sections of a settings page.</maml:para>
         </dev:remarks>
@@ -20826,7 +20826,7 @@ Description and RunText.</maml:para>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleSelect</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Choices</maml:name>
           <maml:description>
             <maml:para>Choices as objects or existing Choice values. Objects themselves become the selected values.</maml:para>
@@ -20997,7 +20997,7 @@ Description and RunText.</maml:para>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Choices</maml:name>
         <maml:description>
           <maml:para>Choices as objects or existing Choice values. Objects themselves become the selected values.</maml:para>
@@ -23252,7 +23252,13 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues>
       <command:returnValue>
         <dev:type>
@@ -32549,9 +32555,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>NoParameters</maml:name>
+          <maml:name>NoPager</maml:name>
           <maml:description>
-            <maml:para>Leaves out the detailed parameter reference.</maml:para>
+            <maml:para>Writes the help to the console instead of opening the document viewer, also on an interactive terminal.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -32561,9 +32567,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>NoPager</maml:name>
+          <maml:name>NoParameters</maml:name>
           <maml:description>
-            <maml:para>Writes the help to the console instead of opening the document viewer, also on an interactive terminal.</maml:para>
+            <maml:para>Leaves out the detailed parameter reference.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -32624,9 +32630,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>NoParameters</maml:name>
+        <maml:name>NoPager</maml:name>
         <maml:description>
-          <maml:para>Leaves out the detailed parameter reference.</maml:para>
+          <maml:para>Writes the help to the console instead of opening the document viewer, also on an interactive terminal.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -32636,9 +32642,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>NoPager</maml:name>
+        <maml:name>NoParameters</maml:name>
         <maml:description>
-          <maml:para>Writes the help to the console instead of opening the document viewer, also on an interactive terminal.</maml:para>
+          <maml:para>Leaves out the detailed parameter reference.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -33245,7 +33251,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Exclude</maml:name>
           <maml:description>
             <maml:para>Member names to skip without invoking their getters, supporting wildcards.</maml:para>
@@ -33257,7 +33263,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Include</maml:name>
           <maml:description>
             <maml:para>Member names to include, supporting wildcards.</maml:para>
@@ -33335,6 +33341,10 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
             <maml:para>Value (default) or Path. The positional form supports -PassThru Path.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Value</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
+          </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -33368,7 +33378,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Exclude</maml:name>
         <maml:description>
           <maml:para>Member names to skip without invoking their getters, supporting wildcards.</maml:para>
@@ -33380,7 +33390,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Include</maml:name>
         <maml:description>
           <maml:para>Member names to include, supporting wildcards.</maml:para>
@@ -33458,6 +33468,10 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <maml:para>Value (default) or Path. The positional form supports -PassThru Path.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Value</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
+        </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -33477,7 +33491,13 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues>
       <command:returnValue>
         <dev:type>

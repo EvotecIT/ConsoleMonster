@@ -92,7 +92,7 @@ Writes the help to the console instead of opening the document viewer, also on a
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 
@@ -102,6 +102,7 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
 ### -NoParameters
 Leaves out the detailed parameter reference.
 
