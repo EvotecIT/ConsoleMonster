@@ -40,6 +40,9 @@ namespace ConsoleMonster.Interactive {
         private readonly List<ILinkedSelection> _linked = new List<ILinkedSelection>();
         // The control whose selection is being written to state: it already shows it, so it does not follow its own write.
         private ILinkedSelection? _sharing;
+        // Keys written while one input event is handled, including by the control's own Changed handlers: a selection
+        // the input changed is not published over a value written after it.
+        private readonly HashSet<string> _written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null, bool staticView = false) {
             _options = options ?? new ConsoleAppOptions();
@@ -104,6 +107,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void HandleCore(InputEvent input, bool mouse, ref bool reachedKeys) {
+            lock (_written) { _written.Clear(); }
             if (_tooSmall && input.Kind != InputEventKind.Resize) {
                 if (input.Is(ConsoleKey.C, KeyModifiers.Control) || AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
                 return;
@@ -356,6 +360,7 @@ namespace ConsoleMonster.Interactive {
             }
         }
         private void StateChanged(object? sender, AppValueChangedEventArgs change) {
+            lock (_written) { _written.Add(change.Key); }
             foreach (ILinkedSelection control in _linked) {
                 if (!string.Equals(control.SelectionKey, change.Key, StringComparison.OrdinalIgnoreCase)) { continue; }
                 // A notification delivered after a nested write carries an older value; follow what state holds now.
@@ -389,6 +394,7 @@ namespace ConsoleMonster.Interactive {
             string? key = control.SelectionKey;
             int? index = string.IsNullOrEmpty(key) ? null : control.SelectedIndex;
             if (key == null || !index.HasValue || index == before) { return; }
+            lock (_written) { if (_written.Contains(key)) { return; } }
             _sharing = control;
             try { _state[key] = index.Value; }
             finally { _sharing = null; }

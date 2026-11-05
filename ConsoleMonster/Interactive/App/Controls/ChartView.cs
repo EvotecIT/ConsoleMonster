@@ -255,6 +255,8 @@ namespace ConsoleMonster.Interactive {
             int cursor = CursorCore();
             region.Write(0, 0, TextWrapper.Truncate(Readout(cursor, context, true), region.Width, context.Ellipsis));
             if (region.Height < 2) { _layout = null; return; }
+            // A plot that can no longer hide a series (ChartForgeX refused the view) shows it again.
+            _hidden.RemoveWhere(series => !_plot.CanHide(series));
             Region body = region.Sub(0, 1, region.Width, region.Height - 1);
             ChartPlotLayout layout = _plot.Render(body, context, Level, _pan, _hidden);
             _layout = layout;

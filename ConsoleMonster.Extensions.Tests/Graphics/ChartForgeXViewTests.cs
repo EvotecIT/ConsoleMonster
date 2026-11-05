@@ -59,12 +59,17 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         [Theory]
         [InlineData("mixed identities")]
         [InlineData("step lines")]
+        [InlineData("point legend")]
         public async Task LegendKeysLeaveSeriesShownWhereTheChartCannotHideThem(string shape) {
             Chart chart = Chart.Create();
             ChartPoint[] Points(double offset) => Enumerable.Range(0, 10).Select(i => new ChartPoint(i, offset + i)).ToArray();
             if (shape == "mixed identities") {
                 chart.AddSeries(new ChartSeries(new ChartSeriesId("api"), "api", ChartSeriesKind.Line, Points(10)));
                 chart.AddLine("web", Points(20));
+            } else if (shape == "point legend") {
+                chart.WithPointLegend();
+                chart.AddSeries(new ChartSeries(new ChartSeriesId("api"), "api", ChartSeriesKind.Line, Points(10)));
+                chart.AddSeries(new ChartSeries(new ChartSeriesId("web"), "web", ChartSeriesKind.Line, Points(20)));
             } else {
                 chart.AddSeries(new ChartSeries(new ChartSeriesId("api"), "api", ChartSeriesKind.StepLine, Points(10)));
                 chart.AddSeries(new ChartSeries(new ChartSeriesId("web"), "web", ChartSeriesKind.StepLine, Points(20)));
@@ -76,6 +81,10 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             terminal.Send("\"1\" Left");
             terminal.WaitForText("8: api 18, web 28", Wait);
             Assert.False(view.IsHidden(0));
+            view.SetHidden(0, true);
+            Assert.False(view.IsHidden(0));
+            terminal.Send("\"+\" Left");
+            terminal.WaitForText("7: api 17, web 27", Wait);
             Assert.DoesNotContain("render error", terminal.Snapshot().ToPlainText());
             terminal.Send("Escape");
             await run;

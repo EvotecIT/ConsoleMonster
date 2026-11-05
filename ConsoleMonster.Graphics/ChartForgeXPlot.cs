@@ -31,6 +31,7 @@ namespace ConsoleMonster.Graphics {
         private string? _sceneKey;
         private Scene? _scene;
         private Dictionary<double, double>?[]? _values;
+        private bool? _hideable;
 
         internal ChartForgeXPlot(Chart chart, ChartXZoomLevels levels) {
             _chart = chart ?? throw new ArgumentNullException(nameof(chart));
@@ -39,8 +40,6 @@ namespace ConsoleMonster.Graphics {
             _x = first == null ? Array.Empty<double>() : first.Points.Select(point => point.X).ToArray();
         }
 
-        // How many times the source chart was prepared: once per bank, plus once per view with hidden series.
-        internal int Preparations { get; private set; }
 
         public override int Count => _x.Length;
         public override int SeriesCount => _chart.Series.Count;
@@ -65,10 +64,27 @@ namespace ConsoleMonster.Graphics {
             foreach (ChartPoint point in points) { if (!byX.ContainsKey(point.X)) { byX[point.X] = point.Y; } }
             return byX;
         }
-        // ChartForgeX prepares a visibility view only when every series is a Line with its own identity, so hiding is
-        // offered for the whole chart or not at all.
-        public override bool CanHide(int series) => series >= 0 && series < _chart.Series.Count
-            && _chart.Series.All(item => item.Kind == ChartSeriesKind.Line && !item.Id.IsAutomatic);
+        // Hiding is offered for the whole chart or not at all, as ChartForgeX itself decides: the first time it is asked,
+        // the plot prepares a small visibility view and keeps the answer. A view that still fails while drawing turns
+        // hiding off for good and shows every series.
+        public override bool CanHide(int series) => series >= 0 && series < _chart.Series.Count && Hideable;
+
+        private bool Hideable {
+            get {
+                if (!_hideable.HasValue) {
+                    try {
+                        var probe = new VisualRenderContext(new VisualLayoutOptions(new VisualSize(320, 160), 8), frame: new VisualFrame(showLegend: false, transparentBackground: true));
+                        _chart.PrepareVisibility(probe, new ChartVisibilityView(new[] { _chart.Series[0].Id }));
+                        _hideable = true;
+                    } catch (Exception error) when (Unsupported(error)) {
+                        _hideable = false;
+                    }
+                }
+                return _hideable.Value;
+            }
+        }
+
+        private static bool Unsupported(Exception error) => error is NotSupportedException || error is ArgumentException || error is InvalidOperationException;
         public override string FormatValue(double value, RenderContext context) => value.ToString("0.##", context.Culture);
         public override string? XLabel(int index, RenderContext context) => index >= 0 && index < _x.Length ? _x[index].ToString("G", context.Culture) : null;
         public override int Levels => _levels.Count;
@@ -112,7 +128,6 @@ namespace ConsoleMonster.Graphics {
                 _bank = _chart.PrepareXZoom(visual, _levels);
                 _bankKey = bankKey;
                 _scene = null;
-                Preparations++;
             }
             level = Math.Max(0, Math.Min(_levels.Count - 1, level));
             pan = Math.Max(0, Math.Min(1, pan));
@@ -128,8 +143,12 @@ namespace ConsoleMonster.Graphics {
                 double start = full.Minimum + pan * (span - width);
                 ChartVisibilityView visibility = new ChartVisibilityView(hidden.Where(i => i >= 0 && i < _chart.Series.Count).Select(i => _chart.Series[i].Id));
                 ChartCartesianViewport? viewport = level == 0 ? null : new ChartCartesianViewport(new ChartAxisWindow(start, start + width));
-                prepared = _chart.PrepareVisibility(visual, visibility, viewport);
-                Preparations++;
+                try {
+                    prepared = _chart.PrepareVisibility(visual, visibility, viewport);
+                } catch (Exception error) when (Unsupported(error)) {
+                    _hideable = false;
+                    prepared = _bank.At(level, pan);
+                }
             }
             RgbaImage image = ImageSampler.Resize(prepared.ToRgba(), columns, rows * 2, keepDetail: true);
             _scene = new Scene(prepared, image);

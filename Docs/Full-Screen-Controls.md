@@ -230,8 +230,9 @@ implement `ChartPlot` to explore another chart the same way.
 With `ConsoleMonster.Graphics`, `chart.ToChartPlot()` explores a ChartForgeX line chart
 (`-Chart $chart` in PowerShell takes it directly). Zoom and pan select scenes from the
 X zoom levels ChartForgeX prepares once per size and theme, so navigating does not run
-the chart or its formatters again. A series can be hidden when it was added with its
-own `ChartSeriesId`.
+the chart or its formatters again. Series can be hidden when ChartForgeX can prepare a
+visibility view for the chart, which needs every series added with its own `ChartSeriesId`;
+otherwise the number keys and legend clicks leave every series shown.
 ## Forms and background operations
 
 `AppDialogs.Show` opens a `FormDialog<T>` inside the running host. Its content

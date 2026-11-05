@@ -153,6 +153,27 @@ namespace ConsoleMonster.Tests.Interactive.App {
             terminal.Send("Escape");
             await run;
         }
+        // A control's own Changed handler can move the shared key past what the control shows; the input's selection is
+        // not published over that newer value.
+        [Fact]
+        public async Task AValueWrittenByTheControlsOwnChangedHandlerIsNotOverwritten() {
+            var chart = new LineChart();
+            foreach (double value in new double[] { 10, 20, 30 }) { chart.Add("cpu", value); }
+            var view = new ChartView("load", chart) { SelectionKey = "minute" };
+            var state = new AppState();
+            view.Changed += (_, change) => { if (Equals(change.Value, 1)) { state["minute"] = 7; } };
+            DataGrid table = Samples();
+            using var terminal = new HeadlessTerminal(80, 30);
+            Task<AppState> run = ConsoleApp.RunAsync(new Rows(view, table), state, Options(terminal));
+            terminal.WaitForText("#3  cpu 30", Wait);
+            Until(() => table.Cursor == 2);
+            terminal.Send("Left");
+            Until(() => view.Cursor == 1);
+            Until(() => Equals(state.Get<object?>("minute"), 7) && table.Cursor == 7);
+            terminal.Send("Escape");
+            await run;
+        }
+
         private static ConsoleAppOptions Options(HeadlessTerminal terminal) => new ConsoleAppOptions {
             Interactive = new InteractiveOptions { Target = terminal, Labels = new PromptLabels() },
             Live = new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false }
