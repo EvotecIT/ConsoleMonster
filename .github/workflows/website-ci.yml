@@ -40,8 +40,45 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  verify-site:
+  # Library-only PRs leave the site alone; pushes to master and manual runs still verify the API reference built from them.
+  changes:
+    name: Select website coverage
     if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      website: ${{ steps.paths.outputs.website }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Detect website inputs
+        id: paths
+        shell: python
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          import os
+          import subprocess
+
+          library = ('ConsoleMonster/', 'ConsoleMonster.Examples/', 'ConsoleMonster.Generators/',
+                     'ConsoleMonster.PowerShell/', 'Tests/Api/')
+          # Complete PR diff, including both sides of renames, deletions and earlier commits.
+          paths = subprocess.check_output([
+              'git', 'diff', '--name-only', '--no-renames', '-z',
+              os.environ['BASE_SHA'] + '...' + os.environ['HEAD_SHA'],
+          ]).decode('utf-8').split('\0')
+          paths = [path for path in paths if path]
+          website = not paths or any(not path.startswith(library) for path in paths)
+          for path in paths:
+              print(('library: ' if path.startswith(library) else 'website input: ') + path)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('website=' + str(website).lower() + '\n')
+
+  verify-site:
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.website == 'true'
     uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@e6515ef091e579cd8a403e9a97374b177ef0371b
     with:
       website_root: Website
