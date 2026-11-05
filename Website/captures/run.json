@@ -5,33 +5,33 @@
   "scope": "produced-only",
   "requestedSet": "gallery",
   "filters": {
-    "SITEFRAMES_GALLERY": "help-sections"
+    "SITEFRAMES_GALLERY": "chart-table"
   },
   "allSetsCompleted": false,
   "files": {
-    "gallery/help-sections-0.ps7.ansi": {
+    "gallery/chart-table-0.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "c7ad32a61d837e51566121efb33c6b27d92de369b08eea4b238cf884ff789901",
+      "sha256": "1e3d70ac934057d8b72ed6d1473541438627ae11f73a89d1ddd5ac136436f5cc",
       "screen": "dark",
       "width": 88,
-      "height": 22
+      "height": 24
     },
-    "gallery/help-sections-1.ps7.ansi": {
+    "gallery/chart-table-1.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "fa456aca66da89eac1e606a4dbf9de3a52c9184b44cd739e05a24f29421c3ded",
+      "sha256": "ab456b994b284355f5f88185fa469a9e774dbc09cafb25817a3aefddeba1d775",
       "screen": "dark",
       "width": 88,
-      "height": 22
+      "height": 24
     },
-    "gallery/help-sections-2.ps7.ansi": {
+    "gallery/chart-table-2.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9260caa583bb29386aaa4617b3eb0c5b4b94c320dcbc99adb7f8a426106cf0cc",
+      "sha256": "42ab1b2d30bf079ba583ca57bf9615aaa0a9efdeb7efba9174dd1adbfefef88f",
       "screen": "dark",
       "width": 88,
-      "height": 22
+      "height": 24
     }
   }
 }

@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **101 commands**, **1165 parameters** and **358 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **102 commands**, **1180 parameters** and **361 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -54,6 +54,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(textInput => …)` |
 | `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(toggle => …)` |
 | `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(tree => …)` |
+| `New-ConsoleChartView` | `Ui.ChartView()` | `c.ChartView(chartView => …)` |
 | `New-ConsoleDataGrid` | `Ui.DataGrid()` | `c.DataGrid(dataGrid => …)` |
 | `New-ConsoleTreeSelect` | `Ui.TreeSelect()` | `c.TreeSelect(treeSelect => …)` |
 | `New-ConsoleDatePicker` | `Ui.DatePicker()` | `c.DatePicker(datePicker => …)` |
@@ -633,6 +634,14 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.PromptLabels.KeyResize` | CSharpOnly: Native prompt hosts can replace the 'resize' caption (Key hint: move the divider between two panes.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyResize catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Interactive.PromptLabels.Find` | CSharpOnly: Native prompt hosts can replace the 'Find' caption (The caption of the find bar.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.Find catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Interactive.PromptLabels.FindMatches` | CSharpOnly: Native prompt hosts can replace the '{0} of {1}' caption (The find bar's position among the matches: {0} is the current match, {1} the number of matches.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.FindMatches catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.ChartView.Cursor` | CSharpOnly: The crosshair position is retained interaction state; its value in app state is the point index. | Set Cursor on the ChartView returned by New-ConsoleChartView, or write the -SelectionKey state key from a callback. |
+| `ConsoleMonster.Interactive.ChartView.ZoomLevel` | CSharpOnly: The zoom level is retained interaction state, changed with + and - or the wheel. | Set ZoomLevel on the ChartView returned by New-ConsoleChartView. |
+| `ConsoleMonster.Interactive.ChartView.Pan` | CSharpOnly: The zoomed window position is retained interaction state, changed with Shift+Left/Right or a drag. | Set Pan on the ChartView returned by New-ConsoleChartView. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyPoint` | CSharpOnly: Native prompt hosts can replace the 'point' caption (Key hint: move a chart's crosshair to the previous or next point.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyPoint catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyZoom` | CSharpOnly: Native prompt hosts can replace the 'zoom' caption (Key hint: zoom a chart in or out along X.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyZoom catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyPan` | CSharpOnly: Native prompt hosts can replace the 'pan' caption (Key hint: move a zoomed chart's window along X.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyPan catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.KeySeries` | CSharpOnly: Native prompt hosts can replace the 'show/hide series' caption (Key hint: hide or show a chart series by its number.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeySeries catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
+| `ConsoleMonster.Interactive.PromptLabels.KeyResetView` | CSharpOnly: Native prompt hosts can replace the 'reset view' caption (Key hint: show a chart's whole X range again.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyResetView catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 
 ## .NET host integrations
 

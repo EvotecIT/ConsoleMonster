@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Added `ChartView`, a chart you can explore inside an app (`New-ConsoleChartView`): a crosshair that reads every series at the point, also in the footer; legend entries and number keys that hide or show a series; zoom and pan with +/-, the wheel, Shift+Left/Right and drag; and a selection shared through a `SelectionKey` in app state. Any control that implements `ILinkedSelection` links that way: `DataGrid`, `ChartView`, `Select` and `MultiSelect` do, with `-SelectionKey` on their commands. `ChartView` explores any chart through the public `ChartPlot` contract. ChartForgeX line charts explore through `ToChartPlot()` in ConsoleMonster.Graphics, which now uses ChartForgeX 3.4.0 and its prepared X zoom levels. `New-ConsoleDataGrid` lists ordinary objects with `-InputObject` and `-Property`.
+
 - Added `Collapsible` and `Accordion` (`New-ConsoleCollapsible`, with `-Accordion` for a group), a `Splitter` with a draggable divider and keyboard resize that keeps its ratio per screen (`New-ConsoleSplitter`), and a find bar with match counts, n/N and highlighting in `LogViewport`, `TextArea` and the document pager.
 
 - Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.
