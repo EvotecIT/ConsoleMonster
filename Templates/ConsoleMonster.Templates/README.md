@@ -39,9 +39,10 @@ used by the website gallery. Use `dotnet run -p:DemoStyle=Fluent` to run the flu
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `--Framework` | `net8.0` | `net8.0` or `net10.0`. |
-| `--ConsoleMonsterVersion` | `2.1.0` | The ConsoleMonster package version (2.1.0 by default). |
+| `--ConsoleMonsterVersion` | `2.2.0` | The ConsoleMonster package version (2.2.0 by default). |
 | `--NoAot` | `false` | Leaves native AOT publishing off. |
 | `--demo` | `none` | A gallery slug, or `none` for the menu and hosted service. |
+| `--DemoStyle` | `Initializer` | The demo source a plain `dotnet run` builds: `Initializer` or `Fluent`. |
 
 For development, stage the template sources from the repository root, then install
 the staging directory reported by MSBuild:

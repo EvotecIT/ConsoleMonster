@@ -3,13 +3,13 @@
   "RootPath": "..",
   "ExpectedVersion": null,
   "ExpectedVersionMap": {
-    "ConsoleMonster": "2.1.X",
-    "ConsoleMonster.PowerShell.Display": "2.1.X",
-    "ConsoleMonster.Markdown": "2.1.X",
-    "ConsoleMonster.Extensions.Logging": "2.1.X",
-    "ConsoleMonster.Hosting": "2.1.X",
-    "ConsoleMonster.Graphics": "2.1.X",
-    "ConsoleMonster.Templates": "2.1.X"
+    "ConsoleMonster": "2.2.X",
+    "ConsoleMonster.PowerShell.Display": "2.2.X",
+    "ConsoleMonster.Markdown": "2.2.X",
+    "ConsoleMonster.Extensions.Logging": "2.2.X",
+    "ConsoleMonster.Hosting": "2.2.X",
+    "ConsoleMonster.Graphics": "2.2.X",
+    "ConsoleMonster.Templates": "2.2.X"
   },
   "ExpectedVersionMapAsInclude": true,
   "ExpectedVersionMapUseWildcards": false,

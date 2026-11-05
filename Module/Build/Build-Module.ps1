@@ -15,6 +15,11 @@ param(
 
 Import-Module PSPublishModule -Force -ErrorAction Stop
 
+# The package takes root files from the module folder only ('License*' below), and LICENSE lives at the repository root.
+$ModuleLicensePath = [IO.Path]::Combine($PSScriptRoot, '..', 'LICENSE')
+Copy-Item -LiteralPath ([IO.Path]::Combine($PSScriptRoot, '..', '..', 'LICENSE')) -Destination $ModuleLicensePath -Force -ErrorAction Stop
+
+try {
 Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     # Usual defaults as per standard module
     $Manifest = [ordered] @{
@@ -25,7 +30,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         # ID used to uniquely identify this module
         GUID                 = '7ef2133c-55a5-47e6-809e-6010f6e65e09'
         # Version number of this module.
-        ModuleVersion        = '2.1.X'
+        ModuleVersion        = '2.2.X'
         # Author of this module
         Author               = 'Przemyslaw Klys'
         # Company or vendor of this module
@@ -170,3 +175,6 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     New-ConfigurationPublish -Type PowerShellGallery -FilePath $PowerShellGalleryApiKeyPath -Enabled:$false
     New-ConfigurationPublish -Type GitHub -FilePath $GitHubTokenPath -UserName 'EvotecIT' -Enabled:$false -RepositoryName 'ConsoleMonster' -ID 'ToGitHub' -GenerateReleaseNotes -OverwriteTagName 'ConsoleMonster-v{ModuleVersionWithPreRelease}'
 } -SkipInstall:$SkipInstall -ExitCode
+} finally {
+    Remove-Item -LiteralPath $ModuleLicensePath -Force -ErrorAction SilentlyContinue
+}
