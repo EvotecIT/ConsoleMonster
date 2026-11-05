@@ -13,6 +13,8 @@ namespace ConsoleMonster {
         public static FormDialogOptions Dialog() => new FormDialogOptions();
         /// <summary>An embeddable grid definition; configure Key and Grid, then Build.</summary>
         public static DataGridInputOptions DataGrid() => new DataGridInputOptions();
+        /// <summary>An explorable chart definition; configure Key and Chart, then Build.</summary>
+        public static ChartViewInputOptions ChartView() => new ChartViewInputOptions();
         /// <summary>A budgeted, lazy object-tree input definition.</summary>
         public static TreeSelectInputOptions TreeSelect() => new TreeSelectInputOptions();
         /// <summary>A persistent civil-date or range picker definition.</summary>

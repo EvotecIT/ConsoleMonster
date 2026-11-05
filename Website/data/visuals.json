@@ -102,6 +102,12 @@
       "dark": "/site/nav/demos/certificate-expiry-dark.svg",
       "light": "/site/nav/demos/certificate-expiry-light.svg"
     },
+    "demos/chart-table": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/chart-table-dark.svg",
+      "light": "/site/nav/demos/chart-table-light.svg"
+    },
     "demos/container-status": {
       "w": 96,
       "h": 60,

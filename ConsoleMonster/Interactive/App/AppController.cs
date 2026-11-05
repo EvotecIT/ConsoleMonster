@@ -38,6 +38,12 @@ namespace ConsoleMonster.Interactive {
         private readonly AppKeyMap _keys;
         private readonly AppOverlay _overlay;
         private readonly FooterBar? _defaultFooter;
+        private readonly List<ILinkedSelection> _linked = new List<ILinkedSelection>();
+        // The control whose selection is being written to state: it already shows it, so it does not follow its own write.
+        private ILinkedSelection? _sharing;
+        // Keys written while one input event is handled, including by the control's own Changed handlers: a selection
+        // the input changed is not published over a value written after it.
+        private readonly HashSet<string> _written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null, bool staticView = false) {
             _options = options ?? new ConsoleAppOptions();
@@ -62,6 +68,7 @@ namespace ConsoleMonster.Interactive {
                     control.Invalidated += Invalidate;
                 }
                 state.Changed += StateChanged;
+                ShareInitialSelections();
                 if (_options.Footer == null) { _defaultFooter = new FooterBar(); _footers.Add(_defaultFooter); }
                 IWidget frame = staticView ? _actions.Wrap(_viewport)
                     : new Rows().Add(_actions.Wrap(_viewport), LayoutSize.Fraction()).Add(_options.Footer ?? _defaultFooter!, LayoutSize.Fixed(1));
@@ -101,6 +108,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void HandleCore(InputEvent input, bool mouse, ref bool reachedKeys) {
+            lock (_written) { _written.Clear(); }
             if (_tooSmall && input.Kind != InputEventKind.Resize) {
                 if (input.Is(ConsoleKey.C, KeyModifiers.Control) || AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
                 return;
@@ -145,7 +153,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             // An open popup is drawn over everything else, so it takes the pointer first; a press outside closes it.
-            if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context, out InputControl? popupOwner, out int? popupBefore)) { Share(popupOwner, popupBefore); Invalidate(); return; }
             // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
             if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && (!modal || _overlay.ModalDrawn) && _overlay.Targets.Route(input, clicks, out KeyChord? pressed, CurrentScope())) {
                 Invalidate();
@@ -160,7 +168,7 @@ namespace ConsoleMonster.Interactive {
             }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
-            if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context, out InputControl? capturedOwner, out int? capturedBefore)) { Share(capturedOwner, capturedBefore); Invalidate(); return; }
             if (!ClaimedResizeKey(input) && _viewport.HandleContainerInput(input)) {
                 if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _containerCapture = true; }
                 Invalidate();
@@ -180,8 +188,13 @@ namespace ConsoleMonster.Interactive {
                 }
                 if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
                 InputControl? target = _pointerCapture ?? _focus.Current;
+                // A focused chart under the pointer zooms with the wheel before a scroll view around it scrolls.
+                int? targetBefore = Selected(target);
+                if (input.MouseAction == MouseAction.Wheel && target != null && target.TakesWheel && _viewport.FrameBounds(target) is Rect over
+                    && input.Column >= over.X && input.Column < over.Right && input.Row >= over.Y && input.Row < over.Bottom
+                    && target.HandleInput(_viewport.TranslatePointer(target, input), _context)) { Share(target, targetBefore); Invalidate(); return; }
                 if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { Invalidate(); return; }
-                if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
+                if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); if (pointerHandled) { Share(target, targetBefore); } }
                 // A double click opens the row, as Enter does: the input's own bindings first, then the input, then the
                 // screen's and the app's bindings. Focus does not move on, as it would after an unused Enter.
                 if (clicks == 2 && input.MouseButton == 1 && pointerHandled && target != null && target.OpensOnDoubleClick && ReferenceEquals(target, _focus.Current)) {
@@ -196,7 +209,8 @@ namespace ConsoleMonster.Interactive {
                 // A selector can consume Escape to clear a filter; then the screen (Back) and app bindings; an unhandled Escape quits the app.
                 bool handled = _keys.DispatchFocused(input);
                 reachedKeys = handled;
-                if (!handled) { handled = current?.HandleInput(input, _context) ?? false; }
+                int? currentBefore = Selected(current);
+                if (!handled && current != null && current.HandleInput(input, _context)) { handled = true; Share(current, currentBefore); }
                 if (!handled) { handled = _keys.Dispatch(input); reachedKeys = true; }
                 // The Menu key and Shift+F10 open the context menu at the focused input, unless a binding took them.
                 if (!handled && AppContextMenu.IsOpenKey(input) && !_actions.HasModal) {
@@ -284,6 +298,7 @@ namespace ConsoleMonster.Interactive {
                 bool keepLast;
                 hints = modal != null ? _keys.Hints(modal, new KeyChord[0], false, out keepLast) : _keys.Hints(HostBindings(), HostFirst(), true, out keepLast);
                 if (app == _defaultFooter) { app.KeepLast = keepLast; }
+                app.Status = modal == null ? _focus.Current?.FooterStatus(_context) : null;
             }
             KeyScope scope = CurrentScope();
             // A menu another scope listed is not drawn again.
@@ -349,7 +364,57 @@ namespace ConsoleMonster.Interactive {
                 if (!_disposed) { _state[change.Key] = _inputs[change.Key].CurrentValue; }
             }
         }
-        private void StateChanged(object? sender, AppValueChangedEventArgs change) => Invalidate();
+        private void StateChanged(object? sender, AppValueChangedEventArgs change) {
+            lock (_written) { _written.Add(change.Key); }
+            foreach (ILinkedSelection control in _linked) {
+                if (!string.Equals(control.SelectionKey, change.Key, StringComparison.OrdinalIgnoreCase)) { continue; }
+                // A notification delivered after a nested write carries an older value; follow what state holds now.
+                int? index = LinkIndex(_state.TryGetValue(change.Key, out object? current) ? current : change.Value);
+                // The publisher already shows its own write; a nested write to another index still reaches it.
+                if (ReferenceEquals(control, _sharing) && control.SelectedIndex == index) { continue; }
+                control.FollowSelection(index);
+            }
+            Invalidate();
+        }
+
+        // Controls sharing a selection key start on one selection: a value already in state, else the first one's.
+        private void ShareInitialSelections() {
+            _linked.AddRange(_focus.Controls.OfType<ILinkedSelection>().Where(control => !string.IsNullOrEmpty(control.SelectionKey)));
+            foreach (IGrouping<string, ILinkedSelection> group in _linked.GroupBy(control => control.SelectionKey!, StringComparer.OrdinalIgnoreCase)) {
+                if (_state.TryGetValue(group.Key, out object? value)) {
+                    int? index = LinkIndex(value);
+                    foreach (ILinkedSelection control in group) { control.FollowSelection(index); }
+                } else {
+                    ILinkedSelection? first = group.FirstOrDefault(control => control.SelectedIndex.HasValue);
+                    if (first != null) { Share(first, null); }
+                }
+            }
+        }
+
+        // After the user moved a linked control's selection, the others follow through state.
+        // An input publishes only a selection it changed, so a key, a hover or a scroll that leaves the selection where it
+        // was never overwrites a value another control or a callback wrote.
+        private void Share(object? input, int? before) {
+            if (!(input is ILinkedSelection control)) { return; }
+            string? key = control.SelectionKey;
+            int? index = string.IsNullOrEmpty(key) ? null : control.SelectedIndex;
+            if (key == null || !index.HasValue || index == before) { return; }
+            lock (_written) { if (_written.Contains(key)) { return; } }
+            _sharing = control;
+            try { _state[key] = index.Value; }
+            finally { _sharing = null; }
+        }
+
+        private static int? Selected(InputControl? control) => (control as ILinkedSelection)?.SelectedIndex;
+
+        private static int? LinkIndex(object? value) {
+            if (value is int i) { return i; }
+            if (value is IConvertible convertible && !(value is string)) {
+                try { return Convert.ToInt32(convertible, System.Globalization.CultureInfo.InvariantCulture); } catch (FormatException) { } catch (InvalidCastException) { } catch (OverflowException) { }
+            }
+            if (value is string text && int.TryParse(text, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int parsed)) { return parsed; }
+            return null;
+        }
         private void Invalidate() => Interlocked.Exchange(ref _dirty, 1);
 
         public void Dispose() {

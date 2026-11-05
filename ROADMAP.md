@@ -114,8 +114,9 @@ Grouped under the step they would join; the rest stays unscheduled.
   that MP4 is unavailable and suggests GIF. Revisit a managed H.264 encoder in 2027: Proxeno.Kiln is pre-release,
   and US H.264 patents run to about November 2027.
 - Scheduled, interactive navigation (`Docs/Proposals/Interactive-Navigation.md`): the mouse wherever the keyboard
-  works, then collapsible sections, splitters and find, then a navigable document viewer for Markdown and help, then
-  charts you can explore (zoom and pan, a crosshair, charts linked to tables).
+  works, then collapsible sections, splitters and find, then a navigable document viewer for Markdown and help.
+  Charts you can explore ship as `ChartView` over any `ChartPlot`: a crosshair, legend toggles, zoom and pan,
+  and selections linked through app state between any controls that implement `ILinkedSelection`.
 - Unscheduled, terminal work:
   - images drawn into the cell grid through ChartForgeX, in the same separate package as raster export;
   - QR codes and barcodes in the terminal through CodeGlyphX.

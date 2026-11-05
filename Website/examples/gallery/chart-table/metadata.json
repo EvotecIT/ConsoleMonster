@@ -1,0 +1,43 @@
+{
+  "slug": "chart-table",
+  "title": "Chart and table",
+  "pitch": "Pick a sample in the table and the chart's crosshair follows; move along the chart and the row follows.",
+  "category": "Terminal apps",
+  "tags": [
+    "chart",
+    "crosshair",
+    "data grid"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 24
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Chart your own samples: a build's durations, a service's latency, a disk's free space.",
+    "Give the table and the chart the same selection key and keep their rows in the same order.",
+    "Label the points with times so the readout says when each value was taken."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when a table of measurements is easier to read with its trend beside it, and the trend needs exact values.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "Down Down Down Down Down Down Down Down Escape"
+      },
+      {
+        "keys": "Down Down Down Down Down Down Down Down Tab Right Right + 2 Escape"
+      }
+    ]
+  }
+}

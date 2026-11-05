@@ -9,9 +9,11 @@ namespace ConsoleMonster.Interactive {
         public int Height { get; set; } = 20;
         /// <summary>Whether unbound typing performs prefix search.</summary>
         public bool QuickSearch { get; set; } = true;
+        /// <summary>The app-state key shared with linked controls (see <see cref="ILinkedSelection"/>): the selected row's position in the listing.</summary>
+        public string? SelectionKey { get; set; }
         /// <summary>Creates the persistent input after its key and listing are configured.</summary>
         public DataGrid Build() {
-            var control = new DataGrid(Key, Grid) { Label = Label ?? Grid?.Title ?? Key, Height = Height, QuickSearch = QuickSearch, Disabled = Disabled, TabIndex = TabIndex, ValidationMessage = ValidationMessage };
+            var control = new DataGrid(Key, Grid) { Label = Label ?? Grid?.Title ?? Key, Height = Height, QuickSearch = QuickSearch, Disabled = Disabled, TabIndex = TabIndex, ValidationMessage = ValidationMessage, SelectionKey = SelectionKey };
             if (OnChange != null) { control.Changed += OnChange; }
             return control;
         }

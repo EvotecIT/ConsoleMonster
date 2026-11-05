@@ -116,6 +116,11 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The first column (default 1).</summary>
         public int Indent { get; set; } = 1;
 
+        // The focused control's status in an app's own footer (the values under a chart's crosshair), before Right. It takes
+        // at most half the row so the hints keep theirs.
+        private StyledLine? _status;
+        internal StyledLine? Status { get => Volatile.Read(ref _status); set => Volatile.Write(ref _status, value); }
+
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
 
@@ -126,9 +131,9 @@ namespace ConsoleMonster.Widgets {
             }
             // Segments give way from the end, then Right itself, so the hints always keep their room.
             int keep = Segments.Count;
-            StyledLine? right = RightLine(context, keep);
+            StyledLine? right = RightLine(context, keep, region.Width);
             while (right != null && keep > 0 && region.Width - 1 - right.Width <= Indent + 20) {
-                right = RightLine(context, --keep);
+                right = RightLine(context, --keep, region.Width);
             }
             int rightWidth = right?.Width ?? 0;
             int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
@@ -152,13 +157,18 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Right and the segments as one muted line; a segment's link is underlined and carried as OSC 8.
-        private StyledLine? RightLine(RenderContext context, int segments) {
+        private StyledLine? RightLine(RenderContext context, int segments, int width) {
             Style muted = context.Style(ThemeToken.Muted);
             List<TextSpan> spans = new List<TextSpan>();
+            string dot = " " + context.Glyphs.Get(Glyphs.Glyph.Dot) + " ";
+            StyledLine? status = Status;
+            if (status != null && status.Width > 0 && width > 0) {
+                spans.AddRange(TextWrapper.Truncate(status, Math.Max(1, (width - Indent - 2) / 2), context.Ellipsis).WithBaseStyle(muted));
+            }
             if (Right != null) {
+                if (spans.Count > 0) { spans.Add(new TextSpan(dot, muted)); }
                 spans.AddRange(Right.WithBaseStyle(muted));
             }
-            string dot = " " + context.Glyphs.Get(Glyphs.Glyph.Dot) + " ";
             for (int i = 0; i < segments && i < Segments.Count; i++) {
                 FooterSegment segment = Segments[i];
                 if (segment.Text.Length == 0) {

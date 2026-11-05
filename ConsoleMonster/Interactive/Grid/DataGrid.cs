@@ -10,7 +10,7 @@ using ConsoleMonster.Presenters;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A retained, embeddable grid. Each instance owns its cursor, viewport, search and marks; the application owns the terminal.</summary>
-    public sealed partial class DataGrid : InputControl, IDisposable {
+    public sealed partial class DataGrid : InputControl, IDisposable, ILinkedSelection {
         private readonly Grid _grid;
         private readonly HashSet<object> _marked = new HashSet<object>();
         private readonly HashSet<int> _hidden = new HashSet<int>();
@@ -65,6 +65,18 @@ namespace ConsoleMonster.Interactive {
         public int MarkCount => Read(() => _marked.Count);
         /// <summary>The original objects selected by the grid's output mode.</summary>
         public IReadOnlyList<object?> Selection => Read(SelectionCore);
+        /// <summary>
+        /// The app-state key shared with linked controls (see <see cref="ILinkedSelection"/>). Moving the cursor writes the
+        /// row's position in the listing there (before sorting or filtering), and a new value there moves the cursor to
+        /// that row while it is shown.
+        /// </summary>
+        public string? SelectionKey { get; set; }
+
+        int? ILinkedSelection.SelectedIndex => Read(() => CurrentRowCore == null ? (int?)null : _visible[_cursor]);
+        void ILinkedSelection.FollowSelection(int? index) => Change(() => {
+            int position = index.HasValue ? _visible.IndexOf(index.Value) : -1;
+            if (position >= 0) { _cursor = position; }
+        });
 
         private GridRow? CurrentRowCore => _cursor >= 0 && _cursor < _visible.Count ? _rows[_visible[_cursor]] : null;
         private CultureInfo Culture => _grid.Presentation.Culture ?? CultureInfo.CurrentCulture;

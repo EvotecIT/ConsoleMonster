@@ -21,6 +21,8 @@ namespace ConsoleMonster.Interactive {
         public bool Radio { get; set; }
         /// <summary>Shows one row with the current choice and opens the list over the content below.</summary>
         public bool Dropdown { get; set; }
+        /// <summary>The app-state key shared with linked controls (see <see cref="ILinkedSelection"/>): the highlighted choice's position.</summary>
+        public string? SelectionKey { get; set; }
         /// <summary>The prepared choices, retaining original values and enabled/selected metadata.</summary>
         public IList<Choice> Choices { get; } = new List<Choice>();
     }

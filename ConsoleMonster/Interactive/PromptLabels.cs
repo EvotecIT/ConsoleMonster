@@ -83,6 +83,21 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: move the divider between two panes.</summary>
         public string KeyResize { get; set; } = "resize";
 
+        /// <summary>Key hint: move a chart's crosshair to the previous or next point.</summary>
+        public string KeyPoint { get; set; } = "point";
+
+        /// <summary>Key hint: zoom a chart in or out along X.</summary>
+        public string KeyZoom { get; set; } = "zoom";
+
+        /// <summary>Key hint: move a zoomed chart's window along X.</summary>
+        public string KeyPan { get; set; } = "pan";
+
+        /// <summary>Key hint: hide or show a chart series by its number.</summary>
+        public string KeySeries { get; set; } = "show/hide series";
+
+        /// <summary>Key hint: show a chart's whole X range again.</summary>
+        public string KeyResetView { get; set; } = "reset view";
+
         /// <summary>Key hint: move between the tabs of a tab strip.</summary>
         public string KeyTabs { get; set; } = "tabs";
 

@@ -8,6 +8,10 @@ namespace ConsoleMonster.Layout {
         public ContentBuilder DataGrid(Action<DataGridInputOptions> configure) { var definition = Ui.DataGrid(); configure(definition); return DataGrid(definition); }
         /// <summary>Adds a materialized grid definition.</summary><param name="definition">The definition.</param><returns>This builder.</returns>
         public ContentBuilder DataGrid(DataGridInputOptions definition) => Add(definition.Build());
+        /// <summary>Adds a configured explorable chart through its shared factory.</summary><param name="configure">Definition settings.</param><returns>This builder.</returns>
+        public ContentBuilder ChartView(Action<ChartViewInputOptions> configure) { var definition = Ui.ChartView(); configure(definition); return ChartView(definition); }
+        /// <summary>Adds a materialized explorable chart.</summary><param name="definition">The definition.</param><returns>This builder.</returns>
+        public ContentBuilder ChartView(ChartViewInputOptions definition) => Add(definition.Build());
         /// <summary>Adds a configured tree definition.</summary><param name="configure">Definition settings.</param><returns>This builder.</returns>
         public ContentBuilder TreeSelect(Action<TreeSelectInputOptions> configure) { var definition = Ui.TreeSelect(); configure(definition); return TreeSelect(definition); }
         /// <summary>Adds a materialized tree definition.</summary><param name="definition">The definition.</param><returns>This builder.</returns>

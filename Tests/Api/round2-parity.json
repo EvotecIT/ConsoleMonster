@@ -5779,6 +5779,229 @@
       ]
     },
     {
+      "Command": "New-ConsoleChartView",
+      "Job": "New-ConsoleChartView",
+      "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+      "Bindings": [
+        {
+          "Parameter": "Chart",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "Chart",
+          "MemberKind": "Property",
+          "Conversion": "WidgetAdaptation",
+          "CSharpTypeName": "ConsoleMonster.Interactive.ChartPlot",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "A New-ConsoleChart Line or Scatter chart converts to its ChartPlot as C# does implicitly; a ChartForgeX chart takes ToChartPlot() from ConsoleMonster.Graphics."
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 10,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "Height",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Label",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Labels",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "Labels",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "SelectionKey",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "SelectionKey",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ValidationMessage",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "Member": "ValidationMessage",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleDataGrid",
       "Job": "New-ConsoleDataGrid",
       "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
@@ -5809,7 +6032,7 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "__AllParameterSets",
+              "Name": "Grid",
               "Position": -2147483648,
               "Mandatory": true
             }
@@ -5842,6 +6065,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Objects",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ObjectListing",
+          "Reason": "Lists PowerShell objects as Grid rows with the Show-ConsoleGrid columns; C# fills a Grid with AddColumn and AddRow."
         },
         {
           "Parameter": "Key",
@@ -5938,6 +6176,47 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineInputPolicy",
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Property",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Objects",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Grid",
+          "Member": "Columns",
+          "MemberKind": "Property",
+          "Conversion": "NestedConfiguration",
+          "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[ConsoleMonster.Widgets.TableColumn]",
+          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "SelectionKey",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "SelectionKey",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "TabIndex",
@@ -11118,6 +11397,26 @@
           ],
           "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
           "Member": "ValidationMessage",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "SelectionKey",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
+          "Member": "SelectionKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -28110,6 +28409,70 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Interactive.ChartView",
+      "Member": "Cursor",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The crosshair position is retained interaction state; its value in app state is the point index.",
+      "Alternative": "Set Cursor on the ChartView returned by New-ConsoleChartView, or write the -SelectionKey state key from a callback.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.ChartView",
+      "Member": "ZoomLevel",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The zoom level is retained interaction state, changed with + and - or the wheel.",
+      "Alternative": "Set ZoomLevel on the ChartView returned by New-ConsoleChartView.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.ChartView",
+      "Member": "Pan",
+      "CSharpTypeName": "System.Double",
+      "Reason": "The zoomed window position is retained interaction state, changed with Shift+Left/Right or a drag.",
+      "Alternative": "Set Pan on the ChartView returned by New-ConsoleChartView.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyPoint",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'point' caption (Key hint: move a chart's crosshair to the previous or next point.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyPoint catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyZoom",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'zoom' caption (Key hint: zoom a chart in or out along X.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyZoom catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyPan",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'pan' caption (Key hint: move a zoomed chart's window along X.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyPan catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeySeries",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'show/hide series' caption (Key hint: hide or show a chart series by its number.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeySeries catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyResetView",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'reset view' caption (Key hint: show a chart's whole X range again.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyResetView catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "KeyTabs",
       "CSharpTypeName": "System.String",
@@ -28176,7 +28539,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 103,
+  "ExpectedCount": 104,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -28218,6 +28581,8 @@
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
     "ConsoleMonster.Interactive.ConsoleAppOptions",
+    "ConsoleMonster.Interactive.ChartView",
+    "ConsoleMonster.Interactive.ChartViewInputOptions",
     "ConsoleMonster.Interactive.DataGrid",
     "ConsoleMonster.Interactive.DataGridInputOptions",
     "ConsoleMonster.Interactive.DatePicker",
@@ -28489,6 +28854,9 @@
     "ConsoleMonster.Interactive.ConfirmPrompt",
     "ConsoleMonster.Interactive.ConsoleApp",
     "ConsoleMonster.Interactive.ConsoleAppOptions",
+    "ConsoleMonster.Interactive.ChartPlot",
+    "ConsoleMonster.Interactive.ChartView",
+    "ConsoleMonster.Interactive.ChartViewInputOptions",
     "ConsoleMonster.Interactive.DataGrid",
     "ConsoleMonster.Interactive.DataGridInputOptions",
     "ConsoleMonster.Interactive.DatePicker",
@@ -31114,6 +31482,51 @@
       "Reason": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
     },
     {
+      "CSharpType": "ConsoleMonster.Interactive.ChartView",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.ChartView.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleChartView",
+      "Parameter": "Height",
+      "Reason": "ChartViewInputOptions.Build applies Height to the ChartView it creates."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.ChartView",
+      "Member": "SelectionKey",
+      "MemberId": "ConsoleMonster.Interactive.ChartView.SelectionKey",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleChartView",
+      "Parameter": "SelectionKey",
+      "Reason": "ChartViewInputOptions.Build applies SelectionKey to the ChartView it creates."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGrid",
+      "Member": "SelectionKey",
+      "MemberId": "ConsoleMonster.Interactive.DataGrid.SelectionKey",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleDataGrid",
+      "Parameter": "SelectionKey",
+      "Reason": "DataGridInputOptions.Build applies SelectionKey to the DataGrid it creates."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.ChartView",
+      "Member": "Labels",
+      "MemberId": "ConsoleMonster.Interactive.ChartView.Labels",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleChartView",
+      "Parameter": "Labels",
+      "Reason": "ChartViewInputOptions.Build copies Labels into the ChartView it creates."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.SelectionInputBase",
+      "Member": "SelectionKey",
+      "MemberId": "ConsoleMonster.Interactive.SelectionInputBase.SelectionKey",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleSelect",
+      "Parameter": "SelectionKey",
+      "Reason": "The shared selection factory applies SelectionKey to both single and multiple controls."
+    },
+    {
       "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
       "Member": "CurrentIndex",
       "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.CurrentIndex",
@@ -31774,6 +32187,18 @@
           "Pattern": "Ui.Tree()",
           "InitializerTypes": [
             "ConsoleMonster.Widgets.Tree"
+          ]
+        },
+        {
+          "Command": "New-ConsoleChartView",
+          "Noun": "ChartView",
+          "ReturnType": "ConsoleMonster.Interactive.ChartViewInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.ChartView()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.ChartView",
+            "ConsoleMonster.Interactive.ChartViewInputOptions"
           ]
         },
         {

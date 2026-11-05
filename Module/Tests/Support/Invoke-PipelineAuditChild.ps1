@@ -16,6 +16,7 @@ switch ($Name) {
     'New-ConsoleTreeSelect' { $parameters.InputObject = [pscustomobject]@{ Name = 'sample' } }
     'New-ConsoleCommand' { $parameters.Key = 'audit'; $parameters.ScriptBlock = {} }
     'New-ConsoleSelect' { $parameters.Key = 'audit'; $parameters.Choices = @('choice') }
+    'New-ConsoleChartView' { $parameters.Key = 'audit'; $parameters.Chart = New-ConsoleChart -Type Line -Series @(@{ Key = 'audit'; Values = 1, 2 }) }
     { $_ -in @('New-ConsoleDashboard', 'New-ConsoleDialog', 'New-ConsoleForm', 'New-ConsoleMenu') } { $parameters.Title = 'audit' }
     'New-ConsoleBinding' { $parameters.Content = {} }
     'New-ConsoleLogo' { $parameters.Text = 'audit' }

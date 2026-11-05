@@ -1053,6 +1053,166 @@
       }
     },
     {
+      "slug": "chart-table",
+      "title": "Chart and table",
+      "pitch": "Pick a sample in the table and the chart's crosshair follows; move along the chart and the row follows.",
+      "category": "Terminal apps",
+      "tags": [
+        "chart",
+        "crosshair",
+        "data grid"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 24
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Chart your own samples: a build's durations, a service's latency, a disk's free space.",
+        "Give the table and the chart the same selection key and keep their rows in the same order.",
+        "Label the points with times so the readout says when each value was taken."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "tier": "starter",
+      "useCase": "Use it when a table of measurements is easier to read with its trend beside it, and the trend needs exact values.",
+      "featured": false,
+      "capture": "scripted native program",
+      "id": "chart-table",
+      "source": {
+        "powershell": {
+          "file": "chart-table.ps1",
+          "text": "# Explore a load chart linked to the table of samples it was drawn from.\n\nImport-Module -Name ConsoleMonster\n# All data is synthetic and inline; no services are contacted or changed.\n$cpu = @(\n    32, 35, 41, 38, 44, 52, 61, 58, 66, 72, 69, 63\n    57, 54, 60, 68, 75, 81, 77, 70, 62, 55, 49, 45\n)\n$memory = @(\n    48, 49, 50, 51, 51, 52, 54, 55, 57, 58, 59, 60\n    61, 61, 62, 63, 65, 66, 67, 68, 68, 69, 70, 71\n)\n$samples = for ($i = 0; $i -lt $cpu.Count; $i++) {\n    $minutes = $i * 5\n    [pscustomobject]@{\n        Time   = '{0:D2}:{1:D2}' -f (9 + [int][math]::Floor($minutes / 60)), ($minutes % 60)\n        Cpu    = $cpu[$i]\n        Memory = $memory[$i]\n    }\n}\n\n# Layout: construct the widgets shown on screen.\n$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(\n    [pscustomobject]@{ Key = 'cpu'; Values = $cpu }\n    [pscustomobject]@{ Key = 'memory'; Values = $memory }\n)\n$content = {\n    New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 7 -SelectionKey Sample\n    New-ConsoleChartView -Key Load -Chart $chart -Labels $samples.Time -SelectionKey Sample\n}\n\n# Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a\n# point and the row follows, + and - zoom, 1 and 2 hide a series; Escape exits.\nShow-ConsoleApp -Content $content\n",
+          "repo": "Website/examples/gallery/chart-table/chart-table.ps1"
+        },
+        "csharp": {
+          "file": "Program.cs",
+          "text": "// Explore a load chart linked to the table of samples it was drawn from.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] cpu =\n{\n    32, 35, 41, 38, 44, 52, 61, 58, 66, 72, 69, 63,\n    57, 54, 60, 68, 75, 81, 77, 70, 62, 55, 49, 45\n};\ndouble[] memory =\n{\n    48, 49, 50, 51, 51, 52, 54, 55, 57, 58, 59, 60,\n    61, 61, 62, 63, 65, 66, 67, 68, 68, 69, 70, 71\n};\nstring[] times = new string[cpu.Length];\nfor (int i = 0; i < cpu.Length; i++) { times[i] = $\"{9 + (i * 5 / 60):D2}:{i * 5 % 60:D2}\"; }\n\n// Layout: construct the widgets shown on screen.\nLineChart chart = new LineChart { Unit = \"%\" };\nfor (int i = 0; i < cpu.Length; i++) { chart.Add(\"cpu\", cpu[i]); }\nfor (int i = 0; i < memory.Length; i++) { chart.Add(\"memory\", memory[i]); }\nGrid samples = new Grid(\"Samples\").AddColumn(\"Time\").AddColumn(\"Cpu\").AddColumn(\"Memory\");\nfor (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }\nChartView load = new ChartView(\"Load\", chart) { SelectionKey = \"Sample\" };\nforeach (string time in times) { load.Labels.Add(time); }\nRows layout = new Rows(\n    new DataGrid(\"Samples\", samples) { Height = 7, SelectionKey = \"Sample\" },\n    load);\n\n// Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a\n// point and the row follows, + and - zoom, 1 and 2 hide a series; Escape exits.\nConsoleApp.Run(layout);\n",
+          "repo": "Website/examples/gallery/chart-table/Program.cs"
+        },
+        "csharpFluent": {
+          "file": "Program.Fluent.cs",
+          "text": "// Explore a load chart linked to the table of samples it was drawn from.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\ndouble[] cpu =\n{\n    32, 35, 41, 38, 44, 52, 61, 58, 66, 72, 69, 63,\n    57, 54, 60, 68, 75, 81, 77, 70, 62, 55, 49, 45\n};\ndouble[] memory =\n{\n    48, 49, 50, 51, 51, 52, 54, 55, 57, 58, 59, 60,\n    61, 61, 62, 63, 65, 66, 67, 68, 68, 69, 70, 71\n};\nstring[] times = new string[cpu.Length];\nfor (int i = 0; i < cpu.Length; i++) { times[i] = $\"{9 + (i * 5 / 60):D2}:{i * 5 % 60:D2}\"; }\n\n// Layout: construct the widgets shown on screen.\nLineChart chart = (LineChart)Ui.Chart().Type(ChartType.Line).Unit(\"%\").Build();\nfor (int i = 0; i < cpu.Length; i++) { chart.Add(\"cpu\", cpu[i]); }\nfor (int i = 0; i < memory.Length; i++) { chart.Add(\"memory\", memory[i]); }\nGrid samples = new Grid(\"Samples\").AddColumn(\"Time\").AddColumn(\"Cpu\").AddColumn(\"Memory\");\nfor (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }\nRows layout = Ui.Rows().Content(c =>\n{\n    c.DataGrid(grid => grid.Key(\"Samples\").Grid(samples).Height(7).SelectionKey(\"Sample\"));\n    c.ChartView(view => view.Key(\"Load\").Chart(chart).Labels(times).SelectionKey(\"Sample\"));\n});\n\n// Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a\n// point and the row follows, + and - zoom, 1 and 2 hide a series; Escape exits.\nConsoleApp.Run(layout);\n",
+          "repo": "Website/examples/gallery/chart-table/Program.Fluent.cs"
+        }
+      },
+      "powershell": "# Explore a load chart linked to the table of samples it was drawn from.\n\nImport-Module -Name ConsoleMonster\n# All data is synthetic and inline; no services are contacted or changed.\n$cpu = @(\n    32, 35, 41, 38, 44, 52, 61, 58, 66, 72, 69, 63\n    57, 54, 60, 68, 75, 81, 77, 70, 62, 55, 49, 45\n)\n$memory = @(\n    48, 49, 50, 51, 51, 52, 54, 55, 57, 58, 59, 60\n    61, 61, 62, 63, 65, 66, 67, 68, 68, 69, 70, 71\n)\n$samples = for ($i = 0; $i -lt $cpu.Count; $i++) {\n    $minutes = $i * 5\n    [pscustomobject]@{\n        Time   = '{0:D2}:{1:D2}' -f (9 + [int][math]::Floor($minutes / 60)), ($minutes % 60)\n        Cpu    = $cpu[$i]\n        Memory = $memory[$i]\n    }\n}\n\n# Layout: construct the widgets shown on screen.\n$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(\n    [pscustomobject]@{ Key = 'cpu'; Values = $cpu }\n    [pscustomobject]@{ Key = 'memory'; Values = $memory }\n)\n$content = {\n    New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 7 -SelectionKey Sample\n    New-ConsoleChartView -Key Load -Chart $chart -Labels $samples.Time -SelectionKey Sample\n}\n\n# Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a\n# point and the row follows, + and - zoom, 1 and 2 hide a series; Escape exits.\nShow-ConsoleApp -Content $content\n",
+      "csharp": "// Explore a load chart linked to the table of samples it was drawn from.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\ndouble[] cpu =\n{\n    32, 35, 41, 38, 44, 52, 61, 58, 66, 72, 69, 63,\n    57, 54, 60, 68, 75, 81, 77, 70, 62, 55, 49, 45\n};\ndouble[] memory =\n{\n    48, 49, 50, 51, 51, 52, 54, 55, 57, 58, 59, 60,\n    61, 61, 62, 63, 65, 66, 67, 68, 68, 69, 70, 71\n};\nstring[] times = new string[cpu.Length];\nfor (int i = 0; i < cpu.Length; i++) { times[i] = $\"{9 + (i * 5 / 60):D2}:{i * 5 % 60:D2}\"; }\n\n// Layout: construct the widgets shown on screen.\nLineChart chart = new LineChart { Unit = \"%\" };\nfor (int i = 0; i < cpu.Length; i++) { chart.Add(\"cpu\", cpu[i]); }\nfor (int i = 0; i < memory.Length; i++) { chart.Add(\"memory\", memory[i]); }\nGrid samples = new Grid(\"Samples\").AddColumn(\"Time\").AddColumn(\"Cpu\").AddColumn(\"Memory\");\nfor (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }\nChartView load = new ChartView(\"Load\", chart) { SelectionKey = \"Sample\" };\nforeach (string time in times) { load.Labels.Add(time); }\nRows layout = new Rows(\n    new DataGrid(\"Samples\", samples) { Height = 7, SelectionKey = \"Sample\" },\n    load);\n\n// Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a\n// point and the row follows, + and - zoom, 1 and 2 hide a series; Escape exits.\nConsoleApp.Run(layout);\n",
+      "csharpFluent": "// Explore a load chart linked to the table of samples it was drawn from.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\ndouble[] cpu =\n{\n    32, 35, 41, 38, 44, 52, 61, 58, 66, 72, 69, 63,\n    57, 54, 60, 68, 75, 81, 77, 70, 62, 55, 49, 45\n};\ndouble[] memory =\n{\n    48, 49, 50, 51, 51, 52, 54, 55, 57, 58, 59, 60,\n    61, 61, 62, 63, 65, 66, 67, 68, 68, 69, 70, 71\n};\nstring[] times = new string[cpu.Length];\nfor (int i = 0; i < cpu.Length; i++) { times[i] = $\"{9 + (i * 5 / 60):D2}:{i * 5 % 60:D2}\"; }\n\n// Layout: construct the widgets shown on screen.\nLineChart chart = (LineChart)Ui.Chart().Type(ChartType.Line).Unit(\"%\").Build();\nfor (int i = 0; i < cpu.Length; i++) { chart.Add(\"cpu\", cpu[i]); }\nfor (int i = 0; i < memory.Length; i++) { chart.Add(\"memory\", memory[i]); }\nGrid samples = new Grid(\"Samples\").AddColumn(\"Time\").AddColumn(\"Cpu\").AddColumn(\"Memory\");\nfor (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }\nRows layout = Ui.Rows().Content(c =>\n{\n    c.DataGrid(grid => grid.Key(\"Samples\").Grid(samples).Height(7).SelectionKey(\"Sample\"));\n    c.ChartView(view => view.Key(\"Load\").Chart(chart).Labels(times).SelectionKey(\"Sample\"));\n});\n\n// Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a\n// point and the row follows, + and - zoom, 1 and 2 hide a series; Escape exits.\nConsoleApp.Run(layout);\n",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleChart -Type Line",
+          "csharp": "new LineChart(…)",
+          "fluent": "Ui.Chart().Type(ChartType.Line)",
+          "memberId": "M:ConsoleMonster.Ui.Chart",
+          "note": "Inside Content: c.Chart(chart => …)."
+        },
+        {
+          "powershell": "New-ConsoleChart -Unit …",
+          "csharp": "Unit = …",
+          "fluent": ".Unit(…)",
+          "memberId": "ConsoleMonster.Widgets.ChartOptions.Unit",
+          "note": null
+        },
+        {
+          "powershell": "Show-ConsoleGrid -Title …",
+          "csharp": "Title = …",
+          "fluent": ".Title(…)",
+          "memberId": "ConsoleMonster.Interactive.Grid.Title",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleDataGrid",
+          "csharp": "new DataGridInputOptions(…)",
+          "fluent": "Ui.DataGrid()",
+          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.DataGrid",
+          "note": "Inside Content: c.DataGrid(dataGrid => …)."
+        },
+        {
+          "powershell": "New-ConsoleDataGrid -Grid …",
+          "csharp": "Grid = …",
+          "fluent": ".Grid(…)",
+          "memberId": "ConsoleMonster.Interactive.DataGridInputOptions.Grid",
+          "note": null
+        },
+        {
+          "powershell": "New-ConsoleDataGrid -Height …",
+          "csharp": "Height = …",
+          "fluent": ".Height(…)",
+          "memberId": "ConsoleMonster.Interactive.DataGridInputOptions.Height",
+          "note": null
+        }
+      ],
+      "powershellRepo": "Website/examples/gallery/chart-table/chart-table.ps1",
+      "csharpRepo": "Website/examples/gallery/chart-table/Program.cs",
+      "csharpFluentRepo": "Website/examples/gallery/chart-table/Program.Fluent.cs",
+      "powershellFile": "chart-table.ps1",
+      "csharpFile": "Program.cs",
+      "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/chart-table/chart-table.ps1",
+      "csharpDownload": "/examples/gallery/chart-table/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/chart-table/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/chart-table/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 34,
+        "csharp": 34,
+        "csharpFluent": 35
+      },
+      "thumbnail": "/site/gallery/chart-table.svg",
+      "frame": {
+        "w": 88,
+        "h": 24,
+        "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Samples</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c76\">────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c1\"> </span><span class=c2>  </span><span class=\"B c1\"> </span><span class=c2>  </span><span class=\"B c4\">Time</span><span class=c3>   </span><span class=\"B c3\">Cpu</span><span class=c2>  </span><span class=\"B c6\">Memory</span><span class=c61>                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c7>       </span><i class=\"g2500 c5 f4b5060\">─────</i><span class=c2>  </span><i class=\"g2500 c3 f4b5060\">───</i><span class=c2>  </span><i class=\"g2500 c6 f4b5060\">──────</i><span class=c61>                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:30   61      54                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:35   58      55                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:40   66      57                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:45   72      58                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:50   69      59                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\"><i class=n>›</i> Load</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c77\">─────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"B c5\">09:50</span><span class=\"f8b8f9a c2\">  </span><span class=\"f60a5fa c2\">1 </span><span class=\"f8b8f9a c4\">cpu </span><span class=c3>69%</span><span class=\"f8b8f9a c4\">  <i class=n>×</i>2</span><span class=c65>                                                                 </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">72%</span><i class=\"g2502 f4b5060\">│</i><span class=c25>                         </span><span class=\"f60a5fa c18\"><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i></span><i class=\"g2812 f0c0c0c k60a5fa\">⠒</i><span class=\"f60a5fa c8\"><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c23>                       </span><span class=\"f60a5fa c5\"><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i>1</span><span class=c1> </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c6>      </span><span class=\"f60a5fa c20\"><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c17>                 </span><i class=\"g2502 f60a5fa\">│</i><span class=c8>        </span><span class=\"f60a5fa c24\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c5>     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=\"f60a5fa c7\"><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c36>                                    </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f8b8f9a c2\">0%</span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><span class=\"f4b5060 c81\"><i class=g2514>└</i><i class=\"g2500 c80\">────────────────────────────────────────────────────────────────────────────────</i></span><span class=c1> </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c5>     </span><span class=\"f60a5fa c1\">1</span><span class=\"f8b8f9a c4\"> cpu</span><span class=c3>   </span><span class=\"f8b8f9a S c8\">2 memory</span><span class=c65>                                                                 </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n\n<span class=c1> </span><span class=\"f60a5fa c3\"><i class=n>←</i>/<i class=n>→</i></span><span class=\"f8b8f9a c8\"> point  </span><span class=\"f60a5fa c3\">+/-</span><span class=\"f8b8f9a c7\"> zoom  </span><span class=\"f60a5fa c9\">shift+<i class=n>←</i>/<i class=n>→</i></span><span class=\"f8b8f9a c6\"> pan  </span><span class=\"f60a5fa c3\">1-2</span><span class=\"f8b8f9a c17\"> show/hide series</span><span class=c12>            </span><span class=f8b8f9a>09:50: cpu 69%, <i class=n>×</i>2</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        },
+        {
+          "step": 1,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        },
+        {
+          "step": 2,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        }
+      ],
+      "replay": {
+        "url": "/replays/gallery-chart-table.json",
+        "w": 88,
+        "h": 24,
+        "poster": {
+          "w": 88,
+          "h": 24,
+          "dark": "<span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Samples</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c76\">────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"B c1\"> </span><span class=c2>  </span><span class=\"B c1\"> </span><span class=c2>  </span><span class=\"B c4\">Time</span><span class=c3>   </span><span class=\"B c3\">Cpu</span><span class=c2>  </span><span class=\"B c6\">Memory</span><span class=c61>                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c7>       </span><i class=\"g2500 c5 f4b5060\">─────</i><span class=c2>  </span><i class=\"g2500 c3 f4b5060\">───</i><span class=c2>  </span><i class=\"g2500 c6 f4b5060\">──────</i><span class=c61>                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:30   61      54                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:35   58      55                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:40   66      57                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:45   72      58                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<i class=\"g2502 f4b5060\">│</i><span class=c86>       09:50   69      59                                                             </span><i class=\"g2502 f4b5060\">│</i>\n<span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\"><i class=n>›</i> Load</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c77\">─────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"B c5\">09:50</span><span class=\"f8b8f9a c2\">  </span><span class=\"f60a5fa c2\">1 </span><span class=\"f8b8f9a c4\">cpu </span><span class=c3>69%</span><span class=\"f8b8f9a c4\">  <i class=n>×</i>2</span><span class=c65>                                                                 </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"f8b8f9a c3\">72%</span><i class=\"g2502 f4b5060\">│</i><span class=c25>                         </span><span class=\"f60a5fa c18\"><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i></span><i class=\"g2812 f0c0c0c k60a5fa\">⠒</i><span class=\"f60a5fa c8\"><i class=g2812>⠒</i><i class=g2822>⠢</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i></span><span class=c23>                       </span><span class=\"f60a5fa c5\"><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i>1</span><span class=c1> </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c6>      </span><span class=\"f60a5fa c20\"><i class=g2880>⢀</i><i class=g28c0>⣀</i><i class=g2860>⡠</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c17>                 </span><i class=\"g2502 f60a5fa\">│</i><span class=c8>        </span><span class=\"f60a5fa c24\"><i class=g2809>⠉</i><i class=g2809>⠉</i><i class=g2811>⠑</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2884>⢄</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c5>     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=\"f60a5fa c7\"><i class=g28c0>⣀</i><i class=g2824>⠤</i><i class=g2824>⠤</i><i class=g2812>⠒</i><i class=g280a>⠊</i><i class=g2809>⠉</i><i class=g2801>⠁</i></span><span class=c36>                                    </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f8b8f9a c2\">0%</span><i class=\"g2502 f4b5060\">│</i><span class=c43>                                           </span><i class=\"g2502 f60a5fa\">│</i><span class=c37>                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c4>    </span><span class=\"f4b5060 c81\"><i class=g2514>└</i><i class=\"g2500 c80\">────────────────────────────────────────────────────────────────────────────────</i></span><span class=c1> </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c5>     </span><span class=\"f60a5fa c1\">1</span><span class=\"f8b8f9a c4\"> cpu</span><span class=c3>   </span><span class=\"f8b8f9a S c8\">2 memory</span><span class=c65>                                                                 </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c86\">──────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n\n\n<span class=c1> </span><span class=\"f60a5fa c3\"><i class=n>←</i>/<i class=n>→</i></span><span class=\"f8b8f9a c8\"> point  </span><span class=\"f60a5fa c3\">+/-</span><span class=\"f8b8f9a c7\"> zoom  </span><span class=\"f60a5fa c9\">shift+<i class=n>←</i>/<i class=n>→</i></span><span class=\"f8b8f9a c6\"> pan  </span><span class=\"f60a5fa c3\">1-2</span><span class=\"f8b8f9a c17\"> show/hide series</span><span class=c12>            </span><span class=f8b8f9a>09:50: cpu 69%, <i class=n>×</i>2</span>"
+        },
+        "start": 1800,
+        "hero": 0
+      },
+      "run": {
+        "powershell": "Show-ConsoleDemo chart-table",
+        "export": "$source = (Get-ConsoleDemo chart-table).Source\n[IO.File]::WriteAllText(\"$PWD/chart-table.ps1\", $source, [Text.UTF8Encoding]::new($true))",
+        "csharp": null,
+        "csharpFluent": null
+      },
+      "url": "/replays/gallery-chart-table.json",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
       "slug": "container-status",
       "title": "Container status",
       "pitch": "Watch a container host refresh every two seconds: who is restarting, who is near its memory limit, and what just happened.",

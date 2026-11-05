@@ -123,12 +123,18 @@ namespace ConsoleMonster.Interactive {
         }
 
         // A press inside a popup goes to its control; a press elsewhere closes the open popups and carries on.
-        internal bool RoutePointer(InputEvent input, RenderContext context) {
+        // The owner of the popup that took the pointer, and its linked selection before the event, so the app publishes
+        // only a selection the popup changed.
+        internal bool RoutePointer(InputEvent input, RenderContext context, out InputControl? owner, out int? before) {
+            owner = null;
+            before = null;
             Placed[] popups;
             lock (_gate) { popups = _popups.ToArray(); }
             for (int i = popups.Length - 1; i >= 0; i--) {
                 if (Contains(popups[i].Area, input)) {
-                    popups[i].Owner.HandlePopupInput(input, context);
+                    owner = popups[i].Owner;
+                    before = (owner as ILinkedSelection)?.SelectedIndex;
+                    owner.HandlePopupInput(input, context);
                     return true;
                 }
             }

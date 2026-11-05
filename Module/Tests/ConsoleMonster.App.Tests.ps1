@@ -15,6 +15,20 @@ Describe 'Native console applications' {
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
     }
 
+    It 'links an explorable chart and a data grid of the same objects through one selection key' {
+        $samples = 1..6 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 10 * $_ } }
+        $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(@{ Key = 'cpu'; Values = $samples.Cpu })
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 26)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Down Tab Right')
+        $result = Show-ConsoleApp -Content {
+            New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu -Height 8 -SelectionKey Minute
+            New-ConsoleChartView -Key Load -Chart $chart -Labels ($samples | ForEach-Object { "min $($_.Minute)" }) -SelectionKey Minute
+        } -InputSource $inputSource -Capture $capture -PassThru
+        $result.Minute | Should -Be 3
+        $result.Load | Should -Be 3
+        $result.Samples[0].Minute | Should -Be 4
+        $capture.LastFrame.ToPlainText() | Should -Match 'min 4: cpu 40%'
+    }
     It 'groups adjacent screens into one stack driven by screen and app key binding scripts and $State.Screen' {
         $servers = @(
             [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }

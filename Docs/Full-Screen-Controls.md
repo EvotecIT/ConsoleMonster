@@ -178,6 +178,69 @@ next and previous match, and Escape closes the bar. In a log or the pager the
 matches stay highlighted after the bar closes, so `n` and `N` keep moving, and a
 second Escape clears them. A query with a capital letter matches case.
 
+## Charts you can explore
+
+`ChartView` puts a chart in an app as an ordinary focusable control. Left/Right or a
+click moves a crosshair along X, and the row above the plot reads every shown series
+at that point; the app footer repeats the values as plain text, for screen readers and
+the ASCII tier. A number key or a click on a legend entry hides or shows that series.
+`+` and `-` or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows
+the whole range again. The value in app state is the index of the point under the
+crosshair. Drawing the same chart outside an app, and its exports, are unchanged.
+
+Every form takes the same settings: `Key`, `Chart`, `Labels` (a label per point, such
+as a time), `Height` (10 rows by default, readout and legend included) and
+`SelectionKey`.
+
+Selections link through app state. Every control that implements `ILinkedSelection`
+takes a `SelectionKey`: `DataGrid` (the row's position in the listing), `ChartView`
+(the point under the crosshair), `Select` and `MultiSelect` (the highlighted choice's
+position). When the user moves one, the app writes its position to that state key, and
+every control with the same key follows when it can show that position (a shorter list or
+a filtered-out row ignores it); a callback that writes the key moves them all the same way. The controls never refer to each other, so any two of them link, and a
+custom `InputControl` that implements `ILinkedSelection` joins in.
+
+```powershell
+$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + ($_ % 7) * 6 } }
+$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(@{ Key = 'cpu'; Values = $samples.Cpu })
+Show-ConsoleApp -Content {
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu -Height 8 -SelectionKey Minute
+    New-ConsoleChartView -Key Load -Chart $chart -SelectionKey Minute
+}
+```
+
+```csharp
+var samples = new Grid("Samples").AddColumn("Minute").AddColumn("Cpu");
+var chart = new LineChart { Unit = "%" };
+for (int minute = 1; minute <= 30; minute++) {
+    double cpu = 40 + minute % 7 * 6;
+    samples.AddRow(minute, minute, cpu);
+    chart.Add("cpu", cpu);
+}
+ConsoleApp.Run(new Rows(
+    new DataGrid("Samples", samples) { Height = 8, SelectionKey = "Minute" },
+    new ChartView("Load", chart) { SelectionKey = "Minute" }));
+```
+
+```csharp
+ConsoleApp.Run(Ui.Rows().Content(c => {
+    c.DataGrid(grid => grid.Key("Samples").Grid(samples).Height(8).SelectionKey("Minute"));
+    c.ChartView(view => view.Key("Load").Chart(chart).SelectionKey("Minute"));
+}));
+```
+
+The crosshair, legend toggles, zoom and pan are not tied to one chart type. `Chart` is a
+`ChartPlot`: points along X, each series' value at a point, zoom levels as fractions of
+the X domain, and a drawing that reports which column shows which point and where each
+legend entry is. A `LineChart` converts to its plot implicitly, so it is passed as is;
+implement `ChartPlot` to explore another chart the same way.
+
+With `ConsoleMonster.Graphics`, `chart.ToChartPlot()` explores a ChartForgeX line chart
+(`-Chart $chart` in PowerShell takes it directly). Zoom and pan select scenes from the
+X zoom levels ChartForgeX prepares once per size and theme, so navigating does not run
+the chart or its formatters again. Series can be hidden when ChartForgeX can prepare a
+visibility view for the chart, which needs every series added with its own `ChartSeriesId`;
+otherwise the number keys and legend clicks leave every series shown.
 ## Forms and background operations
 
 `AppDialogs.Show` opens a `FormDialog<T>` inside the running host. Its content
