@@ -146,7 +146,9 @@ namespace ConsoleMonster.Graphics {
                 try {
                     prepared = _chart.PrepareVisibility(visual, visibility, viewport);
                 } catch (Exception error) when (Unsupported(error)) {
+                    // Every series is drawn again, so the legend and the readout show them all too.
                     _hideable = false;
+                    hidden.Clear();
                     prepared = _bank.At(level, pan);
                 }
             }

@@ -123,6 +123,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
             using var terminal = new HeadlessTerminal(80, 30);
             options = Options(terminal);
             options.KeyBindings.Add(new KeyBinding("far", () => state["minute"] = 99, new KeyChord(ConsoleKey.F5)));
+            // Input is handled in order, so the barrier is set only after the pointer move before it.
+            options.KeyBindings.Add(new KeyBinding("barrier", () => state["barrier"] = true, new KeyChord(ConsoleKey.F6)));
             Task<AppState> run = ConsoleApp.RunAsync(new Rows(pick, below), state, options);
             terminal.WaitForText("pick", Wait);
             terminal.Send("F5");
@@ -133,7 +135,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             int y = Array.FindLastIndex(rows, row => row.Contains("minute 1"));
             terminal.Send(InputEvent.Pointer(rows[y].IndexOf("minute 1", StringComparison.Ordinal) + 1, y, MouseAction.Move));
             terminal.Send("F6");
-            terminal.WaitForText("minute 3", Wait);
+            Until(() => Equals(state.Get<object?>("barrier"), true));
             Assert.Equal(99, state.Get<object?>("minute"));
             terminal.Send("Escape Escape");
             await run;

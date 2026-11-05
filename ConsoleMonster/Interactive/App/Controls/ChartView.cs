@@ -253,16 +253,20 @@ namespace ConsoleMonster.Interactive {
         protected override void RenderContent(Region region, RenderContext context) {
             if (region.Width <= 0 || region.Height <= 0) { _layout = null; return; }
             int cursor = CursorCore();
-            region.Write(0, 0, TextWrapper.Truncate(Readout(cursor, context, true), region.Width, context.Ellipsis));
-            if (region.Height < 2) { _layout = null; return; }
-            // A plot that can no longer hide a series (ChartForgeX refused the view) shows it again.
+            if (region.Height < 2) { _layout = null; WriteReadout(region, cursor, context); return; }
+            // A plot that can no longer hide a series (ChartForgeX refused the view) shows it again; the readout row is
+            // written after the drawing so it lists the series the drawing shows.
             _hidden.RemoveWhere(series => !_plot.CanHide(series));
             Region body = region.Sub(0, 1, region.Width, region.Height - 1);
             ChartPlotLayout layout = _plot.Render(body, context, Level, _pan, _hidden);
             _layout = layout;
+            WriteReadout(region, cursor, context);
             int? column = cursor < 0 ? null : layout.ColumnOf(cursor);
             if (column.HasValue && !context.Profile.IsAccessible) { DrawCrosshair(region.Buffer, layout.Plot, column.Value, context); }
         }
+
+        private void WriteReadout(Region region, int cursor, RenderContext context) =>
+            region.Write(0, 0, TextWrapper.Truncate(Readout(cursor, context, true), region.Width, context.Ellipsis));
 
         // A vertical rule through the point: blank cells take the rule, drawn cells are reversed where colour allows, and
         // the series' own marks stay visible without colour.
