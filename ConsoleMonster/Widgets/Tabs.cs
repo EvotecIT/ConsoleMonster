@@ -14,7 +14,7 @@ namespace ConsoleMonster.Widgets {
     /// Home/End and the number keys switch tabs while it has focus, and Ctrl+PageUp/PageDown switch them from anywhere
     /// inside. A click on a label opens it. The active label is underlined above a rule, and labels scroll on narrow terminals.
     /// </summary>
-    public sealed class Tabs : IContainer, IAppInputContainer {
+    public sealed class Tabs : IContainer, IAppInputContainer, IOwnedInput {
         private static int _instances;
         private readonly object _gate = new object();
         private readonly List<LayoutRegion> _tabs = new List<LayoutRegion>();
@@ -54,7 +54,9 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <inheritdoc />
-        public IReadOnlyList<IWidget> Children { get { lock (_gate) { List<IWidget> children = new List<IWidget> { _strip }; children.AddRange(_tabs); return children; } } }
+        public IReadOnlyList<IWidget> Children => _tabs;
+
+        InputControl IOwnedInput.OwnedInput => _strip;
 
         /// <summary>Adds a tab; its key is also its visible label.</summary>
         public Tabs Add(string label, IWidget content) {
