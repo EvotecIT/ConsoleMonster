@@ -27,7 +27,11 @@ Outline sections = new Outline("Sections")
     },
     CurrentIndex = 0
 };
-Breadcrumb where = new Breadcrumb("Where") { Ancestors = { "Settings", "Network" }, Outline = sections };
+Breadcrumb where = new Breadcrumb("Where")
+{
+    Ancestors = { "Settings", "Network" },
+    Outline = sections
+};
 Tabs layout = new Tabs()
     .Add("General", new Rows(
         new TextInput("DisplayName", "Contoso Operations") { Label = "Display name" },
@@ -39,5 +43,5 @@ Tabs layout = new Tabs()
         new TextInput("LogPath", "C:\\Logs\\Operations") { Label = "Folder" },
         new Toggle("LogVerbose", false) { Label = "Verbose" }));
 
-// Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.
+// Behaviour: Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.
 ConsoleApp.Run(layout);

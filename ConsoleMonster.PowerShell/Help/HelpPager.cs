@@ -40,6 +40,9 @@ namespace ConsoleMonster.PowerShell {
         /// command names open their own help there, with back and forward history.
         /// </summary>
         internal static bool Show(PSCmdlet cmdlet, IWidget view, CancellationToken cancellationToken, int? width = null) {
+            // Native help views add PowerShell's remarks hint under the help (which other views to ask for); the viewer
+            // already shows every section, so it opens the help itself.
+            if (view is Layout.Rows rows && rows.Children.Count > 0 && rows.Children[0] is Widgets.HelpView inner) { view = inner; }
             string? title = view is Widgets.HelpView help ? help.Topic.Name : null;
             return Interactive.WidgetPager.TryShow(view, string.IsNullOrEmpty(title) ? null : title, PSInteractive.Options(cmdlet, null), cancellationToken, width, Opener(cmdlet));
         }

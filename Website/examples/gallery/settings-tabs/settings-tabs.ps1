@@ -41,5 +41,5 @@ $content = {
     }
 }
 
-# Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.
+# Behaviour: Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.
 Show-ConsoleApp -Content $content

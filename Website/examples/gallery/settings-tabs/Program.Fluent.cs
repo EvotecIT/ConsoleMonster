@@ -61,5 +61,5 @@ Tabs layout = Ui.Tabs().Add("General", Ui.Rows().Content(c =>
     c.Toggle(toggle => toggle.Key("LogVerbose").Value(false).Label("Verbose"));
 }));
 
-// Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.
+// Behaviour: Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.
 ConsoleApp.Run(layout);
