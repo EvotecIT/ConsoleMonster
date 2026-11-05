@@ -43,6 +43,10 @@ namespace ConsoleMonster.Interactive {
         private int _selected = -1;
         private int _top;
         private int _rows = 1;
+        // The entry the view last scrolled to keep in sight, at that height; the view follows only when either changes, so
+        // the wheel can scroll the list away from it.
+        private int _anchor = -2;
+        private int _anchorRows = -1;
 
         /// <summary>Creates an outline.</summary>
         /// <param name="key">The application-state key; its value is the current entry's title.</param>
@@ -50,10 +54,17 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>The entries, in order. Configure them before the app runs.</summary>
         public IList<OutlineItem> Items => _items;
-        // Replaces the entries while running (the document viewer switching parts), keeping no current entry.
-        internal void SetItems(IEnumerable<OutlineItem> items) {
+        // Replaces the entries while running (the document viewer switching parts). The same list rebuilt (a theme change)
+        // keeps its current entry, selection and scroll position; a different list starts with none.
+        internal void SetItems(IEnumerable<OutlineItem> items, bool sameList = false) {
             if (items == null) { throw new ArgumentNullException(nameof(items)); }
-            Change(() => { _items.Clear(); _items.AddRange(items); _current = -1; _selected = -1; _top = 0; });
+            Change(() => {
+                int count = _items.Count;
+                _items.Clear();
+                _items.AddRange(items);
+                if (sameList && count == _items.Count) { return; }
+                _current = -1; _selected = -1; _top = 0; _anchor = -2;
+            });
         }
 
         /// <summary>
@@ -114,6 +125,8 @@ namespace ConsoleMonster.Interactive {
             }
             if (input.MouseAction != MouseAction.Down || input.MouseButton != 1) { return false; }
             int index = _top + input.Row - bounds.Y;
+            // A click takes focus, as the keyboard has it after Tab, so ↑/↓ and Enter go on from the entry clicked.
+            Focus();
             if (index < 0 || index >= _items.Count) { return true; }
             _selected = index;
             OpenSelected();
@@ -155,10 +168,12 @@ namespace ConsoleMonster.Interactive {
             if (region.Width <= 0 || region.Height <= 0) { return; }
             _rows = region.Height;
             int anchor = Focused ? _selected : _current;
-            if (anchor >= 0) {
+            if (anchor >= 0 && (anchor != _anchor || region.Height != _anchorRows)) {
                 if (anchor < _top) { _top = anchor; }
                 if (anchor >= _top + region.Height) { _top = anchor - region.Height + 1; }
             }
+            _anchor = anchor;
+            _anchorRows = region.Height;
             _top = Math.Max(0, Math.Min(_top, Math.Max(0, _items.Count - region.Height)));
             int minimum = int.MaxValue;
             foreach (OutlineItem item in _items) { minimum = Math.Min(minimum, item.Level); }

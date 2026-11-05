@@ -130,28 +130,71 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void AnchorLinksJumpAndBackAndForwardRetraceThem() {
+        public void AnchorLinksAreFoundFollowedAndRetracedWithBackAndForward() {
             DocumentView view = View(Guide());
             Draw(view);
             Press(view, ConsoleKey.End);
-            string end = Draw(view);
-            Assert.Contains("Go to Install", end);
             Type(view, "]");
+            CellBuffer selected = DrawFrame(view);
+            string before = selected.ToPlainText();
+            // The anchor is a link the viewer found: ] selects it, drawn reversed, without a printed (#install) target.
+            int row = Rows(before).ToList().FindIndex(line => line.Contains("Go to Install"));
+            Assert.True(row >= 0, before);
+            Assert.DoesNotContain("#install", before);
+            int column = Rows(before)[row].IndexOf("Install", StringComparison.Ordinal);
+            Assert.True((selected[column, row].Style.Decoration & TextDecoration.Reverse) != 0);
+
             Press(view, ConsoleKey.Enter);
-            Assert.StartsWith("Guide › Install", Pinned(Draw(view)));
+            string followed = Draw(view);
+            Assert.Equal("Guide › Install", Pinned(followed).Trim());
+            Assert.DoesNotContain("Go to Install", followed);
 
             Press(view, ConsoleKey.LeftArrow, KeyModifiers.Alt);
-            Assert.Contains("Go to Install", Draw(view));
+            Assert.Equal(before, Draw(view));
             Press(view, ConsoleKey.RightArrow, KeyModifiers.Alt);
-            Assert.StartsWith("Guide › Install", Pinned(Draw(view)));
+            Assert.Equal(followed, Draw(view));
 
             Press(view, ConsoleKey.LeftArrow, KeyModifiers.Alt);
-            string back = Draw(view);
-            int row = Rows(back).ToList().FindIndex(line => line.Contains("Go to Install"));
-            Click(view, Rows(back)[row].IndexOf("Install", StringComparison.Ordinal), row);
-            Assert.StartsWith("Guide › Install", Pinned(Draw(view)));
+            Click(view, column, row);
+            Assert.Equal("Guide › Install", Pinned(Draw(view)).Trim());
         }
 
+        [Fact]
+        public void OutlineKeepsItsSelectionAcrossFramesSoEnterOpensTheChosenEntry() {
+            // Real frames bring a new render context each time; the outline must not reset between keys.
+            RecordingSurface surface = new RecordingSurface(100, 24, false);
+            InteractiveOptions options = PromptHarness.Options("Tab Down Enter Escape", surface);
+            Assert.True(PromptHarness.Guard(surface, () => WidgetPager.TryShow(Guide(), "Guide", options)));
+            Assert.Contains(surface.Frames, frame => Pinned(frame.ToPlainText()).Trim() == "Guide › Install");
+        }
+
+        [Fact]
+        public void ClickingAnOutlineEntryKeepsTheKeysInTheOutline() {
+            DocumentView view = View(Guide());
+            string first = Draw(view);
+            int install = Rows(first).ToList().FindIndex(row => row.StartsWith("    Install", StringComparison.Ordinal));
+            Click(view, 6, install);
+            Assert.Equal("Guide › Install", Pinned(Draw(view)).Trim());
+            Press(view, ConsoleKey.DownArrow);
+            Press(view, ConsoleKey.Enter);
+            Assert.Equal("Guide › Install › Windows", Pinned(Draw(view)).Trim());
+        }
+
+        [Fact]
+        public void TheWheelScrollsALongOutline() {
+            var long_ = new MarkdownView();
+            for (int i = 1; i <= 30; i++) {
+                long_.AddHeading(RichText.Plain("Section " + i), 2);
+                long_.AddParagraph(RichText.Plain("text " + i));
+            }
+            DocumentView view = View(long_);
+            string before = Draw(view, 100, 10);
+            Assert.Contains("Section 1", Rows(before)[1].Substring(0, Divider(before)));
+            view.Handle(InputEvent.Pointer(4, 3, MouseAction.Wheel, wheelDelta: -1));
+            string after = Draw(view, 100, 10);
+            Assert.DoesNotContain("Section 1 ", Rows(after)[1].Substring(0, Divider(after)) + " ");
+            Assert.Contains("Section 4", Rows(after)[1].Substring(0, Divider(after)));
+        }
         [Fact]
         public void RelatedCommandsOpenTheirOwnHelpAndBackReturns() {
             string? opened = null;
@@ -245,8 +288,10 @@ namespace ConsoleMonster.Tests.Interactive {
         private static DocumentView View(Layout.IWidget content, Func<string, Layout.IWidget?>? open = null) =>
             new DocumentView(content, "Document", DocumentModel.From(content, "Document", Context, open != null)!, new PromptLabels(), open: open);
 
-        private static string Draw(InteractiveView view) =>
-            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText();
+        private static string Draw(InteractiveView view, int width = 100, int height = 30) => DrawFrame(view, width, height).ToPlainText();
+
+        private static CellBuffer DrawFrame(InteractiveView view, int width = 100, int height = 30) =>
+            FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, width, height, false, TimeSpan.Zero)), width, height, Context);
 
         private static string[] Rows(string frame) => frame.Split('\n');
 

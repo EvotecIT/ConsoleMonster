@@ -71,6 +71,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal static DocumentLayout Build(DocumentPart part, bool[] folded, IList<Collapsible> headings, int width, RenderContext context) {
+            using IDisposable links = DocumentLinks.Collect();
             width = Math.Max(1, width);
             bool[] visible = Visible(part, folded);
             List<CellBuffer> pieces = new List<CellBuffer>();
@@ -116,6 +117,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>A section's body as text at a width, which find searches inside folded sections.</summary>
         internal static List<string> BodyText(DocumentSection section, int width, RenderContext context) {
+            using IDisposable links = DocumentLinks.Collect();
             List<string> lines = new List<string> { section.Title };
             if (section.Body != null) { lines.AddRange(Text(FrameComposer.RenderBlock(section.Body, Math.Max(1, width), context))); }
             return lines;

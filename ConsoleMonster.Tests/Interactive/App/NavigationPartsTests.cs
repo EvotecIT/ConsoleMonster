@@ -51,6 +51,18 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void TheWheelScrollsAnOutlineAwayFromItsCurrentEntry() {
+            var outline = new Outline("Toc");
+            foreach (int i in Enumerable.Range(1, 30)) { outline.Items.Add(new OutlineItem("Entry " + i)); }
+            outline.CurrentIndex = 0;
+            using var app = new AppController(outline, new AppState(), Context, 60);
+            Assert.EndsWith("Entry 1", app.PrepareFrame(80, 8).ToPlainText().Split('\n')[0].TrimEnd());
+            app.Handle(InputEvent.Pointer(4, 2, MouseAction.Wheel, wheelDelta: -1), true);
+            app.Refresh(null);
+            Assert.EndsWith("Entry 4", app.PrepareFrame(80, 8).ToPlainText().Split('\n')[0].TrimEnd());
+            Assert.EndsWith("Entry 4", app.PrepareFrame(80, 8).ToPlainText().Split('\n')[0].TrimEnd());
+        }
+        [Fact]
         public void BreadcrumbSegmentsOpenFromTheKeyboardAndShortenFromTheLeft() {
             var path = new Breadcrumb("Where") { Segments = { "Settings", "Network", "Proxy" } };
             var state = new AppState();

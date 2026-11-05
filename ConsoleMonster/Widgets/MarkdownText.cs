@@ -27,7 +27,8 @@ namespace ConsoleMonster.Widgets {
                 RichSegment segment = text.Segments[i];
                 string? link = segment.Style.Link;
                 if (i == 0 || text.Segments[i - 1].Style.Link != link) runStart = segments.Count;
-                string? target = context.Profile.SupportsHyperlinks ? Rendering.HyperlinkTarget.From(link) : null;
+                // A heading anchor inside the document viewer stays the viewer's to follow; everything else follows the hyperlink rules.
+                string? target = Interactive.DocumentLinks.Internal(link) ?? (context.Profile.SupportsHyperlinks ? Rendering.HyperlinkTarget.From(link) : null);
                 segments.Add(new RichSegment(segment.Text, segment.Style.WithLink(target), segment.IsMarkup));
                 if (link != null) {
                     label.Append(segment.IsMarkup ? Markup.Strip(segment.Text) : segment.Text);

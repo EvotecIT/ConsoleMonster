@@ -30,6 +30,8 @@ namespace ConsoleMonster.Interactive {
         private readonly Breadcrumb _crumb = new Breadcrumb("path");
         private List<int> _outlineSections = new List<int>();
         private DocumentPart? _outlinePart;
+        private Page? _outlinePage;
+        private int _outlinePartIndex = -1;
         private readonly Splitter _splitter;
         private Page _page;
         private Pane _focus = Pane.Document;
@@ -56,6 +58,8 @@ namespace ConsoleMonster.Interactive {
             _page = new Page(content, title, model);
             _splitter = new Splitter(new OutlinePane(this), new DocumentPane(this)) { Ratio = 0.28 };
             _crumb.Outline = _outline;
+            // The outline asks for focus when clicked; in the viewer that makes it the pane the keys go to.
+            _outline.FocusRequested += control => { _focus = Pane.Outline; control.Focused = true; };
             _outline.Opened += (sender, item) => {
                 int index = _outline.CurrentIndex;
                 if (index >= 0 && index < _outlineSections.Count) { JumpTo(_page.Part, _outlineSections[index], false, false); }
@@ -270,9 +274,13 @@ namespace ConsoleMonster.Interactive {
         // The outline lists the current part's headings and follows the reading position; the breadcrumb follows the outline.
         private void TrackOutline() {
             if (!ReferenceEquals(_outlinePart, Part)) {
+                // The same part rebuilt for a new theme keeps the reader's place in the outline.
+                bool samePart = ReferenceEquals(_outlinePage, _page) && _outlinePartIndex == _page.Part;
                 _outlinePart = Part;
+                _outlinePage = _page;
+                _outlinePartIndex = _page.Part;
                 _outlineSections = Outline();
-                _outline.SetItems(_outlineSections.ConvertAll(section => new OutlineItem(Part.Sections[section].Title, Math.Max(1, Part.Sections[section].Level))));
+                _outline.SetItems(_outlineSections.ConvertAll(section => new OutlineItem(Part.Sections[section].Title, Math.Max(1, Part.Sections[section].Level))), samePart);
                 _crumb.Ancestors.Clear();
                 if (_page.Model.Parts.Count > 1) { _crumb.Ancestors.Add(Part.Title); }
                 _followed = -1;
@@ -575,10 +583,15 @@ namespace ConsoleMonster.Interactive {
 
             internal int Part { get; set; }
 
-            /// <summary>Rebuilds the model for a new render context (a theme or tier change), keeping folds when the shape matches.</summary>
+            /// <summary>
+            /// Rebuilds the model when the terminal profile, theme or glyphs change, keeping folds when the shape matches.
+            /// Each frame brings a context with a new clock; that alone keeps the model, the layout and the outline as they are.
+            /// </summary>
             internal void Refresh(RenderContext context, bool openCommands) {
-                if (ReferenceEquals(context, _context)) { return; }
+                RenderContext? previous = _context;
                 _context = context;
+                if (previous != null && ReferenceEquals(previous.Profile, context.Profile) && ReferenceEquals(previous.Theme, context.Theme)
+                    && ReferenceEquals(previous.Glyphs, context.Glyphs)) { return; }
                 DocumentModel? model = DocumentModel.From(_content, Title, context, openCommands);
                 if (model != null && Same(model, Model)) { Model = model; Headings(model); }
                 Invalidate();
