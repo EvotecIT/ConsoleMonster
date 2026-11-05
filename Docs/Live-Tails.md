@@ -1,6 +1,6 @@
 # Live log tails
 
-`Watch-ConsoleLog` follows a file or a local Windows event log. It detects log levels, shows source timestamps in a fixed column, and keeps a scrollable history. Scrolling pauses following; End returns to the newest entries. Redirected output and `-Plain` return the original lines as strings without opening a live screen or reading keyboard input.
+`Watch-ConsoleLog` follows a file or a local Windows event log. It detects log levels, shows source timestamps in a fixed column, and keeps a scrollable history. Scrolling pauses following; End returns to the newest entries. Redirected output and `-NoLive` return the original lines as strings without opening a live screen or reading keyboard input.
 
 ## PowerShell
 
@@ -47,7 +47,7 @@ The Windows event-log command is a usage example. The website's captured evidenc
 | `-Level` | Every level | Lowest level kept: `Warn` keeps warnings and errors, `Verbose` drops only debug lines. |
 | `-Highlight` | Empty | Literal substring emphasized in the live view. |
 | `-TimestampFormat` | Automatic | Invariant .NET source timestamp format for the live view. Defaults to `HH:mm:ss`, adding `yyyy-MM-dd` when retained entries span source calendar days, at both compact and wide widths. |
-| `-Plain` | Off | Force original-line output and never acquire input. |
+| `-NoLive` | Off | Force original-line output and never acquire input. |
 
 Capacity limits applied history. Updates use the existing live session's unbounded queue; capacity is not a bound on all memory used by a busy producer. Accepted updates are applied before history eviction, and posts after shutdown follow the session's normal dropped-update rule. The footer reports discarded history entries only when the count is nonzero.
 
@@ -85,7 +85,7 @@ ConsoleLogTail.Run(source.ReadAvailable, new LogTailOptions {
 });
 ```
 
-Set `Count = 1` for a finite snapshot. `ConsoleLogTail.Run` calls its reader synchronously on the calling thread, so readers must return promptly. The caller owns the reader and its resources. `LogTailOptions` also accepts `Profile`, `Theme`, borrowed `Output`, and borrowed `Input`; `Plain = true` never acquires input. `WriteLine` receives the raw original text in plain mode, without a line terminator.
+Set `Count = 1` for a finite snapshot. `ConsoleLogTail.Run` calls its reader synchronously on the calling thread, so readers must return promptly. The caller owns the reader and its resources. `LogTailOptions` also accepts `Profile`, `Theme`, borrowed `Output`, and borrowed `Input`; `Live = false` never acquires input. `WriteLine` receives the raw original text in plain mode, without a line terminator.
 
 To embed the view in an application, construct `LogTailView`, include it in a `LiveSession`, send entries with `view.Post(dispatcher, entry)`, and forward input with `view.Navigate(dispatcher, input)`. Both methods queue work through the dispatcher. Set `LogTailOptions.TimestampFormat` for the runner or `LogTailView.TimestampFormat` for an embedded view to override the automatic source-date policy. The view owns its `LogRegion`; that renderer supplies `ShowTimestamp`, `HighlightText`, and `ScrollOffset`. Keep source polling and input ownership in the application.
 

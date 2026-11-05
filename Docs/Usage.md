@@ -452,8 +452,8 @@ A menu runs as an app (`Shell`), a centred menu (`Classic`) or a list in the scr
 
 ```powershell
 $menu = New-ConsoleMenu 'Backup helper' -Content {
-    New-ConsoleMenuItem 'Back up now' -Hotkey b -Command { if ($MenuContext.Confirm('Start now?', $true)) { Start-Backup } }
-    New-ConsoleMenuItem 'Restore' -Hotkey r -Command { $backup = Read-ConsoleSelect 'Backup' -Choices (Get-Backup) -Display Name }
+    New-ConsoleMenuItem 'Back up now' -Hotkey b -Action { if ($MenuContext.Confirm('Start now?', $true)) { Start-Backup } }
+    New-ConsoleMenuItem 'Restore' -Hotkey r -Action { $backup = Read-ConsoleSelect 'Backup' -Choices (Get-Backup) -Display Name }
     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings -OnSubmit { $MenuContext.Toast("Saved: $($Values.Keep) days") }
     New-ConsoleMenuItem -Exit
 }
@@ -557,7 +557,7 @@ lanes.Transient = true;              // nothing left at the end (with PrintFinal
 ```
 
 ```powershell
-'DC01', 'DC02' | New-ConsoleLanes -WidgetId servers -Total 40 -HideCompleted -Column Standard, Rate
+'DC01', 'DC02' | New-ConsoleLanes -WidgetId servers -HideCompleted -Column Standard, Rate
 New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining
 ```
 
@@ -769,10 +769,10 @@ Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title Services
 }
 ```
 
-For a shortcut, custom prompt, arguments or module imports, create one command:
+For a hotkey, custom prompt, arguments or module imports, create one command:
 
 ```powershell
-$restart = New-ConsoleCommand -Key Restart -Label Restart -Shortcut F5 `
+$restart = New-ConsoleCommand -Key Restart -Label Restart -Hotkey F5 `
     -ConfirmPrompt 'Restart selected services?' -ImportModule Microsoft.PowerShell.Management `
     -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
 Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Command $restart
@@ -954,10 +954,10 @@ Any widget, rendered frame or live-session snapshot can be saved as a self-conta
 ```powershell
 Get-Service | Select-Object -First 8 Name, Status, StartType | New-ConsoleTable | Export-ConsoleFrame -Path .\services.html
 $dashboard | Export-ConsoleFrame -Path .\run.svg -Width 120 -Height 36 -Title 'Nightly run' -ChromeStyle MacOS
-Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.svg      # animated, no script
-Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.html     # player with scrubbing
-Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.json     # data for the player script
-Export-ConsoleRecording -Dashboard $dashboard -InputRecordingPath .\run.jsonl -OutputPath .\run.cast     # asciicast v3
+Export-ConsoleRecording -Dashboard $dashboard -RecordingPath .\run.jsonl -Path .\run.svg      # animated, no script
+Export-ConsoleRecording -Dashboard $dashboard -RecordingPath .\run.jsonl -Path .\run.html     # player with scrubbing
+Export-ConsoleRecording -Dashboard $dashboard -RecordingPath .\run.jsonl -Path .\run.json     # data for the player script
+Export-ConsoleRecording -Dashboard $dashboard -RecordingPath .\run.jsonl -Path .\run.cast     # asciicast v3
 ```
 
 ```csharp
@@ -991,7 +991,7 @@ string player = Recording.ExportHtml(dashboard, File.OpenText("run.jsonl"));
   <script type="application/json" id="patch-run">...Recording.ExportPlayerData output...</script>
   ```
 
-  `Recording.ExportPlayerData` (or `Export-ConsoleRecording -OutputPath run.json`) writes the data:
+  `Recording.ExportPlayerData` (or `Export-ConsoleRecording -Path run.json`) writes the data:
   `{"format":"consolemonster-player","version":1,"title","width","height","fps","duration","chrome","css","rows":[html],
   "frames":[[startMs,[rowIndex,...]]]}`. `ConsoleMonsterPlayer.mount(element, data)` and `ConsoleMonsterPlayer.scan()`
   mount players added later; `data-cm-start` opens one at a time in milliseconds.

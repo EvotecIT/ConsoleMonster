@@ -6,10 +6,10 @@ live in [TODO.md](TODO.md).
 The aim: ConsoleMonster is complete enough that moving a product onto it never needs a ConsoleMonster change made for
 that product. Gaps are closed with general extension points, not per-product shims.
 
-## Shipped through 2.1.0
+## Shipped through 2.2.0
 
-- A zero-dependency .NET library (netstandard2.0, net472, net8.0) and a thin binary PowerShell module for Windows
-  PowerShell 5.1 and PowerShell 7, laid out library-first.
+- A zero-dependency .NET library (netstandard2.0, net472, net8.0, net10.0) and a thin binary PowerShell module for
+  Windows PowerShell 5.1 and PowerShell 7, laid out library-first.
 - Terminal detection (VT, colour depth, glyph tier, size, redirection, CI, light or dark background) with environment
   overrides, Unicode output through `WriteConsoleW`, Ctrl+C restore, and safe plain output for logs and CI.
 - Markup with the 256-colour palette names, hex, `rgb()`, theme roles and explicit `console.` / `palette.` names; links
@@ -49,10 +49,20 @@ that product. Gaps are closed with general extension points, not per-product shi
   opt-in automatic recording of the last runs (`LiveSessionOptions.AutoRecord`, `Invoke-ConsoleDashboard -AutoRecord`);
   region swaps recorded as pictures so they replay faithfully.
 - Object comparison and the what-if pattern: `Compare-ConsoleObject` (`ObjectDiff`, `ChangeView`) matches objects by
-  key and shows property-level changes with counts (summary, table, side by side, unified), and `Show-ConsoleChanges`
+  key and shows property-level changes with counts (summary, table, side by side, unified), and `Compare-ConsoleObject -Question`
   (`ChangePreview`) previews changes and asks before applying them, with a typed confirmation for removals and
   `-WhatIf` support.
 - PowerShell, C# initializer and C# fluent tabs on every demo. Fluent construction starts at `Ui`, named setters configure the same objects, and `ContentBuilder` keeps nesting consistent at every depth. Typed rows use `Table.For(rows)` / `Ui.Table(rows)`. A build-time Roslyn source generator compiles property-named setters into the library; no analyzer or runtime reflection ships. Metadata parity and byte-identical gallery triplets keep the translation complete.
+- Apps with screens, scoped key bindings and an overlay layer for dropdowns, dialogs and toasts; a headless terminal,
+  a browser host and an opt-in debug socket to test, record and drive them (2.1.3).
+- Images in the terminal: Kitty, iTerm2 and Sixel protocols with a half-block fallback, and ChartForgeX renders through
+  `ConsoleImage` in `ConsoleMonster.Graphics` (2.1.3).
+- Diagrams: the core `Diagram` model with nodes, links, groups and playable use cases, and routed topology rendering
+  through ConsoleMonster.Graphics (2.1.3).
+- Interactive navigation (2.2.0, `Docs/Proposals/Interactive-Navigation.md`): the mouse wherever the keyboard works;
+  collapsible sections, accordions, splitters and a find bar; a document viewer for Markdown and command help built from
+  reusable `Outline`, `Breadcrumb`, `Tabs` and `NavigationHistory<T>` parts; and `ChartView`, a chart you can explore over
+  any `ChartPlot`, with selections linked through app state between controls that implement `ILinkedSelection`.
 
 ## Next
 
@@ -74,8 +84,8 @@ repositories.
    `dotnet new` template, outside the zero-dependency core; a decision paper on a command-line layer
    (`Docs/Proposals/Command-Line-Layer.md`, written as part of this step). (Done.)
 
-   Shipped alongside steps 1–4: one PowerShell grammar for widgets (hierarchical objects into `New-ConsoleTree` and
-   `Add-ConsoleItem` for widgets made earlier; see `Docs/PowerShell-Conventions.md`), command help with real examples
+   Shipped alongside steps 1–4: one PowerShell grammar for widgets (containers take `-Content` script blocks and
+   items are records with shared property names; see `Docs/PowerShell-Conventions.md`), command help with real examples
    for every cmdlet, and website pages and demos for the everyday path, live runs, help and defaults, Linux and SSH, and
    the .NET packages.
 
@@ -113,13 +123,7 @@ Grouped under the step they would join; the rest stays unscheduled.
   AVFoundation on macOS, using the encoders shipped by the OS: no external program or download. Linux reports
   that MP4 is unavailable and suggests GIF. Revisit a managed H.264 encoder in 2027: Proxeno.Kiln is pre-release,
   and US H.264 patents run to about November 2027.
-- Scheduled, interactive navigation (`Docs/Proposals/Interactive-Navigation.md`): the mouse wherever the keyboard
-  works, then collapsible sections, splitters and find, then a navigable document viewer for Markdown and help.
-  Charts you can explore ship as `ChartView` over any `ChartPlot`: a crosshair, legend toggles, zoom and pan,
-  and selections linked through app state between any controls that implement `ILinkedSelection`.
-- Unscheduled, terminal work:
-  - images drawn into the cell grid through ChartForgeX, in the same separate package as raster export;
-  - QR codes and barcodes in the terminal through CodeGlyphX.
+- Unscheduled, terminal work: QR codes and barcodes in the terminal through CodeGlyphX.
 
 ## Not planned
 

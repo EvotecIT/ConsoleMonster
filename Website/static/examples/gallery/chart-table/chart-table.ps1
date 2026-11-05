@@ -25,8 +25,8 @@ $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
     [pscustomobject]@{ Key = 'memory'; Values = $memory }
 )
 $content = {
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 7 -SelectionKey Sample
-    New-ConsoleChartView -Key Load -Chart $chart -Labels $samples.Time -SelectionKey Sample
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 7 -LinkKey Sample
+    New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Time -LinkKey Sample
 }
 
 # Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a

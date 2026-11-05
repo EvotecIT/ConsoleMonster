@@ -1,6 +1,9 @@
 # Full-screen apps
 
-Status: approved on 25 October 2026 with the dated decisions below. Phase 2 preview is in review; visual corrections and native Windows interaction remain before release.
+Status: approved on 25 October 2026 with the dated decisions below. The calendar and phases 2 to 4 shipped in 2.1.0
+([#59](https://github.com/EvotecIT/ConsoleMonster/pull/59), [#60](https://github.com/EvotecIT/ConsoleMonster/pull/60),
+[#79](https://github.com/EvotecIT/ConsoleMonster/pull/79)). From phase 5, splitters shipped in 2.2.0
+([#107](https://github.com/EvotecIT/ConsoleMonster/pull/107)); the other follow-on controls wait for a real caller.
 
 I want ConsoleMonster to build full-screen administration tools: browse services,
 inspect objects, filter a large result set, choose a maintenance window, run an

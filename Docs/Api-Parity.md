@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **104 commands**, **1196 parameters** and **366 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **105 commands**, **1199 parameters** and **366 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -65,6 +65,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleDiagram` | `Ui.Diagram()` | `c.Diagram(diagram => …)` |
 | `New-ConsoleCollapsible` | `Ui.Collapsible()` | `c.Collapsible(collapsible => …)` |
 | `New-ConsoleSplitter` | `Ui.Splitter()` | `c.Splitter(splitter => …)` |
+| `New-ConsoleAccordion` | `Ui.Accordion()` | `c.Accordion(accordion => …)` |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |
@@ -91,7 +92,6 @@ A structural parameter set can select a different request model. The metadata ga
 
 | Command and parameter | Set | C# member | Conversion |
 | --- | --- | --- | --- |
-| `New-ConsoleCollapsible -Content` | Accordion | `ConsoleMonster.Interactive.Accordion.Add` | With -Accordion, each section emitted by Content is added to the group in order. |
 | `New-ConsoleTable -InputObject` | Live | `ConsoleMonster.Widgets.LiveTable.Set` | Live rows retain a stable key and projected values; model reuse adapts input records through the same keyed Set operation. |
 | `Update-Console -Detail` | Run | `ConsoleMonster.Live.RunUpdate.Detail` | Identity |
 | `Update-Console -Index` | Run | `ConsoleMonster.Live.RunUpdate.Index` | Run requires exactly one index; the cmdlet rejects zero or several elements before using the sole scalar position. |
@@ -296,7 +296,8 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.ConsoleAppOptions.Selection` | CSharpOnly: A native host can compute its action row set with a strongly typed delegate; PowerShell selects ordinary state values by SelectionKey. | Use Show-ConsoleApp -SelectionKey for scalar or collection state. |
 | `ConsoleMonster.Interactive.GridOptions.Dispatcher` | CSharpOnly: A native grid host may provide its own mailbox; PowerShell keeps script execution and row refresh on the owning runspace. | Use Show-ConsoleGrid -Command and -RefreshRow; C# hosts can supply an AppDispatcher. |
 | `ConsoleMonster.Interactive.CommandOptions.Action` | CSharpOnly: PowerShell supplies ScriptBlock, modules and arguments to its isolated script runner; C# supplies the asynchronous delegate directly. | New-ConsoleCommand -ScriptBlock configures the same asynchronous command job. |
-| `ConsoleMonster.Interactive.DataGrid.Cursor` | CSharpOnly: Programmatic cursor placement is retained grid state, not constructor configuration. | Call Move or set Cursor on the DataGrid returned by New-ConsoleDataGrid. |
+| `ConsoleMonster.Interactive.DataGrid.SelectedIndex` | CSharpOnly: Programmatic cursor placement is retained grid state, not constructor configuration. | Call Move or set SelectedIndex on the DataGrid returned by New-ConsoleDataGrid. |
+| `ConsoleMonster.Interactive.DataGrid.Cursor` | CSharpOnly: The 2.1 name of SelectedIndex, kept obsolete so existing C# callers still build; it reads and sets SelectedIndex. | Use SelectedIndex on the DataGrid returned by New-ConsoleDataGrid. |
 | `ConsoleMonster.Interactive.LogViewport.Capacity` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure Capacity, and embed it in Show-ConsoleApp. |
 | `ConsoleMonster.Interactive.LogViewport.Height` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure Height, and embed it in Show-ConsoleApp. |
 | `ConsoleMonster.Interactive.LogViewport.ShowElapsed` | CSharpOnly: The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet. | Create LogViewport in PowerShell or C#, configure ShowElapsed, and embed it in Show-ConsoleApp. |
@@ -639,7 +640,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.PromptLabels.KeyResize` | CSharpOnly: Native prompt hosts can replace the 'resize' caption (Key hint: move the divider between two panes.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyResize catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Interactive.PromptLabels.Find` | CSharpOnly: Native prompt hosts can replace the 'Find' caption (The caption of the find bar.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.Find catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Interactive.PromptLabels.FindMatches` | CSharpOnly: Native prompt hosts can replace the '{0} of {1}' caption (The find bar's position among the matches: {0} is the current match, {1} the number of matches.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.FindMatches catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
-| `ConsoleMonster.Interactive.ChartView.Cursor` | CSharpOnly: The crosshair position is retained interaction state; its value in app state is the point index. | Set Cursor on the ChartView returned by New-ConsoleChartView, or write the -SelectionKey state key from a callback. |
+| `ConsoleMonster.Interactive.ChartView.SelectedIndex` | CSharpOnly: The crosshair position is retained interaction state; its value in app state is the point index. | Set SelectedIndex on the ChartView returned by New-ConsoleChartView, or write the -LinkKey state key from a callback. |
 | `ConsoleMonster.Interactive.ChartView.ZoomLevel` | CSharpOnly: The zoom level is retained interaction state, changed with + and - or the wheel. | Set ZoomLevel on the ChartView returned by New-ConsoleChartView. |
 | `ConsoleMonster.Interactive.ChartView.Pan` | CSharpOnly: The zoomed window position is retained interaction state, changed with Shift+Left/Right or a drag. | Set Pan on the ChartView returned by New-ConsoleChartView. |
 | `ConsoleMonster.Interactive.PromptLabels.KeyPoint` | CSharpOnly: Native prompt hosts can replace the 'point' caption (Key hint: move a chart's crosshair to the previous or next point.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyPoint catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
