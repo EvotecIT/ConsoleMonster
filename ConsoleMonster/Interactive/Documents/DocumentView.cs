@@ -49,6 +49,8 @@ namespace ConsoleMonster.Interactive {
         // The section a jump went to, which stays current while its heading is on screen even when the end of the
         // document keeps it from reaching the top; any scrolling hands back to the reading position.
         private int _jumped = -1;
+        // The layout the find bar's matches were found in.
+        private DocumentLayout? _searched;
 
         private enum Pane { Strip, Outline, Document }
 
@@ -88,7 +90,9 @@ namespace ConsoleMonster.Interactive {
             _pinned = HasHeadings(Part);
             _pageRows = Math.Max(1, bodyRows - (_pinned ? 1 : 0));
             DocumentLayout layout = Layout();
-            if (_find.Active) { _find.Search(layout.Lines, State.Top); }
+            // Matches belong to one layout: a fold, a resize or a new part re-searches, keeping the current match where it can;
+            // an ordinary redraw keeps the match the reader moved to.
+            if (_find.Active && !ReferenceEquals(layout, _searched)) { Rescan(layout); }
             Move(0);
             TrackOutline();
             rows.Add(new HeaderBar(Markup.Escape(_page.Title)) {
@@ -479,8 +483,16 @@ namespace ConsoleMonster.Interactive {
                 }
                 if (changed) { _page.Invalidate(); }
             }
-            _find.Search(Layout().Lines, State.Top);
+            _searched = Layout();
+            _find.Search(_searched.Lines, State.Top);
             Reveal();
+        }
+
+        private void Rescan(DocumentLayout layout) {
+            int line = State.Top, column = 0;
+            if (_find.Current >= 0) { FindBar.Match current = _find.Matches[_find.Current]; line = current.Line; column = current.Start; }
+            _searched = layout;
+            _find.Search(layout.Lines, line, column);
         }
 
         private void StepMatch(int delta) { if (_find.Step(delta)) { Reveal(); } }

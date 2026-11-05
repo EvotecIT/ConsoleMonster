@@ -130,6 +130,40 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
+        public void FindStepsThroughSeveralMatchesOnScreenAcrossRedraws() {
+            DocumentView view = View(Guide());
+            Draw(view);
+            Type(view, "/install line");
+            CellBuffer first = DrawFrame(view);
+            Assert.Contains("1 of 20", first.ToPlainText());
+            int top = CurrentMatchRow(first);
+            Assert.True(top > 0, first.ToPlainText());
+
+            // Each step is drawn before the next; the match moved to must survive the redraw.
+            Press(view, ConsoleKey.Enter);
+            CellBuffer second = DrawFrame(view);
+            Assert.Contains("2 of 20", second.ToPlainText());
+            Assert.Contains("2 of 20", Draw(view));
+            Press(view, ConsoleKey.Enter);
+            Assert.Contains("3 of 20", Draw(view));
+            Press(view, ConsoleKey.Enter, KeyModifiers.Shift);
+            CellBuffer back = DrawFrame(view);
+            Assert.Contains("2 of 20", back.ToPlainText());
+            Assert.Equal(CurrentMatchRow(second), CurrentMatchRow(back));
+            Assert.True(CurrentMatchRow(second) > top);
+
+            // With the bar closed, n and N keep moving from the same match.
+            Press(view, ConsoleKey.Escape);
+            Draw(view);
+            Type(view, "n");
+            Draw(view);
+            Type(view, "n");
+            int fourth = CurrentMatchRow(DrawFrame(view));
+            Type(view, "N");
+            Assert.True(CurrentMatchRow(DrawFrame(view)) < fourth);
+            Assert.Equal(CurrentMatchRow(DrawFrame(view)), CurrentMatchRow(DrawFrame(view)));
+        }
+        [Fact]
         public void AnchorLinksAreFoundFollowedAndRetracedWithBackAndForward() {
             DocumentView view = View(Guide());
             Draw(view);
@@ -293,6 +327,15 @@ namespace ConsoleMonster.Tests.Interactive {
         private static CellBuffer DrawFrame(InteractiveView view, int width = 100, int height = 30) =>
             FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, width, height, false, TimeSpan.Zero)), width, height, Context);
 
+        // The row of the current find match, which is drawn reversed (the other matches are underlined).
+        private static int CurrentMatchRow(CellBuffer frame) {
+            for (int y = 0; y < frame.Height; y++) {
+                string row = frame.GetRowText(y);
+                int at = row.IndexOf("install line", StringComparison.Ordinal);
+                if (at >= 0 && (frame[at, y].Style.Decoration & TextDecoration.Reverse) != 0) { return y; }
+            }
+            return -1;
+        }
         private static string[] Rows(string frame) => frame.Split('\n');
 
         private static string Row(string frame, string text) => Rows(frame).First(row => row.Contains(text));
