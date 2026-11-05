@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 51,
+      "count": 52,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -354,6 +354,11 @@
           "name": "New-ConsoleChart",
           "synopsis": "Creates one numeric chart representation from records or samples.",
           "url": "/powershell/commands/new-consolechart/"
+        },
+        {
+          "name": "New-ConsoleChartView",
+          "synopsis": "Makes a line chart explorable inside Show-ConsoleApp.",
+          "url": "/powershell/commands/new-consolechartview/"
         },
         {
           "name": "New-ConsoleCollapsible",
