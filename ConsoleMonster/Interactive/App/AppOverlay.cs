@@ -133,7 +133,7 @@ namespace ConsoleMonster.Interactive {
             for (int i = popups.Length - 1; i >= 0; i--) {
                 if (Contains(popups[i].Area, input)) {
                     owner = popups[i].Owner;
-                    before = (owner as ILinkedSelection)?.SelectedIndex;
+                    before = (owner as ILinkedSelection)?.LinkIndex;
                     owner.HandlePopupInput(input, context);
                     return true;
                 }

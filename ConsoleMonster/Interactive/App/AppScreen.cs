@@ -34,7 +34,5 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Keys that apply while this is the current screen. They reach the screen after the focused input and feed the footer.</summary>
         public IList<KeyBinding> Bindings { get; } = new List<KeyBinding>();
 
-        // Divider ratios of keyed splitters on this screen, kept when a layout is rebuilt.
-        internal System.Collections.Concurrent.ConcurrentDictionary<string, double> SplitRatios { get; } = new System.Collections.Concurrent.ConcurrentDictionary<string, double>(StringComparer.OrdinalIgnoreCase);
     }
 }

@@ -1,34 +1,37 @@
-## Unreleased
+### 2.2.0 - 2026-11-05
 
-- Added `ChartView`, a chart you can explore inside an app (`New-ConsoleChartView`): a crosshair that reads every series at the point, also in the footer; legend entries and number keys that hide or show a series; zoom and pan with +/-, the wheel, Shift+Left/Right and drag; and a selection shared through a `SelectionKey` in app state. Any control that implements `ILinkedSelection` links that way: `DataGrid`, `ChartView`, `Select` and `MultiSelect` do, with `-SelectionKey` on their commands. `ChartView` explores any chart through the public `ChartPlot` contract. ChartForgeX line charts explore through `ToChartPlot()` in ConsoleMonster.Graphics, which now uses ChartForgeX 3.4.0 and its prepared X zoom levels. `New-ConsoleDataGrid` lists ordinary objects with `-InputObject` and `-Property`.
-- Markdown with headings and command help open in a document viewer: an outline beside the text that follows the reading position, the current section's path pinned above it, headings that fold, find that opens folded sections, links with back and forward history, and Ctrl+K to go to a section or parameter. Help gets a header card with module, version and `-WhatIf` badges, tabs for Overview, Parameters, Examples and Related, and related commands that open their own help. `Show-ConsoleHelp` and `help` with `Enable-ConsoleFormatting -Include Help` use it on interactive terminals; `Show-ConsoleHelp -NoPager` prints instead. Redirected and non-interactive output is unchanged.
-- `Tabs` underline the active label above a rule, take focus on their strip (←/→ and the number keys switch tabs there), list their keys in the footer and scroll their labels on narrow terminals.
-- Added `Outline` (`New-ConsoleOutline`), `Breadcrumb` (`New-ConsoleBreadcrumb`) and `NavigationHistory<T>` as app parts: an outline entry can open and focus a control such as a collapsible section, a breadcrumb can follow an outline's current entry, and the document viewer is built from them. The `settings-tabs` gallery demo uses them in a settings app.
+Apps and documents are easier to move around in. The mouse works wherever the keyboard does, long content folds, panes resize, logs and documents have find, Markdown and command help open in a document viewer, and charts can be explored and linked to tables.
 
-- Added `Collapsible` and `Accordion` (`New-ConsoleCollapsible`, with `-Accordion` for a group), a `Splitter` with a draggable divider and keyboard resize that keeps its ratio per screen (`New-ConsoleSplitter`), and a find bar with match counts, n/N and highlighting in `LogViewport`, `TextArea` and the document pager.
+#### What's new
+- The mouse works wherever the keyboard does, and every pointer action has a key in the footer or the context menu. Clicking a footer hint presses its key, header breadcrumbs go back, scroll bars click and drag, toggles flip, text inputs place the caret and select by dragging, double-click opens a row in `DataGrid`, `TreeSelect` and list `Select`, and `DataGrid` headers sort. Right-click, the Menu key or Shift+F10 open a context menu of the keys that work at that moment. Prompts, menus, the command palette, forms, `Show-ConsoleGrid`, the object explorer and the pager take the mouse too, and diagram nodes and use-case steps respond to clicks. `InteractiveOptions.Mouse` and `CONSOLEMONSTER_NOMOUSE=1` turn it off everywhere; `Show-ConsoleApp -NoMouse` still turns it off for one app. Recording, export, CI and redirected output are unchanged. (#106)
+- `Collapsible` sections (`New-ConsoleCollapsible`) have a focusable header and a collapsed summary, and hidden inputs leave focus traversal. `Accordion` (`New-ConsoleAccordion -Content`) keeps one section open, with `+` to expand all and `-` to collapse all. (#107)
+- `Splitter` (`New-ConsoleSplitter`) shows two panes side by side or stacked, with a draggable divider and Ctrl+Shift+arrows when the focused input leaves those keys free. `-Fill` takes the remaining height, a vertical splitter measures its content, and a splitter with a `Key` stores its ratio in app state, so the ratio survives a binding that rebuilds the layout. (#107)
+- A find bar in `LogViewport`, `TextArea` and the document pager: `/` or Ctrl+F opens it, matches are highlighted and counted, and Enter and Shift+Enter move between them. In logs and the pager `n` and `N` keep working after the bar closes. A capital letter in the query makes the search case-sensitive. (#107)
+- Markdown with headings and command help open in a document viewer: an outline beside the text that follows the reading position, the current section's path pinned above it, headings that fold, find that opens folded sections, links with back and forward history, and Ctrl+K to go to a section or parameter. Help gets a header card with module, version and `-WhatIf` badges, tabs for Overview, Parameters, Examples and Related, and related commands that open their own help. `Show-ConsoleHelp` and `help` with `Enable-ConsoleFormatting -Include Help` use it on interactive terminals; `Show-ConsoleHelp -NoPager` prints instead. Redirected and non-interactive output is unchanged. (#108)
+- `Outline` (`New-ConsoleOutline -Items`), `Breadcrumb` (`New-ConsoleBreadcrumb -Segments`, or `-Ancestors` to follow an outline's current entry) and `NavigationHistory<T>` are reusable app parts. An outline entry can open and focus a control such as a collapsible section, and the document viewer is built from them. (#108)
+- `Tabs` underline the active label above a rule, take focus on their strip (←/→ and the number keys switch tabs there), list their keys in the footer and scroll their labels on narrow terminals. A keyed tab strip (`New-ConsoleTabs -Key`, `new Tabs("key")` in C#) keeps the active tab's title in app state, and `-OnChange` runs when it changes. C# adds tabs with `Tabs.Add(TabOptions)` or the fluent `.Tab(title, c => …)`. (#108)
+- `ChartView` (`New-ConsoleChartView`) is a chart you can explore inside an app: a crosshair that reads every series at the point, also in the footer; legend entries and number keys that hide or show a series; zoom and pan with +/-, the wheel, Shift+Left/Right and drag; and point labels with `-PointLabels`. It explores any chart through the public `ChartPlot` contract, and ChartForgeX line charts explore through `ToChartPlot()` in ConsoleMonster.Graphics with ChartForgeX's prepared X zoom levels. (#109)
+- Linked selection: controls that implement `ILinkedSelection` share their selection through a `LinkKey` in app state. `DataGrid`, `ChartView`, `Select` and `MultiSelect` do, with `-LinkKey` on `New-ConsoleDataGrid`, `New-ConsoleChartView` and `New-ConsoleSelect`, so selecting a point selects its row and the other way round. `New-ConsoleDataGrid` lists ordinary objects with `-InputObject` and `-Property`. (#109)
+- New gallery demos in PowerShell, C# and C# fluent: `chart-table`, `help-sections` and `settings-tabs`. `dotnet new consolemonster --demo chart-table|help-sections|settings-tabs` starts a project from them.
 
-- Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.
+#### Changed
+- `DataGrid.SelectedIndex` is the focused row's position, the name `Tabs`, `Outline` and `ChartView` use too. `DataGrid.Cursor` still works and is marked obsolete.
+- ConsoleMonster.Graphics uses ChartForgeX and ChartForgeX.Markup 3.4.0 (from 3.3.1).
 
-- Added the `Diagram` model, widget-returning fluent chains and PowerShell diagram commands for nodes, links, nested groups, connection rows and playable use cases.
-- Kept diagram models and grouped tree rendering in the dependency-free core. The optional Graphics provider adds ChartForgeX import, routed topology rendering, keyboard navigation and PNG export.
-- Added full-text attention summaries, a lossless narrow tree view, and addressed node values and shared `StatusKind` updates through C# handles and `Update-Console`.
-- Unified baseline selection in `DiffOptions.Baseline` and documented hashtable configuration for PowerShell date pickers.
-- Kept omitted diagram statuses unmarked, nested tree hierarchies, preserved wrapped guides and used compact natural topology sizing.
-- Let live value boxes grow in bounded steps without shrinking between updates, and made the attention heading bold.
-- Reject pipeline input with Show-ConsoleDiagram -Path once, before reading the file.
-- Kept node attention details separate from connection failures, using each node's own value or subtitle.
-- Preserved imported chart and scenario-step metadata through Diagram edits, measured ASCII captions before topology projection, and kept automatic key hints out of static Diagram runs.
-- Kept expanding ASCII captions and tab hit areas aligned, and counted unchanged single-object comparisons once.
-- Accessible diagrams keep status, focus and active failures in their tree text even when companion panels are hidden; reduced motion freezes playback and resumes without skipping.
-- Preserved Unicode diagram example text in Windows PowerShell 5.1 and PowerShell 7.
-- Added the typed `TopologyChart.ToDiagram()` extension in Graphics, keeping the core free of ChartForgeX types and dependencies.
-- Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.
-- Tables, cards, records, key/value lists, trees and diffs distinguish missing, null and empty data. Record sheets show empty fields by default; explicit empty-field filtering remains available.
-- ASCII and Basic output constrain caller text to ASCII and WGL4 respectively. Grid and live-table string sorting use stable ordinal case-insensitive order. See the [behaviour contract](Docs/Behaviour-Contract.md).
+#### Fixed
+- Double-clicking a row in `Show-ConsoleGrid` opens its details.
+- A splitter inside a binding keeps dragging after the binding redraws.
+- The find bar's match count is no longer clipped.
+- `Show-ConsoleObject` prints a static view when output is redirected or runs under CI.
+- Fluent-style projects from `dotnet new consolemonster` build.
+- Examples that read input print a clear message when input is redirected, instead of failing.
 
-### 2.1.0 - the everyday path
+### 2.1.3 - 2026-11-04
 
-## Public API
+Apps get screens, scoped key bindings and an overlay layer, and can be tested and driven without a terminal. Images draw inline, summary commands get dashboard frames, and diagrams arrive in the core with routed topology rendering in Graphics.
+
+#### Public API (breaking changes)
+I consolidated the pre-launch API: commands and builders that did the same job became one, leaving 89 exported cmdlets, and Commander and file operations moved to `ConsoleMonster.CLI`, outside the module and the library packages. (#91)
 
 - Constructors return reusable widgets; `Show-Console` and `Show-ConsoleTable` display them. Records use `Show-Console -View List`, static inspectors use `Show-Console -View Tree`, and explicit hierarchies use `New-ConsoleTree`. `Show-ConsoleObject` is a rich interactive explorer.
 - `New-ConsoleTable` owns table configuration through `-Property`. Charts and rules are built with `New-ConsoleChart` and `New-ConsoleRule`, then displayed with `Show-Console`. `Export-ConsoleFrame` accepts objects or widgets and returns text when no path is supplied.
@@ -36,13 +39,9 @@
 - Item collections, tabs, menu results and numeric-column formats accept records in their parent definitions. `New-ConsoleStatusList -Layout Strip` builds phase strips; `New-ConsoleRegion` handles alignment and padding. Dashboard and app parameters configure headings and footers.
 - `Update-Console` validates live updates. Custom C# targets receive events through `LiveSession.Post`. `Compare-ConsoleObject -Question` displays changes and returns the confirmation decision.
 - `Enable-ConsoleFormatting` enables Output, FormatCommands, Errors, Streams and ReadLine by default. `-Include` and `-Exclude` adjust that set; `-ErrorLayout Compact|Standard|Detailed` selects error detail. Prompt, Help, Progress and GridView remain opt-in. `Get-ConsoleFormatting` reports the active features.
-- Interactive snapshots use `-Mode Snapshot`. `Show-ConsolePresentation -ScriptPath` selects a demo script and optional `-Path` records it unattended; `Get-ConsoleDemo` exposes standalone script text through `.Source`. Recording exports use `-InputRecordingPath` and `-OutputPath`; frame exports and session recording use `-Path`. `-ChromeStyle None|MacOS|Windows|Linux` selects window decoration.
+- Interactive snapshots use `-Mode Snapshot`. `Show-ConsolePresentation -ScriptPath` selects a demo script and optional `-Path` records it unattended; `Get-ConsoleDemo` exposes standalone script text through `.Source`. Recording exports read the cast from `-RecordingPath` and write to `-Path`; frame exports and session recording also use `-Path`. `-ChromeStyle None|MacOS|Windows|Linux` selects window decoration.
 - The PowerShell module ships net472 and net8.0 payloads and bundles the Markdown and graphics add-ons. NuGet packages retain their existing target frameworks. Commander and file-operation application code live in `ConsoleMonster.CLI`, outside the library packages and module.
 - Imports register only the documented allowlist of fully qualified type accelerators. Markdown display and export belong to `ConsoleMonster.Markdown`; the rendering core stays dependency-free.
-
-- Animated slide exports use managed GIF with a useful first frame, a final hold and native slide dimensions. External video export is removed; OS-provided video encoders remain on the roadmap.
-- Recording exports add Slow, Normal and Fast reading pace, persistent hold markers, chapter holds, source/chapter trims and chapter speeds across GIF, APNG, HTML and animated SVG. New casts preserve source timestamps so export idle compression stays reversible.
-- Terminal exports share centred regular titles, Windows Terminal tabs, rounded body clipping and an 8 px page inset across HTML, SVG and slide graphics.
 
 #### What's new
 - Images inline: `Show-ConsoleImage -Path ./chart.png -Width 40` draws real pixels in Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel), half blocks on any other terminal with 256 colours or more, and `[image: name WxH]` in redirected, CI and no-colour output. `New-ConsoleImage` places an image inside panels and dashboards, and `ConsoleImage` in `ConsoleMonster.Graphics` takes PNG bytes, a file or a ChartForgeX render. `Get-ConsoleCapability` reports the protocol in `ImageProtocol`. See [Inline images](https://consolemonster.dev/docs/inline-images/).
@@ -52,6 +51,46 @@
 - Log panels are app-grade log tails. Lines carry an optional source tag with its own column and a colour that stays the same for that source (`Write-ConsoleLogEntry -Tag`, event-log providers in `Watch-ConsoleLog`). `LogFilter` shows one tag, a minimum level or matching text without dropping history (`New-ConsoleLogRegion -Tag/-Level/-Filter`, `Watch-ConsoleLog -Level`). The app `LogViewport` follows new lines, pauses on scroll or `Pause()` with a `⏸ Paused · N new` line, jumps back with End or `Follow()`, and takes `Border = None` inside a panel; it shares one follow, pause and filter model with `Watch-ConsoleLog`.
 - Phase strips fan out: the running phase lists its items under the strip, keeping failed and running items visible and folding the rest into `+N more` with counts per status (`-FanOut`, `ParentKey` records, `Update-Console -ParentKey`). `-Layout Chain` draws the phases on one line that folds around the current phase to fit a table cell.
 - ConsoleMonster's own placeholders (`—`, `…`, `{…}`, `⚠`) follow the glyph tier where cells are drawn, so ASCII output stays ASCII while caller text stays verbatim. On terminals with clickable links, a link the terminal cannot open, such as a bare relative path, keeps its target as text.
+- Dashboard frames for summary commands (`ConsoleMonster.Frames`): `DashboardFrame` composes a title line with the estate's facts and state, a row of meters, a "Needs attention" list, summary and detail sections, a legend and a footer into one view. Pipeline objects keep their identity and values. (#90)
+- Added the `Diagram` model, widget-returning fluent chains and PowerShell diagram commands for nodes, links, nested groups, connection rows and playable use cases.
+- Kept diagram models and grouped tree rendering in the dependency-free core. The optional Graphics provider adds ChartForgeX import, routed topology rendering, keyboard navigation and PNG export.
+- Added full-text attention summaries, a lossless narrow tree view, and addressed node values and shared `StatusKind` updates through C# handles and `Update-Console`.
+- Added the typed `TopologyChart.ToDiagram()` extension in Graphics, keeping the core free of ChartForgeX types and dependencies.
+- Interactive apps, menus, grids, watches and log tails print a current static view in redirected, CI and non-interactive sessions. Finite polling counts are preserved, and questions still require a valid default or report the missing value.
+- Tables, cards, records, key/value lists, trees and diffs distinguish missing, null and empty data. Record sheets show empty fields by default; explicit empty-field filtering remains available.
+- ASCII and Basic output constrain caller text to ASCII and WGL4 respectively. Grid and live-table string sorting use stable ordinal case-insensitive order. See the [behaviour contract](Docs/Behaviour-Contract.md).
+- Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.
+
+#### Changes and fixes
+- Unified baseline selection in `DiffOptions.Baseline` and documented hashtable configuration for PowerShell date pickers.
+- Kept omitted diagram statuses unmarked, nested tree hierarchies, preserved wrapped guides and used compact natural topology sizing.
+- Let live value boxes grow in bounded steps without shrinking between updates, and made the attention heading bold.
+- Reject pipeline input with Show-ConsoleDiagram -Path once, before reading the file.
+- Kept node attention details separate from connection failures, using each node's own value or subtitle.
+- Preserved imported chart and scenario-step metadata through Diagram edits, measured ASCII captions before topology projection, and kept automatic key hints out of static Diagram runs.
+- Kept expanding ASCII captions and tab hit areas aligned, and counted unchanged single-object comparisons once.
+- Accessible diagrams keep status, focus and active failures in their tree text even when companion panels are hidden; reduced motion freezes playback and resumes without skipping.
+- Preserved Unicode diagram example text in Windows PowerShell 5.1 and PowerShell 7.
+- Whole-session recordings keep later full-screen frames after a credential is redacted: credential rules stop at a real row change, an erase, a terminal reset or an alternate-screen switch. (#99)
+
+### 2.1.2 - 2026-10-29
+
+- Trees, pickers and the object explorer use shared object identities and default properties. Tree output summarizes empty fields and repeated getter failures, labels elements at the depth limit and renders booleans consistently. A pipeline opens one explorer for its whole collection. (#89)
+- `Show-ConsoleMenu` takes menus only; other pipeline objects produce one terminating error that points to `Get-Service | Read-ConsoleSelect`. Every exported command rejects unsupported pipeline input once instead of per object. (#89)
+- Prompt widgets fit the content width and their titles are optional, charts keep duplicate labels, byte values show their units and the grid closes on Ctrl+Q. The Basic and ASCII forms of arrows, unchecked boxes, traffic lights and stop signs mean the same as their Full glyphs. (#89)
+
+### 2.1.1 - 2026-10-29
+
+- `Enable-ConsoleFormatting` enables everyday output, native format commands, errors, stream colours and ReadLine colours by default. `-Include` adds opt-ins, `-Exclude` leaves selected features native and `-Feature` selects an exact set. Prompt, Help, Progress and GridView remain opt-in, and `Get-ConsoleFormatting` reports the active features. `-Verbose` and `-WhatIf` messages stay short, and an already installed progress adapter is restored when a later installation fails. (#88)
+- After-label trees keep cycle and repeat evidence when labels or state columns are shortened, and show one marker when several state columns are present. Default-view title states and footers wrap at separators and keep each entry together when it fits, also in ASCII output. (#87)
+
+### 2.1.0 - 2026-10-28 - the everyday path
+
+- Animated slide exports use managed GIF with a useful first frame, a final hold and native slide dimensions. External video export is removed; OS-provided video encoders remain on the roadmap.
+- Recording exports add Slow, Normal and Fast reading pace, persistent hold markers, chapter holds, source/chapter trims and chapter speeds across GIF, APNG, HTML and animated SVG. New casts preserve source timestamps so export idle compression stays reversible.
+- Terminal exports share centred regular titles, Windows Terminal tabs, rounded body clipping and an 8 px page inset across HTML, SVG and slide graphics.
+
+#### What's new
 - `Matrix`, reference trees and grouped streaming tables provide reusable views for cross-tab results, linked hierarchies and incrementally arriving groups.
 - The optional `ConsoleMonster.PowerShell.Display` package registers exact application types through runspace-owned leases. It preserves original pipeline objects and leaves unregistered values with native PowerShell formatting.
 - Embedded displays preserve the host's foreground and background colors, including resets and streamed footers. Automatic streams sample up to 200 rows and check a 250 ms boundary on arrivals and completion. Quick completed scopes use a collected table or an optional detailed single-record view; open streams keep one stable grid. Collection status updates on arriving rows after one second, clears before the final view and leaves native warnings and errors intact. Redirected output and transcripts never receive the status line.
@@ -124,7 +163,7 @@
 - Replay shows one frame: a recorded `Dashboard`'s own header and footer are not replayed, and its title (the default run name in `Show-ConsoleReplay`), subtitle and status show in the player's header.
 - Redirected dashboards no longer record their own output again: the log lines that the PowerShell host wrote back through `Console.Out` came back as `$log` "out" events about every 60 ms (a bug that predates 2.0's replay work). `LiveSession.SuspendCapture()` lets a host write a session's output without capturing it.
 - Change tables list an added or removed object's compared properties on their own lines (`ObjectChange.Values`), up to `ChangeView.MaxProperties` (6), then "+N more" with `ChangeView.MoreHint` ("-PassThru or -View SideBySide" from the cmdlets); the side-by-side view lists them all.
-- The HTML recording player is one native asset (`ConsoleExporter.PlayerScript`, `ConsoleExporter.PlayerStyles`, embedded `player.js` / `player.css`) with a data format (`Recording.ExportPlayerData`, `Export-ConsoleRecording -Format PlayerData` or `-OutputPath *.json`) and a `data-cm-recording` contract, so sites include the script once for many players; it rewrites only changed rows, wakes at the recording's frame rate, updates the clock and position once a second, pauses off-screen and in hidden tabs, autoplays one player per page and none under reduced motion (headless Chromium, 120x36 busy recording: main thread 4.7% to 2.1%, renderer CPU 9.8% to 4.1%, 0% off-screen, no long tasks).
+- The HTML recording player is one native asset (`ConsoleExporter.PlayerScript`, `ConsoleExporter.PlayerStyles`, embedded `player.js` / `player.css`) with a data format (`Recording.ExportPlayerData`, `Export-ConsoleRecording -Format PlayerData` or `-Path *.json`) and a `data-cm-recording` contract, so sites include the script once for many players; it rewrites only changed rows, wakes at the recording's frame rate, updates the clock and position once a second, pauses off-screen and in hidden tabs, autoplays one player per page and none under reduced motion (headless Chromium, 120x36 busy recording: main thread 4.7% to 2.1%, renderer CPU 9.8% to 4.1%, 0% off-screen, no long tasks).
 - Rewinding runs: `Show-ConsoleReplay` and `ReplayPlayer` (play/pause, speed, frame stepping, a timeline with markers, jumps to markers, failures, warnings and log entries, log search; full screen or inline; markers printed as lines without an interactive console), `ReplayMarker.From`, `LiveSession.Mark` / `LiveSession.MarkerTarget`, opt-in automatic recording (`LiveSessionOptions.AutoRecord`, `AutoRecordMaxBytes`, `AutoRecordFolder`, `RecordingName`, `DefaultRecordingFolder`, `LiveSession.RecordingPath`, `Invoke-ConsoleDashboard -AutoRecord`), and region swaps recorded as pictures (markup snapshots of the new content and of later changes inside it) so they replay faithfully.
 - Object comparison and the what-if pattern: `ObjectDiff`, `ChangeSet`, `ObjectChange`, `PropertyChange`, `DiffOptions`, `ChangeView` (summary, table, side by side, unified, line diffs) and `ChangePreview` (typed confirmation for removals); `Compare-ConsoleObject` (with `-PassThru`) and `Compare-ConsoleObject -Question` (honours `-WhatIf` and `-Confirm:$false`, returns the decision).
 - Identifier columns (Id, ProcessId, PID, ports, Index, Year...) are no longer grouped with thousands separators or totalled: `IdentifierPresenter`, `CellPresenters.Identifier` and the `Identifier` column option.

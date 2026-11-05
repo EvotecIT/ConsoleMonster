@@ -149,8 +149,6 @@ namespace ConsoleMonster.Interactive {
         // Header bars and the stack drawn inside this frame read one snapshot without being wired to the stack.
         internal static IDisposable Scope(View? view) => new CrumbScope(view);
         internal static IReadOnlyList<string>? AmbientCrumbs => _ambient?.Crumbs;
-        // The screen the current frame draws; splitters keep their ratio per screen.
-        internal static AppScreen? AmbientScreen => _ambient?.Screen;
 
         // What a crumb stands for: this stack and the path up to that screen, so a crumb drawn at the same place for another
         // path is a different target.

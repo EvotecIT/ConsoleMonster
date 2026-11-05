@@ -194,6 +194,8 @@ namespace ConsoleMonster.Interactive {
 
         private bool HandlePointer(InputEvent input) => LastFrame != null && _data.Pointer(input, LastFrame.Context);
 
+        protected override bool OpensOnDoubleClick => _modals.Count == 0 && _data.OpensOnDoubleClick;
+
         private void Escape() {
             if (!_filter.IsEmpty) {
                 _filter.Text = string.Empty;

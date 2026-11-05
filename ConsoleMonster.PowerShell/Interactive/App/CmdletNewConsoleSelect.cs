@@ -28,11 +28,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(1, int.MaxValue)] public int? PageSize { get; set; }
 
         /// <summary><para type="description">The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</para></summary>
-        [Parameter] public string? SelectionKey { get; set; }
+        [Parameter] public string? LinkKey { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            var options = new SelectInputOptions { Key = Key, Multiple = Multiple.IsPresent, PageSize = PageSize, Radio = Radio.IsPresent, Dropdown = Dropdown.IsPresent, SelectionKey = SelectionKey };
+            var options = new SelectInputOptions { Key = Key, Multiple = Multiple.IsPresent, PageSize = PageSize, Radio = Radio.IsPresent, Dropdown = Dropdown.IsPresent, LinkKey = LinkKey };
             foreach (Choice choice in BuildChoices()) { options.Choices.Add(choice); }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) {
                 options.Value = Multiple.IsPresent && Value != null ? LanguagePrimitives.ConvertTo<object[]>(Value) : Value;

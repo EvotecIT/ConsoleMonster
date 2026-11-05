@@ -23,10 +23,10 @@ for (int i = 0; i < cpu.Length; i++) { chart.Add("cpu", cpu[i]); }
 for (int i = 0; i < memory.Length; i++) { chart.Add("memory", memory[i]); }
 Grid samples = new Grid("Samples").AddColumn("Time").AddColumn("Cpu").AddColumn("Memory");
 for (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }
-ChartView load = new ChartView("Load", chart) { SelectionKey = "Sample" };
-foreach (string time in times) { load.Labels.Add(time); }
+ChartView load = new ChartView("Load", chart) { LinkKey = "Sample" };
+foreach (string time in times) { load.PointLabels.Add(time); }
 Rows layout = new Rows(
-    new DataGrid("Samples", samples) { Height = 7, SelectionKey = "Sample" },
+    new DataGrid("Samples", samples) { Height = 7, LinkKey = "Sample" },
     load);
 
 // Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a

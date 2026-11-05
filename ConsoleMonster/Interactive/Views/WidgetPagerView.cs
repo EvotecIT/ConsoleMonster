@@ -42,7 +42,7 @@ namespace ConsoleMonster.Interactive {
             }, LayoutSize.Fixed(1));
             rows.Add(new WidgetPagerBody(_document, _top, _find.Active ? _find : null), LayoutSize.Fraction());
             if (_find.Open) {
-                rows.Add(_find.Widget(Labels), LayoutSize.Fixed(1));
+                rows.Add(_find.Widget(Labels, screenBottom: true), LayoutSize.Fixed(1));
                 return rows;
             }
             List<KeyBinding> bindings = new List<KeyBinding>();

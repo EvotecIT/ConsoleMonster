@@ -9,7 +9,6 @@ Granular tasks: validation, review follow-ups and small fixes. Decisions, the ne
 - Per-widget narration options for stream mode.
 - Live-table filtering and horizontal scrolling as an alternative to hiding columns; column sorting already ships
   through the live table APIs.
-- Inspector: PowerShell format data (`*.format.ps1xml`) views as an input to column selection.
 
 ## Follow-ups from the pre-PR review (review.md, 2026-10-17)
 The review's high findings and M1-M4, M6 and M7 were fixed. Recheck these historical follow-ups against current code before implementing them:

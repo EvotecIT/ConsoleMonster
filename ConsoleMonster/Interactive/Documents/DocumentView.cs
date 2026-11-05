@@ -63,7 +63,7 @@ namespace ConsoleMonster.Interactive {
             // The outline asks for focus when clicked; in the viewer that makes it the pane the keys go to.
             _outline.FocusRequested += control => { _focus = Pane.Outline; control.Focused = true; };
             _outline.Opened += (sender, item) => {
-                int index = _outline.CurrentIndex;
+                int index = _outline.SelectedIndex;
                 if (index >= 0 && index < _outlineSections.Count) { JumpTo(_page.Part, _outlineSections[index], false, false); }
             };
         }
@@ -103,7 +103,7 @@ namespace ConsoleMonster.Interactive {
             if (card != null) { rows.Add(card, LayoutSize.Fixed(cardRows)); }
             if (tabs) { rows.Add(new StripWidget(this), LayoutSize.Fixed(TabStrip.Height)); }
             rows.Add(_outlineShown ? (IWidget)_splitter : new DocumentPane(this), LayoutSize.Fraction());
-            if (_find.Open) { rows.Add(_find.Widget(Labels), LayoutSize.Fixed(1)); }
+            if (_find.Open) { rows.Add(_find.Widget(Labels, screenBottom: true), LayoutSize.Fixed(1)); }
             else {
                 List<KeyBinding> bindings = new List<KeyBinding>();
                 AddBindings(bindings, frame);
@@ -294,7 +294,7 @@ namespace ConsoleMonster.Interactive {
             if (current == _followed) { return; }
             _followed = current;
             List<int> path = DocumentLayout.Path(Part, current);
-            _outline.CurrentIndex = path.Count == 0 ? -1 : _outlineSections.IndexOf(path[path.Count - 1]);
+            _outline.SelectedIndex = path.Count == 0 ? -1 : _outlineSections.IndexOf(path[path.Count - 1]);
         }
 
         // The headings of the current part, which the outline and the palette list.

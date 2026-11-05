@@ -613,7 +613,7 @@ namespace ConsoleMonster.Tests.Rendering {
             using (var control = new DataGrid("grid", grid)) {
                 control.Sort(0, false);
                 Assert.Equal("lower", control.CurrentRow!.Item);
-                control.Cursor = 2;
+                control.SelectedIndex = 2;
                 Assert.Equal("last", control.CurrentRow!.Item);
                 control.Filter = "AlPhA";
                 Assert.Equal(2, control.VisibleCount);

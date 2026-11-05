@@ -25,7 +25,7 @@ Outline sections = new Outline("Sections")
         new OutlineItem("DNS") { Target = dns },
         new OutlineItem("Firewall") { Target = firewall }
     },
-    CurrentIndex = 0
+    SelectedIndex = 0
 };
 Breadcrumb where = new Breadcrumb("Where")
 {

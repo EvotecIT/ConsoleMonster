@@ -5,6 +5,9 @@ Push-Location $repository
 try {
     dotnet run --project Website/tools/SiteFrames -c Release -- render Website
     if ($LASTEXITCODE -ne 0) { throw 'SiteFrames rendering failed.' }
+    # Every gallery initializer and fluent program compiles on its own, and fluent ones build UI through Ui and content builders.
+    dotnet run --project Website/tools/SiteFrames -c Release --no-build -- verify-gallery-sources Website
+    if ($LASTEXITCODE -ne 0) { throw 'Gallery sources failed verification.' }
     $generated = @(
         'Website/data', 'Website/content/pages/demos', 'Website/static/frames', 'Website/static/replays',
         'Website/static/recordings', 'Website/static/site', 'Website/static/css/frames.css',

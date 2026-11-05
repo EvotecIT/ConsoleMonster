@@ -37,9 +37,9 @@
     },
     "ConsoleMonsterVersion": {
       "type": "parameter",
-      "description": "The ConsoleMonster package version (default: 2.1.0).",
+      "description": "The ConsoleMonster package version (default: 2.2.0).",
       "datatype": "string",
-      "defaultValue": "2.1.0",
+      "defaultValue": "2.2.0",
       "replaces": "CONSOLEMONSTER_VERSION"
     },
     "NoAot": {
@@ -164,13 +164,23 @@
         },
         {
           "choice": "container-status"
+        },
+        {
+          "choice": "chart-table"
+        },
+        {
+          "choice": "help-sections"
+        },
+        {
+          "choice": "settings-tabs"
         }
       ],
       "defaultValue": "none"
     },
-    "DemoStyle": {
+    "GalleryStyle": {
       "type": "parameter",
-      "description": "The gallery source style to run by default; both programs are included.",
+      "displayName": "DemoStyle",
+      "description": "The gallery source style to run by default (the project's DemoStyle property); both programs are included.",
       "datatype": "choice",
       "choices": [
         {
@@ -787,6 +797,54 @@
         "container-status/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"container-status\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "chart-table/Program.cs",
+        "chart-table/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "chart-table/Program.cs": "Program.cs",
+        "chart-table/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"chart-table\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "help-sections/Program.cs",
+        "help-sections/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "help-sections/Program.cs": "Program.cs",
+        "help-sections/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"help-sections\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "settings-tabs/Program.cs",
+        "settings-tabs/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "settings-tabs/Program.cs": "Program.cs",
+        "settings-tabs/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"settings-tabs\")"
     }
   ]
 }

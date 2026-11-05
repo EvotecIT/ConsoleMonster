@@ -67,6 +67,8 @@ namespace ConsoleMonster.PowerShell {
                     _detach.Add(() => button.Clicked -= handler);
                 }
             }
+            // A container whose own focus stop reports its value (the tab strip of New-ConsoleTabs -OnChange).
+            if (widget is IOwnedInput owned && !(widget is InputControl)) { Attach(owned.OwnedInput); }
             if (widget is IContainer container) {
                 foreach (IWidget child in container.Children) { Attach(child); }
             }

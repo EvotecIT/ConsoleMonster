@@ -34,7 +34,7 @@ Outline sections = ((Outline)Ui.Outline()
     .Build()).AddItem(new OutlineItem("Proxy").Target(proxy))
     .AddItem(new OutlineItem("DNS").Target(dns))
     .AddItem(new OutlineItem("Firewall").Target(firewall))
-    .CurrentIndex(0);
+    .SelectedIndex(0);
 Breadcrumb where = ((Breadcrumb)Ui.Breadcrumb().Key("Where").Build()).AddAncestor("Settings")
     .AddAncestor("Network")
     .Outline(sections);

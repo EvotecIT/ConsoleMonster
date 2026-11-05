@@ -8,11 +8,16 @@ namespace ConsoleMonster.Interactive {
     /// <summary>One arrangement snapshot maps clipped hit rectangles back to each control's rendering coordinates.</summary>
     internal sealed class InputArrangement {
         [ThreadStatic] private static Scope? _current;
+        // The app state while a viewport measures or draws, so a widget measuring outside an arrangement scope (the
+        // viewport's own measure pass) reads the same state its render will.
+        [ThreadStatic] private static AppState? _ambientState;
         private readonly Dictionary<InputControl, Entry> _inputs = new Dictionary<InputControl, Entry>();
         private readonly List<Tuple<Widgets.ScrollView, Rect>> _scrolls = new List<Tuple<Widgets.ScrollView, Rect>>();
         private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
         private readonly List<Popup> _popups = new List<Popup>();
         internal InputControl? Focused { get; set; }
+        // The app's state, for containers that keep what they remember there under their key (a splitter's ratio and drag).
+        internal AppState? State { get; set; }
         internal IEnumerable<InputControl> Mounted => _inputs.Keys;
         internal IReadOnlyList<Popup> Popups => _popups;
         internal Dictionary<InputControl, int> Heights() {
@@ -49,6 +54,17 @@ namespace ConsoleMonster.Interactive {
                 Move(viewport, parent.X, parent.Y).Intersect(parent.Clip));
         }
         internal static InputControl? CurrentFocus => _current?.Owner.Focused;
+        internal static AppState? CurrentState => _current?.Owner.State ?? _ambientState;
+        internal IDisposable StateScope() {
+            AppState? previous = _ambientState;
+            _ambientState = State;
+            return new Restore(() => _ambientState = previous);
+        }
+        private sealed class Restore : IDisposable {
+            private Action? _undo;
+            internal Restore(Action undo) { _undo = undo; }
+            public void Dispose() { _undo?.Invoke(); _undo = null; }
+        }
         internal static Rect FrameBounds(Rect bounds) => _current == null ? bounds : Move(bounds, _current.X, _current.Y).Intersect(_current.Clip);
         internal static Rect? FocusWithin(IWidget content) {
             Scope? scope = _current;

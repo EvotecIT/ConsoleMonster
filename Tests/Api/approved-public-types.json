@@ -651,6 +651,7 @@
     "ConsoleMonster.PowerShell.CmdletInvokeConsoleDashboard",
     "ConsoleMonster.PowerShell.CmdletInvokeConsoleRecording",
     "ConsoleMonster.PowerShell.CmdletInvokeConsoleRun",
+    "ConsoleMonster.PowerShell.CmdletNewConsoleAccordion",
     "ConsoleMonster.PowerShell.CmdletNewConsoleActivityList",
     "ConsoleMonster.PowerShell.CmdletNewConsoleBinding",
     "ConsoleMonster.PowerShell.CmdletNewConsoleBreadcrumb",

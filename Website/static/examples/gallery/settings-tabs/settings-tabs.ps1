@@ -16,7 +16,7 @@ $firewall = New-ConsoleCollapsible -Key Firewall -Content {
     New-ConsoleToggle -Key FirewallOn -Label 'Enabled' -Value $true
     New-ConsoleTextInput -Key FirewallPorts -Label 'Allowed ports' -Value '443, 8443'
 }
-$sections = New-ConsoleOutline -Key Sections -CurrentIndex 0 -Item @(
+$sections = New-ConsoleOutline -Key Sections -SelectedIndex 0 -Items @(
     [pscustomobject]@{ Title = 'Proxy'; Target = $proxy }
     [pscustomobject]@{ Title = 'DNS'; Target = $dns }
     [pscustomobject]@{ Title = 'Firewall'; Target = $firewall }
@@ -26,7 +26,7 @@ $general = New-ConsoleRows -Content {
     New-ConsoleToggle -Key StartAtLogon -Label 'Start at logon' -Value $false
 }
 $network = New-ConsoleRows -Content {
-    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings', 'Network' -Outline $sections
+    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings', 'Network' -Outline $sections
     New-ConsoleSplitter -Ratio 0.25 -First { $sections } -Second { $proxy; $dns; $firewall }
 }
 $logging = New-ConsoleRows -Content {

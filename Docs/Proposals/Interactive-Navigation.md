@@ -1,6 +1,9 @@
 # Interactive navigation: pointer parity, folding and documents
 
-Status: steps 1 to 3 implemented, 5 November 2026; step 4 in progress.
+Status: steps 1 to 4 shipped in 2.2.0: the mouse ([#106](https://github.com/EvotecIT/ConsoleMonster/pull/106)),
+folding, splitters and find ([#107](https://github.com/EvotecIT/ConsoleMonster/pull/107)), the document viewer
+([#108](https://github.com/EvotecIT/ConsoleMonster/pull/108)) and charts you can explore
+([#109](https://github.com/EvotecIT/ConsoleMonster/pull/109)). Step 5 waits for real callers.
 
 Two conversations prompted this. jborean asked for examples of a terminal documentation viewer with collapsible
 sections and navigation, for an ansible-doc style browser built on Textual. trackd's

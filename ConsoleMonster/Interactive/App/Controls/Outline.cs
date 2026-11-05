@@ -71,7 +71,7 @@ namespace ConsoleMonster.Interactive {
         /// The index of the entry the reader is on, or -1. A view that scrolls sets it to follow the reading position; the
         /// selection follows it unless the outline has focus.
         /// </summary>
-        public int CurrentIndex {
+        public int SelectedIndex {
             get => Read(() => _current);
             set => Change(() => {
                 _current = value >= 0 && value < _items.Count ? value : -1;
@@ -80,7 +80,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         // The selected entry, which Enter opens, or -1.
-        internal int SelectedIndex {
+        internal int HighlightedIndex {
             get => Read(() => _selected);
             set => Change(() => _selected = value >= 0 && value < _items.Count ? value : -1);
         }

@@ -303,7 +303,8 @@ BeforeAll {
 
     # How each example runs headless: arguments that skip prompts or shorten waits, scripted keys for menus, a time limit.
     $script:ExampleCases = @{
-        'Website/examples/demos/hosting/Run.ps1' = @{ ProjectLauncher = $true }
+        # Restoring and building the hosting project can take minutes on a cold runner.
+        'Website/examples/demos/hosting/Run.ps1' = @{ ProjectLauncher = $true; TimeoutSeconds = 300 }
         'Website/examples/demos/logging/Run.ps1' = @{ ProjectLauncher = $true }
         'Website/examples/demos/template.ps1' = @{ ProjectLauncher = $true }
         # Relative recording exports belong to the child-owned temp folder, not the checked-out example directory.

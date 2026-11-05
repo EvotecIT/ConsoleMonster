@@ -101,13 +101,15 @@ class TemplateGalleryTests(unittest.TestCase):
             raise AssertionError(f"Exit {process.returncode}: {command}\n{output}")
         return output
 
-    def generate(self, hive, slug=None, *, aot=False, suffix="", framework=None):
+    def generate(self, hive, slug=None, *, aot=False, suffix="", framework=None, style=None):
         name = "Gallery" + (slug or "Default").replace("-", "") + suffix
         output = self.root / name
         arguments = ["new", "consolemonster", "--debug:custom-hive", str(hive),
                      "--name", name, "--output", str(output), "--ConsoleMonsterVersion", self.version]
         if framework is not None:
             arguments.extend(["--Framework", framework])
+        if style is not None:
+            arguments.extend(["--DemoStyle", style])
         if not aot:
             arguments.append("--NoAot")
         if slug is not None:
@@ -119,14 +121,19 @@ class TemplateGalleryTests(unittest.TestCase):
         self.assertEqual({p.name for p in output.iterdir()}, files)
         return output, output / (name + ".csproj")
 
-    def compile(self, project, style="Initializer"):
-        """Compile the unmodified reader project against actual isolated candidate packages."""
-        artifacts = self.root / "app-artifacts" / style
+    def compile(self, project):
+        """Compile the unmodified reader project, with its own DemoStyle, against isolated candidate packages."""
+        artifacts = self.root / "app-artifacts"
         self.dotnet("restore", str(project), "--artifacts-path", str(artifacts),
                     "--configfile", str(self.nuget_config), env=self.consumer_env)
         self.dotnet("build", str(project), "--no-restore", "--artifacts-path", str(artifacts),
-                    "-p:UseSharedCompilation=false", f"-p:DemoStyle={style}", env=self.consumer_env)
+                    "-p:UseSharedCompilation=false", env=self.consumer_env)
         return artifacts / "bin" / project.stem / "debug" / (project.stem + ".dll")
+
+    def compiled_sources(self, project, *properties):
+        """The Compile items MSBuild evaluates, as `dotnet build/run -p:DemoStyle=...` would."""
+        items = json.loads(self.dotnet("msbuild", str(project), "-nologo", "-getItem:Compile", *properties))
+        return [Path(item["Identity"]).name for item in items["Items"]["Compile"]]
 
     def run_demo(self, assembly, metadata):
         """Drive ordinary programs externally, restoring the child environment after each run."""
@@ -175,7 +182,8 @@ class TemplateGalleryTests(unittest.TestCase):
                 metadata = json.loads((GALLERY / slug / "metadata.json").read_text(encoding="utf-8"))
                 snapshot = self.run_demo(assembly, metadata)
                 self.assertTrue(snapshot.strip(), slug)
-                fluent_assembly = self.compile(project, "Fluent")
+                _, fluent_project = self.generate(self.package_hive, slug, suffix="Fluent", style="Fluent")
+                fluent_assembly = self.compile(fluent_project)
                 fluent = self.run_demo(fluent_assembly, metadata)
                 self.assertTrue(fluent.strip(), slug + " fluent")
                 if metadata["mode"] == "static":
@@ -202,6 +210,13 @@ class TemplateGalleryTests(unittest.TestCase):
         self.assertEqual([r.attrib["Include"] for r in ET.parse(explicit).findall(".//PackageReference")],
                          [r.attrib["Include"] for r in tree.findall(".//PackageReference")])
         self.assertTrue(self.dotnet(str(self.compile(explicit))).strip())
+        # The generated style is only the default; MSBuild must still choose the program at build time.
+        _, initializer = self.generate(self.package_hive, "fleet-filter", suffix="DefaultStyle")
+        _, fluent = self.generate(self.package_hive, "fleet-filter", suffix="ChosenStyle", style="Fluent")
+        self.assertEqual(self.compiled_sources(initializer), ["Program.cs"])
+        self.assertEqual(self.compiled_sources(initializer, "-p:DemoStyle=Fluent"), ["Program.Fluent.cs"])
+        self.assertEqual(self.compiled_sources(fluent), ["Program.Fluent.cs"])
+        self.assertEqual(self.compiled_sources(fluent, "-p:DemoStyle=Initializer"), ["Program.cs"])
 
     def test_staged_source_installation(self):
         """Folder installation uses the same MSBuild content links as packing."""

@@ -15,7 +15,7 @@ namespace ConsoleMonster.Interactive {
     /// shown series at that point (the app footer repeats it for screen readers). A number key or a click on a legend
     /// entry hides or shows a series; + and - or the wheel zoom along X, Shift+←/→ or a drag pans, and Home shows
     /// everything again. The value is the index of the point under the crosshair. Give a <see cref="DataGrid"/> the same
-    /// <see cref="SelectionKey"/> to link the two through app state: selecting a row moves the crosshair to that point and
+    /// <see cref="LinkKey"/> to link the two through app state: selecting a row moves the crosshair to that point and
     /// moving the crosshair selects the row. Drawing the chart outside an app is unchanged.
     /// </summary>
     public sealed class ChartView : InputControl, ILinkedSelection {
@@ -46,13 +46,13 @@ namespace ConsoleMonster.Interactive {
         public int Height { get => Read(() => _height); set => Change(() => _height = Math.Max(4, value)); }
 
         /// <summary>Labels for the points along X (a time, a build), read out with their values; missing labels show the point number.</summary>
-        public IList<string> Labels => _labels;
+        public IList<string> PointLabels => _labels;
 
         /// <summary>The app-state key shared with linked controls such as a <see cref="DataGrid"/> (see <see cref="ILinkedSelection"/>): the point under the crosshair.</summary>
-        public string? SelectionKey { get; set; }
+        public string? LinkKey { get; set; }
 
         /// <summary>The index of the point under the crosshair, or -1 before there is data. Assignments notify like a click.</summary>
-        public int Cursor { get => Read(CursorCore); set => Change(() => { _cursor = Clamp(value); Reveal(_cursor); }); }
+        public int SelectedIndex { get => Read(CursorCore); set => Change(() => { _cursor = Clamp(value); Reveal(_cursor); }); }
 
         /// <summary>The zoom level: 0 shows the whole X range and each level shows a narrower window.</summary>
         public int ZoomLevel { get => Read(() => Math.Min(_level, _plot.Levels - 1)); set => Change(() => { _level = Math.Max(0, Math.Min(_plot.Levels - 1, value)); Center(CursorCore()); }); }
@@ -234,8 +234,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         // The shared selection: the point index the user put the crosshair on, or the one another control selected.
-        int? ILinkedSelection.SelectedIndex => Read(() => { int cursor = CursorCore(); return cursor < 0 ? _linked : cursor; });
-        void ILinkedSelection.FollowSelection(int? index) => Change(() => {
+        int? ILinkedSelection.LinkIndex => Read(() => { int cursor = CursorCore(); return cursor < 0 ? _linked : cursor; });
+        void ILinkedSelection.FollowLink(int? index) => Change(() => {
             _linked = index;
             if (index.HasValue && index.Value >= 0 && index.Value < _plot.Count) { _cursor = index.Value; Reveal(_cursor); }
         });

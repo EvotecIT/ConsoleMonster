@@ -46,6 +46,9 @@ namespace ConsoleMonster.Interactive {
 
         internal void BeginRun() { lock (_gate) { _exit = false; } }
 
+        // Splitters whose divider is being dragged, by key: a binding can rebuild a splitter between the press and the moves.
+        internal System.Collections.Concurrent.ConcurrentDictionary<string, bool> Dragging { get; } = new System.Collections.Concurrent.ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>Reads a typed value, returning a fallback when the key is absent or has another type.</summary>
         /// <typeparam name="T">The expected type.</typeparam>
         /// <param name="key">The state key.</param>

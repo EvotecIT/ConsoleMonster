@@ -108,9 +108,16 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             // Views with pointer handling of their own (a grid, a date picker) get the rest.
-            if (HandlePriorityInput(input) || HandleUnbound(input)) { return; }
+            if (HandlePriorityInput(input) || HandleUnbound(input)) {
+                // A double click on a row opens it, as Enter does (the app path does the same for its lists and grids).
+                if (clicks == 2 && input.MouseButton == 1 && OpensOnDoubleClick) { _clicks.Reset(); Handle(InputEvent.Press(ConsoleKey.Enter)); }
+                return;
+            }
             ScrollWithArrows(input);
         }
+
+        // Whether the pointer input the view just handled landed on a row that a double click opens.
+        protected virtual bool OpensOnDoubleClick => false;
 
         // The wheel goes the way the arrow keys do in views with nothing of their own to scroll.
         private bool ScrollWithArrows(InputEvent input) {

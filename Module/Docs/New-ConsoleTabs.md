@@ -8,25 +8,25 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates retained tabs with keyboard and pointer navigation.
 
-Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.
+Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTabs [[-Content] <Object>] [-InputObject <psobject>] [-SelectedIndex <int>] [<CommonParameters>]
+New-ConsoleTabs [[-Content] <Object>] [-InputObject <psobject>] [-SelectedIndex <int>] [-Key <string>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates retained tabs with keyboard and pointer navigation.
 
-Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.
+Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 Show-ConsoleApp -Mode Snapshot -Content {
-    New-ConsoleTabs -Content ([ordered]@{
+    New-ConsoleTabs -Key Page -Content ([ordered]@{
         Search = { New-ConsoleTextInput -Key Query }
         About = { New-ConsoleText 'Inventory browser' }
     })
@@ -66,6 +66,38 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Key
+Unique key in the application's state; the value is the active page's title.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OnChange
+Runs once each time the active page changes, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

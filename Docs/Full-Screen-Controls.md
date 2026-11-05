@@ -147,6 +147,18 @@ PowerShell composes the same pages with title/content records inside
 `New-ConsoleTabs -SelectedIndex 0 -Content { @{ Title = 'Files'; Content = $files } }`,
 where `$files` is the page's widget.
 
+Give the tabs a key (`new Tabs("Pages")` in C#, `-Key Pages` in PowerShell) and the
+active tab's title becomes their value in app state; `-OnChange` runs when the user
+switches. In C#, `Tabs.Add(TabOptions)` takes a tab's settings in one object, and the
+fluent `.Tab(title, c => …)` builds a tab's content in place.
+
+```powershell
+New-ConsoleTabs -Key Pages -OnChange { $State.Status = "Showing $Value" } -Content {
+    @{ Title = 'Files'; Content = $files }
+    @{ Title = 'Output'; Content = $output }
+}
+```
+
 ## Folding, panes and find
 
 `Collapsible` is a section with a header row: ▸/▾ in the Full tier, ►/▼ in Basic
@@ -158,7 +170,7 @@ keeps one open; while a header has focus, `+` expands every section and `-`
 folds them all, and the footer lists both keys.
 
 ```powershell
-New-ConsoleCollapsible -Accordion -Content {
+New-ConsoleAccordion -Content {
     New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
     New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content { 'Get-Service -Name win*' }
 }
@@ -169,7 +181,9 @@ the divider with the mouse, or press Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down
 when vertical) while an input in either pane has focus and leaves those keys
 free. Text editing takes precedence; dragging remains available. Give it a `Key` inside a
 screen stack and the screen keeps its ratio, also when a binding rebuilds the
-splitter. PowerShell uses `New-ConsoleSplitter -First { … } -Second { … }`.
+splitter. PowerShell uses `New-ConsoleSplitter -First { … } -Second { … }`. A
+vertical splitter is as tall as its panes' content; add `-Fill` to give it the
+remaining height instead.
 
 `LogViewport`, `TextArea` and the document pager have a find bar. Press `/` in a
 log or the pager (Ctrl+F in a text area, where `/` is typing) and type: every
@@ -188,12 +202,12 @@ the ASCII tier. A number key or a click on a legend entry hides or shows that se
 the whole range again. The value in app state is the index of the point under the
 crosshair. Drawing the same chart outside an app, and its exports, are unchanged.
 
-Every form takes the same settings: `Key`, `Chart`, `Labels` (a label per point, such
+Every form takes the same settings: `Key`, `Chart`, `PointLabels` (a label per point, such
 as a time), `Height` (10 rows by default, readout and legend included) and
-`SelectionKey`.
+`LinkKey`. The point under the crosshair is `SelectedIndex`.
 
 Selections link through app state. Every control that implements `ILinkedSelection`
-takes a `SelectionKey`: `DataGrid` (the row's position in the listing), `ChartView`
+takes a `LinkKey`: `DataGrid` (the row's position in the listing), `ChartView`
 (the point under the crosshair), `Select` and `MultiSelect` (the highlighted choice's
 position). When the user moves one, the app writes its position to that state key, and
 every control with the same key follows when it can show that position (a shorter list or
@@ -204,8 +218,8 @@ custom `InputControl` that implements `ILinkedSelection` joins in.
 $samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + ($_ % 7) * 6 } }
 $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(@{ Key = 'cpu'; Values = $samples.Cpu })
 Show-ConsoleApp -Content {
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu -Height 8 -SelectionKey Minute
-    New-ConsoleChartView -Key Load -Chart $chart -SelectionKey Minute
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu -Height 8 -LinkKey Minute
+    New-ConsoleChartView -Key Load -Chart $chart -LinkKey Minute
 }
 ```
 
@@ -218,14 +232,14 @@ for (int minute = 1; minute <= 30; minute++) {
     chart.Add("cpu", cpu);
 }
 ConsoleApp.Run(new Rows(
-    new DataGrid("Samples", samples) { Height = 8, SelectionKey = "Minute" },
-    new ChartView("Load", chart) { SelectionKey = "Minute" }));
+    new DataGrid("Samples", samples) { Height = 8, LinkKey = "Minute" },
+    new ChartView("Load", chart) { LinkKey = "Minute" }));
 ```
 
 ```csharp
 ConsoleApp.Run(Ui.Rows().Content(c => {
-    c.DataGrid(grid => grid.Key("Samples").Grid(samples).Height(8).SelectionKey("Minute"));
-    c.ChartView(view => view.Key("Load").Chart(chart).SelectionKey("Minute"));
+    c.DataGrid(grid => grid.Key("Samples").Grid(samples).Height(8).LinkKey("Minute"));
+    c.ChartView(view => view.Key("Load").Chart(chart).LinkKey("Minute"));
 }));
 ```
 
@@ -354,11 +368,11 @@ These are the parts the document viewer is built from, and they work in any app.
 
 `Outline` lists headings to jump between: settings groups, the sections of a long
 form, a table of contents. Entries have a level (deeper ones are indented) and
-can lead to a control. The current entry is marked, and `CurrentIndex` lets a
+can lead to a control. The current entry is marked, and `SelectedIndex` lets a
 scrolling view make the outline follow the reader; the selection follows it
 until the outline has focus. Up/Down, Home/End, Page Up/Down and the wheel move
 the selection, and Enter or a click opens it: the entry becomes current (its
-title is the outline's value), `Opened` is raised, and its target is focused,
+title is the outline's value, so `Changed` and `-OnChange` report it), and its `Target` is focused,
 which scrolls a surrounding `ScrollView` to it, and unfolded when it is a
 `Collapsible`.
 
@@ -377,9 +391,9 @@ way from PowerShell: `$history = [ConsoleMonster.Interactive.NavigationHistory[s
 ```powershell
 $proxy = New-ConsoleCollapsible -Key Proxy -Expanded -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
 $dns = New-ConsoleCollapsible -Key DNS -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
-$sections = New-ConsoleOutline -Key Sections -CurrentIndex 0 -Item ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
+$sections = New-ConsoleOutline -Key Sections -SelectedIndex 0 -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
 Show-ConsoleApp -Content {
-    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings', 'Network' -Outline $sections
+    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings', 'Network' -Outline $sections
     New-ConsoleSplitter -Ratio 0.25 -First { $sections } -Second { $proxy; $dns }
 }
 ```
@@ -390,7 +404,7 @@ The same in C# with object initializers:
 var sections = new Outline("Sections")
 {
     Items = { new OutlineItem("Proxy") { Target = proxy }, new OutlineItem("DNS") { Target = dns } },
-    CurrentIndex = 0
+    SelectedIndex = 0
 };
 var where = new Breadcrumb("Where") { Ancestors = { "Settings", "Network" }, Outline = sections };
 ```
@@ -398,7 +412,7 @@ var where = new Breadcrumb("Where") { Ancestors = { "Settings", "Network" }, Out
 And with the fluent builder:
 
 ```csharp
-Outline sections = Ui.Outline().Key("Sections").CurrentIndex(0)
+Outline sections = Ui.Outline().Key("Sections").SelectedIndex(0)
     .AddItem(new OutlineItem("Proxy") { Target = proxy })
     .AddItem(new OutlineItem("DNS") { Target = dns })
     .Build();
@@ -406,8 +420,8 @@ Breadcrumb where = Ui.Breadcrumb().Key("Where").AddAncestor("Settings").AddAnces
     .Outline(sections).Build();
 ```
 
-The names match across the three: `-Item`/`Items`/`AddItem`, `-CurrentIndex`/`CurrentIndex`,
-`-Segment`/`Segments`/`AddSegment`, `-Ancestor`/`Ancestors`/`AddAncestor` and `-Outline`/`Outline`.
+The names match across the three: `-Items`/`Items`/`AddItem`, `-SelectedIndex`/`SelectedIndex`,
+`-Segments`/`Segments`/`AddSegment`, `-Ancestors`/`Ancestors`/`AddAncestor` and `-Outline`/`Outline`.
 `OnChange` (PowerShell) and `Changed` (C#) report an opened entry or segment. The `settings-tabs` gallery
 demo shows all three forms in a settings app with tabs.
 ## Documents

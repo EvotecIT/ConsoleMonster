@@ -318,8 +318,13 @@
     },
     {
       "verb": "New",
-      "count": 52,
+      "count": 53,
       "commands": [
+        {
+          "name": "New-ConsoleAccordion",
+          "synopsis": "Creates an accordion for Show-ConsoleApp: collapsible sections that keep one open.",
+          "url": "/powershell/commands/new-consoleaccordion/"
+        },
         {
           "name": "New-ConsoleActivityList",
           "synopsis": "Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.",
@@ -362,7 +367,7 @@
         },
         {
           "name": "New-ConsoleCollapsible",
-          "synopsis": "Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.",
+          "synopsis": "Creates a collapsible section for Show-ConsoleApp.",
           "url": "/powershell/commands/new-consolecollapsible/"
         },
         {

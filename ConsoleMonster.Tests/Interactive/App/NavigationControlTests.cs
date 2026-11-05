@@ -297,6 +297,85 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void ADividerKeepsDraggingWhenABindingRebuildsItsSplitterMidDragAndItsKeyHoldsTheRatio() {
+            var state = new AppState();
+            using var app = new AppController(new AppBinding(s => new Splitter(TextBlock.Plain("left " + s.Get("Round", 0)), TextBlock.Plain("right")) { Key = "Panes" }), state, Context, 60);
+            app.Refresh(null);
+            int start = Divider(app.PrepareFrame(80, 24), "right");
+            app.Handle(InputEvent.Pointer(start, 0, MouseAction.Down, button: 1), true);
+            state["Round"] = 1;
+            app.Refresh(null);
+            Assert.Contains("left 1", app.PrepareFrame(80, 24).ToPlainText());
+            app.Handle(InputEvent.Pointer(20, 0, MouseAction.Move, heldButtons: 1), true);
+            app.Handle(InputEvent.Pointer(20, 0, MouseAction.Up, button: 1), true);
+            app.Refresh(null);
+            Assert.Equal(20, Divider(app.PrepareFrame(80, 24), "right"));
+            Assert.IsType<double>(state["Panes"]);
+
+            state["Panes"] = 0.75;
+            app.Refresh(null);
+            Assert.Equal(60, Divider(app.PrepareFrame(80, 24), "right"));
+        }
+
+        [Fact]
+        public void AKeyedSplitterPublishesItsRatioAndARatioAssignmentSurvivesARedraw() {
+            var splitter = new Splitter(TextBlock.Plain("left"), TextBlock.Plain("right")) { Key = "Panes", Ratio = 0.35 };
+            var state = new AppState();
+            using var app = new AppController(splitter, state, Context, 60);
+            app.PrepareFrame(80, 24);
+            Assert.Equal(0.35, state["Panes"]);
+
+            state["Panes"] = 0.25;
+            app.Refresh(null);
+            Assert.Equal(20, Divider(app.PrepareFrame(80, 24), "right"));
+            splitter.Ratio = 0.75;
+            app.Refresh(null);
+            Assert.Equal(60, Divider(app.PrepareFrame(80, 24), "right"));
+            Assert.Equal(0.75, state["Panes"]);
+        }
+
+        // A rebuilt keyed splitter measures with the ratio the app state holds, so the first frame after each binding
+        // rebuild already draws both panes in full, with the following row below them.
+        [Fact]
+        public void AKeyedVerticalSplitterWithASavedRatioDrawsBothPanesOnTheFirstFrameAfterEachRebuild() {
+            var state = new AppState();
+            state["Panes"] = 0.8;
+            var layout = new Rows(
+                new AppBinding(s => new Splitter(TextBlock.Plain("top " + s.Get("Round", 0)), TextBlock.Plain("bottom\nmore\nlast")) { Vertical = true, Key = "Panes" }),
+                TextBlock.Plain("AFTER"));
+            using var app = new AppController(layout, state, Context, 60);
+            for (int round = 1; round <= 3; round++) {
+                state["Round"] = round;
+                app.Refresh(null);
+                string[] lines = app.PrepareFrame(30, 60).ToPlainText().Split('\n').Select(line => line.TrimEnd()).ToArray();
+                int bottom = Array.IndexOf(lines, "bottom");
+                Assert.True(Array.IndexOf(lines, "top " + round) >= 0 && bottom >= 0, string.Join("\n", lines));
+                Assert.Equal(new[] { "more", "last" }, lines.Skip(bottom + 1).Take(2));
+                Assert.True(Array.IndexOf(lines, "AFTER") > bottom + 2, string.Join("\n", lines));
+            }
+            Assert.Equal(0.8, state["Panes"]);
+        }
+
+        // Sized to its content, a vertical splitter draws both panes in full at any ratio, and what follows it stays below.
+        [Theory]
+        [InlineData(0.5)]
+        [InlineData(0.3)]
+        [InlineData(0.8)]
+        public void AContentSizedVerticalSplitterDrawsBothPanesInFull(double ratio) {
+            var splitter = new Splitter(TextBlock.Plain("top"), TextBlock.Plain("bottom\nmore\nlast")) { Vertical = true, Ratio = ratio };
+            IWidget layout = new Rows(splitter, TextBlock.Plain("AFTER"));
+            var context = new RenderContext(TerminalProfile.Fixed(30, 60, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            Size size = layout.Measure(new Constraints(30, Constraints.Unbounded), context);
+            var buffer = new CellBuffer(30, size.Height);
+            layout.Render(new Region(buffer), context);
+            string[] lines = buffer.ToPlainText().Split('\n').Select(line => line.TrimEnd()).ToArray();
+            int top = Array.IndexOf(lines, "top"), bottom = Array.IndexOf(lines, "bottom");
+            Assert.True(top >= 0 && bottom > top, string.Join("\n", lines));
+            Assert.Equal(new[] { "more", "last" }, lines.Skip(bottom + 1).Take(2));
+            Assert.Equal("AFTER", lines.Last(line => line.Length > 0));
+        }
+
+        [Fact]
         public void SlashFindsLogLinesHighlightsThemAndStepsThroughMatches() {
             var log = new LogViewport("Output") { ShowElapsed = false };
             log.Write(string.Join("\n", Enumerable.Range(0, 40).Select(i => i == 5 || i == 30 ? "error-" + i : "line-" + i)));
@@ -348,6 +427,10 @@ namespace ConsoleMonster.Tests.Interactive.App {
             InteractionLoop.Draw(view, surface, context, 1, TimeSpan.Zero);
             string text = surface.Frames.Last().ToPlainText();
             Assert.Contains("the needle", text); Assert.Contains("1 of 1", text);
+            // The bar is the screen's last row, whose last cell the terminal output never writes: the count ends before it.
+            string bar = text.Split('\n')[9];
+            Assert.EndsWith("1 of 1", bar.TrimEnd());
+            Assert.True(bar.TrimEnd().Length < 40);
 
             view.Handle(InputEvent.Press(ConsoleKey.Escape));
             InteractionLoop.Draw(view, surface, context, 2, TimeSpan.Zero);

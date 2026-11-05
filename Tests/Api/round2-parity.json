@@ -3693,9 +3693,9 @@
       "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
       "Bindings": [
         {
-          "Parameter": "Ancestor",
+          "Parameter": "Ancestors",
           "ParameterType": "System.String[]",
-          "Default": [],
+          "Default": null,
           "Sets": [
             {
               "Name": "Outline",
@@ -3806,9 +3806,9 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "Segment",
+          "Parameter": "Segments",
           "ParameterType": "System.String[]",
-          "Default": [],
+          "Default": null,
           "Sets": [
             {
               "Name": "Segment",
@@ -5036,38 +5036,14 @@
       "CSharpType": "ConsoleMonster.Interactive.Collapsible",
       "Bindings": [
         {
-          "Parameter": "Accordion",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "Accordion",
-              "Position": -2147483648,
-              "Mandatory": true
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.Accordion",
-          "Member": ".ctor",
-          "Argument": "children",
-          "MemberKind": "Constructor",
-          "Conversion": "AccordionGroup",
-          "CSharpTypeName": "ConsoleMonster.Interactive.Collapsible[]",
-          "Reason": "Selects the group form: the sections emitted by Content become one Accordion that keeps a single section open."
-        },
-        {
           "Parameter": "Content",
           "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
-            },
-            {
-              "Name": "Accordion",
-              "Position": 0,
-              "Mandatory": true
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.Collapsible",
@@ -5077,10 +5053,7 @@
           "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
           "Nullable": "Nullable",
           "Writable": true,
-          "Static": false,
-          "AppliesToSets": [
-            "Section"
-          ]
+          "Static": false
         },
         {
           "Parameter": "Disabled",
@@ -5088,7 +5061,7 @@
           "Default": false,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -5108,7 +5081,7 @@
           "Default": false,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -5128,7 +5101,7 @@
           "Default": "",
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": 0,
               "Mandatory": true
             }
@@ -5146,7 +5119,7 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": 1,
               "Mandatory": false
             }
@@ -5166,7 +5139,7 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -5201,7 +5174,7 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -5221,7 +5194,7 @@
           "Default": 0,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -5241,7 +5214,7 @@
           "Default": null,
           "Sets": [
             {
-              "Name": "Section",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
@@ -5255,18 +5228,46 @@
           "Writable": true,
           "Static": false
         }
-      ],
-      "SetBindings": [
+      ]
+    },
+    {
+      "Command": "New-ConsoleAccordion",
+      "Job": "New-ConsoleAccordion",
+      "CSharpType": "ConsoleMonster.Interactive.Accordion",
+      "Bindings": [
         {
           "Parameter": "Content",
-          "ParameterSet": "Accordion",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
           "CSharpType": "ConsoleMonster.Interactive.Accordion",
-          "Member": "Add",
-          "MemberKind": "Method",
-          "Argument": "section",
-          "CSharpTypeName": "ConsoleMonster.Interactive.Collapsible",
-          "Conversion": "SectionCollection",
-          "Reason": "With -Accordion, each section emitted by Content is added to the group in order."
+          "Member": ".ctor",
+          "Argument": "children",
+          "MemberKind": "Constructor",
+          "Conversion": "AccordionGroup",
+          "CSharpTypeName": "ConsoleMonster.Interactive.Collapsible[]",
+          "Reason": "The sections emitted by Content become one Accordion that keeps a single section open."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
     },
@@ -5885,7 +5886,7 @@
           "Static": false
         },
         {
-          "Parameter": "Labels",
+          "Parameter": "PointLabels",
           "ParameterType": "System.String[]",
           "Default": null,
           "Sets": [
@@ -5896,7 +5897,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
-          "Member": "Labels",
+          "Member": "PointLabels",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
@@ -5940,7 +5941,7 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "SelectionKey",
+          "Parameter": "LinkKey",
           "ParameterType": "System.String",
           "Default": null,
           "Sets": [
@@ -5951,7 +5952,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
-          "Member": "SelectionKey",
+          "Member": "LinkKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -6199,7 +6200,7 @@
           "Static": false
         },
         {
-          "Parameter": "SelectionKey",
+          "Parameter": "LinkKey",
           "ParameterType": "System.String",
           "Default": null,
           "Sets": [
@@ -6210,7 +6211,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
-          "Member": "SelectionKey",
+          "Member": "LinkKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -9766,7 +9767,7 @@
       "CSharpType": "ConsoleMonster.Interactive.Outline",
       "Bindings": [
         {
-          "Parameter": "CurrentIndex",
+          "Parameter": "SelectedIndex",
           "ParameterType": "System.Int32",
           "Default": "-1",
           "Sets": [
@@ -9777,7 +9778,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.Outline",
-          "Member": "CurrentIndex",
+          "Member": "SelectedIndex",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32",
@@ -9806,9 +9807,9 @@
           "Static": false
         },
         {
-          "Parameter": "Item",
+          "Parameter": "Items",
           "ParameterType": "System.Object[]",
-          "Default": [],
+          "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -11405,7 +11406,7 @@
           "Static": false
         },
         {
-          "Parameter": "SelectionKey",
+          "Parameter": "LinkKey",
           "ParameterType": "System.String",
           "Default": null,
           "Sets": [
@@ -11416,7 +11417,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
-          "Member": "SelectionKey",
+          "Member": "LinkKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -12826,6 +12827,44 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Tabs",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Tabs",
+          "Member": "Changed",
+          "MemberKind": "Event",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Reason": "The script block runs on the app input thread each time the active page changes, as Changed reports it."
         }
       ]
     },
@@ -25666,10 +25705,18 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.DataGrid",
-      "Member": "Cursor",
+      "Member": "SelectedIndex",
       "CSharpTypeName": "System.Int32",
       "Reason": "Programmatic cursor placement is retained grid state, not constructor configuration.",
-      "Alternative": "Call Move or set Cursor on the DataGrid returned by New-ConsoleDataGrid.",
+      "Alternative": "Call Move or set SelectedIndex on the DataGrid returned by New-ConsoleDataGrid.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.DataGrid",
+      "Member": "Cursor",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "The 2.1 name of SelectedIndex, kept obsolete so existing C# callers still build; it reads and sets SelectedIndex.",
+      "Alternative": "Use SelectedIndex on the DataGrid returned by New-ConsoleDataGrid.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -28410,10 +28457,10 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.ChartView",
-      "Member": "Cursor",
+      "Member": "SelectedIndex",
       "CSharpTypeName": "System.Int32",
       "Reason": "The crosshair position is retained interaction state; its value in app state is the point index.",
-      "Alternative": "Set Cursor on the ChartView returned by New-ConsoleChartView, or write the -SelectionKey state key from a callback.",
+      "Alternative": "Set SelectedIndex on the ChartView returned by New-ConsoleChartView, or write the -LinkKey state key from a callback.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -28539,7 +28586,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 104,
+  "ExpectedCount": 105,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -31492,47 +31539,47 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.ChartView",
-      "Member": "SelectionKey",
-      "MemberId": "ConsoleMonster.Interactive.ChartView.SelectionKey",
+      "Member": "LinkKey",
+      "MemberId": "ConsoleMonster.Interactive.ChartView.LinkKey",
       "CSharpTypeName": "System.String",
       "Command": "New-ConsoleChartView",
-      "Parameter": "SelectionKey",
-      "Reason": "ChartViewInputOptions.Build applies SelectionKey to the ChartView it creates."
+      "Parameter": "LinkKey",
+      "Reason": "ChartViewInputOptions.Build applies LinkKey to the ChartView it creates."
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.DataGrid",
-      "Member": "SelectionKey",
-      "MemberId": "ConsoleMonster.Interactive.DataGrid.SelectionKey",
+      "Member": "LinkKey",
+      "MemberId": "ConsoleMonster.Interactive.DataGrid.LinkKey",
       "CSharpTypeName": "System.String",
       "Command": "New-ConsoleDataGrid",
-      "Parameter": "SelectionKey",
-      "Reason": "DataGridInputOptions.Build applies SelectionKey to the DataGrid it creates."
+      "Parameter": "LinkKey",
+      "Reason": "DataGridInputOptions.Build applies LinkKey to the DataGrid it creates."
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.ChartView",
-      "Member": "Labels",
-      "MemberId": "ConsoleMonster.Interactive.ChartView.Labels",
+      "Member": "PointLabels",
+      "MemberId": "ConsoleMonster.Interactive.ChartView.PointLabels",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Command": "New-ConsoleChartView",
-      "Parameter": "Labels",
-      "Reason": "ChartViewInputOptions.Build copies Labels into the ChartView it creates."
+      "Parameter": "PointLabels",
+      "Reason": "ChartViewInputOptions.Build copies PointLabels into the ChartView it creates."
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.SelectionInputBase",
-      "Member": "SelectionKey",
-      "MemberId": "ConsoleMonster.Interactive.SelectionInputBase.SelectionKey",
+      "Member": "LinkKey",
+      "MemberId": "ConsoleMonster.Interactive.SelectionInputBase.LinkKey",
       "CSharpTypeName": "System.String",
       "Command": "New-ConsoleSelect",
-      "Parameter": "SelectionKey",
-      "Reason": "The shared selection factory applies SelectionKey to both single and multiple controls."
+      "Parameter": "LinkKey",
+      "Reason": "The shared selection factory applies LinkKey to both single and multiple controls."
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
-      "Member": "CurrentIndex",
-      "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.CurrentIndex",
+      "Member": "SelectedIndex",
+      "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.SelectedIndex",
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleOutline",
-      "Parameter": "CurrentIndex",
+      "Parameter": "SelectedIndex",
       "Reason": "The shared factory/view adapter applies this option to the resulting OutlineInputOptions."
     },
     {
@@ -31541,7 +31588,7 @@
       "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.Items",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.OutlineItem]",
       "Command": "New-ConsoleOutline",
-      "Parameter": "Item",
+      "Parameter": "Items",
       "Reason": "The shared factory/view adapter applies this option to the resulting OutlineInputOptions."
     },
     {
@@ -31550,7 +31597,7 @@
       "MemberId": "ConsoleMonster.Interactive.OutlineItem.Target",
       "CSharpTypeName": "ConsoleMonster.Interactive.InputControl",
       "Command": "New-ConsoleOutline",
-      "Parameter": "Item",
+      "Parameter": "Items",
       "Reason": "An entry hashtable's Target key sets the control the entry leads to."
     },
     {
@@ -31568,7 +31615,7 @@
       "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Ancestors",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Command": "New-ConsoleBreadcrumb",
-      "Parameter": "Ancestor",
+      "Parameter": "Ancestors",
       "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
     },
     {
@@ -31577,7 +31624,7 @@
       "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Segments",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Command": "New-ConsoleBreadcrumb",
-      "Parameter": "Segment",
+      "Parameter": "Segments",
       "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
     }
   ],
@@ -32286,6 +32333,16 @@
           "InitializerTypes": [
             "ConsoleMonster.Widgets.Splitter"
           ]
+        },
+        {
+          "Command": "New-ConsoleAccordion",
+          "Noun": "Accordion",
+          "ReturnType": "ConsoleMonster.Interactive.Accordion",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Accordion()",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Accordion"
+          ]
         }
       ],
       "NonWidgetCommands": [
@@ -32406,10 +32463,6 @@
         {
           "Noun": "FooterBar",
           "Reason": "Show-ConsoleApp -FooterHints builds the same footer; Footer accepts an explicitly composed widget."
-        },
-        {
-          "Noun": "Accordion",
-          "Reason": "Typed group of collapsible sections; PowerShell builds it with New-ConsoleCollapsible -Accordion."
         }
       ],
       "PrimaryInputs": [

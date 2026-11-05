@@ -188,6 +188,18 @@ before sharing it with a session, then use `diagram.Handle(session)` for thread-
 [Eight examples in initializer, fluent and PowerShell forms](ConsoleMonster.Examples/Diagrams/README.md) ·
 [Graphics registration, file loading and playback](ConsoleMonster.Graphics/README.md#diagrams-and-use-case-playback)
 
+## Apps, documents and charts you can explore
+
+`Show-ConsoleApp` builds full-screen tools from grids, forms, tabs, trees and log viewports, and the mouse works
+wherever the keyboard does: footer hints, scroll bars, double-click to open and a right-click context menu.
+`New-ConsoleCollapsible`, `New-ConsoleAccordion` and `New-ConsoleSplitter` fold long content and resize panes, and a
+find bar searches logs, text areas and documents. Markdown and `Show-ConsoleHelp` open in a document viewer with an
+outline, folding headings and links you can follow back and forth. `New-ConsoleChartView` adds a crosshair, zoom and
+pan to a chart, and `-LinkKey` links its selection to a data grid through app state.
+
+[Interactive applications](https://consolemonster.dev/docs/interactive-apps/) ·
+[Help and defaults](https://consolemonster.dev/docs/help-and-defaults/)
+
 ## Live progress for long-running work
 
 <!-- example: Website/examples/demos/parallel.ps1 -->

@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Makes a line chart explorable inside Show-ConsoleApp.
 
-Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -SelectionKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
+Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleChartView [-Key] <string> [[-Label] <string>] -Chart <Object> [-Height <int>] [-Labels <string[]>] [-SelectionKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleChartView [-Key] <string> [[-Label] <string>] -Chart <Object> [-Height <int>] [-PointLabels <string[]>] [-LinkKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Makes a line chart explorable inside Show-ConsoleApp.
 
-Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -SelectionKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
+Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
 
 ## EXAMPLES
 
@@ -29,8 +29,8 @@ $samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (
 $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
     @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
 Show-ConsoleApp -Content {
-    New-ConsoleChartView -Key Load -Chart $chart -Labels $samples.Minute -SelectionKey Minute
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -SelectionKey Minute
+    New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 8 -LinkKey Minute
 }
 ```
 
@@ -118,11 +118,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Labels
-Labels for the points along X, such as times, read out with their values.
+### -LinkKey
+The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.
 
 ```yaml
-Type: String[]
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -150,11 +150,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SelectionKey
-The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.
+### -PointLabels
+Labels for the points along X, such as times, read out with their values.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
