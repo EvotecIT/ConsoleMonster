@@ -8,18 +8,23 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a named, embeddable data grid for Show-ConsoleApp.
 
-The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control.
+The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.
 
 ## SYNTAX
-### __AllParameterSets
+### Grid
 ```powershell
-New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -Grid <Grid> [-Height <int>] [-NoQuickSearch] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -Grid <Grid> [-Height <int>] [-NoQuickSearch] [-SelectionKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+```
+
+### Objects
+```powershell
+New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -InputObject <psobject[]> [-Property <Object[]>] [-Height <int>] [-NoQuickSearch] [-SelectionKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Creates a named, embeddable data grid for Show-ConsoleApp.
 
-The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control.
+The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.
 
 ## EXAMPLES
 
@@ -29,6 +34,13 @@ Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Gr
 ```
 
 Embed an empty listing in an application
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Services -InputObject (Get-Service) -Property Name, Status, StartType -Height 12 }
+```
+
+List services with three columns
 
 ## PARAMETERS
 
@@ -53,7 +65,7 @@ The listing's columns, original objects and row identities.
 
 ```yaml
 Type: Grid
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid
 Aliases: None
 Possible values:
 
@@ -74,6 +86,22 @@ Aliases: None
 Possible values:
 
 Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InputObject
+The objects to list, one row each; the row is the object a selection returns.
+
+```yaml
+Type: PSObject[]
+Parameter Sets: Objects
+Aliases: None
+Possible values:
+
+Required: True
 Position: named
 Default value: None
 Accept pipeline input: False
@@ -133,6 +161,38 @@ Runs once per committed edit on the owning input thread. Receives param($Value, 
 
 ```yaml
 Type: ScriptBlock
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Property
+Columns: names, wildcards and calculated properties with the Show-ConsoleTable column options.
+
+```yaml
+Type: Object[]
+Parameter Sets: Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SelectionKey
+The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing.
+
+```yaml
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

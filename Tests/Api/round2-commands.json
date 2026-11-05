@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 101,
+  "ExpectedCount": 102,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -25,6 +25,7 @@
     "New-ConsoleCalendar",
     "New-ConsoleCellMap",
     "New-ConsoleChart",
+    "New-ConsoleChartView",
     "New-ConsoleCollapsible",
     "New-ConsoleColumns",
     "New-ConsoleCommand",

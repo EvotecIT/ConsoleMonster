@@ -129,6 +129,11 @@ Creates one numeric chart representation from records or samples.
 
 Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.
 
+### [New-ConsoleChartView](New-ConsoleChartView.md)
+Makes a line chart explorable inside Show-ConsoleApp.
+
+Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. Give New-ConsoleDataGrid the same -SelectionKey to link a table.
+
 ### [New-ConsoleCollapsible](New-ConsoleCollapsible.md)
 Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.
 
@@ -150,7 +155,7 @@ The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-
 ### [New-ConsoleDataGrid](New-ConsoleDataGrid.md)
 Creates a named, embeddable data grid for Show-ConsoleApp.
 
-The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control.
+The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.
 
 ### [New-ConsoleDatePicker](New-ConsoleDatePicker.md)
 Creates a persistent civil-date or inclusive range picker.

@@ -97,30 +97,8 @@ namespace ConsoleMonster.PowerShell {
             }
             // Shaping and input routing can touch Terminal before Grid.Show; keep the same outer operation boundary.
             using Output.TerminalGuard outputMode = new Output.TerminalGuard(() => { }, false);
-            // The same columns and cell values as Show-ConsoleTable (shared value rules); a collection passed as one object is its items.
-            Values.ShapeOptions shape = PSShaping.Options(Culture);
-            Values.ShapeBudget budget = Values.ShapeBudget.For(shape);
-            IReadOnlyList<PSObject> items = PSFormatting.Expand(_items, shape);
-            IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, Property, shape, this);
             Grid grid = new Grid(Title) { OutputMode = OutputMode };
-            if (Culture != null) {
-                grid.Presentation = new PresentationOptions { Culture = Culture };
-            }
-            foreach (BoundColumn column in columns) {
-                grid.AddColumn(column.Column);
-            }
-            object?[] ValuesFor(PSObject item, Values.ShapeBudget readBudget) {
-                object?[] values = new object?[columns.Count];
-                for (int c = 0; c < columns.Count; c++) {
-                    object? value = PSFormatting.Read(columns[c], item, readBudget);
-                    object? prepared = value is Values.FieldError || value is Values.BudgetExceeded ? value : Values.ValueShaper.Prepare(value, shape);
-                    object? cell = columns[c].Column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, columns[c].Column, shape, Values.ShapeBudget.For(shape));
-                    // The grid sorts and filters cell values: marked cells (empty collections, failed getters) become their text.
-                    values[c] = cell is ConsoleMonster.Widgets.TableCell marked ? Markup.Strip(marked.Markup) : cell;
-                }
-                return values;
-            }
-            foreach (PSObject item in items) { grid.AddRow(item, ValuesFor(item, budget)); }
+            PSGridListing listing = PSGridListing.Build(_items, Property, Culture, this, grid, out _);
             GridOptions options = new GridOptions { Filter = Filter, SortDescending = Descending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
             foreach (AppCommand command in PSCommandActions.Collect(Command)) { options.Command.Add(command); }
             if (RefreshRow != null) {
@@ -128,7 +106,7 @@ namespace ConsoleMonster.PowerShell {
                     System.Collections.ObjectModel.Collection<PSObject> output = RefreshRow.Invoke(row.Item, command.Key);
                     if (output.Count != 1) { throw new InvalidOperationException("RefreshRow must return exactly one row object."); }
                     PSObject item = output[0];
-                    return new GridRow(item, ValuesFor(item, Values.ShapeBudget.For(shape)));
+                    return listing.Row(item);
                 };
             }
             if (UnavailableFallback.IsPresent && options.Interactive.Input == null && options.Interactive.Capture == null
@@ -138,6 +116,7 @@ namespace ConsoleMonster.PowerShell {
                 options.Interactive.Mode = null;
                 options.Interactive.NonInteractive = true;
             }
+            IReadOnlyList<BoundColumn> columns = listing.Columns;
             for (int c = 0; c < columns.Count; c++) {
                 string header = Markup.Strip(columns[c].Column.Header);
                 if (SortBy != null && (string.Equals(columns[c].Name, SortBy, StringComparison.OrdinalIgnoreCase) || string.Equals(header, SortBy, StringComparison.OrdinalIgnoreCase))) {
