@@ -11,7 +11,7 @@ Creates a named, embeddable data grid for Show-ConsoleApp.
 The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.
 
 ## SYNTAX
-### Grid
+### Grid (Default)
 ```powershell
 New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -Grid <Grid> [-Height <int>] [-NoQuickSearch] [-LinkKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
@@ -49,7 +49,7 @@ Disables editing and removes the input from keyboard focus traversal.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -81,7 +81,7 @@ Natural content height; the terminal viewport can constrain it further.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -113,7 +113,7 @@ Unique key in the application's state and final hashtable.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -129,7 +129,7 @@ Visible label; defaults to the name using the core control's labels.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -145,7 +145,7 @@ The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSele
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -161,7 +161,7 @@ Leaves printable keys to the app's command registry.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -177,7 +177,7 @@ Runs once per committed edit on the owning input thread. Receives param($Value, 
 
 ```yaml
 Type: ScriptBlock
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -209,7 +209,7 @@ Keyboard focus order. Equal values preserve layout declaration order.
 
 ```yaml
 Type: Int32
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 
@@ -225,7 +225,7 @@ Initial validation text displayed below the input.
 
 ```yaml
 Type: String
-Parameter Sets: __AllParameterSets
+Parameter Sets: Grid, Objects
 Aliases: None
 Possible values:
 

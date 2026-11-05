@@ -8,13 +8,18 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates an outline for Show-ConsoleApp: a list of headings to jump between, such as settings groups or the sections of a long page.</summary>
     /// <remarks>The current entry is marked. Up/Down, Home/End and the wheel move the selection; Enter or a click opens it, which makes it current (the final state holds its title). An entry with a Target leads to that control: opening it focuses the control, scrolling a surrounding scroll view to it, and unfolds it when it is a collapsible section. New-ConsoleBreadcrumb -Outline shows the path to the current entry.</remarks>
-    /// <example><para>Jump between the sections of a settings page.</para><code>$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
+    /// <example>
+    /// <para>Jump between the sections of a settings page.</para>
+    /// <code>
+    /// $proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
     /// $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleSplitter -Ratio 0.3 -First {
     ///         New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
     ///     } -Second { $proxy; $dns }
-    /// }</code></example>
+    /// }
+    /// </code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleOutline")]
     [OutputType(typeof(Outline))]
     public sealed class CmdletNewConsoleOutline : NoPipelineInputCmdlet {

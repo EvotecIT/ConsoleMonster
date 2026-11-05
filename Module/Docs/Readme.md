@@ -2,7 +2,7 @@
 Module Name: ConsoleMonster
 Module Guid: 7ef2133c-55a5-47e6-809e-6010f6e65e09
 Download Help Link: https://consolemonster.dev/
-Help Version: 2.1.3
+Help Version: 2.2.0
 Locale: en-US
 ---
 # ConsoleMonster Module
@@ -102,8 +102,6 @@ $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary
 ### [New-ConsoleAccordion](New-ConsoleAccordion.md)
 Creates an accordion for Show-ConsoleApp: collapsible sections that keep one open.
 
--Content emits New-ConsoleCollapsible sections. Opening one folds the others; while a header has focus, + expands every section for reading and - folds them all. Each section keeps its own key and state.
-
 ### [New-ConsoleActivityList](New-ConsoleActivityList.md)
 Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.
 
@@ -116,8 +114,6 @@ Content receives param($State) and injected $State as a native hashtable. Emit w
 
 ### [New-ConsoleBreadcrumb](New-ConsoleBreadcrumb.md)
 Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline's current entry.
-
-The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.
 
 ### [New-ConsoleButton](New-ConsoleButton.md)
 Creates a named action button for Show-ConsoleApp.
@@ -264,8 +260,6 @@ What the item does follows from the parameter you give: -Action (a scriptblock, 
 
 ### [New-ConsoleOutline](New-ConsoleOutline.md)
 Creates an outline for Show-ConsoleApp: a list of headings to jump between, such as settings groups or the sections of a long page.
-
-The current entry is marked. Up/Down, Home/End and the wheel move the selection; Enter or a click opens it, which makes it current (the final state holds its title). An entry with a Target leads to that control: opening it focuses the control, scrolling a surrounding scroll view to it, and unfolds it when it is a collapsible section. New-ConsoleBreadcrumb -Outline shows the path to the current entry.
 
 ### [New-ConsolePanel](New-ConsolePanel.md)
 Creates a bordered panel with a title around other console widgets.

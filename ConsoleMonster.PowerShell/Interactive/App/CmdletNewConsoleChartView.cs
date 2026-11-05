@@ -10,13 +10,15 @@ namespace ConsoleMonster.PowerShell {
     /// </summary>
     /// <example>
     /// <para>Explore CPU and memory samples next to the table they came from</para>
-    /// <code>$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }
+    /// <code>
+    /// $samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }
     /// $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
     ///     @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute
-    ///     New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 8 -LinkKey Minute
-    /// }</code>
+    ///     New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -LinkKey Minute
+    /// }
+    /// </code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleChartView")]
     [OutputType(typeof(ChartView))]

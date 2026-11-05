@@ -5,11 +5,16 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline's current entry.</summary>
     /// <remarks>The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.</remarks>
-    /// <example><para>Show where the reader is in an outline.</para><code>$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1
+    /// <example>
+    /// <para>Show where the reader is in an outline.</para>
+    /// <code>
+    /// $sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections
     ///     $sections
-    /// }</code></example>
+    /// }
+    /// </code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleBreadcrumb", DefaultParameterSetName = SegmentSet)]
     [OutputType(typeof(Breadcrumb))]
     public sealed class CmdletNewConsoleBreadcrumb : NoPipelineInputCmdlet {

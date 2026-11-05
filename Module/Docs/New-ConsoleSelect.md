@@ -13,7 +13,7 @@ Choices use the shared prompt conversion and retain original objects as values. 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Radio] [-Dropdown] [-PageSize <int>] [-LinkKey <string>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Radio] [-Dropdown] [-PageSize <Int32>] [-LinkKey <string>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

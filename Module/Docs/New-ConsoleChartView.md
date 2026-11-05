@@ -30,7 +30,7 @@ $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
     @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
 Show-ConsoleApp -Content {
     New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 8 -LinkKey Minute
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -LinkKey Minute
 }
 ```
 
