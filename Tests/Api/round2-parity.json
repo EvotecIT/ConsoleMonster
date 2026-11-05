@@ -26099,6 +26099,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
+      "Member": "Mouse",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "Shared native options turn mouse input off for every prompt, menu, pager, explorer and app a host runs. PowerShell sessions turn it off process-wide with the CONSOLEMONSTER_NOMOUSE environment variable instead of a switch on every interactive command.",
+      "Alternative": "Set $env:CONSOLEMONSTER_NOMOUSE = 1, or use Show-ConsoleApp -NoMouse for one app.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.InteractiveOptions",
       "Member": "NonInteractive",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Native hosts can explicitly disable prompting. PSInteractive detects the PowerShell process's NonInteractive state and maps it to Mode None instead of exposing a second Boolean.",

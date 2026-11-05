@@ -85,6 +85,7 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && row < _visible.Count) { _cursor = row; return true; }
             return false;
         }
+        internal override bool OpensOnDoubleClick => true;
         private void MoveCore(int amount) { _cursor = Math.Max(0, Math.Min(_visible.Count - 1, _cursor + amount)); }
         private void ExpandCore() { if (Selected.CanExpand) { _expanded.Add(Selected); Refresh(); } }
         private void CollapseCore() {

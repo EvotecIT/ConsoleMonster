@@ -41,9 +41,19 @@ namespace ConsoleMonster.PowerShell {
             Terminal.WriteLines(new[] { context.Markup(hint).Lines[0].WithBaseStyle(context.Style(Styling.ThemeToken.Muted)) }, false, profile);
             try {
                 using (InputLease input = ConsoleInput.Acquire()) {
+                    Interactive.InteractiveOptions options = Interactive.InteractiveOptions.Default;
+                    bool pointer = options.ResolveMouse();
+                    using Interactive.MouseReporting? mouse = Interactive.MouseReporting.Open(pointer, options, profile, input.Source);
                     while (!cmdlet.Stopping) {
                         InputEvent? key = input.Source.Read(TimeSpan.FromMilliseconds(100), CancellationToken.None);
                         if (key == null) { continue; }
+                        if (key.Kind == InputEventKind.Mouse) {
+                            // The wheel pages like Space and b; a click goes on like Space.
+                            // Native Windows input reports the mouse even with reporting off, so the opt-out is checked here too.
+                            int? step = pointer ? PointerStep(key) : null;
+                            if (step.HasValue) { return step.Value; }
+                            continue;
+                        }
                         if (key.Key == ConsoleKey.C && (key.Modifiers & KeyModifiers.Control) != 0) { throw new PipelineStoppedException(); }
                         if (key.Key == ConsoleKey.Q || key.Key == ConsoleKey.Escape) { return 0; }
                         if (key.Key == ConsoleKey.B || key.Char == 'b' || key.Char == 'B') { return -1; }
@@ -54,6 +64,12 @@ namespace ConsoleMonster.PowerShell {
             } finally {
                 Console.Write("\r" + new string(' ', Markup.Strip(hint).Length) + "\r");
             }
+        }
+
+        internal static int? PointerStep(InputEvent pointer) {
+            if (pointer.MouseAction == MouseAction.Wheel && pointer.WheelDelta != 0) { return pointer.WheelDelta < 0 ? 1 : -1; }
+            if (pointer.MouseAction == MouseAction.Down && pointer.MouseButton == 1) { return 1; }
+            return null;
         }
 
         private static IEnumerable<StyledLine> Lines(IWidget view, Capabilities.TerminalProfile profile) {

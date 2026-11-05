@@ -48,6 +48,8 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             _background.Render(region, context);
+            // The dialog has the pointer; what it covers does not.
+            PointerTargets.Cover();
             Paint(region, _dialog, context, MaxWidth, Top, _dim);
         }
 

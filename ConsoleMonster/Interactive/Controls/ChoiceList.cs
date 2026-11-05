@@ -487,6 +487,9 @@ namespace ConsoleMonster.Interactive {
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
             }
+            // In a prompt, menu or form the rows take clicks, drags and the wheel; a double click presses the key that
+            // chooses the row (Space where it toggles). Apps route pointer input through their controls instead.
+            PointerTargets.RecordRegion(region.Bounds, HandlePointer, Multi ? new KeyChord(ConsoleKey.Spacebar) : new KeyChord(ConsoleKey.Enter));
             _viewport = region.Height;
             EnsureVisible();
             InteractiveGlyphs g = InteractiveGlyphs.For(context);

@@ -123,7 +123,7 @@ namespace ConsoleMonster.Tests.Headless {
                 Assert.True(focusWait.Elapsed < TimeSpan.FromSeconds(10), "The click did not move focus to the toggle.");
                 System.Threading.Thread.Sleep(20);
             }
-            Assert.Equal(true, client.Call(new Dictionary<string, object?> { ["cmd"] = "keys", ["keys"] = "Space" })["ok"]);
+            // The click flips the toggle as well as focusing it.
             Assert.Equal(true, client.Call(new Dictionary<string, object?> { ["cmd"] = "wait", ["text"] = "(agreed)", ["timeout"] = "10000" })["found"]);
 
             Assert.Equal(true, client.Call(new Dictionary<string, object?> { ["cmd"] = "resize", ["width"] = "50", ["height"] = "12" })["ok"]);

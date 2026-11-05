@@ -16,7 +16,9 @@ namespace ConsoleMonster.Interactive {
         private static readonly TimeSpan AnimatedWait = TimeSpan.FromMilliseconds(80);
         private static readonly TimeSpan IdleWait = TimeSpan.FromMilliseconds(250);
 
-        public static void Run(InteractiveView view, IInputSource input, IPromptSurface surface, RenderContext context, CancellationToken cancellationToken) {
+        // pointer false drops mouse events (the opt-out): native Windows input reports them whether or not mouse
+        // reporting is on.
+        public static void Run(InteractiveView view, IInputSource input, IPromptSurface surface, RenderContext context, CancellationToken cancellationToken, bool pointer = true) {
             if (view == null) {
                 throw new ArgumentNullException(nameof(view));
             }
@@ -35,9 +37,35 @@ namespace ConsoleMonster.Interactive {
                 }
             }, e => {
                 if (e.Kind == InputEventKind.Resize) { surface.Refresh(); }
+                if (e.Kind == InputEventKind.Mouse) {
+                    if (!pointer) { return; }
+                    // Frames are drawn from their own first row; an inline frame starts lower in the window.
+                    int? origin = PointerOrigin(surface);
+                    if (origin == null || e.Row < origin.Value) { return; }
+                    if (origin.Value != 0) { e = e.WithPosition(e.Column, e.Row - origin.Value); }
+                }
                 view.Handle(e);
                 dirty = true;
             }, cancellationToken, () => view.IsAnimating || view.CurrentToast != null ? AnimatedWait : IdleWait);
+        }
+
+        /// <summary>
+        /// Turns on mouse reporting for a view when its surface can map pointer rows to its frames (the full screen, or an
+        /// inline area on Windows) and the options allow it. Null leaves the mouse to the terminal.
+        /// </summary>
+        internal static IDisposable? OpenMouse(InteractiveOptions options, Capabilities.TerminalProfile profile, IInputSource input, IPromptSurface surface, bool customSurface) {
+            bool locatable = surface is ScreenSurface || surface is InlineSurface inline && inline.CanLocate;
+            return locatable ? MouseReporting.Open(options.ResolveMouse(), options, profile, input, customSurface) : null;
+        }
+
+        // The window row of a frame's first row, or null when it is unknown. Recorded surfaces (tests, captures) use frame
+        // coordinates.
+        internal static int? PointerOrigin(IPromptSurface surface) {
+            switch (surface) {
+                case ScreenSurface _: case RecordingSurface _: return 0;
+                case InlineSurface inline: return inline.PointerOrigin;
+                default: return null;
+            }
         }
 
         public static void Draw(InteractiveView view, IPromptSurface surface, RenderContext context, long tick, TimeSpan elapsed) {

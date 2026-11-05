@@ -54,6 +54,17 @@ namespace ConsoleMonster.Graphics {
             }
         }
 
+        // A click on a node: focus it and show its details.
+        private void ShowNode(string id) {
+            bool changed;
+            lock (_gate) {
+                FocusNode(id);
+                changed = _focus == id && !_showDetails;
+                if (_focus == id) _showDetails = true;
+            }
+            if (changed) DetailsChanged?.Invoke(true);
+        }
+
         private bool MoveFocus(int delta) {
             if (_chart.Nodes.Count == 0) return false;
             string? before = _focus;

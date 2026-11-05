@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using ConsoleMonster.Canvas;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -57,21 +58,44 @@ namespace ConsoleMonster.Interactive {
 
             protected override IWidget Build(ViewFrame frame) {
                 Rows rows = new Rows();
-                rows.Add(new UiLine(context => {
-                    InteractiveGlyphs g = InteractiveGlyphs.For(context);
-                    List<TextSpan> spans = new List<TextSpan> {
-                        new TextSpan((_prompt.Destructive ? context.Glyphs.Get(Glyphs.Glyph.Warning) : g.Question) + " ", context.Style(_prompt.Destructive ? ThemeToken.Warn : ThemeToken.Accent).With(TextDecoration.Bold)),
-                        new TextSpan(_prompt.Title, context.Style(ThemeToken.Title)),
-                        new TextSpan("  ", Style.Plain)
-                    };
-                    spans.AddRange(Buttons.Spans(new[] { Yes, No }, _focus, context));
-                    return new StyledLine(spans);
-                }));
+                rows.Add(new QuestionLine(this));
                 if (!string.IsNullOrEmpty(_prompt.Description)) {
                     rows.Add(new Padding(new UiParagraph(_prompt.Description!), 2, 0, 0, 0));
                 }
                 rows.Add(Footer(frame));
                 return rows;
+            }
+
+            // The question with its Yes and No buttons; a click on a button answers, as y and n do.
+            private sealed class QuestionLine : IWidget {
+                private readonly ConfirmView _view;
+                internal QuestionLine(ConfirmView view) { _view = view; }
+                private List<TextSpan> Lead(RenderContext context) {
+                    InteractiveGlyphs g = InteractiveGlyphs.For(context);
+                    return new List<TextSpan> {
+                        new TextSpan((_view._prompt.Destructive ? context.Glyphs.Get(Glyphs.Glyph.Warning) : g.Question) + " ", context.Style(_view._prompt.Destructive ? ThemeToken.Warn : ThemeToken.Accent).With(TextDecoration.Bold)),
+                        new TextSpan(_view._prompt.Title, context.Style(ThemeToken.Title)),
+                        new TextSpan("  ", Style.Plain)
+                    };
+                }
+                public Size Measure(Constraints constraints, RenderContext context) {
+                    List<TextSpan> spans = Lead(context);
+                    spans.AddRange(Buttons.Spans(new[] { _view.Yes, _view.No }, _view._focus, context));
+                    return new UiLine(_ => new StyledLine(spans)).Measure(constraints, context);
+                }
+                public void Render(Region region, RenderContext context) {
+                    List<TextSpan> lead = Lead(context);
+                    List<TextSpan> spans = new List<TextSpan>(lead);
+                    string[] captions = { _view.Yes, _view.No };
+                    spans.AddRange(Buttons.Spans(captions, _view._focus, context));
+                    StyledLine line = new StyledLine(spans);
+                    new UiLine(_ => line).Render(region, context);
+                    int x = new StyledLine(lead).Width;
+                    // A row too narrow for the whole line wraps, so its buttons have no fixed place to click.
+                    if (line.Width <= region.Width) {
+                        Buttons.Record(region.Bounds, x, captions, index => _view.Accept(index == 0), "confirm");
+                    }
+                }
             }
 
             public override void AddBindings(List<KeyBinding> bindings, ViewFrame frame) {

@@ -12,6 +12,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.Interactive {
     public sealed partial class DataGrid {
         private Rect _bodyBounds;
+        private Table? _page;
         private List<int> _rowLines = new List<int>();
         private List<int> _rowEnds = new List<int>();
         private int _positionLine = -1;
@@ -36,6 +37,7 @@ namespace ConsoleMonster.Interactive {
             // cells stay placeholders: only visible cells start work. No full-list presentation or layout.
             int sample = _visible.Count <= 128 ? 0 : Math.Min(128, _visible.Count);
             Table table = BuildPage(context, sample, count);
+            _page = table;
             int start = sample == 0 ? _top : sample;
             CellBuffer buffer = table.RenderWindow(region.Width, start, count, context, out int head, out _rowLines, out string? hidden);
             _rowEnds = new List<int>(_rowLines.Count);
@@ -122,10 +124,17 @@ namespace ConsoleMonster.Interactive {
             if (input.Column < _bodyBounds.X || input.Column >= _bodyBounds.Right || input.Row < _bodyBounds.Y || input.Row >= _bodyBounds.Bottom) { return false; }
             if (input.MouseAction == MouseAction.Wheel) { _cursor = Clamp(_cursor - Math.Sign(input.WheelDelta) * 3); return true; }
             int relative = input.Row - _bodyBounds.Y;
+            if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && HeaderColumnAt(input.Column - _bodyBounds.X, relative) is int column) {
+                // A click on a column header sorts by it, and a second click reverses the order (F3 and F4 on the keyboard).
+                if (_sortColumn == column) { _descending = !_descending; } else { _sortColumn = column; _descending = false; }
+                Rebuild();
+                _pressOnRow = false;
+                return true;
+            }
             int hit = _rowLines.FindLastIndex(y => y <= relative);
             if (hit < 0 || hit + _top >= _visible.Count || relative >= _rowEnds[hit] || relative == _positionLine) { return false; }
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
-                _cursor = hit + _top; _dragAnchor = _cursor;
+                _cursor = hit + _top; _dragAnchor = _cursor; _pressOnRow = true;
                 if ((input.Modifiers & KeyModifiers.Control) != 0 && _grid.OutputMode == GridSelection.Multiple) {
                     object id = _rows[_visible[_cursor]].Id;
                     if (!_marked.Remove(id)) { _marked.Add(id); }
@@ -144,7 +153,24 @@ namespace ConsoleMonster.Interactive {
             return false;
         }
 
+        // The grid column whose header holds the cell, or null.
+        private int? HeaderColumnAt(int x, int y) {
+            if (_page == null || !_page.WindowHeader(out int top, out int height, out int[] columns, out int[] starts, out int[] widths)) { return null; }
+            if (y < top || y >= top + height) { return null; }
+            // The page starts with the focus gutter, then the mark column for multiple selection.
+            int leading = 1 + (_grid.OutputMode == GridSelection.Multiple ? 1 : 0);
+            List<int> shown = ShownColumns();
+            for (int v = 0; v < columns.Length; v++) {
+                int source = columns[v] - leading;
+                if (x >= starts[v] && x < starts[v] + widths[v] && source >= 0 && source < shown.Count) { return shown[source]; }
+            }
+            return null;
+        }
+
         internal override void CancelPointer() => _dragAnchor = -1;
+        // Only a double click on a row opens it; one on a header sorts twice instead.
+        internal override bool OpensOnDoubleClick => _pressOnRow;
+        private bool _pressOnRow;
         internal bool Pointer(InputEvent input, RenderContext context) => HandleInput(input, context);
     }
 }

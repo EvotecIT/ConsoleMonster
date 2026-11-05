@@ -68,6 +68,20 @@ namespace ConsoleMonster.Interactive {
 
         public bool IsInline => true;
 
+        // Pointer reports count rows from the top of the window; the area's first row is found from the console cursor,
+        // which only Windows can read without a terminal query (see ConsoleCursor). Elsewhere the mouse stays off inline.
+        internal bool CanLocate => _ownsWriter && Output.ConsoleCursor.CanQuery;
+
+        // Pointer rows count from the top of the window: VT reports do, and the event loop moves native console records
+        // (screen-buffer rows) into the window the same way. The cursor is a screen-buffer row, so the window top comes off.
+        internal int? PointerOrigin {
+            get {
+                if (!CanLocate || !_drawn || !Output.ConsoleCursor.TryGetPosition(out _, out int top)) { return null; }
+                try { return top - Console.WindowTop - _cursorRow; }
+                catch (Exception ex) when (ex is System.IO.IOException || ex is InvalidOperationException || ex is PlatformNotSupportedException) { return null; }
+            }
+        }
+
         private bool Hyperlinks => _profile.SupportsHyperlinks;
 
         public bool Refresh() {

@@ -46,16 +46,23 @@ namespace ConsoleMonster.Interactive {
             }
             FooterBar bar = new FooterBar { Indent = Indent, Right = Right, KeepLast = help != null };
             foreach (KeyBinding b in shown.OrderBy(binding => binding.Order)) {
-                bar.Hints.Add(new KeyHint(b.DisplayKeys(), b.Label));
+                bar.Hints.Add(Hint(b));
             }
             if (help != null) {
-                bar.Hints.Add(new KeyHint(help.DisplayKeys(), help.Label));
+                bar.Hints.Add(Hint(help));
             }
             if (Toast != null) {
                 bar.Message = Toast.Line(context, Style.Plain);
             }
             bar.Render(region, context);
         }
+        // A click on the hint presses the binding's first key (the first item number for a numbered binding).
+        private static KeyHint Hint(KeyBinding binding) {
+            Input.KeyChord? chord = null;
+            foreach (Input.KeyChord claim in binding.Claims) { chord = claim; break; }
+            return new KeyHint(binding.DisplayKeys(), binding.Label, true, chord);
+        }
+
         public static bool Dispatch(IReadOnlyList<KeyBinding> bindings, Input.InputEvent input) {
             foreach (KeyBinding b in bindings) {
                 if (b.TryInvoke(input)) {

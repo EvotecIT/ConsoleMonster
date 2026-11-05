@@ -46,6 +46,16 @@ namespace ConsoleMonster.Interactive {
             return false;
         }
 
+        /// <inheritdoc />
+        protected override bool HandlePointerCore(InputEvent input, RenderContext context) {
+            // A click anywhere on the control flips it, as Space does.
+            Rect bounds = Bounds;
+            if (input.MouseAction != MouseAction.Down || input.MouseButton != 1) { return false; }
+            if (input.Column < bounds.X || input.Column >= bounds.Right || input.Row < bounds.Y || input.Row >= bounds.Bottom) { return false; }
+            _value = !_value;
+            return true;
+        }
+
         internal override bool Takes(KeyChord chord, RenderContext context) => chord.Modifiers == KeyModifiers.None
             && (chord.Key == ConsoleKey.Spacebar || chord.Key == ConsoleKey.Enter || chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow);
         /// <inheritdoc />

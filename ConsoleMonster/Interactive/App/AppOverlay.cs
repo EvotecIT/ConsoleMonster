@@ -30,8 +30,8 @@ namespace ConsoleMonster.Interactive {
         private readonly RegionWidget _carrier = new RegionWidget("AppFrame" + Interlocked.Increment(ref _next));
 
         // The shown screen, its crumbs and the app footer's hints, published together on the app thread.
-        internal void Publish(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, LiveSession? session) {
-            Snapshot snapshot = new Snapshot(view, footer, hints, focusVersion);
+        internal void Publish(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, KeyScope scope, LiveSession? session) {
+            Snapshot snapshot = new Snapshot(view, footer, hints, focusVersion, scope);
             if (session == null) { _carrier.Set(snapshot); }
             else { _carrier.Handle(session).Set(snapshot); }
         }
@@ -48,6 +48,8 @@ namespace ConsoleMonster.Interactive {
             // A frame reconciles focus only against the focus the snapshot it draws was published with.
             Snapshot? snapshot = _carrier.Content as Snapshot;
             _viewport.BeginFrame(snapshot?.FocusVersion);
+            // The hints and crumbs it draws belong to the key scope the snapshot was published for.
+            using (Targets.Collect(snapshot?.Scope))
             using (AppScreens.Scope(snapshot?.View))
             using (FooterBar.FrameHints(snapshot?.Footer, snapshot?.Hints))
             using (LayoutNotes.Frame()) { _content.Render(region, context); }
@@ -61,16 +63,49 @@ namespace ConsoleMonster.Interactive {
                 area.Fill(Style.Plain);
                 using (Overlay.Painting()) { popup.Content.Render(area, context); }
                 placed.Add(new Placed(popup.Owner, place, popup.Anchor));
+                // Hints and crumbs the popup covers are not clickable through it.
+                Targets.CoverArea(place);
+            }
+            AppContextMenu? menu;
+            lock (_gate) { menu = _menu; }
+            if (menu != null) {
+                Rect anchor = new Rect(Math.Max(body.Bounds.X, Math.Min(menu.Column, body.Bounds.Right - 1)), Math.Max(body.Bounds.Y, Math.Min(menu.Row, body.Bounds.Bottom - 1)), 1, 1);
+                Size size = menu.Measure(new Constraints(body.Width, body.Height), context);
+                // Below and to the right of the pointer when it fits, otherwise moved back inside the body.
+                int x = Math.Max(body.Bounds.X, Math.Min(anchor.X, body.Bounds.Right - size.Width));
+                int y = anchor.Y + size.Height <= body.Bounds.Bottom ? anchor.Y : Math.Max(body.Bounds.Y, anchor.Y + 1 - size.Height);
+                Rect place = new Rect(x, y, size.Width, Math.Min(size.Height, body.Bounds.Bottom - y));
+                Region area = region.Sub(place.X - region.Bounds.X, place.Y - region.Bounds.Y, place.Width, place.Height);
+                area.Fill(Style.Plain);
+                using (Overlay.Painting()) { menu.Render(area, context); }
+                menu.Place(place);
+                Targets.CoverArea(place);
             }
             IWidget? dialog = _actions.ModalLayer(context, body.Width, body.Height, out int maxWidth);
-            if (dialog != null) { Overlay.Paint(body, dialog, context, maxWidth, false, true); placed.Clear(); }
+            if (dialog != null) { Overlay.Paint(body, dialog, context, maxWidth, false, true); placed.Clear(); Targets.CoverBody(body.Bounds); }
+            _modalDrawn = dialog != null;
             Toast? toast;
             lock (_gate) { _popups.Clear(); _popups.AddRange(placed); toast = _toast; }
             if (toast != null) {
+                Targets.CoverRows(region.Bounds.Y + region.Height - 1);
                 Region row = region.Sub(0, region.Height - 1, region.Width, 1);
                 row.Fill(Style.Plain);
                 new FooterBar { Message = toast.Line(context, Style.Plain) }.Render(row, context);
             }
+        }
+
+        /// <summary>The footer hints and breadcrumbs the last frame drew.</summary>
+        internal PointerTargets Targets { get; } = new PointerTargets(regions: false);
+
+        private AppContextMenu? _menu;
+        private volatile bool _modalDrawn;
+
+        // Whether the last frame drew a dialog, so its hints (the dialog's keys) are the ones on screen.
+        internal bool ModalDrawn => _modalDrawn;
+
+        internal AppContextMenu? Menu {
+            get { lock (_gate) { return _menu; } }
+            set { lock (_gate) { _menu = value; } }
         }
 
         internal void ShowToast(Toast toast) {
@@ -109,8 +144,9 @@ namespace ConsoleMonster.Interactive {
         private static bool Contains(Rect area, InputEvent input) => input.Column >= area.X && input.Column < area.Right && input.Row >= area.Y && input.Row < area.Bottom;
 
         private sealed class Snapshot : IWidget, IUnrecorded {
-            internal Snapshot(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion) { View = view; Footer = footer; Hints = hints; FocusVersion = focusVersion; }
+            internal Snapshot(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, KeyScope scope) { View = view; Footer = footer; Hints = hints; FocusVersion = focusVersion; Scope = scope; }
             internal AppScreens.View? View { get; } internal FooterBar? Footer { get; } internal IReadOnlyList<KeyHint>? Hints { get; } internal int FocusVersion { get; }
+            internal KeyScope Scope { get; }
             public Size Measure(Constraints constraints, RenderContext context) => new Size(0, 0);
             public void Render(Region region, RenderContext context) { }
         }

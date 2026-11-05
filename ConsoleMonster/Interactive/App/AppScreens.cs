@@ -141,7 +141,7 @@ namespace ConsoleMonster.Interactive {
             for (int i = 0; i < path.Length; i++) {
                 titles[i] = path[i].TitleSource != null && _state != null ? path[i].TitleSource!(_state) ?? string.Empty : path[i].Title;
             }
-            View view = new View(path[path.Length - 1], titles);
+            View view = new View(path[path.Length - 1], titles, path.Select(screen => screen.Key).ToArray(), this);
             Volatile.Write(ref _view, view);
             return view;
         }
@@ -151,6 +151,24 @@ namespace ConsoleMonster.Interactive {
         internal static IReadOnlyList<string>? AmbientCrumbs => _ambient?.Crumbs;
         // The screen the current frame draws; splitters keep their ratio per screen.
         internal static AppScreen? AmbientScreen => _ambient?.Screen;
+
+        // What a crumb stands for: this stack and the path up to that screen, so a crumb drawn at the same place for another
+        // path is a different target.
+        internal static string? AmbientCrumbId(int index) {
+            View? view = _ambient;
+            if (view == null || index < 0 || index >= view.Keys.Length) { return null; }
+            return "crumb:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(view.Owner).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + ":" + string.Join("/", view.Keys, 0, index + 1);
+        }
+
+        // A click on a crumb returns to that screen, as Back does one step at a time; the current screen's crumb does nothing.
+        internal static Action? AmbientCrumbAction(int index) {
+            View? view = _ambient;
+            if (view == null || index < 0 || index >= view.Keys.Length - 1) { return null; }
+            string key = view.Keys[index];
+            AppScreens owner = view.Owner;
+            return () => owner.Push(key);
+        }
 
         // A callback may assign the screen before the values that screen shows (a script writes its keys in any order),
         // so the app opens it from its refresh, once the callback has finished.
@@ -214,9 +232,11 @@ namespace ConsoleMonster.Interactive {
         }
 
         internal sealed class View {
-            internal View(AppScreen screen, string[] crumbs) { Screen = screen; Crumbs = crumbs; }
+            internal View(AppScreen screen, string[] crumbs, string[] keys, AppScreens owner) { Screen = screen; Crumbs = crumbs; Keys = keys; Owner = owner; }
             internal AppScreen Screen { get; }
             internal string[] Crumbs { get; }
+            internal string[] Keys { get; }
+            internal AppScreens Owner { get; }
         }
 
         private sealed class CrumbScope : IDisposable {

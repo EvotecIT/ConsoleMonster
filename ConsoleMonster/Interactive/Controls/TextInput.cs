@@ -52,6 +52,48 @@ namespace ConsoleMonster.Interactive {
 
         /// <inheritdoc />
         protected override bool HandleInputCore(Input.InputEvent input, RenderContext context) => _editor.Handle(input);
+
+        private Rect _textBounds;
+
+
+        /// <inheritdoc />
+        protected override bool HandlePointerCore(Input.InputEvent input, RenderContext context) {
+            // A click places the caret; dragging selects, as Shift with the arrows does.
+            Rect text = _textBounds;
+            bool inside = input.Column >= text.X && input.Column < text.Right && input.Row >= text.Y && input.Row < text.Bottom;
+            if (input.MouseAction == Input.MouseAction.Down && input.MouseButton == 1) {
+                if (!inside) { return false; }
+                _editor.Dragging = true;
+                _editor.PlaceCaret(IndexAt(input.Column - text.X + _editor.ScrollOffset, context), false);
+                return true;
+            }
+            if (input.MouseAction == Input.MouseAction.Move && _editor.Dragging && (input.HeldButtons & 1) != 0) {
+                _editor.PlaceCaret(IndexAt(Math.Max(0, input.Column - text.X + _editor.ScrollOffset), context), true);
+                return true;
+            }
+            if (input.MouseAction == Input.MouseAction.Up && _editor.Dragging) {
+                _editor.Dragging = false;
+                if (!_editor.HasSelection) { _editor.ClearSelection(); }
+                return true;
+            }
+            return false;
+        }
+
+        internal override void CancelPointer() => _editor.Dragging = false;
+        internal override object PointerIdentity => _editor;
+
+        // The caret index nearest a display column: a click on the right half of a character goes after it.
+        private int IndexAt(int column, RenderContext context) {
+            // Whole display clusters, as drawn: a click never lands inside a joined emoji.
+            string value = _editor.Text;
+            int used = 0;
+            foreach (TextCluster cluster in DisplayWidth.Clusters(value)) {
+                int width = DisplayWidth.Measure(Display(value.Substring(cluster.Start, cluster.Length), context));
+                if (column < used + (width + 1) / 2) { return cluster.Start; }
+                used += width;
+            }
+            return value.Length;
+        }
         internal override bool Takes(Input.KeyChord chord, RenderContext context) => LineEditor.Takes(chord);
 
         /// <inheritdoc />
@@ -63,6 +105,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             int width = region.Width;
+            _textBounds = region.Bounds;
             Style style = context.Style(Role);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
                 // Public controls paint their own caret; existing prompt compositions own its surrounding space.
@@ -88,6 +131,9 @@ namespace ConsoleMonster.Interactive {
                 offset = 0;
             }
             _editor.ScrollOffset = offset;
+            int selectFrom = _editor.HasSelection ? DisplayWidth.Measure(Display(_editor.Text.Substring(0, _editor.SelectionStart), context)) : -1;
+            int selectTo = _editor.HasSelection ? DisplayWidth.Measure(Display(_editor.Text.Substring(0, _editor.SelectionEnd), context)) : -1;
+            Style selected = style.With(TextDecoration.Reverse);
             int x = 0;
             int column = 0;
             foreach (TextCell cell in DisplayWidth.Cells(shown)) {
@@ -102,7 +148,7 @@ namespace ConsoleMonster.Interactive {
                 if (x + cell.Width > width) {
                     break;
                 }
-                region.Put(x, 0, cell.Glyph, style, cell.Width);
+                region.Put(x, 0, cell.Glyph, column >= selectFrom && column < selectTo ? selected : style, cell.Width);
                 x += cell.Width;
                 column += cell.Width;
             }
@@ -121,11 +167,10 @@ namespace ConsoleMonster.Interactive {
             if (Mask.Length == 0) {
                 return string.Empty;
             }
+            // One mask per display cluster, the unit the caret and a click move by, so an accented letter is one cell.
             int count = 0;
-            for (int i = 0; i < text.Length; i++) {
-                if (!char.IsLowSurrogate(text[i])) {
-                    count++;
-                }
+            foreach (TextCluster _ in DisplayWidth.Clusters(text)) {
+                count++;
             }
             List<string> parts = new List<string>(count);
             for (int i = 0; i < count; i++) {

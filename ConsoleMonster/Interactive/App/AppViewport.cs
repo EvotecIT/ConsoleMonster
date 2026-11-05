@@ -11,6 +11,8 @@ namespace ConsoleMonster.Interactive {
         private readonly FocusManager _focus;
         private readonly int _reservedRows;
         private int _scroll;
+        // Pointer targets recorded before this viewport; a content pass drawn again replaces its own.
+        private int _mark;
         private Rect _bounds;
         private InputControl? _lastFocus;
         private bool _revealRequested = true;
@@ -32,6 +34,7 @@ namespace ConsoleMonster.Interactive {
         public void Render(Region region, RenderContext context) {
             lock (_gate) {
                 _bounds = region.Bounds;
+                _mark = PointerTargets.Mark();
                 if (region.Width == 0 || region.Height == 0) { return; }
                 ConstrainInputs(region.Height);
                 int natural = _content.Measure(new Constraints(region.Width), context).Height;
@@ -41,7 +44,7 @@ namespace ConsoleMonster.Interactive {
                 if (natural > region.Height && RenderShrunk(region, context, natural, arrangedAt)) { return; }
                 CellBuffer canvas = new CellBuffer(region.Width, height);
                 _arrangement.Focused = _focus.Current;
-                using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
+                using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(canvas), context); }
                 InputControl? beforeFocus = _focus.Current;
                 _focus.SetMounted(_arrangement.Mounted, arrangedAt);
                 int before = _scroll;
@@ -56,7 +59,7 @@ namespace ConsoleMonster.Interactive {
                 if (before != _scroll || beforeFocus != _focus.Current) {
                     canvas = new CellBuffer(region.Width, height);
                     _arrangement.Focused = _focus.Current;
-                    using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { _content.Render(new Region(canvas), context); }
+                    using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y - _scroll, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(canvas), context); }
                 }
                 region.Buffer.Blit(canvas, 0, _scroll, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
             }
@@ -69,23 +72,24 @@ namespace ConsoleMonster.Interactive {
             CellBuffer full = new CellBuffer(region.Width, natural);
             _arrangement.Focused = _focus.Current;
             using (LayoutNotes.Pause())
-            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(full), context); }
+            using (Widgets.ScrollView.Probing())
+            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(full), context); }
             Dictionary<InputControl, int> wanted = _arrangement.Heights();
             CellBuffer fit = new CellBuffer(region.Width, region.Height);
-            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(fit), context); }
+            // The fit is a probe too until it is accepted: a rejected fit must not move a nested scroll view.
+            using (Widgets.ScrollView.Probing())
+            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(fit), context); }
             Dictionary<InputControl, int> got = _arrangement.Heights();
             HashSet<InputControl> inputs = new HashSet<InputControl>(_focus.Controls);
             foreach (KeyValuePair<InputControl, int> input in wanted) {
                 if (!inputs.Contains(input.Key)) { continue; }
                 if (!got.TryGetValue(input.Key, out int rows) || rows < Math.Min(input.Value, 3)) { return false; }
             }
-            InputControl? before = _focus.Current;
             _focus.SetMounted(_arrangement.Mounted, arrangedAt);
-            if (before != _focus.Current) {
-                fit = new CellBuffer(region.Width, region.Height);
-                _arrangement.Focused = _focus.Current;
-                using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { _content.Render(new Region(fit), context); }
-            }
+            // Accepted: drawn once more for real, so scroll views keep this frame's state (and focus the reconciled input).
+            fit = new CellBuffer(region.Width, region.Height);
+            _arrangement.Focused = _focus.Current;
+            using (_arrangement.Begin(region.Bounds.X, region.Bounds.Y, region.Bounds)) { PointerTargets.Rewind(_mark); _content.Render(new Region(fit), context); }
             _scroll = 0;
             region.Buffer.Blit(fit, 0, 0, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
             return true;
@@ -109,6 +113,8 @@ namespace ConsoleMonster.Interactive {
             }
         }
         internal bool ScrollBy(int rows) { lock (_gate) { return _arrangement.ScrollBy(rows); } }
+        internal InputArrangement.ScrollbarDrag? ScrollbarAt(Input.InputEvent input) { lock (_gate) { return _arrangement.ScrollbarAt(input); } }
+        internal Rect? FrameBounds(InputControl control) { lock (_gate) { return _arrangement.BoundsOf(control); } }
         // The overlay passes the focus version its snapshot was published with, so a frame drawing an older snapshot than
         // the current focus can never reconcile focus against the inputs it shows.
         internal void BeginFrame(int? focusVersion) => _frameVersion = focusVersion ?? _focus.Version;

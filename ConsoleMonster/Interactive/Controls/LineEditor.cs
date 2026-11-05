@@ -28,12 +28,44 @@ namespace ConsoleMonster.Interactive {
                 _text.Clear();
                 _text.Append(value ?? string.Empty);
                 Caret = _text.Length;
+                Anchor = -1;
                 ScrollOffset = 0;
             }
         }
 
         /// <summary>The caret position in UTF-16 units (never inside a surrogate pair).</summary>
         public int Caret { get; private set; }
+
+        /// <summary>Where the selection started (Shift+arrows or a drag), or -1; the selection runs from here to the caret.</summary>
+        public int Anchor { get; private set; } = -1;
+
+        public bool HasSelection => Anchor >= 0 && Anchor != Caret;
+        public int SelectionStart => HasSelection ? Math.Min(Anchor, Caret) : Caret;
+        public int SelectionEnd => HasSelection ? Math.Max(Anchor, Caret) : Caret;
+
+        /// <summary>Moves the caret to a pointer position; with <paramref name="extend"/> the selection grows to it (a drag).</summary>
+        internal void PlaceCaret(int index, bool extend) {
+            index = Math.Max(0, Math.Min(_text.Length, index));
+            if (index > 0 && index < _text.Length && char.IsLowSurrogate(_text[index]) && char.IsHighSurrogate(_text[index - 1])) { index--; }
+            if (extend) { if (Anchor < 0) { Anchor = Caret; } }
+            else { Anchor = index; }
+            Caret = index;
+        }
+
+        internal void ClearSelection() => Anchor = -1;
+
+        // A pointer drag is selecting (kept here, so the text box drawn for the next frame continues it).
+        internal bool Dragging { get; set; }
+
+        // Removes the selected text; true when there was a selection.
+        private bool DeleteSelection() {
+            if (!HasSelection) { Anchor = -1; return false; }
+            int start = SelectionStart;
+            _text.Remove(start, SelectionEnd - start);
+            Caret = start;
+            Anchor = -1;
+            return true;
+        }
 
         /// <summary>The first visible cell when the text is wider than its box (kept by the widget).</summary>
         public int ScrollOffset { get; set; }
@@ -70,6 +102,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Applies an edit; returns true when the event was an edit or caret movement.</summary>
         public bool Handle(InputEvent e) {
             if (e.Kind == InputEventKind.Paste) {
+                DeleteSelection();
                 Insert(Clean(e.Text ?? string.Empty));
                 return true;
             }
@@ -77,11 +110,23 @@ namespace ConsoleMonster.Interactive {
                 return false;
             }
             if (e.IsText) {
+                DeleteSelection();
                 Insert(e.Char.ToString());
                 return true;
             }
             bool ctrl = (e.Modifiers & KeyModifiers.Control) != 0;
             bool alt = (e.Modifiers & KeyModifiers.Alt) != 0;
+            bool shift = (e.Modifiers & KeyModifiers.Shift) != 0;
+            // Shift with a caret movement selects (as dragging does); a plain movement drops the selection, and a
+            // deletion removes the selected text first.
+            if (e.Key == ConsoleKey.LeftArrow || e.Key == ConsoleKey.RightArrow || e.Key == ConsoleKey.Home || e.Key == ConsoleKey.End) {
+                if (shift) { if (Anchor < 0) { Anchor = Caret; } }
+                else { Anchor = -1; }
+            } else if ((e.Key == ConsoleKey.Backspace || e.Key == ConsoleKey.Delete) && DeleteSelection()) {
+                return true;
+            } else {
+                Anchor = -1;
+            }
             // Terminal.app and xterm send Meta letters; keep Windows menu accelerators untouched.
             bool unix = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             if (unix && alt && !ctrl) {

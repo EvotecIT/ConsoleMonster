@@ -82,6 +82,61 @@ namespace ConsoleMonster.Interactive {
             return _editor.Handle(input);
         }
 
+        private Rect _textBounds;
+
+
+        /// <inheritdoc />
+        protected override bool HandlePointerCore(Input.InputEvent input, RenderContext context) {
+            // A click places the caret; dragging selects, as Shift with the movement keys does.
+            Rect text = _textBounds;
+            // Keys handled since the last frame may have changed the text: hit-test against rows laid out for it now.
+            _layoutWidth = _layoutWidth > 0 ? _layoutWidth : Math.Max(1, context.Profile.Width - 6);
+            _editor.Layout(_layoutWidth, context.Glyphs.Tier);
+            bool inside = input.Column >= text.X - 2 && input.Column < text.Right && input.Row >= text.Y && input.Row < text.Bottom;
+            if (input.MouseAction == Input.MouseAction.Down && input.MouseButton == 1) {
+                if (!inside) { return false; }
+                _editor.Dragging = true;
+                _editor.PlaceCaret(IndexAt(input.Column - text.X, input.Row - text.Y, context.Glyphs.Tier), false);
+                return true;
+            }
+            if (input.MouseAction == Input.MouseAction.Move && _editor.Dragging && (input.HeldButtons & 1) != 0) {
+                _editor.PlaceCaret(IndexAt(input.Column - text.X, input.Row - text.Y, context.Glyphs.Tier), true);
+                return true;
+            }
+            if (input.MouseAction == Input.MouseAction.Up && _editor.Dragging) {
+                _editor.Dragging = false;
+                if (!_editor.HasSelection) { _editor.ClearSelection(); }
+                return true;
+            }
+            return false;
+        }
+
+        internal override void CancelPointer() => _editor.Dragging = false;
+        internal override object PointerIdentity => _editor;
+
+        // The caret index nearest a visible cell; rows above or below the view clamp to its first or last row.
+        // Cells as drawn: the glyph tier can draw a character narrower than its natural width (an emoji as "+").
+        private static int Cells(string text, Capabilities.GlyphTier tier) => DisplayWidth.Measure(Glyphs.SymbolFallback.Constrain(text, tier));
+
+        private int IndexAt(int column, int row, Capabilities.GlyphTier tier) {
+            if (_editor.Rows.Count == 0) { return 0; }
+            int index = Math.Max(0, Math.Min(_editor.Rows.Count - 1, ScrollRow + row));
+            string value = _editor.Text;
+            int[] span = _editor.Rows[index];
+            int start = Math.Min(span[0], value.Length);
+            int end = Math.Max(start, Math.Min(span[1], value.Length));
+            if (end > start && value[end - 1] == '\n') { end--; }
+            // Whole display clusters, as the layout measures them: a click never lands inside a joined emoji.
+            string line = value.Substring(start, end - start);
+            int used = 0;
+            foreach (TextCluster cluster in DisplayWidth.Clusters(line)) {
+                int width = Cells(line.Substring(cluster.Start, cluster.Length), tier);
+                if (column < used + (width + 1) / 2) { return start + cluster.Start; }
+                used += width;
+            }
+            return end;
+        }
+
         internal override void AddOwnKeys(List<KeyBinding> keys, RenderContext context) {
             if (_find == null) { return; }
             PromptLabels labels = PromptLabels.For(context.Profile.Language);
@@ -129,6 +184,7 @@ namespace ConsoleMonster.Interactive {
             }
             int width = region.Width - 2;
             _layoutWidth = width;
+            _textBounds = new Rect(region.Bounds.X + 2, region.Bounds.Y, width, region.Height);
             string text = _editor.Text;
             _editor.Layout(width, context.Glyphs.Tier);
             if (_editor.IsEmpty && !string.IsNullOrEmpty(Placeholder)) {
@@ -156,6 +212,14 @@ namespace ConsoleMonster.Interactive {
                 int[] row = _editor.Rows[ScrollRow + y];
                 string shown = text.Substring(row[0], Math.Max(0, row[1] - row[0])).TrimEnd('\n');
                 region.Write(2, y, Glyphs.SymbolFallback.Constrain(shown, context.Glyphs.Tier), style, width);
+                if (_editor.HasSelection) {
+                    int from = Math.Max(row[0], _editor.SelectionStart), to = Math.Min(row[0] + shown.Length, _editor.SelectionEnd);
+                    if (to > from) {
+                        int start = Cells(text.Substring(row[0], from - row[0]), context.Glyphs.Tier);
+                        int end = Math.Min(width, start + Cells(text.Substring(from, to - from), context.Glyphs.Tier));
+                        for (int x = start; x < end; x++) { region.SetStyle(2 + x, y, region.Get(2 + x, y).Style.With(TextDecoration.Reverse)); }
+                    }
+                }
             }
             if (_find != null && _find.Active) {
                 for (int i = 0; i < _find.Matches.Count; i++) {

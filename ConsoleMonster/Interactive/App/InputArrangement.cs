@@ -80,6 +80,21 @@ namespace ConsoleMonster.Interactive {
             }
             return false;
         }
+        // A press on a scroll view's bar, which a drag then keeps moving.
+        internal ScrollbarDrag? ScrollbarAt(InputEvent pointer) {
+            for (int i = _scrolls.Count - 1; i >= 0; i--) {
+                Rect area = _scrolls[i].Item2;
+                if (_scrolls[i].Item1.HasScrollbar && pointer.Column == area.Right - 1 && pointer.Row >= area.Y && pointer.Row < area.Bottom) { return new ScrollbarDrag(_scrolls[i].Item1, area); }
+            }
+            return null;
+        }
+        internal Rect? BoundsOf(InputControl control) => _inputs.TryGetValue(control, out Entry? entry) ? entry.Bounds.Intersect(entry.Clip) : (Rect?)null;
+        internal sealed class ScrollbarDrag {
+            private readonly Widgets.ScrollView _scroll;
+            private readonly Rect _area;
+            internal ScrollbarDrag(Widgets.ScrollView scroll, Rect area) { _scroll = scroll; _area = area; }
+            internal void DragScrollbar(int row) => _scroll.ScrollToFraction(row - _area.Y, _area.Height);
+        }
         internal bool ScrollBy(int rows) {
             if (_scrolls.Count == 0) { return false; }
             _scrolls[_scrolls.Count - 1].Item1.ScrollBy(rows); return true;

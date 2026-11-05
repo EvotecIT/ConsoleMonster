@@ -254,6 +254,70 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Assert.True(view.ShowKeys);
         }
 
+        [Fact]
+        public void NodeClick_FocusesThatNodeLikeUpAndDown() {
+            var view = new TopologyDiagram(SingleNodeChart().AddAutoNode("db", "Database", TopologyNodeKind.Database)) { ShowDetails = false };
+            using var app = new AppController(view, new AppState(), Terminal.CreateContext(TerminalProfile.Fixed(100, 30)), 60);
+            string[] rows = app.PrepareFrame(100, 30).ToPlainText().Split('\n');
+            int row = Array.FindIndex(rows, line => line.Contains("Database"));
+            Assert.True(row >= 0, string.Join("\n", rows));
+            int column = rows[row].IndexOf("Database", StringComparison.Ordinal);
+            app.Handle(InputEvent.Mouse(column, row), true);
+            app.Handle(InputEvent.Mouse(column, row, pressed: false), true);
+            Assert.Equal("db", view.FocusNodeId);
+            // The details panel opens, as d does.
+            Assert.Contains(app.PrepareFrame(100, 30).ToPlainText().Split('\n'), line => line.Trim().EndsWith("connections", StringComparison.Ordinal) || line.Trim().EndsWith("connection", StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void StepAndUseCaseLines_ClickGoesToTheStepAndPlaysLikeTheirKeys() {
+            var view = new TopologyDiagram(SingleNodeChart().AddAutoNode("db", "Database", TopologyNodeKind.Database)
+                .AddScenario("flow", "Flow", scenario => scenario.WithPlayback(stepDurationMilliseconds: 60000)
+                    .AddNodeStep("worker", "Inspect").AddNodeStep("db", "Store").AddNodeStep("worker", "Reply")));
+            using var app = new AppController(view, new AppState(), Terminal.CreateContext(TerminalProfile.Fixed(100, 40)), 60);
+            string[] rows = app.PrepareFrame(100, 40).ToPlainText().Split('\n');
+            int step = Array.FindIndex(rows, line => line.Contains("3. "));
+            Assert.True(step >= 0, string.Join("\n", rows));
+            Click(app, rows[step].IndexOf("3. ", StringComparison.Ordinal), step);
+            Assert.Equal(2, view.StepIndex);
+            rows = app.PrepareFrame(100, 40).ToPlainText().Split('\n');
+            int header = Array.FindIndex(rows, line => line.Contains("step 3 of 3"));
+            Assert.True(header >= 0, string.Join("\n", rows));
+            Click(app, rows[header].IndexOf("Flow", StringComparison.Ordinal), header);
+            Assert.True(view.Playing);
+        }
+
+        [Fact]
+        public void PanelsDrawnApart_KeepTheStepClicks() {
+            var view = new TopologyDiagram(SingleNodeChart().AddScenario("flow", "Flow", scenario => scenario
+                .AddNodeStep("worker", "Inspect").AddNodeStep("worker", "Store")));
+            var context = Terminal.CreateContext(TerminalProfile.Fixed(80, 20));
+            using var app = new AppController(view.Panels(context)!, new AppState(), context, 60);
+            string[] rows = app.PrepareFrame(80, 20).ToPlainText().Split('\n');
+            int step = Array.FindIndex(rows, line => line.Contains("2. "));
+            Assert.True(step >= 0, string.Join("\n", rows));
+            Click(app, rows[step].IndexOf("2. ", StringComparison.Ordinal), step);
+            Assert.Equal(1, view.StepIndex);
+        }
+        [Fact]
+        public void StepPressedThenUseCaseSwitched_ReleaseDoesNotRunTheOtherUseCasesStep() {
+            var view = new TopologyDiagram(SingleNodeChart()
+                .AddScenario("a", "Alpha", scenario => scenario.AddNodeStep("worker", "One").AddNodeStep("worker", "Two"))
+                .AddScenario("b", "Bravo", scenario => scenario.AddNodeStep("worker", "Uno").AddNodeStep("worker", "Dos")));
+            using var app = new AppController(view, new AppState(), Terminal.CreateContext(TerminalProfile.Fixed(100, 40)), 60);
+            string[] rows = app.PrepareFrame(100, 40).ToPlainText().Split('\n');
+            int step = Array.FindIndex(rows, line => line.Contains("2. "));
+            int column = rows[step].IndexOf("2. ", StringComparison.Ordinal);
+            app.Handle(InputEvent.Mouse(column, step), true);
+            view.NextScenario(1);
+            Assert.Equal(step, Array.FindIndex(app.PrepareFrame(100, 40).ToPlainText().Split('\n'), line => line.Contains("2. ")));
+            app.Handle(InputEvent.Mouse(column, step, pressed: false), true);
+            Assert.Null(view.StepIndex);
+        }
+        private static void Click(AppController app, int column, int row) {
+            app.Handle(InputEvent.Mouse(column, row), true);
+            app.Handle(InputEvent.Mouse(column, row, pressed: false), true);
+        }
         private static TopologyChart SingleNodeChart() => TopologyChart.Create()
             .WithLayout(TopologyLayoutMode.Layered, TopologyLayoutDirection.LeftToRight)
             .WithViewport(300, 200, 28)

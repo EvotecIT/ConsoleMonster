@@ -130,7 +130,9 @@ namespace ConsoleMonster.Interactive {
                 }
                 List<string> captions = _pane.Captions(context);
                 _pane._button = Math.Min(_pane._button, captions.Count - 1);
-                ReviewDrawing.Draw(region.Sub(0, y, region.Width, Math.Max(1, region.Height - y)), context, _pane._model.Rows, _pane._model.Problems, _pane._model.Command, _pane._labels.EquivalentCommand, captions, _pane._button, _focused, _pane.BlockedIndex());
+                ReviewDrawing.Draw(region.Sub(0, y, region.Width, Math.Max(1, region.Height - y)), context, _pane._model.Rows, _pane._model.Problems, _pane._model.Command, _pane._labels.EquivalentCommand, captions, _pane._button, _focused, _pane.BlockedIndex(),
+                    index => { List<ButtonKind> kinds = _pane.Kinds(); if (index < kinds.Count) { _pane._button = index; _pane.Activate(kinds[index]); } },
+                    "review:" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(_pane).ToString(System.Globalization.CultureInfo.InvariantCulture));
             }
         }
 

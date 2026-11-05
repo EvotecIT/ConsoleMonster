@@ -55,6 +55,7 @@ Text that reaches stream and plain output is sanitised: escape sequences and con
 | CI, redirected input, `pwsh -NonInteractive`, `CONSOLEMONSTER_NONINTERACTIVE=1` | Return the default, or fail with a message that names the parameter to pass. |
 | Remoting, the ISE | Ask through the host: numbered choices and `PromptForChoice`. |
 | `CONSOLEMONSTER_ACCESSIBLE=1` | Plain numbered questions with no redraws; every answer is confirmed as text. |
+| `CONSOLEMONSTER_NOMOUSE=1` | The usual prompts, with the mouse left to the terminal (selection, scrollback). `InteractiveOptions.Mouse = false` does the same in C#. |
 
 ## Known limits
 

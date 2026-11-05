@@ -29,6 +29,9 @@ namespace ConsoleMonster.Interactive {
         private bool _disposed;
         private readonly AppCommandHost _actions;
         private InputControl? _pointerCapture;
+        private InputArrangement.ScrollbarDrag? _scrollCapture;
+        private bool _containerCapture;
+        private readonly ClickCounter _clicks = new ClickCounter();
         private volatile bool _tooSmall;
         private AppScreens? _screens;
         private readonly AppKeyMap _keys;
@@ -102,25 +105,90 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             bool pointerHandled = false;
-            if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) { _pointerCapture?.CancelPointer(); _pointerCapture = null; }
-            if ((_actions.HasCommands || _actions.HasModal) && (input.Kind != InputEventKind.Mouse || mouse) && _actions.Handle(input)) { Invalidate(); return; }
+            int clicks = mouse ? _clicks.Count(input) : 0;
+            if (input.Kind == InputEventKind.FocusLost || input.Kind == InputEventKind.Resize) {
+                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _containerCapture = false; _overlay.Targets.Cancel(); _clicks.Reset();
+                if (_overlay.Menu != null) { _overlay.Menu = null; Invalidate(); }
+            }
+            if (input.Kind == InputEventKind.Mouse && !mouse) { return; }
+            // A dialog a callback opened takes the pointer at once, before a frame shows it: what was pressed, dragged or
+            // drawn under it (a popup, a menu, the hints of the last frame) no longer gets events.
+            bool modal = _actions.HasModal;
+            if (modal && (_pointerCapture != null || _scrollCapture != null || _containerCapture || _overlay.Menu != null)) {
+                _pointerCapture?.CancelPointer(); _pointerCapture = null; _scrollCapture = null; _containerCapture = false; _overlay.Menu = null; _overlay.Targets.Cancel();
+                Invalidate();
+            }
+            if (_overlay.Menu is AppContextMenu menu && (input.Kind == InputEventKind.Key || input.Kind == InputEventKind.Mouse)) {
+                // The menu lists one scope's bindings: once another input, screen or dialog has the keys it is stale, and the
+                // key or press meant for it does nothing else.
+                if (!Equals(menu.Scope, CurrentScope())) { _overlay.Menu = null; Invalidate(); return; }
+                AppKeyMap.Entry? chosen = input.Kind == InputEventKind.Key ? menu.HandleKey(input, out bool close, out bool used) : menu.HandlePointer(input, out close, out used);
+                if (close) { _overlay.Menu = null; }
+                Invalidate();
+                // The entry runs only while its key still reaches the binding it named (a callback may have changed scope).
+                if (chosen != null) { if (StillReaches(chosen)) { HandleCore(chosen.Chord!.Value.ToInput(), mouse, ref reachedKeys); } return; }
+                if (used) { return; }
+            }
+            // A drag a container started (a splitter's divider) keeps its moves and release, also over hints or popups.
+            if (input.Kind == InputEventKind.Mouse && _containerCapture) {
+                _viewport.HandleContainerInput(input);
+                if (input.MouseAction == MouseAction.Up || (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) == 0)) { _containerCapture = false; }
+                Invalidate();
+                return;
+            }
+            // A scroll bar drag keeps the pointer until the button is released, wherever that happens.
+            if (input.Kind == InputEventKind.Mouse && _scrollCapture != null) {
+                if ((input.HeldButtons & 1) != 0) { _scrollCapture.DragScrollbar(input.Row); }
+                if (input.MouseAction == MouseAction.Up || (input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) == 0)) { _scrollCapture = null; }
+                Invalidate();
+                return;
+            }
+            // An open popup is drawn over everything else, so it takes the pointer first; a press outside closes it.
+            if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && (!modal || _overlay.ModalDrawn) && _overlay.Targets.Route(input, clicks, out KeyChord? pressed, CurrentScope())) {
+                Invalidate();
+                if (pressed.HasValue) { HandleCore(pressed.Value.ToInput(), mouse, ref reachedKeys); }
+                return;
+            }
+            if ((_actions.HasCommands || _actions.HasModal) && _actions.Handle(input)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 3) {
+                _viewport.FocusAt(input.Column, input.Row);
+                OpenMenu(input.Column, input.Row);
+                return;
+            }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
-            if (input.Kind == InputEventKind.Mouse && mouse && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
-            if ((input.Kind != InputEventKind.Mouse || mouse) && !ClaimedResizeKey(input) && _viewport.HandleContainerInput(input)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (!ClaimedResizeKey(input) && _viewport.HandleContainerInput(input)) {
+                if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _containerCapture = true; }
+                Invalidate();
+                return;
+            }
             if (input.Kind != InputEventKind.Mouse && input.Kind != InputEventKind.FocusLost && input.Kind != InputEventKind.FocusGained) { _viewport.RevealFocus(); }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); }
             else if (input.Kind == InputEventKind.Resize) { PrepareFrame(input.Width, input.Height); }
             else if (AppHostKeys.Match(_options.Keys.NextFocus, input)) { _focus.MoveNext(); }
             else if (AppHostKeys.Match(_options.Keys.PreviousFocus, input)) { _focus.MovePrevious(); }
             else if (input.Kind == InputEventKind.Mouse) {
-                if (mouse) {
-                    if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
-                    InputControl? target = _pointerCapture ?? _focus.Current;
-                    if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { Invalidate(); return; }
-                    if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
-                    if (input.MouseAction == MouseAction.Up) { _pointerCapture = null; }
+                if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _pointerCapture == null && (_scrollCapture = _viewport.ScrollbarAt(input)) != null) {
+                    // A press on a scroll bar scrolls there; dragging keeps scrolling (above) until the release.
+                    _scrollCapture.DragScrollbar(input.Row);
+                    Invalidate();
+                    return;
                 }
+                if (input.MouseAction == MouseAction.Down && input.MouseButton == 1 && _viewport.FocusAt(input.Column, input.Row)) { _pointerCapture = _focus.Current; }
+                InputControl? target = _pointerCapture ?? _focus.Current;
+                if (input.MouseAction == MouseAction.Wheel && _viewport.Scroll(input)) { Invalidate(); return; }
+                if (target != null) { pointerHandled = target.HandleInput(_viewport.TranslatePointer(target, input), _context); }
+                // A double click opens the row, as Enter does: the input's own bindings first, then the input, then the
+                // screen's and the app's bindings. Focus does not move on, as it would after an unused Enter.
+                if (clicks == 2 && input.MouseButton == 1 && pointerHandled && target != null && target.OpensOnDoubleClick && ReferenceEquals(target, _focus.Current)) {
+                    InputEvent enter = InputEvent.Press(ConsoleKey.Enter);
+                    if (!_keys.DispatchFocused(enter) && !target.HandleInput(enter, _context)) { _keys.Dispatch(enter); }
+                    reachedKeys = true;
+                }
+                if (input.MouseAction == MouseAction.Up) { _pointerCapture = null; }
             } else {
                 InputControl? current = _focus.Current;
                 if (current != null && !current.Enabled) { _focus.MoveNext(); current = _focus.Current; }
@@ -129,10 +197,24 @@ namespace ConsoleMonster.Interactive {
                 reachedKeys = handled;
                 if (!handled) { handled = current?.HandleInput(input, _context) ?? false; }
                 if (!handled) { handled = _keys.Dispatch(input); reachedKeys = true; }
+                // The Menu key and Shift+F10 open the context menu at the focused input, unless a binding took them.
+                if (!handled && AppContextMenu.IsOpenKey(input) && !_actions.HasModal) {
+                    Rect? at = current == null ? null : _viewport.FrameBounds(current);
+                    OpenMenu(at?.X + 1 ?? 0, at?.Y + 1 ?? 0);
+                    handled = true;
+                }
                 if (!handled && AppHostKeys.Match(_options.Keys.Exit, input)) { _state.RequestExit(); }
                 else if (!handled && input.Is(ConsoleKey.Enter)) { _focus.MoveNext(); }
             }
             if (input.Kind != InputEventKind.Mouse || input.MouseAction != MouseAction.Move || input.HeldButtons != 0 || pointerHandled) { Invalidate(); }
+        }
+
+        // Lists what the keys reach right now; an empty menu does not open.
+        private void OpenMenu(int column, int row) {
+            if (_actions.HasModal) { return; }
+            AppContextMenu menu = new AppContextMenu(_keys.MenuEntries(HostBindings(), HostFirst()), column, row, CurrentScope());
+            if (!menu.IsEmpty) { _overlay.Menu = menu; }
+            Invalidate();
         }
 
         private bool ClaimedResizeKey(InputEvent input) => input.Kind == InputEventKind.Key &&
@@ -164,7 +246,20 @@ namespace ConsoleMonster.Interactive {
         private bool Hidden(AppBinding binding) => _screens != null && _bindingScreens.TryGetValue(binding, out AppScreen? screen) && !_screens.IsShown(screen);
 
         // The hold ends before the snapshot is published, so the snapshot carries the focus version that matches it.
+        // Host and control entries are built again for every list, so an entry is recognised by what it says and the key
+        // that reaches it in the current scope; a screen that reuses the key for something else does not match.
+        private bool StillReaches(AppKeyMap.Entry chosen) =>
+            chosen.Chord.HasValue && _keys.MenuEntries(HostBindings(), HostFirst()).Any(entry => Nullable.Equals(entry.Chord, chosen.Chord)
+                && string.Equals(entry.Binding.Label, chosen.Binding.Label, StringComparison.Ordinal) && string.Equals(entry.Keys, chosen.Keys, StringComparison.Ordinal));
+
+        private KeyScope CurrentScope() {
+            InputControl? focused = _focus.Current;
+            return new KeyScope(focused != null && !focused.Disabled ? focused : null, _screens?.Current, _actions.Modal);
+        }
+
         private void Navigated() {
+            // A menu lists one screen's bindings; it does not survive the switch.
+            _overlay.Menu = null;
             try { ConstrainFocus(); }
             finally { _focus.Release(); }
             Publish();
@@ -189,7 +284,10 @@ namespace ConsoleMonster.Interactive {
                 hints = modal != null ? _keys.Hints(modal, new KeyChord[0], false, out keepLast) : _keys.Hints(HostBindings(), HostFirst(), true, out keepLast);
                 if (app == _defaultFooter) { app.KeepLast = keepLast; }
             }
-            _overlay.Publish(_screens?.RefreshCrumbs(), app, hints, _focus.Version, _session);
+            KeyScope scope = CurrentScope();
+            // A menu another scope listed is not drawn again.
+            if (_overlay.Menu is AppContextMenu menu && !Equals(menu.Scope, scope)) { _overlay.Menu = null; }
+            _overlay.Publish(_screens?.RefreshCrumbs(), app, hints, _focus.Version, scope, _session);
         }
 
         // Host gestures as hints; the host matches them itself. With screens, "back" means the previous screen, so the

@@ -138,6 +138,30 @@ namespace ConsoleMonster.Widgets {
             }
             return buffer;
         }
+        /// <summary>
+        /// The header cells of the last <see cref="RenderWindow"/>: the rows they span and, per shown column, its source
+        /// column, first cell and width, so an interactive grid can tell which header a click hit.
+        /// </summary>
+        internal bool WindowHeader(out int top, out int height, out int[] columns, out int[] starts, out int[] widths) {
+            top = height = 0; columns = starts = widths = new int[0];
+            TableLayout? layout = _window;
+            if (layout == null || !ShowHeader) { return false; }
+            top = (!string.IsNullOrEmpty(Title) ? 1 : 0) + (IsBoxed ? 1 : 0);
+            height = layout.HeaderHeight;
+            columns = layout.Visible;
+            widths = layout.Widths;
+            starts = new int[widths.Length];
+            int x = IsBoxed ? 1 : 0;
+            for (int v = 0; v < widths.Length; v++) {
+                if (IsBoxed) { x++; }
+                starts[v] = x;
+                x += widths[v];
+                if (IsBoxed) { x += 2; }
+                else if (v < widths.Length - 1) { x += layout.Gaps[v + 1]; }
+            }
+            return true;
+        }
+
         private int HeadHeight(TableLayout layout, bool mergeFirstGroup) {
             bool boxed = IsBoxed;
             // Without a header, the first group heading is drawn as the top rule.

@@ -17,7 +17,20 @@ namespace ConsoleMonster.Widgets {
             Keys = keys ?? string.Empty;
             Label = label ?? string.Empty;
             Available = available;
+            Chord = null;
         }
+
+        /// <summary>Creates a hint that a click in an app presses <paramref name="chord"/> for, as the keyboard would.</summary>
+        /// <param name="keys">The keys, lower case ("f5").</param>
+        /// <param name="label">What they do ("refresh").</param>
+        /// <param name="chord">The key a click on the hint presses.</param>
+        /// <param name="available">Whether the command can run in the current context; an unavailable hint does not click.</param>
+        public KeyHint(string keys, string label, Input.KeyChord chord, bool available = true) : this(keys, label, available) { Chord = chord; }
+
+        internal KeyHint(string keys, string label, bool available, Input.KeyChord? chord) : this(keys, label, available) { Chord = chord; }
+
+        /// <summary>The key a click on the hint presses in an app, or null for a hint that only describes keys.</summary>
+        public Input.KeyChord? Chord { get; }
 
         /// <summary>The keys.</summary>
         public string Keys { get; }
@@ -120,9 +133,19 @@ namespace ConsoleMonster.Widgets {
             int rightWidth = right?.Width ?? 0;
             int available = region.Width - Indent - (rightWidth > 0 ? rightWidth + 2 : 0) - 1;
             IReadOnlyList<KeyHint> hints = (ReferenceEquals(_frameOwner, this) ? _frameHints : null) ?? Volatile.Read(ref _appHints) ?? (HintsSource == null ? Hints : new List<KeyHint>(HintsSource()));
+            List<int[]>? placed = Message == null ? new List<int[]>() : null;
             StyledLine left = Message != null ? TextWrapper.Truncate(Message, Math.Max(1, available), context.Ellipsis)
-                : FixedSlots ? SlotLine(hints, context, available) : Line(hints, context, available, KeepLast);
+                : FixedSlots ? SlotLine(hints, context, available, placed) : Line(hints, context, available, KeepLast, placed);
             region.Write(Indent, 0, left);
+            if (placed != null) {
+                // A click on a hint presses its key; unavailable hints stay inert, as their keys do.
+                foreach (int[] hint in placed) {
+                    KeyHint shown = hints[hint[0]];
+                    if (shown.Chord.HasValue && shown.Available) {
+                        Interactive.PointerTargets.RecordKey(new Rect(region.Bounds.X + Indent + hint[1], region.Bounds.Y, hint[2], 1), shown.Chord.Value);
+                    }
+                }
+            }
             if (right != null && rightWidth > 0 && region.Width - 1 - rightWidth > Indent + left.Width + 1) {
                 region.Write(region.Width - 1 - rightWidth, 0, right);
             }
@@ -159,7 +182,10 @@ namespace ConsoleMonster.Widgets {
         /// <param name="available">The width.</param>
         /// <param name="keepLast">Keeps the last hint when others are dropped.</param>
         /// <returns>The line.</returns>
-        public static StyledLine Line(IReadOnlyList<KeyHint> hints, RenderContext context, int available, bool keepLast = false) {
+        public static StyledLine Line(IReadOnlyList<KeyHint> hints, RenderContext context, int available, bool keepLast = false) => Line(hints, context, available, keepLast, null);
+
+        // placed receives [hint index, start column, width] for each hint drawn.
+        private static StyledLine Line(IReadOnlyList<KeyHint> hints, RenderContext context, int available, bool keepLast, List<int[]>? placed) {
             Style key = context.Style(ThemeToken.Accent);
             Style label = context.Style(ThemeToken.Muted);
             List<TextSpan> spans = new List<TextSpan>();
@@ -174,10 +200,12 @@ namespace ConsoleMonster.Widgets {
                     dropped = true;
                     break;
                 }
+                placed?.Add(new[] { i, used + (spans.Count > 0 ? 2 : 0), Width(hints[i]) });
                 Append(spans, hints[i], key, label);
                 used += w;
             }
             if (last.HasValue && (dropped || used + lastWidth <= available)) {
+                placed?.Add(new[] { count - 1, used + (spans.Count > 0 ? 2 : 0), Width(last.Value) });
                 Append(spans, last.Value, key, label);
             }
             return new StyledLine(spans);
@@ -196,12 +224,15 @@ namespace ConsoleMonster.Widgets {
 
         private static int Width(KeyHint hint) => DisplayWidth.Measure(hint.Keys) + (hint.Label.Length > 0 ? 1 + DisplayWidth.Measure(hint.Label) : 0);
 
-        private static StyledLine SlotLine(IReadOnlyList<KeyHint> hints, RenderContext context, int available) {
+        private static StyledLine SlotLine(IReadOnlyList<KeyHint> hints, RenderContext context, int available, List<int[]>? placed) {
             var spans = new List<TextSpan>();
             if (hints.Count == 0 || available <= 0) { return StyledLine.Empty; }
+            int start = 0;
             for (int i = 0; i < hints.Count; i++) {
                 int width = available / hints.Count + (i < available % hints.Count ? 1 : 0);
                 if (width <= 0) { break; }
+                placed?.Add(new[] { i, start, width });
+                start += width;
                 KeyHint hint = hints[i];
                 Style key = context.Style(hint.Available ? ThemeToken.Accent : ThemeToken.Muted);
                 Style label = context.Style(ThemeToken.Muted);

@@ -63,7 +63,8 @@ namespace ConsoleMonster.Interactive {
                 IPromptSurface surface = interactive.Surface ?? (ownedSurface = new ScreenSurface(profile, interactive.ResolveSurfaceWriter(), interactive.ResolveSurfaceSize()));
                 MenuApp app = new MenuApp(menu, options, labels, store, lease.Source, surface, context, layout, cancellationToken);
                 try {
-                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken);
+                    using IDisposable? mouse = InteractionLoop.OpenMouse(interactive, profile, lease.Source, surface, interactive.Surface != null);
+                    InteractionLoop.Run(app, lease.Source, surface, context, cancellationToken, interactive.ResolveMouse());
                 } finally {
                     app.Shutdown();
                 }

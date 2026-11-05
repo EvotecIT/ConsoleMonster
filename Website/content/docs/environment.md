@@ -25,6 +25,7 @@ Variables are read when the profile is detected. An invalid value is ignored and
 | `CONSOLEMONSTER_NONINTERACTIVE` | `1` | Prompts return their default or fail with a message that names the parameter to pass. |
 | `CONSOLEMONSTER_ACCESSIBLE` | `1` | Numbered prompts, static apps, menus and grids, and append-only live narration. Status symbols stay visible and reduced motion is implied. |
 | `CONSOLEMONSTER_MOTION` | `reduced` | Keeps the normal layout with static spinners and at most one redraw per second. |
+| `CONSOLEMONSTER_NOMOUSE` | `1` | Prompts, menus, pagers, the object explorer and apps leave the mouse to the terminal, for its own selection and scrollback. Every action keeps its key. |
 | `CONSOLEMONSTER_HYPERLINKS` | `on`, `off`, `auto` (also `true`/`1`, `false`/`0`) | Clickable OSC 8 links for URLs and file paths. Detection turns them on in Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole; redirected, CI, stream and plain output never get them and print the target after the text instead, as `text (url)`. |
 | `CONSOLEMONSTER_NOW` | an ISO 8601 time with `Z` or an offset, such as `2026-10-21T12:00:00Z` | The "now" that relative dates (`3 h ago`) are counted from, for recordings and tests. Read each time a value is shown; unset or invalid uses the clock. |
 | `CONSOLEMONSTER_UPDATE_GOLDEN` | `1` | `GoldenFile` rewrites golden files instead of comparing. |
