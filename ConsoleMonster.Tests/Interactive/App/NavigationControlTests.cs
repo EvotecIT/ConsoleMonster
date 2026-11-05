@@ -318,9 +318,39 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
-        public void AVerticalSplitterIsAsTallAsItsPanes() {
-            var splitter = new Splitter(TextBlock.Plain("top"), TextBlock.Plain("bottom\nmore")) { Vertical = true };
-            Assert.Equal(4, splitter.Measure(new Constraints(40, 20), Context).Height);
+        public void AKeyedSplitterPublishesItsRatioAndARatioAssignmentSurvivesARedraw() {
+            var splitter = new Splitter(TextBlock.Plain("left"), TextBlock.Plain("right")) { Key = "Panes", Ratio = 0.35 };
+            var state = new AppState();
+            using var app = new AppController(splitter, state, Context, 60);
+            app.PrepareFrame(80, 24);
+            Assert.Equal(0.35, state["Panes"]);
+
+            state["Panes"] = 0.25;
+            app.Refresh(null);
+            Assert.Equal(20, Divider(app.PrepareFrame(80, 24), "right"));
+            splitter.Ratio = 0.75;
+            app.Refresh(null);
+            Assert.Equal(60, Divider(app.PrepareFrame(80, 24), "right"));
+            Assert.Equal(0.75, state["Panes"]);
+        }
+
+        // Sized to its content, a vertical splitter draws both panes in full at any ratio, and what follows it stays below.
+        [Theory]
+        [InlineData(0.5)]
+        [InlineData(0.3)]
+        [InlineData(0.8)]
+        public void AContentSizedVerticalSplitterDrawsBothPanesInFull(double ratio) {
+            var splitter = new Splitter(TextBlock.Plain("top"), TextBlock.Plain("bottom\nmore\nlast")) { Vertical = true, Ratio = ratio };
+            IWidget layout = new Rows(splitter, TextBlock.Plain("AFTER"));
+            var context = new RenderContext(TerminalProfile.Fixed(30, 60, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            Size size = layout.Measure(new Constraints(30, Constraints.Unbounded), context);
+            var buffer = new CellBuffer(30, size.Height);
+            layout.Render(new Region(buffer), context);
+            string[] lines = buffer.ToPlainText().Split('\n').Select(line => line.TrimEnd()).ToArray();
+            int top = Array.IndexOf(lines, "top"), bottom = Array.IndexOf(lines, "bottom");
+            Assert.True(top >= 0 && bottom > top, string.Join("\n", lines));
+            Assert.Equal(new[] { "more", "last" }, lines.Skip(bottom + 1).Take(2));
+            Assert.Equal("AFTER", lines.Last(line => line.Length > 0));
         }
 
         [Fact]

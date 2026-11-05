@@ -55,6 +55,7 @@ namespace ConsoleMonster.Widgets {
             set {
                 if (double.IsNaN(value) || value < 0.05 || value > 0.95) { throw new ArgumentOutOfRangeException(nameof(value), "The ratio must be between 0.05 and 0.95."); }
                 lock (_gate) { _ratio = value; }
+                Remember();
             }
         }
 
@@ -71,7 +72,7 @@ namespace ConsoleMonster.Widgets {
             if (Vertical) {
                 int top = first.Measure(new Constraints(constraints.MaxWidth), context).Height;
                 int bottom = second.Measure(new Constraints(constraints.MaxWidth), context).Height;
-                return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, top + 1 + bottom));
+                return new Size(constraints.MaxWidth, Math.Min(constraints.MaxHeight, FittingHeight(top, bottom, constraints.MaxHeight)));
             }
             int left = Split(constraints.MaxWidth);
             int right = Math.Max(0, constraints.MaxWidth - left - 1);
@@ -82,13 +83,15 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
             IWidget first, second;
-            bool dragging;
+            bool dragging, publish;
             lock (_gate) {
                 _context = context;
                 _state = InputArrangement.CurrentState;
-                Restore();
+                publish = !Restore();
                 first = _first; second = _second; dragging = DraggingCore;
             }
+            // A keyed splitter that finds no ratio in the app state publishes its own, so the state reads it from the start.
+            if (publish) { Remember(); }
             InputArrangement.Record((IAppInputContainer)this);
             if (region.Width <= 0 || region.Height <= 0) { return; }
             bool ascii = context.Glyphs.Tier == GlyphTier.Ascii;
@@ -173,6 +176,18 @@ namespace ConsoleMonster.Widgets {
             _ratio = Math.Max(0.05, Math.Min(0.95, (at + 0.5) / extent));
         }
 
+        // The least height whose split by the ratio gives the top pane at least its rows and the bottom pane at least its own,
+        // so a splitter sized to its content draws both panes in full.
+        private int FittingHeight(int top, int bottom, int limit) {
+            int height = top + 1 + bottom;
+            int most = limit == Constraints.Unbounded ? height * 21 : limit;
+            for (int candidate = Math.Max(3, height); candidate <= most; candidate++) {
+                int split = Split(candidate);
+                if (split >= top && candidate - split - 1 >= bottom) { return candidate; }
+            }
+            return height;
+        }
+
         // The first pane's extent for a given width (or height), so a host can lay out its content before drawing.
         internal int FirstExtent(int extent) => Split(extent);
 
@@ -184,10 +199,13 @@ namespace ConsoleMonster.Widgets {
         }
 
         // A keyed splitter takes the ratio the app state holds, so a rebuilt one and a callback that set it agree with the last drag.
-        private void Restore() {
-            if (_state == null || string.IsNullOrEmpty(Key) || !_state.TryGetValue(Key!, out object? stored)) { return; }
+        // Returns false when a keyed splitter in an app finds no ratio under its key, so the caller publishes its own.
+        private bool Restore() {
+            if (_state == null || string.IsNullOrEmpty(Key)) { return true; }
+            if (!_state.TryGetValue(Key!, out object? stored)) { return false; }
             double? ratio = stored is double d ? d : stored is float f ? f : stored is decimal m ? (double)m : stored is int i ? i : (double?)null;
             if (ratio.HasValue && !double.IsNaN(ratio.Value)) { _ratio = Math.Max(0.05, Math.Min(0.95, ratio.Value)); }
+            return true;
         }
 
         // Writes the ratio to the app state after the splitter lock is released: the write notifies the app and its bindings.
