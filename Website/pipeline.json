@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/EvotecIT/PSPublishModule/main/Schemas/powerforge.web.pipelinespec.schema.json",
+  "maxParallelism": 4,
   "cache": true,
   "cachePath": "./.powerforge/pipeline-cache.json",
   "profile": true,
@@ -33,7 +34,7 @@
       "failOnDrift": true,
       "requireImmutableRef": false,
       "repository": "EvotecIT/PSPublishModule",
-      "ref": "e6515ef091e579cd8a403e9a97374b177ef0371b",
+      "ref": "5767e6953d1f9839244c90faa0f8f96934f8ad92",
       "channel": "next",
       "reportPath": "./_reports/engine-lock.json",
       "summaryPath": "./_reports/engine-lock.md"

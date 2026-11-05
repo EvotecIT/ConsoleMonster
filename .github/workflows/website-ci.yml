@@ -79,23 +79,23 @@ jobs:
   verify-site:
     needs: changes
     if: github.event_name == 'pull_request' && needs.changes.outputs.website == 'true'
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@e6515ef091e579cd8a403e9a97374b177ef0371b
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@5767e6953d1f9839244c90faa0f8f96934f8ad92
     with:
       website_root: Website
       pipeline_config: Website/pipeline.json
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
       powerforge_repository: EvotecIT/PSPublishModule
-      powerforge_ref: e6515ef091e579cd8a403e9a97374b177ef0371b
+      powerforge_ref: 5767e6953d1f9839244c90faa0f8f96934f8ad92
 
   verify-site-trusted:
     if: github.event_name != 'pull_request'
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-run.yml@e6515ef091e579cd8a403e9a97374b177ef0371b
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-run.yml@5767e6953d1f9839244c90faa0f8f96934f8ad92
     with:
       website_root: Website
       pipeline_config: Website/pipeline.json
       powerforge_lock_path: ./Website/.powerforge/engine-lock.json
       powerforge_repository: EvotecIT/PSPublishModule
-      powerforge_ref: e6515ef091e579cd8a403e9a97374b177ef0371b
+      powerforge_ref: 5767e6953d1f9839244c90faa0f8f96934f8ad92
       pipeline_mode: ci
       credential_mode: standard
       use_playwright_cache: true
@@ -147,7 +147,7 @@ jobs:
           ref: ${{ steps.engine.outputs.ref || steps.engine.outputs.lockRef }}
           path: _powerforge
       - if: steps.changes.outputs.website == 'true'
-        uses: EvotecIT/PSPublishModule/.github/actions/setup-dotnet@e6515ef091e579cd8a403e9a97374b177ef0371b
+        uses: EvotecIT/PSPublishModule/.github/actions/setup-dotnet@5767e6953d1f9839244c90faa0f8f96934f8ad92
       - if: steps.changes.outputs.website == 'true'
         uses: actions/setup-node@v7
         with:
