@@ -3,35 +3,329 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "gallery",
-  "filters": {
-    "SITEFRAMES_GALLERY": "help-sections"
-  },
+  "requestedSet": "help-formatting",
+  "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "gallery/help-sections-0.ps7.ansi": {
+    "help-formatting/command-help-ps5-120-dark.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "c7ad32a61d837e51566121efb33c6b27d92de369b08eea4b238cf884ff789901",
+      "sha256": "a07bea88e04454370f845a7941a9ec90021649fa004e193fcdd5c08ec2685782",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 120,
+      "height": 32
     },
-    "gallery/help-sections-1.ps7.ansi": {
+    "help-formatting/command-help-ps5-120-light.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "fa456aca66da89eac1e606a4dbf9de3a52c9184b44cd739e05a24f29421c3ded",
-      "screen": "dark",
-      "width": 88,
-      "height": 22
+      "sha256": "08a91e5d7e4216735eb3b2a0746556536436a2a1138386262b5c092aa70eabef",
+      "screen": "light",
+      "width": 120,
+      "height": 32
     },
-    "gallery/help-sections-2.ps7.ansi": {
+    "help-formatting/command-help-ps5-60-dark.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9260caa583bb29386aaa4617b3eb0c5b4b94c320dcbc99adb7f8a426106cf0cc",
+      "sha256": "0feb583aaf59b4940971b1b522294b3a4d821acad557a74d3987bef6543f8bfa",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/command-help-ps5-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9bc8566cf26cf5410394de4c82274826b7f975b36dd9a92ba5c8776d5bb05ece",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/command-help-ps7-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "a07bea88e04454370f845a7941a9ec90021649fa004e193fcdd5c08ec2685782",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/command-help-ps7-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "08a91e5d7e4216735eb3b2a0746556536436a2a1138386262b5c092aa70eabef",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/command-help-ps7-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0feb583aaf59b4940971b1b522294b3a4d821acad557a74d3987bef6543f8bfa",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/command-help-ps7-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9bc8566cf26cf5410394de4c82274826b7f975b36dd9a92ba5c8776d5bb05ece",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/get-help-ps5-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "a07bea88e04454370f845a7941a9ec90021649fa004e193fcdd5c08ec2685782",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/get-help-ps5-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "08a91e5d7e4216735eb3b2a0746556536436a2a1138386262b5c092aa70eabef",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/get-help-ps5-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0feb583aaf59b4940971b1b522294b3a4d821acad557a74d3987bef6543f8bfa",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/get-help-ps5-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9bc8566cf26cf5410394de4c82274826b7f975b36dd9a92ba5c8776d5bb05ece",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/get-help-ps7-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "a07bea88e04454370f845a7941a9ec90021649fa004e193fcdd5c08ec2685782",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/get-help-ps7-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "08a91e5d7e4216735eb3b2a0746556536436a2a1138386262b5c092aa70eabef",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/get-help-ps7-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0feb583aaf59b4940971b1b522294b3a4d821acad557a74d3987bef6543f8bfa",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/get-help-ps7-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9bc8566cf26cf5410394de4c82274826b7f975b36dd9a92ba5c8776d5bb05ece",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/help-ps5-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "240013c6a9c1eb5581f81a0b547a9bafaa13dd4a5a37e00388d9d69584460bde",
+      "screen": "dark",
+      "width": 120,
+      "height": 18
+    },
+    "help-formatting/help-ps5-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "443265e50db2ed779a7d736c5cf4ee28d853722d6bd44a8f3d731b1fa34898ac",
+      "screen": "light",
+      "width": 120,
+      "height": 18
+    },
+    "help-formatting/help-ps5-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "ae5667c4fb7184662cc87b344cbaf3e51497e223514ec19cccf6d1808f6df5cb",
+      "screen": "dark",
+      "width": 60,
+      "height": 18
+    },
+    "help-formatting/help-ps5-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9de3459a3d35404222561d5d4da1b617aaa0dfe96ea739ec625ed52cfabf0d33",
+      "screen": "light",
+      "width": 60,
+      "height": 18
+    },
+    "help-formatting/help-ps7-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "240013c6a9c1eb5581f81a0b547a9bafaa13dd4a5a37e00388d9d69584460bde",
+      "screen": "dark",
+      "width": 120,
+      "height": 18
+    },
+    "help-formatting/help-ps7-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "443265e50db2ed779a7d736c5cf4ee28d853722d6bd44a8f3d731b1fa34898ac",
+      "screen": "light",
+      "width": 120,
+      "height": 18
+    },
+    "help-formatting/help-ps7-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "ae5667c4fb7184662cc87b344cbaf3e51497e223514ec19cccf6d1808f6df5cb",
+      "screen": "dark",
+      "width": 60,
+      "height": 18
+    },
+    "help-formatting/help-ps7-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9de3459a3d35404222561d5d4da1b617aaa0dfe96ea739ec625ed52cfabf0d33",
+      "screen": "light",
+      "width": 60,
+      "height": 18
+    },
+    "help-formatting/native-ps5-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "24a3b75c23fff49e5d53c36b44b9cf822897b89eead1c96ae21a3ea41465d58d",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/native-ps5-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "24a3b75c23fff49e5d53c36b44b9cf822897b89eead1c96ae21a3ea41465d58d",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/native-ps5-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9723e75568ec1fcd111bde62f7c9e7178b8668c0c923867ad3ca217e2949ee4f",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/native-ps5-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9723e75568ec1fcd111bde62f7c9e7178b8668c0c923867ad3ca217e2949ee4f",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/native-ps7-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "1bd236484f3d0ce1a57c7b285b7766a071156ee2526355bd068408fb82b8960c",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/native-ps7-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "1bd236484f3d0ce1a57c7b285b7766a071156ee2526355bd068408fb82b8960c",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/native-ps7-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "c99e5f84feac6d09d759a6f62cc1a8b47dc7d38f9f58450ef7a67eb3ee670cc5",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/native-ps7-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "c99e5f84feac6d09d759a6f62cc1a8b47dc7d38f9f58450ef7a67eb3ee670cc5",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps5-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "30f6c9c148cb956f6ebe07e3bf5471292c20361dc76c39cf673794d584037167",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps5-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "a2029863a6cd0569a4a6c5e35ba1f27fe024596c4232bf6cf4f171f27b71a845",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps5-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7c7ce4eba5a59bc0968d8d02df780c2a09e70ecc14fd58d95f0213fe14aee321",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps5-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "43c350e88c25e9e9fed074e0163647586cfadc381919a050d040964e15f76fc4",
+      "screen": "light",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps7-120-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "30f6c9c148cb956f6ebe07e3bf5471292c20361dc76c39cf673794d584037167",
+      "screen": "dark",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps7-120-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "a2029863a6cd0569a4a6c5e35ba1f27fe024596c4232bf6cf4f171f27b71a845",
+      "screen": "light",
+      "width": 120,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps7-60-dark.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7c7ce4eba5a59bc0968d8d02df780c2a09e70ecc14fd58d95f0213fe14aee321",
+      "screen": "dark",
+      "width": 60,
+      "height": 32
+    },
+    "help-formatting/show-consolehelp-ps7-60-light.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "43c350e88c25e9e9fed074e0163647586cfadc381919a050d040964e15f76fc4",
+      "screen": "light",
+      "width": 60,
+      "height": 32
     }
   }
 }

@@ -3688,6 +3688,166 @@
       ]
     },
     {
+      "Command": "New-ConsoleBreadcrumb",
+      "Job": "New-ConsoleBreadcrumb",
+      "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+      "Bindings": [
+        {
+          "Parameter": "Ancestor",
+          "ParameterType": "System.String[]",
+          "Default": [],
+          "Sets": [
+            {
+              "Name": "Outline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": "Ancestors",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": ".ctor",
+          "Argument": "key",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.BreadcrumbInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Outline",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Outline",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": "Outline",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.Outline",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Segment",
+          "ParameterType": "System.String[]",
+          "Default": [],
+          "Sets": [
+            {
+              "Name": "Segment",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": "Segments",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleButton",
       "Job": "New-ConsoleButton",
       "CSharpType": "ConsoleMonster.Interactive.Button",
@@ -9316,6 +9476,147 @@
           "Conversion": "Identity",
           "CSharpTypeName": "ConsoleMonster.Interactive.Menu",
           "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleOutline",
+      "Job": "New-ConsoleOutline",
+      "CSharpType": "ConsoleMonster.Interactive.Outline",
+      "Bindings": [
+        {
+          "Parameter": "CurrentIndex",
+          "ParameterType": "System.Int32",
+          "Default": "-1",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
+          "Member": "CurrentIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Disabled",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
+          "Member": "Disabled",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Item",
+          "ParameterType": "System.Object[]",
+          "Default": [],
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
+          "Member": "Items",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.OutlineItem]",
+          "Reason": "Titles, hashtables with Title, Level and Target, or OutlineItem objects become the outline's entries.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
+          "Member": ".ctor",
+          "Argument": "key",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "OnChange",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
+          "Member": "OnChange",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "TabIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
+          "Member": "TabIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         }
@@ -17582,6 +17883,21 @@
           "CSharpTypeName": "System.Boolean"
         },
         {
+          "Parameter": "NoPager",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Writes the help instead of opening the document viewer; C# hosts choose between WidgetPager.TryShow and Terminal.Write."
+        },
+        {
           "Parameter": "NoParameters",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -24177,6 +24493,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Help.HelpTopic",
+      "Member": "Module",
+      "CSharpTypeName": "System.String",
+      "Reason": "PowerShell reads Module from native Get-Help/command metadata; C# application hosts construct their own help model.",
+      "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
+      "Disposition": "RuntimeModel"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Help.HelpTopic",
       "Member": "Notes",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "PowerShell reads Notes from native Get-Help/command metadata; C# application hosts construct their own help model.",
@@ -24209,6 +24533,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Help.HelpTopic",
+      "Member": "SupportsWhatIf",
+      "CSharpTypeName": "System.Boolean",
+      "Reason": "PowerShell reads SupportsWhatIf from native Get-Help/command metadata; C# application hosts construct their own help model.",
+      "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
+      "Disposition": "RuntimeModel"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Help.HelpTopic",
       "Member": "Synopsis",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell reads Synopsis from native Get-Help/command metadata; C# application hosts construct their own help model.",
@@ -24220,6 +24552,14 @@
       "Member": "Syntax",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Help.HelpSyntax]",
       "Reason": "PowerShell reads Syntax from native Get-Help/command metadata; C# application hosts construct their own help model.",
+      "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
+      "Disposition": "RuntimeModel"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Help.HelpTopic",
+      "Member": "Version",
+      "CSharpTypeName": "System.String",
+      "Reason": "PowerShell reads Version from native Get-Help/command metadata; C# application hosts construct their own help model.",
       "Alternative": "Show-ConsoleHelp reads the actual native command/help topic.",
       "Disposition": "RuntimeModel"
     },
@@ -27768,13 +28108,78 @@
       "Reason": "Native prompt hosts can replace the '{0} of {1}' caption (The find bar's position among the matches: {0} is the current match, {1} the number of matches.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.FindMatches catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyTabs",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'tabs' caption (Key hint: move between the tabs of a tab strip.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyTabs catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyOpenTab",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'open tab' caption (Key hint: the number keys that open a tab.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyOpenTab catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyOutline",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'outline' caption (Key hint: show or hide a document's outline.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyOutline catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyGoTo",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'go to' caption (Key hint: go to a section or parameter of a document.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyGoTo catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyLinks",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'links' caption (Key hint: move between the links of a document.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyLinks catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyFollow",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'open/fold' caption (Key hint: follow the selected link, or fold the current section.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyFollow catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "KeyBackForward",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'back/forward' caption (Key hint: go back and forward through the places a document's links led to.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.KeyBackForward catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
+      "Member": "LinkUnavailable",
+      "CSharpTypeName": "System.String",
+      "Reason": "Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Alternative": "Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 101,
+  "ExpectedCount": 103,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
+    "ConsoleMonster.Changes.BaselineView",
     "ConsoleMonster.Changes.ChangePreviewOptions",
     "ConsoleMonster.Changes.ChangeView",
     "ConsoleMonster.Changes.DiffOptions",
@@ -27803,6 +28208,8 @@
     "ConsoleMonster.Interactive.AppScreen",
     "ConsoleMonster.Interactive.AppScreens",
     "ConsoleMonster.Interactive.BindingOptions",
+    "ConsoleMonster.Interactive.Breadcrumb",
+    "ConsoleMonster.Interactive.BreadcrumbInputOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
     "ConsoleMonster.Interactive.Collapsible",
@@ -27832,6 +28239,8 @@
     "ConsoleMonster.Interactive.MultiSelectPrompt`1",
     "ConsoleMonster.Interactive.NumberPrompt",
     "ConsoleMonster.Interactive.ObjectExplorer",
+    "ConsoleMonster.Interactive.Outline",
+    "ConsoleMonster.Interactive.OutlineInputOptions",
     "ConsoleMonster.Interactive.PathPrompt",
     "ConsoleMonster.Interactive.Prompt`1",
     "ConsoleMonster.Interactive.SecretPrompt",
@@ -27973,8 +28382,7 @@
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Changes.BaselineView"
+    "ConsoleMonster.Widgets.WatchView"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -27988,6 +28396,10 @@
     "ConsoleMonster.Capabilities.TerminalKind",
     "ConsoleMonster.Capabilities.TerminalProfile",
     "ConsoleMonster.Capabilities.ThemePreference",
+    "ConsoleMonster.Changes.BaselineCell",
+    "ConsoleMonster.Changes.BaselineComparison",
+    "ConsoleMonster.Changes.BaselineRow",
+    "ConsoleMonster.Changes.BaselineView",
     "ConsoleMonster.Changes.ChangeKind",
     "ConsoleMonster.Changes.ChangePreviewOptions",
     "ConsoleMonster.Changes.ChangeSet",
@@ -28065,6 +28477,8 @@
     "ConsoleMonster.Interactive.AppScreen",
     "ConsoleMonster.Interactive.AppScreens",
     "ConsoleMonster.Interactive.BindingOptions",
+    "ConsoleMonster.Interactive.Breadcrumb",
+    "ConsoleMonster.Interactive.BreadcrumbInputOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
     "ConsoleMonster.Interactive.Choice",
@@ -28109,6 +28523,9 @@
     "ConsoleMonster.Interactive.MultiSelectPrompt`1",
     "ConsoleMonster.Interactive.NumberPrompt",
     "ConsoleMonster.Interactive.ObjectExplorer",
+    "ConsoleMonster.Interactive.Outline",
+    "ConsoleMonster.Interactive.OutlineInputOptions",
+    "ConsoleMonster.Interactive.OutlineItem",
     "ConsoleMonster.Interactive.PathKind",
     "ConsoleMonster.Interactive.PathPrompt",
     "ConsoleMonster.Interactive.Prompt`1",
@@ -28330,11 +28747,7 @@
     "ConsoleMonster.Widgets.TreeValuePlacement",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Changes.BaselineCell",
-    "ConsoleMonster.Changes.BaselineComparison",
-    "ConsoleMonster.Changes.BaselineRow",
-    "ConsoleMonster.Changes.BaselineView"
+    "ConsoleMonster.Widgets.WatchView"
   ],
   "RelatedBindings": [
     {
@@ -30699,6 +31112,60 @@
       "Command": "New-ConsoleCollapsible",
       "Parameter": "Summary",
       "Reason": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
+      "Member": "CurrentIndex",
+      "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.CurrentIndex",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleOutline",
+      "Parameter": "CurrentIndex",
+      "Reason": "The shared factory/view adapter applies this option to the resulting OutlineInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
+      "Member": "Items",
+      "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.Items",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.OutlineItem]",
+      "Command": "New-ConsoleOutline",
+      "Parameter": "Item",
+      "Reason": "The shared factory/view adapter applies this option to the resulting OutlineInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.OutlineItem",
+      "Member": "Target",
+      "MemberId": "ConsoleMonster.Interactive.OutlineItem.Target",
+      "CSharpTypeName": "ConsoleMonster.Interactive.InputControl",
+      "Command": "New-ConsoleOutline",
+      "Parameter": "Item",
+      "Reason": "An entry hashtable's Target key sets the control the entry leads to."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.BreadcrumbInputOptions",
+      "Member": "Outline",
+      "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Outline",
+      "CSharpTypeName": "ConsoleMonster.Interactive.Outline",
+      "Command": "New-ConsoleBreadcrumb",
+      "Parameter": "Outline",
+      "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.BreadcrumbInputOptions",
+      "Member": "Ancestors",
+      "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Ancestors",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleBreadcrumb",
+      "Parameter": "Ancestor",
+      "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.BreadcrumbInputOptions",
+      "Member": "Segments",
+      "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Segments",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleBreadcrumb",
+      "Parameter": "Segment",
+      "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
     }
   ],
   "Endings": [
@@ -30878,6 +31345,30 @@
           "Pattern": "Ui.ActivityList()",
           "InitializerTypes": [
             "ConsoleMonster.Widgets.ActivityList"
+          ]
+        },
+        {
+          "Command": "New-ConsoleOutline",
+          "Noun": "Outline",
+          "ReturnType": "ConsoleMonster.Interactive.OutlineInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Outline()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Outline",
+            "ConsoleMonster.Interactive.OutlineInputOptions"
+          ]
+        },
+        {
+          "Command": "New-ConsoleBreadcrumb",
+          "Noun": "Breadcrumb",
+          "ReturnType": "ConsoleMonster.Interactive.BreadcrumbInputOptions",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Breadcrumb()",
+          "Materialize": "Build",
+          "InitializerTypes": [
+            "ConsoleMonster.Interactive.Breadcrumb",
+            "ConsoleMonster.Interactive.BreadcrumbInputOptions"
           ]
         },
         {
@@ -31630,6 +32121,10 @@
       "NestedPattern": "c.{Noun}({Parameter} => …)",
       "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
+        {
+          "CSharpType": "ConsoleMonster.Interactive.OutlineItem",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
         {
           "CSharpType": "ConsoleMonster.Interactive.Choice",
           "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."

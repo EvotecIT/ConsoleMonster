@@ -33,11 +33,13 @@
         <TypeName>ConsoleMonster.Interactive.Accordion</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppBinding</TypeName>
         <TypeName>ConsoleMonster.Interactive.AppScreens</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Breadcrumb</TypeName>
         <TypeName>ConsoleMonster.Interactive.Button</TypeName>
         <TypeName>ConsoleMonster.Interactive.Collapsible</TypeName>
         <TypeName>ConsoleMonster.Interactive.DataGrid</TypeName>
         <TypeName>ConsoleMonster.Interactive.DatePicker</TypeName>
         <TypeName>ConsoleMonster.Interactive.LogViewport</TypeName>
+        <TypeName>ConsoleMonster.Interactive.Outline</TypeName>
         <TypeName>ConsoleMonster.Interactive.Select</TypeName>
         <TypeName>ConsoleMonster.Interactive.TextInput</TypeName>
         <TypeName>ConsoleMonster.Interactive.Toggle</TypeName>

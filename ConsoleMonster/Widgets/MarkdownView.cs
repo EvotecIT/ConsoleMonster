@@ -17,6 +17,7 @@ namespace ConsoleMonster.Widgets {
     /// </summary>
     public sealed class MarkdownView : IContainer {
         private readonly List<IWidget> _blocks = new List<IWidget>();
+        private readonly List<Heading> _headings = new List<Heading>();
 
         /// <summary>The rendered blocks, in document order.</summary>
         public IReadOnlyList<IWidget> Children => _blocks.AsReadOnly();
@@ -40,6 +41,7 @@ namespace ConsoleMonster.Widgets {
             ThemeToken role = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
             RichText content = level <= 2 ? text : new RichTextBuilder().Append(new string('#', level) + " ").Append(text).Build();
             MarkdownText heading = new MarkdownText(content, new RichStyle(role, decoration: TextDecoration.Bold));
+            _headings.Add(new Heading(_blocks.Count, level, text));
             return AddBlock(level <= 2
                 ? new Rows(heading, new Rule { LineRole = ThemeToken.Accent, LineStyle = level == 1 ? BoxStyle.Double : (BoxStyle?)null })
                 : (IWidget)heading);
@@ -125,6 +127,16 @@ namespace ConsoleMonster.Widgets {
         public void Render(Region region, RenderContext context) => Layout().Render(region, context);
 
         private Rows Layout() => new Rows(_blocks.ToArray()) { Gap = 1 };
+
+        // The headings, by the index of the block that draws them, which the document viewer turns into its outline.
+        internal IReadOnlyList<Heading> Headings => _headings;
+
+        internal readonly struct Heading {
+            internal Heading(int block, int level, RichText text) { Block = block; Level = level; Text = text; }
+            internal int Block { get; }
+            internal int Level { get; }
+            internal RichText Text { get; }
+        }
 
         private void RejectSelf(MarkdownView content) {
             if (ReferenceEquals(content, this)) {

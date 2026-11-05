@@ -125,9 +125,17 @@ uses its own terminal modes independently of this setting.
 ## Tabs and regions
 
 `Ui.Tabs().Add("Files", files).Add("Output", output)` keeps stable subtrees and
-mounts only the active tab. Ctrl+PageUp/PageDown and header clicks switch tabs;
-each tab remembers its last focused input. Hidden inputs are excluded from
-keyboard traversal and pointer hit testing.
+mounts only the active tab. The strip draws the labels with the active one
+underlined above a rule, which is heavier under the active label so the open tab
+still shows without colour or in ASCII. The strip is a focus stop before the
+first tab's inputs (Shift+Tab reaches it; initial focus still goes to the first
+input): ←/→, Home/End and the number keys 1–9 switch tabs while it has focus, and
+the footer lists them. Ctrl+PageUp/PageDown switch tabs from anywhere inside, and
+a click on a label opens that tab and focuses its content. Tab and Shift+Tab keep
+moving focus. Labels wider than the row scroll to keep the active one in view,
+with ‹ and › (`<` and `>` in ASCII) marking the hidden ones. Each tab remembers
+its last focused input. Hidden inputs are excluded from keyboard traversal and
+pointer hit testing.
 
 `LayoutRegions` places regions side by side at `NarrowBelow` columns and above.
 Below that width it shows the region containing focus, or `ActiveRegion` when
@@ -276,3 +284,100 @@ fullscreen-controls` for the service-browser and operations-calendar example.
 It uses fictional records and does not modify files or services. At 80 columns
 the two regions are side by side; below that only the focused region is shown.
 Below its configured 40-by-12 minimum, the host asks for a larger window.
+
+## Outline, breadcrumb and history
+
+These are the parts the document viewer is built from, and they work in any app.
+
+`Outline` lists headings to jump between: settings groups, the sections of a long
+form, a table of contents. Entries have a level (deeper ones are indented) and
+can lead to a control. The current entry is marked, and `CurrentIndex` lets a
+scrolling view make the outline follow the reader; the selection follows it
+until the outline has focus. Up/Down, Home/End, Page Up/Down and the wheel move
+the selection, and Enter or a click opens it: the entry becomes current (its
+title is the outline's value), `Opened` is raised, and its target is focused,
+which scrolls a surrounding `ScrollView` to it, and unfolded when it is a
+`Collapsible`.
+
+`Breadcrumb` shows a path such as `Settings › Network › Proxy`. Give it
+segments, or point `Outline` at an outline and it shows the headings around the
+outline's current entry after any `Ancestors`. Leading segments give way to
+an ellipsis on narrow rows. It is a focus stop that initial focus skips:
+Left/Right choose a segment and Enter or a click opens it, which makes it the
+value and, when it follows an outline, opens that heading there.
+
+`NavigationHistory<T>` keeps back and forward lists of whatever a place is for
+your app: call `Visit(current)` before leaving for a new place, and `TryBack` and
+`TryForward` with the current place to return. It is a plain .NET type, used the same
+way from PowerShell: `$history = [ConsoleMonster.Interactive.NavigationHistory[string]]::new()`.
+
+```powershell
+$proxy = New-ConsoleCollapsible -Key Proxy -Expanded -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
+$dns = New-ConsoleCollapsible -Key DNS -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
+$sections = New-ConsoleOutline -Key Sections -CurrentIndex 0 -Item ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
+Show-ConsoleApp -Content {
+    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings', 'Network' -Outline $sections
+    New-ConsoleSplitter -Ratio 0.25 -First { $sections } -Second { $proxy; $dns }
+}
+```
+
+The same in C# with object initializers:
+
+```csharp
+var sections = new Outline("Sections")
+{
+    Items = { new OutlineItem("Proxy") { Target = proxy }, new OutlineItem("DNS") { Target = dns } },
+    CurrentIndex = 0
+};
+var where = new Breadcrumb("Where") { Ancestors = { "Settings", "Network" }, Outline = sections };
+```
+
+And with the fluent builder:
+
+```csharp
+Outline sections = Ui.Outline().Key("Sections").CurrentIndex(0)
+    .AddItem(new OutlineItem("Proxy") { Target = proxy })
+    .AddItem(new OutlineItem("DNS") { Target = dns })
+    .Build();
+Breadcrumb where = Ui.Breadcrumb().Key("Where").AddAncestor("Settings").AddAncestor("Network")
+    .Outline(sections).Build();
+```
+
+The names match across the three: `-Item`/`Items`/`AddItem`, `-CurrentIndex`/`CurrentIndex`,
+`-Segment`/`Segments`/`AddSegment`, `-Ancestor`/`Ancestors`/`AddAncestor` and `-Outline`/`Outline`.
+`OnChange` (PowerShell) and `Changed` (C#) report an opened entry or segment. The `settings-tabs` gallery
+demo shows all three forms in a settings app with tabs.
+## Documents
+
+The viewer is a composition of the parts above: a `Splitter` with an `Outline`
+beside the text, a `Breadcrumb` following that outline as the pinned row, the
+`Tabs` strip, `Collapsible` header rows and a `NavigationHistory` for links.
+
+`WidgetPager.TryShow` opens Markdown with headings (`MarkdownConsole.Show`,
+`Show-Console -View Markdown`) and command help (`Show-ConsoleHelp`, and `help`
+with `Enable-ConsoleFormatting -Include Help`) in a document viewer when the
+terminal is interactive and the document is taller than the screen. Other content
+scrolls as a plain page, and redirected, CI and non-interactive output prints the
+whole document as before.
+
+- An outline of the headings sits beside the text in a `Splitter` from 72 columns
+  (`o` shows or hides it). It follows the reading position; ↑/↓ and Enter, or a
+  click, jump to a heading. Drag the divider or press Ctrl+Shift+←/→ to resize it.
+- The row above the text shows the current section with the headings around it,
+  for example `Parameters › -Path`. Clicking it returns to that heading.
+- Headings fold like `Collapsible`: Enter folds the current section (or follows the
+  selected link), ←/→ fold and unfold it, and a click on a heading toggles it.
+- `/` finds text. Folded sections holding a match open, and fold again when the
+  query stops matching inside them.
+- `]` and `[` select the next and previous link. Enter or a click follows it:
+  `#anchor` links jump to their heading, and Alt+←/→ (or Backspace) go back and
+  forward.
+- Ctrl+K lists the sections, and for help the parameters and examples, so going
+  to `-Path` is Ctrl+K, a few letters and Enter.
+- Help opens with a card holding the synopsis and the module, version and
+  `-WhatIf` badges, then tabs for Overview (syntax, description, inputs, outputs,
+  notes), Parameters (one folded row per parameter with its type, default and
+  summary), Examples (each folded under its title) and Related. The number keys,
+  Ctrl+PageUp/PageDown, the focused strip's ←/→ and a click switch tabs, and Tab
+  moves between the strip, the outline and the text. Related command names open
+  their own help in the viewer.

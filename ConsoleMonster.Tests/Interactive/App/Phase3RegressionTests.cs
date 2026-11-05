@@ -52,7 +52,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
             using var app = new AppController(outer, new AppState(), Context, 60);
             app.PrepareFrame(80, 24);
             outer.SelectedIndex = 1; app.PrepareFrame(80, 24);
-            app.Handle(InputEvent.Mouse(8, 1), true); app.Refresh(null);
+            // The outer strip takes rows 0 and 1 (labels and rule); the visible inner strip's labels are on row 2.
+            app.Handle(InputEvent.Mouse(8, 2), true); app.Refresh(null);
             Assert.Equal(0, hidden.SelectedIndex); Assert.Equal(1, visible.SelectedIndex);
             Assert.Equal("B2", app.Focus.Current!.Key);
         }

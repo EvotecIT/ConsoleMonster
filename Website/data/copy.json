@@ -631,7 +631,22 @@
         ]
       }
     },
-    "session": {
+    "help-viewer": {
+      "title": "Help you can browse",
+      "body": "Long help opens in a document viewer: tabs for Overview, Parameters, Examples and Related, parameters that unfold to their details, Ctrl+K to go to one, find that opens the folded example holding a match, and a related command's help opened and left again.",
+      "label": "Show-ConsoleHelp browsing a function's help in the document viewer",
+      "try": {
+        "run": "pwsh ./help-viewer.ps1"
+      },
+      "use": {
+        "links": [
+          {
+            "title": "Show-ConsoleHelp",
+            "url": "/powershell/commands/show-consolehelp/"
+          }
+        ]
+      }
+    },    "session": {
       "title": "A dashboard updated from three threads",
       "body": "Each server is deployed in parallel and updates its own lane by key. The session applies the updates on its render thread about 15 times a second, and output written from any thread lands in the log panel.",
       "label": "Three servers deployed in parallel into one dashboard",

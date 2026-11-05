@@ -5,9 +5,10 @@ explicit session choice on Windows PowerShell 5.1 and PowerShell 7. It is not en
 are also useful script output and the interception of native formatting should be a deliberate choice.
 
 Default help and `-?` show the name, synopsis, syntax, description, links and a muted remarks hint. `-Detailed` adds
-parameters and examples; `-Examples` shows examples only; `-Full` shows every section. The pager separates its status
-from the content with a muted rule, reports the current page and total, and supports Space for next, b for back and q
-for quit.
+parameters and examples; `-Examples` shows examples only; `-Full` shows every section. On a rich interactive terminal,
+help longer than the screen opens in the document viewer: tabs for Overview, Parameters, Examples and Related, an
+outline, folding sections, find, Ctrl+K to go to a parameter, and related commands that open their own help. Without
+virtual terminal support it pages screen by screen, with Space for next, b for back and q for quit.
 
 ```powershell
 Import-Module ConsoleMonster
@@ -31,12 +32,14 @@ highlighted examples, inputs and outputs, notes and links. `-Full`, `-Detailed`,
 corresponding sections. `-Online` and `-ShowWindow` keep PowerShell's native behavior. You can still request the same
 view explicitly with `Show-ConsoleHelp Get-Process` without enabling the session feature.
 
-`help` pages long content. The footer reads **Space next · q quit**; Space continues and q closes the pager. `Get-Help`
-and `-?` print their help without adding paging. About topics use the same OfficeIMO-backed reader as
+`help` opens long content in the document viewer (see [Documents](Full-Screen-Controls.md#documents)); Space and
+Page Down move through it and q or Escape closes it. `Get-Help` and `-?` print their help without opening it.
+`Show-ConsoleHelp` opens it too when it is the last command in a line typed at an interactive prompt; `-NoPager`
+prints the help instead. About topics use the same OfficeIMO-backed reader as
 `Show-Console -View Markdown`, including native tables and code highlighting. The adapter ships with the PowerShell module;
 the ConsoleMonster core remains dependency-free. Captured about-topic output stays PowerShell's original text.
 
-Ctrl+C stops the current pipeline and releases the pager's input lease. Quitting with q returns normally. Both paths
+Ctrl+C stops the current pipeline and releases the viewer's input lease. Quitting with q returns normally. Both paths
 restore the console input mode before the next prompt.
 
 ## Script output

@@ -3,9 +3,6 @@
 [6G[0;38;2;13;148;136mGet-ConsoleCapability[28G[0m|[30G[0;38;2;13;148;136mSelect-Object[44G[0;38;2;37;99;235m-ExpandProperty…[1G
 [6G[0mShow[11Gthe[15Gprofile[23Gand[27Gthe[31Gdecisions[1G
 
-[0;1;38;2;37;99;235mInputs[1G
-[3G[0;38;2;124;58;237mSystem.Management.Automation.PSObject[1G
-
 [0;1;38;2;37;99;235mOutputs[1G
 [3G[0;38;2;124;58;237mConsoleMonster.Capabilities.TerminalProfile[1G
 

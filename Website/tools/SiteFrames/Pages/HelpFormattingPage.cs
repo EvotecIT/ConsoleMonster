@@ -208,29 +208,35 @@ namespace SiteFrames.Pages {
             return frame;
         }
 
-        // ConPTY may update just the page number; replay the cells instead of matching repeated raw strings.
+        // The document viewer's first frame, then its visible-row range going down a page and back up. ConPTY may send
+        // only the changed digits of the range, so the header row is read as each digit arrives.
         private static CellBuffer FirstPage(string vt, string id, int width) {
             VtScreen replay = new VtScreen(width, Height("help"));
-            List<string> pages = new List<string>();
+            List<string> tops = new List<string>();
             CellBuffer? first = null;
             foreach (char character in vt) {
                 replay.Feed(character.ToString());
-                if (first == null && character == 't') {
-                    CellBuffer candidate = replay.Transcript();
-                    if (Parity.Describe(candidate).Contains("q quit", StringComparison.Ordinal)) { first = Parity.Trim(candidate); }
-                }
                 if (!char.IsDigit(character)) { continue; }
-                MatchCollection matches = Regex.Matches(Parity.Describe(replay.Transcript()), @"Page ([0-9]+) of ([0-9]+)");
-                if (matches.Count == 0) { continue; }
-                string page = matches[matches.Count - 1].Groups[1].Value;
-                if (pages.Count == 0 || pages[pages.Count - 1] != page) { pages.Add(page); }
+                CellBuffer frame = replay.Snapshot();
+                Match range = Regex.Match(frame.GetRowText(0), @"([0-9]+)[–-][0-9]+ / [0-9]+\s*$");
+                if (!range.Success) { continue; }
+                string top = range.Groups[1].Value;
+                if (tops.Count == 0 || tops[tops.Count - 1] != top) { tops.Add(top); }
             }
-            if (string.Join(",", pages) != "1,2,1") {
-                throw new InvalidOperationException(id + " did not navigate page 1, page 2, then back to page 1: " + string.Join(",", pages));
+            int down = tops.FindIndex(1, top => top != "1");
+            if (tops.Count == 0 || tops[0] != "1" || down < 0 || tops.FindIndex(down, top => top == "1") < 0) {
+                throw new InvalidOperationException(id + " did not page down and back up in the document viewer: " + string.Join(",", tops));
             }
-            return first ?? throw new InvalidOperationException(id + " did not draw its first-page status line.");
+            // The first page once its footer has arrived.
+            replay = new VtScreen(width, Height("help"));
+            foreach (char character in vt) {
+                replay.Feed(character.ToString());
+                if (character != 'k' && character != 's') { continue; }
+                CellBuffer frame = replay.Snapshot();
+                if (Parity.Describe(frame).Contains("? keys", StringComparison.Ordinal) && Regex.IsMatch(frame.GetRowText(0), @"\b1[–-][0-9]+ / ")) { first = Parity.Trim(frame); break; }
+            }
+            return first ?? throw new InvalidOperationException(id + " did not draw the document viewer.");
         }
-
         private static string Title(string example) => example switch {
             "native" => "Native Get-Help",
             "get-help" => "Get-Help with Help formatting",

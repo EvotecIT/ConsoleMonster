@@ -1,6 +1,6 @@
 # Interactive navigation: pointer parity, folding and documents
 
-Status: proposed, 4 November 2026.
+Status: steps 1 to 3 implemented, 5 November 2026; step 4 in progress.
 
 Two conversations prompted this. jborean asked for examples of a terminal documentation viewer with collapsible
 sections and navigation, for an ansible-doc style browser built on Textual. trackd's
@@ -74,10 +74,16 @@ needs step 1.
 - headings fold through `Collapsible`, and long sections such as Examples can start folded;
 - find from step 2 opens folded sections that contain a match;
 - links inside the document jump to their target, with back and forward history;
-- the palette lists sections, and for help, parameters, so "go to -Path" is two keystrokes.
+- the palette lists sections, and for help, parameters, so "go to -Path" is two keystrokes;
+- tabs for the top-level parts of a document (for help: Overview, Parameters, Examples, Related), which needs `Tabs`
+  brought up to date: an underline on the active tab and a rule under the strip instead of `[label]`, number keys
+  for each tab, a strip that can take focus and move with ←/→, the keys shown in the footer, and labels that scroll
+  instead of disappearing on narrow terminals. Tab stays for moving focus.
 
-The showcase is PowerShell help browsed like ansible-doc: Synopsis, Syntax, Parameters (one row per parameter that
-expands to its details), Examples (each folded under its title) and Related links that open the linked command's help.
+The showcase is PowerShell help browsed like ansible-doc: a header card with the synopsis and badges (module,
+version, supports `-WhatIf`), then tabs for Overview with Syntax, Parameters (one row per parameter showing its type,
+default and a one-line summary, which expands to its details), Examples (each folded under its title) and Related
+links that open the linked command's help.
 
 Done when `Show-ConsoleHelp` and Markdown documents use it, the website has a recording of it, and non-interactive
 output is unchanged.

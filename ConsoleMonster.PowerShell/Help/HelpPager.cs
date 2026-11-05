@@ -15,6 +15,8 @@ namespace ConsoleMonster.PowerShell {
                 PSFormatting.Write(cmdlet, view, 0);
                 return true;
             }
+            // A rich terminal gets the document viewer; anything else pages screen by screen as before.
+            if (Show(cmdlet, view, CancellationToken.None)) { return true; }
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
             int pageSize = Math.Max(1, profile.Height - 3);
             // One immutable render snapshot gives back navigation the same content and an exact page count.
@@ -32,6 +34,22 @@ namespace ConsoleMonster.PowerShell {
             Terminal.WriteLines(new[] { StyledLine.From(string.Empty) }, profile: profile);
             return true;
         }
+
+        /// <summary>
+        /// Opens help in the document viewer when the terminal is rich and the help is longer than the screen. Related
+        /// command names open their own help there, with back and forward history.
+        /// </summary>
+        internal static bool Show(PSCmdlet cmdlet, IWidget view, CancellationToken cancellationToken, int? width = null) {
+            // Native help views add PowerShell's remarks hint under the help (which other views to ask for); the viewer
+            // already shows every section, so it opens the help itself.
+            if (view is Layout.Rows rows && rows.Children.Count > 0 && rows.Children[0] is Widgets.HelpView inner) { view = inner; }
+            string? title = view is Widgets.HelpView help ? help.Topic.Name : null;
+            return Interactive.WidgetPager.TryShow(view, string.IsNullOrEmpty(title) ? null : title, PSInteractive.Options(cmdlet, null), cancellationToken, width, Opener(cmdlet));
+        }
+
+        // Resolves a related link's command or about topic through the caller's runspace, on the pipeline thread the viewer runs on.
+        private static Func<string, IWidget?> Opener(PSCmdlet cmdlet) => name =>
+            ConsoleHostHelp.TryCreate(name, cmdlet.InvokeCommand, out IWidget? widget, out ErrorRecord? _) ? widget : null;
 
         private static int NextPage(PSCmdlet cmdlet, Capabilities.TerminalProfile profile, int page, int count) {
             // One footer only; erase it before the next page (or return to the prompt).

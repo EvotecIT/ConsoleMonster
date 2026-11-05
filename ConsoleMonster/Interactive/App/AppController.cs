@@ -17,6 +17,7 @@ namespace ConsoleMonster.Interactive {
         private readonly Dictionary<AppBinding, AppScreen> _bindingScreens = new Dictionary<AppBinding, AppScreen>();
         private LiveSession? _session;
         private bool _hasTabs;
+        private readonly List<Tabs> _tabSets = new List<Tabs>();
         private readonly List<Splitter> _splitters = new List<Splitter>();
         private LogRegion? _logRegion;
         private readonly List<FooterBar> _footers = new List<FooterBar>();
@@ -302,6 +303,10 @@ namespace ConsoleMonster.Interactive {
             InputControl? focused = _focus.Current;
             Splitter? around = focused == null ? null : _splitters.LastOrDefault(splitter => FocusManager.Discover(splitter).Contains(focused));
             if (around != null && around.ResizeKeys.All(chord => !ResizeKeyClaimed(chord))) { hints.Add(new KeyBinding(labels.KeyResize, () => { }, around.ResizeKeys) { KeyText = around.Vertical ? "ctrl+shift+↑/↓" : "ctrl+shift+←/→", Order = 60 }); }
+            // Inside a tab set the tab keys work from any control, so the footer lists them there too.
+            if (focused != null && !focused.NavigationOnly && _tabSets.Any(tabs => FocusManager.Discover(tabs).Contains(focused))) {
+                hints.Add(new KeyBinding(labels.KeyTabs, () => { }, new KeyChord(ConsoleKey.PageUp, KeyModifiers.Control), new KeyChord(ConsoleKey.PageDown, KeyModifiers.Control)) { KeyText = "ctrl+pgup/pgdn", Order = 61 });
+            }
             _actions.AddBindings(hints);
             return hints;
         }
@@ -317,7 +322,7 @@ namespace ConsoleMonster.Interactive {
 
         private void Discover(IWidget widget, int reflowBelow, AppScreen? owner = null) {
             if (widget is FooterBar footer) { _footers.Add(footer); }
-            if (widget is Tabs) { _hasTabs = true; }
+            if (widget is Tabs tabs) { _hasTabs = true; _tabSets.Add(tabs); }
             if (widget is Accordion accordion) { accordion.UseLabels(PromptLabels.For(_context.Profile.Language)); }
             if (widget is Splitter splitter) { _splitters.Add(splitter); }
             if (widget is LogRegion region && _logRegion == null) { _logRegion = region; }

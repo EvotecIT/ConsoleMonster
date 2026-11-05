@@ -1,4 +1,4 @@
-﻿param(
+param(
     [Parameter(Mandatory = $true)]
     [string] $ExamplePath,
     [switch] $Formatted,
@@ -12,7 +12,7 @@ if ($Formatted) {
     Enable-ConsoleFormatting -Include Help
 }
 if ($Paged) {
-    $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('wait:300 Space wait:150 b wait:150 q Space')
+    $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('wait:300 Space wait:150 PageUp wait:150 q Space')
     $keys.RealTime = $true
     ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override = $keys
 }
@@ -20,7 +20,7 @@ try {
     & { . $ExamplePath } | Out-Default
     if ($Paged -and (([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::Override.Remaining -ne 1 -or
         ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired)) {
-        throw 'Help pager did not navigate forward/back, quit and release input.'
+        throw 'Help viewer did not page forward/back, quit and release input.'
     }
 } catch {
     if ($DiagnosticPath) {

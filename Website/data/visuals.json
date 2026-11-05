@@ -228,6 +228,12 @@
       "dark": "/site/nav/demos/service-browser-dark.svg",
       "light": "/site/nav/demos/service-browser-light.svg"
     },
+    "demos/settings-tabs": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/settings-tabs-dark.svg",
+      "light": "/site/nav/demos/settings-tabs-light.svg"
+    },
     "demos/setup": {
       "w": 96,
       "h": 60,

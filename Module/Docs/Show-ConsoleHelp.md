@@ -8,18 +8,18 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
-Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
+Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. On an interactive terminal, help longer than the screen opens in the document viewer: tabs for Overview, Parameters, Examples and Related, an outline, folding sections, find (/), Ctrl+K to go to a section or parameter, and related commands that open their own help with back and forward (Alt+Left/Right). -NoPager writes it instead. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleHelp [[-Name] <psobject>] [-Width <int>] [-NoExamples] [-AsWidget] [-NoParameters] [<CommonParameters>]
+Show-ConsoleHelp [[-Name] <psobject>] [-Width <int>] [-NoExamples] [-AsWidget] [-NoParameters] [-NoPager] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
-Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
+Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. On an interactive terminal, help longer than the screen opens in the document viewer: tabs for Overview, Parameters, Examples and Related, an outline, folding sections, find (/), Ctrl+K to go to a section or parameter, and related commands that open their own help with back and forward (Alt+Left/Right). -NoPager writes it instead. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ## EXAMPLES
 
@@ -87,6 +87,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoPager
+Writes the help to the console instead of opening the document viewer, also on an interactive terminal.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 ### -NoParameters
 Leaves out the detailed parameter reference.
 
