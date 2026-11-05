@@ -168,6 +168,11 @@ namespace ConsoleMonster.Interactive {
         // Kept next to each control's key handling.
         internal virtual bool Takes(KeyChord chord, RenderContext context) => false;
         internal virtual bool HandlePopupPointerCore(InputEvent input, RenderContext context) => false;
+        // The wheel over a focused control that zooms (a chart) reaches it before a scroll view around it scrolls.
+        internal virtual bool TakesWheel => false;
+        // Text the app footer shows while this control has focus, such as the values under a chart's crosshair.
+        internal virtual StyledLine? FooterStatus(RenderContext context) => null;
+
         internal virtual void ClosePopupCore() { }
 
         /// <summary>Measures the existing control content without its border.</summary>

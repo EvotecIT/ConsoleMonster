@@ -118,9 +118,22 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <inheritdoc />
-        public override void Render(Region region, RenderContext context) {
+        public override void Render(Region region, RenderContext context) => Render(region, context, null);
+
+        // The longest series: the x positions an explorable view moves over.
+        internal int Longest {
+            get {
+                int longest = 0;
+                foreach (ChartSeries series in _series) { longest = Math.Max(longest, series.Values.Count); }
+                return longest;
+            }
+        }
+
+        // A view draws a window of x positions, aligned across series from the first value, without the hidden series; it
+        // reports where the plot and the legend entries landed. Without a view the chart draws as it always has.
+        internal void Render(Region region, RenderContext context, LineChartView? view) {
             if (context.Profile.IsAccessible) { SeriesText(context).Render(region, context); return; }
-            bool legend = NeedsLegend && region.Height >= 3;
+            bool legend = (view != null ? _series.Count > 1 : NeedsLegend) && region.Height >= 3;
             int plotRows = region.Height - 1 - (legend ? 1 : 0);
             if (plotRows < 1 || region.Width < 8) {
                 return;
@@ -128,9 +141,15 @@ namespace ConsoleMonster.Widgets {
             double min = Minimum ?? double.MaxValue;
             double max = Maximum ?? double.MinValue;
             int longest = 0;
+            int seriesNumber = -1;
             foreach (ChartSeries series in _series) {
+                seriesNumber++;
+                if (view != null && view.Hidden.Contains(seriesNumber)) { continue; }
                 longest = Math.Max(longest, series.Values.Count);
-                foreach (double v in series.Values) {
+                int first = view == null ? 0 : Math.Min(series.Values.Count, view.Start);
+                int end = view == null ? series.Values.Count : Math.Min(series.Values.Count, view.Start + view.Length);
+                for (int i = first; i < end; i++) {
+                    double v = series.Values[i];
                     if (!Minimum.HasValue) {
                         min = Math.Min(min, v);
                     }
@@ -139,6 +158,7 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
             }
+            if (view != null && min > max) { longest = 0; }
             if (longest == 0) {
                 min = 0;
                 max = 1;
@@ -171,8 +191,17 @@ namespace ConsoleMonster.Widgets {
             int pw = canvas.PixelWidth;
             int ph = canvas.PixelHeight;
             var traceLabels = new Dictionary<int, List<TextSpan>>();
+            if (view != null) {
+                view.AxisWidth = axisWidth;
+                view.PlotColumns = plotColumns;
+                view.PlotRows = plotRows;
+                view.PixelWidth = pw;
+                view.Legend.Clear();
+                view.LegendRow = legend ? region.Height - 1 : -1;
+            }
             int seriesIndex = 0;
             foreach (ChartSeries series in _series) {
+                if (view != null && view.Hidden.Contains(seriesIndex)) { seriesIndex++; continue; }
                 if (monochrome) {
                     canvas.Clear();
                     ((CharacterCanvas)canvas).Mark = SeriesMark(seriesIndex);
@@ -180,12 +209,15 @@ namespace ConsoleMonster.Widgets {
                 seriesIndex++;
                 Color color = context.Style(series.Role).Color;
                 IReadOnlyList<double> values = series.Values;
-                int count = Math.Min(values.Count, pw);
-                int start = values.Count - count;
+                // Without a view each series keeps its newest values stretched over the width; a view places value i at
+                // its position in the window, so every series shares one x axis.
+                int count = view == null ? Math.Min(values.Count, pw) : Math.Max(0, Math.Min(values.Count, view.Start + view.Length) - view.Start);
+                int start = view == null ? values.Count - count : view.Start;
+                int span = view == null ? count : view.Length;
                 int prevX = -1;
                 int prevY = -1;
                 for (int i = 0; i < count; i++) {
-                    int px = count == 1 ? pw - 1 : (int)Math.Round((double)i / (count - 1) * (pw - 1));
+                    int px = span == 1 ? pw - 1 : (int)Math.Round((double)i / (span - 1) * (pw - 1));
                     double norm = (values[start + i] - min) / (max - min);
                     if (double.IsNaN(norm)) {
                         // A range wider than double can represent (max - min overflowed).
@@ -218,17 +250,33 @@ namespace ConsoleMonster.Widgets {
             if (legend) {
                 List<TextSpan> spans = new List<TextSpan>();
                 int index = 0;
+                int used = 0;
                 foreach (ChartSeries series in _series) {
+                    bool hidden = view != null && view.Hidden.Contains(index);
                     string marker = _series.Count > 1 ? (index + 1).ToString(CultureInfo.InvariantCulture) : string.Empty;
                     if (monochrome) marker += (marker.Length > 0 ? " " : string.Empty) + SeriesMark(index);
                     index++;
                     if (StatusKinds.TryFromToken(series.Role, out StatusKind status)) marker += (marker.Length > 0 ? " " : string.Empty) + context.Glyphs.StatusSymbol(status);
                     if (spans.Count > 0) {
                         spans.Add(new TextSpan("   "));
+                        used += 3;
                     }
-                    spans.Add(new TextSpan(marker, context.Style(series.Role)));
-                    spans.Add(new TextSpan(" ", muted));
-                    spans.AddRange(RichLines.Line(series.LabelText, series.Label, muted, context));
+                    int entry = used;
+                    if (hidden) {
+                        // A hidden series stays in the legend so it can be shown again: dimmed and struck through, and in
+                        // brackets where the profile cannot show either.
+                        Style off = muted.With(TextDecoration.Strikethrough);
+                        string label = monochrome ? "(" + series.Label + ")" : series.Label;
+                        spans.Add(new TextSpan(marker + " " + label, off));
+                        used += DisplayWidth.Measure(marker + " " + label);
+                    } else {
+                        spans.Add(new TextSpan(marker, context.Style(series.Role)));
+                        spans.Add(new TextSpan(" ", muted));
+                        StyledLine name = RichLines.Line(series.LabelText, series.Label, muted, context);
+                        spans.AddRange(name);
+                        used += DisplayWidth.Measure(marker) + 1 + name.Width;
+                    }
+                    view?.Legend.Add(new LineChartView.Entry(index - 1, axisWidth + entry, used - entry));
                 }
                 region.Write(axisWidth, region.Height - 1, new StyledLine(spans));
             }

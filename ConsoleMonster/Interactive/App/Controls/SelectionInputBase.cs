@@ -6,7 +6,7 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Shared choice-list editing and rendering for layout selection inputs.</summary>
-    public abstract class SelectionInputBase : InputControl {
+    public abstract class SelectionInputBase : InputControl, ILinkedSelection {
         private readonly ChoiceList _list;
         private readonly ChoicePane _pane;
         private readonly bool _multiple;
@@ -47,6 +47,27 @@ namespace ConsoleMonster.Interactive {
         /// choosing (or Enter for several choices) closes it, and so do Escape, Tab and a click elsewhere.
         /// </summary>
         public bool Dropdown { get; set; }
+
+        /// <summary>
+        /// The app-state key shared with linked controls (see <see cref="ILinkedSelection"/>): moving through the list writes
+        /// the highlighted choice's position there, in declaration order, and a new value there highlights that choice.
+        /// Highlighting does not change the committed value.
+        /// </summary>
+        public string? SelectionKey { get; set; }
+
+        int? ILinkedSelection.SelectedIndex => Read(() => {
+            Choice? focused = _list.FocusedChoice;
+            if (focused == null) { return (int?)null; }
+            for (int i = 0; i < _list.Choices.Count; i++) { if (ReferenceEquals(_list.Choices[i], focused)) { return i; } }
+            return null;
+        });
+
+        void ILinkedSelection.FollowSelection(int? index) => Change(() => {
+            if (!index.HasValue || index.Value < 0 || index.Value >= _list.Choices.Count) { return; }
+            _list.ClearFilter();
+            _list.FocusChoice(_list.Choices[index.Value]);
+            _pane.InvalidatePreview();
+        });
 
         /// <summary>Reads the single committed value under the control lock.</summary>
         /// <returns>The selected value, or null before a selection or after clearing it.</returns>
