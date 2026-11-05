@@ -173,25 +173,29 @@ jobs:
   pester:
     needs: changes
     if: needs.changes.outputs.build == 'true'
-    name: 'Pester (${{ matrix.name }})'
+    # Four shards per shell: the examples suite alone, then the other files dealt across three (.github/scripts/Get-PesterShard.ps1).
+    name: 'Pester (${{ matrix.target.name }}, ${{ matrix.shard }}/4)'
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
+        target:
           - name: 'Windows PowerShell 5.1'
             shell: powershell
           - name: 'PowerShell 7'
             shell: pwsh
+        shard: [1, 2, 3, 4]
     defaults:
       run:
-        shell: ${{ matrix.shell }}
+        shell: ${{ matrix.target.shell }}
+    env:
+      PESTER_SHARD: ${{ matrix.shard }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
 
       - name: Parse every module script with Windows PowerShell 5.1
-        if: matrix.shell == 'powershell'
+        if: matrix.target.shell == 'powershell' && matrix.shard == 1
         shell: powershell
         run: ./Module/Tests/Support/Test-ModuleScriptSyntax.ps1
 
@@ -213,7 +217,7 @@ jobs:
         run: dotnet build Website/tools/SiteFrames.Tests/SiteFrames.Tests.csproj --configuration Debug -warnaserror
 
       - name: Install Pester
-        # Download with the hosted PowerShell 7 client; Run Pester still uses matrix.shell, including 5.1.
+        # Download with the hosted PowerShell 7 client; Run Pester still uses matrix.target.shell, including 5.1.
         shell: pwsh
         timeout-minutes: 5
         run: |
@@ -241,7 +245,7 @@ jobs:
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           Write-Host "Pester $((Get-Module Pester).Version)"
           $configuration = New-PesterConfiguration
-          $configuration.Run.Path = 'Module/Tests'
+          $configuration.Run.Path = @(./.github/scripts/Get-PesterShard.ps1 -Shard $env:PESTER_SHARD -Count 4)
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
@@ -253,7 +257,7 @@ jobs:
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: pester-results-${{ matrix.shell }}
+          name: pester-results-${{ matrix.target.shell }}-${{ matrix.shard }}
           path: pester-results.xml
 
   dotnet-linux:
@@ -360,14 +364,20 @@ jobs:
   pester-linux:
     needs: changes
     if: needs.changes.outputs.build == 'true'
-    name: 'Pester and terminal probes (Ubuntu, PowerShell 7)'
+    # Same four Pester shards as Windows; the terminal probes run once, in shard 1.
+    name: 'Pester and terminal probes (Ubuntu, PowerShell 7, ${{ matrix.shard }}/4)'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         shell: pwsh
     env:
       TERM: xterm-256color
       LANG: C.UTF-8
+      PESTER_SHARD: ${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
@@ -382,6 +392,7 @@ jobs:
       - name: Build the console test host (Debug, net8.0)
         run: dotnet build ConsoleMonster.TestHost/ConsoleMonster.TestHost.csproj --configuration Debug --framework net8.0 -warnaserror
       - name: Import smoke (exports match the manifest)
+        if: matrix.shard == 1
         run: |
           $manifest = Import-PowerShellDataFile ./Module/ConsoleMonster.psd1
           Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
@@ -391,6 +402,7 @@ jobs:
           if ($difference) { $difference | Format-Table | Out-String | Write-Host; throw "Exported cmdlets differ from the manifest ($($exported.Count) exported, $($expected.Count) in the manifest)." }
           Write-Host "Exports match the manifest: $($exported.Count) cmdlets"
       - name: Glyph tier follows the locale in a real terminal (C and POSIX ASCII, UTF-8 full)
+        if: matrix.shard == 1
         shell: bash
         run: |
           set -euo pipefail
@@ -405,6 +417,7 @@ jobs:
           out="$(probe C.UTF-8)"; echo "LANG=C.UTF-8 -> $out"
           grep -q 'glyphs: Full' <<< "$out"
       - name: Prompt input works without a cursor-position reply
+        if: matrix.shard == 1
         shell: bash
         timeout-minutes: 2
         run: |
@@ -441,7 +454,7 @@ jobs:
           $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           $configuration = New-PesterConfiguration
-          $configuration.Run.Path = 'Module/Tests'
+          $configuration.Run.Path = @(./.github/scripts/Get-PesterShard.ps1 -Shard $env:PESTER_SHARD -Count 4)
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
@@ -451,7 +464,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: pester-results-linux
+          name: pester-results-linux-${{ matrix.shard }}
           path: pester-results.xml
 
   pester-macos:
