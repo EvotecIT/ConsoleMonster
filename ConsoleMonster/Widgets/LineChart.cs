@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
@@ -142,6 +142,7 @@ namespace ConsoleMonster.Widgets {
             double max = Maximum ?? double.MinValue;
             int longest = 0;
             int seriesNumber = -1;
+            bool scanned = false;
             foreach (ChartSeries series in _series) {
                 seriesNumber++;
                 if (view != null && view.Hidden.Contains(seriesNumber)) { continue; }
@@ -150,6 +151,7 @@ namespace ConsoleMonster.Widgets {
                 int end = view == null ? series.Values.Count : Math.Min(series.Values.Count, view.Start + view.Length);
                 for (int i = first; i < end; i++) {
                     double v = series.Values[i];
+                    scanned = true;
                     if (!Minimum.HasValue) {
                         min = Math.Min(min, v);
                     }
@@ -158,7 +160,8 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
             }
-            if (view != null && min > max) { longest = 0; }
+            // A window with no shown values draws empty axes; fixed bounds stay as set when there are values.
+            if (view != null && !scanned) { longest = 0; }
             if (longest == 0) {
                 min = 0;
                 max = 1;

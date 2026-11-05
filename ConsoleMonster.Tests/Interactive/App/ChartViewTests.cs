@@ -95,6 +95,16 @@ namespace ConsoleMonster.Tests.Interactive.App {
             await Quit(terminal, run);
         }
 
+        [Fact]
+        public async Task FixedAxisBound_StaysWhenEveryShownValueIsOutsideIt() {
+            var chart = new LineChart { Unit = "%", Minimum = 50 };
+            foreach (double v in Cpu) { chart.Add("cpu", Math.Min(v, 45)); }
+            using var terminal = new HeadlessTerminal(80, 20);
+            Task<AppState> run = Run(terminal, new ChartView("load", chart));
+            terminal.WaitForText("#16: cpu 25%", Wait);
+            Assert.Contains("50%", terminal.Snapshot().ToPlainText());
+            await Quit(terminal, run);
+        }
         private static Task<AppState> Run(HeadlessTerminal terminal, IWidget layout) =>
             ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {
                 Interactive = new InteractiveOptions { Target = terminal, Labels = new PromptLabels() },

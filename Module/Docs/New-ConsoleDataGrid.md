@@ -189,7 +189,7 @@ Accept wildcard characters: False
 ```
 
 ### -SelectionKey
-The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing.
+The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.
 
 ```yaml
 Type: String

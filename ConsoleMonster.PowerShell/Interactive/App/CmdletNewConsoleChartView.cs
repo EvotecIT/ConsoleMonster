@@ -27,7 +27,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(4, 1000)] public int Height { get; set; } = 10;
         /// <summary><para type="description">Labels for the points along X, such as times, read out with their values.</para></summary>
         [Parameter] public string[]? Labels { get; set; }
-        /// <summary><para type="description">The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair.</para></summary>
+        /// <summary><para type="description">The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</para></summary>
         [Parameter] public string? SelectionKey { get; set; }
 
         /// <inheritdoc />

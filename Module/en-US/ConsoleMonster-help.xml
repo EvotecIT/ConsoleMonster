@@ -8534,7 +8534,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Disabled</maml:name>
           <maml:description>
-            <maml:para></maml:para>
+            <maml:para>Disables editing and removes the input from keyboard focus traversal.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -8558,7 +8558,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Key</maml:name>
           <maml:description>
-            <maml:para></maml:para>
+            <maml:para>Unique key in the application's state and final hashtable.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -8570,7 +8570,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para></maml:para>
+            <maml:para>Visible label; defaults to the name using the core control's labels.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -8594,7 +8594,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>OnChange</maml:name>
           <maml:description>
-            <maml:para></maml:para>
+            <maml:para>Runs once per committed edit on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. State is a hashtable; add or assign keys to write back. Output is discarded. Retains closure variables.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
           <dev:type>
@@ -8606,7 +8606,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>SelectionKey</maml:name>
           <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair.</maml:para>
+            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -8618,7 +8618,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>TabIndex</maml:name>
           <maml:description>
-            <maml:para></maml:para>
+            <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -8630,7 +8630,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ValidationMessage</maml:name>
           <maml:description>
-            <maml:para></maml:para>
+            <maml:para>Initial validation text displayed below the input.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -8657,7 +8657,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Disabled</maml:name>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Disables editing and removes the input from keyboard focus traversal.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -8681,7 +8681,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Key</maml:name>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Unique key in the application's state and final hashtable.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -8693,7 +8693,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>Label</maml:name>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Visible label; defaults to the name using the core control's labels.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -8717,7 +8717,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>OnChange</maml:name>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Runs once per committed edit on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. State is a hashtable; add or assign keys to write back. Output is discarded. Retains closure variables.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         <dev:type>
@@ -8729,7 +8729,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>SelectionKey</maml:name>
         <maml:description>
-          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair.</maml:para>
+          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -8741,7 +8741,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>TabIndex</maml:name>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -8753,7 +8753,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ValidationMessage</maml:name>
         <maml:description>
-          <maml:para></maml:para>
+          <maml:para>Initial validation text displayed below the input.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -9968,7 +9968,7 @@ Show-ConsoleApp -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>SelectionKey</maml:name>
           <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing.</maml:para>
+            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -10103,7 +10103,7 @@ Show-ConsoleApp -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>SelectionKey</maml:name>
           <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing.</maml:para>
+            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -10250,7 +10250,7 @@ Show-ConsoleApp -Content {
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>SelectionKey</maml:name>
         <maml:description>
-          <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing.</maml:para>
+          <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -20459,7 +20459,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>SelectionKey</maml:name>
           <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position.</maml:para>
+            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -20630,7 +20630,7 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>SelectionKey</maml:name>
         <maml:description>
-          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position.</maml:para>
+          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>

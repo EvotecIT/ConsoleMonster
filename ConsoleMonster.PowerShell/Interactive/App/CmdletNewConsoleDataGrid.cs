@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter, ValidateRange(1, 10000)] public int Height { get; set; } = 20;
         /// <summary><para type="description">Leaves printable keys to the app's command registry.</para></summary>
         [Parameter] public SwitchParameter NoQuickSearch { get; set; }
-        /// <summary><para type="description">The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing.</para></summary>
+        /// <summary><para type="description">The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</para></summary>
         [Parameter] public string? SelectionKey { get; set; }
         /// <inheritdoc />
         protected override void EndProcessing() {

@@ -27,7 +27,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Visible choice rows; omitted retains the control default.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)] public int? PageSize { get; set; }
 
-        /// <summary><para type="description">The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position.</para></summary>
+        /// <summary><para type="description">The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</para></summary>
         [Parameter] public string? SelectionKey { get; set; }
 
         /// <inheritdoc />

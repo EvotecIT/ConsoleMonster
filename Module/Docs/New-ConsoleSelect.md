@@ -193,7 +193,7 @@ Accept wildcard characters: False
 ```
 
 ### -SelectionKey
-The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position.
+The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.
 
 ```yaml
 Type: String

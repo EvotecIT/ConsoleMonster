@@ -151,7 +151,7 @@ Accept wildcard characters: False
 ```
 
 ### -SelectionKey
-The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair.
+The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.
 
 ```yaml
 Type: String

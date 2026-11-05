@@ -188,8 +188,8 @@ Selections link through app state. Every control that implements `ILinkedSelecti
 takes a `SelectionKey`: `DataGrid` (the row's position in the listing), `ChartView`
 (the point under the crosshair), `Select` and `MultiSelect` (the highlighted choice's
 position). When the user moves one, the app writes its position to that state key, and
-every control with the same key follows; a callback that writes the key moves them all
-the same way. The controls never refer to each other, so any two of them link, and a
+every control with the same key follows when it can show that position (a shorter list or
+a filtered-out row ignores it); a callback that writes the key moves them all the same way. The controls never refer to each other, so any two of them link, and a
 custom `InputControl` that implements `ILinkedSelection` joins in.
 
 ```powershell
