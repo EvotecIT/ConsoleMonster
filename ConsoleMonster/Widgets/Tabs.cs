@@ -46,7 +46,9 @@ namespace ConsoleMonster.Widgets {
                 _selected = value;
                 if (keepStrip && _strip.Focused) { return; }
                 LayoutRegion next = _tabs[_selected];
-                InputControl? target = _lastFocus.TryGetValue(next.Key, out InputControl? saved) && !saved.Disabled ? saved : FocusManager.Discover(next).FirstOrDefault(control => !control.Disabled);
+                // A tab opens on its first input that takes values; a breadcrumb or other navigation stop only when it has nothing else.
+                InputControl? target = _lastFocus.TryGetValue(next.Key, out InputControl? saved) && !saved.Disabled ? saved
+                    : FocusManager.Discover(next).FirstOrDefault(control => !control.Disabled && !control.NavigationOnly) ?? FocusManager.Discover(next).FirstOrDefault(control => !control.Disabled);
                 target?.Focus();
                 }
         }

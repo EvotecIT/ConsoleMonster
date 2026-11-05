@@ -4238,6 +4238,164 @@
       "fps": 10
     },
     {
+      "slug": "settings-tabs",
+      "title": "Settings tabs",
+      "pitch": "Tabs for each settings page, an outline that opens the section you pick and a breadcrumb that shows where you are.",
+      "category": "Terminal apps",
+      "tags": [
+        "tabs",
+        "outline",
+        "breadcrumb"
+      ],
+      "terminal": {
+        "width": 88,
+        "height": 22
+      },
+      "runtime": {
+        "powershell": "7.4+",
+        "dotnet": "8.0+"
+      },
+      "addons": [],
+      "makeItYours": [
+        "Replace the pages and sections with your own tool's settings.",
+        "Point outline entries at any control to jump to it, not only folding sections.",
+        "Give the breadcrumb plain segments when there is no outline to follow."
+      ],
+      "mode": "live",
+      "steps": 3,
+      "tier": "starter",
+      "useCase": "Use it when a tool has more settings than fit on one screen and people jump between groups.",
+      "featured": false,
+      "capture": "scripted native program",
+      "id": "settings-tabs",
+      "source": {
+        "powershell": {
+          "file": "settings-tabs.ps1",
+          "text": "# Settings across tabs, with an outline that opens each section and a breadcrumb that shows where you are.\n\nImport-Module -Name ConsoleMonster\n# All data is synthetic and inline; no services are contacted or changed.\n\n# Layout: construct the widgets shown on screen.\n$proxy = New-ConsoleCollapsible -Key Proxy -Expanded -Content {\n    New-ConsoleTextInput -Key ProxyServer -Label 'Server' -Value 'proxy.contoso.test:8080'\n    New-ConsoleToggle -Key ProxyBypass -Label 'Bypass for local addresses' -Value $true\n}\n$dns = New-ConsoleCollapsible -Key DNS -Content {\n    New-ConsoleTextInput -Key DnsServers -Label 'Servers' -Value '10.0.0.53, 10.0.1.53'\n    New-ConsoleTextInput -Key DnsSuffix -Label 'Search suffix' -Value 'corp.contoso.test'\n}\n$firewall = New-ConsoleCollapsible -Key Firewall -Content {\n    New-ConsoleToggle -Key FirewallOn -Label 'Enabled' -Value $true\n    New-ConsoleTextInput -Key FirewallPorts -Label 'Allowed ports' -Value '443, 8443'\n}\n$sections = New-ConsoleOutline -Key Sections -CurrentIndex 0 -Item @(\n    [pscustomobject]@{ Title = 'Proxy'; Target = $proxy }\n    [pscustomobject]@{ Title = 'DNS'; Target = $dns }\n    [pscustomobject]@{ Title = 'Firewall'; Target = $firewall }\n)\n$general = New-ConsoleRows -Content {\n    New-ConsoleTextInput -Key DisplayName -Label 'Display name' -Value 'Contoso Operations'\n    New-ConsoleToggle -Key StartAtLogon -Label 'Start at logon' -Value $false\n}\n$network = New-ConsoleRows -Content {\n    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings', 'Network' -Outline $sections\n    New-ConsoleSplitter -Ratio 0.25 -First { $sections } -Second { $proxy; $dns; $firewall }\n}\n$logging = New-ConsoleRows -Content {\n    New-ConsoleTextInput -Key LogPath -Label 'Folder' -Value 'C:\\Logs\\Operations'\n    New-ConsoleToggle -Key LogVerbose -Label 'Verbose' -Value $false\n}\n$content = {\n    New-ConsoleTabs -Content {\n        @{ Title = 'General'; Content = $general }\n        @{ Title = 'Network'; Content = $network }\n        @{ Title = 'Logging'; Content = $logging }\n    }\n}\n\n# Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.\nShow-ConsoleApp -Content $content",
+          "repo": "Website/examples/gallery/settings-tabs/settings-tabs.ps1"
+        },
+        "csharp": {
+          "file": "Program.cs",
+          "text": "// Settings across tabs, with an outline that opens each section and a breadcrumb that shows where you are.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\n// Layout: construct the widgets shown on screen.\nCollapsible proxy = new Collapsible(\"Proxy\", new Rows(\n    new TextInput(\"ProxyServer\", \"proxy.contoso.test:8080\") { Label = \"Server\" },\n    new Toggle(\"ProxyBypass\", true) { Label = \"Bypass for local addresses\" }))\n{\n    Expanded = true\n};\nCollapsible dns = new Collapsible(\"DNS\", new Rows(\n    new TextInput(\"DnsServers\", \"10.0.0.53, 10.0.1.53\") { Label = \"Servers\" },\n    new TextInput(\"DnsSuffix\", \"corp.contoso.test\") { Label = \"Search suffix\" }));\nCollapsible firewall = new Collapsible(\"Firewall\", new Rows(\n    new Toggle(\"FirewallOn\", true) { Label = \"Enabled\" },\n    new TextInput(\"FirewallPorts\", \"443, 8443\") { Label = \"Allowed ports\" }));\nOutline sections = new Outline(\"Sections\")\n{\n    Items =\n    {\n        new OutlineItem(\"Proxy\") { Target = proxy },\n        new OutlineItem(\"DNS\") { Target = dns },\n        new OutlineItem(\"Firewall\") { Target = firewall }\n    },\n    CurrentIndex = 0\n};\nBreadcrumb where = new Breadcrumb(\"Where\") { Ancestors = { \"Settings\", \"Network\" }, Outline = sections };\nTabs layout = new Tabs()\n    .Add(\"General\", new Rows(\n        new TextInput(\"DisplayName\", \"Contoso Operations\") { Label = \"Display name\" },\n        new Toggle(\"StartAtLogon\", false) { Label = \"Start at logon\" }))\n    .Add(\"Network\", new Rows(\n        where,\n        new Splitter(sections, new Rows(proxy, dns, firewall)) { Ratio = 0.25 }))\n    .Add(\"Logging\", new Rows(\n        new TextInput(\"LogPath\", \"C:\\\\Logs\\\\Operations\") { Label = \"Folder\" },\n        new Toggle(\"LogVerbose\", false) { Label = \"Verbose\" }));\n\n// Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.\nConsoleApp.Run(layout);",
+          "repo": "Website/examples/gallery/settings-tabs/Program.cs"
+        },
+        "csharpFluent": {
+          "file": "Program.Fluent.cs",
+          "text": "// Settings across tabs, with an outline that opens each section and a breadcrumb that shows where you are.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\n// Layout: construct the widgets shown on screen.\nCollapsible proxy = ((Collapsible)Ui.Collapsible().Key(\"Proxy\").Content(Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"ProxyServer\")\n        .Value(\"proxy.contoso.test:8080\")\n        .Label(\"Server\"));\n    c.Toggle(toggle => toggle.Key(\"ProxyBypass\").Value(true).Label(\"Bypass for local addresses\"));\n})).Expanded().Build());\nCollapsible dns = ((Collapsible)Ui.Collapsible().Key(\"DNS\").Content(Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"DnsServers\")\n        .Value(\"10.0.0.53, 10.0.1.53\")\n        .Label(\"Servers\"));\n    c.TextInput(textInput => textInput.Key(\"DnsSuffix\")\n        .Value(\"corp.contoso.test\")\n        .Label(\"Search suffix\"));\n})).Build());\nCollapsible firewall = ((Collapsible)Ui.Collapsible().Key(\"Firewall\").Content(Ui.Rows().Content(c =>\n{\n    c.Toggle(toggle => toggle.Key(\"FirewallOn\").Value(true).Label(\"Enabled\"));\n    c.TextInput(textInput => textInput.Key(\"FirewallPorts\")\n        .Value(\"443, 8443\")\n        .Label(\"Allowed ports\"));\n})).Build());\nOutline sections = ((Outline)Ui.Outline()\n    .Key(\"Sections\")\n    .Build()).AddItem(new OutlineItem(\"Proxy\").Target(proxy))\n    .AddItem(new OutlineItem(\"DNS\").Target(dns))\n    .AddItem(new OutlineItem(\"Firewall\").Target(firewall))\n    .CurrentIndex(0);\nBreadcrumb where = ((Breadcrumb)Ui.Breadcrumb().Key(\"Where\").Build()).AddAncestor(\"Settings\")\n    .AddAncestor(\"Network\")\n    .Outline(sections);\nTabs layout = Ui.Tabs().Add(\"General\", Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"DisplayName\")\n        .Value(\"Contoso Operations\")\n        .Label(\"Display name\"));\n    c.Toggle(toggle => toggle.Key(\"StartAtLogon\").Value(false).Label(\"Start at logon\"));\n})).Add(\"Network\", Ui.Rows().Content(c2 =>\n{\n    c2.Add(where);\n    c2.Splitter(splitter => splitter.First(sections).Second(Ui.Rows().Content(c =>\n    {\n        c.Add(proxy);\n        c.Add(dns);\n        c.Add(firewall);\n    })).Ratio(0.25));\n})).Add(\"Logging\", Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"LogPath\")\n        .Value(\"C:\\\\Logs\\\\Operations\")\n        .Label(\"Folder\"));\n    c.Toggle(toggle => toggle.Key(\"LogVerbose\").Value(false).Label(\"Verbose\"));\n}));\n\n// Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.\nConsoleApp.Run(layout);\n",
+          "repo": "Website/examples/gallery/settings-tabs/Program.Fluent.cs"
+        }
+      },
+      "powershell": "# Settings across tabs, with an outline that opens each section and a breadcrumb that shows where you are.\n\nImport-Module -Name ConsoleMonster\n# All data is synthetic and inline; no services are contacted or changed.\n\n# Layout: construct the widgets shown on screen.\n$proxy = New-ConsoleCollapsible -Key Proxy -Expanded -Content {\n    New-ConsoleTextInput -Key ProxyServer -Label 'Server' -Value 'proxy.contoso.test:8080'\n    New-ConsoleToggle -Key ProxyBypass -Label 'Bypass for local addresses' -Value $true\n}\n$dns = New-ConsoleCollapsible -Key DNS -Content {\n    New-ConsoleTextInput -Key DnsServers -Label 'Servers' -Value '10.0.0.53, 10.0.1.53'\n    New-ConsoleTextInput -Key DnsSuffix -Label 'Search suffix' -Value 'corp.contoso.test'\n}\n$firewall = New-ConsoleCollapsible -Key Firewall -Content {\n    New-ConsoleToggle -Key FirewallOn -Label 'Enabled' -Value $true\n    New-ConsoleTextInput -Key FirewallPorts -Label 'Allowed ports' -Value '443, 8443'\n}\n$sections = New-ConsoleOutline -Key Sections -CurrentIndex 0 -Item @(\n    [pscustomobject]@{ Title = 'Proxy'; Target = $proxy }\n    [pscustomobject]@{ Title = 'DNS'; Target = $dns }\n    [pscustomobject]@{ Title = 'Firewall'; Target = $firewall }\n)\n$general = New-ConsoleRows -Content {\n    New-ConsoleTextInput -Key DisplayName -Label 'Display name' -Value 'Contoso Operations'\n    New-ConsoleToggle -Key StartAtLogon -Label 'Start at logon' -Value $false\n}\n$network = New-ConsoleRows -Content {\n    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings', 'Network' -Outline $sections\n    New-ConsoleSplitter -Ratio 0.25 -First { $sections } -Second { $proxy; $dns; $firewall }\n}\n$logging = New-ConsoleRows -Content {\n    New-ConsoleTextInput -Key LogPath -Label 'Folder' -Value 'C:\\Logs\\Operations'\n    New-ConsoleToggle -Key LogVerbose -Label 'Verbose' -Value $false\n}\n$content = {\n    New-ConsoleTabs -Content {\n        @{ Title = 'General'; Content = $general }\n        @{ Title = 'Network'; Content = $network }\n        @{ Title = 'Logging'; Content = $logging }\n    }\n}\n\n# Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.\nShow-ConsoleApp -Content $content",
+      "csharp": "// Settings across tabs, with an outline that opens each section and a breadcrumb that shows where you are.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\n// Layout: construct the widgets shown on screen.\nCollapsible proxy = new Collapsible(\"Proxy\", new Rows(\n    new TextInput(\"ProxyServer\", \"proxy.contoso.test:8080\") { Label = \"Server\" },\n    new Toggle(\"ProxyBypass\", true) { Label = \"Bypass for local addresses\" }))\n{\n    Expanded = true\n};\nCollapsible dns = new Collapsible(\"DNS\", new Rows(\n    new TextInput(\"DnsServers\", \"10.0.0.53, 10.0.1.53\") { Label = \"Servers\" },\n    new TextInput(\"DnsSuffix\", \"corp.contoso.test\") { Label = \"Search suffix\" }));\nCollapsible firewall = new Collapsible(\"Firewall\", new Rows(\n    new Toggle(\"FirewallOn\", true) { Label = \"Enabled\" },\n    new TextInput(\"FirewallPorts\", \"443, 8443\") { Label = \"Allowed ports\" }));\nOutline sections = new Outline(\"Sections\")\n{\n    Items =\n    {\n        new OutlineItem(\"Proxy\") { Target = proxy },\n        new OutlineItem(\"DNS\") { Target = dns },\n        new OutlineItem(\"Firewall\") { Target = firewall }\n    },\n    CurrentIndex = 0\n};\nBreadcrumb where = new Breadcrumb(\"Where\") { Ancestors = { \"Settings\", \"Network\" }, Outline = sections };\nTabs layout = new Tabs()\n    .Add(\"General\", new Rows(\n        new TextInput(\"DisplayName\", \"Contoso Operations\") { Label = \"Display name\" },\n        new Toggle(\"StartAtLogon\", false) { Label = \"Start at logon\" }))\n    .Add(\"Network\", new Rows(\n        where,\n        new Splitter(sections, new Rows(proxy, dns, firewall)) { Ratio = 0.25 }))\n    .Add(\"Logging\", new Rows(\n        new TextInput(\"LogPath\", \"C:\\\\Logs\\\\Operations\") { Label = \"Folder\" },\n        new Toggle(\"LogVerbose\", false) { Label = \"Verbose\" }));\n\n// Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.\nConsoleApp.Run(layout);",
+      "csharpFluent": "// Settings across tabs, with an outline that opens each section and a breadcrumb that shows where you are.\n// All data is synthetic and inline; no services are contacted or changed.\nusing ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\n// Layout: construct the widgets shown on screen.\nCollapsible proxy = ((Collapsible)Ui.Collapsible().Key(\"Proxy\").Content(Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"ProxyServer\")\n        .Value(\"proxy.contoso.test:8080\")\n        .Label(\"Server\"));\n    c.Toggle(toggle => toggle.Key(\"ProxyBypass\").Value(true).Label(\"Bypass for local addresses\"));\n})).Expanded().Build());\nCollapsible dns = ((Collapsible)Ui.Collapsible().Key(\"DNS\").Content(Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"DnsServers\")\n        .Value(\"10.0.0.53, 10.0.1.53\")\n        .Label(\"Servers\"));\n    c.TextInput(textInput => textInput.Key(\"DnsSuffix\")\n        .Value(\"corp.contoso.test\")\n        .Label(\"Search suffix\"));\n})).Build());\nCollapsible firewall = ((Collapsible)Ui.Collapsible().Key(\"Firewall\").Content(Ui.Rows().Content(c =>\n{\n    c.Toggle(toggle => toggle.Key(\"FirewallOn\").Value(true).Label(\"Enabled\"));\n    c.TextInput(textInput => textInput.Key(\"FirewallPorts\")\n        .Value(\"443, 8443\")\n        .Label(\"Allowed ports\"));\n})).Build());\nOutline sections = ((Outline)Ui.Outline()\n    .Key(\"Sections\")\n    .Build()).AddItem(new OutlineItem(\"Proxy\").Target(proxy))\n    .AddItem(new OutlineItem(\"DNS\").Target(dns))\n    .AddItem(new OutlineItem(\"Firewall\").Target(firewall))\n    .CurrentIndex(0);\nBreadcrumb where = ((Breadcrumb)Ui.Breadcrumb().Key(\"Where\").Build()).AddAncestor(\"Settings\")\n    .AddAncestor(\"Network\")\n    .Outline(sections);\nTabs layout = Ui.Tabs().Add(\"General\", Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"DisplayName\")\n        .Value(\"Contoso Operations\")\n        .Label(\"Display name\"));\n    c.Toggle(toggle => toggle.Key(\"StartAtLogon\").Value(false).Label(\"Start at logon\"));\n})).Add(\"Network\", Ui.Rows().Content(c2 =>\n{\n    c2.Add(where);\n    c2.Splitter(splitter => splitter.First(sections).Second(Ui.Rows().Content(c =>\n    {\n        c.Add(proxy);\n        c.Add(dns);\n        c.Add(firewall);\n    })).Ratio(0.25));\n})).Add(\"Logging\", Ui.Rows().Content(c =>\n{\n    c.TextInput(textInput => textInput.Key(\"LogPath\")\n        .Value(\"C:\\\\Logs\\\\Operations\")\n        .Label(\"Folder\"));\n    c.Toggle(toggle => toggle.Key(\"LogVerbose\").Value(false).Label(\"Verbose\"));\n}));\n\n// Behaviour: 1-3 or Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.\nConsoleApp.Run(layout);\n",
+      "apiMap": [
+        {
+          "powershell": "New-ConsoleCollapsible",
+          "csharp": "new Collapsible(…)",
+          "fluent": "Ui.Collapsible()",
+          "memberId": "M:ConsoleMonster.Ui.Collapsible",
+          "note": "Inside Content: c.Collapsible(collapsible => …)."
+        },
+        {
+          "powershell": "New-ConsoleCollapsible -Content { … }",
+          "csharp": "Content = widget",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Interactive.InteractiveFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleRows",
+          "csharp": "new Rows(…)",
+          "fluent": "Ui.Rows()",
+          "memberId": "M:ConsoleMonster.Ui.Rows",
+          "note": "Inside Content: c.Rows(r => …)."
+        },
+        {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.LayoutFluent.Content"
+        },
+        {
+          "powershell": "New-ConsoleTextInput",
+          "csharp": "new TextInput(…)",
+          "fluent": "Ui.TextInput()",
+          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.TextInput",
+          "note": "Inside Content: c.TextInput(textInput => …)."
+        },
+        {
+          "powershell": "New-ConsoleCollapsible -Expanded",
+          "csharp": "Expanded = true",
+          "fluent": ".Expanded()",
+          "memberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Expanded",
+          "note": null
+        }
+      ],
+      "powershellRepo": "Website/examples/gallery/settings-tabs/settings-tabs.ps1",
+      "csharpRepo": "Website/examples/gallery/settings-tabs/Program.cs",
+      "csharpFluentRepo": "Website/examples/gallery/settings-tabs/Program.Fluent.cs",
+      "powershellFile": "settings-tabs.ps1",
+      "csharpFile": "Program.cs",
+      "csharpFluentFile": "Program.Fluent.cs",
+      "powershellDownload": "/examples/gallery/settings-tabs/settings-tabs.ps1",
+      "csharpDownload": "/examples/gallery/settings-tabs/Program.cs",
+      "csharpFluentDownload": "/examples/gallery/settings-tabs/Program.Fluent.cs",
+      "projectDownload": "/examples/gallery/settings-tabs/GalleryDemo.csproj",
+      "lines": {
+        "powershell": 45,
+        "csharp": 43,
+        "csharpFluent": 65
+      },
+      "thumbnail": "/site/gallery/settings-tabs.svg",
+      "frame": {
+        "w": 88,
+        "h": 22,
+        "dark": "<span class=\"f8b8f9a c9\"> General </span><span class=\"f60a5fa B U c9\"> Network </span><span class=f8b8f9a> Logging</span>\n<i class=\"g2500 c9 f4b5060\">─────────</i><i class=\"g2501 c9 f60a5fa\">━━━━━━━━━</i><i class=\"g2500 c70 f4b5060\">──────────────────────────────────────────────────────────────────────</i>\n<span class=\"f8b8f9a c8\">Settings</span><span class=\"f3a3d45 c3\"> <i class=n>›</i> </span><span class=\"f8b8f9a c7\">Network</span><span class=\"f3a3d45 c3\"> <i class=n>›</i> </span><span class=\"f60a5fa B\">DNS</span>\n<span class=c22>  Proxy               </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"n f60a5fa\">▾</i><span class=c1> </span><span class=B>Proxy</span>\n<i class=\"g258c f60a5fa\">▌</i><span class=c1> </span><span class=\"f60a5fa B c3\">DNS</span><span class=c17>                 </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Server</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c52\">────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>  Firewall            </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c61> proxy.contoso.test:8080                                     </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c26\">Bypass for local addresses</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c32\">────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f60a5fa c3\">[<i class=n>✓</i>]</span><span class=c57> Yes                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><i class=\"n ff1f5f9 k243b5e\">›</i><span class=c1> </span><i class=\"n ff1f5f9 k243b5e\">▾</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B\">DNS</span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Servers</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c51\">───────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c61> 10.0.0.53, 10.0.1.53                                        </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c13\">Search suffix</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c45\">─────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c61> corp.contoso.test                                           </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"n f60a5fa\">▸</i><span class=c1> </span><span class=B>Firewall</span>\n\n\n\n<span class=c1> </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c18\"> expand/collapse  </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=\"f8b8f9a c7\"> quit  </span><span class=\"f60a5fa c14\">ctrl+shift+<i class=n>←</i>/<i class=n>→</i></span><span class=f8b8f9a> resize</span>"
+      },
+      "parity": [
+        {
+          "step": 0,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        },
+        {
+          "step": 1,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        },
+        {
+          "step": 2,
+          "identical": true,
+          "styles": 3,
+          "encoding": "UTF-8 SVG"
+        }
+      ],
+      "replay": {
+        "url": "/replays/gallery-settings-tabs.json",
+        "w": 88,
+        "h": 22,
+        "poster": {
+          "w": 88,
+          "h": 22,
+          "dark": "<span class=\"f8b8f9a c9\"> General </span><span class=\"f60a5fa B U c9\"> Network </span><span class=f8b8f9a> Logging</span>\n<i class=\"g2500 c9 f4b5060\">─────────</i><i class=\"g2501 c9 f60a5fa\">━━━━━━━━━</i><i class=\"g2500 c70 f4b5060\">──────────────────────────────────────────────────────────────────────</i>\n<span class=\"f8b8f9a c8\">Settings</span><span class=\"f3a3d45 c3\"> <i class=n>›</i> </span><span class=\"f8b8f9a c7\">Network</span><span class=\"f3a3d45 c3\"> <i class=n>›</i> </span><span class=\"f60a5fa B\">DNS</span>\n<span class=c22>  Proxy               </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"n f60a5fa\">▾</i><span class=c1> </span><span class=B>Proxy</span>\n<i class=\"g258c f60a5fa\">▌</i><span class=c1> </span><span class=\"f60a5fa B c3\">DNS</span><span class=c17>                 </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c6\">Server</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c52\">────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>  Firewall            </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c61> proxy.contoso.test:8080                                     </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c26\">Bypass for local addresses</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c32\">────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c1> </span><span class=\"f60a5fa c3\">[<i class=n>✓</i>]</span><span class=c57> Yes                                                     </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><i class=\"n ff1f5f9 k243b5e\">›</i><span class=c1> </span><i class=\"n ff1f5f9 k243b5e\">▾</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B\">DNS</span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c7\">Servers</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c51\">───────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c61> 10.0.0.53, 10.0.1.53                                        </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=\"f4b5060 c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c13\">Search suffix</span><span class=c1> </span><span class=f4b5060><i class=\"g2500 c45\">─────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"g2502 f4b5060\">│</i><span class=c61> corp.contoso.test                                           </span><i class=\"g2502 f4b5060\">│</i>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><span class=f4b5060><i class=g2570>╰</i><i class=\"g2500 c61\">─────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\n<span class=c22>                      </span><i class=\"g2502 f60a5fa\">│</i><span class=c2>  </span><i class=\"n f60a5fa\">▸</i><span class=c1> </span><span class=B>Firewall</span>\n\n\n\n<span class=c1> </span><span class=\"f60a5fa c5\">enter</span><span class=\"f8b8f9a c18\"> expand/collapse  </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=\"f8b8f9a c7\"> quit  </span><span class=\"f60a5fa c14\">ctrl+shift+<i class=n>←</i>/<i class=n>→</i></span><span class=f8b8f9a> resize</span>"
+        },
+        "start": 1800,
+        "hero": 0
+      },
+      "run": {
+        "powershell": "Show-ConsoleDemo settings-tabs",
+        "export": "$source = (Get-ConsoleDemo settings-tabs).Source\n[IO.File]::WriteAllText(\"$PWD/settings-tabs.ps1\", $source, [Text.UTF8Encoding]::new($true))",
+        "csharp": null,
+        "csharpFluent": null
+      },
+      "url": "/replays/gallery-settings-tabs.json",
+      "duration": 3600,
+      "frames": 3,
+      "start": 0,
+      "fps": 10
+    },
+    {
       "slug": "setup",
       "title": "Complete setup wizard",
       "pitch": "Walk through component choices, dependent server loading, review, installation progress and a result.",

@@ -285,7 +285,73 @@ It uses fictional records and does not modify files or services. At 80 columns
 the two regions are side by side; below that only the focused region is shown.
 Below its configured 40-by-12 minimum, the host asks for a larger window.
 
+## Outline, breadcrumb and history
+
+These are the parts the document viewer is built from, and they work in any app.
+
+`Outline` lists headings to jump between: settings groups, the sections of a long
+form, a table of contents. Entries have a level (deeper ones are indented) and
+can lead to a control. The current entry is marked, and `CurrentIndex` lets a
+scrolling view make the outline follow the reader; the selection follows it
+until the outline has focus. Up/Down, Home/End, Page Up/Down and the wheel move
+the selection, and Enter or a click opens it: the entry becomes current (its
+title is the outline's value), `Opened` is raised, and its target is focused,
+which scrolls a surrounding `ScrollView` to it, and unfolded when it is a
+`Collapsible`.
+
+`Breadcrumb` shows a path such as `Settings › Network › Proxy`. Give it
+segments, or point `Outline` at an outline and it shows the headings around the
+outline's current entry after any `Ancestors`. Leading segments give way to
+an ellipsis on narrow rows. It is a focus stop that initial focus skips:
+Left/Right choose a segment and Enter or a click opens it, which makes it the
+value and, when it follows an outline, opens that heading there.
+
+`NavigationHistory<T>` keeps back and forward lists of whatever a place is for
+your app: call `Visit(current)` before leaving for a new place, and `TryBack` and
+`TryForward` with the current place to return. It is a plain .NET type, used the same
+way from PowerShell: `$history = [ConsoleMonster.Interactive.NavigationHistory[string]]::new()`.
+
+```powershell
+$proxy = New-ConsoleCollapsible -Key Proxy -Expanded -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
+$dns = New-ConsoleCollapsible -Key DNS -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
+$sections = New-ConsoleOutline -Key Sections -CurrentIndex 0 -Item ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
+Show-ConsoleApp -Content {
+    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings', 'Network' -Outline $sections
+    New-ConsoleSplitter -Ratio 0.25 -First { $sections } -Second { $proxy; $dns }
+}
+```
+
+The same in C# with object initializers:
+
+```csharp
+var sections = new Outline("Sections")
+{
+    Items = { new OutlineItem("Proxy") { Target = proxy }, new OutlineItem("DNS") { Target = dns } },
+    CurrentIndex = 0
+};
+var where = new Breadcrumb("Where") { Ancestors = { "Settings", "Network" }, Outline = sections };
+```
+
+And with the fluent builder:
+
+```csharp
+Outline sections = Ui.Outline().Key("Sections").CurrentIndex(0)
+    .AddItem(new OutlineItem("Proxy") { Target = proxy })
+    .AddItem(new OutlineItem("DNS") { Target = dns })
+    .Build();
+Breadcrumb where = Ui.Breadcrumb().Key("Where").AddAncestor("Settings").AddAncestor("Network")
+    .Outline(sections).Build();
+```
+
+The names match across the three: `-Item`/`Items`/`AddItem`, `-CurrentIndex`/`CurrentIndex`,
+`-Segment`/`Segments`/`AddSegment`, `-Ancestor`/`Ancestors`/`AddAncestor` and `-Outline`/`Outline`.
+`OnChange` (PowerShell) and `Changed` (C#) report an opened entry or segment. The `settings-tabs` gallery
+demo shows all three forms in a settings app with tabs.
 ## Documents
+
+The viewer is a composition of the parts above: a `Splitter` with an `Outline`
+beside the text, a `Breadcrumb` following that outline as the pinned row, the
+`Tabs` strip, `Collapsible` header rows and a `NavigationHistory` for links.
 
 `WidgetPager.TryShow` opens Markdown with headings (`MarkdownConsole.Show`,
 `Show-Console -View Markdown`) and command help (`Show-ConsoleHelp`, and `help`

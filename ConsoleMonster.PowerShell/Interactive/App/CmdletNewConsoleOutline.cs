@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleSplitter -Ratio 0.3 -First {
-    ///         New-ConsoleOutline -Key Sections -Item @{ Title = 'Proxy'; Target = $proxy }, @{ Title = 'DNS'; Target = $dns }
+    ///         New-ConsoleOutline -Key Sections -Item ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
     ///     } -Second { $proxy; $dns }
     /// }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleOutline")]
@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateNotNullOrEmpty]
         public string Key { get; set; } = string.Empty;
 
-        /// <summary><para type="description">The entries: titles, hashtables with Title, Level (1 for the top) and Target (a control to open), or OutlineItem objects.</para></summary>
+        /// <summary><para type="description">The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).</para></summary>
         [Parameter(Mandatory = true, Position = 1)]
         [AllowEmptyCollection]
         public object[] Item { get; set; } = Array.Empty<object>();
@@ -47,33 +47,41 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             OutlineInputOptions options = new OutlineInputOptions { Key = Key, CurrentIndex = CurrentIndex, Disabled = Disabled.IsPresent, TabIndex = TabIndex };
-            foreach (object? entry in Item) { options.Items.Add(ToItem(PSText.Unwrap(entry))); }
+            foreach (object? entry in Item) { options.Items.Add(ToItem(entry)); }
             Outline outline = AppInput.Outline(options);
             PSAppCallbacks.Register(outline, OnChange);
             WriteObject(outline);
         }
 
+        // A title, an OutlineItem, or a record (pscustomobject or hashtable) with Title, Level and Target.
         private static OutlineItem ToItem(object? entry) {
-            switch (entry) {
-                case OutlineItem item: return item;
-                case string title: return new OutlineItem(title);
-                case IDictionary map:
-                    string? text = null;
-                    int level = 1;
-                    InputControl? target = null;
-                    foreach (DictionaryEntry pair in map) {
-                        string name = Convert.ToString(pair.Key, CultureInfo.InvariantCulture) ?? string.Empty;
-                        object? value = PSText.Unwrap(pair.Value);
-                        if (string.Equals(name, "Title", StringComparison.OrdinalIgnoreCase)) { text = Convert.ToString(value, CultureInfo.InvariantCulture); }
-                        else if (string.Equals(name, "Level", StringComparison.OrdinalIgnoreCase)) { level = Convert.ToInt32(value, CultureInfo.InvariantCulture); }
-                        else if (string.Equals(name, "Target", StringComparison.OrdinalIgnoreCase)) { target = value as InputControl ?? throw new PSArgumentException("An outline entry's Target must be a control, such as New-ConsoleCollapsible output."); }
-                        else { throw new PSArgumentException("Unknown outline entry key '" + name + "'. Use Title, Level and Target."); }
-                    }
-                    if (string.IsNullOrEmpty(text)) { throw new PSArgumentException("An outline entry needs a Title."); }
-                    return new OutlineItem(text!, level) { Target = target };
-                default:
-                    throw new PSArgumentException("Outline entries are titles, hashtables with Title, Level and Target, or OutlineItem objects.");
+            object? value = PSText.Unwrap(entry);
+            if (value is OutlineItem item) { return item; }
+            if (value is string title) { return new OutlineItem(title); }
+            string? text = null;
+            int level = 1;
+            InputControl? target = null;
+            foreach (KeyValuePair<string, object?> field in Fields(entry, value)) {
+                object? data = PSText.Unwrap(field.Value);
+                if (string.Equals(field.Key, "Title", StringComparison.OrdinalIgnoreCase)) { text = Convert.ToString(data, CultureInfo.InvariantCulture); }
+                else if (string.Equals(field.Key, "Level", StringComparison.OrdinalIgnoreCase)) { level = Convert.ToInt32(data, CultureInfo.InvariantCulture); }
+                else if (string.Equals(field.Key, "Target", StringComparison.OrdinalIgnoreCase)) { target = data as InputControl ?? throw new PSArgumentException("An outline entry's Target must be a control, such as New-ConsoleCollapsible output."); }
+                else { throw new PSArgumentException("Unknown outline entry field '" + field.Key + "'. Use Title, Level and Target."); }
             }
+            if (string.IsNullOrEmpty(text)) { throw new PSArgumentException("An outline entry is a title, or a record with Title and optional Level and Target."); }
+            return new OutlineItem(text!, level) { Target = target };
+        }
+
+        private static IEnumerable<KeyValuePair<string, object?>> Fields(object? entry, object? value) {
+            if (value is IDictionary map) {
+                foreach (DictionaryEntry pair in map) { yield return new KeyValuePair<string, object?>(Convert.ToString(pair.Key, CultureInfo.InvariantCulture) ?? string.Empty, pair.Value); }
+                yield break;
+            }
+            if (entry is PSObject record) {
+                foreach (PSPropertyInfo property in record.Properties) { yield return new KeyValuePair<string, object?>(property.Name, property.Value); }
+                yield break;
+            }
+            throw new PSArgumentException("An outline entry is a title, or a record with Title and optional Level and Target.");
         }
     }
 }

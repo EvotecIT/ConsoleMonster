@@ -208,22 +208,32 @@ namespace SiteFrames.Pages {
             return frame;
         }
 
-        // The document viewer's first complete frame, then its visible-row range going down a page and back up.
+        // The document viewer's first frame, then its visible-row range going down a page and back up. ConPTY may send
+        // only the changed digits of the range, so the header row is read as each digit arrives.
         private static CellBuffer FirstPage(string vt, string id, int width) {
             VtScreen replay = new VtScreen(width, Height("help"));
             List<string> tops = new List<string>();
             CellBuffer? first = null;
-            replay.SynchronizedFrameCompleted = () => {
+            foreach (char character in vt) {
+                replay.Feed(character.ToString());
+                if (!char.IsDigit(character)) { continue; }
                 CellBuffer frame = replay.Snapshot();
                 Match range = Regex.Match(frame.GetRowText(0), @"([0-9]+)[–-][0-9]+ / [0-9]+\s*$");
-                if (!range.Success) { return; }
-                first ??= Parity.Trim(frame);
+                if (!range.Success) { continue; }
                 string top = range.Groups[1].Value;
                 if (tops.Count == 0 || tops[tops.Count - 1] != top) { tops.Add(top); }
-            };
-            replay.Feed(vt);
-            if (tops.Count != 3 || tops[0] != "1" || tops[1] == "1" || tops[2] != "1") {
+            }
+            int down = tops.FindIndex(1, top => top != "1");
+            if (tops.Count == 0 || tops[0] != "1" || down < 0 || tops.FindIndex(down, top => top == "1") < 0) {
                 throw new InvalidOperationException(id + " did not page down and back up in the document viewer: " + string.Join(",", tops));
+            }
+            // The first page once its footer has arrived.
+            replay = new VtScreen(width, Height("help"));
+            foreach (char character in vt) {
+                replay.Feed(character.ToString());
+                if (character != 'k' && character != 's') { continue; }
+                CellBuffer frame = replay.Snapshot();
+                if (Parity.Describe(frame).Contains("? keys", StringComparison.Ordinal) && Regex.IsMatch(frame.GetRowText(0), @"\b1[–-][0-9]+ / ")) { first = Parity.Trim(frame); break; }
             }
             return first ?? throw new InvalidOperationException(id + " did not draw the document viewer.");
         }

@@ -10,13 +10,13 @@ namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A path on one row, such as <c>Settings › Network › Proxy</c>: the last segment is where you are, the others lead back
     /// up. It shows its own <see cref="Segments"/>, or follows an <see cref="Outline"/>, showing the headings around the
-    /// outline's current entry after any <see cref="Root"/> segments. When the row is too narrow the leading segments give
+    /// outline's current entry after any <see cref="Ancestors"/> segments. When the row is too narrow the leading segments give
     /// way to an ellipsis. It is a focus stop that initial focus skips: ←/→ choose a segment and Enter opens it, as a click
     /// does. Opening a segment makes it the value, and opening a followed outline's heading opens that outline entry.
     /// </summary>
     public sealed class Breadcrumb : InputControl {
         private readonly List<string> _segments = new List<string>();
-        private readonly List<string> _root = new List<string>();
+        private readonly List<string> _ancestors = new List<string>();
         private readonly List<Rect> _areas = new List<Rect>();
         private Outline? _outline;
         private int _selected = -1;
@@ -24,29 +24,15 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Creates a breadcrumb.</summary>
         /// <param name="key">The application-state key; its value is the last segment opened.</param>
-        /// <param name="segments">The segments, outermost first.</param>
-        public Breadcrumb(string key, IEnumerable<string>? segments = null) : base(key, false) {
-            if (segments != null) { _segments.AddRange(segments); }
-        }
+        public Breadcrumb(string key) : base(key, false) { }
 
         /// <summary>The segments shown when no outline is followed, outermost first.</summary>
-        public IReadOnlyList<string> Segments => Read(() => _segments.ToArray());
-
-        /// <summary>Replaces the segments shown when no outline is followed.</summary>
-        /// <param name="segments">The segments, outermost first.</param>
-        public void SetSegments(IEnumerable<string> segments) {
-            if (segments == null) { throw new ArgumentNullException(nameof(segments)); }
-            Change(() => { _segments.Clear(); _segments.AddRange(segments); _selected = -1; });
-        }
-
+        public IList<string> Segments => _segments;
         /// <summary>Segments shown before a followed outline's headings, such as the screen and tab names.</summary>
-        public IList<string> Root => _root;
+        public IList<string> Ancestors => _ancestors;
 
         /// <summary>The outline whose current entry this breadcrumb shows, or null to show <see cref="Segments"/>.</summary>
         public Outline? Outline { get => Read(() => _outline); set => Change(() => _outline = value); }
-
-        /// <summary>The segments drawn now: the followed outline's path, or the plain segments.</summary>
-        public IReadOnlyList<string> Path => Read(() => Shown().ConvertAll(segment => segment.Title));
 
         /// <inheritdoc />
         protected override object? ReadValueCore() => _opened;
@@ -105,8 +91,8 @@ namespace ConsoleMonster.Interactive {
                 foreach (string segment in _segments) { shown.Add(new Segment(segment, -1)); }
                 return shown;
             }
-            foreach (string segment in _root) { shown.Add(new Segment(segment, -1)); }
-            IReadOnlyList<OutlineItem> items = _outline.Items;
+            foreach (string segment in _ancestors) { shown.Add(new Segment(segment, -1)); }
+            IList<OutlineItem> items = _outline.Items;
             int current = _outline.CurrentIndex;
             if (current < 0 || current >= items.Count) { return shown; }
             List<Segment> path = new List<Segment> { new Segment(items[current].Title, current) };

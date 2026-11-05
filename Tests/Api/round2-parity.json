@@ -3693,6 +3693,26 @@
       "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
       "Bindings": [
         {
+          "Parameter": "Ancestor",
+          "ParameterType": "System.String[]",
+          "Default": [],
+          "Sets": [
+            {
+              "Name": "Outline",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
+          "Member": "Ancestors",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
           "Parameter": "Disabled",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -3786,26 +3806,6 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "Root",
-          "ParameterType": "System.String[]",
-          "Default": [],
-          "Sets": [
-            {
-              "Name": "Outline",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
-          "Member": "Root",
-          "MemberKind": "Property",
-          "Conversion": "Collection",
-          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-          "Nullable": "Unknown",
-          "Writable": false,
-          "Static": false
-        },
-        {
           "Parameter": "Segment",
           "ParameterType": "System.String[]",
           "Default": [],
@@ -3817,11 +3817,13 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.Breadcrumb",
-          "Member": ".ctor",
-          "Argument": "segments",
-          "MemberKind": "Constructor",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[System.String]"
+          "Member": "Segments",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
         },
         {
           "Parameter": "TabIndex",
@@ -9535,7 +9537,7 @@
               "Mandatory": true
             }
           ],
-          "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
           "Member": "Items",
           "MemberKind": "Property",
           "Conversion": "Collection",
@@ -28170,14 +28172,6 @@
       "Reason": "Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Interactive.Outline",
-      "Member": "SelectedIndex",
-      "CSharpTypeName": "System.Int32",
-      "Reason": "The selection is the reader's cursor while the outline has focus; hosts that move it programmatically do so from their own code.",
-      "Alternative": "Use -CurrentIndex for the starting entry; the selection follows the current entry until the outline has focus.",
-      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
@@ -31129,6 +31123,15 @@
       "Reason": "The shared factory/view adapter applies this option to the resulting OutlineInputOptions."
     },
     {
+      "CSharpType": "ConsoleMonster.Interactive.OutlineInputOptions",
+      "Member": "Items",
+      "MemberId": "ConsoleMonster.Interactive.OutlineInputOptions.Items",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.OutlineItem]",
+      "Command": "New-ConsoleOutline",
+      "Parameter": "Item",
+      "Reason": "The shared factory/view adapter applies this option to the resulting OutlineInputOptions."
+    },
+    {
       "CSharpType": "ConsoleMonster.Interactive.OutlineItem",
       "Member": "Target",
       "MemberId": "ConsoleMonster.Interactive.OutlineItem.Target",
@@ -31148,11 +31151,11 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.BreadcrumbInputOptions",
-      "Member": "Root",
-      "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Root",
+      "Member": "Ancestors",
+      "MemberId": "ConsoleMonster.Interactive.BreadcrumbInputOptions.Ancestors",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Command": "New-ConsoleBreadcrumb",
-      "Parameter": "Root",
+      "Parameter": "Ancestor",
       "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
     },
     {
@@ -32118,6 +32121,10 @@
       "NestedPattern": "c.{Noun}({Parameter} => …)",
       "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
+        {
+          "CSharpType": "ConsoleMonster.Interactive.OutlineItem",
+          "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."
+        },
         {
           "CSharpType": "ConsoleMonster.Interactive.Choice",
           "Reason": "A data/event/style value; ordinary data construction does not select a widget or configure a layout."

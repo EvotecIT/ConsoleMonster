@@ -47,10 +47,10 @@ namespace SiteFrames.Tests {
                 }
                 Assert.True(sawCommand, host.Label + " did not show the actual command's help in the viewer.");
                 Assert.True(sawTabs, host.Label + " did not show the help's tabs.");
-                Assert.Equal(3, tops.Count);
+                // ConPTY may send a range in pieces, so the order matters rather than the count: the top, a later page, the top again.
                 Assert.Equal("1", tops[0]);
-                Assert.NotEqual("1", tops[1]);
-                Assert.Equal("1", tops[2]);
+                int down = tops.FindIndex(1, top => top != "1");
+                Assert.True(down > 0 && tops.FindIndex(down, top => top == "1") > down, host.Label + " pages: " + string.Join(",", tops));
             }
         }
         private static string Repository([CallerFilePath] string source = "") =>

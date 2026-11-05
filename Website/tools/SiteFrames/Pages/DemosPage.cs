@@ -201,7 +201,8 @@ namespace SiteFrames.Pages {
                 Script = "help-viewer.ps1",
                 Setup = ". '../../tools/SiteFrames/Capture/Assets/DemoInput.ps1' -Keys 'wait:2200 2 wait:1400 Enter wait:1600 Ctrl+K wait:700 \"Timeout\" wait:900 Enter wait:1600 3 wait:1200 Enter wait:1600 / \"WhatIf\" wait:1600 Escape wait:600 4 wait:1000 ] wait:900 Enter wait:2200 Backspace wait:1500 q'",
                 PosterShare = 0.3,
-                Fps = 8
+                Fps = 8,
+                EndsOn = "https://consolemonster.dev/"
             };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true, LogicalCheckpoints = true, EndsOn = "Inventory collected: 36 servers across 3 sites." };
             yield return new Demo("errors", "Show-Console -View Error", 100, 20) { CSharpProgram = "errors.cs", Script = "errors.ps1", Static = true, AllowErrors = true };

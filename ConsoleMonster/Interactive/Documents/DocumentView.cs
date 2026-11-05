@@ -273,8 +273,8 @@ namespace ConsoleMonster.Interactive {
                 _outlinePart = Part;
                 _outlineSections = Outline();
                 _outline.SetItems(_outlineSections.ConvertAll(section => new OutlineItem(Part.Sections[section].Title, Math.Max(1, Part.Sections[section].Level))));
-                _crumb.Root.Clear();
-                if (_page.Model.Parts.Count > 1) { _crumb.Root.Add(Part.Title); }
+                _crumb.Ancestors.Clear();
+                if (_page.Model.Parts.Count > 1) { _crumb.Ancestors.Add(Part.Title); }
                 _followed = -1;
             }
             _outline.Focused = _focus == Pane.Outline;

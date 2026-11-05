@@ -34,8 +34,8 @@ namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A list of headings to jump between: a table of contents, settings groups, the sections of a long form. The current
     /// entry (where the reader is) is marked and can follow a view as it scrolls; ↑/↓, Home/End and the wheel move the
-    /// selection, and Enter or a click opens it. Opening makes the entry current, which is the control's value, and leads to
-    /// its <see cref="OutlineItem.Target"/> when it has one.
+    /// selection, and Enter or a click opens it. Opening makes the entry current, which is the control's value (so
+    /// <see cref="InputControl.Changed"/> and OnChange report it), and leads to its <see cref="OutlineItem.Target"/> when it has one.
     /// </summary>
     public sealed class Outline : InputControl {
         private readonly List<OutlineItem> _items = new List<OutlineItem>();
@@ -46,26 +46,12 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Creates an outline.</summary>
         /// <param name="key">The application-state key; its value is the current entry's title.</param>
-        /// <param name="items">The entries.</param>
-        public Outline(string key, IEnumerable<OutlineItem>? items = null) : base(key, false) {
-            if (items != null) { _items.AddRange(items); }
-        }
+        public Outline(string key) : base(key, false) { }
 
-        /// <summary>The entries. Replace them with <see cref="SetItems"/> while an app runs.</summary>
-        public IReadOnlyList<OutlineItem> Items => Read(() => _items.ToArray());
-
-        /// <summary>Adds an entry.</summary>
-        /// <param name="item">The entry.</param>
-        /// <returns>This outline.</returns>
-        public Outline Add(OutlineItem item) {
-            if (item == null) { throw new ArgumentNullException(nameof(item)); }
-            Change(() => _items.Add(item));
-            return this;
-        }
-
-        /// <summary>Replaces the entries, keeping no current entry.</summary>
-        /// <param name="items">The new entries.</param>
-        public void SetItems(IEnumerable<OutlineItem> items) {
+        /// <summary>The entries, in order. Configure them before the app runs.</summary>
+        public IList<OutlineItem> Items => _items;
+        // Replaces the entries while running (the document viewer switching parts), keeping no current entry.
+        internal void SetItems(IEnumerable<OutlineItem> items) {
             if (items == null) { throw new ArgumentNullException(nameof(items)); }
             Change(() => { _items.Clear(); _items.AddRange(items); _current = -1; _selected = -1; _top = 0; });
         }
@@ -82,14 +68,14 @@ namespace ConsoleMonster.Interactive {
             });
         }
 
-        /// <summary>The index of the selected entry, which Enter opens, or -1.</summary>
-        public int SelectedIndex {
+        // The selected entry, which Enter opens, or -1.
+        internal int SelectedIndex {
             get => Read(() => _selected);
             set => Change(() => _selected = value >= 0 && value < _items.Count ? value : -1);
         }
 
-        /// <summary>Raised when an entry is opened with Enter or a click, after it becomes current.</summary>
-        public event EventHandler<OutlineItem>? Opened;
+        // Raised when an entry is opened, also when it was already current (the document viewer jumps back to it).
+        internal event EventHandler<OutlineItem>? Opened;
 
         /// <inheritdoc />
         protected override object? ReadValueCore() => _current >= 0 ? _items[_current].Title : null;

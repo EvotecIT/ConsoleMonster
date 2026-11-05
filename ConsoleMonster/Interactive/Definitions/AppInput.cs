@@ -82,7 +82,9 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The persistent outline.</returns>
         public static Outline Outline(OutlineInputOptions options) {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
-            var outline = new Outline(options.Key, options.Items) { CurrentIndex = options.CurrentIndex };
+            var outline = new Outline(options.Key);
+            foreach (OutlineItem item in options.Items) { outline.Items.Add(item); }
+            outline.CurrentIndex = options.CurrentIndex;
             Configure(outline, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             return outline;
         }
@@ -92,8 +94,9 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The persistent breadcrumb.</returns>
         public static Breadcrumb Breadcrumb(BreadcrumbInputOptions options) {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
-            var breadcrumb = new Breadcrumb(options.Key, options.Segments) { Outline = options.Outline };
-            foreach (string segment in options.Root) { breadcrumb.Root.Add(segment); }
+            var breadcrumb = new Breadcrumb(options.Key) { Outline = options.Outline };
+            foreach (string segment in options.Segments) { breadcrumb.Segments.Add(segment); }
+            foreach (string segment in options.Ancestors) { breadcrumb.Ancestors.Add(segment); }
             Configure(breadcrumb, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             return breadcrumb;
         }
