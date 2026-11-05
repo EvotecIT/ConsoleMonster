@@ -159,7 +159,7 @@ namespace ConsoleMonster.Interactive {
         internal override bool Takes(KeyChord chord, RenderContext context) {
             if (chord.IsCharacter) {
                 char c = chord.Char;
-                return c == '+' || c == '=' || c == '-' || (c >= '1' && c <= '9' && c - '0' <= Read(() => _plot.SeriesCount));
+                return c == '+' || c == '=' || c == '-' || (c >= '1' && c <= '9' && Read(() => _plot.CanHide(c - '1')));
             }
             if (chord.Key == ConsoleKey.LeftArrow || chord.Key == ConsoleKey.RightArrow) { return chord.Modifiers == KeyModifiers.None || chord.Modifiers == KeyModifiers.Shift; }
             return chord.Modifiers == KeyModifiers.None && (chord.Key == ConsoleKey.Home || chord.Key == ConsoleKey.Add || chord.Key == ConsoleKey.Subtract);
@@ -167,7 +167,7 @@ namespace ConsoleMonster.Interactive {
 
         internal override void AddOwnKeys(List<KeyBinding> keys, RenderContext context) {
             PromptLabels labels = PromptLabels.For(context.Profile.Language);
-            int series = Read(() => _plot.SeriesCount);
+            int series = Read(() => _plot.SeriesCount > 0 && _plot.CanHide(0) ? _plot.SeriesCount : 0);
             keys.Add(new KeyBinding(labels.KeyPoint, () => { }, new KeyChord(ConsoleKey.LeftArrow), new KeyChord(ConsoleKey.RightArrow)) { KeyText = "←/→", Order = 1 });
             keys.Add(new KeyBinding(labels.KeyZoom, () => { }, new KeyChord('+'), new KeyChord('-')) { KeyText = "+/-", Order = 2 });
             keys.Add(new KeyBinding(labels.KeyPan, () => { }, new KeyChord(ConsoleKey.LeftArrow, KeyModifiers.Shift), new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Shift)) { KeyText = "shift+←/→", Order = 3 });

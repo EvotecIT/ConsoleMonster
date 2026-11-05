@@ -38,6 +38,8 @@ namespace ConsoleMonster.Interactive {
         private readonly AppOverlay _overlay;
         private readonly FooterBar? _defaultFooter;
         private readonly List<ILinkedSelection> _linked = new List<ILinkedSelection>();
+        // The control whose selection is being written to state: it already shows it, so it does not follow its own write.
+        private ILinkedSelection? _sharing;
 
         internal AppController(IWidget layout, AppState state, RenderContext context, int reflowBelow, ConsoleAppOptions? options = null, CancellationToken cancellationToken = default, Func<TimeSpan>? actionClock = null, bool staticView = false) {
             _options = options ?? new ConsoleAppOptions();
@@ -146,7 +148,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             // An open popup is drawn over everything else, so it takes the pointer first; a press outside closes it.
-            if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context, out InputControl? popupOwner)) { Share(popupOwner); Invalidate(); return; }
             // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
             if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && (!modal || _overlay.ModalDrawn) && _overlay.Targets.Route(input, clicks, out KeyChord? pressed, CurrentScope())) {
                 Invalidate();
@@ -161,7 +163,7 @@ namespace ConsoleMonster.Interactive {
             }
             if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { _state.RequestExit(); Invalidate(); return; }
             if (_options.HandleInput?.Invoke(_state, input) == true) { Invalidate(); return; }
-            if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture != null && _overlay.RoutePointer(input, _context, out InputControl? capturedOwner)) { Share(capturedOwner); Invalidate(); return; }
             if (!ClaimedResizeKey(input) && _viewport.HandleContainerInput(input)) {
                 if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 1) { _containerCapture = true; }
                 Invalidate();
@@ -353,7 +355,7 @@ namespace ConsoleMonster.Interactive {
         }
         private void StateChanged(object? sender, AppValueChangedEventArgs change) {
             foreach (ILinkedSelection control in _linked) {
-                if (string.Equals(control.SelectionKey, change.Key, StringComparison.OrdinalIgnoreCase)) { control.FollowSelection(LinkIndex(change.Value)); }
+                if (!ReferenceEquals(control, _sharing) && string.Equals(control.SelectionKey, change.Key, StringComparison.OrdinalIgnoreCase)) { control.FollowSelection(LinkIndex(change.Value)); }
             }
             Invalidate();
         }
@@ -373,11 +375,14 @@ namespace ConsoleMonster.Interactive {
         }
 
         // After the user moved a linked control's selection, the others follow through state.
-        private void Share(object input) {
+        private void Share(object? input) {
             if (!(input is ILinkedSelection control)) { return; }
             string? key = control.SelectionKey;
             int? index = string.IsNullOrEmpty(key) ? null : control.SelectedIndex;
-            if (key != null && index.HasValue) { _state[key] = index.Value; }
+            if (key == null || !index.HasValue) { return; }
+            _sharing = control;
+            try { _state[key] = index.Value; }
+            finally { _sharing = null; }
         }
 
         private static int? LinkIndex(object? value) {

@@ -123,12 +123,14 @@ namespace ConsoleMonster.Interactive {
         }
 
         // A press inside a popup goes to its control; a press elsewhere closes the open popups and carries on.
-        internal bool RoutePointer(InputEvent input, RenderContext context) {
+        internal bool RoutePointer(InputEvent input, RenderContext context, out InputControl? owner) {
+            owner = null;
             Placed[] popups;
             lock (_gate) { popups = _popups.ToArray(); }
             for (int i = popups.Length - 1; i >= 0; i--) {
                 if (Contains(popups[i].Area, input)) {
-                    popups[i].Owner.HandlePopupInput(input, context);
+                    owner = popups[i].Owner;
+                    owner.HandlePopupInput(input, context);
                     return true;
                 }
             }

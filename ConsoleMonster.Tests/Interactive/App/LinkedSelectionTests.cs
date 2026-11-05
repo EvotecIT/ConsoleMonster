@@ -73,6 +73,57 @@ namespace ConsoleMonster.Tests.Interactive.App {
             await run;
         }
 
+        // A filtered selector keeps its filter while it publishes: it does not follow its own write.
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task AFilteredLinkedSelectorKeepsItsFilterWhileItPublishes(bool multiple) {
+            Choice[] fruit = { new Choice(0, "apple"), new Choice(1, "beta"), new Choice(2, "berry") };
+            SelectionInputBase pick = multiple ? new MultiSelect("pick", fruit) : (SelectionInputBase)new Select("pick", fruit);
+            pick.SelectionKey = "position";
+            var state = new AppState();
+            using var terminal = new HeadlessTerminal(60, 16);
+            Task<AppState> run = ConsoleApp.RunAsync(pick, state, Options(terminal));
+            terminal.WaitForText("apple", Wait);
+
+            terminal.Send("\"b\"");
+            Until(() => !terminal.Snapshot().ToPlainText().Contains("apple"));
+            Until(() => Equals(state.Get<object?>("position"), 1));
+            terminal.Send("Down");
+            Until(() => Equals(state.Get<object?>("position"), 2));
+            Assert.DoesNotContain("apple", terminal.Snapshot().ToPlainText());
+            terminal.Send("Escape Escape");
+            await run;
+        }
+
+        [Fact]
+        public async Task ClickingADropdownChoicePublishesItAndTheLinkedGridFollows() {
+            var pick = new Select("pick", Enumerable.Range(1, Cpu.Length).Select(i => new Choice(i, "minute " + i))) { SelectionKey = "minute", Dropdown = true };
+            DataGrid table = Samples();
+            var state = new AppState();
+            using var terminal = new HeadlessTerminal(80, 30);
+            Task<AppState> run = ConsoleApp.RunAsync(new Rows(pick, table), state, Options(terminal));
+            terminal.WaitForText("Samples", Wait);
+            Click(terminal, "▾");
+            terminal.WaitForText("minute 3", Wait);
+            Click(terminal, "minute 3");
+            Until(() => Equals(state.Get<object?>("minute"), 2) && table.Cursor == 2);
+            terminal.Send("Escape");
+            await run;
+        }
+
+        private static ConsoleAppOptions Options(HeadlessTerminal terminal) => new ConsoleAppOptions {
+            Interactive = new InteractiveOptions { Target = terminal, Labels = new PromptLabels() },
+            Live = new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false }
+        };
+
+        private static void Click(HeadlessTerminal terminal, string text) {
+            string[] rows = terminal.Snapshot().ToPlainText().Split('\n');
+            int y = Array.FindLastIndex(rows, row => row.Contains(text));
+            int x = rows[y].IndexOf(text, StringComparison.Ordinal) + 1;
+            terminal.Send(InputEvent.Pointer(x, y, MouseAction.Down, button: 1));
+            terminal.Send(InputEvent.Pointer(x, y, MouseAction.Up, button: 1));
+        }
         private static int? Highlighted(Select select) => ((ILinkedSelection)select).SelectedIndex;
 
         private static Task<AppState> Run(HeadlessTerminal terminal, IWidget layout) =>

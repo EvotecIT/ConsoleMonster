@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     ///     @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleChartView -Key Load -Chart $chart -Labels $samples.Minute -SelectionKey Minute
-    ///     New-ConsoleDataGrid -Key Samples -Grid (New-ConsoleGrid -InputObject $samples) -Height 8 -SelectionKey Minute
+    ///     New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 8 -SelectionKey Minute
     /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleChartView")]

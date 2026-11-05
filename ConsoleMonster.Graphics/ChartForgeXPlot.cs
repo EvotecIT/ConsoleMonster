@@ -30,6 +30,7 @@ namespace ConsoleMonster.Graphics {
         private string? _bankKey;
         private string? _sceneKey;
         private Scene? _scene;
+        private Dictionary<double, double>?[]? _values;
 
         internal ChartForgeXPlot(Chart chart, ChartXZoomLevels levels) {
             _chart = chart ?? throw new ArgumentNullException(nameof(chart));
@@ -49,11 +50,23 @@ namespace ConsoleMonster.Graphics {
             return color.HasValue ? Style.Plain.WithColor(CmColor.FromRgb(color.Value.R, color.Value.G, color.Value.B)).Downsample(context.Depth)
                 : context.Style((ThemeToken)((int)ThemeToken.Series1 + (series % 6)));
         }
+        // Every series is read at the selected point's X; a series without a point there has no value.
         public override double? Value(int series, int index) {
-            IList<ChartPoint> points = _chart.Series[series].Points;
-            return index >= 0 && index < points.Count ? points[index].Y : (double?)null;
+            if (index < 0 || index >= _x.Length || series < 0 || series >= _chart.Series.Count) { return null; }
+            _values ??= new Dictionary<double, double>?[_chart.Series.Count];
+            Dictionary<double, double> byX = _values[series] ??= ByX(_chart.Series[series].Points);
+            return byX.TryGetValue(_x[index], out double value) ? value : (double?)null;
         }
-        public override bool CanHide(int series) => series >= 0 && series < _chart.Series.Count && !_chart.Series[series].Id.IsAutomatic;
+
+        private static Dictionary<double, double> ByX(IList<ChartPoint> points) {
+            var byX = new Dictionary<double, double>();
+            foreach (ChartPoint point in points) { if (!byX.ContainsKey(point.X)) { byX[point.X] = point.Y; } }
+            return byX;
+        }
+        // ChartForgeX prepares a visibility view only when every series is a Line with its own identity, so hiding is
+        // offered for the whole chart or not at all.
+        public override bool CanHide(int series) => series >= 0 && series < _chart.Series.Count
+            && _chart.Series.All(item => item.Kind == ChartSeriesKind.Line && !item.Id.IsAutomatic);
         public override string FormatValue(double value, RenderContext context) => value.ToString("0.##", context.Culture);
         public override string? XLabel(int index, RenderContext context) => index >= 0 && index < _x.Length ? _x[index].ToString("G", context.Culture) : null;
         public override int Levels => _levels.Count;
