@@ -1,6 +1,6 @@
 # Interactive navigation: pointer parity, folding and documents
 
-Status: proposed, 4 November 2026.
+Status: steps 1 to 3 implemented, 5 November 2026; step 4 in progress.
 
 Two conversations prompted this. jborean asked for examples of a terminal documentation viewer with collapsible
 sections and navigation, for an ansible-doc style browser built on Textual. trackd's

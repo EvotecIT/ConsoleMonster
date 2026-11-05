@@ -161,6 +161,7 @@ namespace ConsoleMonster.Interactive {
         internal int Column { get; }
         internal int Width { get; }
         internal string Target { get; }
-        internal bool Internal => Target.StartsWith("#", StringComparison.Ordinal) || Target.StartsWith(DocumentModel.HelpScheme, StringComparison.Ordinal);
+        /// <summary>Whether a link target is the viewer's to follow (a heading anchor or a command's help), not the terminal's.</summary>
+        internal static bool IsInternal(string target) => target.StartsWith("#", StringComparison.Ordinal) || target.StartsWith(DocumentModel.HelpScheme, StringComparison.Ordinal);
     }
 }

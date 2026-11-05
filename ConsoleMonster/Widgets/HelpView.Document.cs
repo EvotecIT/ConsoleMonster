@@ -19,7 +19,8 @@ namespace ConsoleMonster.Widgets {
         /// <param name="openCommands">Whether related command names become links the viewer can open.</param>
         internal DocumentModel? Document(RenderContext context, bool openCommands) {
             if (Topic.CommandLine != null) { return null; }
-            DocumentModel model = new DocumentModel(Topic.Name) { Header = HeaderCard(context) };
+            // Examples-only help (Get-Help -Examples) has no name to put on a card.
+            DocumentModel model = new DocumentModel(Topic.Name) { Header = Topic.Name.Length == 0 ? null : HeaderCard(context) };
             DocumentPart overview = new DocumentPart("Overview");
             if (Topic.Syntax.Count > 0) {
                 Rows syntax = new Rows();

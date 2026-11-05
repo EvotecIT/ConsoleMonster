@@ -54,6 +54,13 @@ namespace ConsoleMonster {
         /// <summary>Collapsible section definition; Build delegates to AppInput.Collapsible.</summary>
         /// <returns>The collapsible section definition; Build delegates to AppInput.Collapsible.</returns>
         public static CollapsibleInputOptions Collapsible() => new CollapsibleInputOptions();
+        /// <summary>Outline definition; Build delegates to AppInput.Outline.</summary>
+        /// <returns>The outline definition; Build delegates to AppInput.Outline.</returns>
+        public static OutlineInputOptions Outline() => new OutlineInputOptions();
+
+        /// <summary>Breadcrumb definition; Build delegates to AppInput.Breadcrumb.</summary>
+        /// <returns>The breadcrumb definition; Build delegates to AppInput.Breadcrumb.</returns>
+        public static BreadcrumbInputOptions Breadcrumb() => new BreadcrumbInputOptions();
 
         /// <summary>A group of collapsible sections that keeps one open.</summary>
         /// <returns>The empty group.</returns>

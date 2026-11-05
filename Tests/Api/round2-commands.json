@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 101,
+  "ExpectedCount": 103,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -21,6 +21,7 @@
     "Invoke-ConsoleRun",
     "New-ConsoleActivityList",
     "New-ConsoleBinding",
+    "New-ConsoleBreadcrumb",
     "New-ConsoleButton",
     "New-ConsoleCalendar",
     "New-ConsoleCellMap",
@@ -49,6 +50,7 @@
     "New-ConsoleLogRegion",
     "New-ConsoleMenu",
     "New-ConsoleMenuItem",
+    "New-ConsoleOutline",
     "New-ConsolePanel",
     "New-ConsoleProgress",
     "New-ConsoleRegion",

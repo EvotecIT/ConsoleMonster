@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Markdown with headings and command help open in a document viewer: an outline beside the text that follows the reading position, the current section's path pinned above it, headings that fold, find that opens folded sections, links with back and forward history, and Ctrl+K to go to a section or parameter. Help gets a header card with module, version and `-WhatIf` badges, tabs for Overview, Parameters, Examples and Related, and related commands that open their own help. `Show-ConsoleHelp` and `help` with `Enable-ConsoleFormatting -Include Help` use it on interactive terminals; `Show-ConsoleHelp -NoPager` prints instead. Redirected and non-interactive output is unchanged.
+- `Tabs` underline the active label above a rule, take focus on their strip (←/→ and the number keys switch tabs there), list their keys in the footer and scroll their labels on narrow terminals.
+
 - Added `Collapsible` and `Accordion` (`New-ConsoleCollapsible`, with `-Accordion` for a group), a `Splitter` with a draggable divider and keyboard resize that keeps its ratio per screen (`New-ConsoleSplitter`), and a find bar with match counts, n/N and highlighting in `LogViewport`, `TextArea` and the document pager.
 
 - Live sessions, apps, menus and prompts return a visible cursor on a clean line, with terminal attributes reset after leaving the alternate screen, including cancellation and failed runs.

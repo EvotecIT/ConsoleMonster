@@ -10,14 +10,14 @@ using SiteFrames.Capture;
 using Xunit;
 
 namespace SiteFrames.Tests {
-    /// <summary>Protects native help paging through the shared default-output broker on both PowerShell runtimes.</summary>
+    /// <summary>Protects native help in the document viewer through the shared default-output broker on both PowerShell runtimes.</summary>
     public sealed class HelpPagerContracts {
         [NativeEditorTheory]
         [InlineData(120, "dark")]
         [InlineData(120, "light")]
         [InlineData(60, "dark")]
         [InlineData(60, "light")]
-        public void DirectHelp_VisitsNextAndPreviousPageThenQuitsAndReleasesInput(int width, string theme) {
+        public void DirectHelp_PagesDownAndBackThenQuitsAndReleasesInput(int width, string theme) {
             string root = Repository();
             var site = new Site(Path.Combine(root, "Website"));
             foreach (PowerShellHost host in PowerShellHost.Available) {
@@ -30,25 +30,29 @@ namespace SiteFrames.Tests {
                     arguments: "-ExamplePath '" + example.Replace("'", "''") + "' -Formatted -Paged", interactive: true);
                 string vt = Encoding.UTF8.GetString(PowerShellRunner.Bytes(chunks));
                 var screen = new VtScreen(width, 18);
-                var pages = new List<string>();
-                bool sawCommand = false, sawFooter = false;
+                var tops = new List<string>();
+                bool sawCommand = false, sawTabs = false;
                 foreach (char character in vt) {
                     screen.Feed(character.ToString());
-                    if (!char.IsDigit(character) && character != 't') { continue; }
-                    string text = screen.Transcript().ToPlainText();
-                    sawCommand |= text.Contains("Get-ConsoleCapability", StringComparison.Ordinal);
-                    sawFooter |= text.Contains("q quit", StringComparison.Ordinal);
-                    MatchCollection matches = Regex.Matches(text, @"Page ([0-9]+) of ([0-9]+)");
-                    if (matches.Count == 0) { continue; }
-                    string page = matches[matches.Count - 1].Groups[1].Value;
-                    if (pages.Count == 0 || pages[pages.Count - 1] != page) { pages.Add(page); }
+                    if (!char.IsDigit(character)) { continue; }
+                    string header = screen.Snapshot().GetRowText(0);
+                    string text = screen.Snapshot().ToPlainText();
+                    sawCommand |= header.Contains("Get-ConsoleCapability", StringComparison.Ordinal);
+                    sawTabs |= text.Contains("Overview", StringComparison.Ordinal) && text.Contains("Parameters", StringComparison.Ordinal);
+                    // The viewer's header ends with the visible rows: "1–9 / 40".
+                    Match range = Regex.Match(header, @"([0-9]+)[–-][0-9]+ / [0-9]+\s*$");
+                    if (!range.Success) { continue; }
+                    string top = range.Groups[1].Value;
+                    if (tops.Count == 0 || tops[tops.Count - 1] != top) { tops.Add(top); }
                 }
-                Assert.True(sawCommand, host.Label + " did not show the actual command's help.");
-                Assert.True(sawFooter, host.Label + " did not show the interactive pager footer.");
-                Assert.Equal(new[] { "1", "2", "1" }, pages);
+                Assert.True(sawCommand, host.Label + " did not show the actual command's help in the viewer.");
+                Assert.True(sawTabs, host.Label + " did not show the help's tabs.");
+                Assert.Equal(3, tops.Count);
+                Assert.Equal("1", tops[0]);
+                Assert.NotEqual("1", tops[1]);
+                Assert.Equal("1", tops[2]);
             }
         }
-
         private static string Repository([CallerFilePath] string source = "") =>
             Path.GetFullPath(Path.Combine(Path.GetDirectoryName(source)!, "..", "..", ".."));
     }

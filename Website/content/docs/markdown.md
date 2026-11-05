@@ -28,7 +28,7 @@ Use `Show-Console -View Markdown -Path .\README.md` to read a file. Paths are li
 
 ## Reading a long document
 
-When a document is taller than a rich interactive screen, the shared pager opens automatically. Use the arrows to move, Space or Page Down to advance, Page Up to go back, Home or End to jump, and q or Escape to close. Its header shows the visible line range and total. Resizing reflows the document and keeps the viewport within its new bounds.
+When a document is taller than a rich interactive screen, the shared pager opens automatically. Use the arrows to move, Space or Page Down to advance, Page Up to go back, Home or End to jump, and q or Escape to close. Its header shows the visible line range and total. Resizing reflows the document and keeps the viewport within its new bounds. A document with headings opens as a navigable document: an outline beside the text that follows your position, the current section pinned above it, Enter or a click to fold a heading, `/` to find (folded sections holding a match open), `]` and `[` to select links, which `#anchor` links follow with Alt+←/→ to go back and forward, and Ctrl+K to go to any heading.
 
 Piped, redirected, transcribed, job, remoting, CI and non-interactive output never opens the pager. The static path prints the complete document. The exporter captures widget output on either PowerShell runtime.
 

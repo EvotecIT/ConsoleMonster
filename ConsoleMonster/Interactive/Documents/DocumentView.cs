@@ -23,8 +23,13 @@ namespace ConsoleMonster.Interactive {
         private readonly Func<string, IWidget?>? _open;
         private readonly FindBar _find = new FindBar();
         private readonly List<Modal> _modals = new List<Modal>();
-        private readonly List<Location> _back = new List<Location>();
-        private readonly List<Location> _forward = new List<Location>();
+        // The viewer is built from the same parts apps use: an Outline beside the text, a Breadcrumb following it as the
+        // pinned row, a NavigationHistory for links, a Splitter between them and the shared tab strip.
+        private readonly NavigationHistory<Location> _history = new NavigationHistory<Location>();
+        private readonly Outline _outline = new Outline("outline");
+        private readonly Breadcrumb _crumb = new Breadcrumb("path");
+        private List<int> _outlineSections = new List<int>();
+        private DocumentPart? _outlinePart;
         private readonly Splitter _splitter;
         private Page _page;
         private Pane _focus = Pane.Document;
@@ -37,8 +42,7 @@ namespace ConsoleMonster.Interactive {
         private Rect _docArea;
         private Rect _outlineArea;
         private List<TabStrip.Header> _tabHeaders = new List<TabStrip.Header>();
-        private int _outlineSelected = -1;
-        private int _outlineTop;
+
         private int _followed = -1;
         // The section a jump went to, which stays current while its heading is on screen even when the end of the
         // document keeps it from reaching the top; any scrolling hands back to the reading position.
@@ -51,6 +55,11 @@ namespace ConsoleMonster.Interactive {
             _open = open;
             _page = new Page(content, title, model);
             _splitter = new Splitter(new OutlinePane(this), new DocumentPane(this)) { Ratio = 0.28 };
+            _crumb.Outline = _outline;
+            _outline.Opened += (sender, item) => {
+                int index = _outline.CurrentIndex;
+                if (index >= 0 && index < _outlineSections.Count) { JumpTo(_page.Part, _outlineSections[index], false, false); }
+            };
         }
 
         private DocumentPart Part => _page.Model.Parts[_page.Part];
@@ -113,11 +122,13 @@ namespace ConsoleMonster.Interactive {
                     bindings.Add(new KeyBinding(string.Empty, () => _focus = Pane.Document, new KeyChord(ConsoleKey.DownArrow), new KeyChord(ConsoleKey.Enter)) { InFooter = false });
                     break;
                 case Pane.Outline:
-                    bindings.Add(new KeyBinding(Labels.KeyMove, () => MoveOutline(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = glyphs.KeyUpDown, Order = 10 });
-                    bindings.Add(new KeyBinding(string.Empty, () => MoveOutline(1), new KeyChord(ConsoleKey.DownArrow)) { InFooter = false });
-                    bindings.Add(new KeyBinding(string.Empty, () => MoveOutline(-int.MaxValue / 2), new KeyChord(ConsoleKey.Home)) { InFooter = false });
-                    bindings.Add(new KeyBinding(string.Empty, () => MoveOutline(int.MaxValue / 2), new KeyChord(ConsoleKey.End)) { InFooter = false });
-                    bindings.Add(new KeyBinding(Labels.KeyOpen, JumpToOutline, new KeyChord(ConsoleKey.Enter)) { Order = 15 });
+                    // The outline takes its own keys; these list them and hand them over.
+                    bindings.Add(new KeyBinding(Labels.KeyMove, () => OutlineKey(ConsoleKey.UpArrow), new KeyChord(ConsoleKey.UpArrow)) { KeyText = glyphs.KeyUpDown, Order = 10 });
+                    foreach (ConsoleKey key in new[] { ConsoleKey.DownArrow, ConsoleKey.Home, ConsoleKey.End, ConsoleKey.PageUp, ConsoleKey.PageDown }) {
+                        ConsoleKey pressed = key;
+                        bindings.Add(new KeyBinding(string.Empty, () => OutlineKey(pressed), new KeyChord(pressed)) { InFooter = false });
+                    }
+                    bindings.Add(new KeyBinding(Labels.KeyOpen, () => OutlineKey(ConsoleKey.Enter), new KeyChord(ConsoleKey.Enter)) { Order = 15 });
                     break;
                 default:
                     bindings.Add(new KeyBinding(Labels.KeyMove, () => Move(-1), new KeyChord(ConsoleKey.UpArrow)) { KeyText = glyphs.KeyUpDown, Order = 10 });
@@ -157,7 +168,7 @@ namespace ConsoleMonster.Interactive {
                 bindings.Add(new KeyBinding(Labels.KeyPrevious, () => StepMatch(-1), new KeyChord('N')) { Order = 32, InFooter = false });
             }
             bindings.Add(new KeyBinding(Labels.KeyGoTo, OpenPalette, new KeyChord(ConsoleKey.K, KeyModifiers.Control)) { KeyText = "ctrl+k", Order = 33 });
-            if (_back.Count > 0 || _forward.Count > 0) {
+            if (_history.CanGoBack || _history.CanGoForward) {
                 bindings.Add(new KeyBinding(Labels.KeyBackForward, Back, new KeyChord(ConsoleKey.LeftArrow, KeyModifiers.Alt), new KeyChord(ConsoleKey.Backspace)) { KeyText = "alt+←/→", Order = 34 });
                 bindings.Add(new KeyBinding(string.Empty, Forward, new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Alt)) { InFooter = false });
             }
@@ -169,7 +180,7 @@ namespace ConsoleMonster.Interactive {
                 bindings.Add(new KeyBinding(string.Empty, () => Resize(0.03), new KeyChord(ConsoleKey.RightArrow, KeyModifiers.Control | KeyModifiers.Shift)) { InFooter = false });
             }
             if (_find.Active) { bindings.Add(new KeyBinding(string.Empty, () => _find.Close(false), new KeyChord(ConsoleKey.Escape)) { InFooter = false }); }
-            bindings.Add(new KeyBinding(Labels.KeyClose, () => IsDone = true, new KeyChord(ConsoleKey.Escape), new KeyChord('q')) { KeyText = "esc/q", Order = 40 });
+            bindings.Add(new KeyBinding(Labels.KeyClose, () => IsDone = true, new KeyChord(ConsoleKey.Escape), new KeyChord('q')) { KeyText = "esc/q", Order = 22 });
             bindings.Add(HelpBinding());
         }
 
@@ -202,7 +213,7 @@ namespace ConsoleMonster.Interactive {
             bool press = input.MouseAction == MouseAction.Down && input.MouseButton == 1;
             if (input.MouseAction == MouseAction.Wheel && input.WheelDelta != 0) {
                 int rows = -Math.Sign(input.WheelDelta) * 3;
-                if (_outlineShown && Inside(_outlineArea, input)) { _outlineTop = Math.Max(0, Math.Min(Math.Max(0, Outline().Count - _outlineArea.Height), _outlineTop + rows)); }
+                if (_outlineShown && Inside(_outlineArea, input)) { _outline.HandleInput(input, LastFrame!.Context); }
                 else { Move(rows); }
                 return true;
             }
@@ -212,14 +223,13 @@ namespace ConsoleMonster.Interactive {
             }
             if (_outlineShown && Inside(_outlineArea, input)) {
                 _focus = Pane.Outline;
-                int index = _outlineTop + input.Row - _outlineArea.Y;
-                if (index >= 0 && index < Outline().Count) { _outlineSelected = index; JumpToOutline(); }
+                _outline.HandleInput(input, LastFrame!.Context);
                 return true;
             }
             if (Inside(_docArea, input)) {
                 _focus = Pane.Document;
                 int row = input.Row - _docArea.Y;
-                if (_pinned && row == 0) { JumpTo(_page.Part, CurrentSection(), false, false); return true; }
+                if (_pinned && row == 0) { _crumb.HandleInput(input, LastFrame!.Context); return true; }
                 int line = State.Top + row - (_pinned ? 1 : 0);
                 int column = input.Column - _docArea.X;
                 DocumentLayout layout = Layout();
@@ -257,15 +267,22 @@ namespace ConsoleMonster.Interactive {
             return layout.RowSections[Math.Max(0, Math.Min(layout.RowSections.Length - 1, State.Top))];
         }
 
-        // The outline follows the reading position until the reader moves its selection.
+        // The outline lists the current part's headings and follows the reading position; the breadcrumb follows the outline.
         private void TrackOutline() {
+            if (!ReferenceEquals(_outlinePart, Part)) {
+                _outlinePart = Part;
+                _outlineSections = Outline();
+                _outline.SetItems(_outlineSections.ConvertAll(section => new OutlineItem(Part.Sections[section].Title, Math.Max(1, Part.Sections[section].Level))));
+                _crumb.Root.Clear();
+                if (_page.Model.Parts.Count > 1) { _crumb.Root.Add(Part.Title); }
+                _followed = -1;
+            }
+            _outline.Focused = _focus == Pane.Outline;
             int current = CurrentSection();
-            if (current == _followed && _outlineSelected >= 0) { return; }
+            if (current == _followed) { return; }
             _followed = current;
-            List<int> outline = Outline();
             List<int> path = DocumentLayout.Path(Part, current);
-            int target = path.Count == 0 ? -1 : outline.IndexOf(path[path.Count - 1]);
-            _outlineSelected = target < 0 ? 0 : target;
+            _outline.CurrentIndex = path.Count == 0 ? -1 : _outlineSections.IndexOf(path[path.Count - 1]);
         }
 
         // The headings of the current part, which the outline and the palette list.
@@ -277,17 +294,7 @@ namespace ConsoleMonster.Interactive {
 
         private static bool HasHeadings(DocumentPart part) => part.Sections.Exists(section => section.Level > 0);
 
-        private void MoveOutline(int delta) {
-            int count = Outline().Count;
-            if (count == 0) { return; }
-            _outlineSelected = (int)Math.Max(0L, Math.Min(count - 1, (long)_outlineSelected + delta));
-        }
-
-        private void JumpToOutline() {
-            List<int> outline = Outline();
-            if (_outlineSelected >= 0 && _outlineSelected < outline.Count) { JumpTo(_page.Part, outline[_outlineSelected], false, false); }
-        }
-
+        private void OutlineKey(ConsoleKey key) { if (LastFrame != null) { _outline.HandleInput(InputEvent.Press(key), LastFrame.Context); } }
         /// <summary>Shows a section's heading at the top, unfolding the headings around it (and itself when asked).</summary>
         private void JumpTo(int part, int section, bool expand, bool remember) {
             if (remember) { Remember(); }
@@ -313,7 +320,6 @@ namespace ConsoleMonster.Interactive {
             _page.Part = target;
             _followed = -1;
             _jumped = -1;
-            _outlineTop = 0;
             if (_find.Active) { _find.Close(false); }
         }
 
@@ -400,8 +406,7 @@ namespace ConsoleMonster.Interactive {
                     DocumentModel model = DocumentModel.From(content, name, LastFrame.Context, true) ?? DocumentModel.Plain(content, name);
                     _page = new Page(content, name, model);
                     _followed = -1;
-                    _outlineTop = 0;
-                    _focus = Pane.Document;
+                            _focus = Pane.Document;
                     if (_find.Active) { _find.Close(false); }
                     return;
                 }
@@ -411,27 +416,24 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void Remember() {
-            _back.Add(new Location(_page, _page.Part, State.Top));
-            _forward.Clear();
+            _history.Visit(new Location(_page, _page.Part, State.Top));
         }
 
-        private void Back() => Travel(_back, _forward);
+        private void Back() { if (_history.TryBack(Here(), out Location place)) { Go(place); } }
 
-        private void Forward() => Travel(_forward, _back);
+        private void Forward() { if (_history.TryForward(Here(), out Location place)) { Go(place); } }
 
-        private void Travel(List<Location> from, List<Location> to) {
-            if (from.Count == 0) { return; }
-            Location target = from[from.Count - 1];
-            from.RemoveAt(from.Count - 1);
-            to.Add(new Location(_page, _page.Part, State.Top));
-            _page = target.Page;
-            _page.Part = target.Part;
-            State.Top = target.Top;
+        private Location Here() => new Location(_page, _page.Part, State.Top);
+
+        private void Go(Location place) {
+            _page = place.Page;
+            _page.Part = place.Part;
+            State.Top = place.Top;
             _followed = -1;
             _jumped = -1;
+            _outlinePart = null;
             if (_find.Active) { _find.Close(false); }
         }
-
         // --- Find and palette ----------------------------------------------------------------------------------------
 
         private void OpenFind() { _find.Start(); Search(); }
@@ -509,37 +511,14 @@ namespace ConsoleMonster.Interactive {
 
         private void DrawOutline(Region region, RenderContext context) {
             _outlineArea = region.Bounds;
-            List<int> outline = Outline();
-            if (region.Height <= 0) { return; }
-            if (_outlineSelected >= 0) {
-                if (_outlineSelected < _outlineTop) { _outlineTop = _outlineSelected; }
-                if (_outlineSelected >= _outlineTop + region.Height) { _outlineTop = _outlineSelected - region.Height + 1; }
-            }
-            _outlineTop = Math.Max(0, Math.Min(_outlineTop, Math.Max(0, outline.Count - region.Height)));
-            InteractiveGlyphs glyphs = InteractiveGlyphs.For(context);
-            bool focused = _focus == Pane.Outline;
-            for (int y = 0; y < region.Height && _outlineTop + y < outline.Count; y++) {
-                int index = _outlineTop + y;
-                DocumentSection section = Part.Sections[outline[index]];
-                bool selected = index == _outlineSelected;
-                int indent = 2 + DocumentLayout.HeadingIndent(Part, section);
-                Style style = selected
-                    ? context.Style(focused ? ThemeToken.Focus : ThemeToken.Accent).With(TextDecoration.Bold)
-                    : context.Style(section.Level <= DocumentLayout.MinimumLevel(Part) ? ThemeToken.Text : ThemeToken.Muted);
-                if (selected) { region.Write(0, y, focused ? glyphs.Pointer : glyphs.FocusBar, context.Style(focused ? ThemeToken.Focus : ThemeToken.Accent)); }
-                if (indent < region.Width) {
-                    string title = Glyphs.SymbolFallback.Constrain(section.Title, context.Glyphs.Tier);
-                    region.Write(indent, y, TextWrapper.Truncate(title, region.Width - indent, context.Ellipsis), style);
-                }
-            }
+            ((IWidget)_outline).Render(region, context);
         }
-
         private void DrawDocument(Region region, RenderContext context) {
             _docArea = region.Bounds;
             if (region.Width <= 0 || region.Height <= 0) { return; }
             DocumentLayout layout = Layout();
             int offset = 0;
-            if (_pinned) { DrawPinned(region.Sub(0, 0, region.Width, 1), context); offset = 1; }
+            if (_pinned) { ((IWidget)_crumb).Render(region.Sub(0, 0, region.Width, 1), context); offset = 1; }
             CellBuffer document = layout.Buffer;
             int top = State.Top;
             DocumentLink? selected = SelectedLink();
@@ -551,7 +530,7 @@ namespace ConsoleMonster.Interactive {
                     Cell cell = document[x, line];
                     if (cell.Width == 0) { continue; }
                     // Links inside the document are the viewer's to follow, not the terminal's.
-                    Style style = cell.Style.Link != null && IsInternal(cell.Style.Link) ? cell.Style.WithLink(null) : cell.Style;
+                    Style style = cell.Style.Link != null && DocumentLink.IsInternal(cell.Style.Link) ? cell.Style.WithLink(null) : cell.Style;
                     region.Put(x, y + offset, cell.Glyph, style, cell.Width);
                 }
                 if (selected != null && selected.Row == line) {
@@ -566,26 +545,6 @@ namespace ConsoleMonster.Interactive {
                 }
                 _find.Highlight(region, y + offset, 0, _find.Active ? _find.CurrentOrdinal(line) : -1, context);
             }
-        }
-
-        private static bool IsInternal(string link) => link.StartsWith("#", StringComparison.Ordinal) || link.StartsWith(DocumentModel.HelpScheme, StringComparison.Ordinal);
-
-        // The current section's heading with the headings around it: "Parameters › -Path".
-        private void DrawPinned(Region row, RenderContext context) {
-            InteractiveGlyphs glyphs = InteractiveGlyphs.For(context);
-            List<int> path = DocumentLayout.Path(Part, CurrentSection());
-            List<TextSpan> spans = new List<TextSpan>();
-            string separator = " " + glyphs.Breadcrumb + " ";
-            if (_page.Model.Parts.Count > 1 || path.Count == 0) {
-                spans.Add(new TextSpan(Part.Title, context.Style(ThemeToken.Muted)));
-            }
-            for (int i = 0; i < path.Count; i++) {
-                if (spans.Count > 0) { spans.Add(new TextSpan(separator, context.Style(ThemeToken.Subtle))); }
-                bool last = i == path.Count - 1;
-                string title = Glyphs.SymbolFallback.Constrain(Part.Sections[path[i]].Title, context.Glyphs.Tier);
-                spans.Add(new TextSpan(title, last ? context.Style(ThemeToken.Accent).With(TextDecoration.Bold) : context.Style(ThemeToken.Muted)));
-            }
-            row.Write(0, 0, TextWrapper.Truncate(new StyledLine(spans), row.Width, context.Ellipsis));
         }
 
         // --- State ---------------------------------------------------------------------------------------------------

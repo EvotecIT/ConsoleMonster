@@ -43,6 +43,12 @@ These features change how PowerShell's own output looks for the session, never w
 
 `Show-ConsoleHelp` reads the help PowerShell has for a command (`Get-Help -Full`): cmdlet help files, comment-based help of functions and scripts, or the syntax PowerShell generates when there is none. It shows the synopsis, the syntax of each parameter set with optional parts told apart, the description, a parameter table, highlighted examples, inputs, outputs and links. Piped to `more`, `Out-Host -Paging` or a file, it writes plain lines.
 
+### Browse help like a document
+
+{{< cm-demo id="help-viewer" heading="h4" >}}
+
+Typed at an interactive prompt, help longer than the screen opens in the document viewer. A card at the top holds the synopsis with the module, version and `-WhatIf` badges, and tabs split the help into Overview, Parameters, Examples and Related. Each parameter is one row with its type, default and summary that unfolds to its details, each example is folded under its title, and related commands open their own help, with Backspace or Alt+← to return. An outline follows the reading position, `/` finds text and opens the sections that hold it, and Ctrl+K goes straight to a section or parameter. Every key has a mouse equivalent: click a tab, a heading, an outline entry or a link, and drag the divider. `-NoPager` prints the help instead; piped and redirected output is unchanged.
+
 ### Use the view for native help
 
 ```powershell
@@ -53,8 +59,8 @@ help Get-Process -Examples
 Disable-ConsoleFormatting -Feature Help
 ```
 
-This opt-in feature uses the same view when native help goes straight to the console. `help` keeps paging, with
-**Space next · q quit** in the footer. `-Full`, `-Detailed`, `-Examples` and `-Parameter` select the corresponding
+This opt-in feature uses the same view when native help goes straight to the console. `help` opens long help in the
+same document viewer; without virtual terminal support it pages with **Space next · q quit** in the footer. `-Full`, `-Detailed`, `-Examples` and `-Parameter` select the corresponding
 sections; `-Online` and `-ShowWindow` keep PowerShell's behavior. About topics use the
 [Markdown reader](/docs/markdown/), while captured output retains PowerShell's original text. Help is not enabled by default.
 
@@ -66,7 +72,7 @@ records the proof for Windows PowerShell 5.1 and PowerShell 7.
 
 {{< cm-frame ids="help-formatting-native-ps7-120,help-formatting-get-help-ps7-120,help-formatting-get-help-ps7-60" caption="Native help before and after the opt-in, captured on PowerShell 7 at 120 and 60 columns." >}}
 
-{{< cm-frame ids="help-formatting-help-ps7-120,help-formatting-help-ps7-60" caption="The first page of help, with the Space/q footer, at both widths." >}}
+{{< cm-frame ids="help-formatting-help-ps7-120,help-formatting-help-ps7-60" caption="Long help from help in the document viewer, at both widths." >}}
 
 ## Compact everyday errors
 

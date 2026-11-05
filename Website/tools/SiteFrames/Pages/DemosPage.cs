@@ -195,6 +195,14 @@ namespace SiteFrames.Pages {
                 Static = true
             };
             yield return new Demo("help", "Show-ConsoleHelp", 100, 50) { CSharpProgram = "help.host.cs", Script = "help.ps1", Session = true, PosterShare = 1 };
+            // The document viewer, driven by scripted keys whose pauses become recording holds: tabs, a parameter unfolded,
+            // Ctrl+K, find opening a folded example, and a related command's help opened and left again.
+            yield return new Demo("help-viewer", "Show-ConsoleHelp", 100, 30) {
+                Script = "help-viewer.ps1",
+                Setup = ". '../../tools/SiteFrames/Capture/Assets/DemoInput.ps1' -Keys 'wait:2200 2 wait:1400 Enter wait:1600 Ctrl+K wait:700 \"Timeout\" wait:900 Enter wait:1600 3 wait:1200 Enter wait:1600 / \"WhatIf\" wait:1600 Escape wait:600 4 wait:1000 ] wait:900 Enter wait:2200 Backspace wait:1500 q'",
+                PosterShare = 0.3,
+                Fps = 8
+            };
             yield return new Demo("progress", "Write-Progress, drawn by ConsoleMonster", 96, 12) { CSharpProgram = "progress.host.cs", Script = "progress.ps1", PosterShare = 0.5, Fps = 8, ShowProgress = true, LogicalCheckpoints = true, EndsOn = "Inventory collected: 36 servers across 3 sites." };
             yield return new Demo("errors", "Show-Console -View Error", 100, 20) { CSharpProgram = "errors.cs", Script = "errors.ps1", Static = true, AllowErrors = true };
             // Threads and concurrency: the same parallel work written straight to the console, through a dashboard, and
