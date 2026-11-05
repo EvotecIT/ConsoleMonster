@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -124,7 +124,14 @@ namespace ConsoleMonster.Tests.Rendering {
                 else ((ChoiceList)widget).Focused = true;
                 string after = FrameComposer.Compose(widget, 80, height, context).ToPlainText();
                 Assert.NotEqual(before, after);
-                if (scene == "tabs") Assert.Contains("[Beta]", after);
+                if (scene == "tabs") {
+                    // Without styles the active tab is the heavier rule under its label.
+                    string[] strip = after.Split('\n');
+                    int start = strip[0].IndexOf(" Beta", StringComparison.Ordinal);
+                    string heavy = tier == GlyphTier.Ascii ? "=" : tier == GlyphTier.Basic ? "═" : "━";
+                    Assert.Equal(string.Concat(Enumerable.Repeat(heavy, 6)), strip[1].Substring(start, 6));
+                    Assert.DoesNotContain(heavy, strip[1].Substring(0, start));
+                }
                 else Assert.Contains(InteractiveGlyphs.For(context).Pointer, after);
                 if (scene == "grid") {
                     Assert.Matches(System.Text.RegularExpressions.Regex.Escape(InteractiveGlyphs.For(context).Pointer) + @"\s+alpha", after);

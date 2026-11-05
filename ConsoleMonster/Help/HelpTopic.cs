@@ -21,6 +21,14 @@ namespace ConsoleMonster.Help {
         /// <summary>Optional compact command-line layout; null retains the PowerShell help layout.</summary>
         public CommandLineHelp? CommandLine { get; set; }
 
+        /// <summary>The module the command comes from, or null; the document viewer shows it as a badge.</summary>
+        public string? Module { get; set; }
+
+        /// <summary>The command's version, or null; the document viewer shows it as a badge.</summary>
+        public string? Version { get; set; }
+
+        /// <summary>Whether the command takes -WhatIf and -Confirm; the document viewer shows it as a badge.</summary>
+        public bool SupportsWhatIf { get; set; }
         /// <summary>A note shown muted under the name (for example that only partial help is installed), or null.</summary>
         public string? Notice { get; set; }
 

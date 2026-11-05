@@ -51,6 +51,19 @@ namespace ConsoleMonster.PowerShell {
                 new Layout.Padding(Widgets.TextBlock.Plain(hint, Styling.ThemeToken.Muted), 2, 0, 0, 0));
         }
 
+        // The module, version and -WhatIf support the document viewer shows as badges.
+        private static void Describe(HelpTopic topic, CommandInfo? command) {
+            CommandInfo? resolved = command is AliasInfo alias && alias.ResolvedCommand != null ? alias.ResolvedCommand : command;
+            if (resolved == null) { return; }
+            topic.Module = string.IsNullOrEmpty(resolved.ModuleName) ? null : resolved.ModuleName;
+            try {
+                Version? version = resolved.Version;
+                topic.Version = version == null || version.Equals(new Version(0, 0)) ? null : version.ToString();
+                topic.SupportsWhatIf = resolved.Parameters != null && resolved.Parameters.ContainsKey("WhatIf");
+            } catch (Exception ex) when (!(ex is PipelineStoppedException)) {
+                // Reading parameters can load a module's metadata; help is still shown without the badges.
+            }
+        }
         private static bool HasView(PSObject help, string view) {
             foreach (string type in help.TypeNames) {
                 if (type.EndsWith("#" + view, StringComparison.OrdinalIgnoreCase)) { return true; }
@@ -147,6 +160,7 @@ namespace ConsoleMonster.PowerShell {
             if (!described && (synopsis.Length == 0 || synopsis.StartsWith(topic.Name + " ", StringComparison.OrdinalIgnoreCase)) && command is CmdletInfo) {
                 topic.Notice = "Partial help: run Update-Help for descriptions and examples.";
             }
+            Describe(topic, command);
             return topic;
         }
 

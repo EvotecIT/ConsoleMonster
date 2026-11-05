@@ -78,6 +78,29 @@ namespace ConsoleMonster.Interactive {
             return section;
         }
 
+        /// <summary>Constructs an outline using the same definition as New-ConsoleOutline.</summary>
+        /// <param name="options">Key, entries, current entry and callback configuration.</param>
+        /// <returns>The persistent outline.</returns>
+        public static Outline Outline(OutlineInputOptions options) {
+            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            var outline = new Outline(options.Key);
+            foreach (OutlineItem item in options.Items) { outline.Items.Add(item); }
+            outline.CurrentIndex = options.CurrentIndex;
+            Configure(outline, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
+            return outline;
+        }
+
+        /// <summary>Constructs a breadcrumb using the same definition as New-ConsoleBreadcrumb.</summary>
+        /// <param name="options">Key, segments or followed outline, and callback configuration.</param>
+        /// <returns>The persistent breadcrumb.</returns>
+        public static Breadcrumb Breadcrumb(BreadcrumbInputOptions options) {
+            if (options == null) { throw new ArgumentNullException(nameof(options)); }
+            var breadcrumb = new Breadcrumb(options.Key) { Outline = options.Outline };
+            foreach (string segment in options.Segments) { breadcrumb.Segments.Add(segment); }
+            foreach (string segment in options.Ancestors) { breadcrumb.Ancestors.Add(segment); }
+            Configure(breadcrumb, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
+            return breadcrumb;
+        }
         private static void Configure(InputControl control, string? label, bool disabled, int tabIndex, string? validationMessage, EventHandler<AppValueChangedEventArgs>? onChange) {
             control.Label = label; control.Disabled = disabled; control.TabIndex = tabIndex; control.ValidationMessage = validationMessage;
             if (onChange != null) { control.Changed += onChange; }

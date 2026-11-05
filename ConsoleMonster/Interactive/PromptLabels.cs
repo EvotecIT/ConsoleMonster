@@ -98,6 +98,29 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Key hint: show a chart's whole X range again.</summary>
         public string KeyResetView { get; set; } = "reset view";
 
+        /// <summary>Key hint: move between the tabs of a tab strip.</summary>
+        public string KeyTabs { get; set; } = "tabs";
+
+        /// <summary>Key hint: the number keys that open a tab.</summary>
+        public string KeyOpenTab { get; set; } = "open tab";
+
+        /// <summary>Key hint: show or hide a document's outline.</summary>
+        public string KeyOutline { get; set; } = "outline";
+
+        /// <summary>Key hint: go to a section or parameter of a document.</summary>
+        public string KeyGoTo { get; set; } = "go to";
+
+        /// <summary>Key hint: move between the links of a document.</summary>
+        public string KeyLinks { get; set; } = "links";
+
+        /// <summary>Key hint: follow the selected link, or fold the current section.</summary>
+        public string KeyFollow { get; set; } = "open/fold";
+
+        /// <summary>Key hint: go back and forward through the places a document's links led to.</summary>
+        public string KeyBackForward { get; set; } = "back/forward";
+
+        /// <summary>A document link that leads nowhere the viewer can open: {0} is its target.</summary>
+        public string LinkUnavailable { get; set; } = "Cannot open {0}";
         /// <summary>The caption of the find bar.</summary>
         public string Find { get; set; } = "Find";
 

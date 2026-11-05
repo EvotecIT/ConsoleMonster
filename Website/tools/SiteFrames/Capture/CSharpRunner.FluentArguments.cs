@@ -72,7 +72,7 @@ namespace SiteFrames.Capture {
                     }
                     if (noun == "Markup") { noun = "Text"; }
 
-                    if (factory.ArgumentList.Arguments.Count == 0 && noun is not ("Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Binding")) {
+                    if (factory.ArgumentList.Arguments.Count == 0 && noun is not ("Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Outline" or "Breadcrumb" or "Binding")) {
                         string configured = Unique(noun, value);
                         ExpressionSyntax configuration = value.ReplaceNode(factory, SyntaxFactory.IdentifierName(configured));
                         if (configuration is IdentifierNameSyntax) { return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + "()"); }

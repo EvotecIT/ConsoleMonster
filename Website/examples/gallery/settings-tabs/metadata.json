@@ -1,0 +1,43 @@
+{
+  "slug": "settings-tabs",
+  "title": "Settings tabs",
+  "pitch": "Tabs for each settings page, an outline that opens the section you pick and a breadcrumb that shows where you are.",
+  "category": "Terminal apps",
+  "tags": [
+    "tabs",
+    "outline",
+    "breadcrumb"
+  ],
+  "terminal": {
+    "width": 88,
+    "height": 22
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Replace the pages and sections with your own tool's settings.",
+    "Point outline entries at any control to jump to it, not only folding sections.",
+    "Give the breadcrumb plain segments when there is no outline to follow."
+  ],
+  "mode": "live",
+  "steps": 3,
+  "tier": "starter",
+  "useCase": "Use it when a tool has more settings than fit on one screen and people jump between groups.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "Ctrl+PageDown Escape"
+      },
+      {
+        "keys": "Ctrl+PageDown Down Enter Escape"
+      }
+    ]
+  }
+}

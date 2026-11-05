@@ -28,6 +28,15 @@ namespace ConsoleMonster {
         public static Toggle Build(this ToggleInputOptions options) => AppInput.Toggle(options);
         /// <summary>Creates a collapsible section through the shared input factory.</summary><param name="options">The configured definition.</param><returns>The section.</returns>
         public static Collapsible Build(this CollapsibleInputOptions options) => AppInput.Collapsible(options);
+        /// <summary>Materializes an outline definition.</summary>
+        /// <param name="options">The definition.</param>
+        /// <returns>The outline.</returns>
+        public static Outline Build(this OutlineInputOptions options) => AppInput.Outline(options);
+
+        /// <summary>Materializes a breadcrumb definition.</summary>
+        /// <param name="options">The definition.</param>
+        /// <returns>The breadcrumb.</returns>
+        public static Breadcrumb Build(this BreadcrumbInputOptions options) => AppInput.Breadcrumb(options);
         /// <summary>Creates a state binding after its callback and identity have been configured.</summary><param name="options">The configured definition.</param><returns>The binding.</returns>
         public static AppBinding Build(this BindingOptions options) => new AppBinding(options.Content ?? throw new ArgumentException("A binding needs Content.", nameof(options)), options.WidgetId);
         /// <summary>Creates an asynchronous action after its immutable identity and callback have been configured.</summary><param name="options">The configured definition.</param><returns>The command.</returns>

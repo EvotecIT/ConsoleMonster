@@ -318,7 +318,7 @@
     },
     {
       "verb": "New",
-      "count": 50,
+      "count": 51,
       "commands": [
         {
           "name": "New-ConsoleActivityList",
@@ -329,6 +329,11 @@
           "name": "New-ConsoleBinding",
           "synopsis": "Creates a display rebuilt from application state on the owning PowerShell input thread.",
           "url": "/powershell/commands/new-consolebinding/"
+        },
+        {
+          "name": "New-ConsoleBreadcrumb",
+          "synopsis": "Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline's current entry.",
+          "url": "/powershell/commands/new-consolebreadcrumb/"
         },
         {
           "name": "New-ConsoleButton",
@@ -349,11 +354,6 @@
           "name": "New-ConsoleChart",
           "synopsis": "Creates one numeric chart representation from records or samples.",
           "url": "/powershell/commands/new-consolechart/"
-        },
-        {
-          "name": "New-ConsoleChartView",
-          "synopsis": "Makes a line chart explorable inside Show-ConsoleApp.",
-          "url": "/powershell/commands/new-consolechartview/"
         },
         {
           "name": "New-ConsoleCollapsible",
@@ -474,6 +474,11 @@
           "name": "New-ConsoleMenuItem",
           "synopsis": "Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.",
           "url": "/powershell/commands/new-consolemenuitem/"
+        },
+        {
+          "name": "New-ConsoleOutline",
+          "synopsis": "Creates an outline for Show-ConsoleApp: a list of headings to jump between, such as settings groups or the sections of a long page.",
+          "url": "/powershell/commands/new-consoleoutline/"
         },
         {
           "name": "New-ConsolePanel",

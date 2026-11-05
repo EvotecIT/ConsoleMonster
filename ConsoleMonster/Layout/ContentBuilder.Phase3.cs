@@ -28,6 +28,14 @@ namespace ConsoleMonster.Layout {
         public ContentBuilder Collapsible(Action<CollapsibleInputOptions> configure) { var definition = Ui.Collapsible(); configure(definition); return Collapsible(definition); }
         /// <summary>Adds a materialized collapsible section.</summary><param name="definition">The definition.</param><returns>This builder.</returns>
         public ContentBuilder Collapsible(CollapsibleInputOptions definition) => Add(definition.Build());
+        /// <summary>Adds a configured outline.</summary><param name="configure">Definition settings.</param><returns>This builder.</returns>
+        public ContentBuilder Outline(Action<OutlineInputOptions> configure) { var definition = Ui.Outline(); configure(definition); return Outline(definition); }
+        /// <summary>Adds a materialized outline.</summary><param name="definition">The definition.</param><returns>This builder.</returns>
+        public ContentBuilder Outline(OutlineInputOptions definition) => Add(definition.Build());
+        /// <summary>Adds a configured breadcrumb.</summary><param name="configure">Definition settings.</param><returns>This builder.</returns>
+        public ContentBuilder Breadcrumb(Action<BreadcrumbInputOptions> configure) { var definition = Ui.Breadcrumb(); configure(definition); return Breadcrumb(definition); }
+        /// <summary>Adds a materialized breadcrumb.</summary><param name="definition">The definition.</param><returns>This builder.</returns>
+        public ContentBuilder Breadcrumb(BreadcrumbInputOptions definition) => Add(definition.Build());
         /// <summary>Adds a configured accordion.</summary><param name="configure">Group settings.</param><returns>This builder.</returns>
         public ContentBuilder Accordion(Action<Accordion>? configure = null) { var accordion = Ui.Accordion(); configure?.Invoke(accordion); return Add(accordion); }
         /// <summary>Adds an accordion.</summary><param name="accordion">The group.</param><returns>This builder.</returns>

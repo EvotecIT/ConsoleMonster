@@ -170,6 +170,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        /// <summary>Whether the text holds the query, by the bar's smart-case rule.</summary>
+        internal static bool Contains(string text, string query) => query.Length > 0 && (text ?? string.Empty).IndexOf(query, Comparison(query)) >= 0;
+
         private static StringComparison Comparison(string query) {
             foreach (char c in query) { if (char.IsUpper(c)) { return StringComparison.Ordinal; } }
             return StringComparison.OrdinalIgnoreCase;

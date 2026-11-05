@@ -106,6 +106,14 @@ namespace ConsoleMonster.Interactive {
             lock (_gate) {
                 if (_disposed) { throw new ObjectDisposedException(nameof(FocusManager)); }
                 int start = _current == null ? (delta > 0 ? -1 : 0) : _controls.IndexOf(_current);
+                // With nothing focused yet, a stop that only navigates (a tab strip) yields to the first input that takes values.
+                if (_current == null) {
+                    for (int i = 1; i <= _controls.Count; i++) {
+                        int index = (start + delta * i + _controls.Count * 2) % _controls.Count;
+                        InputControl candidate = _controls[index];
+                        if (candidate.Enabled && !candidate.NavigationOnly && (_mounted == null || _mounted.Contains(candidate))) { Focus(candidate); return; }
+                    }
+                }
                 for (int i = 1; i <= _controls.Count; i++) {
                     int index = (start + delta * i + _controls.Count * 2) % _controls.Count;
                     if (_controls[index].Enabled && (_mounted == null || _mounted.Contains(_controls[index]))) { Focus(_controls[index]); return; }
@@ -124,11 +132,18 @@ namespace ConsoleMonster.Interactive {
 
         internal static IEnumerable<InputControl> Discover(IWidget root) {
             if (root is InputControl input) { yield return input; }
+            // A container's own focus stop (a tab strip) comes before its children, which stay its content.
+            if (root is IOwnedInput owner) { yield return owner.OwnedInput; }
             if (root is IContainer container) {
                 foreach (IWidget child in container.Children) {
                     foreach (InputControl descendant in Discover(child)) { yield return descendant; }
                 }
             }
         }
+    }
+
+    /// <summary>A container with a focus stop of its own that is not one of its children (a tab strip).</summary>
+    internal interface IOwnedInput {
+        InputControl OwnedInput { get; }
     }
 }

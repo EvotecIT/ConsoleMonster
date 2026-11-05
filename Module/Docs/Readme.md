@@ -109,6 +109,11 @@ Creates a display rebuilt from application state on the owning PowerShell input 
 
 Content receives param($State) and injected $State as a native hashtable. Emit widgets or text using the ordinary layout commands. Input controls must remain in the stable outer layout. Added or assigned state keys write back through AppState; bindings should normally only read state.
 
+### [New-ConsoleBreadcrumb](New-ConsoleBreadcrumb.md)
+Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline's current entry.
+
+The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestor segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.
+
 ### [New-ConsoleButton](New-ConsoleButton.md)
 Creates a named action button for Show-ConsoleApp.
 
@@ -251,6 +256,11 @@ The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, 
 Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
 
 What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
+
+### [New-ConsoleOutline](New-ConsoleOutline.md)
+Creates an outline for Show-ConsoleApp: a list of headings to jump between, such as settings groups or the sections of a long page.
+
+The current entry is marked. Up/Down, Home/End and the wheel move the selection; Enter or a click opens it, which makes it current (the final state holds its title). An entry with a Target leads to that control: opening it focuses the control, scrolling a surrounding scroll view to it, and unfolds it when it is a collapsible section. New-ConsoleBreadcrumb -Outline shows the path to the current entry.
 
 ### [New-ConsolePanel](New-ConsolePanel.md)
 Creates a bordered panel with a title around other console widgets.
@@ -425,7 +435,7 @@ An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typ
 ### [Show-ConsoleHelp](Show-ConsoleHelp.md)
 Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.
 
-Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
+Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. On an interactive terminal, help longer than the screen opens in the document viewer: tabs for Overview, Parameters, Examples and Related, an outline, folding sections, find (/), Ctrl+K to go to a section or parameter, and related commands that open their own help with back and forward (Alt+Left/Right). -NoPager writes it instead. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.
 
 ### [Show-ConsoleImage](Show-ConsoleImage.md)
 Shows an image in the console, at the size you ask for in cells.

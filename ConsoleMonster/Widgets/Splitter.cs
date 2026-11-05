@@ -163,6 +163,9 @@ namespace ConsoleMonster.Widgets {
             Remember();
         }
 
+        // The first pane's extent for a given width (or height), so a host can lay out its content before drawing.
+        internal int FirstExtent(int extent) => Split(extent);
+
         private int Split(int extent) {
             if (extent < 3) { return Math.Max(0, extent - 1) / 2; }
             double ratio;

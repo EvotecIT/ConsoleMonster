@@ -40,7 +40,7 @@ namespace SiteFrames.Capture {
                 if (chartType != null) { noun = "Chart"; }
                 if (progress) { noun = "Progress"; }
                 bool options = type.Name.EndsWith("Options", StringComparison.Ordinal);
-                bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button" or "Collapsible";
+                bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button" or "Collapsible" or "Outline" or "Breadcrumb";
                 if (type.Name == "MultiSelect") { noun = "Select"; }
                 string? question = QuestionNoun(type);
                 if (question != null) { noun = question; }
@@ -119,9 +119,12 @@ namespace SiteFrames.Capture {
                         if (assignment.Right is InitializerExpressionSyntax collection) {
                             INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.ContainingNamespace.Name + "Fluent");
                             ITypeSymbol? item = (property.Type as INamedTypeSymbol)?.AllInterfaces.Prepend(property.Type as INamedTypeSymbol).FirstOrDefault(t => t?.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.ICollection<T>")?.TypeArguments[0];
+                            // Two collections can share an item type (a breadcrumb's segments and ancestors), so the adder
+                            // named after this property wins over any other adder of the same item type.
                             IMethodSymbol? add = fluent?.GetMembers().OfType<IMethodSymbol>().Where(method => method.IsExtensionMethod)
-                                .Select(method => method.ReduceExtensionMethod(type)).FirstOrDefault(method => method != null && method.Name.StartsWith("Add", StringComparison.Ordinal)
-                                    && method.Parameters.Length == 1 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, item));
+                                .Select(method => method.ReduceExtensionMethod(type)).Where(method => method != null && method.Name.StartsWith("Add", StringComparison.Ordinal)
+                                    && method.Parameters.Length == 1 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, item))
+                                .OrderBy(method => property.Name.StartsWith(method!.Name.Substring(3), StringComparison.Ordinal) ? 0 : 1).FirstOrDefault();
                             if (add == null || collection.Expressions.Any(value => value is InitializerExpressionSyntax)) { return visited; }
                             foreach (ExpressionSyntax value in collection.Expressions) { result = Call(result, add.Name, value); }
                         } else {
@@ -195,7 +198,7 @@ namespace SiteFrames.Capture {
                 if (factory.ArgumentList.Arguments.Count > 0) {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)));
                 }
-                bool definition = noun is "Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Binding";
+                bool definition = noun is "Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Outline" or "Breadcrumb" or "Binding";
                 ExpressionSyntax unwrapped = value is ParenthesizedExpressionSyntax { Expression: CastExpressionSyntax cast } ? cast.Expression : value;
                 bool endsWithBuild = unwrapped is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Build" } };
                 if (definition && !endsWithBuild) {

@@ -1,3 +1,3 @@
 ﻿Import-Module ConsoleMonster
 
-Show-ConsoleHelp Get-ConsoleCapability
+Show-ConsoleHelp Get-ConsoleCapability -NoPager

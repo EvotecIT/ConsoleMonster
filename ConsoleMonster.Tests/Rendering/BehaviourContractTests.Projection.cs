@@ -97,12 +97,13 @@ namespace ConsoleMonster.Tests.Rendering {
             var tabs = new Tabs().Add("ßß", new TextBlock("First")).Add("Next", new TextBlock("Second"));
             var context = new RenderContext(TerminalProfile.Fixed(30, 3, ColorDepth.None, GlyphTier.Ascii), Theme.Dark);
             CellBuffer frame = FrameComposer.Compose(tabs, 30, 3, context);
-            Assert.StartsWith("[ssss]  Next ", frame.GetRowText(0));
+            Assert.StartsWith(" ssss  Next ", frame.GetRowText(0));
+            Assert.StartsWith("======------", frame.GetRowText(1));
             Assert.True(((IAppInputContainer)tabs).HandleContainerInput(InputEvent.Mouse(5, 0), null));
             Assert.Equal(0, tabs.SelectedIndex);
             Assert.True(((IAppInputContainer)tabs).HandleContainerInput(InputEvent.Mouse(7, 0), null));
             Assert.Equal(1, tabs.SelectedIndex);
-            Assert.StartsWith(" ssss  [Next]", FrameComposer.Compose(tabs, 30, 3, context).GetRowText(0));
+            Assert.StartsWith("------======", FrameComposer.Compose(tabs, 30, 3, context).GetRowText(1));
         }
     }
 }
