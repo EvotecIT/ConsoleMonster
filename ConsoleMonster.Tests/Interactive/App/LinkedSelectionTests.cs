@@ -13,7 +13,7 @@ using Xunit;
 using Grid = ConsoleMonster.Interactive.Grid;
 
 namespace ConsoleMonster.Tests.Interactive.App {
-    // Controls that share a SelectionKey follow each other through app state, without referring to each other; a callback
+    // Controls that share a LinkKey follow each other through app state, without referring to each other; a callback
     // writing the key moves them the same way. Driven through a running app on the headless terminal.
     public sealed class LinkedSelectionTests {
         private static readonly TimeSpan Wait = TimeSpan.FromSeconds(10);
@@ -22,7 +22,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         private static DataGrid Samples() {
             var grid = new Grid("Samples").AddColumn("Minute").AddColumn("Cpu");
             for (int i = 0; i < Cpu.Length; i++) { grid.AddRow(i, i + 1, Cpu[i]); }
-            return new DataGrid("samples", grid) { Height = 6, SelectionKey = "minute" };
+            return new DataGrid("samples", grid) { Height = 6, LinkKey = "minute" };
         }
 
         [Fact]
@@ -30,7 +30,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             var chart = new LineChart { Unit = "%" };
             foreach (double value in Cpu) { chart.Add("cpu", value); }
             DataGrid table = Samples();
-            var view = new ChartView("load", chart) { SelectionKey = "minute" };
+            var view = new ChartView("load", chart) { LinkKey = "minute" };
             using var terminal = new HeadlessTerminal(80, 26);
             Task<AppState> run = Run(terminal, new Rows(table, view));
             terminal.WaitForText("#1  cpu 10%", Wait);
@@ -39,11 +39,11 @@ namespace ConsoleMonster.Tests.Interactive.App {
             terminal.WaitForText("#4  cpu 40%", Wait);
 
             terminal.Send("Tab Right");
-            Until(() => table.Cursor == 4);
+            Until(() => table.SelectedIndex == 4);
             (int axis, int plotRow) = Axis(terminal);
             terminal.Send(InputEvent.Pointer(axis + 1, plotRow, MouseAction.Down, button: 1));
             terminal.Send(InputEvent.Pointer(axis + 1, plotRow, MouseAction.Up, button: 1));
-            Until(() => table.Cursor == 0);
+            Until(() => table.SelectedIndex == 0);
             terminal.Send("Escape");
             Assert.Equal(0, (await run)["minute"]);
         }
@@ -51,7 +51,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public async Task ASelectAndAGridFollowEachOtherAndACallbackWritingTheKey() {
             DataGrid table = Samples();
-            var pick = new Select("pick", Enumerable.Range(1, Cpu.Length).Select(i => new Choice(i, "minute " + i))) { SelectionKey = "minute", PageSize = 4 };
+            var pick = new Select("pick", Enumerable.Range(1, Cpu.Length).Select(i => new Choice(i, "minute " + i))) { LinkKey = "minute", PageSize = 4 };
             var state = new AppState();
             var options = new ConsoleAppOptions {
                 Interactive = new InteractiveOptions { Labels = new PromptLabels() },
@@ -64,11 +64,11 @@ namespace ConsoleMonster.Tests.Interactive.App {
             terminal.WaitForText("minute 1", Wait);
 
             terminal.Send("Down Down");
-            Until(() => table.Cursor == 2);
+            Until(() => table.SelectedIndex == 2);
             terminal.Send("Tab Down");
             Until(() => Highlighted(pick) == 3);
             terminal.Send("F5");
-            Until(() => table.Cursor == Cpu.Length - 1 && Highlighted(pick) == Cpu.Length - 1);
+            Until(() => table.SelectedIndex == Cpu.Length - 1 && Highlighted(pick) == Cpu.Length - 1);
             terminal.Send("Escape");
             await run;
         }
@@ -80,7 +80,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         public async Task AFilteredLinkedSelectorKeepsItsFilterWhileItPublishes(bool multiple) {
             Choice[] fruit = { new Choice(0, "apple"), new Choice(1, "beta"), new Choice(2, "berry") };
             SelectionInputBase pick = multiple ? new MultiSelect("pick", fruit) : (SelectionInputBase)new Select("pick", fruit);
-            pick.SelectionKey = "position";
+            pick.LinkKey = "position";
             var state = new AppState();
             using var terminal = new HeadlessTerminal(60, 16);
             Task<AppState> run = ConsoleApp.RunAsync(pick, state, Options(terminal));
@@ -98,7 +98,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public async Task ClickingADropdownChoicePublishesItAndTheLinkedGridFollows() {
-            var pick = new Select("pick", Enumerable.Range(1, Cpu.Length).Select(i => new Choice(i, "minute " + i))) { SelectionKey = "minute", Dropdown = true };
+            var pick = new Select("pick", Enumerable.Range(1, Cpu.Length).Select(i => new Choice(i, "minute " + i))) { LinkKey = "minute", Dropdown = true };
             DataGrid table = Samples();
             var state = new AppState();
             using var terminal = new HeadlessTerminal(80, 30);
@@ -107,7 +107,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Click(terminal, "▾");
             terminal.WaitForText("minute 3", Wait);
             Click(terminal, "minute 3");
-            Until(() => Equals(state.Get<object?>("minute"), 2) && table.Cursor == 2);
+            Until(() => Equals(state.Get<object?>("minute"), 2) && table.SelectedIndex == 2);
             terminal.Send("Escape");
             await run;
         }
@@ -115,11 +115,11 @@ namespace ConsoleMonster.Tests.Interactive.App {
         // Opening a dropdown and moving over its list change nothing, so a value a callback wrote stays in state.
         [Fact]
         public async Task InputThatLeavesASelectionWhereItWasDoesNotOverwriteTheSharedValue() {
-            var pick = new Select("pick", Enumerable.Range(1, 3).Select(i => new Choice(i, "minute " + i))) { SelectionKey = "minute", Dropdown = true };
+            var pick = new Select("pick", Enumerable.Range(1, 3).Select(i => new Choice(i, "minute " + i))) { LinkKey = "minute", Dropdown = true };
             var state = new AppState();
             ConsoleAppOptions options = null!;
             DataGrid below = Samples();
-            below.SelectionKey = null;
+            below.LinkKey = null;
             using var terminal = new HeadlessTerminal(80, 30);
             options = Options(terminal);
             options.KeyBindings.Add(new KeyBinding("far", () => state["minute"] = 99, new KeyChord(ConsoleKey.F5)));
@@ -151,7 +151,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Task<AppState> run = ConsoleApp.RunAsync(table, state, Options(terminal));
             terminal.WaitForText("Samples", Wait);
             terminal.Send("Down Down");
-            Until(() => Equals(state.Get<object?>("minute"), 5) && table.Cursor == 5);
+            Until(() => Equals(state.Get<object?>("minute"), 5) && table.SelectedIndex == 5);
             terminal.Send("Escape");
             await run;
         }
@@ -161,17 +161,17 @@ namespace ConsoleMonster.Tests.Interactive.App {
         public async Task AValueWrittenByTheControlsOwnChangedHandlerIsNotOverwritten() {
             var chart = new LineChart();
             foreach (double value in new double[] { 10, 20, 30 }) { chart.Add("cpu", value); }
-            var view = new ChartView("load", chart) { SelectionKey = "minute" };
+            var view = new ChartView("load", chart) { LinkKey = "minute" };
             var state = new AppState();
             view.Changed += (_, change) => { if (Equals(change.Value, 1)) { state["minute"] = 7; } };
             DataGrid table = Samples();
             using var terminal = new HeadlessTerminal(80, 30);
             Task<AppState> run = ConsoleApp.RunAsync(new Rows(view, table), state, Options(terminal));
             terminal.WaitForText("#3  cpu 30", Wait);
-            Until(() => table.Cursor == 2);
+            Until(() => table.SelectedIndex == 2);
             terminal.Send("Left");
-            Until(() => view.Cursor == 1);
-            Until(() => Equals(state.Get<object?>("minute"), 7) && table.Cursor == 7);
+            Until(() => view.SelectedIndex == 1);
+            Until(() => Equals(state.Get<object?>("minute"), 7) && table.SelectedIndex == 7);
             terminal.Send("Escape");
             await run;
         }
@@ -188,7 +188,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             terminal.Send(InputEvent.Pointer(x, y, MouseAction.Down, button: 1));
             terminal.Send(InputEvent.Pointer(x, y, MouseAction.Up, button: 1));
         }
-        private static int? Highlighted(Select select) => ((ILinkedSelection)select).SelectedIndex;
+        private static int? Highlighted(Select select) => ((ILinkedSelection)select).LinkIndex;
 
         private static Task<AppState> Run(HeadlessTerminal terminal, IWidget layout) =>
             ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {

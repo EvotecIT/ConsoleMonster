@@ -13,7 +13,7 @@ Choices use the shared prompt conversion and retain original objects as values. 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Radio] [-Dropdown] [-PageSize <Int32>] [-SelectionKey <string>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Value <Object>] [-Multiple] [-Radio] [-Dropdown] [-PageSize <int>] [-LinkKey <string>] [-Display <Object>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -128,6 +128,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -LinkKey
+The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Multiple
 Allows multiple selected values.
 
@@ -181,22 +197,6 @@ Shows single-choice items with radio indicators.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SelectionKey
-The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.
-
-```yaml
-Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:

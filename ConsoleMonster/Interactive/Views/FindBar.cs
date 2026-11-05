@@ -135,8 +135,9 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        /// <summary>A one-row widget drawing this bar, for the overlay layer.</summary>
-        internal IWidget Widget(PromptLabels labels) => new BarWidget(this, labels);
+        /// <summary>A one-row widget drawing this bar. On the screen's last row it stops a cell short: the terminal output never
+        /// writes the bottom-right cell, so the last character of the match count would be lost.</summary>
+        internal IWidget Widget(PromptLabels labels, bool screenBottom = false) => new BarWidget(this, labels, screenBottom);
 
         /// <summary>
         /// Highlights every occurrence of the query in one drawn row, starting at <paramref name="x"/>; the occurrence at
@@ -198,9 +199,11 @@ namespace ConsoleMonster.Interactive {
         private sealed class BarWidget : IWidget {
             private readonly FindBar _bar;
             private readonly PromptLabels _labels;
-            internal BarWidget(FindBar bar, PromptLabels labels) { _bar = bar; _labels = labels; }
+            private readonly bool _screenBottom;
+            internal BarWidget(FindBar bar, PromptLabels labels, bool screenBottom) { _bar = bar; _labels = labels; _screenBottom = screenBottom; }
             public Size Measure(Constraints constraints, RenderContext context) => new Size(constraints.MaxWidth, Math.Min(1, constraints.MaxHeight));
-            public void Render(Region region, RenderContext context) => _bar.Draw(region, context, _labels);
+            public void Render(Region region, RenderContext context) =>
+                _bar.Draw(_screenBottom && region.Width > 1 ? region.Sub(0, 0, region.Width - 1, region.Height) : region, context, _labels);
         }
     }
 }

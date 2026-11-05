@@ -11,24 +11,24 @@ Creates a breadcrumb for Show-ConsoleApp: a path such as Settings â€º Network â€
 ## SYNTAX
 ### Segment (Default)
 ```powershell
-New-ConsoleBreadcrumb [-Key] <string> [-Segment] <string[]> [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleBreadcrumb [-Key] <string> [-Segments] <string[]> [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### Outline
 ```powershell
-New-ConsoleBreadcrumb [-Key] <string> -Outline <Object> [-Ancestor <string[]>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleBreadcrumb [-Key] <string> -Outline <Object> [-Ancestors <string[]>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestor segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.
+The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$sections = New-ConsoleOutline -Key Sections -Item 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -CurrentIndex 1
+$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1
 Show-ConsoleApp -Content {
-    New-ConsoleBreadcrumb -Key Where -Ancestor 'Settings' -Outline $sections
+    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections
     $sections
 }
 ```
@@ -37,7 +37,7 @@ Show where the reader is in an outline.
 
 ## PARAMETERS
 
-### -Ancestor
+### -Ancestors
 Segments shown before the outline's headings, such as the screen or tab name.
 
 ```yaml
@@ -117,7 +117,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Segment
+### -Segments
 The segments, outermost first.
 
 ```yaml

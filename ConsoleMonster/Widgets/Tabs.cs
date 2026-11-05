@@ -20,24 +20,43 @@ namespace ConsoleMonster.Widgets {
         private readonly List<LayoutRegion> _tabs = new List<LayoutRegion>();
         private readonly Dictionary<string, InputControl> _lastFocus = new Dictionary<string, InputControl>();
         private List<TabStrip.Header> _headers = new List<TabStrip.Header>();
-        private readonly Strip _strip;
+        private Strip _strip;
+        private string? _key;
         private int _selected;
 
+        /// <summary>Creates an empty tab set whose app-state key is generated; give it a <see cref="Key"/> to read or link it.</summary>
+        public Tabs() { _strip = NewStrip(null); }
+
         /// <summary>Creates an empty tab set.</summary>
-        public Tabs() {
-            _strip = new Strip(this, "tabs#" + Interlocked.Increment(ref _instances).ToString(CultureInfo.InvariantCulture));
+        /// <param name="key">The app-state key; its value is the active tab's title.</param>
+        public Tabs(string key) : this() { Key = key; }
+
+        /// <summary>The app-state key whose value is the active tab's title; null uses a generated key. Set it before the app runs.</summary>
+        public string? Key {
+            get { lock (_gate) { return _key; } }
+            set { lock (_gate) { _key = string.IsNullOrWhiteSpace(value) ? null : value; _strip = NewStrip(_key); } }
+        }
+
+        /// <summary>Raised after the active tab changes, by the keyboard, a click or <see cref="SelectedIndex"/>; the value is the tab's title.</summary>
+        public event EventHandler<AppValueChangedEventArgs>? Changed;
+
+        private Strip NewStrip(string? key) {
+            var strip = new Strip(this, key ?? "tabs#" + Interlocked.Increment(ref _instances).ToString(CultureInfo.InvariantCulture));
+            strip.Changed += (sender, change) => Changed?.Invoke(this, change);
+            return strip;
         }
 
         /// <summary>The active tab index.</summary>
         public int SelectedIndex {
             get { lock (_gate) { return _selected; } }
-            set => Select(value, true);
+            set { Strip strip; lock (_gate) { strip = _strip; } strip.Commit(() => Select(value, true)); }
         }
 
         // Keyboard switching from the strip keeps focus there, so ←/→ go on moving through the tabs; a click on a label and
-        // a switch from inside a tab move focus into the tab opened.
+        // a switch from inside a tab move focus into the tab opened. The strip reports the change: its own input does when it
+        // handles a key or click, and every other switch goes through Strip.Commit.
         private void Select(int value, bool keepStrip) {
-                lock (_gate) {
+            lock (_gate) {
                 if (value < 0 || value >= _tabs.Count) { throw new ArgumentOutOfRangeException(nameof(value)); }
                 if (_selected == value) { return; }
                 LayoutRegion previous = _tabs[_selected];
@@ -50,20 +69,37 @@ namespace ConsoleMonster.Widgets {
                 InputControl? target = _lastFocus.TryGetValue(next.Key, out InputControl? saved) && !saved.Disabled ? saved
                     : FocusManager.Discover(next).FirstOrDefault(control => !control.Disabled && !control.NavigationOnly) ?? FocusManager.Discover(next).FirstOrDefault(control => !control.Disabled);
                 target?.Focus();
-                }
+            }
         }
 
         /// <inheritdoc />
         public IReadOnlyList<IWidget> Children => _tabs;
 
-        InputControl IOwnedInput.OwnedInput => _strip;
+        InputControl IOwnedInput.OwnedInput { get { lock (_gate) { return _strip; } } }
 
-        /// <summary>Adds a tab; its key is also its visible label.</summary>
-        public Tabs Add(string label, IWidget content) {
-            if (_tabs.Exists(tab => tab.Key == label)) { throw new ArgumentException("Tab labels must be unique.", nameof(label)); }
-            _tabs.Add(new LayoutRegion(label, content)); return this;
+        /// <summary>Adds a tab.</summary>
+        /// <param name="title">The tab's title, shown in the strip; titles are unique.</param>
+        /// <param name="content">The tab's content.</param>
+        /// <returns>This tab set.</returns>
+        public Tabs Add(string title, IWidget content) {
+            if (string.IsNullOrEmpty(title)) { throw new ArgumentException("A tab needs a title.", nameof(title)); }
+            if (_tabs.Exists(tab => tab.Key == title)) { throw new ArgumentException("Tab titles must be unique.", nameof(title)); }
+            _tabs.Add(new LayoutRegion(title, content ?? throw new ArgumentNullException(nameof(content)))); return this;
         }
 
+        /// <summary>Adds a tab defined by <see cref="Ui.Tab"/> or a <see cref="TabOptions"/> initializer.</summary>
+        /// <param name="tab">The tab's title and content.</param>
+        /// <returns>This tab set.</returns>
+        public Tabs Add(TabOptions tab) {
+            if (tab == null) { throw new ArgumentNullException(nameof(tab)); }
+            return Add(tab.Title, tab.Content);
+        }
+
+        /// <summary>Adds a tab whose content the builder composes, as Panel and Rows take content.</summary>
+        /// <param name="title">The tab's title, shown in the strip; titles are unique.</param>
+        /// <param name="content">Adds the tab's widgets in order.</param>
+        /// <returns>This tab set.</returns>
+        public Tabs Tab(string title, Action<ContentBuilder> content) => Add(title, ContentBuilder.Build(content ?? throw new ArgumentNullException(nameof(content))));
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             Size body = _tabs.Count == 0 ? new Size(0, 0) : _tabs[_selected].Measure(constraints.Shrink(0, TabStrip.Height), context);
@@ -86,7 +122,7 @@ namespace ConsoleMonster.Widgets {
             if (_tabs.Count == 0) { return false; }
             if (input.Kind == InputEventKind.Mouse && input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
                 foreach (TabStrip.Header header in _headers) {
-                    if (header.Contains(input.Column, input.Row)) { Select(header.Index, false); return true; }
+                    if (header.Contains(input.Column, input.Row)) { int index = header.Index; _strip.Commit(() => Select(index, false)); return true; }
                 }
             }
             if (focused != null && !FocusManager.Discover(this).Contains(focused)) { return false; }
@@ -116,6 +152,10 @@ namespace ConsoleMonster.Widgets {
 
             internal override bool NavigationOnly => true;
 
+            // A switch made outside the strip's own input (a click on the container, Ctrl+PageUp/PageDown, SelectedIndex)
+            // reports the change through the strip like a key would.
+            internal void Commit(Action select) => Change(select);
+
             protected override object? ReadValueCore() => _owner._tabs.Count == 0 ? null : _owner._tabs[_owner._selected].Key;
 
             protected override bool HandleInputCore(InputEvent input, RenderContext context) {
@@ -128,7 +168,7 @@ namespace ConsoleMonster.Widgets {
                 else if (input.Is(ConsoleKey.End)) { target = count - 1; }
                 else { target = TabForDigit(input, count); }
                 if (target < 0) { return false; }
-                _owner.SelectedIndex = target;
+                _owner.Select(target, true);
                 return true;
             }
 

@@ -25,6 +25,9 @@ namespace ConsoleMonster.Live {
         public string Group { get; }
         /// <summary>The name followed by its optional target, for logs and activity rows.</summary>
         public string DisplayName => Label + (Target.Length > 0 ? " · " + Target : "");
+        /// <summary>The display name, so a listed item (a PowerShell table of run results) shows its name rather than its type.</summary>
+        /// <returns><see cref="DisplayName"/>.</returns>
+        public override string ToString() => DisplayName;
     }
 
     /// <summary>An immutable observation of one declared item.</summary>

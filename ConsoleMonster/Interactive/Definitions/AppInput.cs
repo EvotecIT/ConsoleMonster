@@ -27,7 +27,7 @@ namespace ConsoleMonster.Interactive {
             if (options.PageSize.HasValue) { ((SelectionInputBase)control).PageSize = options.PageSize.Value; }
             ((SelectionInputBase)control).Radio = options.Radio;
             ((SelectionInputBase)control).Dropdown = options.Dropdown;
-            ((SelectionInputBase)control).SelectionKey = options.SelectionKey;
+            ((SelectionInputBase)control).LinkKey = options.LinkKey;
             Configure(control, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             return control;
         }
@@ -85,7 +85,7 @@ namespace ConsoleMonster.Interactive {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
             var outline = new Outline(options.Key);
             foreach (OutlineItem item in options.Items) { outline.Items.Add(item); }
-            outline.CurrentIndex = options.CurrentIndex;
+            outline.SelectedIndex = options.SelectedIndex;
             Configure(outline, options.Label, options.Disabled, options.TabIndex, options.ValidationMessage, options.OnChange);
             return outline;
         }

@@ -134,6 +134,33 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal("beta", opened);
         }
 
+        // Show-ConsoleGrid and Grid.Show: a double click on a row opens its details, the same view Enter opens.
+        [Fact]
+        public void GridView_DoubleClickOpensTheRowsDetailsLikeEnter() {
+            Func<GridView> show = () => {
+                Grid grid = new Grid("Services");
+                grid.AddColumn("Name"); grid.AddColumn("State");
+                grid.AddRow("alpha", "alpha", "running"); grid.AddRow("beta", "beta", "stopped");
+                return new GridView(grid, new GridOptions(), new PromptLabels());
+            };
+            Func<GridView, string> frame = view => FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 80, 16, false, TimeSpan.Zero)), 80, 16, Context).ToPlainText();
+            using GridView keyboard = show();
+            using GridView pointer = show();
+            string[] rows = frame(pointer).Split('\n');
+            int row = Array.FindIndex(rows, line => line.Contains("beta"));
+            int column = rows[row].IndexOf("beta", StringComparison.Ordinal);
+
+            frame(keyboard);
+            keyboard.Handle(InputEvent.Mouse(column, row)); keyboard.Handle(InputEvent.Mouse(column, row, pressed: false));
+            string selected = frame(keyboard);
+            keyboard.Handle(InputEvent.Press(ConsoleKey.Enter));
+            string details = frame(keyboard);
+            Assert.NotEqual(selected, details);
+
+            for (int i = 0; i < 2; i++) { pointer.Handle(InputEvent.Mouse(column, row)); pointer.Handle(InputEvent.Mouse(column, row, pressed: false)); }
+            Assert.Equal(details, frame(pointer));
+        }
+
         [Fact]
         public void DataGrid_HeaderClickSortsAndReversesLikeF3AndF4() {
             Grid grid = new Grid("Services");

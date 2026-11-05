@@ -103,8 +103,9 @@ namespace SiteFrames.Tests {
         public void GalleryKeepsProgramsWithoutAdvertisingUnavailableTemplateChoices() {
             JsonArray demos = JsonNode.Parse(File.ReadAllText(Repository().Data("gallery")))!["demos"]!.AsArray();
             JsonNode help = demos.Single(demo => demo!["slug"]!.GetValue<string>() == "help-sections")!;
-            Assert.Null(help["run"]!["csharp"]);
-            Assert.Null(help["run"]!["csharpFluent"]);
+            // The template ships help-sections since 2.2.0, so its page offers both C# styles.
+            Assert.Equal("dotnet new consolemonster --demo help-sections", help["run"]!["csharp"]!.GetValue<string>());
+            Assert.Equal("dotnet new consolemonster --demo help-sections --DemoStyle Fluent", help["run"]!["csharpFluent"]!.GetValue<string>());
             Assert.Contains("Splitter", help["source"]!["csharp"]!["text"]!.GetValue<string>());
             Assert.Contains("Splitter", help["source"]!["csharpFluent"]!["text"]!.GetValue<string>());
             JsonNode stress = demos.Single(demo => demo!["slug"]!.GetValue<string>() == "stress")!;

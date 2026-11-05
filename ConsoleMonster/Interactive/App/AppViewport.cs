@@ -20,7 +20,7 @@ namespace ConsoleMonster.Interactive {
         private readonly InputArrangement _arrangement = new InputArrangement();
         [ThreadStatic] private static int? _frameVersion;
 
-        internal AppViewport(IWidget content, FocusManager focus, int reservedRows = 0) { _content = content; _focus = focus; _reservedRows = reservedRows; }
+        internal AppViewport(IWidget content, FocusManager focus, int reservedRows = 0, AppState? state = null) { _content = content; _focus = focus; _reservedRows = reservedRows; _arrangement.State = state; }
         public IReadOnlyList<IWidget> Children => new[] { _content };
 
         public Size Measure(Constraints constraints, RenderContext context) {

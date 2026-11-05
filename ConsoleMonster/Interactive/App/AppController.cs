@@ -52,7 +52,7 @@ namespace ConsoleMonster.Interactive {
             Discover(layout, reflowBelow);
             if (_options.Footer != null) { Discover(_options.Footer, reflowBelow); }
             _focus = new FocusManager(layout);
-            _viewport = new AppViewport(layout, _focus);
+            _viewport = new AppViewport(layout, _focus, state: state);
             _keys = new AppKeyMap(_options.KeyBindings, _screens, _focus, context);
             System.Diagnostics.Stopwatch toastClock = System.Diagnostics.Stopwatch.StartNew();
             List<AppCommand> commands = new List<AppCommand>(options?.Command ?? (IEnumerable<AppCommand>)Array.Empty<AppCommand>());
@@ -367,25 +367,25 @@ namespace ConsoleMonster.Interactive {
         private void StateChanged(object? sender, AppValueChangedEventArgs change) {
             lock (_written) { _written.Add(change.Key); }
             foreach (ILinkedSelection control in _linked) {
-                if (!string.Equals(control.SelectionKey, change.Key, StringComparison.OrdinalIgnoreCase)) { continue; }
+                if (!string.Equals(control.LinkKey, change.Key, StringComparison.OrdinalIgnoreCase)) { continue; }
                 // A notification delivered after a nested write carries an older value; follow what state holds now.
                 int? index = LinkIndex(_state.TryGetValue(change.Key, out object? current) ? current : change.Value);
                 // The publisher already shows its own write; a nested write to another index still reaches it.
-                if (ReferenceEquals(control, _sharing) && control.SelectedIndex == index) { continue; }
-                control.FollowSelection(index);
+                if (ReferenceEquals(control, _sharing) && control.LinkIndex == index) { continue; }
+                control.FollowLink(index);
             }
             Invalidate();
         }
 
         // Controls sharing a selection key start on one selection: a value already in state, else the first one's.
         private void ShareInitialSelections() {
-            _linked.AddRange(_focus.Controls.OfType<ILinkedSelection>().Where(control => !string.IsNullOrEmpty(control.SelectionKey)));
-            foreach (IGrouping<string, ILinkedSelection> group in _linked.GroupBy(control => control.SelectionKey!, StringComparer.OrdinalIgnoreCase)) {
+            _linked.AddRange(_focus.Controls.OfType<ILinkedSelection>().Where(control => !string.IsNullOrEmpty(control.LinkKey)));
+            foreach (IGrouping<string, ILinkedSelection> group in _linked.GroupBy(control => control.LinkKey!, StringComparer.OrdinalIgnoreCase)) {
                 if (_state.TryGetValue(group.Key, out object? value)) {
                     int? index = LinkIndex(value);
-                    foreach (ILinkedSelection control in group) { control.FollowSelection(index); }
+                    foreach (ILinkedSelection control in group) { control.FollowLink(index); }
                 } else {
-                    ILinkedSelection? first = group.FirstOrDefault(control => control.SelectedIndex.HasValue);
+                    ILinkedSelection? first = group.FirstOrDefault(control => control.LinkIndex.HasValue);
                     if (first != null) { Share(first, null); }
                 }
             }
@@ -396,8 +396,8 @@ namespace ConsoleMonster.Interactive {
         // was never overwrites a value another control or a callback wrote.
         private void Share(object? input, int? before) {
             if (!(input is ILinkedSelection control)) { return; }
-            string? key = control.SelectionKey;
-            int? index = string.IsNullOrEmpty(key) ? null : control.SelectedIndex;
+            string? key = control.LinkKey;
+            int? index = string.IsNullOrEmpty(key) ? null : control.LinkIndex;
             if (key == null || !index.HasValue || index == before) { return; }
             lock (_written) { if (_written.Contains(key)) { return; } }
             _sharing = control;
@@ -405,7 +405,7 @@ namespace ConsoleMonster.Interactive {
             finally { _sharing = null; }
         }
 
-        private static int? Selected(InputControl? control) => (control as ILinkedSelection)?.SelectedIndex;
+        private static int? Selected(InputControl? control) => (control as ILinkedSelection)?.LinkIndex;
 
         private static int? LinkIndex(object? value) {
             if (value is int i) { return i; }

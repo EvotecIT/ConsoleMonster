@@ -13,12 +13,12 @@ The listing retains original objects and stable row identities. Each grid has it
 ## SYNTAX
 ### Grid
 ```powershell
-New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -Grid <Grid> [-Height <int>] [-NoQuickSearch] [-SelectionKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -Grid <Grid> [-Height <int>] [-NoQuickSearch] [-LinkKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ### Objects
 ```powershell
-New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -InputObject <psobject[]> [-Property <Object[]>] [-Height <int>] [-NoQuickSearch] [-SelectionKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -InputObject <psobject[]> [-Property <Object[]>] [-Height <int>] [-NoQuickSearch] [-LinkKey <string>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -140,6 +140,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -LinkKey
+The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -NoQuickSearch
 Leaves printable keys to the app's command registry.
 
@@ -178,22 +194,6 @@ Columns: names, wildcards and calculated properties with the Show-ConsoleTable c
 ```yaml
 Type: Object[]
 Parameter Sets: Objects
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SelectionKey
-The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
 

@@ -99,6 +99,11 @@ Runs a script block for every input item, optionally in parallel, with a live vi
 
 $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.
 
+### [New-ConsoleAccordion](New-ConsoleAccordion.md)
+Creates an accordion for Show-ConsoleApp: collapsible sections that keep one open.
+
+-Content emits New-ConsoleCollapsible sections. Opening one folds the others; while a header has focus, + expands every section for reading and - folds them all. Each section keeps its own key and state.
+
 ### [New-ConsoleActivityList](New-ConsoleActivityList.md)
 Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.
 
@@ -112,7 +117,7 @@ Content receives param($State) and injected $State as a native hashtable. Emit w
 ### [New-ConsoleBreadcrumb](New-ConsoleBreadcrumb.md)
 Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline's current entry.
 
-The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestor segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.
+The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.
 
 ### [New-ConsoleButton](New-ConsoleButton.md)
 Creates a named action button for Show-ConsoleApp.
@@ -137,10 +142,10 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 ### [New-ConsoleChartView](New-ConsoleChartView.md)
 Makes a line chart explorable inside Show-ConsoleApp.
 
-Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. Give New-ConsoleDataGrid the same -SelectionKey to link a table.
+Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
 
 ### [New-ConsoleCollapsible](New-ConsoleCollapsible.md)
-Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.
+Creates a collapsible section for Show-ConsoleApp.
 
 ### [New-ConsoleColumns](New-ConsoleColumns.md)
 Places console widgets side by side.
@@ -328,7 +333,7 @@ Columns come from -Property or from the first object's properties (or hashtable 
 ### [New-ConsoleTabs](New-ConsoleTabs.md)
 Creates retained tabs with keyboard and pointer navigation.
 
-Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.
+Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.
 
 ### [New-ConsoleText](New-ConsoleText.md)
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.

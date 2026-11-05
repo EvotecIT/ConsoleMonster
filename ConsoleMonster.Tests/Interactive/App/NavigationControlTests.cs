@@ -297,6 +297,33 @@ namespace ConsoleMonster.Tests.Interactive.App {
         }
 
         [Fact]
+        public void ADividerKeepsDraggingWhenABindingRebuildsItsSplitterMidDragAndItsKeyHoldsTheRatio() {
+            var state = new AppState();
+            using var app = new AppController(new AppBinding(s => new Splitter(TextBlock.Plain("left " + s.Get("Round", 0)), TextBlock.Plain("right")) { Key = "Panes" }), state, Context, 60);
+            app.Refresh(null);
+            int start = Divider(app.PrepareFrame(80, 24), "right");
+            app.Handle(InputEvent.Pointer(start, 0, MouseAction.Down, button: 1), true);
+            state["Round"] = 1;
+            app.Refresh(null);
+            Assert.Contains("left 1", app.PrepareFrame(80, 24).ToPlainText());
+            app.Handle(InputEvent.Pointer(20, 0, MouseAction.Move, heldButtons: 1), true);
+            app.Handle(InputEvent.Pointer(20, 0, MouseAction.Up, button: 1), true);
+            app.Refresh(null);
+            Assert.Equal(20, Divider(app.PrepareFrame(80, 24), "right"));
+            Assert.IsType<double>(state["Panes"]);
+
+            state["Panes"] = 0.75;
+            app.Refresh(null);
+            Assert.Equal(60, Divider(app.PrepareFrame(80, 24), "right"));
+        }
+
+        [Fact]
+        public void AVerticalSplitterIsAsTallAsItsPanes() {
+            var splitter = new Splitter(TextBlock.Plain("top"), TextBlock.Plain("bottom\nmore")) { Vertical = true };
+            Assert.Equal(4, splitter.Measure(new Constraints(40, 20), Context).Height);
+        }
+
+        [Fact]
         public void SlashFindsLogLinesHighlightsThemAndStepsThroughMatches() {
             var log = new LogViewport("Output") { ShowElapsed = false };
             log.Write(string.Join("\n", Enumerable.Range(0, 40).Select(i => i == 5 || i == 30 ? "error-" + i : "line-" + i)));
@@ -348,6 +375,10 @@ namespace ConsoleMonster.Tests.Interactive.App {
             InteractionLoop.Draw(view, surface, context, 1, TimeSpan.Zero);
             string text = surface.Frames.Last().ToPlainText();
             Assert.Contains("the needle", text); Assert.Contains("1 of 1", text);
+            // The bar is the screen's last row, whose last cell the terminal output never writes: the count ends before it.
+            string bar = text.Split('\n')[9];
+            Assert.EndsWith("1 of 1", bar.TrimEnd());
+            Assert.True(bar.TrimEnd().Length < 40);
 
             view.Handle(InputEvent.Press(ConsoleKey.Escape));
             InteractionLoop.Draw(view, surface, context, 2, TimeSpan.Zero);

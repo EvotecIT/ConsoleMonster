@@ -21,13 +21,32 @@ Describe 'Native console applications' {
         $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 26)
         $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Down Tab Right')
         $result = Show-ConsoleApp -Content {
-            New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu -Height 8 -SelectionKey Minute
-            New-ConsoleChartView -Key Load -Chart $chart -Labels ($samples | ForEach-Object { "min $($_.Minute)" }) -SelectionKey Minute
+            New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu -Height 8 -LinkKey Minute
+            New-ConsoleChartView -Key Load -Chart $chart -PointLabels ($samples | ForEach-Object { "min $($_.Minute)" }) -LinkKey Minute
         } -InputSource $inputSource -Capture $capture -PassThru
         $result.Minute | Should -Be 3
         $result.Load | Should -Be 3
         $result.Samples[0].Minute | Should -Be 4
         $capture.LastFrame.ToPlainText() | Should -Match 'min 4: cpu 40%'
+    }
+    It 'keeps the active tab title under -Key, runs -OnChange and folds New-ConsoleAccordion sections' {
+        $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(80, 20)
+        $inputSource = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Tab Enter Ctrl+PageDown')
+        $result = Show-ConsoleApp -Content {
+            New-ConsoleTabs -Key Page -OnChange { param($Value, $State) $State.Opened = "page $Value" } -Content ([ordered]@{
+                General = {
+                    New-ConsoleAccordion -Content {
+                        New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services.' }
+                        New-ConsoleCollapsible -Key Examples -Content { 'Get-Service' }
+                    }
+                }
+                Network = { New-ConsoleTextInput -Key Proxy }
+            })
+        } -InputSource $inputSource -Capture $capture -PassThru
+        $result.Page | Should -Be 'Network'
+        $result.Opened | Should -Be 'page Network'
+        $result.Examples | Should -BeTrue
+        $result.Synopsis | Should -BeFalse
     }
     It 'groups adjacent screens into one stack driven by screen and app key binding scripts and $State.Screen' {
         $servers = @(

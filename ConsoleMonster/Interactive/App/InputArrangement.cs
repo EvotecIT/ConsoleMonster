@@ -13,6 +13,8 @@ namespace ConsoleMonster.Interactive {
         private readonly List<IAppInputContainer> _containers = new List<IAppInputContainer>();
         private readonly List<Popup> _popups = new List<Popup>();
         internal InputControl? Focused { get; set; }
+        // The app's state, for containers that keep what they remember there under their key (a splitter's ratio and drag).
+        internal AppState? State { get; set; }
         internal IEnumerable<InputControl> Mounted => _inputs.Keys;
         internal IReadOnlyList<Popup> Popups => _popups;
         internal Dictionary<InputControl, int> Heights() {
@@ -49,6 +51,7 @@ namespace ConsoleMonster.Interactive {
                 Move(viewport, parent.X, parent.Y).Intersect(parent.Clip));
         }
         internal static InputControl? CurrentFocus => _current?.Owner.Focused;
+        internal static AppState? CurrentState => _current?.Owner.State;
         internal static Rect FrameBounds(Rect bounds) => _current == null ? bounds : Move(bounds, _current.X, _current.Y).Intersect(_current.Clip);
         internal static Rect? FocusWithin(IWidget content) {
             Scope? scope = _current;

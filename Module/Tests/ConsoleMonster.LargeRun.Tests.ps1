@@ -20,12 +20,16 @@ try {
 "COUNTS=$($summary.Passed),$($summary.Warned),$($summary.Failed),$($summary.Skipped)"
 "METADATA=$($summary.Items[0].Item.Label),$($summary.Items[1].Item.Target),$($summary.Items[2].Item.Group)"
 "VALUE=$value"
+"ITEMS=" + ($summary.Items | Select-Object Index, Item, Status | Out-String -Width 120)
 Complete-ConsoleRun $run
 '@
         $output = (Invoke-TestChild -Runtime $script:Runtime -Script $code.Replace('__MODULE__', $script:ModulePath)) -join "`n"
         $output | Should -Match 'COUNTS=1,1,0,1'
         $output | Should -Match 'METADATA=Alpha,host-2,Storage'
         $output | Should -Match 'VALUE=42'
+        # A listed run item shows its name and target, not its type name.
+        $output | Should -Match 'Alpha \u00B7 host-1'
+        $output | Should -Not -Match 'ConsoleMonster\.Live\.RunItem'
         $output | Should -Match 'reports/checks.html'
         $output | Should -Not -Match 'duplicate ignored'
         $output | Should -Not -Match ([char]27)

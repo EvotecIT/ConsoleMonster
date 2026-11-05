@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 104,
+  "ExpectedCount": 105,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -19,6 +19,7 @@
     "Invoke-ConsolePester",
     "Invoke-ConsoleRecording",
     "Invoke-ConsoleRun",
+    "New-ConsoleAccordion",
     "New-ConsoleActivityList",
     "New-ConsoleBinding",
     "New-ConsoleBreadcrumb",

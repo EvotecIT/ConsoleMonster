@@ -93,7 +93,7 @@ namespace ConsoleMonster.Interactive {
             }
             foreach (string segment in _ancestors) { shown.Add(new Segment(segment, -1)); }
             IList<OutlineItem> items = _outline.Items;
-            int current = _outline.CurrentIndex;
+            int current = _outline.SelectedIndex;
             if (current < 0 || current >= items.Count) { return shown; }
             List<Segment> path = new List<Segment> { new Segment(items[current].Title, current) };
             int level = items[current].Level;

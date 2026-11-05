@@ -6,6 +6,6 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The entries, in order.</summary>
         public IList<OutlineItem> Items { get; } = new List<OutlineItem>();
         /// <summary>The index of the entry that starts current, or -1 for none.</summary>
-        public int CurrentIndex { get; set; } = -1;
+        public int SelectedIndex { get; set; } = -1;
     }
 }

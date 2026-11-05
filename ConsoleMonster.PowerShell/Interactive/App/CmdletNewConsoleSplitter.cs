@@ -5,7 +5,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates two panes with a divider that the mouse and keyboard can move.</summary>
-    /// <remarks>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input and configured keys leave those chords free; text editing and existing bindings take precedence. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</remarks>
+    /// <remarks>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input and configured keys leave those chords free; text editing and existing bindings take precedence. With -Key, the app state holds the ratio under that key, so a binding that rebuilds the splitter keeps it and a callback can read or set it. A vertical splitter is as tall as its panes; -Fill makes it use the available height.</remarks>
     /// <example><para>Show a list beside its details and let the reader widen either side.</para><code>Show-ConsoleApp -Content {
     ///     New-ConsoleSplitter -Key Panes -Ratio 0.35 -Fill -First {
     ///         New-ConsoleSelect -Key Server -Choices 'web-01', 'web-02', 'db-01'
@@ -32,7 +32,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The first pane's share of the space, from 0.05 to 0.95.</para></summary>
         [Parameter, ValidateRange(0.05, 0.95)] public double Ratio { get; set; } = 0.5;
 
-        /// <summary><para type="description">Name the ratio is remembered under on each app screen.</para></summary>
+        /// <summary><para type="description">Unique key in the application's state; the value is the first pane's share, from 0.05 to 0.95.</para></summary>
         [Parameter] public string? Key { get; set; }
 
         /// <summary><para type="description">Share of the parent layout.</para></summary>

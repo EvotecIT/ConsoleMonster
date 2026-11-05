@@ -9,10 +9,10 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates retained tabs with keyboard and pointer navigation.</para>
-    /// <para type="description">Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.</para>
+    /// <para type="description">Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</para>
     /// </summary>
     /// <example><para>Compose two retained pages.</para><code>Show-ConsoleApp -Mode Snapshot -Content {
-    ///     New-ConsoleTabs -Content ([ordered]@{
+    ///     New-ConsoleTabs -Key Page -Content ([ordered]@{
     ///         Search = { New-ConsoleTextInput -Key Query }
     ///         About = { New-ConsoleText 'Inventory browser' }
     ///     })
@@ -27,6 +27,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true)] public PSObject? InputObject { get; set; }
         /// <summary><para type="description">Initial zero-based active page.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)] public int SelectedIndex { get; set; }
+        /// <summary><para type="description">Unique key in the application's state; the value is the active page's title.</para></summary>
+        [Parameter, ValidateNotNullOrEmpty] public string? Key { get; set; }
+        /// <summary><para type="description">Runs once each time the active page changes, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.</para></summary>
+        [Parameter] public ScriptBlock? OnChange { get; set; }
         /// <inheritdoc />
         protected override void BeginProcessing() {
             foreach (object item in PSItems.Items(Content)) { Add(item); }
@@ -39,9 +43,11 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (_pages.Count == 0) { throw new PSArgumentException("New-ConsoleTabs needs at least one page with Title and Content."); }
-            var tabs = new Tabs();
+            var tabs = new Tabs { Key = Key };
             foreach (LayoutRegion page in _pages) { tabs.Add(page.Key, page.Content); }
+            if (SelectedIndex >= _pages.Count) { throw new PSArgumentOutOfRangeException(nameof(SelectedIndex), SelectedIndex, "SelectedIndex is beyond the last page."); }
             tabs.SelectedIndex = SelectedIndex;
+            PSAppCallbacks.Register(((IOwnedInput)tabs).OwnedInput, OnChange);
             WriteObject(tabs);
         }
 

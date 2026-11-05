@@ -82,7 +82,6 @@ namespace ConsoleMonster.PowerShell {
             PSOutputExport.Validate(this);
             InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, rootValue);
             InteractiveOptions interactive = PSInteractive.Options(this, null);
-            if (interactive.ResolveMode() != InteractionMode.Rich) { throw new PromptUnavailableException("Show-ConsoleObject needs interactive input. For a static object tree use: Get-Process | Show-Console -View Tree -Depth 1."); }
             string rootLabel = RootPath;
             if (!MyInvocation.BoundParameters.ContainsKey(nameof(RootPath))) {
                 rootLabel = "input";

@@ -6515,6 +6515,81 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>New-ConsoleAccordion</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleAccordion</command:noun>
+      <maml:description>
+        <maml:para>Creates an accordion for Show-ConsoleApp: collapsible sections that keep one open.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>-Content emits New-ConsoleCollapsible sections. Opening one folds the others; while a header has focus, + expands every section for reading and - folds them all. Each section keeps its own key and state.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleAccordion</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>The sections of the group: New-ConsoleCollapsible output, or a script block that emits it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>The sections of the group: New-ConsoleCollapsible output, or a script block that emits it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.Accordion</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleAccordion -Content {&#xD;
+                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }&#xD;
+                    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {&#xD;
+                        'Get-Service -Name win*'&#xD;
+                        'Get-Service | Where-Object Status -eq Running'&#xD;
+                    }&#xD;
+                }&#xD;
+            }</dev:code>
+        <dev:remarks>
+          <maml:para>Fold long sections of a help page and keep one open at a time.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>New-ConsoleActivityList</command:name>
       <command:verb>New</command:verb>
       <command:noun>ConsoleActivityList</command:noun>
@@ -6758,11 +6833,11 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
       <command:verb>New</command:verb>
       <command:noun>ConsoleBreadcrumb</command:noun>
       <maml:description>
-        <maml:para>Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline&apos;s current entry.</maml:para>
+        <maml:para>Creates a breadcrumb for Show-ConsoleApp: a path such as Settings › Network › Proxy, its own or that of an outline's current entry.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>The last segment is where you are. With -Outline it follows that outline&apos;s current entry, after any -Ancestor segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.</maml:para>
+      <maml:para>The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Segment">
@@ -6782,7 +6857,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Key</maml:name>
           <maml:description>
-            <maml:para>Unique key in the application&apos;s state; the value is the last segment opened.</maml:para>
+            <maml:para>Unique key in the application's state; the value is the last segment opened.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -6804,7 +6879,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
-          <maml:name>Segment</maml:name>
+          <maml:name>Segments</maml:name>
           <maml:description>
             <maml:para>The segments, outermost first.</maml:para>
           </maml:description>
@@ -6831,9 +6906,9 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
       <command:syntaxItem parameterSetName="Outline">
         <maml:name>New-ConsoleBreadcrumb</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>Ancestor</maml:name>
+          <maml:name>Ancestors</maml:name>
           <maml:description>
-            <maml:para>Segments shown before the outline&apos;s headings, such as the screen or tab name.</maml:para>
+            <maml:para>Segments shown before the outline's headings, such as the screen or tab name.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
           <dev:type>
@@ -6857,7 +6932,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Key</maml:name>
           <maml:description>
-            <maml:para>Unique key in the application&apos;s state; the value is the last segment opened.</maml:para>
+            <maml:para>Unique key in the application's state; the value is the last segment opened.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -6906,9 +6981,9 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>Ancestor</maml:name>
+        <maml:name>Ancestors</maml:name>
         <maml:description>
-          <maml:para>Segments shown before the outline&apos;s headings, such as the screen or tab name.</maml:para>
+          <maml:para>Segments shown before the outline's headings, such as the screen or tab name.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         <dev:type>
@@ -6932,7 +7007,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Key</maml:name>
         <maml:description>
-          <maml:para>Unique key in the application&apos;s state; the value is the last segment opened.</maml:para>
+          <maml:para>Unique key in the application's state; the value is the last segment opened.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -6966,7 +7041,7 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
-        <maml:name>Segment</maml:name>
+        <maml:name>Segments</maml:name>
         <maml:description>
           <maml:para>The segments, outermost first.</maml:para>
         </maml:description>
@@ -7006,11 +7081,11 @@ Invoke-ConsoleDashboard $dashboard {&#xD;
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$sections = New-ConsoleOutline -Key Sections -Item &apos;General&apos;, @{ Title = &apos;Proxy&apos;; Level = 2 }, &apos;Logging&apos; -CurrentIndex 1&#xD;
-Show-ConsoleApp -Content {&#xD;
-    New-ConsoleBreadcrumb -Key Where -Ancestor &apos;Settings&apos; -Outline $sections&#xD;
-    $sections&#xD;
-}</dev:code>
+        <dev:code>$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1&#xD;
+            Show-ConsoleApp -Content {&#xD;
+                New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections&#xD;
+                $sections&#xD;
+            }</dev:code>
         <dev:remarks>
           <maml:para>Show where the reader is in an outline.</maml:para>
         </dev:remarks>
@@ -8775,12 +8850,12 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:noun>ConsoleChartView</command:noun>
       <maml:description>
         <maml:para>Makes a line chart explorable inside Show-ConsoleApp.</maml:para>
-        <maml:para>Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -SelectionKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.</maml:para>
+        <maml:para>Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Makes a line chart explorable inside Show-ConsoleApp.</maml:para>
-      <maml:para>Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -SelectionKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.</maml:para>
+      <maml:para>Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -8845,14 +8920,14 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>Labels</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>LinkKey</maml:name>
           <maml:description>
-            <maml:para>Labels for the points along X, such as times, read out with their values.</maml:para>
+            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</maml:para>
           </maml:description>
-          <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
-            <maml:name>String[]</maml:name>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -8870,13 +8945,13 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>SelectionKey</maml:name>
+          <maml:name>PointLabels</maml:name>
           <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</maml:para>
+            <maml:para>Labels for the points along X, such as times, read out with their values.</maml:para>
           </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
           <dev:type>
-            <maml:name>String</maml:name>
+            <maml:name>String[]</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -8968,14 +9043,14 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>Labels</maml:name>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>LinkKey</maml:name>
         <maml:description>
-          <maml:para>Labels for the points along X, such as times, read out with their values.</maml:para>
+          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</maml:para>
         </maml:description>
-        <command:parameterValue required="false" variableLength="true">String[]</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
-          <maml:name>String[]</maml:name>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -8993,13 +9068,13 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>SelectionKey</maml:name>
+        <maml:name>PointLabels</maml:name>
         <maml:description>
-          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</maml:para>
+          <maml:para>Labels for the points along X, such as times, read out with their values.</maml:para>
         </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         <dev:type>
-          <maml:name>String</maml:name>
+          <maml:name>String[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -9045,13 +9120,13 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }
-$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
-    @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
-Show-ConsoleApp -Content {
-    New-ConsoleChartView -Key Load -Chart $chart -Labels $samples.Minute -SelectionKey Minute
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -SelectionKey Minute
-}</dev:code>
+        <dev:code>$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }&#xD;
+            $chart = New-ConsoleChart -Type Line -Unit '%' -Series @(&#xD;
+                @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })&#xD;
+            Show-ConsoleApp -Content {&#xD;
+                New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute&#xD;
+                New-ConsoleDataGrid -Key Samples -InputObject $samples -Height 8 -LinkKey Minute&#xD;
+            }</dev:code>
         <dev:remarks>
           <maml:para>Explore CPU and memory samples next to the table they came from</maml:para>
         </dev:remarks>
@@ -9065,19 +9140,19 @@ Show-ConsoleApp -Content {
       <command:verb>New</command:verb>
       <command:noun>ConsoleCollapsible</command:noun>
       <maml:description>
-        <maml:para>Creates a collapsible section for Show-ConsoleApp, or an accordion of sections that keeps one open.</maml:para>
+        <maml:para>Creates a collapsible section for Show-ConsoleApp.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. With -Accordion, -Content emits sections and opening one folds the others; + expands every section and - folds them all.</maml:para>
+      <maml:para>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. New-ConsoleAccordion groups sections so that opening one folds the others.</maml:para>
     </maml:description>
     <command:syntax>
-      <command:syntaxItem parameterSetName="Section">
+      <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleCollapsible</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Content</maml:name>
           <maml:description>
-            <maml:para>The section's widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
+            <maml:para>The section's widgets, text or a script block that emits them.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -9183,51 +9258,12 @@ Show-ConsoleApp -Content {
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
-      <command:syntaxItem parameterSetName="Accordion">
-        <maml:name>New-ConsoleCollapsible</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>Accordion</maml:name>
-          <maml:description>
-            <maml:para>Groups the sections emitted by -Content so that opening one folds the others.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Content</maml:name>
-          <maml:description>
-            <maml:para>The section's widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
-          <dev:type>
-            <maml:name>Object</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-      </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>Accordion</maml:name>
-        <maml:description>
-          <maml:para>Groups the sections emitted by -Content so that opening one folds the others.</maml:para>
-        </maml:description>
-        <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
-        <dev:type>
-          <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Content</maml:name>
         <maml:description>
-          <maml:para>The section's widgets, text or a script block that emits them. With -Accordion, the sections of the group.</maml:para>
+          <maml:para>The section's widgets, text or a script block that emits them.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
         <dev:type>
@@ -9340,11 +9376,6 @@ Show-ConsoleApp -Content {
           <maml:name>ConsoleMonster.Interactive.Collapsible</maml:name>
         </dev:type>
       </command:returnValue>
-      <command:returnValue>
-        <dev:type>
-          <maml:name>ConsoleMonster.Interactive.Accordion</maml:name>
-        </dev:type>
-      </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
       <maml:alert>
@@ -9355,7 +9386,7 @@ Show-ConsoleApp -Content {
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>Show-ConsoleApp -Content {&#xD;
-                New-ConsoleCollapsible -Accordion -Content {&#xD;
+                New-ConsoleAccordion -Content {&#xD;
                     New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }&#xD;
                     New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {&#xD;
                         'Get-Service -Name win*'&#xD;
@@ -10208,6 +10239,18 @@ Show-ConsoleApp -Content {
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>LinkKey</maml:name>
+          <maml:description>
+            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>NoQuickSearch</maml:name>
           <maml:description>
             <maml:para>Leaves printable keys to the app's command registry.</maml:para>
@@ -10227,18 +10270,6 @@ Show-ConsoleApp -Content {
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
           <dev:type>
             <maml:name>ScriptBlock</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>SelectionKey</maml:name>
-          <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -10294,12 +10325,12 @@ Show-ConsoleApp -Content {
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>InputObject</maml:name>
           <maml:description>
             <maml:para>The objects to list, one row each; the row is the object a selection returns.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="true">PSObject[]</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">PSObject[]</command:parameterValue>
           <dev:type>
             <maml:name>PSObject[]</maml:name>
             <maml:uri />
@@ -10322,6 +10353,18 @@ Show-ConsoleApp -Content {
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>Visible label; defaults to the name using the core control's labels.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>LinkKey</maml:name>
+          <maml:description>
+            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -10354,26 +10397,14 @@ Show-ConsoleApp -Content {
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Property</maml:name>
           <maml:description>
             <maml:para>Columns: names, wildcards and calculated properties with the Show-ConsoleTable column options.</maml:para>
           </maml:description>
-          <command:parameterValue required="false" variableLength="true">Object[]</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
           <dev:type>
             <maml:name>Object[]</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>SelectionKey</maml:name>
-          <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -10441,12 +10472,12 @@ Show-ConsoleApp -Content {
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>InputObject</maml:name>
         <maml:description>
           <maml:para>The objects to list, one row each; the row is the object a selection returns.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="true">PSObject[]</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">PSObject[]</command:parameterValue>
         <dev:type>
           <maml:name>PSObject[]</maml:name>
           <maml:uri />
@@ -10469,6 +10500,18 @@ Show-ConsoleApp -Content {
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>Visible label; defaults to the name using the core control's labels.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>LinkKey</maml:name>
+        <maml:description>
+          <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -10501,26 +10544,14 @@ Show-ConsoleApp -Content {
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Property</maml:name>
         <maml:description>
           <maml:para>Columns: names, wildcards and calculated properties with the Show-ConsoleTable column options.</maml:para>
         </maml:description>
-        <command:parameterValue required="false" variableLength="true">Object[]</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
         <dev:type>
           <maml:name>Object[]</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>SelectionKey</maml:name>
-        <maml:description>
-          <maml:para>The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -18523,18 +18554,6 @@ Description and RunText.</maml:para>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleOutline</maml:name>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>CurrentIndex</maml:name>
-          <maml:description>
-            <maml:para>The index of the entry that starts current; -1 (the default) for none.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Disabled</maml:name>
           <maml:description>
             <maml:para>Disables the outline and removes it from keyboard focus traversal.</maml:para>
@@ -18547,7 +18566,7 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
-          <maml:name>Item</maml:name>
+          <maml:name>Items</maml:name>
           <maml:description>
             <maml:para>The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).</maml:para>
           </maml:description>
@@ -18561,7 +18580,7 @@ Description and RunText.</maml:para>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Key</maml:name>
           <maml:description>
-            <maml:para>Unique key in the application&apos;s state; the value is the current entry&apos;s title.</maml:para>
+            <maml:para>Unique key in the application's state; the value is the current entry's title.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18583,6 +18602,18 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>SelectedIndex</maml:name>
+          <maml:description>
+            <maml:para>The index of the entry that starts current; -1 (the default) for none.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>TabIndex</maml:name>
           <maml:description>
             <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
@@ -18598,18 +18629,6 @@ Description and RunText.</maml:para>
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>CurrentIndex</maml:name>
-        <maml:description>
-          <maml:para>The index of the entry that starts current; -1 (the default) for none.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-        <dev:type>
-          <maml:name>Int32</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Disabled</maml:name>
         <maml:description>
           <maml:para>Disables the outline and removes it from keyboard focus traversal.</maml:para>
@@ -18622,7 +18641,7 @@ Description and RunText.</maml:para>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
-        <maml:name>Item</maml:name>
+        <maml:name>Items</maml:name>
         <maml:description>
           <maml:para>The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).</maml:para>
         </maml:description>
@@ -18636,7 +18655,7 @@ Description and RunText.</maml:para>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Key</maml:name>
         <maml:description>
-          <maml:para>Unique key in the application&apos;s state; the value is the current entry&apos;s title.</maml:para>
+          <maml:para>Unique key in the application's state; the value is the current entry's title.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -18653,6 +18672,18 @@ Description and RunText.</maml:para>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         <dev:type>
           <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>SelectedIndex</maml:name>
+        <maml:description>
+          <maml:para>The index of the entry that starts current; -1 (the default) for none.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -18686,13 +18717,13 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label &apos;Server&apos; }&#xD;
-$dns = New-ConsoleCollapsible -Key Dns -Label &apos;DNS&apos; -Content { New-ConsoleTextInput -Key DnsServers -Label &apos;Servers&apos; }&#xD;
-Show-ConsoleApp -Content {&#xD;
-    New-ConsoleSplitter -Ratio 0.3 -First {&#xD;
-        New-ConsoleOutline -Key Sections -Item ([pscustomobject]@{ Title = &apos;Proxy&apos;; Target = $proxy }), ([pscustomobject]@{ Title = &apos;DNS&apos;; Target = $dns })&#xD;
-    } -Second { $proxy; $dns }&#xD;
-}</dev:code>
+        <dev:code>$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }&#xD;
+            $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }&#xD;
+            Show-ConsoleApp -Content {&#xD;
+                New-ConsoleSplitter -Ratio 0.3 -First {&#xD;
+                    New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })&#xD;
+                } -Second { $proxy; $dns }&#xD;
+            }</dev:code>
         <dev:remarks>
           <maml:para>Jump between the sections of a settings page.</maml:para>
         </dev:remarks>
@@ -20795,7 +20826,7 @@ Show-ConsoleApp -Content {&#xD;
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleSelect</maml:name>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Choices</maml:name>
           <maml:description>
             <maml:para>Choices as objects or existing Choice values. Objects themselves become the selected values.</maml:para>
@@ -20868,6 +20899,18 @@ Show-ConsoleApp -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>LinkKey</maml:name>
+          <maml:description>
+            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Multiple</maml:name>
           <maml:description>
             <maml:para>Allows multiple selected values.</maml:para>
@@ -20916,18 +20959,6 @@ Show-ConsoleApp -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>SelectionKey</maml:name>
-          <maml:description>
-            <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>TabIndex</maml:name>
           <maml:description>
             <maml:para>Keyboard focus order. Equal values preserve layout declaration order.</maml:para>
@@ -20966,7 +20997,7 @@ Show-ConsoleApp -Content {&#xD;
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Choices</maml:name>
         <maml:description>
           <maml:para>Choices as objects or existing Choice values. Objects themselves become the selected values.</maml:para>
@@ -21039,6 +21070,18 @@ Show-ConsoleApp -Content {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>LinkKey</maml:name>
+        <maml:description>
+          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Multiple</maml:name>
         <maml:description>
           <maml:para>Allows multiple selected values.</maml:para>
@@ -21082,18 +21125,6 @@ Show-ConsoleApp -Content {&#xD;
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>SelectionKey</maml:name>
-        <maml:description>
-          <maml:para>The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleChartView, another select): the highlighted choice's position. A position it cannot show is ignored.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -21174,7 +21205,7 @@ Show-ConsoleApp -Content {&#xD;
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input and configured keys leave those chords free; text editing and existing bindings take precedence. Inside Show-ConsoleApp screens, a splitter with -Key keeps its ratio for each screen, also when a binding rebuilds it.</maml:para>
+      <maml:para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input and configured keys leave those chords free; text editing and existing bindings take precedence. With -Key, the app state holds the ratio under that key, so a binding that rebuilds the splitter keeps it and a callback can read or set it. A vertical splitter is as tall as its panes; -Fill makes it use the available height.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -21218,7 +21249,7 @@ Show-ConsoleApp -Content {&#xD;
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Key</maml:name>
           <maml:description>
-            <maml:para>Name the ratio is remembered under on each app screen.</maml:para>
+            <maml:para>Unique key in the application's state; the value is the first pane's share, from 0.05 to 0.95.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -21317,7 +21348,7 @@ Show-ConsoleApp -Content {&#xD;
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Key</maml:name>
         <maml:description>
-          <maml:para>Name the ratio is remembered under on each app screen.</maml:para>
+          <maml:para>Unique key in the application's state; the value is the first pane's share, from 0.05 to 0.95.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -23087,12 +23118,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       <command:noun>ConsoleTabs</command:noun>
       <maml:description>
         <maml:para>Creates retained tabs with keyboard and pointer navigation.</maml:para>
-        <maml:para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.</maml:para>
+        <maml:para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates retained tabs with keyboard and pointer navigation.</maml:para>
-      <maml:para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus.</maml:para>
+      <maml:para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -23117,6 +23148,30 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
           <dev:type>
             <maml:name>PSObject</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Key</maml:name>
+          <maml:description>
+            <maml:para>Unique key in the application's state; the value is the active page's title.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>OnChange</maml:name>
+          <maml:description>
+            <maml:para>Runs once each time the active page changes, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -23161,6 +23216,30 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Key</maml:name>
+        <maml:description>
+          <maml:para>Unique key in the application's state; the value is the active page's title.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>OnChange</maml:name>
+        <maml:description>
+          <maml:para>Runs once each time the active page changes, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>SelectedIndex</maml:name>
         <maml:description>
           <maml:para>Initial zero-based active page.</maml:para>
@@ -23173,13 +23252,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes>
-      <command:inputType>
-        <dev:type>
-          <maml:name>System.Management.Automation.PSObject</maml:name>
-        </dev:type>
-      </command:inputType>
-    </command:inputTypes>
+    <command:inputTypes />
     <command:returnValues>
       <command:returnValue>
         <dev:type>
@@ -23196,7 +23269,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>Show-ConsoleApp -Mode Snapshot -Content {&#xD;
-                New-ConsoleTabs -Content ([ordered]@{&#xD;
+                New-ConsoleTabs -Key Page -Content ([ordered]@{&#xD;
                     Search = { New-ConsoleTextInput -Key Query }&#xD;
                     About = { New-ConsoleText 'Inventory browser' }&#xD;
                 })&#xD;
@@ -33172,7 +33245,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Exclude</maml:name>
           <maml:description>
             <maml:para>Member names to skip without invoking their getters, supporting wildcards.</maml:para>
@@ -33184,7 +33257,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Include</maml:name>
           <maml:description>
             <maml:para>Member names to include, supporting wildcards.</maml:para>
@@ -33262,10 +33335,6 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
             <maml:para>Value (default) or Path. The positional form supports -PassThru Path.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Value</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
-          </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
@@ -33299,7 +33368,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Exclude</maml:name>
         <maml:description>
           <maml:para>Member names to skip without invoking their getters, supporting wildcards.</maml:para>
@@ -33311,7 +33380,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Include</maml:name>
         <maml:description>
           <maml:para>Member names to include, supporting wildcards.</maml:para>
@@ -33389,10 +33458,6 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <maml:para>Value (default) or Path. The positional form supports -PassThru Path.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-        <command:parameterValueGroup>
-          <command:parameterValue required="false" variableLength="false">Value</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Path</command:parameterValue>
-        </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
@@ -33412,13 +33477,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes>
-      <command:inputType>
-        <dev:type>
-          <maml:name>System.Management.Automation.PSObject</maml:name>
-        </dev:type>
-      </command:inputType>
-    </command:inputTypes>
+    <command:inputTypes />
     <command:returnValues>
       <command:returnValue>
         <dev:type>

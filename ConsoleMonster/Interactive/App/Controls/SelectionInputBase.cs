@@ -53,16 +53,16 @@ namespace ConsoleMonster.Interactive {
         /// the highlighted choice's position there, in declaration order, and a new value there highlights that choice.
         /// Highlighting does not change the committed value.
         /// </summary>
-        public string? SelectionKey { get; set; }
+        public string? LinkKey { get; set; }
 
-        int? ILinkedSelection.SelectedIndex => Read(() => {
+        int? ILinkedSelection.LinkIndex => Read(() => {
             Choice? focused = _list.FocusedChoice;
             if (focused == null) { return (int?)null; }
             for (int i = 0; i < _list.Choices.Count; i++) { if (ReferenceEquals(_list.Choices[i], focused)) { return i; } }
             return null;
         });
 
-        void ILinkedSelection.FollowSelection(int? index) => Change(() => {
+        void ILinkedSelection.FollowLink(int? index) => Change(() => {
             if (!index.HasValue || index.Value < 0 || index.Value >= _list.Choices.Count) { return; }
             _list.ClearFilter();
             _list.FocusChoice(_list.Choices[index.Value]);

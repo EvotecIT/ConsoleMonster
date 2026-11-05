@@ -89,6 +89,16 @@
         $warned.Count | Should -Be 0
     }
 
+    It 'prints the static view instead of failing when output is redirected' {
+        $module = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'
+        $shell = (Get-Process -Id $PID).Path
+        $output = & $shell -NoProfile -NonInteractive -Command "Import-Module '$module'; [pscustomobject]@{ Name = 'web-01'; Owner = 'Ada' } | Show-ConsoleObject; 'EXIT-OK'" 2>&1 | Out-String
+        $output | Should -Match 'web-01'
+        $output | Should -Match 'Ada'
+        $output | Should -Match 'EXIT-OK'
+        $output | Should -Not -Match 'interactive input'
+    }
+
     It 'exports the command and documents all its parameters' {
         $command = Get-Command Show-ConsoleObject -Module ConsoleMonster
         $command.Parameters.ContainsKey('InputObject') | Should -BeTrue

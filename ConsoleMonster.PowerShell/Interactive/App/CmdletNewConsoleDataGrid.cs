@@ -33,7 +33,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Leaves printable keys to the app's command registry.</para></summary>
         [Parameter] public SwitchParameter NoQuickSearch { get; set; }
         /// <summary><para type="description">The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</para></summary>
-        [Parameter] public string? SelectionKey { get; set; }
+        [Parameter] public string? LinkKey { get; set; }
         /// <inheritdoc />
         protected override void EndProcessing() {
             Grid grid = Grid;
@@ -41,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
                 grid = new Grid(Label ?? Key);
                 PSGridListing.Build(InputObject.Where(item => item != null), Property, null, this, grid, out _);
             }
-            Emit(new DataGridInputOptions { Key = Key, Grid = grid, Height = Height, QuickSearch = !NoQuickSearch.IsPresent, SelectionKey = SelectionKey }.Build());
+            Emit(new DataGridInputOptions { Key = Key, Grid = grid, Height = Height, QuickSearch = !NoQuickSearch.IsPresent, LinkKey = LinkKey }.Build());
         }
     }
 }

@@ -11,7 +11,7 @@ Creates an outline for Show-ConsoleApp: a list of headings to jump between, such
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleOutline [-Key] <string> [-Item] <Object[]> [-CurrentIndex <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleOutline [-Key] <string> [-Items] <Object[]> [-SelectedIndex <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,7 @@ $proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key 
 $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
 Show-ConsoleApp -Content {
     New-ConsoleSplitter -Ratio 0.3 -First {
-        New-ConsoleOutline -Key Sections -Item ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
+        New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
     } -Second { $proxy; $dns }
 }
 ```
@@ -33,22 +33,6 @@ Show-ConsoleApp -Content {
 Jump between the sections of a settings page.
 
 ## PARAMETERS
-
-### -CurrentIndex
-The index of the entry that starts current; -1 (the default) for none.
-
-```yaml
-Type: Int32
-Parameter Sets: (All)
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Disabled
 Disables the outline and removes it from keyboard focus traversal.
@@ -66,7 +50,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Item
+### -Items
 The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).
 
 ```yaml
@@ -103,6 +87,22 @@ Runs once each time an entry is opened, on the owning input thread. Receives par
 
 ```yaml
 Type: ScriptBlock
+Parameter Sets: (All)
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SelectedIndex
+The index of the entry that starts current; -1 (the default) for none.
+
+```yaml
+Type: Int32
 Parameter Sets: (All)
 Aliases: None
 Possible values:

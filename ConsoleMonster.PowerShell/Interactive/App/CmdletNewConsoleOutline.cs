@@ -12,7 +12,7 @@ namespace ConsoleMonster.PowerShell {
     /// $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleSplitter -Ratio 0.3 -First {
-    ///         New-ConsoleOutline -Key Sections -Item ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
+    ///         New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
     ///     } -Second { $proxy; $dns }
     /// }</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleOutline")]
@@ -26,11 +26,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The entries: titles, or records with Title, Level (1 for the top) and Target (a control to open).</para></summary>
         [Parameter(Mandatory = true, Position = 1)]
         [AllowEmptyCollection]
-        public object[] Item { get; set; } = Array.Empty<object>();
+        public object[] Items { get; set; } = Array.Empty<object>();
 
         /// <summary><para type="description">The index of the entry that starts current; -1 (the default) for none.</para></summary>
         [Parameter]
-        public int CurrentIndex { get; set; } = -1;
+        public int SelectedIndex { get; set; } = -1;
 
         /// <summary><para type="description">Disables the outline and removes it from keyboard focus traversal.</para></summary>
         [Parameter]
@@ -46,8 +46,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            OutlineInputOptions options = new OutlineInputOptions { Key = Key, CurrentIndex = CurrentIndex, Disabled = Disabled.IsPresent, TabIndex = TabIndex };
-            foreach (object? entry in Item) { options.Items.Add(ToItem(entry)); }
+            OutlineInputOptions options = new OutlineInputOptions { Key = Key, SelectedIndex = SelectedIndex, Disabled = Disabled.IsPresent, TabIndex = TabIndex };
+            foreach (object? entry in Items) { options.Items.Add(ToItem(entry)); }
             Outline outline = AppInput.Outline(options);
             PSAppCallbacks.Register(outline, OnChange);
             WriteObject(outline);

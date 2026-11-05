@@ -47,8 +47,12 @@ namespace ConsoleMonster.Interactive {
         public bool QuickSearch { get; set; } = true;
         /// <summary>The focused source row, or null for an empty view.</summary>
         public GridRow? CurrentRow => Read(() => CurrentRowCore);
-        /// <summary>The focused visible row index.</summary>
-        public int Cursor { get => Read(() => _cursor); set => Change(() => _cursor = Clamp(value)); }
+        /// <summary>The focused row's position among the rows shown (after sorting and filtering).</summary>
+        public int SelectedIndex { get => Read(() => _cursor); set => Change(() => _cursor = Clamp(value)); }
+        /// <summary>The focused row's position among the rows shown; renamed <see cref="SelectedIndex"/>, which list-like controls share.</summary>
+        [Obsolete("Use SelectedIndex.")]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public int Cursor { get => SelectedIndex; set => SelectedIndex = value; }
         /// <summary>The first visible row index.</summary>
         public int ScrollRow => Read(() => _top);
         /// <summary>The number of rows matching the filter.</summary>
@@ -70,10 +74,10 @@ namespace ConsoleMonster.Interactive {
         /// row's position in the listing there (before sorting or filtering), and a new value there moves the cursor to
         /// that row while it is shown.
         /// </summary>
-        public string? SelectionKey { get; set; }
+        public string? LinkKey { get; set; }
 
-        int? ILinkedSelection.SelectedIndex => Read(() => CurrentRowCore == null ? (int?)null : _visible[_cursor]);
-        void ILinkedSelection.FollowSelection(int? index) => Change(() => {
+        int? ILinkedSelection.LinkIndex => Read(() => CurrentRowCore == null ? (int?)null : _visible[_cursor]);
+        void ILinkedSelection.FollowLink(int? index) => Change(() => {
             int position = index.HasValue ? _visible.IndexOf(index.Value) : -1;
             if (position >= 0) { _cursor = position; }
         });

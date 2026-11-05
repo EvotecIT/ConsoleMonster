@@ -12,6 +12,16 @@ namespace ConsoleMonster.Examples {
         /// <param name="args">Command-line arguments.</param>
         /// <returns>Exit code.</returns>
         public static int Main(string[] args) {
+            try {
+                return Run(args);
+            } catch (Interactive.PromptUnavailableException) {
+                // Redirected or closed input: the wizard and prompt examples cannot ask anything.
+                Console.Error.WriteLine("This example needs an interactive terminal.");
+                return 1;
+            }
+        }
+
+        private static int Run(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "query";
             switch (name) {
                 case "diagram":

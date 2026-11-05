@@ -10,14 +10,14 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Rows for the readout and the plot, legend included.</summary>
         public int Height { get; set; } = 10;
         /// <summary>Labels for the points along X, read out with their values.</summary>
-        public IList<string>? Labels { get; set; }
+        public IList<string>? PointLabels { get; set; }
         /// <summary>The app-state key shared with linked controls (see <see cref="ILinkedSelection"/>): the point under the crosshair.</summary>
-        public string? SelectionKey { get; set; }
+        public string? LinkKey { get; set; }
         /// <summary>Creates the persistent input after its key and chart are configured.</summary>
         public ChartView Build() {
             if (Chart == null) { throw new InvalidOperationException("A chart view needs a Chart."); }
-            var control = new ChartView(Key, Chart) { Label = Label, Height = Height, SelectionKey = SelectionKey, Disabled = Disabled, TabIndex = TabIndex, ValidationMessage = ValidationMessage };
-            if (Labels != null) { foreach (string label in Labels) { control.Labels.Add(label); } }
+            var control = new ChartView(Key, Chart) { Label = Label, Height = Height, LinkKey = LinkKey, Disabled = Disabled, TabIndex = TabIndex, ValidationMessage = ValidationMessage };
+            if (PointLabels != null) { foreach (string label in PointLabels) { control.PointLabels.Add(label); } }
             if (OnChange != null) { control.Changed += OnChange; }
             return control;
         }
