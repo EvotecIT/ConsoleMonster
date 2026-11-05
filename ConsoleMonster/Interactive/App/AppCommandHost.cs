@@ -71,6 +71,8 @@ namespace ConsoleMonster.Interactive {
 
         internal bool HasCommands => _commands.Length != 0 || _actions != null;
         internal bool HasModal { get { lock (_gate) { return _modal != null && !_modal.IsClosed; } } }
+        // The open dialog, for telling one key scope from another.
+        internal object? Modal { get { lock (_gate) { return _modal != null && !_modal.IsClosed ? _modal : null; } } }
         internal bool HasBarFocus => _barActive;
         internal bool IsBusy => _session.IsBusy;
         internal Task Completion => _session.Completion;

@@ -30,8 +30,8 @@ namespace ConsoleMonster.Interactive {
         private readonly RegionWidget _carrier = new RegionWidget("AppFrame" + Interlocked.Increment(ref _next));
 
         // The shown screen, its crumbs and the app footer's hints, published together on the app thread.
-        internal void Publish(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, LiveSession? session) {
-            Snapshot snapshot = new Snapshot(view, footer, hints, focusVersion);
+        internal void Publish(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, KeyScope scope, LiveSession? session) {
+            Snapshot snapshot = new Snapshot(view, footer, hints, focusVersion, scope);
             if (session == null) { _carrier.Set(snapshot); }
             else { _carrier.Handle(session).Set(snapshot); }
         }
@@ -48,7 +48,8 @@ namespace ConsoleMonster.Interactive {
             // A frame reconciles focus only against the focus the snapshot it draws was published with.
             Snapshot? snapshot = _carrier.Content as Snapshot;
             _viewport.BeginFrame(snapshot?.FocusVersion);
-            using (Targets.Collect())
+            // The hints and crumbs it draws belong to the key scope the snapshot was published for.
+            using (Targets.Collect(snapshot?.Scope))
             using (AppScreens.Scope(snapshot?.View))
             using (FooterBar.FrameHints(snapshot?.Footer, snapshot?.Hints))
             using (LayoutNotes.Frame()) { _content.Render(region, context); }
@@ -143,8 +144,9 @@ namespace ConsoleMonster.Interactive {
         private static bool Contains(Rect area, InputEvent input) => input.Column >= area.X && input.Column < area.Right && input.Row >= area.Y && input.Row < area.Bottom;
 
         private sealed class Snapshot : IWidget, IUnrecorded {
-            internal Snapshot(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion) { View = view; Footer = footer; Hints = hints; FocusVersion = focusVersion; }
+            internal Snapshot(AppScreens.View? view, FooterBar? footer, IReadOnlyList<KeyHint>? hints, int focusVersion, KeyScope scope) { View = view; Footer = footer; Hints = hints; FocusVersion = focusVersion; Scope = scope; }
             internal AppScreens.View? View { get; } internal FooterBar? Footer { get; } internal IReadOnlyList<KeyHint>? Hints { get; } internal int FocusVersion { get; }
+            internal KeyScope Scope { get; }
             public Size Measure(Constraints constraints, RenderContext context) => new Size(0, 0);
             public void Render(Region region, RenderContext context) { }
         }

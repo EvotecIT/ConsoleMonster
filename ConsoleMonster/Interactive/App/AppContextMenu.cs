@@ -20,12 +20,16 @@ namespace ConsoleMonster.Interactive {
         private int _pressed = -1;
         private Rect _area;
 
-        internal AppContextMenu(IReadOnlyList<AppKeyMap.Entry> entries, int column, int row) {
+        internal AppContextMenu(IReadOnlyList<AppKeyMap.Entry> entries, int column, int row, KeyScope? scope = null) {
             _entries = entries;
             Column = column;
             Row = row;
+            Scope = scope;
             _cursor = Next(-1, 1);
         }
+
+        /// <summary>The scope whose bindings it lists; the menu closes when another scope takes the keys.</summary>
+        internal KeyScope? Scope { get; }
 
         /// <summary>Where it opens: the pointer, or the focused input's corner.</summary>
         internal int Column { get; }

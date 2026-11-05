@@ -16,14 +16,20 @@ namespace ConsoleMonster.Interactive {
         private List<Target> _collecting = new List<Target>();
         private Target[] _frame = new Target[0];
         private Target? _pressed;
+        // The key scope the published frame was drawn for, and the one a held press on a hint or crumb began in.
+        private object? _frameScope, _collectingScope, _pressedScope;
         private readonly bool _regions;
 
         /// <summary>Creates a registry; an app's controls route their own pointer input, so its frames keep no regions.</summary>
         internal PointerTargets(bool regions = true) { _regions = regions; }
 
-        /// <summary>Starts collecting a frame; disposing publishes it for pointer input.</summary>
-        internal IDisposable Collect() {
+        /// <summary>
+        /// Starts collecting a frame; disposing publishes it for pointer input. <paramref name="scope"/> names who the keys
+        /// reached when the frame's hints were listed (an app's focused input, screen and dialog).
+        /// </summary>
+        internal IDisposable Collect(object? scope = null) {
             _collecting = new List<Target>();
+            _collectingScope = scope;
             return new Scope(this);
         }
 
@@ -87,13 +93,15 @@ namespace ConsoleMonster.Interactive {
         /// <summary>
         /// Routes a pointer event. A press and release on the same hint or crumb activates it: <paramref name="key"/> is the
         /// key to press, or the action has already run. Regions get every event inside them. Returns whether the event was
-        /// used.
+        /// used. A hint or crumb runs only while <paramref name="scope"/>, who the keys reach now, is the scope the frame
+        /// was drawn for and the press began in: the same chord and label in another scope can name another binding.
         /// </summary>
-        internal bool Route(InputEvent input, int clicks, out KeyChord? key) {
+        internal bool Route(InputEvent input, int clicks, out KeyChord? key, object? scope = null) {
             key = null;
             Target[] frame;
             Target? pressed;
-            lock (_gate) { frame = _frame; pressed = _pressed; }
+            object? frameScope, pressedScope;
+            lock (_gate) { frame = _frame; pressed = _pressed; frameScope = _frameScope; pressedScope = _pressedScope; }
             // A press held in a region keeps its drag and release, wherever the pointer is.
             if (pressed?.Pointer != null && ((input.MouseAction == MouseAction.Move && (input.HeldButtons & 1) != 0) || (input.MouseAction == MouseAction.Up && input.MouseButton == 1))) {
                 Target? owner = pressed.Id == null ? pressed : Array.FindLast(frame, target => target.Pointer != null && target.Id == pressed.Id);
@@ -115,7 +123,7 @@ namespace ConsoleMonster.Interactive {
             if (input.MouseAction == MouseAction.Up && input.MouseButton == 1) {
                 lock (_gate) { _pressed = null; }
                 if (pressed != null && pressed.Pointer == null) {
-                    if (hit == null || !Same(hit, pressed)) { return true; }
+                    if (hit == null || !Same(hit, pressed) || !Equals(pressedScope, scope) || !Equals(frameScope, scope)) { return true; }
                     // The current frame's action: a target drawn again since the press runs as it is now.
                     if (hit.Action != null) { hit.Action(); }
                     else { key = hit.Key; }
@@ -130,7 +138,8 @@ namespace ConsoleMonster.Interactive {
                 return used;
             }
             if (input.MouseAction == MouseAction.Down && input.MouseButton == 1) {
-                lock (_gate) { _pressed = hit; }
+                // A frame drawn for another scope shows hints the keys no longer reach; the press waits for the next frame.
+                lock (_gate) { _pressed = Equals(frameScope, scope) ? hit : null; _pressedScope = scope; }
                 return true;
             }
             return input.MouseAction != MouseAction.Move;
@@ -166,7 +175,7 @@ namespace ConsoleMonster.Interactive {
             public void Dispose() {
                 _current = _previous;
                 Target[] frame = _owner._collecting.ToArray();
-                lock (_owner._gate) { _owner._frame = frame; }
+                lock (_owner._gate) { _owner._frame = frame; _owner._frameScope = _owner._collectingScope; }
             }
         }
     }

@@ -119,6 +119,9 @@ namespace ConsoleMonster.Interactive {
                 Invalidate();
             }
             if (_overlay.Menu is AppContextMenu menu && (input.Kind == InputEventKind.Key || input.Kind == InputEventKind.Mouse)) {
+                // The menu lists one scope's bindings: once another input, screen or dialog has the keys it is stale, and the
+                // key or press meant for it does nothing else.
+                if (!Equals(menu.Scope, CurrentScope())) { _overlay.Menu = null; Invalidate(); return; }
                 AppKeyMap.Entry? chosen = input.Kind == InputEventKind.Key ? menu.HandleKey(input, out bool close, out bool used) : menu.HandlePointer(input, out close, out used);
                 if (close) { _overlay.Menu = null; }
                 Invalidate();
@@ -143,7 +146,7 @@ namespace ConsoleMonster.Interactive {
             // An open popup is drawn over everything else, so it takes the pointer first; a press outside closes it.
             if (input.Kind == InputEventKind.Mouse && !modal && _pointerCapture == null && _overlay.RoutePointer(input, _context)) { Invalidate(); return; }
             // A click on a footer hint presses its key; a click on a breadcrumb returns to that screen.
-            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && (!modal || _overlay.ModalDrawn) && _overlay.Targets.Route(input, clicks, out KeyChord? pressed)) {
+            if (input.Kind == InputEventKind.Mouse && _pointerCapture == null && (!modal || _overlay.ModalDrawn) && _overlay.Targets.Route(input, clicks, out KeyChord? pressed, CurrentScope())) {
                 Invalidate();
                 if (pressed.HasValue) { HandleCore(pressed.Value.ToInput(), mouse, ref reachedKeys); }
                 return;
@@ -209,7 +212,7 @@ namespace ConsoleMonster.Interactive {
         // Lists what the keys reach right now; an empty menu does not open.
         private void OpenMenu(int column, int row) {
             if (_actions.HasModal) { return; }
-            AppContextMenu menu = new AppContextMenu(_keys.MenuEntries(HostBindings(), HostFirst()), column, row);
+            AppContextMenu menu = new AppContextMenu(_keys.MenuEntries(HostBindings(), HostFirst()), column, row, CurrentScope());
             if (!menu.IsEmpty) { _overlay.Menu = menu; }
             Invalidate();
         }
@@ -249,6 +252,11 @@ namespace ConsoleMonster.Interactive {
             chosen.Chord.HasValue && _keys.MenuEntries(HostBindings(), HostFirst()).Any(entry => Nullable.Equals(entry.Chord, chosen.Chord)
                 && string.Equals(entry.Binding.Label, chosen.Binding.Label, StringComparison.Ordinal) && string.Equals(entry.Keys, chosen.Keys, StringComparison.Ordinal));
 
+        private KeyScope CurrentScope() {
+            InputControl? focused = _focus.Current;
+            return new KeyScope(focused != null && !focused.Disabled ? focused : null, _screens?.Current, _actions.Modal);
+        }
+
         private void Navigated() {
             // A menu lists one screen's bindings; it does not survive the switch.
             _overlay.Menu = null;
@@ -276,7 +284,10 @@ namespace ConsoleMonster.Interactive {
                 hints = modal != null ? _keys.Hints(modal, new KeyChord[0], false, out keepLast) : _keys.Hints(HostBindings(), HostFirst(), true, out keepLast);
                 if (app == _defaultFooter) { app.KeepLast = keepLast; }
             }
-            _overlay.Publish(_screens?.RefreshCrumbs(), app, hints, _focus.Version, _session);
+            KeyScope scope = CurrentScope();
+            // A menu another scope listed is not drawn again.
+            if (_overlay.Menu is AppContextMenu menu && !Equals(menu.Scope, scope)) { _overlay.Menu = null; }
+            _overlay.Publish(_screens?.RefreshCrumbs(), app, hints, _focus.Version, scope, _session);
         }
 
         // Host gestures as hints; the host matches them itself. With screens, "back" means the previous screen, so the

@@ -502,8 +502,53 @@ namespace ConsoleMonster.Tests.Interactive.App {
             app.Handle(InputEvent.Character('Y'), true);
             Assert.Equal(astronaut + "Yx", input.CurrentValue);
         }
+        // Two inputs with the same chord and label on different callbacks: after focus moves, the open menu and a held
+        // footer press were listed for the first input and must not run the second one's binding.
+        [Fact]
+        public void ContextMenu_OpenedForOneInput_DoesNotRunAnotherInputsBindingAfterFocusMoves() {
+            int a = 0, b = 0;
+            TextInput first = new TextInput("first"), second = new TextInput("second");
+            first.Bindings.Add(new KeyBinding("refresh", () => a++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            second.Bindings.Add(new KeyBinding("refresh", () => b++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            using AppController app = new AppController(new Rows(first, second), new AppState(), Context, 60);
+            app.PrepareFrame(80, 14);
+            app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
+            Assert.Contains("refresh", app.PrepareFrame(80, 14).ToPlainText());
+            second.Focus();
+            app.PrepareFrame(80, 14);
+            app.Handle(InputEvent.Press(ConsoleKey.Enter), true);
+            Assert.Equal((0, 0), (a, b));
+            // The stale menu is gone: Ctrl+R now reaches the focused input as usual.
+            app.Handle(InputEvent.Press(ConsoleKey.R, KeyModifiers.Control), true);
+            Assert.Equal((0, 1), (a, b));
+        }
+
+        [Fact]
+        public void FooterHint_HeldAcrossAFocusChange_DoesNotRunTheNewInputsBinding() {
+            int a = 0, b = 0;
+            TextInput first = new TextInput("first"), second = new TextInput("second");
+            first.Bindings.Add(new KeyBinding("refresh", () => a++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            second.Bindings.Add(new KeyBinding("refresh", () => b++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
+            using AppController app = new AppController(new Rows(first, second), new AppState(), Context, 60);
+            string[] rows = Rows(app.PrepareFrame(80, 12));
+            int column = rows[11].IndexOf("ctrl+r", StringComparison.Ordinal);
+            Assert.True(column >= 0, rows[11]);
+            app.Handle(InputEvent.Mouse(column + 2, 11), true);
+            second.Focus();
+            app.Refresh(null);
+            // The new input's hint has the same text in the same place.
+            Assert.Equal(column, Rows(app.PrepareFrame(80, 12))[11].IndexOf("ctrl+r", StringComparison.Ordinal));
+            app.Handle(InputEvent.Mouse(column + 2, 11, pressed: false), true);
+            Assert.Equal((0, 0), (a, b));
+            // A fresh click in the new scope presses the new input's key.
+            Click(app, column + 2, 11);
+            Assert.Equal((0, 1), (a, b));
+        }
+
         private static void ChooseFromMenu(AppController app, string label) {
             app.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift), true);
+            // An ordinary redraw in the same scope keeps the menu.
+            app.Refresh(null);
             string[] rows = Rows(app.PrepareFrame(80, 14));
             int row = Array.FindIndex(rows, line => line.Contains(" " + label + " ") && line.Contains("│"));
             Assert.True(row >= 0, string.Join("\n", rows));
