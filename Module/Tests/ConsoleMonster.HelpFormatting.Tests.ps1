@@ -172,7 +172,21 @@ foreach ($kind in 'Start-Job', 'Start-ThreadJob') {
         $result = @($job | Wait-Job -Timeout 45 | Receive-Job -ErrorAction Stop)
         "WAITED=$kind $($job.State)"
         if ($job.State -ne 'Completed' -or $result.Count -ne 1 -or $result[0].Name -ne 'Get-HelpFormattingValue') { throw "Failed $kind" }
-    } finally { $job | Remove-Job -Force }
+    } finally {
+        # Windows PowerShell 5.1 waits without limit to remove a job whose worker process stopped responding, so stop
+        # that worker first. 5.1 is frozen and keeps the worker only in these private fields.
+        if ($job.State -notin 'Completed', 'Failed', 'Stopped' -and $PSVersionTable.PSEdition -eq 'Desktop') {
+            $worker = $job.ChildJobs[0]
+            foreach ($field in 'remoteRunspace', '_runspacePool', 'internalPool', 'dataStructureHandler', 'transportManager', 'serverProcess') {
+                $type = $worker.GetType(); $info = $null
+                while ($type -and -not $info) { $info = $type.GetField($field, [Reflection.BindingFlags]'Instance, NonPublic'); $type = $type.BaseType }
+                $worker = if ($info) { $info.GetValue($worker) }
+                if ($null -eq $worker) { break }
+            }
+            if ($worker -is [Diagnostics.Process] -and -not $worker.HasExited) { "STOPPING_WORKER=$kind"; $worker.Kill() }
+        }
+        $job | Remove-Job -Force
+    }
 }
 'JOBS_AND_BINDING_OK'
 '@.Replace('$modulePath,$fixturePath -ScriptBlock', "'$script:HelpModule','$script:HelpFixture' -ScriptBlock")
