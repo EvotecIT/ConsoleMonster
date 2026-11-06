@@ -6,8 +6,7 @@ using ConsoleMonster.Widgets;
 
 // Data: the same civil dates and fixed report clock as the PowerShell twin.
 var today = new DateTime(2026, 10, 20);
-var days = new[]
-{
+var days = new[] {
     new CalendarMark(new DateTime(2026, 10, 2), StatusKind.Pass, "Backup verified"),
     new CalendarMark(new DateTime(2026, 10, 9), StatusKind.Pass, "Backup verified"),
     new CalendarMark(new DateTime(2026, 10, 16), StatusKind.Pass, "Backup verified"),

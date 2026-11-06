@@ -173,7 +173,9 @@ namespace SiteFrames.Pages {
                     ["csharpFluent"] = templateDemos.Contains(demo.Slug) ? "dotnet new consolemonster --demo " + demo.Slug + " --DemoStyle Fluent" : null
                 };
                 if (demo.Steps > 1) {
-                    string replay = PlayerData.Write(site, timeline, demo.Title, 10, Math.Max(1800, holdMilliseconds), out long duration, out int count);
+                    InputCaption[] inputs = InputCaptions.ForStates(demo.Metadata["capture"]!["states"]!.AsArray(), timeline.Select(frame => frame.Time).ToArray())
+                        .Where(input => input != null).Select(input => input!).ToArray();
+                    string replay = PlayerData.Write(site, timeline, demo.Title, 10, Math.Max(1800, holdMilliseconds), out long duration, out int count, inputs: inputs);
                     site.Write(site.Static("replays/gallery-" + demo.Slug + ".json"), replay);
                     entry["url"] = "/replays/gallery-" + demo.Slug + ".json";
                     entry["capture"] = "scripted native program";

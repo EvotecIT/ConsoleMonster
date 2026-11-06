@@ -22,7 +22,7 @@ using ConsoleMonster.Markdown;
 MarkdownConsole.Show("# Deployment notes\n\nRead the [guide](https://example.org/guide).");
 ```
 
-`MarkdownConsole.Parse` returns a reusable `MarkdownView` for composition, export or the shared `WidgetPager`. Long documents page only in an interactive console; redirected output prints the complete document. Headings, lists, quotes, code and tables reflow to the target width. Links use OSC 8 where supported and include a muted destination otherwise. HTML remains literal, images become labelled links, and no document content is executed or downloaded.
+`MarkdownConsole.Parse` returns a reusable `MarkdownView` for composition, export or the shared `WidgetPager`. Long documents page only in an interactive console; redirected output prints the complete document. Headings, lists, quotes, code and tables reflow to the target width. Links use OSC 8 where supported and include a muted destination otherwise. HTML remains literal, images become labelled links, and no document content is executed or downloaded. With ConsoleMonster.Graphics registered (`DiagramRendererProvider.Register()`, or the PowerShell module, which bundles it), a ```` ```mermaid ```` fence draws as a diagram; without it, or for a Mermaid type the terminal cannot draw, the fence stays code.
 
 ## Export
 

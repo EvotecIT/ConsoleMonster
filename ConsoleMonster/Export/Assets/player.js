@@ -9,7 +9,11 @@
  *
  * The data is what Recording.ExportPlayerData writes: {format:"consolemonster-player", version:1, title, width, height,
  * fps, duration, chrome, css, rows:[html], frames:[[startMs,[rowIndex...]]]}, plus optional markers:[[startMs,label]], which
- * ExportPlayerData writes when chapters are present: marks under the position bar and a chapter list that seek to their moments. Players found when the page loads are
+ * ExportPlayerData writes when chapters are present: marks under the position bar and a chapter list that seek to their moments,
+ * and optional inputs:[[startMs,label,column,row,kind]]: what the viewer would have pressed or clicked to reach that moment.
+ * The label (keys such as "↓ ×8", or "Right-click") shows as a caption in the screen's corner from its moment until the
+ * next input; with a zero-based column and row a pointer also marks that cell, and kind (click, right, double, wheel,
+ * drag or move) adds a click ring. Neither is part of the screen's text. Players found when the page loads are
  * mounted automatically; ConsoleMonsterPlayer.mount(element, data[, options]) and ConsoleMonsterPlayer.scan(root) mount others.
  * options.start (milliseconds) opens the player at that moment: the first frame drawn is that one, and autoplay still
  * applies, from the beginning when the player opened at its end (data-cm-start, a deep link, opens there too but does not
@@ -148,6 +152,66 @@
             }
             lines.push(el('span', 'cm-line', screen));
             current.push(-1);
+        }
+        // Input annotations: drawn over the screen, never part of its text (Copy and screen readers read the cells).
+        var inputs = (data.inputs || []).filter(function (entry) {
+            return entry && entry.length >= 2 && isFinite(+entry[0]);
+        }).sort(function (a, b) { return a[0] - b[0]; });
+        var inputLayer = null, pointer = null, caption = null, inputShown = -2, inputObserver = null;
+        if (inputs.length) {
+            // Inline, so a host that replaces the screen's classes keeps the overlay's containing block.
+            screen.style.position = 'relative';
+            inputLayer = el('span', 'cm-input', screen);
+            inputLayer.setAttribute('aria-hidden', 'true');
+            pointer = el('span', 'cm-pointer', inputLayer);
+            pointer.innerHTML = '<i class="cm-pointer-ring"></i><svg viewBox="0 0 12 18" width="12" height="18" focusable="false">' +
+                '<path d="M1 1v14.2l3.6-3.4 2.6 6 2.3-1-2.6-5.9H12z"/></svg>';
+            caption = el('span', 'cm-input-caption', inputLayer);
+            if (typeof ResizeObserver === 'function') {
+                inputObserver = new ResizeObserver(function () { placeInput(true); });
+                inputObserver.observe(screen);
+            }
+        }
+        function inputAt(ms) {
+            var found = -1;
+            for (var k = 0; k < inputs.length && inputs[k][0] <= ms; k++) { found = k; }
+            return found;
+        }
+        function cellWidth() {
+            var probe = el('span', null, screen);
+            probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;white-space:pre;width:auto;height:auto;font:inherit;letter-spacing:inherit';
+            probe.textContent = '0123456789'.repeat(20);
+            var cell = probe.getBoundingClientRect().width / probe.textContent.length;
+            probe.remove();
+            return cell;
+        }
+        function placeInput(force) {
+            if (!inputLayer || destroyed) { return; }
+            var k = inputAt(t);
+            if (k === inputShown && !force) { return; }
+            var changed = k !== inputShown;
+            inputShown = k;
+            var entry = k >= 0 ? inputs[k] : null;
+            inputLayer.hidden = !entry;
+            if (!entry) { return; }
+            caption.setAttribute('data-label', String(entry[1] || ''));
+            caption.hidden = !entry[1];
+            var column = +entry[2], row = +entry[3];
+            var hasPoint = entry.length >= 4 && isFinite(column) && isFinite(row) && row >= 0 && row < lines.length && column >= 0;
+            pointer.hidden = !hasPoint;
+            if (!hasPoint) { return; }
+            var cell = cellWidth();
+            var line = lines[row];
+            var lineHeight = row + 1 < lines.length ? lines[row + 1].offsetTop - line.offsetTop : line.offsetHeight;
+            pointer.style.left = (lines[0].offsetLeft + (column + 0.5) * cell) + 'px';
+            pointer.style.top = (line.offsetTop + Math.max(0, lineHeight) / 2) + 'px';
+            var kind = /^(click|right|double|wheel|drag|move)$/.test(entry[4]) ? entry[4] : 'move';
+            if (changed) {
+                // Restart the ring for every new click, including one at the same cell as the last.
+                pointer.className = 'cm-pointer';
+                void pointer.offsetWidth;
+                pointer.className = 'cm-pointer cm-pointer--' + kind;
+            }
         }
         var controls = el('div', 'cm-controls cm-controls-v2', frame);
         var transport = el('div', 'cm-transport', controls);
@@ -291,6 +355,7 @@
                 }
             }
             updateScrollHint();
+            placeInput(false);
         }
 
         function labels(now) {
@@ -437,6 +502,7 @@
             destroyed = true;
             window.clearTimeout(copyTimer);
             if (sizeObserver) { sizeObserver.disconnect(); }
+            if (inputObserver) { inputObserver.disconnect(); }
             window.removeEventListener('resize', sizeStandalone);
             if (document.fonts) { document.fonts.removeEventListener('loadingdone', sizeStandalone); }
             if (scrollHint) {

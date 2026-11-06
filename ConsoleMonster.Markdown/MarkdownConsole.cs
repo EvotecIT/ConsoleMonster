@@ -51,7 +51,9 @@ namespace ConsoleMonster.Markdown {
                         view.AddParagraph(MarkdownInlines.Read(paragraph.Inlines));
                         break;
                     case CodeBlock code:
-                        view.AddCode(code.Content, code.Language);
+                        // With Graphics registered a Mermaid fence draws as a diagram; otherwise it stays readable source.
+                        Diagram? diagram = Diagram.FenceParser?.Invoke(code.Language, code.Content);
+                        if (diagram != null) view.AddBlock(diagram); else view.AddCode(code.Content, code.Language);
                         break;
                     case QuoteBlock quote:
                         view.AddQuote(ConvertBlocks(quote.ChildBlocks));

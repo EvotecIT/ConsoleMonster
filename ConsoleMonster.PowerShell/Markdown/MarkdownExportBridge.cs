@@ -10,7 +10,14 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Keeps optional Markdown code outside the JIT path for ordinary core exports.</summary>
     internal static class MarkdownExportBridge {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static IWidget Parse(string content) => global::ConsoleMonster.Markdown.MarkdownConsole.Parse(content);
+        internal static IWidget Parse(string content) {
+            // The bundled Graphics add-on draws Mermaid fences; documents without one never load it.
+            if (content.IndexOf("mermaid", System.StringComparison.OrdinalIgnoreCase) >= 0) RegisterDiagrams();
+            return global::ConsoleMonster.Markdown.MarkdownConsole.Parse(content);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void RegisterDiagrams() => global::ConsoleMonster.Graphics.DiagramRendererProvider.Register();
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static string Widget(IWidget widget, ExportOptions options, bool fenced) =>
             System.Text.Encoding.UTF8.GetString(FrameExporter.Export(widget, fenced ? "FencedText" : "Markdown", options, new global::ConsoleMonster.Markdown.MarkdownFrameExportProvider(fenced)));

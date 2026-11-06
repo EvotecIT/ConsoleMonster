@@ -65,7 +65,7 @@ Playback follows the session clock, so a resize or a slow frame never skips step
 
 ## From PowerShell
 
-`Show-ConsoleDiagram` reads a Markdown file with ChartForgeX visual fences, or a plain architecture file. In an interactive console it opens the same view; in CI, redirected output or with `-StaticSnapshot` it prints one step and returns.
+`Show-ConsoleDiagram` reads a Markdown file with ChartForgeX or Mermaid visual fences, a Mermaid `.mmd` file, or a plain architecture file ([which Mermaid types draw](/docs/diagrams/)). In an interactive console it opens the same view; in CI, redirected output or with `-StaticSnapshot` it prints one step and returns.
 
 ```powershell
 Show-ConsoleDiagram -Path ./ad-replication.cfx

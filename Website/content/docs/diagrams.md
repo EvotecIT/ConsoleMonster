@@ -1,12 +1,12 @@
 ---
 title: Diagrams, zero to hero
-description: Draw terminal diagrams in C#, fluent C# or PowerShell, one idea at a time, from three boxes to live values, request walkthroughs and hierarchies.
+description: Draw terminal diagrams in C#, fluent C# or PowerShell, one idea at a time, from three boxes to live values, request walkthroughs, hierarchies and Mermaid.
 slug: diagrams
 order: 18
 group: apps
-summary: "Eight steps from three boxes and two arrows to groups, status, data, live values, walkthroughs and hierarchies."
-apis: [Diagram, Ui.Diagram, New-ConsoleDiagram, New-ConsoleDiagramNode, New-ConsoleDiagramLink, New-ConsoleDiagramGroup]
-chips: [Diagrams, C#, PowerShell]
+summary: "Nine steps from three boxes and two arrows to groups, status, data, live values, walkthroughs, hierarchies and Mermaid."
+apis: [Diagram, Ui.Diagram, New-ConsoleDiagram, New-ConsoleDiagramNode, New-ConsoleDiagramLink, New-ConsoleDiagramGroup, Show-ConsoleDiagram]
+chips: [Diagrams, Mermaid, C#, PowerShell]
 card: diagram-4-120
 ---
 
@@ -76,6 +76,20 @@ A use case walks a request through the diagram, step by step: requests, replies,
 Links that form a tree are a hierarchy: an org chart, a folder tree, a dependency tree. `Direction = Down` lays it out top to bottom.
 
 {{< cm-try key="level-8" ids="diagram-8-120" project="Diagrams" packages="ConsoleMonster,ConsoleMonster.Graphics" >}}
+
+## 9. Mermaid
+
+A diagram you already wrote in Mermaid draws as it is. In a Markdown document a ```` ```mermaid ```` fence becomes a diagram when Graphics is registered, and stays readable code when it isn't. The PowerShell module bundles Graphics, so `Show-Console -View Markdown` draws it.
+
+{{< cm-try key="level-9" ids="diagram-9-120" project="Diagrams" packages="ConsoleMonster,ConsoleMonster.Graphics,ConsoleMonster.Markdown" >}}
+
+A Mermaid file on its own, or a Markdown file with one Mermaid fence, loads like any other diagram file:
+
+```powershell
+Show-ConsoleDiagram -Path ./network.mmd -StaticSnapshot
+```
+
+Flowcharts (`flowchart` and `graph`, with subgraphs as groups), `classDiagram`, `stateDiagram`, `erDiagram`, `architecture-beta`, `mindmap`, C4 and `requirementDiagram` draw as diagrams. Sequence, pie, Gantt, timeline, gitGraph and the other chart types are not drawn in the terminal: in Markdown they stay code, and `Show-ConsoleDiagram` says which types it can draw.
 
 ## Next
 

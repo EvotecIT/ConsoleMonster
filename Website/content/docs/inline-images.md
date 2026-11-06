@@ -83,6 +83,8 @@ New-ConsoleColumns -Content {
 } | Show-Console
 ```
 
+{{< cm-frame id="inline-images-panels" caption="The same image as a widget, in a panel beside a summary." >}}
+
 Inside layouts and live regions the image is always drawn with half blocks, or as the placeholder:
 
 - A live frame only rewrites the cells that changed, so an unchanged image writes nothing on refresh, and a changed one never leaves pieces behind.

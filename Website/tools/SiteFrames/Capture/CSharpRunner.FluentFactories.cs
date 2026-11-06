@@ -40,7 +40,7 @@ namespace SiteFrames.Capture {
                 if (chartType != null) { noun = "Chart"; }
                 if (progress) { noun = "Progress"; }
                 bool options = type.Name.EndsWith("Options", StringComparison.Ordinal);
-                bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button" or "Collapsible" or "Outline" or "Breadcrumb";
+                bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button" or "Collapsible" or "Outline" or "Breadcrumb" or "ChartView" or "DataGrid" or "DatePicker" or "TreeSelect";
                 if (type.Name == "MultiSelect") { noun = "Select"; }
                 string? question = QuestionNoun(type);
                 if (question != null) { noun = question; }
@@ -99,6 +99,11 @@ namespace SiteFrames.Capture {
                     if (type.Name == "ConfirmPrompt" && p.Name == "defaultValue") { member = "Default"; }
                     if (type.Name == "Panel" && p.Name == "title" && p.Type.ToDisplayString().Contains("RichText", StringComparison.Ordinal)
                         || type.Name == "Rule" && p.Type.ToDisplayString().Contains("RichText", StringComparison.Ordinal)) { value = Call(value, "ToMarkup"); }
+                    // A built input control in a pane (a splitter's First or Second) goes through the pane's content builder,
+                    // the way a person writes it: .First(c => c.DataGrid(grid => ...)).
+                    if (EndsWithBuild(value) && HasContentOverload(type, member)) {
+                        value = ConstructorContent(p, value, false, false, LambdaName("c", original, value));
+                    }
                     result = Call(result, member, value);
                 }
                 if (type.Name == "MultiSelect") { result = Call(result, "Multiple"); }
@@ -198,7 +203,7 @@ namespace SiteFrames.Capture {
                 if (factory.ArgumentList.Arguments.Count > 0) {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)));
                 }
-                bool definition = noun is "Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Outline" or "Breadcrumb" or "Binding";
+                bool definition = noun is "Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Outline" or "Breadcrumb" or "Binding" or "ChartView" or "DataGrid" or "DatePicker" or "TreeSelect";
                 ExpressionSyntax unwrapped = value is ParenthesizedExpressionSyntax { Expression: CastExpressionSyntax cast } ? cast.Expression : value;
                 bool endsWithBuild = unwrapped is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Build" } };
                 if (definition && !endsWithBuild) {
@@ -217,6 +222,31 @@ namespace SiteFrames.Capture {
                 var lambda = SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier(name)), configuration);
                 return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)))
                     .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(lambda))));
+            }
+
+            // A lambda parameter only has to differ from the enclosing lambdas' parameters and the names its body uses.
+            private static string LambdaName(string stem, SyntaxNode position, SyntaxNode body) {
+                var names = position.Ancestors().SelectMany(node => node switch {
+                    SimpleLambdaExpressionSyntax simple => new[] { simple.Parameter.Identifier.ValueText },
+                    ParenthesizedLambdaExpressionSyntax parenthesized => parenthesized.ParameterList.Parameters.Select(parameter => parameter.Identifier.ValueText).ToArray(),
+                    _ => Array.Empty<string>()
+                }).Concat(body.DescendantTokens().Where(token => token.IsKind(SyntaxKind.IdentifierToken)).Select(token => token.ValueText)).ToHashSet(StringComparer.Ordinal);
+                string name = stem;
+                for (int suffix = 2; names.Contains(name); suffix++) { name = stem + suffix; }
+                return name;
+            }
+
+            private static bool EndsWithBuild(ExpressionSyntax value) {
+                ExpressionSyntax unwrapped = value is ParenthesizedExpressionSyntax { Expression: CastExpressionSyntax cast } ? cast.Expression : value;
+                return unwrapped is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Build" } };
+            }
+
+            // Whether the type's fluent class has member(Action<ContentBuilder>), such as Splitter.First.
+            private bool HasContentOverload(INamedTypeSymbol type, string member) {
+                INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.ContainingNamespace.Name + "Fluent");
+                return fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.IsExtensionMethod && method.Parameters.Length == 2
+                    && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, type)
+                    && method.Parameters[1].Type.ToDisplayString() == "System.Action<ConsoleMonster.Layout.ContentBuilder>") == true;
             }
 
             private static IPropertySymbol? FindProperty(INamedTypeSymbol type, string name) {

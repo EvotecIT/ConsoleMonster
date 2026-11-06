@@ -71,6 +71,7 @@ namespace ConsoleMonster.Interactive {
                 _toast.ShownAt = frame.Now;
             }
             IWidget content = Build(frame);
+            if (_menu != null) { content = new MenuLayer(content, _menu); }
             if (KeyMapOpen) {
                 List<KeyBinding> bindings = new List<KeyBinding>();
                 AddBindings(bindings, frame);
@@ -98,9 +99,21 @@ namespace ConsoleMonster.Interactive {
         /// click closes it like a key.
         /// </summary>
         private void HandleMouse(InputEvent input) {
+            if (_menu != null) {
+                AppKeyMap.Entry? chosen = _menu.HandlePointer(input, out bool close, out bool used);
+                if (close) { _menu = null; }
+                if (chosen != null) { Handle(chosen.Chord!.Value.ToInput()); return; }
+                if (used) { return; }
+            }
             int clicks = _clicks.Count(input);
             if (KeyMapOpen) {
                 if (input.MouseAction == MouseAction.Down) { KeyMapOpen = false; }
+                return;
+            }
+            // A right click opens the context menu of the keys that work here, as it does in an app.
+            if (input.MouseAction == MouseAction.Down && input.MouseButton == 3) {
+                _targets.Cancel();
+                OpenMenu(input.Column, input.Row);
                 return;
             }
             if (_targets.Route(input, clicks, out KeyChord? key)) {
@@ -168,8 +181,15 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             if (input.Kind == InputEventKind.Key && input.Is(ConsoleKey.C, KeyModifiers.Control)) {
+                _menu = null;
                 Cancel();
                 return;
+            }
+            if (_menu != null && input.Kind == InputEventKind.Key) {
+                AppKeyMap.Entry? chosen = _menu.HandleKey(input, out bool close, out bool used);
+                if (close) { _menu = null; }
+                if (chosen != null) { Handle(chosen.Chord!.Value.ToInput()); return; }
+                if (used) { return; }
             }
             if (HandlePriorityInput(input)) { return; }
             List<KeyBinding> bindings = new List<KeyBinding>();
@@ -177,7 +197,55 @@ namespace ConsoleMonster.Interactive {
             if (input.Kind == InputEventKind.Key && KeyFooter.Dispatch(bindings, input)) {
                 return;
             }
+            // The Menu key and Shift+F10 open the context menu, unless a binding took them.
+            if (input.Kind == InputEventKind.Key && AppContextMenu.IsOpenKey(input)) {
+                OpenMenu(1, 1);
+                return;
+            }
             HandleUnbound(input);
+        }
+
+        private AppContextMenu? _menu;
+
+        /// <summary>Whether the context menu is open.</summary>
+        public bool MenuOpen => _menu != null;
+
+        // The labelled bindings a key reaches now, in dispatch order, each under the keys still free for it.
+        private void OpenMenu(int column, int row) {
+            if (_frame == null) { return; }
+            List<KeyBinding> bindings = new List<KeyBinding>();
+            AddBindings(bindings, _frame);
+            HashSet<KeyChord> claimed = new HashSet<KeyChord>();
+            List<AppKeyMap.Entry> entries = new List<AppKeyMap.Entry>();
+            foreach (KeyBinding binding in bindings) {
+                List<KeyChord> claims = new List<KeyChord>(binding.Claims);
+                List<KeyChord> free = claims.FindAll(chord => !claimed.Contains(chord));
+                foreach (KeyChord chord in free) { claimed.Add(chord); }
+                if (free.Count == 0 || string.IsNullOrEmpty(binding.Label)) { continue; }
+                string keys = free.Count == claims.Count || binding.KeyText != null ? binding.DisplayKeys() : KeyBinding.Display(free[0]);
+                entries.Add(new AppKeyMap.Entry(binding, keys, free[0]));
+            }
+            _menu = entries.Count == 0 ? null : new AppContextMenu(entries, column, row);
+        }
+
+        // Draws the view, then the menu at its anchor, kept inside the frame.
+        private sealed class MenuLayer : IWidget {
+            private readonly IWidget _content;
+            private readonly AppContextMenu _menu;
+            internal MenuLayer(IWidget content, AppContextMenu menu) { _content = content; _menu = menu; }
+            public Size Measure(Constraints constraints, RenderContext context) => _content.Measure(constraints, context);
+            public void Render(Region region, RenderContext context) {
+                _content.Render(region, context);
+                Size size = _menu.Measure(new Constraints(region.Width, region.Height), context);
+                int width = Math.Min(size.Width, region.Width), height = Math.Min(size.Height, region.Height);
+                if (width < 6 || height < 3) { _menu.Place(default); return; }
+                int x = Math.Max(0, Math.Min(_menu.Column, region.Width - width));
+                int y = _menu.Row + height <= region.Height ? _menu.Row : Math.Max(0, region.Height - height);
+                Region area = region.Sub(x, y, width, height);
+                area.Fill(0, 0, width, height, " ", Styling.Style.Plain);
+                _menu.Render(area, context);
+                _menu.Place(area.Bounds);
+            }
         }
 
         /// <summary>Lets the active modal focus scope consume input before the view's ordinary bindings.</summary>
