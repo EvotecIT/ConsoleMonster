@@ -1,6 +1,6 @@
 ---
 title: Prompts, menus and forms
-description: Questions, menus, wizards and a grid for the console on Windows PowerShell 5.1 and PowerShell 7, with the keyboard or the mouse. Every screen here was drawn by scripted keys and clicks.
+description: Questions, menus, wizards and a grid for Windows PowerShell 5.1 and PowerShell 7, by keyboard or mouse. Every screen was drawn by scripted keys and clicks.
 slug: interactive
 layout: interactive
 meta.seo_title: Console prompts, menus and forms | ConsoleMonster
