@@ -26,6 +26,8 @@ namespace ConsoleMonster.PowerShell {
         private readonly ConsoleDefaultOutputOptions _options;
         private readonly List<PSObject> _batch = new List<PSObject>();
         private ConsoleViewRegistration? _batchView;
+        private readonly List<PSObject> _comparison = new List<PSObject>();
+        private string? _comparisonShape;
         private int _omittedRows;
         private SteppablePipeline? _inner;
         private bool _active;
@@ -114,6 +116,15 @@ namespace ConsoleMonster.PowerShell {
             if ((_errors || _compactErrors) && item.BaseObject is ErrorRecord record && !IsExtended(item) && WriteErrorView(record)) {
                 return;
             }
+            // Compare-Object results: a built-in view of PSCustomObjects with SideIndicator, ahead of generic structured data.
+            string? comparison = _active && _types && ConsoleFormatting.TakeOverBuiltIns ? CompareObjectView.Shape(item) : null;
+            if (comparison != null) {
+                if (_comparisonShape != comparison) { Flush(); }
+                _comparisonShape = comparison;
+                _comparison.Add(item);
+                return;
+            }
+            FlushComparison();
             ConsoleViewRegistration? view = _active && _types ? ConsoleFormatting.Find(item, ConsoleFormatting.TakeOverBuiltIns) ?? DictionaryView(item) : null;
             // Generic structured data must not replace an explicit native type table view.
             if (view?.IsBuiltIn == true && view.IsStructuredData
@@ -210,7 +221,15 @@ namespace ConsoleMonster.PowerShell {
         private static ConsoleViewRegistration? DictionaryView(PSObject item) =>
             ConsoleFormatting.TakeOverBuiltIns && item.BaseObject is System.Collections.IDictionary ? Dictionaries : null;
 
+        private void FlushComparison() {
+            if (_comparison.Count == 0) { return; }
+            PSFormatting.Write(_host, CompareObjectView.Build(_comparison), 0);
+            _comparison.Clear();
+            _comparisonShape = null;
+        }
+
         private void Flush() {
+            FlushComparison();
             if (_batch.Count == 0 || _batchView == null) {
                 return;
             }

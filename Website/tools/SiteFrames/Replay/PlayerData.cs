@@ -18,7 +18,7 @@ namespace SiteFrames.Replay {
         // <, > and quote of the rows' HTML as \u00XX made a large replay almost half escapes.
         private static readonly JsonSerializerOptions Json = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
-        public static string Write(Site site, IReadOnlyList<TimedFrame> frames, string title, double fps, long hold, out long duration, out int count, IReadOnlyList<(long Time, string Label)>? markers = null) {
+        public static string Write(Site site, IReadOnlyList<TimedFrame> frames, string title, double fps, long hold, out long duration, out int count, IReadOnlyList<(long Time, string Label)>? markers = null, IReadOnlyList<InputCaption>? inputs = null) {
             if (frames.Count == 0) {
                 throw new ArgumentException("Player data needs at least one frame.");
             }
@@ -81,6 +81,23 @@ namespace SiteFrames.Replay {
                         json.Append(',');
                     }
                     json.Append('[').Append(markers[i].Time.ToString(CultureInfo.InvariantCulture)).Append(',').Append(JsonSerializer.Serialize(markers[i].Label, Json)).Append(']');
+                }
+                json.Append(']');
+            }
+            if (inputs != null && inputs.Count > 0) {
+                json.Append(",\"inputs\":[");
+                for (int i = 0; i < inputs.Count; i++) {
+                    InputCaption input = inputs[i];
+                    if (i > 0) {
+                        json.Append(',');
+                    }
+                    json.Append('[').Append(input.Time.ToString(CultureInfo.InvariantCulture)).Append(',').Append(JsonSerializer.Serialize(input.Label, Json));
+                    if (input.Column.HasValue && input.Row.HasValue) {
+                        json.Append(',').Append(input.Column.Value.ToString(CultureInfo.InvariantCulture))
+                            .Append(',').Append(input.Row.Value.ToString(CultureInfo.InvariantCulture))
+                            .Append(',').Append(JsonSerializer.Serialize(input.Kind ?? "move", Json));
+                    }
+                    json.Append(']');
                 }
                 json.Append(']');
             }

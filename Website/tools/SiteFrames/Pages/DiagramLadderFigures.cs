@@ -8,7 +8,7 @@ using SiteFrames.Capture;
 
 namespace SiteFrames.Pages {
     /// <summary>
-    /// The diagram docs ladder: eight levels from three boxes to a hierarchy, each a C# program
+    /// The diagram docs ladder: nine levels from three boxes to a hierarchy and Mermaid, each a C# program
     /// (<c>Website/examples/docs/diagram-N.cs</c>) with its PowerShell twin, drawn at one width in both themes.
     /// </summary>
     internal static class DiagramLadderFigures {
@@ -22,7 +22,8 @@ namespace SiteFrames.Pages {
             (5, "From a list", "A web shop drawn from a list of links"),
             (6, "Live values", "A ping monitor with latency on every node"),
             (7, "A request walkthrough", "A checkout use case at its third step"),
-            (8, "Hierarchy", "An IT team as a top-down hierarchy")
+            (8, "Hierarchy", "An IT team as a top-down hierarchy"),
+            (9, "Mermaid", "A Markdown note whose Mermaid flowchart draws as a home network diagram")
         };
 
         private static string Id(int level) => "diagram-" + level;
@@ -44,6 +45,9 @@ namespace SiteFrames.Pages {
                 }
             }
         }
+
+        /// <summary>One level drawn by its C# program, for the navigation thumbnail.</summary>
+        internal static CellBuffer Frame(Site site, int level, ITheme theme) => CSharpRunner.Run(ProgramPath(site, level), Width, ColorDepth.TrueColor, GlyphTier.Full, theme);
 
         private static CellBuffer CheckedFrame(Site site, int level, string name, ITheme theme, JsonObject hosts) {
             CellBuffer frame = CSharpRunner.Run(ProgramPath(site, level), Width, ColorDepth.TrueColor, GlyphTier.Full, theme);

@@ -64,6 +64,21 @@ namespace ConsoleMonster.Tests.Interactive.App {
             await Quit(terminal, run);
         }
 
+        // A recording that skips delays draws no frame between scripted inputs, so a click after a drag must still find the
+        // legend where the drag moved it.
+        [Fact]
+        public void Legend_AScriptedClickAfterASplitterDragHitsTheEntryWhereItIsDrawn() {
+            var profile = TerminalProfile.Fixed(110, 28, ColorDepth.TrueColor, GlyphTier.Full);
+            var target = new ConsoleMonster.Output.RecordingTarget(profile, "drag:44,10,37,10 click:48,25 Escape") { SkipDelays = true };
+            var view = new ChartView("load", Load()) { Label = "Load" };
+            ConsoleApp.Run(new Splitter(TextBlock.Plain("samples"), view) { Ratio = 0.4 }, options: new ConsoleAppOptions {
+                Interactive = new InteractiveOptions { Target = target, Input = target.Input, Capture = target.Screens, Profile = profile, Mode = InteractionMode.Rich }
+            });
+            string[] rows = target.Screens.LastFrame!.ToPlainText().Split('\n');
+            Assert.Equal(44, rows[25].IndexOf("1 cpu", StringComparison.Ordinal));
+            Assert.True(view.IsHidden(0));
+        }
+
         [Fact]
         public async Task ZoomAndPan_KeysTheWheelAndADragMoveTheWindowAndHomeShowsEverything() {
             using var terminal = new HeadlessTerminal(80, 20);

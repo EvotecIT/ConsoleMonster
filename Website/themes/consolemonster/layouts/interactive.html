@@ -32,9 +32,9 @@
     </div>
     <div class="cm-story__body">
       <div class="cm-story__screen">
-        {{~ player_data = s.player; player_title = s.title; player_meta = [s.player.w + "×" + s.player.h, "24-bit", "Full"]; player_label = s.title + ", driven by scripted keys" ~}}
+        {{~ player_data = s.player; player_title = s.title; player_meta = [s.player.w + "×" + s.player.h, "24-bit", "Full"]; player_label = s.title + ", driven by scripted input" ~}}
         {{ include "player" }}
-        <p class="cm-story__keys"><span>Keys</span> <code>{{ s.keys | html.escape }}</code></p>
+        <p class="cm-story__keys"><span>Input</span> <code>{{ s.keys | html.escape }}</code></p>
       </div>
       <div class="cm-story__code">
         {{~ style_entry = s ~}}{{ include "source-styles" }}

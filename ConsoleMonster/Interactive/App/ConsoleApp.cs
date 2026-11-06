@@ -97,6 +97,12 @@ namespace ConsoleMonster.Interactive {
                                 if (interactive.Capture != null && input.Kind == InputEventKind.Resize && input.Width > 0 && input.Height > 0) {
                                     Interlocked.Exchange(ref captureWindow, new[] { 0, 0, input.Width, input.Height });
                                 }
+                                // A pointer aims at what is on screen. Where nothing draws between inputs (a recording that
+                                // skips delays), lay the frame out first, so a click finds controls where the last input left them.
+                                if (input.Kind == InputEventKind.Mouse && pointer && interactive.Capture != null && !session.DrawsBetweenUpdates) {
+                                    int[] window = Volatile.Read(ref captureWindow);
+                                    app.PrepareFrame(window[2], window[3]);
+                                }
                                 app.Handle(input, pointer);
                                 // Drain pipeline-owned callbacks before another event can capture an action's selection.
                                 settings.ProcessEvents?.Invoke(values);

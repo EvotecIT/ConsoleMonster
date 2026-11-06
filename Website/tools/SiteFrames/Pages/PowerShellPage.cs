@@ -38,9 +38,8 @@ namespace SiteFrames.Pages {
             public Dictionary<string, string?> Environment { get; }
             public PowerShellHost[] Hosts { get; }
             public int RunWidth { get; }
-
-            /// <summary>Types the script at a real prompt, so implicit output takes the host's top-level route.</summary>
-            public bool Interactive { get; init; }
+            // Typed at a real prompt, so Enable-ConsoleFormatting's automatic output routing draws the result.
+            public bool InteractiveSession { get; set; }
         }
 
         private static IEnumerable<Run> Runs() {
@@ -63,9 +62,11 @@ namespace SiteFrames.Pages {
             // Native stream colours before and after -Feature Streams, on both hosts and in both themes.
             yield return new Run("streams", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All);
             yield return new Run("streams", "light", PowerShellRunner.Environment("light"), PowerShellHost.All);
+            // Compare-Object before and after Enable-ConsoleFormatting, on both hosts.
+            yield return new Run("compare-object", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true };
             // Everyday views for commands typed at the prompt (Select-String, Get-Acl, certificates, Group/Measure, TimeSpan).
-            yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { Interactive = true };
-            yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { Interactive = true };
+            yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true };
+            yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true };
         }
 
         private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);
@@ -85,7 +86,7 @@ namespace SiteFrames.Pages {
             foreach (Run run in Runs()) {
                 foreach (PowerShellHost host in run.Hosts.Where(host => host.CanCapture)) {
                     List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Twins.Script(site, "powershell", run.Id), run.RunWidth, 120, run.Environment,
-                        session: run.Interactive, interactiveSession: run.Interactive);
+                        session: run.InteractiveSession, interactiveSession: run.InteractiveSession);
                     string path = Path_(site, run, host);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));
@@ -117,7 +118,8 @@ namespace SiteFrames.Pages {
                     if (stale != null) {
                         problems.Add(stale);
                     }
-                    CellBuffer frame = Site.Crop(TrimTop(Parity.Transcript(File.ReadAllBytes(path), run.RunWidth, 120)));
+                    CellBuffer transcript = TrimTop(Parity.Transcript(File.ReadAllBytes(path), run.RunWidth, 120));
+                    CellBuffer frame = Site.Crop(run.InteractiveSession ? TrimSessionEnd(transcript) : transcript);
                     variant[host.Id] = new JsonObject {
                         ["host"] = (host == PowerShellHost.Core ? "PowerShell " : "Windows PowerShell ") + hosts[host.Id]?.GetValue<string>(),
                         ["frame"] = site.Frame(frame, null)
@@ -143,6 +145,20 @@ namespace SiteFrames.Pages {
             }
             CellBuffer trimmed = new CellBuffer(frame.Width, frame.Height - first);
             trimmed.Blit(frame, 0, first, frame.Width, frame.Height - first, 0, 0);
+            return trimmed;
+        }
+
+        // A typed session ends with its idle prompt and the typed exit; the page frame ends with the last output.
+        private static CellBuffer TrimSessionEnd(CellBuffer frame) {
+            int height = frame.Height;
+            while (height > 1) {
+                string row = frame.GetRowText(height - 1).Trim();
+                if (row.Length != 0 && row != "PS>" && row != "PS> exit") { break; }
+                height--;
+            }
+            if (height == frame.Height) { return frame; }
+            CellBuffer trimmed = new CellBuffer(frame.Width, height);
+            trimmed.Blit(frame, 0, 0, frame.Width, height, 0, 0);
             return trimmed;
         }
 

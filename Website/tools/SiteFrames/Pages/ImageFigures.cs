@@ -19,8 +19,24 @@ namespace SiteFrames.Pages {
             Add(site, "inline-images-60", "Half blocks: the upper pixel in the foreground colour, the lower one in the background", Image(56), 60, ColorDepth.TrueColor, GlyphTier.Full, "HalfBlock");
             Add(site, "inline-images-256", "A 256-colour terminal", Image(56), 60, ColorDepth.Ansi256, GlyphTier.Full, "HalfBlock");
             Add(site, "inline-images-placeholder", "Redirected, CI and no-colour output", Image(56), 60, ColorDepth.None, GlyphTier.Ascii, "None");
+            // The panels example on the page: the image as a widget beside a summary, drawn with half blocks.
+            var panels = new ConsoleMonster.Layout.Columns(
+                new ConsoleMonster.Layout.Panel(Image(40), "Requests"),
+                new ConsoleMonster.Layout.Panel(new ConsoleMonster.Widgets.KeyValueList().Add("Peak", "240/min").Add("Quietest", "Sunday"), "Summary"));
+            JsonObject inPanels = Figures.Figure(site, "New-ConsoleImage in a panel", "The chart in a panel beside a summary", panels, 80);
+            inPanels["file"] = "inline-images.ps1";
+            inPanels["script"] = PanelsScript;
+            inPanels["scriptFull"] = PanelsScript;
+            Figures.Add("inline-images-panels", inPanels);
             DocCards.Offer("inline-images-60", Site.Render(Image(56), 60, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark), Frames.Screen.Dark);
         }
+
+        private const string PanelsScript = "New-ConsoleColumns -Content {\n" +
+            "    New-ConsolePanel -Title 'Requests' -Content { New-ConsoleImage -Path ./requests-chart.png -Width 40 }\n" +
+            "    New-ConsolePanel -Title 'Summary' -Content {\n" +
+            "        New-ConsoleKeyValue -InputObject ([ordered] @{ Peak = '240/min'; Quietest = 'Sunday' })\n" +
+            "    }\n" +
+            "} | Show-Console";
 
         // -Protocol pins the tier the frame shows, so the command draws the same cells in any terminal.
         private static void Add(Site site, string id, string label, ConsoleImage image, int width, ColorDepth depth, GlyphTier glyphs, string protocol) {

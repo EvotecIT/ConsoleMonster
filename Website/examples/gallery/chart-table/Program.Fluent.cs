@@ -27,7 +27,7 @@ for (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i]
 Rows layout = Ui.Rows().Content(c =>
 {
     c.DataGrid(grid => grid.Key("Samples").Grid(samples).Height(7).LinkKey("Sample"));
-    c.ChartView(view => view.Key("Load").Chart(chart).PointLabels(times).LinkKey("Sample"));
+    c.ChartView(view => view.Key("Load").Chart(chart).LinkKey("Sample").PointLabels(times));
 });
 
 // Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a

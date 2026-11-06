@@ -47,6 +47,24 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         private static string Text(Diagram diagram, int width) => ConsoleExporter.ToText(diagram, new ExportOptions { Width = width, Glyphs = GlyphTier.Full });
 
         [Fact]
+        public void MermaidFlowchart_DrawsFromAMarkdownFileAndInsideAMarkdownDocument() {
+            const string markdown = "# Network\n\n```mermaid\nflowchart LR\n  A[Laptop] --> B[Router] --> C[Internet]\n```\n";
+            string path = Path.Combine(Path.GetTempPath(), "cm-mermaid-" + Guid.NewGuid().ToString("N") + ".md");
+            File.WriteAllText(path, markdown);
+            try {
+                Diagram loaded = Diagram.Load(path);
+                Assert.Equal(new[] { "Laptop", "Router", "Internet" }, loaded.AllNodes().Select(node => node.Label).ToArray());
+                Assert.Equal(new[] { "A>B", "B>C" }, loaded.Links.Select(link => link.From + ">" + link.To).ToArray());
+            } finally { File.Delete(path); }
+
+            MarkdownView document = ConsoleMonster.Markdown.MarkdownConsole.Parse(markdown);
+            Diagram drawn = Assert.IsType<Diagram>(document.Children[1]);
+            string text = Text(drawn, 100);
+            Assert.Contains("Router", text);
+            Assert.DoesNotContain("flowchart", text);
+        }
+
+        [Fact]
         public void RegisteredRenderer_PreservesSubtitleAndIndependentValueInTheBox() {
             var diagram = new Diagram("Monitor") { Nodes = { new DiagramNode("DNS") { Subtitle = "1.1.1.1", Value = "12 ms" } }, ShowLegend = false };
             string text = Text(diagram, 120);

@@ -118,7 +118,11 @@ collection edits and fluent configuration are sequential setup operations.
 ### Load a file or import a chart
 
 After registration, `Diagram.Load(path, diagramId)` reads a Markdown file with
-ChartForgeX visual fences or a plain architecture file. The optional second
+ChartForgeX or Mermaid visual fences, a Mermaid file (`.mmd`) or a plain
+architecture file. Mermaid flowcharts, class, state, ER, architecture, mindmap,
+C4 and requirement diagrams draw; other Mermaid types are reported by name.
+Registration also lets ConsoleMonster.Markdown draw Mermaid fences in documents.
+The optional second
 argument selects a diagram when the file contains several:
 
 ```csharp
