@@ -1,3 +1,8 @@
+### Unreleased
+
+#### What's new
+- Mermaid diagrams draw in the terminal. `Show-ConsoleDiagram -Path` and `Diagram.Load` read Mermaid `.mmd` files and Markdown files with a ```` ```mermaid ```` fence, and `Show-Console -View Markdown` and `MarkdownConsole` draw Mermaid fences as diagrams when ConsoleMonster.Graphics is registered (the PowerShell module bundles it); without it they stay code. Flowcharts, class, state, ER, architecture, mindmap, C4 and requirement diagrams draw; other Mermaid types stay code in Markdown and are named in the file error. ConsoleMonster.Graphics adds ChartForgeX.Markup.Mermaid 3.4.0.
+
 ### 2.2.1 - 2026-11-06
 
 #### Fixed

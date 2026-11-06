@@ -24,6 +24,7 @@
     <ProjectReference Include="../ConsoleMonster/ConsoleMonster.csproj" />
     <PackageReference Include="ChartForgeX" Version="3.4.0" />
     <PackageReference Include="ChartForgeX.Markup" Version="3.4.0" />
+    <PackageReference Include="ChartForgeX.Markup.Mermaid" Version="3.4.0" />
     <EmbeddedResource Include="Fonts/OFL.txt" LogicalName="ConsoleMonster.Graphics.JetBrainsMono-OFL.txt" />
     <EmbeddedResource Include="Fonts/JetBrainsMono.ttf" LogicalName="ConsoleMonster.Graphics.JetBrainsMono.ttf" />
     <None Include="Fonts/OFL.txt" Pack="true" PackagePath="licenses/JetBrainsMono-OFL.txt" />

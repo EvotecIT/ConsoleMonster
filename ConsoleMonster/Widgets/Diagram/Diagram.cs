@@ -60,6 +60,8 @@ namespace ConsoleMonster.Widgets {
         internal void AttachRenderer(IDiagramRenderer renderer) { _renderer = renderer; }
         internal static Func<Diagram, IDiagramRenderer>? RendererFactory;
         internal static Func<string, string?, Diagram>? FileLoader;
+        // Lets the Markdown add-on draw diagram fences (language, source) without referencing Graphics; null keeps the code block.
+        internal static Func<string?, string, Diagram?>? FenceParser;
         internal IDiagramRenderer RequireRenderer() => Renderer ?? throw new NotSupportedException("Reference ConsoleMonster.Graphics and call DiagramRendererProvider.Register() to use topology files, playback or keyboard navigation.");
         /// <summary>Loads a ChartForgeX file using the registered Graphics provider.</summary>
         public static Diagram Load(string path, string? diagramId = null) => FileLoader != null ? FileLoader(path, diagramId) : throw new NotSupportedException("Call ConsoleMonster.Graphics.DiagramRendererProvider.Register() before Diagram.Load().");
