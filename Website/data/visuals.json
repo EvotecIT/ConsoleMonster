@@ -90,12 +90,6 @@
       "dark": "/site/nav/demos/incident-workbench-dark.svg",
       "light": "/site/nav/demos/incident-workbench-light.svg"
     },
-    "demos/stress": {
-      "w": 96,
-      "h": 60,
-      "dark": "/site/nav/demos/stress-dark.svg",
-      "light": "/site/nav/demos/stress-light.svg"
-    },
     "demos/backup-runner": {
       "w": 96,
       "h": 60,
@@ -269,6 +263,12 @@
       "h": 60,
       "dark": "/site/nav/demos/stale-accounts-dark.svg",
       "light": "/site/nav/demos/stale-accounts-light.svg"
+    },
+    "demos/stress": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/stress-dark.svg",
+      "light": "/site/nav/demos/stress-light.svg"
     },
     "demos/task-menu": {
       "w": 96,

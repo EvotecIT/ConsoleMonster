@@ -33,8 +33,8 @@ $latency = New-ConsoleSplitter -Key Panes -Ratio 0.4 -Fill -First {
 }
 $done = @{ OnText = 'Done'; OffText = 'To do' }
 $check = New-ConsoleCollapsible -Key Check -Expanded -Content {
-    New-ConsoleToggle -Key Dashboards -Label 'Error rate confirmed on the dashboard' -Value $true @done
-    New-ConsoleToggle -Key Deploys -Label 'Deploy at 13:40 matches the first spike' -Value $true @done
+    New-ConsoleToggle -Key Dashboards -Label 'Error rate confirmed' -Value $true @done
+    New-ConsoleToggle -Key Deploys -Label 'Deploy at 13:40 matches the spike' -Value $true @done
 }
 $mitigate = New-ConsoleCollapsible -Key Mitigate -Content {
     New-ConsoleToggle -Key Rollback -Label 'Roll back api-gateway to 4.12.1' @done

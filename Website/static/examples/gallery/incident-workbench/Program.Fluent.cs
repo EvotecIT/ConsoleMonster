@@ -46,12 +46,12 @@ Collapsible check = ((Collapsible)Ui.Collapsible().Key("Check").Content(Ui.Rows(
 {
     c.Toggle(toggle => toggle.Key("Dashboards")
         .Value(true)
-        .Label("Error rate confirmed on the dashboard")
+        .Label("Error rate confirmed")
         .OnText("Done")
         .OffText("To do"));
     c.Toggle(toggle => toggle.Key("Deploys")
         .Value(true)
-        .Label("Deploy at 13:40 matches the first spike")
+        .Label("Deploy at 13:40 matches the spike")
         .OnText("Done")
         .OffText("To do"));
 })).Expanded().Build());

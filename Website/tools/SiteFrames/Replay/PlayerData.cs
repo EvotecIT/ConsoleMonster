@@ -101,23 +101,6 @@ namespace SiteFrames.Replay {
                 }
                 json.Append(']');
             }
-            if (inputs != null && inputs.Count > 0) {
-                json.Append(",\"inputs\":[");
-                for (int i = 0; i < inputs.Count; i++) {
-                    InputCaption input = inputs[i];
-                    if (i > 0) {
-                        json.Append(',');
-                    }
-                    json.Append('[').Append(input.Time.ToString(CultureInfo.InvariantCulture)).Append(',').Append(JsonSerializer.Serialize(input.Label, Json));
-                    if (input.Column.HasValue && input.Row.HasValue) {
-                        json.Append(',').Append(input.Column.Value.ToString(CultureInfo.InvariantCulture))
-                            .Append(',').Append(input.Row.Value.ToString(CultureInfo.InvariantCulture))
-                            .Append(',').Append(JsonSerializer.Serialize(input.Kind ?? "move", Json));
-                    }
-                    json.Append(']');
-                }
-                json.Append(']');
-            }
             json.Append('}');
             return json.ToString();
         }

@@ -78,6 +78,7 @@ namespace ConsoleMonster.Tests.Input {
             Assert.Equal(1, events[6].HeldButtons);
             Assert.Equal(2, events.Skip(8).Count(e => e.MouseAction == MouseAction.Down && e.Column == 3));
             Assert.Throws<FormatException>(() => ScriptedInput.ParseEvents("click:1"));
+            Assert.Throws<FormatException>(() => ScriptedInput.ParseEvents("wheel:1,1,-2147483648"));
         }
 
         [Fact]

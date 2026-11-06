@@ -250,7 +250,7 @@ namespace ConsoleMonster.Input {
                     Add(InputEvent.Pointer(n[0], n[1], MouseAction.Move));
                     break;
                 case "wheel":
-                    if (n[2] == 0 || Math.Abs(n[2]) > 100) { throw new FormatException("'" + token + "' moves the wheel 1 to 100 notches."); }
+                    if (n[2] == 0 || n[2] < -100 || n[2] > 100) { throw new FormatException("'" + token + "' moves the wheel 1 to 100 notches."); }
                     for (int r = 0; r < Math.Abs(n[2]); r++) {
                         Add(InputEvent.Pointer(n[0], n[1], MouseAction.Wheel, wheelDelta: Math.Sign(n[2])));
                     }

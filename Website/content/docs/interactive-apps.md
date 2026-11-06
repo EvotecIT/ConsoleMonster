@@ -71,7 +71,7 @@ The mouse works wherever the keyboard does, and every pointer action also has a 
 - Drag a scroll bar, or the divider of a `Splitter`; scroll the wheel over a list, or over a `ChartView` to zoom.
 - Right-click, the Menu key or Shift+F10 opens a context menu of the keys that work at that moment.
 
-`InteractiveOptions.Mouse = false` or `CONSOLEMONSTER_NOMOUSE=1` turns the mouse off everywhere, and `Show-ConsoleApp -NoMouse` turns it off for one app. Recordings, exports, CI and redirected output are unchanged. The [incident workbench](/demos/incident-workbench/) is a whole app driven by the mouse alone, and [the grid with the mouse](/interactive/#grid-mouse) shows `Show-ConsoleGrid` the same way.
+`InteractiveOptions.Default.Mouse = false` or `CONSOLEMONSTER_NOMOUSE=1` turns the mouse off everywhere, and `Show-ConsoleApp -NoMouse` turns it off for one app. Recordings, exports, CI and redirected output are unchanged. The [incident workbench](/demos/incident-workbench/) is a whole app driven by the mouse alone, and [the grid with the mouse](/interactive/#grid-mouse) shows `Show-ConsoleGrid` the same way.
 ## Redirected output and CI
 
 An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. Pass `-Mode Snapshot` to `Show-ConsoleApp` to print the first screen once and exit. In C#, pass `new ConsoleAppOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.Snapshot } }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.

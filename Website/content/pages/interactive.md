@@ -8,7 +8,7 @@ meta.seo_title: Console prompts, menus and forms | ConsoleMonster
 
 Every story below is a complete program, PowerShell first and C# second, and the screens beside it are what that program drew for the input listed under it. Lists filter as you type, the footer lists the keys that work right now and `?` shows them all, and answers come back as typed values or as the chosen objects themselves.
 
-The mouse works wherever the keyboard does: click a row, a header, a tab or a hint in the footer, drag a scroll bar or a divider, double-click to open, and right-click in an app for the keys that work there. `InteractiveOptions.Mouse` or `CONSOLEMONSTER_NOMOUSE=1` turns it off. For whole apps built from panes, charts, folding sections and outlines, see the [incident workbench](/demos/incident-workbench/), driven entirely by the mouse, and the [chart and table](/demos/chart-table/), [help sections](/demos/help-sections/) and [settings tabs](/demos/settings-tabs/) demos.
+The mouse works wherever the keyboard does: click a row, a header, a tab or a hint in the footer, drag a scroll bar or a divider, double-click to open, and right-click in an app for the keys that work there. `InteractiveOptions.Default.Mouse = false` or `CONSOLEMONSTER_NOMOUSE=1` turns it off. For whole apps built from panes, charts, folding sections and outlines, see the [incident workbench](/demos/incident-workbench/), driven entirely by the mouse, and the [chart and table](/demos/chart-table/), [help sections](/demos/help-sections/) and [settings tabs](/demos/settings-tabs/) demos.
 
 To run one yourself:
 
