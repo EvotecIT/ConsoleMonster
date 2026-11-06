@@ -12,7 +12,7 @@ You do not have to change your commands to get readable output. One line turns i
 Enable-ConsoleFormatting
 ```
 
-Files and folders, processes, services, JSON and CSV records, commands, modules, history, network replies, event log records, IP addresses, volumes and dictionaries are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
+Files and folders, processes, services, JSON and CSV records, commands, modules, history, network replies, event log records, IP addresses, volumes, dictionaries and `Compare-Object` results are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
 
 Typed records with their own PowerShell table view keep its columns and expressions. An explicit `Register-ConsoleView` registration takes precedence.
 
@@ -110,6 +110,14 @@ Test-Connection 127.0.0.1 -Count 2
 </div>
 
 The Windows views register only on Windows. None of these views performs network requests, probes installed commands or loads optional networking modules: the commands you run supply the objects. `Enable-ConsoleFormatting -NoBuiltIn` leaves the native built-in displays in place, and `Disable-ConsoleFormatting` restores native output.
+
+## Compare-Object
+
+`Compare-Object` results are drawn as a comparison: the counts, then each item marked `-` when only the reference set has it, `+` when only the difference set has it and `=` when both have it (`-IncludeEqual`). With `-Property`, the first property names the item and the others show its values. This is the same view as [`Compare-ConsoleObject`](/docs/object-drift/). The objects still carry `SideIndicator`, so `Where-Object SideIndicator -eq '=>'`, `$diff = Compare-Object ...` and `Compare-Object ... | Out-File` work as before.
+
+{{< cm-frame ids="compare-object-ps5,compare-object-ps7" script="true" >}}
+
+To have Compare-ConsoleObject match objects by key and list which properties changed, call `Compare-ConsoleObject $before $after -Property Name`.
 
 ## Format-Table, Format-List and Format-Wide
 

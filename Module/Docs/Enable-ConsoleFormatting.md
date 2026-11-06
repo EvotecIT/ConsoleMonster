@@ -154,7 +154,7 @@ Accept wildcard characters: False
 ```
 
 ### -NoBuiltIn
-Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries). The built-in views still pick the columns of Show-ConsoleTable and the other commands.
+Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries, Compare-Object results). The built-in views still pick the columns of Show-ConsoleTable and the other commands.
 
 ```yaml
 Type: SwitchParameter

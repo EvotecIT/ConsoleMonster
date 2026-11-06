@@ -287,6 +287,8 @@
   "help-formatting/show-consolehelp-ps7-60-light.ansi": "a7d489ab68127614",
   "home/controllers.ps5.ansi": "e4752af5b01a9eff",
   "home/controllers.ps7.ansi": "d975f324f5bf5bbc",
+  "powershell/compare-object.rich.ps5.ansi": "6693a29417ac7335",
+  "powershell/compare-object.rich.ps7.ansi": "dea5be3c4b3058f2",
   "powershell/export-markdown.rich.ps7.ansi": "3b2d5caa261a3b03",
   "powershell/files.rich.ps7.ansi": "0dccfe6001598ee4",
   "powershell/format-consolelist.rich.ps5.ansi": "8c8e4737833a1654",
