@@ -3,73 +3,297 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "interactive",
+  "requestedSet": "diagrams",
   "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "interactive/controls.ps7.txt": {
+    "docs/diagram-1-dark-120.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "b3b25fab6853f1d116f3146fd43f6a534f813511b7040c8cf3c631c3a36ae1b2",
+      "sha256": "fd5f6a83d0080d51b7ac94c14ad57c06ed639b716aaaafec0810174b32825c73",
       "screen": "dark",
-      "width": 90,
-      "height": 22
+      "width": 120,
+      "height": 80
     },
-    "interactive/grid-mouse.ps7.txt": {
+    "docs/diagram-1-dark-120.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "7a072d4b56306a27c94db16040eee51213ddf608d418dfcd4c79cbcbf06d5708",
+      "sha256": "fd5f6a83d0080d51b7ac94c14ad57c06ed639b716aaaafec0810174b32825c73",
       "screen": "dark",
-      "width": 110,
-      "height": 22
+      "width": 120,
+      "height": 80
     },
-    "interactive/grid.ps7.txt": {
+    "docs/diagram-1-light-120.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "6c0a3da3470dc0e5f5a1c81d029950edd7278dd139a3e25b5d3532c42c23dcce",
-      "screen": "dark",
-      "width": 110,
-      "height": 22
+      "sha256": "dbb598a3a744f247055bc01d661a123a44d671c6bf8320d41eb9bcba25c5bd03",
+      "screen": "light",
+      "width": 120,
+      "height": 80
     },
-    "interactive/multi.ps7.txt": {
+    "docs/diagram-1-light-120.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "735f367278ba74d209ae48fa1eb1dae2e17857da6110258621ca94cbf7eee7c7",
-      "screen": "dark",
-      "width": 110,
-      "height": 20
+      "sha256": "dbb598a3a744f247055bc01d661a123a44d671c6bf8320d41eb9bcba25c5bd03",
+      "screen": "light",
+      "width": 120,
+      "height": 80
     },
-    "interactive/screens.ps7.txt": {
+    "docs/diagram-2-dark-120.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "f021e22210b24748a01856ba8de3091fcb4abcd337aaa9a0faf6c6a882be56da",
+      "sha256": "bbec12e0f223bbe800424ce4efc2e23db944ad885b03d2de12362f617111d096",
       "screen": "dark",
-      "width": 90,
-      "height": 16
+      "width": 120,
+      "height": 80
     },
-    "interactive/select.ps7.txt": {
+    "docs/diagram-2-dark-120.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "b2cc98b0fb0357a5cfd971939898a31757aa1839d973299913331ae1511a6570",
+      "sha256": "bbec12e0f223bbe800424ce4efc2e23db944ad885b03d2de12362f617111d096",
       "screen": "dark",
-      "width": 100,
-      "height": 16
+      "width": 120,
+      "height": 80
     },
-    "interactive/text.ps7.txt": {
+    "docs/diagram-2-light-120.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "02d84959c15965434899ffd3ba50e0356b1211f78a1e037986f97f9ce5a28017",
-      "screen": "dark",
-      "width": 90,
-      "height": 10
+      "sha256": "465f82a382f330783f7bc853edacb43afbb88d65b01ab3a68027cb889acb9585",
+      "screen": "light",
+      "width": 120,
+      "height": 80
     },
-    "interactive/typed.ps7.txt": {
+    "docs/diagram-2-light-120.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "5f1684cb603037f14a77221350b43cbfa8a1d990c20ebebad3ce29829c6d30b9",
+      "sha256": "465f82a382f330783f7bc853edacb43afbb88d65b01ab3a68027cb889acb9585",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-3-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "2d43894de1ef9d07f2c15146919299cb5a5551b1556e63a7cfe8c32ce3a4ddd2",
       "screen": "dark",
-      "width": 90,
-      "height": 10
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-3-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "2d43894de1ef9d07f2c15146919299cb5a5551b1556e63a7cfe8c32ce3a4ddd2",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-3-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "02aa20f0d78db51251cd751d1cf6375cdfbf1528bafc59723ab9485d5fc6f22b",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-3-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "02aa20f0d78db51251cd751d1cf6375cdfbf1528bafc59723ab9485d5fc6f22b",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-4-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "2f25a480cc63999306082b945039f6a2dbe87a0f53c269a1159dbccc074c36a1",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-4-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "2f25a480cc63999306082b945039f6a2dbe87a0f53c269a1159dbccc074c36a1",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-4-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "4f59bc1ac91a98b44596efd3f87d88830ee6f51f9878bd77cb4ad55ef84f5f2e",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-4-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "4f59bc1ac91a98b44596efd3f87d88830ee6f51f9878bd77cb4ad55ef84f5f2e",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-5-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "8794cf25272896b760ceb68a42703a3be6f99d3145bf3e51e6deb9874ebfcc73",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-5-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "8794cf25272896b760ceb68a42703a3be6f99d3145bf3e51e6deb9874ebfcc73",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-5-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "343dd283976747fa801bf8219ff159f8d8e13874054db83257b094e2bb22bc35",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-5-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "343dd283976747fa801bf8219ff159f8d8e13874054db83257b094e2bb22bc35",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-6-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "df4fbf0c318649da1dacbb338f7b3a0517b3297e7632d54ac65d0a37a0ac7296",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-6-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "df4fbf0c318649da1dacbb338f7b3a0517b3297e7632d54ac65d0a37a0ac7296",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-6-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "88a351067cd37a12d2cbfbcb0ea5d2238ddfe6947c6e0191c80484f963396d34",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-6-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "88a351067cd37a12d2cbfbcb0ea5d2238ddfe6947c6e0191c80484f963396d34",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-7-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "c672ed1f2803e362541de8cad3bf3f550158b01a2115951dd3308ab2eec49ff1",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-7-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "c672ed1f2803e362541de8cad3bf3f550158b01a2115951dd3308ab2eec49ff1",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-7-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f182c6e1b34393d4f8e089d6a4ccf4cec31e4610bff5f78994350b34dfabda3e",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-7-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f182c6e1b34393d4f8e089d6a4ccf4cec31e4610bff5f78994350b34dfabda3e",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-8-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6b32abf8d2223edbff5173bd40291610f0b0ab4ca9e22976ebc39d72349f95dc",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-8-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6b32abf8d2223edbff5173bd40291610f0b0ab4ca9e22976ebc39d72349f95dc",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-8-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7ababeb41a84f7db829c72e591f34600b08e72f8bb38dc250e0c43704fa9e267",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-8-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7ababeb41a84f7db829c72e591f34600b08e72f8bb38dc250e0c43704fa9e267",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-9-dark-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7ddc6287a23b2dceab2c7d763b39648c3265d40284c356b9cb77092d3eb502be",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-9-dark-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "7ddc6287a23b2dceab2c7d763b39648c3265d40284c356b9cb77092d3eb502be",
+      "screen": "dark",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-9-light-120.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "20036d6872f1ea3725b9ad449024b60f18fb750001fd375f023761c08e5fc3a3",
+      "screen": "light",
+      "width": 120,
+      "height": 80
+    },
+    "docs/diagram-9-light-120.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "20036d6872f1ea3725b9ad449024b60f18fb750001fd375f023761c08e5fc3a3",
+      "screen": "light",
+      "width": 120,
+      "height": 80
     }
   }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using ChartForgeX.Diagnostics;
 using ChartForgeX.Markup;
+using ChartForgeX.Markup.Mermaid;
 using ChartForgeX.Topology;
 using ChartForgeX.VisualArtifacts;
 using ConsoleMonster.Widgets;
@@ -20,9 +21,13 @@ namespace ConsoleMonster.Graphics {
         internal static Diagram Load(string path, string? id = null, Action<string>? warning = null) {
             if (path == null) throw new ArgumentNullException(nameof(path));
             string text = File.ReadAllText(path);
+            string extension = Path.GetExtension(path);
+            // A bare Mermaid file is one diagram; reading it as a fence keeps one parse path for files and Markdown.
+            if (string.Equals(extension, ".mmd", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".mermaid", StringComparison.OrdinalIgnoreCase)) {
+                text = MermaidFence(text);
+            }
             VisualMarkupScanResult scan = VisualMarkupScanner.Scan(text);
             if (scan.Blocks.Count == 0 && scan.Diagnostics.Count == 0) {
-                string extension = Path.GetExtension(path);
                 if (string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase) || string.Equals(extension, ".markdown", StringComparison.OrdinalIgnoreCase)) {
                     throw new ImportException("The Markdown file has no ChartForgeX visual fences.", "DiagramNotFound", path);
                 }
@@ -32,10 +37,10 @@ namespace ConsoleMonster.Graphics {
             }
 
             // Parsing individual fences would restart generated ids instead of preserving the file-wide sequence.
-            VisualMarkupParseResult result = new VisualMarkupParser().Parse(scan);
+            VisualMarkupParseResult result = Parser().Parse(scan);
             var diagrams = new List<Candidate>();
             foreach (VisualArtifact artifact in result.Artifacts) {
-                TopologyChart? chart = artifact.Model as TopologyChart ?? (artifact.Model is FlowArtifact flow ? flow.ToTopologyChart() : null);
+                TopologyChart? chart = Topology(artifact, scan);
                 if (chart != null) diagrams.Add(new Candidate(artifact, chart));
             }
 
@@ -59,7 +64,11 @@ namespace ConsoleMonster.Graphics {
             if (selected == null) {
                 // Keep the original parser errors when the requested artifact could not be produced.
                 Report(result.Diagnostics, path, warning, fatal: true);
-                if (diagrams.Count == 0) throw new ImportException("The file has no architecture, topology or flow diagram.", "DiagramNotFound", path);
+                if (diagrams.Count == 0) {
+                    VisualArtifact? mermaid = result.Artifacts.FirstOrDefault(artifact => artifact.Kind == VisualArtifactKind.Mermaid);
+                    if (mermaid != null) throw new ImportException("Mermaid '" + MermaidType(mermaid) + "' diagrams don't draw in the console. Use " + MermaidTopologyTypes + ".", "DiagramNotFound", path);
+                    throw new ImportException("The file has no architecture, topology, flow or Mermaid diagram.", "DiagramNotFound", path);
+                }
                 string ids = string.Join(", ", diagrams.Select(item => item.Id).Distinct(StringComparer.Ordinal));
                 if (id != null) throw new ImportException("No diagram has id '" + id + "'. Diagrams: " + ids + ".", "DiagramNotFound", id);
                 throw new ImportException("The file has " + diagrams.Count.ToString(CultureInfo.InvariantCulture) + " diagrams; choose one by id: " + ids + ".", "DiagramAmbiguous", path);
@@ -74,8 +83,47 @@ namespace ConsoleMonster.Graphics {
             return DiagramConversion.From(selected.Chart);
         }
 
+        /// <summary>Draws one Markdown fence as a diagram, or returns null so the document keeps it as code.</summary>
+        /// <remarks>Only Mermaid fences are taken; a fence with errors or a type that is not a topology stays readable source.</remarks>
+        internal static Diagram? ParseFence(string? language, string content) {
+            if (content == null || !string.Equals(language?.Trim(), "mermaid", StringComparison.OrdinalIgnoreCase)) return null;
+            VisualMarkupScanResult scan = VisualMarkupScanner.Scan(MermaidFence(content));
+            VisualMarkupParseResult result = Parser().Parse(scan);
+            if (result.Diagnostics.Any(diagnostic => diagnostic.Severity == VisualDiagnosticSeverity.Error)) return null;
+            TopologyChart? chart = result.Artifacts.Count == 1 ? Topology(result.Artifacts[0], scan) : null;
+            return chart == null ? null : DiagramConversion.From(chart);
+        }
+
+        // Mermaid types the adapter lays out as topology; the others (sequence, pie, gantt, timeline, gitGraph and
+        // similar) produce charts or blocks the terminal diagram cannot draw.
+        private const string MermaidTopologyTypes = "flowchart/graph, classDiagram, stateDiagram, erDiagram, architecture-beta, mindmap, C4 or requirementDiagram";
+
+        private static VisualMarkupParser Parser() => new VisualMarkupParser(new MermaidVisualMarkupBlockParser());
+
+        private static TopologyChart? Topology(VisualArtifact artifact, VisualMarkupScanResult scan) {
+            TopologyChart? chart = artifact.Model as TopologyChart ?? (artifact.Model is FlowArtifact flow ? flow.ToTopologyChart() : null);
+            // An untitled Mermaid diagram gets a family name such as "Mermaid flowchart"; that labels the source, not the drawing.
+            if (chart != null && artifact.Kind == VisualArtifactKind.Mermaid && chart.Title != null && chart.Title.StartsWith("Mermaid ", StringComparison.Ordinal)) {
+                artifact.Metadata.TryGetValue("sourceLine", out string? line);
+                VisualMarkupBlock? block = scan.Blocks.FirstOrDefault(item => item.FenceLine.ToString(CultureInfo.InvariantCulture) == line);
+                if (block == null || block.Payload.IndexOf("title", StringComparison.OrdinalIgnoreCase) < 0) chart.Title = string.Empty;
+            }
+            return chart;
+        }
+
+        private static string MermaidType(VisualArtifact artifact) =>
+            artifact.Id.StartsWith("mermaid-", StringComparison.Ordinal) ? artifact.Id.Substring("mermaid-".Length) : artifact.Id;
+
+        private static string MermaidFence(string source) {
+            // Choose a fence longer than any backtick run in the source so the content cannot close it.
+            int longest = 0, run = 0;
+            foreach (char c in source) { run = c == '`' ? run + 1 : 0; if (run > longest) longest = run; }
+            string fence = new string('`', Math.Max(3, longest + 1));
+            return fence + "mermaid\n" + source + (source.EndsWith("\n", StringComparison.Ordinal) ? string.Empty : "\n") + fence + "\n";
+        }
+
         private static bool IsDiagram(VisualMarkupBlock block) => block.Kind == VisualMarkupKind.Architecture
-            || block.Kind == VisualMarkupKind.Topology || block.Kind == VisualMarkupKind.Flow;
+            || block.Kind == VisualMarkupKind.Topology || block.Kind == VisualMarkupKind.Flow || block.Kind == VisualMarkupKind.Mermaid;
 
         private static void Report(IEnumerable<MarkupDiagnostic> diagnostics, string path, Action<string>? warning, bool fatal) {
             var errors = new StringBuilder();
