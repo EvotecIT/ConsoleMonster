@@ -278,6 +278,27 @@
           "body": "Recorded runs of the build pipeline and the stress test."
         },
         {
+          "title": "Apps and the mouse",
+          "url": "/demos/incident-workbench/",
+          "visual": "demos/incident-workbench",
+          "key": 5,
+          "body": "Linked charts and tables, panes and runbooks, clicked through with the mouse."
+        },
+        {
+          "title": "Interactive",
+          "url": "/interactive/",
+          "visual": "interactive",
+          "key": 6,
+          "body": "Prompts, menus, forms and the grid, by keyboard or mouse."
+        },
+        {
+          "title": "Diagrams",
+          "url": "/docs/diagrams/",
+          "visual": "diagrams",
+          "key": 1,
+          "body": "Networks, architectures and request walkthroughs that play in the terminal."
+        },
+        {
           "title": "PowerShell",
           "url": "/powershell/",
           "visual": "powershell",

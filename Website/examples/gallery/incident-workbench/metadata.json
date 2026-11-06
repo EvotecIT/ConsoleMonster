@@ -1,0 +1,72 @@
+{
+  "slug": "incident-workbench",
+  "title": "Incident workbench",
+  "pitch": "Click a sample and the chart follows, drag the split, zoom with the wheel, then work the runbook, all with the mouse or the keys.",
+  "category": "Terminal apps",
+  "tags": [
+    "mouse",
+    "chart",
+    "splitter",
+    "accordion",
+    "context menu"
+  ],
+  "terminal": {
+    "width": 110,
+    "height": 28
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Load your own samples: a service's latency, a queue's depth, a build's duration.",
+    "Turn your team's runbook into outline entries, with a toggle for each step.",
+    "Give the grid and the chart the same link key and keep their rows in the same order."
+  ],
+  "mode": "live",
+  "steps": 9,
+  "tier": "showcase",
+  "useCase": "Use it when someone needs to read a spike, find the moment it started and work a checklist without leaving the terminal.",
+  "featured": true,
+  "capture": {
+    "states": [
+      {
+        "keys": "Escape"
+      },
+      {
+        "keys": "click:12,17 Escape",
+        "caption": "Click a sample"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 Escape",
+        "caption": "Drag the divider"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 click:76,12 wheel:76,12,1 Escape",
+        "caption": "Click the chart, wheel to zoom"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 click:76,12 wheel:76,12,1 click:48,23 Escape",
+        "caption": "Click a legend entry to hide p50"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 click:76,12 wheel:76,12,1 click:48,23 click:11,1 Escape",
+        "caption": "Click the Runbook tab"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 click:76,12 wheel:76,12,1 click:48,23 click:11,1 click:4,4 Escape",
+        "caption": "Click an outline entry"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 click:76,12 wheel:76,12,1 click:48,23 click:11,1 click:4,4 click:30,6 Escape",
+        "caption": "Click a toggle"
+      },
+      {
+        "keys": "click:12,17 drag:44,14,37,14 click:76,12 wheel:76,12,1 click:48,23 click:11,1 click:4,4 click:30,6 click:3,1 rclick:70,12",
+        "incomplete": true,
+        "caption": "Right-click the chart for its keys"
+      }
+    ]
+  }
+}

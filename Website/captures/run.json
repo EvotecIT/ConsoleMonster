@@ -3,83 +3,73 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "gallery",
-  "filters": {
-    "SITEFRAMES_GALLERY": "chart-table,help-sections,settings-tabs"
-  },
+  "requestedSet": "interactive",
+  "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "gallery/chart-table-0.ps7.ansi": {
+    "interactive/controls.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "1e3d70ac934057d8b72ed6d1473541438627ae11f73a89d1ddd5ac136436f5cc",
+      "sha256": "b3b25fab6853f1d116f3146fd43f6a534f813511b7040c8cf3c631c3a36ae1b2",
       "screen": "dark",
-      "width": 88,
-      "height": 24
-    },
-    "gallery/chart-table-1.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "ab456b994b284355f5f88185fa469a9e774dbc09cafb25817a3aefddeba1d775",
-      "screen": "dark",
-      "width": 88,
-      "height": 24
-    },
-    "gallery/chart-table-2.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "42ab1b2d30bf079ba583ca57bf9615aaa0a9efdeb7efba9174dd1adbfefef88f",
-      "screen": "dark",
-      "width": 88,
-      "height": 24
-    },
-    "gallery/help-sections-0.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "c7ad32a61d837e51566121efb33c6b27d92de369b08eea4b238cf884ff789901",
-      "screen": "dark",
-      "width": 88,
+      "width": 90,
       "height": 22
     },
-    "gallery/help-sections-1.ps7.ansi": {
+    "interactive/grid-mouse.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "fa456aca66da89eac1e606a4dbf9de3a52c9184b44cd739e05a24f29421c3ded",
+      "sha256": "7a072d4b56306a27c94db16040eee51213ddf608d418dfcd4c79cbcbf06d5708",
       "screen": "dark",
-      "width": 88,
+      "width": 110,
       "height": 22
     },
-    "gallery/help-sections-2.ps7.ansi": {
+    "interactive/grid.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9260caa583bb29386aaa4617b3eb0c5b4b94c320dcbc99adb7f8a426106cf0cc",
+      "sha256": "6c0a3da3470dc0e5f5a1c81d029950edd7278dd139a3e25b5d3532c42c23dcce",
       "screen": "dark",
-      "width": 88,
+      "width": 110,
       "height": 22
     },
-    "gallery/settings-tabs-0.ps7.ansi": {
+    "interactive/multi.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "7bb17f5ed2c5ee804ca7c6b40268143c749f574e3396870bf122015576ffdb32",
+      "sha256": "735f367278ba74d209ae48fa1eb1dae2e17857da6110258621ca94cbf7eee7c7",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 110,
+      "height": 20
     },
-    "gallery/settings-tabs-1.ps7.ansi": {
+    "interactive/screens.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "4292fea28a76ab76780ce03e7e2bf48fb098bbdb8b07a6d06dcd0149e74e5619",
+      "sha256": "f021e22210b24748a01856ba8de3091fcb4abcd337aaa9a0faf6c6a882be56da",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 90,
+      "height": 16
     },
-    "gallery/settings-tabs-2.ps7.ansi": {
+    "interactive/select.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "cbc43fef23c14d9c5d636ca86a832191d992cdcdf51472680942b2ab012417e5",
+      "sha256": "b2cc98b0fb0357a5cfd971939898a31757aa1839d973299913331ae1511a6570",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 16
+    },
+    "interactive/text.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "02d84959c15965434899ffd3ba50e0356b1211f78a1e037986f97f9ce5a28017",
+      "screen": "dark",
+      "width": 90,
+      "height": 10
+    },
+    "interactive/typed.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "5f1684cb603037f14a77221350b43cbfa8a1d990c20ebebad3ce29829c6d30b9",
+      "screen": "dark",
+      "width": 90,
+      "height": 10
     }
   }
 }

@@ -173,6 +173,9 @@
         },
         {
           "choice": "settings-tabs"
+        },
+        {
+          "choice": "incident-workbench"
         }
       ],
       "defaultValue": "none"
@@ -845,6 +848,22 @@
         "settings-tabs/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"settings-tabs\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "incident-workbench/Program.cs",
+        "incident-workbench/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "incident-workbench/Program.cs": "Program.cs",
+        "incident-workbench/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"incident-workbench\")"
     }
   ]
 }

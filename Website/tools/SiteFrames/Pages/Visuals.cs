@@ -30,6 +30,7 @@ namespace SiteFrames.Pages {
                 ["tables"] = theme => TablesPage.Run(site, "dns", 80, theme),
                 ["live"] = theme => LivePage.FrameAt(site, "assessment", 1.0),
                 ["interactive"] = theme => InteractivePage.Thumbnail(site, theme),
+                ["diagrams"] = theme => DiagramLadderFigures.Frame(site, 4, theme),
                 ["powershell"] = theme => HomePage.Run(site, 80, theme),
                 ["docs"] = theme => Site.Render(Profile(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
                 ["guides"] = theme => Site.Render(Migration(), 80, ColorDepth.TrueColor, GlyphTier.Full, theme),
@@ -45,7 +46,7 @@ namespace SiteFrames.Pages {
             }
             foreach (KeyValuePair<string, Func<ITheme, CellBuffer?>> item in items) {
                 bool gallery = item.Key == "demos" || item.Key.StartsWith("demos/", StringComparison.Ordinal);
-                bool wide = item.Key == "live" || item.Key == "benchmarks" || item.Key == "interactive" || gallery;
+                bool wide = item.Key == "live" || item.Key == "benchmarks" || item.Key == "interactive" || item.Key == "diagrams" || gallery;
                 JsonObject entry = new JsonObject { ["w"] = 96, ["h"] = 60 };
                 foreach ((Screen screen, ITheme theme) in new[] { (Screen.Dark, (ITheme)Theme.Dark), (Screen.Light, Theme.Light) }) {
                     CellBuffer? frame = item.Value(theme);

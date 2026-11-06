@@ -75,6 +75,9 @@ namespace SiteFrames.Capture {
                     if (factory.ArgumentList.Arguments.Count == 0 && noun is not ("Chart" or "Progress" or "Select" or "TextInput" or "Button" or "Toggle" or "Collapsible" or "Outline" or "Breadcrumb" or "Binding")) {
                         string configured = Unique(noun, value);
                         ExpressionSyntax configuration = value.ReplaceNode(factory, SyntaxFactory.IdentifierName(configured));
+                        // A built input control's content helper builds it once after configuration.
+                        if (configuration is ParenthesizedExpressionSyntax { Expression: CastExpressionSyntax { Expression: var castValue } }) { configuration = castValue; }
+                        if (configuration is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Build" } built }) { configuration = built.Expression; }
                         if (configuration is IdentifierNameSyntax) { return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + "()"); }
                         return SyntaxFactory.ParseExpression(content + " => " + content + "." + noun + "(" + configured + " => " + configuration + ")");
                     }

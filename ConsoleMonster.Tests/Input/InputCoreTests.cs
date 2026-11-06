@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interop;
@@ -63,6 +64,21 @@ namespace ConsoleMonster.Tests.Input {
             Assert.True(events[5].Is(ConsoleKey.K, KeyModifiers.Control));
             Assert.Equal(InputEventKind.Resize, events[6].Kind);
             Assert.True(events[7].IsChar(' '));
+        }
+
+        [Fact]
+        public void ScriptedInput_ParsesPointerGestures() {
+            IReadOnlyList<InputEvent> events = ScriptedInput.ParseEvents("rclick:4,2 wheel:1,1,-2 drag:0,0,2,0 dclick:3,3");
+            Assert.Equal(12, events.Count);
+            Assert.Equal((3, MouseAction.Down, 4, 2), (events[0].MouseButton, events[0].MouseAction, events[0].Column, events[0].Row));
+            Assert.Equal(MouseAction.Up, events[1].MouseAction);
+            Assert.All(new[] { events[2], events[3] }, e => Assert.Equal((MouseAction.Wheel, -1), (e.MouseAction, e.WheelDelta)));
+            Assert.Equal(new[] { MouseAction.Down, MouseAction.Move, MouseAction.Move, MouseAction.Up }, new[] { events[4], events[5], events[6], events[7] }.Select(e => e.MouseAction));
+            Assert.Equal((2, 1), (events[7].Column, events[7].MouseButton));
+            Assert.Equal(1, events[6].HeldButtons);
+            Assert.Equal(2, events.Skip(8).Count(e => e.MouseAction == MouseAction.Down && e.Column == 3));
+            Assert.Throws<FormatException>(() => ScriptedInput.ParseEvents("click:1"));
+            Assert.Throws<FormatException>(() => ScriptedInput.ParseEvents("wheel:1,1,-2147483648"));
         }
 
         [Fact]

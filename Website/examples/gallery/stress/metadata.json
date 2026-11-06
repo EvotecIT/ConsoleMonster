@@ -27,7 +27,7 @@
   "steps": 7,
   "tier": "showcase",
   "useCase": "Use it when a busy worker pool must remain readable while updates and tool output arrive together.",
-  "featured": true,
+  "featured": false,
   "capture": {
     "states": [
       {
