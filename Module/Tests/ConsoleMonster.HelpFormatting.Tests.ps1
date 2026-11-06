@@ -157,6 +157,7 @@ $afterError = try { Get-Help Get-HelpFormattingValue -Full -Examples } catch { $
 if ($afterError -cne $errorId) { throw 'Native error changed' }
 foreach ($kind in 'Start-Job', 'Start-ThreadJob') {
     if (-not (Get-Command $kind -ErrorAction Ignore)) { "UNAVAILABLE=$kind"; continue }
+    "STARTING=$kind"
     $job = & $kind -ArgumentList $modulePath,$fixturePath -ScriptBlock {
         param($modulePath,$fixturePath)
         Import-Module $modulePath
@@ -169,6 +170,7 @@ foreach ($kind in 'Start-Job', 'Start-ThreadJob') {
     }
     try {
         $result = @($job | Wait-Job -Timeout 45 | Receive-Job -ErrorAction Stop)
+        "WAITED=$kind $($job.State)"
         if ($job.State -ne 'Completed' -or $result.Count -ne 1 -or $result[0].Name -ne 'Get-HelpFormattingValue') { throw "Failed $kind" }
     } finally { $job | Remove-Job -Force }
 }

@@ -13,6 +13,38 @@ namespace SiteFrames.Capture {
         /// <summary>Translates every file together, so a fluent tab never silently depends on initializer-only companions.</summary>
         public static IReadOnlyDictionary<string, string> FluentSources(string path, params string[] companions) => FluentSourcesCore(path, companions, null);
 
+        // A statement the translation did not change (a data row, a loop that fills a grid) keeps the author's layout:
+        // the generated program is normalized as a whole, which spreads one-line loops and rewraps arrays.
+        private static string KeepUnchangedStatements(string original, string generated) {
+            static string Key(StatementSyntax statement) => statement.WithoutTrivia().NormalizeWhitespace().ToFullString();
+            static bool BlankBefore(SyntaxTriviaList trivia) => trivia.TakeWhile(t => t.IsKind(SyntaxKind.WhitespaceTrivia) || t.IsKind(SyntaxKind.EndOfLineTrivia))
+                .Any(t => t.IsKind(SyntaxKind.EndOfLineTrivia));
+            StatementSyntax[] authored = CSharpSyntaxTree.ParseText(original).GetRoot().DescendantNodes()
+                .OfType<GlobalStatementSyntax>().Select(global => global.Statement).ToArray();
+            var available = authored.Select((statement, index) => (statement, index)).GroupBy(entry => Key(entry.statement))
+                .ToDictionary(group => group.Key, group => new Queue<(StatementSyntax Statement, int Index)>(group), StringComparer.Ordinal);
+            SyntaxNode root = CSharpSyntaxTree.ParseText(generated).GetRoot();
+            var replacements = new Dictionary<SyntaxNode, SyntaxNode>();
+            int? previous = null;
+            foreach (GlobalStatementSyntax global in root.DescendantNodes().OfType<GlobalStatementSyntax>()) {
+                if (available.TryGetValue(Key(global.Statement), out var matches) && matches.Count > 0) {
+                    (StatementSyntax kept, int index) = matches.Dequeue();
+                    replacements[global.Statement] = kept;
+                    previous = index;
+                    continue;
+                }
+                // After a kept statement, the next one is blank-line separated only where the author separated it.
+                SyntaxTriviaList lead = global.Statement.GetLeadingTrivia();
+                if (previous is int at && at + 1 < authored.Length && !BlankBefore(authored[at + 1].GetLeadingTrivia()) && BlankBefore(lead)) {
+                    replacements[global.Statement] = global.Statement.WithLeadingTrivia(lead.SkipWhile(t => t.IsKind(SyntaxKind.WhitespaceTrivia) || t.IsKind(SyntaxKind.EndOfLineTrivia)));
+                }
+                previous = null;
+            }
+            if (replacements.Count == 0) { return generated; }
+            string text = root.ReplaceNodes(replacements.Keys, (node, _) => replacements[node]).ToFullString();
+            return text.EndsWith("\n", StringComparison.Ordinal) ? text : text + "\n";
+        }
+
         // Initializer comments and directives must remain attached to their original members.
         private static bool HasInitializerBoundaryTrivia(InitializerExpressionSyntax? initializer) =>
             initializer != null && initializer.DescendantTrivia().Any(trivia =>
@@ -52,6 +84,10 @@ namespace SiteFrames.Capture {
             foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
                 var ergonomics = new FluentErgonomicsRewriter(checkedProgram.GetSemanticModel(tree));
                 generated[tree.FilePath] = ergonomics.Visit(tree.GetRoot())!.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
+            }            checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
+            foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
+                var inline = new FluentInlineRewriter(checkedProgram.GetSemanticModel(tree));
+                generated[tree.FilePath] = inline.Visit(tree.GetRoot())!.NormalizeWhitespace(indentation: "    ", eol: "\n").ToFullString() + "\n";
             }
             checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
             var diagnostics = checkedProgram.GetDiagnostics();
@@ -71,7 +107,7 @@ namespace SiteFrames.Capture {
             }
             checkedProgram = CreateCompilation(path, generated[path], companions: companions, sourceOverrides: generated, references: references);
             foreach (SyntaxTree tree in checkedProgram.SyntaxTrees.Where(tree => generated.ContainsKey(tree.FilePath))) {
-                generated[tree.FilePath] = LayoutSource(tree, checkedProgram.GetSemanticModel(tree));
+                generated[tree.FilePath] = KeepUnchangedStatements(inputs[tree.FilePath], LayoutSource(tree, checkedProgram.GetSemanticModel(tree)));
             }
             return generated;
         }

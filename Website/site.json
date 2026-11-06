@@ -467,7 +467,14 @@
                 "Title": "Interactive",
                 "Url": "/interactive/",
                 "Meta": { "key": 5 },
-                "Description": "Prompts, menus, forms and the grid."
+                "Description": "Prompts, menus, forms and the grid, by keyboard or mouse."
+              },
+              {
+                "Id": "diagrams",
+                "Title": "Diagrams",
+                "Url": "/docs/diagrams/",
+                "Meta": { "key": 2 },
+                "Description": "Networks, architectures and walkthroughs, live in the terminal."
               },
               {
                 "Id": "powershell",
@@ -531,6 +538,7 @@
           { "Title": "Demos", "Url": "/demos/" },
           { "Title": "Live runs", "Url": "/docs/live-runs/" },
           { "Title": "Interactive", "Url": "/interactive/" },
+          { "Title": "Diagrams", "Url": "/docs/diagrams/" },
           { "Title": "PowerShell", "Url": "/powershell/" }
         ]
       },

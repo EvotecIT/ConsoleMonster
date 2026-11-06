@@ -65,8 +65,8 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 <tr><td><code>New-ConsoleTextInput</code></td><td><code>Ui.TextInput()</code></td><td><code>c.TextInput(textInput =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleToggle</code></td><td><code>Ui.Toggle()</code></td><td><code>c.Toggle(toggle =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleTree</code></td><td><code>Ui.Tree()</code></td><td><code>c.Tree(tree =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleChartView</code></td><td><code>Ui.ChartView()</code></td><td><code>c.ChartView(chartView =&gt; …)</code></td></tr>
-<tr><td><code>New-ConsoleDataGrid</code></td><td><code>Ui.DataGrid()</code></td><td><code>c.DataGrid(dataGrid =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleChartView</code></td><td><code>Ui.ChartView()</code></td><td><code>c.ChartView(view =&gt; …)</code></td></tr>
+<tr><td><code>New-ConsoleDataGrid</code></td><td><code>Ui.DataGrid()</code></td><td><code>c.DataGrid(grid =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleTreeSelect</code></td><td><code>Ui.TreeSelect()</code></td><td><code>c.TreeSelect(treeSelect =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleDatePicker</code></td><td><code>Ui.DatePicker()</code></td><td><code>c.DatePicker(datePicker =&gt; …)</code></td></tr>
 <tr><td><code>New-ConsoleTabs</code></td><td><code>Ui.Tabs()</code></td><td><code>c.Tabs(tabs =&gt; …)</code></td></tr>

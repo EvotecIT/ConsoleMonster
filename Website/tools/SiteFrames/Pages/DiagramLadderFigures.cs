@@ -46,6 +46,9 @@ namespace SiteFrames.Pages {
             }
         }
 
+        /// <summary>One level drawn by its C# program, for the navigation thumbnail.</summary>
+        internal static CellBuffer Frame(Site site, int level, ITheme theme) => CSharpRunner.Run(ProgramPath(site, level), Width, ColorDepth.TrueColor, GlyphTier.Full, theme);
+
         private static CellBuffer CheckedFrame(Site site, int level, string name, ITheme theme, JsonObject hosts) {
             CellBuffer frame = CSharpRunner.Run(ProgramPath(site, level), Width, ColorDepth.TrueColor, GlyphTier.Full, theme);
             List<string> problems = new List<string>();

@@ -37,12 +37,12 @@ foreach (var account in accounts)
             account.LastLogon.ToString("yyyy-MM-dd"), inactive, age, status));
     }
 }
-
 var expiring = accounts.Where(account => account.PasswordExpires >= today
     && account.PasswordExpires <= today.AddDays(30));
-var marks = expiring.Select(account => new CalendarMark(account.PasswordExpires!.Value,
-    account.PasswordExpires <= today.AddDays(7) ? StatusKind.Warn : StatusKind.Info,
-    account.Name + " password"))
+var marks = expiring
+    .Select(account => new CalendarMark(account.PasswordExpires!.Value,
+        account.PasswordExpires <= today.AddDays(7) ? StatusKind.Warn : StatusKind.Info,
+        account.Name + " password"))
     .Append(new CalendarMark(
         new DateTime(2026, 11, 16),
         StatusKind.Fail,

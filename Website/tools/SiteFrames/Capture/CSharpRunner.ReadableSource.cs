@@ -39,7 +39,7 @@ namespace SiteFrames.Capture {
 
         /// <summary>Shares ordinary builder callback names between runnable programs and their translation notes.</summary>
         internal static string BuilderParameter(string noun) => noun switch {
-            "definition" => "o", "Table" => "t", "Panel" => "p", "KeyValue" => "kv", "Chart" => "chart", "Rows" => "r",
+            "definition" => "o", "Table" => "t", "Panel" => "p", "KeyValue" => "kv", "Chart" => "chart", "Rows" => "r", "DataGrid" => "grid", "ChartView" => "view",
             _ => char.ToLowerInvariant(noun[0]) + noun.Substring(1)
         };
 

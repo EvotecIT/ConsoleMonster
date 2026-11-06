@@ -180,7 +180,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Publish native executable (trim and AOT warnings are errors)
-        run: dotnet publish Tests/AotSmoke/AotSmoke.csproj -c Release -f ${{ matrix.framework }} -r win-x64 -o Artefacts/AotSmoke
+        shell: pwsh
+        run: ./.github/scripts/Publish-AotSmoke.ps1 -Framework ${{ matrix.framework }} -Runtime win-x64
       - name: Run native executable
         run: ./Artefacts/AotSmoke/AotSmoke.exe
 
@@ -376,7 +377,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Publish native executable (trim and AOT warnings are errors)
-        run: dotnet publish Tests/AotSmoke/AotSmoke.csproj -c Release -f net10.0 -r linux-x64 -o Artefacts/AotSmoke
+        shell: pwsh
+        run: ./.github/scripts/Publish-AotSmoke.ps1 -Framework net10.0 -Runtime linux-x64
       - name: Run native executable (native and linker coverage; it prints no glyphs)
         run: |
           ./Artefacts/AotSmoke/AotSmoke

@@ -56,8 +56,8 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleTextInput` | `Ui.TextInput()` | `c.TextInput(textInput => …)` |
 | `New-ConsoleToggle` | `Ui.Toggle()` | `c.Toggle(toggle => …)` |
 | `New-ConsoleTree` | `Ui.Tree()` | `c.Tree(tree => …)` |
-| `New-ConsoleChartView` | `Ui.ChartView()` | `c.ChartView(chartView => …)` |
-| `New-ConsoleDataGrid` | `Ui.DataGrid()` | `c.DataGrid(dataGrid => …)` |
+| `New-ConsoleChartView` | `Ui.ChartView()` | `c.ChartView(view => …)` |
+| `New-ConsoleDataGrid` | `Ui.DataGrid()` | `c.DataGrid(grid => …)` |
 | `New-ConsoleTreeSelect` | `Ui.TreeSelect()` | `c.TreeSelect(treeSelect => …)` |
 | `New-ConsoleDatePicker` | `Ui.DatePicker()` | `c.DatePicker(datePicker => …)` |
 | `New-ConsoleTabs` | `Ui.Tabs()` | `c.Tabs(tabs => …)` |

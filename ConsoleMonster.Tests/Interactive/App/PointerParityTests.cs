@@ -161,6 +161,45 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Equal(details, frame(pointer));
         }
 
+        // Show-ConsoleGrid and other standalone views: a right click (or Shift+F10) lists the keys that work there, and
+        // choosing one presses its key; Escape closes the menu and leaves the grid open.
+        [Fact]
+        public void GridView_ContextMenuListsTheKeysAndChoosingOnePressesIt() {
+            Func<GridView> show = () => {
+                Grid grid = new Grid("Services");
+                grid.AddColumn("Name"); grid.AddColumn("State");
+                grid.AddRow("alpha", "alpha", "running"); grid.AddRow("beta", "beta", "stopped");
+                return new GridView(grid, new GridOptions(), new PromptLabels());
+            };
+            Func<GridView, string> frame = view => FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 80, 16, false, TimeSpan.Zero)), 80, 16, Context).ToPlainText();
+            using GridView keyboard = show();
+            using GridView pointer = show();
+            frame(keyboard);
+            keyboard.Handle(InputEvent.Press(ConsoleKey.Enter));
+            string details = frame(keyboard);
+
+            string[] rows = frame(pointer).Split('\n');
+            int row = Array.FindIndex(rows, line => line.Contains("alpha"));
+            pointer.Handle(InputEvent.Mouse(4, row, 3)); pointer.Handle(InputEvent.Mouse(4, row, 3, pressed: false));
+            string[] menu = frame(pointer).Split('\n');
+            Assert.True(pointer.MenuOpen);
+            int entry = Array.FindIndex(menu, line => line.Contains("details") && line.Contains("enter"));
+            Assert.True(entry > row);
+            int at = menu[entry].IndexOf("details", StringComparison.Ordinal);
+            pointer.Handle(InputEvent.Mouse(at, entry)); pointer.Handle(InputEvent.Mouse(at, entry, pressed: false));
+            Assert.False(pointer.MenuOpen);
+            Assert.Equal(details, frame(pointer));
+
+            using GridView keys = show();
+            frame(keys);
+            keys.Handle(InputEvent.Press(ConsoleKey.F10, KeyModifiers.Shift));
+            Assert.True(keys.MenuOpen);
+            frame(keys);
+            keys.Handle(InputEvent.Press(ConsoleKey.Escape));
+            Assert.False(keys.MenuOpen);
+            Assert.False(keys.IsDone);
+        }
+
         [Fact]
         public void DataGrid_HeaderClickSortsAndReversesLikeF3AndF4() {
             Grid grid = new Grid("Services");

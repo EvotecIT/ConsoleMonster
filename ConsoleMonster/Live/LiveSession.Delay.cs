@@ -16,6 +16,9 @@ namespace ConsoleMonster.Live {
         // Simulated clocks retain quarter-second animation steps in full-viewport recordings.
         internal bool RecordsViewportSteps => _recordingTarget?.SkipDelays == true && _recordingTarget.CaptureViewport;
 
+        // Whether the render thread draws frames as state changes. A recording that skips delays draws only at its checkpoints.
+        internal bool DrawsBetweenUpdates => SupportsLiveFrames && _recordingTarget?.SkipDelays != true;
+
         /// <summary>
         /// Pauses work cancellably. With <see cref="RecordingTarget.SkipDelays"/>, first applies earlier queued updates
         /// and captures selected compact dashboard frames on the dispatcher instead of waiting. Selection and call
