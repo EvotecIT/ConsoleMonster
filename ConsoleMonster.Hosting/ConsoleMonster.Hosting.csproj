@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+      <PackageVersion>2.2.0</PackageVersion>
         <Title>ConsoleMonster.Hosting</Title>
         <Description>
             A live ConsoleMonster dashboard for .NET generic host applications: services.AddConsoleDashboard() shows the

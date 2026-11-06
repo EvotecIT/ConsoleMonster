@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+      <PackageVersion>2.2.0</PackageVersion>
         <Title>ConsoleMonster.Templates</Title>
         <Description>
             dotnet new templates for ConsoleMonster: "consolemonster" creates a console app with a menu, a status report,

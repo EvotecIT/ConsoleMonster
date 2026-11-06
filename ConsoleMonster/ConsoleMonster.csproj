@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+      <PackageVersion>2.2.0</PackageVersion>
         <Title>ConsoleMonster</Title>
         <Description>
             Terminal UI for .NET and PowerShell with no package dependencies: tables, trees, panels and charts,

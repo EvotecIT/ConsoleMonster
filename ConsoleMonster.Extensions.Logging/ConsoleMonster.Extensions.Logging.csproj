@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+      <PackageVersion>2.2.0</PackageVersion>
         <Title>ConsoleMonster.Extensions.Logging</Title>
         <Description>
             A Microsoft.Extensions.Logging provider for ConsoleMonster: log lines with ConsoleMonster's level tags, colours
