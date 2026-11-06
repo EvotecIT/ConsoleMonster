@@ -40,9 +40,22 @@
       "summaryPath": "./_reports/engine-lock.md"
     },
     {
+      "task": "release-hub",
+      "id": "published-release",
+      "source": "github",
+      "repo": "EvotecIT/ConsoleMonster",
+      "tokenEnv": "GITHUB_TOKEN",
+      "includePrerelease": false,
+      "includeAssets": false,
+      "maxReleases": 1,
+      "pageSize": 20,
+      "maxPages": 1,
+      "out": "./data/release-hub.json"
+    },
+    {
       "task": "build",
       "id": "build-site",
-      "dependsOn": "verify-site-frames",
+      "dependsOn": ["verify-site-frames", "published-release"],
       "config": "./site.json",
       "out": "./_site",
       "clean": true,

@@ -67,17 +67,17 @@
       {
         "title": "NuGet",
         "body": "ConsoleMonster for .NET",
-        "url": "https://www.nuget.org/packages/ConsoleMonster"
+        "url": "https://www.nuget.org/packages/ConsoleMonster/{version}"
       },
       {
         "title": "PowerShell Gallery",
         "body": "The ConsoleMonster module",
-        "url": "https://www.powershellgallery.com/packages/ConsoleMonster"
+        "url": "https://www.powershellgallery.com/packages/ConsoleMonster/{version}"
       },
       {
         "title": "GitHub release",
         "body": "Notes and downloads",
-        "url": "https://github.com/EvotecIT/ConsoleMonster/releases/latest"
+        "url": "https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v{version}"
       }
     ],
     "quick": {
@@ -106,7 +106,8 @@
       "No dependencies",
       "PowerShell 5.1 and 7",
       "netstandard2.0, net472, net8.0, net10.0",
-      "MIT licence"
+      "MIT licence",
+      "v{version}"
     ],
     "sides": [
       {

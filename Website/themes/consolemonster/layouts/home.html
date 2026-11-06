@@ -14,6 +14,7 @@
 {{ include "site-header" }}
 <main id="main" class="cm-main">
 {{~ h = data.home; live = data.live; copy = data.copy.home; ribbon = data.figures["tier-ribbon"] ~}}
+{{~ version = data.release_hub.latest.stableTag | string.replace "ConsoleMonster-v" "" ~}}
 {{~ ## The hero is one centred column: the headline and lede, the path switch, the chosen path's line and link, and its
      player on a stage of one width (--cm-stage-w) for both paths, so switching never moves or resizes the window; the
      install lines and the code sit side by side under it, as wide as the stage. ## ~}}
@@ -39,7 +40,7 @@
         {{~ end ~}}
       </div>
       <ul class="cm-quick__facts" aria-label="{{ copy.quick.factsLabel }}">
-        {{~ for f in copy.facts ~}}<li>{{ f }}</li>{{~ end ~}}
+        {{~ for f in copy.facts ~}}<li>{{ f | string.replace "{version}" version }}</li>{{~ end ~}}
       </ul>
     </div>
     {{~ ## Two paths with equal weight: the switch is the ARIA tab pattern; site.js keeps the choice in the URL hash
@@ -71,7 +72,7 @@
             <h2 class="cm-hero__take-title">{{ copy.packagesTitle }}</h2>
             <ul class="cm-packages">
               {{~ for k in copy.packages ~}}
-              <li><a href="{{ k.url }}"><strong>{{ k.title }}</strong><span>{{ k.body }}</span></a></li>
+              <li><a href="{{ k.url | string.replace "{version}" version }}"><strong>{{ k.title }}</strong><span>{{ k.body }} · {{ version }}</span></a></li>
               {{~ end ~}}
             </ul>
           </div>
