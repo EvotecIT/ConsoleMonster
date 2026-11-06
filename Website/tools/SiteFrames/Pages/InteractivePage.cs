@@ -88,6 +88,9 @@ namespace SiteFrames.Pages {
             // The same program as the grid, driven by the pointer: every click has the key the grid above uses.
             yield return new Story("grid-mouse", "The grid with the mouse", "The same program, with the mouse. Clicking a header sorts by it, clicking a row moves to it, double-clicking shows every column (Escape closes it), a right click lists the keys that work there, and clicking a hint in the footer presses its key: here Space to select and Ctrl+Enter to finish.",
                 "click:46,4 click:12,6 click:14,21 click:12,11 click:14,21 dclick:12,11 Escape rclick:40,11 Escape click:30,21", 110, 22, false, false) { ExampleId = "grid" };
+            // A TreeSelect: Right expands, typing filters the open branches, a double-click opens a row as Enter does.
+            yield return new Story("tree", "A tree you can filter", "An object tree inside an app. Right expands a branch, typing filters what is open, and a double-click (or Enter) opens a row as its own tree. The line underneath shows the path of the selected node, which is the value in app state.",
+                "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, false, false);
         }
 
         private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", story.Area, story.ExampleId + ".cs");

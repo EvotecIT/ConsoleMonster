@@ -135,6 +135,10 @@ namespace SiteFrames {
                 case "review-large-run":
                     if (only == null) { Console.Error.WriteLine("Pass an output directory: SiteFrames review-large-run [WebsiteRoot] [OutputDirectory]"); return 2; }
                     return LargeRunFigures.Review(new Site(website), only);
+                case "review-doc-programs":
+                    return DocProgramFigures.Review(new Site(website));
+                case "review-app-parts" when only != null:
+                    return AppPartFigures.Review(new Site(website), only);
                 case "review-object":
                     if (only == null) {
                         Console.Error.WriteLine("Usage: SiteFrames review-object [WebsiteRoot] [ScratchOutputDirectory]");
@@ -261,6 +265,7 @@ namespace SiteFrames {
                 if (Wants(only, "docs") || Wants(only, "object-drift")) { ObjectDriftFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "diagrams")) { DiagramLadderFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
+                if (Wants(only, "docs") || Wants(only, "app-parts")) { AppPartFigures.Capture(site); }
                 if (Wants(only, "interactive")) {
                     InteractivePage.Capture(site);
                 }
@@ -309,6 +314,8 @@ namespace SiteFrames {
             HelpFormattingPage.Render(site);
             PromptFigures.Render(site);
             ExplorerFigures.Render(site);
+            AppPartFigures.Render(site);
+            DocProgramFigures.Render(site);
             LargeRunFigures.Render(site);
             HomePage.Render(site, hosts);
             TailsPage.Render(site);
