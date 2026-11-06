@@ -44,7 +44,10 @@ function Invoke-TestChild {
         $stderr = $process.StandardError.ReadToEndAsync()
         if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
             Stop-TestChildProcess -Process $process
-            throw "The child process did not finish within $TimeoutSeconds seconds."
+            # Name the step the child reached; a stopped tree closes its pipes, so these reads end promptly.
+            $partial = foreach ($stream in $stdout, $stderr) { if ($stream.Wait(5000)) { $stream.Result } }
+            $partial = (($partial -join "`n") -replace "`r", '').Trim()
+            throw ("The child process did not finish within $TimeoutSeconds seconds." + $(if ($partial) { " Output before it was stopped:`n$partial" }))
         }
         $process.WaitForExit()
         $global:LASTEXITCODE = $process.ExitCode

@@ -39,11 +39,12 @@ Describe 'Owned test child cleanup' {
 `$info.CreateNoWindow = `$true
 `$child = [Diagnostics.Process]::Start(`$info)
 [IO.File]::WriteAllText('$path', (@{ Id = `$child.Id; StartTicks = `$child.StartTime.ToUniversalTime().Ticks.ToString() } | ConvertTo-Json -Compress))
+'REACHED-WAIT'
 Start-Sleep -Seconds 30
 "@
         $owned = $null
         try {
-            { Invoke-TestChild -Runtime $script:ChildRuntime -Script $body -TimeoutSeconds 5 } | Should -Throw '*did not finish within 5 seconds*'
+            { Invoke-TestChild -Runtime $script:ChildRuntime -Script $body -TimeoutSeconds 5 } | Should -Throw '*did not finish within 5 seconds*REACHED-WAIT*' -Because 'a timeout names the step the child reached'
             Test-Path -LiteralPath $receipt | Should -BeTrue -Because 'the owned descendant must have been started before the deadline'
             $owned = Get-Content -LiteralPath $receipt -Raw | ConvertFrom-Json
             $deadline = [DateTime]::UtcNow.AddSeconds(5)
