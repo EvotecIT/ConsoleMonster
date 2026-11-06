@@ -177,6 +177,8 @@ Describe 'Everyday command views' {
         $html = $found[0] | New-ConsoleTable | Export-ConsoleFrame -Format Html -Width 100
         $html | Should -Match '<span class="\w+">api-01</span> \[ready\]'
         $found[0].Line | Should -BeExactly 'api-01 [ready]'
+        $list = Use-ConsoleTarget -Width 100 { $found[0] | Show-Console -View List }
+        $list | Should -Match 'Text\s+api-01 \[ready\]'
     }
 
     It 'shows an ACL owner and its access rules with allow and deny markers, readable rights and inheritance' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
@@ -186,12 +188,20 @@ Describe 'Everyday command views' {
             'ReadAndExecute, Synchronize', 'ContainerInherit, ObjectInherit', 'None', 'Allow'))
         $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new('S-1-1-0'),
             'Delete', 'None', 'None', 'Deny'))
-        $text = $acl | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 120
+        $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new('S-1-5-11'),
+            'Modify', 'ContainerInherit, ObjectInherit', 'NoPropagateInherit', 'Allow'))
+        $text = $acl | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 160
         $text | Should -Match 'Owner: BUILTIN\\Administrators'
         $text | Should -Match '✓ Allow\s+│ BUILTIN\\Users\s+│ Read and execute\s+│ This folder, subfolders and files\s+│ Explicit'
         $text | Should -Match '✗ Deny\s+│ Everyone\s+│ Delete\s+│ This folder\s+│ Explicit'
+        $text | Should -Match 'Authenticated Users\s+│ Modify\s+│ This folder, subfolders and files \(one level\)'
         $acl.GetType().Name | Should -Be 'DirectorySecurity'
-        @($acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])).Count | Should -Be 2
+        @($acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])).Count | Should -Be 3
+        # An ACL without rules keeps PowerShell's own fields (from the module Get-Acl loads) instead of an empty table.
+        Import-Module Microsoft.PowerShell.Security
+        $empty = [Security.AccessControl.DirectorySecurity]::new()
+        $empty.SetOwner([Security.Principal.SecurityIdentifier]::new('S-1-5-32-544'))
+        $empty | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 120 | Should -Match 'BUILTIN\\Administrators'
     }
 
     It 'marks certificates as expired, expiring within 30 days or valid' {
@@ -202,7 +212,13 @@ Describe 'Everyday command views' {
             $text | Should -Match '▴ Expiring\s+│ soon\.example\.test.*│\s+9 │'
             $text | Should -Match '✓ Valid\s+│ new\.example\.test.*│\s+120 │'
             $text | Should -Match ([regex]::Escape($certificates[0].Thumbprint.Substring(0, 6)))
+            # Status and days follow the pinned presentation clock, as relative dates do in recordings.
+            $env:CONSOLEMONSTER_NOW = [datetime]::Today.AddDays(200).ToString('yyyy-MM-dd') + 'T12:00:00Z'
+            $pinned = $certificates | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 140
+            $pinned | Should -Match '✗ Expired\s+│ new\.example\.test.*│\s+-80 │'
+            $pinned | Should -Not -Match 'Valid|Expiring'
         } finally {
+            Remove-Item Env:\CONSOLEMONSTER_NOW -ErrorAction SilentlyContinue
             $certificates | ForEach-Object { $_.Dispose() }
         }
     }
@@ -219,6 +235,11 @@ Describe 'Everyday command views' {
         $measure | Should -Match 'Sum\s+97'
         $measure | Should -Match 'Maximum\s+48'
         $measure | Should -Not -Match 'Average|Minimum|Deviation|│'
+        # A lone record keeps a long property name readable as a wrapped field, not only in its heading.
+        $long = [pscustomobject]@{ ResponseTimeInMillisecondsForTheSlowestRegion = 12 } |
+            Measure-Object -Property ResponseTimeInMillisecondsForTheSlowestRegion -Sum -Maximum -Minimum |
+            New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 40
+        ($long -replace '\s', '') | Should -Match 'PropertyResponseTimeInMillisecondsForTheSlowestRegion'
         $duration = New-TimeSpan -Hours 1 -Minutes 42 -Seconds 5 | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 80
         $duration | Should -Match '1 h 42 m'
         $duration | Should -Match '01:42:05'

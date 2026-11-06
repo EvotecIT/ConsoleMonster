@@ -79,8 +79,9 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        // Registered row views (an ACL's access rules) display new row objects; the source objects are only read.
-        private static IReadOnlyList<PSObject> ExpandRows(IReadOnlyList<PSObject> items) {
+        // Registered row views (an ACL's access rules) display new row objects; the source objects are only read. An object
+        // whose rows fail or are empty stays itself, with PowerShell's own columns, and a failure is reported to the cmdlet.
+        internal static IReadOnlyList<PSObject> ExpandRows(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet = null) {
             List<PSObject>? expanded = null;
             for (int i = 0; i < items.Count; i++) {
                 ScriptBlock? rows = items[i] == null ? null : ConsoleFormatting.Find(items[i])?.Rows;
@@ -92,9 +93,16 @@ namespace ConsoleMonster.PowerShell {
                     expanded = new List<PSObject>(items.Count);
                     for (int j = 0; j < i; j++) { expanded.Add(items[j]); }
                 }
-                foreach (PSObject row in rows.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", items[i]) })) {
-                    if (row != null) { expanded.Add(row); }
+                List<PSObject> made = new List<PSObject>();
+                try {
+                    foreach (PSObject row in rows.InvokeWithContext(null, new List<PSVariable> { new PSVariable("_", items[i]) })) {
+                        if (row != null) { made.Add(row); }
+                    }
+                } catch (RuntimeException error) {
+                    made.Clear();
+                    cmdlet?.WriteError(new ErrorRecord(error.ErrorRecord, error));
                 }
+                if (made.Count == 0) { expanded.Add(items[i]); } else { expanded.AddRange(made); }
             }
             return expanded ?? items;
         }
@@ -157,7 +165,7 @@ namespace ConsoleMonster.PowerShell {
             ConsoleViewRegistration? view = null;
             object[]? resolved = property;
             if (resolved == null || resolved.Length == 0) {
-                items = ExpandRows(items);
+                items = ExpandRows(items, options.Cmdlet);
                 resolved = ColumnResolver.Resolve(items, options.Cmdlet, shape, out view);
             }
             // Repeated module names belong in the group heading. Decide this before removing the matching column.
@@ -193,7 +201,8 @@ namespace ConsoleMonster.PowerShell {
             // Live tables keep every bound column so later updates fill the same cells.
             if (view?.HideEmptyColumns == true && (property == null || property.Length == 0) && boundRow == null) { DropEmptyColumns(columns, rows); }
             ChoosePresenters(columns, rows, options.AutoPresenters);
-            Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true };
+            // A lone record's heading can be cut short; its key (Measure-Object's property) is also a wrapped field.
+            Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true, ShowKeyField = view?.SingleRecord == true };
             foreach (BoundColumn column in columns) {
                 table.AddColumn(column.Column);
                 TableBindings.Remember(column);
@@ -322,6 +331,8 @@ namespace ConsoleMonster.PowerShell {
             ShapeOptions shape = PSShaping.Options(culture);
             ShapeBudget budget = ShapeBudget.For(shape);
             IReadOnlyList<PSObject> expanded = Expand(items, shape);
+            // Registered row views define their fields on the rows (match lines, access rules), as tables do.
+            if (property == null || property.Length == 0) { expanded = ExpandRows(expanded, cmdlet); }
             if (expanded.Count > 0 && expanded.All(item => PSShaping.IsValueLike(item, shape))) {
                 // Values have no fields: one line each, as text.
                 string lines = string.Join("\n", expanded.Select(item => Text.Markup.Escape(ValueShaper.ShapedText(item, shape, ShapeBudget.For(shape)))));

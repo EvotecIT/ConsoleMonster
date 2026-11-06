@@ -19,13 +19,15 @@ namespace ConsoleMonster.PowerShell {
                     foreach (object type in NativeFormatDefinition.Sequence(data["TypeName"])) { types.Add(type); }
                     if (data["RowTypeName"] is string rowType) { types.Add(rowType); }
                     foreach (object type in types) {
+                        // Source types own no columns: an object whose rows cannot be read keeps PowerShell's own columns.
+                        bool source = rows != null && !Equals(type, data["RowTypeName"]);
                         AddBuiltIn(ConsoleViewRegistration.Define((string)type, ConsoleViewKind.Table,
-                            (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, data["Title"] as ScriptBlock, true, true,
+                            source ? null : (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, source ? null : data["Title"] as ScriptBlock, true, true,
                             data["GroupHeadersAsRows"] is bool section && section,
                             data["GroupMinimumRows"] is int minimum ? minimum : 0,
                             data["GroupRepeatedOnly"] is bool repeated && repeated,
                             data["StructuredData"] is bool structured && structured,
-                            Equals(type, data["RowTypeName"]) ? null : rows,
+                            source ? rows : null,
                             data["SingleRecord"] is bool record && record,
                             data["HideEmptyColumns"] is bool hide && hide));
                     }

@@ -165,19 +165,41 @@
     )
 }
 # Certificates (Get-ChildItem Cert:\...): expiry status uses the same pass/warn/fail visuals as the certificate gallery.
+# Status and days left follow the presentation clock (CONSOLEMONSTER_NOW in recordings), as relative dates do.
 @{
     TypeName = 'System.Security.Cryptography.X509Certificates.X509Certificate2'
     Group = 'Certificate'
-    Title = { $parent = [string] $_.PSParentPath; if ($parent) { 'Store: ' + ($parent -replace '^Microsoft\.PowerShell\.Security\\Certificate::', 'Cert:\') } }
+    Rows = {
+        $now = [datetime]::Now
+        $pinned = [datetimeoffset]::MinValue
+        if ([datetimeoffset]::TryParse([string] $env:CONSOLEMONSTER_NOW, [cultureinfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::AssumeUniversal, [ref] $pinned)) { $now = $pinned.LocalDateTime }
+        $certificate = $_
+        $row = [pscustomobject]@{
+            PSTypeName = 'ConsoleMonster.Everyday.Certificate'
+            Store = ''
+            Status = if ($certificate.NotAfter -lt $now) { 'Expired' } elseif ($certificate.NotBefore -gt $now) { 'Not yet valid' }
+                elseif ($certificate.NotAfter -lt $now.AddDays(30)) { 'Expiring' } else { 'Valid' }
+            Subject = $certificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false)
+            Issuer = $certificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $true)
+            Expires = $certificate.NotAfter
+            Days = ($certificate.NotAfter.Date - $now.Date).Days
+            Thumbprint = $certificate.Thumbprint
+        }
+        $parent = [string] $certificate.PSParentPath
+        if ($parent) { $row.Store = 'Store: ' + ($parent -replace '^Microsoft\.PowerShell\.Security\\Certificate::', 'Cert:\') }
+        if (-not $row.Subject) { $row.Subject = $certificate.Subject }
+        if (-not $row.Issuer) { $row.Issuer = $certificate.Issuer }
+        $row
+    }
+    RowTypeName = 'ConsoleMonster.Everyday.Certificate'
+    Title = { $_.Store }
     Property = @(
-        @{ Label = 'Status'; Expression = {
-            $now = [datetime]::Now
-            if ($_.NotAfter -lt $now) { 'Expired' } elseif ($_.NotBefore -gt $now) { 'Not yet valid' } elseif ($_.NotAfter -lt $now.AddDays(30)) { 'Expiring' } else { 'Valid' }
-        }; Presenter = 'StatusWord'; Priority = 9 }
-        @{ Label = 'Subject'; Expression = { $name = $_.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false); if ($name) { $name } else { $_.Subject } }; Priority = 10 }
-        @{ Label = 'Issuer'; Expression = { $name = $_.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $true); if ($name) { $name } else { $_.Issuer } }; Overflow = 'Truncate'; Priority = 6 }
-        @{ Label = 'Expires'; Expression = { $_.NotAfter }; Presenter = 'Date'; Priority = 8 }
-        @{ Label = 'Days'; Expression = { ($_.NotAfter.Date - [datetime]::Today).Days }; Alignment = 'Right'; Priority = 7 }
+        @{ Label = 'Status'; Expression = 'Status'; Presenter = 'StatusWord'; Priority = 9 }
+        @{ Label = 'Subject'; Expression = 'Subject'; Priority = 10 }
+        @{ Label = 'Issuer'; Expression = 'Issuer'; Overflow = 'Truncate'; Priority = 6 }
+        @{ Label = 'Expires'; Expression = 'Expires'; Presenter = 'Date'; Priority = 8 }
+        @{ Label = 'Days'; Expression = 'Days'; Alignment = 'Right'; Priority = 7 }
         @{ Label = 'Thumbprint'; Expression = 'Thumbprint'; Overflow = 'TruncateMiddle'; Priority = 5 }
     )
 }
@@ -270,6 +292,8 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
                         if (([int] $rule.InheritanceFlags -band 2) -and -not $registry) { 'files' }
                     )
                     $appliesTo = (& $sentence $targets) + $(if ($only) { ' only' })
+                    # NoPropagateInherit: inherited by the immediate children only, not by their descendants.
+                    if ($targets.Count -gt 1 -and ([int] $rule.PropagationFlags -band 1)) { $appliesTo += ' (one level)' }
                     if ($appliesTo) { $appliesTo = $appliesTo.Substring(0, 1).ToUpperInvariant() + $appliesTo.Substring(1) }
                 }
                 [pscustomobject]@{
