@@ -124,7 +124,198 @@
         @{ Label = 'Aliases'; Expression = { $_.Aliases -join ', ' } }
     )
 }
+# Select-String: one display row per matched or -Context line, grouped by file, with the matched text highlighted.
+@{
+    TypeName = 'Microsoft.PowerShell.Commands.MatchInfo'
+    RowTypeName = 'ConsoleMonster.Everyday.MatchLine'
+    Group = 'MatchInfo'
+    Rows = {
+        $match = $_
+        $file = ''
+        if ($match.Path -and $match.Path -ne 'InputStream') {
+            $file = $match.Path
+            if ($PWD.Provider.Name -eq 'FileSystem') { try { $file = $match.RelativePath($PWD.ProviderPath) } catch { } }
+        }
+        # Literal text in markup: brackets doubled, as Markup.Escape does.
+        $tidy = { param($text) ([string] $text).Replace("`t", '    ').Replace('[', '[[').Replace(']', ']]') }
+        $line = [string] $match.Line
+        $marked = [Text.StringBuilder]::new()
+        $at = 0
+        foreach ($found in @($match.Matches)) {
+            if ($null -eq $found -or $found.Length -le 0 -or $found.Index -lt $at -or $found.Index + $found.Length -gt $line.Length) { continue }
+            [void] $marked.Append((& $tidy $line.Substring($at, $found.Index - $at)))
+            [void] $marked.Append('[highlight]').Append((& $tidy $found.Value)).Append('[/]')
+            $at = $found.Index + $found.Length
+        }
+        [void] $marked.Append((& $tidy $line.Substring($at)))
+        $before = @(if ($match.Context) { $match.Context.DisplayPreContext })
+        $after = @(if ($match.Context) { $match.Context.DisplayPostContext })
+        for ($i = 0; $i -lt $before.Count; $i++) {
+            [pscustomobject]@{ PSTypeName = 'ConsoleMonster.Everyday.MatchLine'; File = $file; Line = '[muted]' + ($match.LineNumber - $before.Count + $i) + '[/]'; Text = '[muted]' + (& $tidy $before[$i]) + '[/]' }
+        }
+        [pscustomobject]@{ PSTypeName = 'ConsoleMonster.Everyday.MatchLine'; File = $file; Line = [string] $match.LineNumber; Text = $marked.ToString() }
+        for ($i = 0; $i -lt $after.Count; $i++) {
+            [pscustomobject]@{ PSTypeName = 'ConsoleMonster.Everyday.MatchLine'; File = $file; Line = '[muted]' + ($match.LineNumber + $i + 1) + '[/]'; Text = '[muted]' + (& $tidy $after[$i]) + '[/]' }
+        }
+    }
+    Title = { if ($_.File) { 'File: ' + $_.File } }
+    Property = @(
+        @{ Label = 'Line'; Expression = 'Line'; Presenter = 'Markup'; Alignment = 'Right' }
+        @{ Label = 'Text'; Expression = 'Text'; Presenter = 'Markup'; Priority = 10 }
+    )
+}
+# Certificates (Get-ChildItem Cert:\...): expiry status uses the same pass/warn/fail visuals as the certificate gallery.
+# Status and days left follow the presentation clock (CONSOLEMONSTER_NOW in recordings), as relative dates do.
+@{
+    TypeName = 'System.Security.Cryptography.X509Certificates.X509Certificate2'
+    Group = 'Certificate'
+    Rows = {
+        $now = [datetime]::Now
+        $pinned = [datetimeoffset]::MinValue
+        if ([datetimeoffset]::TryParse([string] $env:CONSOLEMONSTER_NOW, [cultureinfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::AssumeUniversal, [ref] $pinned)) { $now = $pinned.LocalDateTime }
+        $certificate = $_
+        $row = [pscustomobject]@{
+            PSTypeName = 'ConsoleMonster.Everyday.Certificate'
+            Store = ''
+            Status = if ($certificate.NotAfter -lt $now) { 'Expired' } elseif ($certificate.NotBefore -gt $now) { 'Not yet valid' }
+                elseif ($certificate.NotAfter -lt $now.AddDays(30)) { 'Expiring' } else { 'Valid' }
+            Subject = $certificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $false)
+            Issuer = $certificate.GetNameInfo([Security.Cryptography.X509Certificates.X509NameType]::SimpleName, $true)
+            Expires = $certificate.NotAfter
+            Days = ($certificate.NotAfter.Date - $now.Date).Days
+            Thumbprint = $certificate.Thumbprint
+        }
+        $parent = [string] $certificate.PSParentPath
+        if ($parent) { $row.Store = 'Store: ' + ($parent -replace '^Microsoft\.PowerShell\.Security\\Certificate::', 'Cert:\') }
+        if (-not $row.Subject) { $row.Subject = $certificate.Subject }
+        if (-not $row.Issuer) { $row.Issuer = $certificate.Issuer }
+        $row
+    }
+    RowTypeName = 'ConsoleMonster.Everyday.Certificate'
+    Title = { $_.Store }
+    Property = @(
+        @{ Label = 'Status'; Expression = 'Status'; Presenter = 'StatusWord'; Priority = 9 }
+        @{ Label = 'Subject'; Expression = 'Subject'; Priority = 10 }
+        @{ Label = 'Issuer'; Expression = 'Issuer'; Overflow = 'Truncate'; Priority = 6 }
+        @{ Label = 'Expires'; Expression = 'Expires'; Presenter = 'Date'; Priority = 8 }
+        @{ Label = 'Days'; Expression = 'Days'; Alignment = 'Right'; Priority = 7 }
+        @{ Label = 'Thumbprint'; Expression = 'Thumbprint'; Overflow = 'TruncateMiddle'; Priority = 5 }
+    )
+}
+@{
+    TypeName = 'Microsoft.PowerShell.Commands.GroupInfo'
+    Group = 'GroupInfo'
+    Property = @(
+        @{ Label = 'Name'; Expression = 'Name'; Priority = 10 }
+        @{ Label = 'Count'; Expression = 'Count'; Presenter = 'DataBar'; Priority = 9 }
+    )
+}
+@{
+    TypeName = 'Microsoft.PowerShell.Commands.GenericMeasureInfo'
+    Group = 'GenericMeasureInfo'
+    SingleRecord = $true
+    HideEmptyColumns = $true
+    Property = @(
+        @{ Label = 'Property'; Expression = { if ($_.Property) { $_.Property } else { 'Input' } }; Priority = 10 }
+        'Count'
+        'Sum'
+        'Average'
+        'Minimum'
+        'Maximum'
+        @{ Label = 'StandardDeviation'; Expression = { $deviation = $_.PSObject.Properties['StandardDeviation']; if ($deviation) { $deviation.Value } } }
+    )
+}
+@{
+    TypeName = 'Microsoft.PowerShell.Commands.TextMeasureInfo'
+    Group = 'TextMeasureInfo'
+    SingleRecord = $true
+    HideEmptyColumns = $true
+    Property = @(
+        @{ Label = 'Property'; Expression = { if ($_.Property) { $_.Property } else { 'Input' } }; Priority = 10 }
+        'Lines'
+        'Words'
+        'Characters'
+    )
+}
+# Measure-Command and date arithmetic: a readable duration beside PowerShell's exact value.
+@{
+    TypeName = 'System.TimeSpan'
+    Group = 'TimeSpan'
+    Property = @(
+        @{ Label = 'Duration'; Expression = { [timespan] $_ }; Presenter = 'Duration'; Priority = 10 }
+        @{ Label = 'Exact'; Expression = { ([timespan] $_).ToString() }; Alignment = 'Right' }
+    )
+}
 if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+    # Get-Acl: the owner heads a table of access rules; the security object itself stays unchanged.
+    @{
+        TypeName = @(
+            'System.Security.AccessControl.FileSystemSecurity'
+            'System.Security.AccessControl.RegistrySecurity'
+        )
+        RowTypeName = 'ConsoleMonster.Everyday.AccessRule'
+        Group = 'AccessRule'
+        HideEmptyColumns = $true
+        Rows = {
+            # The security object's own methods: its Owner and Access properties need Microsoft.PowerShell.Security loaded.
+            $security = $_.PSObject.BaseObject
+            $path = ([string] $_.PSPath) -replace '^Microsoft\.PowerShell\.Core\\(FileSystem|Registry)::', ''
+            $owner = try { [string] $security.GetOwner([System.Security.Principal.NTAccount]) } catch { [string] $security.GetOwner([System.Security.Principal.SecurityIdentifier]) }
+            $heading = (@($path, $(if ($owner) { 'Owner: ' + $owner })) | Where-Object { $_ }) -join ' · '
+            $registry = $security -is [System.Security.AccessControl.RegistrySecurity]
+            $container = $registry -or $security -is [System.Security.AccessControl.DirectorySecurity]
+            $sentence = { param($words) if ($words.Count -gt 1) { ($words[0..($words.Count - 2)] -join ', ') + ' and ' + $words[-1] } else { $words -join '' } }
+            foreach ($rule in @($security.GetAccessRules($true, $true, [System.Security.Principal.NTAccount]))) {
+                $raw = if ($registry) { [int] $rule.RegistryRights } else { [int] $rule.FileSystemRights }
+                $rights = [Collections.Generic.List[string]]::new()
+                if ($raw -band 0x10000000) { $rights.Add('full control') }
+                if ($raw -band [int]::MinValue) { $rights.Add('read') }
+                if ($raw -band 0x40000000) { $rights.Add('write') }
+                if ($raw -band 0x20000000) { $rights.Add('execute') }
+                $specific = $raw -band 0x0FFFFFFF
+                if ($specific) {
+                    $name = if ($registry) { [string] [System.Security.AccessControl.RegistryRights] $specific } else { [string] [System.Security.AccessControl.FileSystemRights] $specific }
+                    # Synchronize accompanies most file rights; it is named only when it is the whole grant.
+                    $parts = @($name -split ', ')
+                    if ($parts.Count -gt 1) { $parts = @($parts | Where-Object { $_ -ne 'Synchronize' }) }
+                    if ($name -match '^-?\d+$') { $rights.Add('special') }
+                    else { foreach ($part in $parts) { $rights.Add(($part -creplace '(?<=[a-z])(?=[A-Z])', ' ').ToLowerInvariant()) } }
+                }
+                $text = & $sentence $rights
+                $appliesTo = $null
+                if ($container) {
+                    $only = [int] $rule.PropagationFlags -band 2
+                    $targets = @(
+                        if (-not $only) { if ($registry) { 'this key' } else { 'this folder' } }
+                        if ([int] $rule.InheritanceFlags -band 1) { if ($registry) { 'subkeys' } else { 'subfolders' } }
+                        if (([int] $rule.InheritanceFlags -band 2) -and -not $registry) { 'files' }
+                    )
+                    $appliesTo = (& $sentence $targets) + $(if ($only) { ' only' })
+                    # NoPropagateInherit: inherited by the immediate children only, not by their descendants.
+                    if ($targets.Count -gt 1 -and ([int] $rule.PropagationFlags -band 1)) { $appliesTo += ' (one level)' }
+                    if ($appliesTo) { $appliesTo = $appliesTo.Substring(0, 1).ToUpperInvariant() + $appliesTo.Substring(1) }
+                }
+                [pscustomobject]@{
+                    PSTypeName = 'ConsoleMonster.Everyday.AccessRule'
+                    Heading = $heading
+                    Access = [string] $rule.AccessControlType
+                    Identity = [string] $rule.IdentityReference
+                    Rights = if ($text) { $text.Substring(0, 1).ToUpperInvariant() + $text.Substring(1) } else { 'None' }
+                    AppliesTo = $appliesTo
+                    Inherited = if ($rule.IsInherited) { 'Inherited' } else { 'Explicit' }
+                }
+            }
+        }
+        Title = { $_.Heading }
+        Property = @(
+            @{ Label = 'Access'; Expression = 'Access'; Presenter = 'StatusWord'; Priority = 9 }
+            @{ Label = 'Identity'; Expression = 'Identity'; MaxWidth = 44; Priority = 10 }
+            @{ Label = 'Rights'; Expression = 'Rights'; Priority = 8 }
+            @{ Label = 'Applies to'; Expression = 'AppliesTo'; Priority = 6 }
+            @{ Label = 'Inherited'; Expression = 'Inherited'; Presenter = 'Text'; Role = @{ Equals = 'Inherited'; Role = 'Muted' }; Priority = 7 }
+        )
+    }
     @{
         TypeName = @(
             'Microsoft.Management.Infrastructure.CimInstance#ROOT/StandardCimv2/MSFT_NetIPAddress'

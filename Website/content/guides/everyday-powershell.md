@@ -1,6 +1,6 @@
 ---
 title: Everyday PowerShell output
-description: "Enable-ConsoleFormatting makes everyday output readable: JSON, CSV, commands, modules, history and network replies alongside files, processes and hashtables."
+description: "Enable-ConsoleFormatting makes everyday output readable: files, processes, JSON, CSV, commands, history, searches, ACLs, certificates and network replies."
 slug: everyday-powershell
 card: formatting
 order: 1
@@ -12,7 +12,7 @@ You do not have to change your commands to get readable output. One line turns i
 Enable-ConsoleFormatting
 ```
 
-Files and folders, processes, services, JSON and CSV records, commands, modules, history, network replies, event log records, IP addresses, volumes, dictionaries and `Compare-Object` results are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
+Files and folders, processes, services, JSON and CSV records, commands, modules, history, `Select-String` matches, ACLs, certificates, groups, measurements, durations, network replies, event log records, IP addresses, volumes, dictionaries and `Compare-Object` results are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
 
 Typed records with their own PowerShell table view keep its columns and expressions. An explicit `Register-ConsoleView` registration takes precedence.
 
@@ -86,6 +86,34 @@ Get-History
 </div>
 
 `Get-Module -ListAvailable` reports the exported-command metadata PowerShell supplies; the view never imports a module to discover more commands. History uses local start times (`HH:mm:ss`) and PowerShell's `ExecutionStatus`, including completed and failed commands.
+
+## Search, permissions, certificates and measurements
+
+```powershell
+Select-String -Path ./logs/*.log -Pattern 'Error|Warning' -Context 1
+Get-Acl -Path C:\Windows\win.ini
+Get-ChildItem Cert:\CurrentUser\My
+Get-Process | Group-Object ProcessName | Sort-Object Count -Descending
+Get-ChildItem -File | Measure-Object -Property Length -Sum -Average
+Measure-Command { Start-Sleep -Milliseconds 250 }
+```
+
+<div class="cm-migration-map" tabindex="0" role="region" aria-label="Search, permission, certificate and measurement formatting comparison">
+
+| View | Before | After | Where |
+| --- | --- | --- | --- |
+| `Select-String` | `path:line:text`, with `>` before matched lines | One table per file with line numbers; the matched text highlighted and `-Context` lines dimmed | macOS, Linux and Windows |
+| `Get-Acl` | Path, owner and the rules as one long string | The path and owner as the title, then a row per rule: allow or deny with its marker, the account, the rights in words (`Read and execute`), what it applies to for folders and registry keys, and whether it is inherited | Windows |
+| Certificates | Thumbprint and subject | Status (`Expired`, `Expiring` within 30 days, `Valid`), subject, issuer, expiry date, days left and thumbprint, under the store path for `Cert:\` | Windows for `Cert:\`; any certificate object elsewhere |
+| `Group-Object` | Count, name and the grouped objects | Name and count with a bar scaled to the largest group | macOS, Linux and Windows |
+| `Measure-Object` | Every statistic, empty or not | The statistics you asked for; one result is a key/value card | macOS, Linux and Windows |
+| `TimeSpan` (`Measure-Command`, `New-TimeSpan`) | Days, hours, ticks and every total | A readable duration (`1 h 42 m`, `250 ms`) beside PowerShell's exact value | macOS, Linux and Windows |
+
+</div>
+
+The ACL view reads the rules with the security object's own methods, so it works the same before and after `Microsoft.PowerShell.Security` is loaded. The search, ACL and certificate objects stay exactly as the commands return them: `$acl.Access`, `$match.Line` and `$cert.NotAfter` are unchanged, and `Select-String -Raw` and `-Quiet` keep their native strings and booleans.
+
+{{< cm-frame ids="everyday-commands-ps5,everyday-commands-ps7" caption="Typed at the prompt with formatting on, on Windows PowerShell 5.1 and PowerShell 7; switch the site's theme to see the light-theme run." >}}
 
 ## Network replies and addresses
 

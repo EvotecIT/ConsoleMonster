@@ -29,6 +29,9 @@ namespace ConsoleMonster.Presenters {
             ["terminating"] = StatusKind.Warn, ["reloading"] = StatusKind.Warn, ["activating"] = StatusKind.Warn,
             ["deactivating"] = StatusKind.Warn, ["exited"] = StatusKind.Skip, ["created"] = StatusKind.Skip, ["dead"] = StatusKind.Fail,
             ["crashloopbackoff"] = StatusKind.Fail, ["oomkilled"] = StatusKind.Fail, ["imagepullbackoff"] = StatusKind.Fail,
+            // Certificate validity and access-control decisions.
+            ["valid"] = StatusKind.Pass, ["expiring"] = StatusKind.Warn, ["notyetvalid"] = StatusKind.Warn, ["expired"] = StatusKind.Fail,
+            ["allow"] = StatusKind.Pass, ["deny"] = StatusKind.Fail,
             // PowerShell's own words (streams, event levels, test results).
             ["warn"] = StatusKind.Warn, ["failure"] = StatusKind.Fail, ["skip"] = StatusKind.Skip,
             ["info"] = StatusKind.Info, ["information"] = StatusKind.Info, ["informational"] = StatusKind.Info,

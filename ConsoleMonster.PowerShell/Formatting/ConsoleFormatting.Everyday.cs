@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using ConsoleMonster.Views;
@@ -12,13 +13,23 @@ namespace ConsoleMonster.PowerShell {
             using (StreamReader reader = new StreamReader(stream)) {
                 foreach (PSObject item in ScriptBlock.Create(reader.ReadToEnd()).Invoke()) {
                     IDictionary data = (IDictionary)DetachBuiltInValue(item.BaseObject)!;
-                    foreach (object type in NativeFormatDefinition.Sequence(data["TypeName"])) {
+                    // A RowTypeName definition is shown through its rows: the source types expand, the row type owns the columns.
+                    ScriptBlock? rows = data["Rows"] as ScriptBlock;
+                    List<object> types = new List<object>();
+                    foreach (object type in NativeFormatDefinition.Sequence(data["TypeName"])) { types.Add(type); }
+                    if (data["RowTypeName"] is string rowType) { types.Add(rowType); }
+                    foreach (object type in types) {
+                        // Source types own no columns: an object whose rows cannot be read keeps PowerShell's own columns.
+                        bool source = rows != null && !Equals(type, data["RowTypeName"]);
                         AddBuiltIn(ConsoleViewRegistration.Define((string)type, ConsoleViewKind.Table,
-                            (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, data["Title"] as ScriptBlock, true, true,
+                            source ? null : (object[])data["Property"]!, data["GroupBy"], (string)data["Group"]!, source ? null : data["Title"] as ScriptBlock, true, true,
                             data["GroupHeadersAsRows"] is bool section && section,
                             data["GroupMinimumRows"] is int minimum ? minimum : 0,
                             data["GroupRepeatedOnly"] is bool repeated && repeated,
-                            data["StructuredData"] is bool structured && structured));
+                            data["StructuredData"] is bool structured && structured,
+                            source ? rows : null,
+                            data["SingleRecord"] is bool record && record,
+                            data["HideEmptyColumns"] is bool hide && hide));
                     }
                 }
             }

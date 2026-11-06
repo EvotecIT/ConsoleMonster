@@ -93,6 +93,11 @@ namespace SiteFrames.Capture {
             sb.Append("[System.Threading.Thread]::CurrentThread.CurrentUICulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')\n");
             // Scripts import the module by name, as a reader's copy does; the link first on PSModulePath makes that name load
             // this repository's build. The check stops a capture that would record an installed version instead.
+            if (host == PowerShellHost.Desktop) {
+                // A capture started from PowerShell 7 inherits its module folders; Windows PowerShell must autoload its own
+                // Microsoft.PowerShell.* modules (Get-Acl) instead of the PowerShell 7 copies.
+                sb.Append("$env:PSModulePath = (@($env:PSModulePath -split ';') | Where-Object { $_ -and $_ -notmatch '\\\\PowerShell\\\\7|\\\\Documents\\\\PowerShell\\\\' }) -join ';'\n");
+            }
             sb.Append("$env:PSModulePath = '").Append(modules.Replace("'", "''")).Append("' + [IO.Path]::PathSeparator + $env:PSModulePath\n");
             sb.Append("Import-Module ConsoleMonster -Force\n");
             sb.Append("$cmdlets = (Get-Command Show-Console -ErrorAction SilentlyContinue).DLL\n");

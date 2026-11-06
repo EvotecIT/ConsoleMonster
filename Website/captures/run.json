@@ -10,7 +10,7 @@
     "powershell/compare-object.rich.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "4c65fb2dd34a9f8e6683955d462ef8c0cebb6013925439d16e7d3f20bbae3ad9",
+      "sha256": "03690acdca04a094414a0017c46385d777dd0441fe5cd584fd38d721209b14de",
       "screen": "dark",
       "width": 100,
       "height": 120
@@ -19,6 +19,38 @@
       "platform": "windows",
       "category": "neutral",
       "sha256": "f652f6396625d560d7c8aa516e8b80f71ccacd68438c8ce5e67328153c87294c",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/everyday-commands.light.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9f78b368ef7caf71573c1f4d47fa3baae7de45bd73d8d8c41809d064e80edadd",
+      "screen": "light",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/everyday-commands.light.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9f78b368ef7caf71573c1f4d47fa3baae7de45bd73d8d8c41809d064e80edadd",
+      "screen": "light",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/everyday-commands.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "25e8f2654159b20c2b45cfc938ceeb8b699cc92a3c7d5be98d90d0de8b588f1b",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/everyday-commands.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0e52875598c8c2a92b014b76f0e361dd27239e1063fe33c70052a87b0e116842",
       "screen": "dark",
       "width": 100,
       "height": 120

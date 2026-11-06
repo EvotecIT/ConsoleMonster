@@ -40,6 +40,8 @@ namespace SiteFrames.Pages {
             public int RunWidth { get; }
             // Typed at a real prompt, so Enable-ConsoleFormatting's automatic output routing draws the result.
             public bool InteractiveSession { get; set; }
+            // Uses Windows-only commands (Get-Acl); other producers keep the committed Windows captures.
+            public bool WindowsOnly { get; set; }
         }
 
         private static IEnumerable<Run> Runs() {
@@ -64,6 +66,9 @@ namespace SiteFrames.Pages {
             yield return new Run("streams", "light", PowerShellRunner.Environment("light"), PowerShellHost.All);
             // Compare-Object before and after Enable-ConsoleFormatting, on both hosts.
             yield return new Run("compare-object", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true };
+            // Everyday views for commands typed at the prompt (Select-String, Get-Acl, certificates, Group/Measure, TimeSpan).
+            yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
+            yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
         }
 
         private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);
@@ -81,6 +86,10 @@ namespace SiteFrames.Pages {
 
         public static void Capture(Site site) {
             foreach (Run run in Runs()) {
+                if (run.WindowsOnly && !OperatingSystem.IsWindows()) {
+                    Console.WriteLine("skipped " + run.Id + "." + run.Variant + ": Windows-only commands; the committed Windows captures stay.");
+                    continue;
+                }
                 foreach (PowerShellHost host in run.Hosts.Where(host => host.CanCapture)) {
                     List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Twins.Script(site, "powershell", run.Id), run.RunWidth, 120, run.Environment,
                         session: run.InteractiveSession, interactiveSession: run.InteractiveSession);

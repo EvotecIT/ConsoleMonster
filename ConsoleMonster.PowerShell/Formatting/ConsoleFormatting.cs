@@ -18,8 +18,8 @@ namespace ConsoleMonster.PowerShell {
             if (string.IsNullOrWhiteSpace(typeName)) { throw new ArgumentException("A type name is required.", nameof(typeName)); }
         }
 
-        internal static ConsoleViewRegistration Define(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false) =>
-            new ConsoleViewRegistration(typeName, view, property, groupBy, group, title, builtIn, nativePresentation, groupHeadersAsRows, groupMinimumRows, groupRepeatedOnly, structuredData);
+        internal static ConsoleViewRegistration Define(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title = null, bool builtIn = false, bool nativePresentation = false, bool groupHeadersAsRows = false, int groupMinimumRows = 0, bool groupRepeatedOnly = false, bool structuredData = false, ScriptBlock? rows = null, bool singleRecord = false, bool hideEmptyColumns = false) =>
+            new ConsoleViewRegistration(typeName, view, property, groupBy, group, title, builtIn, nativePresentation, groupHeadersAsRows, groupMinimumRows, groupRepeatedOnly, structuredData) { Rows = rows, SingleRecord = singleRecord, HideEmptyColumns = hideEmptyColumns };
 
         private ConsoleViewRegistration(string typeName, ConsoleViewKind view, object[]? property, object? groupBy, string group, ScriptBlock? title, bool builtIn, bool nativePresentation, bool groupHeadersAsRows, int groupMinimumRows, bool groupRepeatedOnly, bool structuredData) {
             TypeName = typeName;
@@ -48,6 +48,15 @@ namespace ConsoleMonster.PowerShell {
 
         // Presentation policy is independent of the caller-controlled batching group.
         internal bool IsStructuredData { get; }
+
+        // Display rows read from one object (an ACL's access rules); the object itself stays unchanged in the pipeline.
+        internal ScriptBlock? Rows { get; private set; }
+
+        // A lone result (Measure-Object) keeps the key/value record layout instead of a one-row table.
+        internal bool SingleRecord { get; private set; }
+
+        // Columns empty on every row (unrequested statistics, a file's inheritance targets) are left out.
+        internal bool HideEmptyColumns { get; private set; }
 
         /// <summary>Whether this is one of ConsoleMonster's own views (files and folders, processes, services).</summary>
         public bool IsBuiltIn { get; }

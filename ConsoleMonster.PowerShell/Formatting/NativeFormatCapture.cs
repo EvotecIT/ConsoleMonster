@@ -38,7 +38,8 @@ namespace ConsoleMonster.PowerShell {
             Hashtable parameters = new Hashtable(StringComparer.OrdinalIgnoreCase);
             foreach (DictionaryEntry entry in _parameters) { parameters[entry.Key] = entry.Value; }
             ConsoleViewRegistration? view = ConsoleFormatting.Find(first, ConsoleFormatting.TakeOverBuiltIns);
-            bool decorate = view?.NativePresentation == true && !parameters.ContainsKey("Property") && !parameters.ContainsKey("View");
+            // Row views describe derived rows, not the native object Format-Table was given.
+            bool decorate = view?.NativePresentation == true && view.Rows == null && !parameters.ContainsKey("Property") && !parameters.ContainsKey("View");
             // Resolve the selected native view before adding defaults. Its own grouping (including custom headers)
             // must retain the native route unless the caller explicitly supplied -GroupBy.
             NativeFormatDefinition? definition = _definition = NativeFormatDefinition.Resolve(_cmdlet, _kind, first, parameters);
