@@ -1,3 +1,8 @@
+### 2.2.1 - 2026-11-06
+
+#### Fixed
+- The PowerShell Gallery package preserves the Authenticode signature on `ConsoleMonster.format.ps1xml`, including its script blocks. This fixes unsigned format-data errors under `AllSigned`.
+
 ### 2.2.0 - 2026-11-05
 
 Apps and documents are easier to move around in. The mouse works wherever the keyboard does, long content folds, panes resize, logs and documents have find, Markdown and command help open in a document viewer, and charts can be explored and linked to tables.
