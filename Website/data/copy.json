@@ -62,23 +62,22 @@
         }
       ]
     },
-    "version": "2.1.0",
     "packagesTitle": "Packages",
     "packages": [
       {
         "title": "NuGet",
         "body": "ConsoleMonster for .NET",
-        "url": "https://www.nuget.org/packages/ConsoleMonster/{version}"
+        "url": "https://www.nuget.org/packages/ConsoleMonster"
       },
       {
         "title": "PowerShell Gallery",
         "body": "The ConsoleMonster module",
-        "url": "https://www.powershellgallery.com/packages/ConsoleMonster/{version}"
+        "url": "https://www.powershellgallery.com/packages/ConsoleMonster"
       },
       {
         "title": "GitHub release",
         "body": "Notes and downloads",
-        "url": "https://github.com/EvotecIT/ConsoleMonster/releases/tag/ConsoleMonster-v{version}"
+        "url": "https://github.com/EvotecIT/ConsoleMonster/releases/latest"
       }
     ],
     "quick": {
@@ -107,8 +106,7 @@
       "No dependencies",
       "PowerShell 5.1 and 7",
       "netstandard2.0, net472, net8.0, net10.0",
-      "MIT licence",
-      "v{version}"
+      "MIT licence"
     ],
     "sides": [
       {
@@ -277,6 +275,27 @@
           "visual": "live",
           "key": 2,
           "body": "Recorded runs of the build pipeline and the stress test."
+        },
+        {
+          "title": "Apps and the mouse",
+          "url": "/demos/incident-workbench/",
+          "visual": "demos/incident-workbench",
+          "key": 5,
+          "body": "Linked charts and tables, panes and runbooks, clicked through with the mouse."
+        },
+        {
+          "title": "Interactive",
+          "url": "/interactive/",
+          "visual": "interactive",
+          "key": 6,
+          "body": "Prompts, menus, forms and the grid, by keyboard or mouse."
+        },
+        {
+          "title": "Diagrams",
+          "url": "/docs/diagrams/",
+          "visual": "diagrams",
+          "key": 1,
+          "body": "Networks, architectures and request walkthroughs that play in the terminal."
         },
         {
           "title": "PowerShell",

@@ -39,7 +39,7 @@
         {{~ end ~}}
       </div>
       <ul class="cm-quick__facts" aria-label="{{ copy.quick.factsLabel }}">
-        {{~ for f in copy.facts ~}}<li>{{ f | string.replace "{version}" copy.version }}</li>{{~ end ~}}
+        {{~ for f in copy.facts ~}}<li>{{ f }}</li>{{~ end ~}}
       </ul>
     </div>
     {{~ ## Two paths with equal weight: the switch is the ARIA tab pattern; site.js keeps the choice in the URL hash
@@ -71,7 +71,7 @@
             <h2 class="cm-hero__take-title">{{ copy.packagesTitle }}</h2>
             <ul class="cm-packages">
               {{~ for k in copy.packages ~}}
-              <li><a href="{{ k.url | string.replace "{version}" copy.version }}"><strong>{{ k.title }}</strong><span>{{ k.body }} · {{ copy.version }}</span></a></li>
+              <li><a href="{{ k.url }}"><strong>{{ k.title }}</strong><span>{{ k.body }}</span></a></li>
               {{~ end ~}}
             </ul>
           </div>

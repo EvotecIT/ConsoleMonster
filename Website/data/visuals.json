@@ -24,6 +24,12 @@
       "dark": "/site/nav/interactive-dark.svg",
       "light": "/site/nav/interactive-light.svg"
     },
+    "diagrams": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/diagrams-dark.svg",
+      "light": "/site/nav/diagrams-light.svg"
+    },
     "powershell": {
       "w": 96,
       "h": 60,
@@ -77,6 +83,12 @@
       "h": 60,
       "dark": "/site/nav/demos/fleet-dark.svg",
       "light": "/site/nav/demos/fleet-light.svg"
+    },
+    "demos/incident-workbench": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/incident-workbench-dark.svg",
+      "light": "/site/nav/demos/incident-workbench-light.svg"
     },
     "demos/stress": {
       "w": 96,

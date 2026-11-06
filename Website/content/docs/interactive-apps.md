@@ -62,6 +62,16 @@ The input stretches to the width of the terminal; the table keeps its natural wi
 
 An app with more than one screen declares each screen once with `New-ConsoleScreen` (`AppScreens` in C#). Assign a screen's key to `$State.Screen` to open it; Escape or Backspace goes back, the header shows where you are, and each screen keeps its own focused input. Keys are declared with `-KeyBinding` on a screen or on the app, and the footer is built from them, so it lists exactly the keys that work. `New-ConsoleSelect -Dropdown` opens its list over the content. The [screens and keys example](/interactive/#screens) shows a small program in PowerShell and C#, with a recording of it running.
 
+## The mouse
+
+The mouse works wherever the keyboard does, and every pointer action also has a key, listed in the footer or in the context menu:
+
+- Click a row, a tab, a toggle or a header (a `DataGrid` header sorts), and double-click a row in `DataGrid`, `TreeSelect` or a list `Select` to open it.
+- Click a hint in the footer to press its key, and click a breadcrumb in the header to go back.
+- Drag a scroll bar, or the divider of a `Splitter`; scroll the wheel over a list, or over a `ChartView` to zoom.
+- Right-click, the Menu key or Shift+F10 opens a context menu of the keys that work at that moment.
+
+`InteractiveOptions.Mouse = false` or `CONSOLEMONSTER_NOMOUSE=1` turns the mouse off everywhere, and `Show-ConsoleApp -NoMouse` turns it off for one app. Recordings, exports, CI and redirected output are unchanged. The [incident workbench](/demos/incident-workbench/) is a whole app driven by the mouse alone, and [the grid with the mouse](/interactive/#grid-mouse) shows `Show-ConsoleGrid` the same way.
 ## Redirected output and CI
 
 An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. Pass `-Mode Snapshot` to `Show-ConsoleApp` to print the first screen once and exit. In C#, pass `new ConsoleAppOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.Snapshot } }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.

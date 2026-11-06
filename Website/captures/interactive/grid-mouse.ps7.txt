@@ -1,0 +1,375 @@
+source 3181c7af791bb9ffb759fa3eb68aff5a
+ Services on FS01                                                                                 7 of 7 rows
+
+ › type to filter
+╭────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│ ›     Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys9ef2ac956b2e91c5
+ Services on FS01                                                                                 7 of 7 rows
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│       DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│ ›     Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys9ef2ac956b2e91c5
+ Services on FS01                                                                                 7 of 7 rows
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│       DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│ ›     Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys53c2118b92cf7fb4
+ Services on FS01                                                                                 7 of 7 rows
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│ ›     DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys53c2118b92cf7fb4
+ Services on FS01                                                                                 7 of 7 rows
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│ ›     DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys53c2118b92cf7fb4
+ Services on FS01                                                                                 7 of 7 rows
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│ ›     DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys2ad9965be6e5e543
+ Services on FS01                                                                    7 of 7 rows · 1 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│ ›  ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│       SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys3a3fe29e0a820373
+ Services on FS01                                                                    7 of 7 rows · 1 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›     SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys3a3fe29e0a820373
+ Services on FS01                                                                    7 of 7 rows · 1 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›     SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys3a3fe29e0a820373
+ Services on FS01                                                                    7 of 7 rows · 1 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›     SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysc6bb41cc73d78d86
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysc6bb41cc73d78d86
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysc6bb41cc73d78d86
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysbc6739659c4980aa
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name       ╭─ SQLSERVERAGENT ─────────────────────────────────────────────────────╮                  │
+│       ───────────│                                                                      │                  │
+│    ✓  DFSR       │ Name        SQLSERVERAGENT                                           │                  │
+│       W32Time    │ Status      ▴ WARN                                                   │                  │
+│       LanmanServe│ Start type  Manual                                                   │                  │
+│       WinRM      │ Memory      40.1 MB                                                  │                  │
+│       Spooler    │  ↑↓ move  esc close                                                  │                  │
+│    ✓  SQLSERVERAG│                                                                      │                  │
+│       MSSQLSERVER╰──────────────────────────────────────────────────────────────────────╯                  │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  esc closebc6739659c4980aa
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name       ╭─ SQLSERVERAGENT ─────────────────────────────────────────────────────╮                  │
+│       ───────────│                                                                      │                  │
+│    ✓  DFSR       │ Name        SQLSERVERAGENT                                           │                  │
+│       W32Time    │ Status      ▴ WARN                                                   │                  │
+│       LanmanServe│ Start type  Manual                                                   │                  │
+│       WinRM      │ Memory      40.1 MB                                                  │                  │
+│       Spooler    │  ↑↓ move  esc close                                                  │                  │
+│    ✓  SQLSERVERAG│                                                                      │                  │
+│       MSSQLSERVER╰──────────────────────────────────────────────────────────────────────╯                  │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  esc closec6bb41cc73d78d86
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keysc6bb41cc73d78d86
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys
