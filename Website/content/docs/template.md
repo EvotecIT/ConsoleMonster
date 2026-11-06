@@ -39,7 +39,7 @@ The recording runs the template's own `Program.cs`, built against the ConsoleMon
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `--Framework` | `net8.0` | `net8.0` or `net10.0`. |
-| `--ConsoleMonsterVersion` | `2.0.*` | The ConsoleMonster package version (the newest 2.0 release by default). |
+| `--ConsoleMonsterVersion` | `2.3.0` | The ConsoleMonster package version (2.3.0 by default). |
 | `--NoAot` | `false` | Leaves native AOT publishing off. |
 
 The app uses a `Menu` with pages, a `Table` with status cells, [logging](/docs/logging/) through `ConsoleMonster.Extensions.Logging` and the [hosting dashboard](/docs/hosting/).
