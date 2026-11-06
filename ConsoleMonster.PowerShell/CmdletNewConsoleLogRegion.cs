@@ -5,7 +5,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Creates a log region: the newest lines of a log, bottom-aligned.</para>
-    /// <para type="description">Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.</para>
+    /// <para type="description">Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.</para>
     /// </summary>
     /// <example>
     ///   <para>A short log printed once</para>
@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
     /// } | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogRegion")]
-    [OutputType(typeof(LogRegion))]
+    [OutputType(typeof(LogRegion), typeof(Interactive.LogViewport))]
     public sealed class CmdletNewConsoleLogRegion : PSCmdlet {
         private readonly List<object> _piped = new List<object>();
 
@@ -97,7 +97,8 @@ namespace ConsoleMonster.PowerShell {
             PSItems.AddAll(this, log, PSItems.Items(content));
             PSItems.AddAll(this, log, _piped);
             if (LevelColumn != null) { log.LevelColumn = LevelColumn; }
-            WriteObject(log);
+            // Inside Show-ConsoleApp content the same region becomes a retained, focusable log with a find bar.
+            WriteObject(PSAppContent.Active ? new Interactive.LogViewport(log) : (object)log);
         }
     }
 }

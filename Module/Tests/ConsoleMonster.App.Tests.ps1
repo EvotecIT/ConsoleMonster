@@ -313,4 +313,48 @@ Describe 'Native console applications' {
             }
         }
     }
+
+    It 'runs an app headless with keys and a click and returns the screens it drew' {
+        $result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,4' {
+            Show-ConsoleApp -Content {
+                New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01
+                New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
+            }
+        }
+        $result.Text | Should -Match 'Picked FS01'
+        $result.Frames.Count | Should -BeGreaterThan 1
+        $result.Frames[0].Text | Should -Not -Match 'Picked FS01'
+        $result.Cells.Width | Should -Be 56
+    }
+
+    It 'makes New-ConsoleLogRegion inside app content a log the reader can search' {
+        New-ConsoleLogRegion Log | Should -BeOfType ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.LogRegion'))
+        $result = Invoke-ConsoleHeadless -Width 70 -Height 12 -InputScript '/ "timeout" Enter' {
+            Show-ConsoleApp -Content {
+                New-ConsoleLogRegion Log -NoElapsed -Height 6 -Content {
+                    @{ Message = 'web-01 health check timeout'; Level = 'warn' }
+                    @{ Message = 'web-01 updated'; Level = 'info' }
+                    @{ Message = 'web-02 health check timeout'; Level = 'warn' }
+                }
+            }
+        }
+        $result.Text | Should -Match 'Find: timeout\s+2 of 2'
+    }
+
+    It 'builds a dashboard frame from records, inferring each meter kind' {
+        $frame = New-ConsoleDashboardFrame 'Server estate' -Fact '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
+            @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
+            @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
+            @{ Label = 'Oldest patch'; Value = '41 days'; Fact = 'FS-02'; State = 'Warning' }
+        ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @(
+            @{ Title = 'Sites'; Content = { 'London 22' } }
+            @{ Title = 'Backups'; Placement = 'Detail'; Content = { 'Nightly OK' } }
+        ) -FooterCount '48 servers'
+        $text = $frame | Export-ConsoleFrame -Format Text -Width 100
+        foreach ($expected in 'Server estate', '48 servers', '1 failing', '44/48', '46/48', '41 days', '1 of 48 servers', 'SQL-03', 'London 22', 'Nightly OK') {
+            $text | Should -Match ([regex]::Escape($expected))
+        }
+        $text | Should -Not -Match 'Format-Table'
+        { New-ConsoleDashboardFrame 'x' -Meter @{ Label = 'y'; Size = 3 } } | Should -Throw -ExpectedMessage '*Unknown item field*Size*'
+    }
 }

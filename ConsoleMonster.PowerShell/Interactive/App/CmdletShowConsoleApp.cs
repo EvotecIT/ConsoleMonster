@@ -131,7 +131,8 @@ namespace ConsoleMonster.PowerShell {
             }
             try {
                 stop.Token.ThrowIfCancellationRequested();
-                IWidget layout = new Rows(PSWidgets.Collect(Content).ToArray());
+                IWidget layout;
+                using (PSAppContent.Enter()) { layout = new Rows(PSWidgets.Collect(Content).ToArray()); }
                 if (Title != null || Subtitle != null || Detail != null || Status.HasValue) {
                     var header = new HeaderBar(PSText.Markup(Title) ?? string.Empty) { Subtitle = PSText.Markup(Subtitle), Detail = PSText.Markup(Detail), Status = Status };
                     layout = new Rows(header, PSWidgets.WithSize(layout, 0, 0, true));

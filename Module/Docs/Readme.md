@@ -84,6 +84,11 @@ Runs a console dashboard live while a script does the work.
 
 The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.
 
+### [Invoke-ConsoleHeadless](Invoke-ConsoleHeadless.md)
+Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.
+
+The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.
+
 ### [Invoke-ConsolePester](Invoke-ConsolePester.md)
 Runs Pester tests with a live ConsoleMonster dashboard and a summary table.
 
@@ -157,6 +162,11 @@ Creates a passive command definition. Work runs in an isolated runspace with exp
 Defines a live console dashboard: a header with title and clock, the body and a footer.
 
 The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.
+
+### [New-ConsoleDashboardFrame](New-ConsoleDashboardFrame.md)
+Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.
+
+For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.
 
 ### [New-ConsoleDataGrid](New-ConsoleDataGrid.md)
 Creates a named, embeddable data grid for Show-ConsoleApp.
@@ -246,7 +256,7 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 ### [New-ConsoleLogRegion](New-ConsoleLogRegion.md)
 Creates a log region: the newest lines of a log, bottom-aligned.
 
-Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.
+Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.
 
 ### [New-ConsoleMenu](New-ConsoleMenu.md)
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.

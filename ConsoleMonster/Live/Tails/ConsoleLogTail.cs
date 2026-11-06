@@ -77,7 +77,7 @@ namespace ConsoleMonster.Live.Tails {
                 try {
                     using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, session.Cancellation)) {
                         Poll(read, options, entry => view.Post(session, entry), input => {
-                            if (LogTailKeys.Quit(input)) { return false; }
+                            if (!view.FindsWith(input) && LogTailKeys.Quit(input)) { return false; }
                             view.Navigate(session, input);
                             return true;
                         }, linked.Token, lease.Source);
