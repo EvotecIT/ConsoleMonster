@@ -38,6 +38,9 @@ namespace SiteFrames.Pages {
             public Dictionary<string, string?> Environment { get; }
             public PowerShellHost[] Hosts { get; }
             public int RunWidth { get; }
+
+            /// <summary>Types the script at a real prompt, so implicit output takes the host's top-level route.</summary>
+            public bool Interactive { get; init; }
         }
 
         private static IEnumerable<Run> Runs() {
@@ -60,6 +63,9 @@ namespace SiteFrames.Pages {
             // Native stream colours before and after -Feature Streams, on both hosts and in both themes.
             yield return new Run("streams", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All);
             yield return new Run("streams", "light", PowerShellRunner.Environment("light"), PowerShellHost.All);
+            // Everyday views for commands typed at the prompt (Select-String, Get-Acl, certificates, Group/Measure, TimeSpan).
+            yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { Interactive = true };
+            yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { Interactive = true };
         }
 
         private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);
@@ -78,7 +84,8 @@ namespace SiteFrames.Pages {
         public static void Capture(Site site) {
             foreach (Run run in Runs()) {
                 foreach (PowerShellHost host in run.Hosts.Where(host => host.CanCapture)) {
-                    List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Twins.Script(site, "powershell", run.Id), run.RunWidth, 120, run.Environment);
+                    List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Twins.Script(site, "powershell", run.Id), run.RunWidth, 120, run.Environment,
+                        session: run.Interactive, interactiveSession: run.Interactive);
                     string path = Path_(site, run, host);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));

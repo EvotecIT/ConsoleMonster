@@ -229,7 +229,7 @@ namespace ConsoleMonster.PowerShell {
                     // The same columns, titles and cell values as Show-ConsoleTable: the registered view is found again
                     // by the column resolver, so its columns, its title ("Directory: ...") and its grouping apply.
                     List<IWidget> tables = PSFormatting.BuildTables(_batch, null, null, new TableBuildOptions { AutoPresenters = true, Cmdlet = _host }, table => {
-                        if (_batchView.NativePresentation) { table.RecordViewRows = 0; }
+                        if (_batchView.NativePresentation && !_batchView.SingleRecord) { table.RecordViewRows = 0; }
                         if (cards) {
                             table.AlwaysCards = true;
                         }

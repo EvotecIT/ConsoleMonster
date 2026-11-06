@@ -3,83 +3,257 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "gallery",
-  "filters": {
-    "SITEFRAMES_GALLERY": "chart-table,help-sections,settings-tabs"
-  },
+  "requestedSet": "powershell",
+  "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "gallery/chart-table-0.ps7.ansi": {
+    "powershell/everyday-commands.light.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "1e3d70ac934057d8b72ed6d1473541438627ae11f73a89d1ddd5ac136436f5cc",
-      "screen": "dark",
-      "width": 88,
-      "height": 24
+      "sha256": "4610925b49d563807dd1db661ea91ad9a6fe0d2b8d60d36932c35bf217b41f96",
+      "screen": "light",
+      "width": 100,
+      "height": 120
     },
-    "gallery/chart-table-1.ps7.ansi": {
+    "powershell/everyday-commands.light.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "ab456b994b284355f5f88185fa469a9e774dbc09cafb25817a3aefddeba1d775",
-      "screen": "dark",
-      "width": 88,
-      "height": 24
+      "sha256": "298e6647566450fa3e9e64d2fd677388d498bf706567af190efc9902591d8e25",
+      "screen": "light",
+      "width": 100,
+      "height": 120
     },
-    "gallery/chart-table-2.ps7.ansi": {
+    "powershell/everyday-commands.rich.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "42ab1b2d30bf079ba583ca57bf9615aaa0a9efdeb7efba9174dd1adbfefef88f",
+      "sha256": "fabc05f56c75d8bc40f6704b529bc2a32a48c1de16cbabae0accc7fb7073c1c8",
       "screen": "dark",
-      "width": 88,
-      "height": 24
+      "width": 100,
+      "height": 120
     },
-    "gallery/help-sections-0.ps7.ansi": {
+    "powershell/everyday-commands.rich.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "c7ad32a61d837e51566121efb33c6b27d92de369b08eea4b238cf884ff789901",
+      "sha256": "7482c3bc31404ffc0c1456a549dfd18e1d9fab26613fa8353de98efd90539f80",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 120
     },
-    "gallery/help-sections-1.ps7.ansi": {
+    "powershell/export-markdown.rich.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "fa456aca66da89eac1e606a4dbf9de3a52c9184b44cd739e05a24f29421c3ded",
+      "sha256": "0744fd6142bb25927164168c2f3f52f0a3a604110d8bc8666d074b5e1750904e",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 120
     },
-    "gallery/help-sections-2.ps7.ansi": {
+    "powershell/files.rich.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9260caa583bb29386aaa4617b3eb0c5b4b94c320dcbc99adb7f8a426106cf0cc",
+      "sha256": "4a02c7cd722945761a48ffd43cfcc028a8a21f3c0ac856a6717116cc0d402572",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 120
     },
-    "gallery/settings-tabs-0.ps7.ansi": {
+    "powershell/format-consolelist.rich.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "7bb17f5ed2c5ee804ca7c6b40268143c749f574e3396870bf122015576ffdb32",
+      "sha256": "4c48d6631c2c26a842ed2acfa58021c3935cf6ae7c10e7b61a66e52cd7137966",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 120
     },
-    "gallery/settings-tabs-1.ps7.ansi": {
+    "powershell/format-consolelist.rich.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "4292fea28a76ab76780ce03e7e2bf48fb098bbdb8b07a6d06dcd0149e74e5619",
+      "sha256": "4c48d6631c2c26a842ed2acfa58021c3935cf6ae7c10e7b61a66e52cd7137966",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 120
     },
-    "gallery/settings-tabs-2.ps7.ansi": {
+    "powershell/format-consoletable.16-ascii.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "cbc43fef23c14d9c5d636ca86a832191d992cdcdf51472680942b2ab012417e5",
+      "sha256": "0137b27816b23df5ee35183fd42d77e80b64c6141358d4d633959bb4f48d19f7",
       "screen": "dark",
-      "width": 88,
-      "height": 22
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.narrow.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f162585e3e398bc8ded2e0b78953981ee2f1bec6a2d87ea76b00851042a29b1b",
+      "screen": "dark",
+      "width": 56,
+      "height": 120
+    },
+    "powershell/format-consoletable.nocolor.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "62251aff9b7ebff907191c7721ee1b49652e039e26afac326001f26e54a7efc9",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.plain.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "3550f612c6c1917ae228aec8556fe04f0041ae2768cab82633bf5d47eafd96fc",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "cf45f0162d9085ff00e49e573c9dd8bb237e9a5fa88c9a3c94c4011cd082dd86",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "cf45f0162d9085ff00e49e573c9dd8bb237e9a5fa88c9a3c94c4011cd082dd86",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletree.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "58849249535f72216439453cddbe4b59c006b818a3a0ee9b89b6254a14743f8a",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletree.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "58849249535f72216439453cddbe4b59c006b818a3a0ee9b89b6254a14743f8a",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-list.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f9f2406b289989b36fd7f65c7e2992e6e8b30236dc3d925d4a50883782acb3f3",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-list.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "dc4b4eefe49aea833d8e6630631280be3defd38a59485efb233860c0d15f8465",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-table.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "b06ab8212ea3cfbdba0b9054b5d420c1635daa1498f986cbedbee17041506f25",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-table.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "35d105c6d052d4b17b4f8bf72c5623ab6156a6c25331175c18ae6d2db3becd6f",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/job.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "ffaa3b603a330516a02c52340cef2a9e3eb0421d87b28c9eb573bd33e8e81434",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/job.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "ffaa3b603a330516a02c52340cef2a9e3eb0421d87b28c9eb573bd33e8e81434",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/markup.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "34d4292b7270dafcd0a4a31bc228878e5cf319e55e1a7816cac7f239a793b00b",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/markup.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "34d4292b7270dafcd0a4a31bc228878e5cf319e55e1a7816cac7f239a793b00b",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/relative-dates.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "58a45d9d07bc10b58442fb029e3e67a3587aeefde350833c56710a30aadba4c9",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.light.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "037297eb3d6c8ea5b7ec7c3a648354ba6dca8267b611028f020482fb021c5fe2",
+      "screen": "light",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.light.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "c54b4644c8c071958d7094072f1f942ee615d1e84e6bac55b8dc446e3294517b",
+      "screen": "light",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "97bcd721575ab275f2ab6f31ea66f4888266c3fd04822bef46b9b93275343358",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "4f30a63bc426a280734df069f86c2ad014d555dbe27cf6678521518ceb26b734",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/write-consoletext.rich.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "3801ef77175f51064583a5372b7a3277900df4f35e1a42eb7c20dc319c13d45d",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/write-consoletext.rich.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "3801ef77175f51064583a5372b7a3277900df4f35e1a42eb7c20dc319c13d45d",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
     }
   }
 }

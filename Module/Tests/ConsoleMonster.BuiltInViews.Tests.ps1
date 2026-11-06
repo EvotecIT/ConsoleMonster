@@ -148,3 +148,79 @@
         $widget.Count | Should -Be 0
     }
 }
+
+Describe 'Everyday command views' {
+    BeforeAll {
+        Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
+        $script:culture = [Threading.Thread]::CurrentThread.CurrentCulture
+        [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
+        function script:New-TestCertificate([string] $Name, [int] $Days) {
+            $request = [Security.Cryptography.X509Certificates.CertificateRequest]::new("CN=$Name", [Security.Cryptography.RSA]::Create(2048),
+                [Security.Cryptography.HashAlgorithmName]::SHA256, [Security.Cryptography.RSASignaturePadding]::Pkcs1)
+            $request.CreateSelfSigned([datetime]::Today.AddDays(-365), [datetime]::Today.AddDays($Days))
+        }
+    }
+    AfterAll { [Threading.Thread]::CurrentThread.CurrentCulture = $script:culture }
+
+    It 'groups Select-String rows by file with context lines and literal highlighted matches' {
+        $first = Join-Path $TestDrive 'first.txt'
+        $second = Join-Path $TestDrive 'second.txt'
+        [IO.File]::WriteAllLines($first, [string[]] @('intro', 'api-01 [ready]', 'outro'))
+        [IO.File]::WriteAllLines($second, [string[]] @('api-02 waiting'))
+        $found = @(Select-String -LiteralPath $first, $second -Pattern 'api-\d+' -Context 1)
+        $text = $found | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 100
+        $text | Should -Match 'first\.txt'
+        $text | Should -Match 'second\.txt'
+        $text | Should -Match '1 │ intro'
+        $text | Should -Match '2 │ api-01 \[ready\]'
+        $text | Should -Match '3 │ outro'
+        $html = $found[0] | New-ConsoleTable | Export-ConsoleFrame -Format Html -Width 100
+        $html | Should -Match '<span class="\w+">api-01</span> \[ready\]'
+        $found[0].Line | Should -BeExactly 'api-01 [ready]'
+    }
+
+    It 'shows an ACL owner and its access rules with allow and deny markers, readable rights and inheritance' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
+        $acl = [Security.AccessControl.DirectorySecurity]::new()
+        $acl.SetOwner([Security.Principal.SecurityIdentifier]::new('S-1-5-32-544'))
+        $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new('S-1-5-32-545'),
+            'ReadAndExecute, Synchronize', 'ContainerInherit, ObjectInherit', 'None', 'Allow'))
+        $acl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.SecurityIdentifier]::new('S-1-1-0'),
+            'Delete', 'None', 'None', 'Deny'))
+        $text = $acl | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 120
+        $text | Should -Match 'Owner: BUILTIN\\Administrators'
+        $text | Should -Match '✓ Allow\s+│ BUILTIN\\Users\s+│ Read and execute\s+│ This folder, subfolders and files\s+│ Explicit'
+        $text | Should -Match '✗ Deny\s+│ Everyone\s+│ Delete\s+│ This folder\s+│ Explicit'
+        $acl.GetType().Name | Should -Be 'DirectorySecurity'
+        @($acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])).Count | Should -Be 2
+    }
+
+    It 'marks certificates as expired, expiring within 30 days or valid' {
+        $certificates = @((New-TestCertificate 'old.example.test' -3), (New-TestCertificate 'soon.example.test' 9), (New-TestCertificate 'new.example.test' 120))
+        try {
+            $text = $certificates | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 140
+            $text | Should -Match '✗ Expired\s+│ old\.example\.test.*│\s+-3 │'
+            $text | Should -Match '▴ Expiring\s+│ soon\.example\.test.*│\s+9 │'
+            $text | Should -Match '✓ Valid\s+│ new\.example\.test.*│\s+120 │'
+            $text | Should -Match ([regex]::Escape($certificates[0].Thumbprint.Substring(0, 6)))
+        } finally {
+            $certificates | ForEach-Object { $_.Dispose() }
+        }
+    }
+
+    It 'shows group counts as bars, only the requested measurements and readable durations' {
+        $groups = 'Info', 'Warning', 'Info', 'Info' | Group-Object | Sort-Object Count -Descending
+        $text = $groups | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 80
+        $info = ($text -split "`n" | Where-Object { $_ -match 'Info' })
+        $warning = ($text -split "`n" | Where-Object { $_ -match 'Warning' })
+        ([regex]::Matches($info, '▆')).Count | Should -BeGreaterThan ([regex]::Matches($warning, '▆')).Count
+        $info | Should -Match '3 │'
+        $measure = 12, 48, 7, 30 | Measure-Object -Sum -Maximum | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 80
+        $measure | Should -Match 'Count\s+4'
+        $measure | Should -Match 'Sum\s+97'
+        $measure | Should -Match 'Maximum\s+48'
+        $measure | Should -Not -Match 'Average|Minimum|Deviation|│'
+        $duration = New-TimeSpan -Hours 1 -Minutes 42 -Seconds 5 | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 80
+        $duration | Should -Match '1 h 42 m'
+        $duration | Should -Match '01:42:05'
+    }
+}
