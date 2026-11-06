@@ -105,7 +105,7 @@ class TemplateGalleryTests(unittest.TestCase):
         name = "Gallery" + (slug or "Default").replace("-", "") + suffix
         output = self.root / name
         arguments = ["new", "consolemonster", "--debug:custom-hive", str(hive),
-                     "--name", name, "--output", str(output), "--ConsoleMonsterVersion", self.version]
+                     "--name", name, "--output", str(output)]
         if framework is not None:
             arguments.extend(["--Framework", framework])
         if style is not None:
@@ -206,6 +206,9 @@ class TemplateGalleryTests(unittest.TestCase):
         self.assertEqual([r.attrib["Include"] for r in tree.findall(".//PackageReference")],
                          ["ConsoleMonster", "ConsoleMonster.Extensions.Logging",
                           "ConsoleMonster.Hosting", "Microsoft.Extensions.Hosting"])
+        self.assertEqual([r.attrib["Version"] for r in tree.findall(".//PackageReference")
+                          if r.attrib["Include"].startswith("ConsoleMonster")],
+                         [self.version] * 3)
         _, explicit = self.generate(self.package_hive, "none", suffix="Explicit")
         self.assertEqual([r.attrib["Include"] for r in ET.parse(explicit).findall(".//PackageReference")],
                          [r.attrib["Include"] for r in tree.findall(".//PackageReference")])
