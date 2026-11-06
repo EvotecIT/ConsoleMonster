@@ -260,6 +260,17 @@ Describe 'Everyday structured data and discovery views' {
         } finally { Disable-ConsoleFormatting }
     }
 
+    It 'draws Compare-Object results as a comparison of removed, added and equal items' {
+        $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 }, [pscustomobject]@{ Name = 'sql01'; Port = 1433 })
+        $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 }, [pscustomobject]@{ Name = 'sql01'; Port = 1433 })
+        $results = @(Compare-Object $before $after -Property Name, Port -IncludeEqual)
+        $text = $results | ConvertTo-TestEverydayText -Width 96
+        $text | Should -Match '\+1 added\s+-1 removed\s+~0 changed\s+1 unchanged'
+        $text | Should -Match '- │ web01 │ Port\s+│\s+80 │\s+│'
+        $text | Should -Match '\+ │ web01 │ Port\s+│\s+│\s+443 │'
+        $text | Should -Match '= │ sql01'
+    }
+
     It 'uses actual command and module objects through their registrations' {
         $command = Get-Command Get-Date | ConvertTo-TestEverydayText
         $command | Should -Match '\[Cmdlet\]'

@@ -114,6 +114,36 @@ namespace ConsoleMonster.Changes {
             return new ChangeSet(all, same);
         }
 
+        // A comparison another tool already decided (PowerShell's Compare-Object): each value is only in the old set
+        // (Removed), only in the new set (Added) or in both (Unchanged). Keys and descriptions follow Compare.
+        internal static ChangeSet FromSides(IEnumerable<KeyValuePair<ChangeKind, object>> sides, DiffOptions options) {
+            options.Budget = new Values.ShapeBudget(options.TimeBudget, int.MaxValue);
+            options.Shape = null;
+            List<ObjectChange> removed = new List<ObjectChange>();
+            List<ObjectChange> added = new List<ObjectChange>();
+            List<ObjectChange> unchanged = new List<ObjectChange>();
+            int index = 0;
+            foreach (KeyValuePair<ChangeKind, object> side in sides) {
+                object value = side.Value;
+                string key = KeyOf(value, options, index++);
+                switch (side.Key) {
+                    case ChangeKind.Removed:
+                        removed.Add(Described(new ObjectChange(ChangeKind.Removed, key, value, null), value, options));
+                        break;
+                    case ChangeKind.Added:
+                        added.Add(Described(new ObjectChange(ChangeKind.Added, key, null, value), value, options));
+                        break;
+                    default:
+                        unchanged.Add(new ObjectChange(ChangeKind.Unchanged, key, value, value));
+                        break;
+                }
+            }
+            List<ObjectChange> all = new List<ObjectChange>(removed);
+            all.AddRange(added);
+            all.AddRange(unchanged);
+            return new ChangeSet(all);
+        }
+
         /// <summary>The changed properties of two objects (nested objects by path, up to <see cref="DiffOptions.Depth"/>).</summary>
         /// <param name="before">The old object.</param>
         /// <param name="after">The new object.</param>

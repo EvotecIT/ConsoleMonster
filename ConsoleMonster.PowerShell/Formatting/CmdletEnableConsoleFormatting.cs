@@ -60,7 +60,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter Force { get; set; }
 
-        /// <summary><para type="description">Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries). The built-in views still pick the columns of Show-ConsoleTable and the other commands.</para></summary>
+        /// <summary><para type="description">Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries, Compare-Object results). The built-in views still pick the columns of Show-ConsoleTable and the other commands.</para></summary>
         [Parameter]
         public SwitchParameter NoBuiltIn { get; set; }
 

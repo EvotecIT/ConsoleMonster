@@ -147,6 +147,8 @@ namespace SiteFrames.Pages {
                     ["scriptFull"] = example["scriptFull"]?.DeepClone()
                 });
             }
+            Copy(site, powershell, "compare-object", "rich", "ps5", "compare-object-ps5", "PowerShell 5.1");
+            Copy(site, powershell, "compare-object", "rich", "ps7", "compare-object-ps7", "PowerShell 7");
             Copy(site, powershell, "job", "rich", "ps5", "job-ps5", "PowerShell 5.1");
             Copy(site, powershell, "job", "rich", "ps7", "job-ps7", "PowerShell 7");
         }
