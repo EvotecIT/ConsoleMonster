@@ -1,8 +1,8 @@
 {
   "appParts": {
-    "demos": ["incident-workbench", "chart-table", "help-sections", "settings-tabs"],
+    "demos": ["incident-workbench", "chart-table", "help-sections", "settings-tabs", "log-tail"],
     "title": "The parts it is built from",
-    "body": "Panes, folding sections, outlines, tabs, linked charts and the find bar are ordinary controls you can use on their own, each with its PowerShell and C#.",
+    "body": "Panes, folding sections, outlines, tabs, linked charts, trees and the find bar are ordinary controls you can use on their own, each in PowerShell, C# and C# fluent.",
     "link": "App parts, one by one",
     "href": "/docs/app-parts/"
   },

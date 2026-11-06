@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Nodes;
 using ConsoleMonster.Canvas;
@@ -21,6 +22,14 @@ namespace SiteFrames.Pages {
             return 0;
         }
 
+        // The generated fluent program must print the same cells as the initializer program.
+        private static bool SameFluent(Site site, string id, int width, CellBuffer expected) {
+            CellBuffer fluent = CSharpRunner.Run(ProgramPath(site, id), width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark, fluent: true);
+            ParityResult result = Parity.Compare(expected, fluent);
+            if (!result.Identical) { WidgetsPage.Report(new List<string> { id + " at " + width + ": C# fluent " + result.Detail }, id + "/fluent"); }
+            return result.Identical;
+        }
+
         public static void Render(Site site) {
             foreach (int width in new[] { 110, 60 }) {
                 CellBuffer dark = CSharpRunner.Run(ProgramPath(site, "dashboard-frame"), width, ColorDepth.TrueColor, GlyphTier.Full, Theme.Dark);
@@ -32,6 +41,7 @@ namespace SiteFrames.Pages {
                     ["meta"] = new JsonArray(width + "×" + dark.Height, "24-bit", "Full"),
                     ["frame"] = site.Frame(dark, light)
                 }, ProgramPath(site, "dashboard-frame"));
+                figure["parity"] = new JsonObject { ["fluent"] = SameFluent(site, "dashboard-frame", width, dark) };
                 DocCards.Offer("dashboard-frame-" + width, dark, Frames.Screen.Dark);
                 Figures.Add("dashboard-frame-" + width, figure);
             }
@@ -47,6 +57,7 @@ namespace SiteFrames.Pages {
                 ["meta"] = new JsonArray("60×" + screen.Height, "24-bit", "Full"),
                 ["frame"] = site.Frame(screen, null)
             }, ProgramPath(site, "headless"));
+            headless["parity"] = new JsonObject { ["fluent"] = SameFluent(site, "headless", 60, screen) };
             DocCards.Offer("headless-app", screen, Frames.Screen.Dark);
             Figures.Add("headless-app", headless);
         }

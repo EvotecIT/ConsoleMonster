@@ -3802,7 +3802,8 @@
     ],
     "parity": {
       "dark": true,
-      "light": true
+      "light": true,
+      "fluent": true
     }
   },
   "app-accordion": {
@@ -3877,7 +3878,8 @@
     ],
     "parity": {
       "dark": true,
-      "light": true
+      "light": true,
+      "fluent": true
     }
   },
   "app-outline": {
@@ -3953,7 +3955,8 @@
     ],
     "parity": {
       "dark": true,
-      "light": true
+      "light": true,
+      "fluent": true
     }
   },
   "app-tabs": {
@@ -4022,7 +4025,8 @@
     ],
     "parity": {
       "dark": true,
-      "light": true
+      "light": true,
+      "fluent": true
     }
   },
   "app-chartview": {
@@ -4098,7 +4102,8 @@
     ],
     "parity": {
       "dark": true,
-      "light": true
+      "light": true,
+      "fluent": true
     }
   },
   "app-find": {
@@ -4139,7 +4144,85 @@
     ],
     "parity": {
       "dark": true,
-      "light": true
+      "light": true,
+      "fluent": true
+    }
+  },
+  "tree": {
+    "title": "TreeSelect",
+    "file": "tree.ps1",
+    "label": "Right expands, typing filters, a double-click opens SQL11 and Down picks Patched",
+    "meta": [
+      "90×16",
+      "24-bit",
+      "Full"
+    ],
+    "frame": {
+      "w": 90,
+      "h": 16,
+      "dark": "<span class=\"fe2e8f0 k1f2a3c c1\"> </span><span class=\"f93c5fd k1f2a3c B c9\">Inventory</span><span class=\"fe2e8f0 k1f2a3c\">                                                                                </span>\n<span class=\"f60a5fa c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"B c9\"><i class=n>›</i> Servers</span><span class=c1> </span><span class=f60a5fa><i class=\"g2500 c76\">────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>     Name     SQL11                                                                     </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>     Role     Database                                                                  </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e c13\">&gt;   Patched  </span><span class=\"k243b5e c10\">2026-08-19</span><span class=\"ff1f5f9 k243b5e c63\">                                                               </span><span class=c1> </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<i class=\"g2502 f60a5fa\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f60a5fa\">│</i>\n<span class=f60a5fa><i class=g2570>╰</i><i class=\"g2500 c88\">────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\nSelected: $estate.Berlin[1].Patched\n\n<span class=c1> </span><span class=\"f60a5fa c3\">tab</span><span class=\"f8b8f9a c7\"> next  </span><span class=\"f60a5fa c9\">shift+tab</span><span class=\"f8b8f9a c7\"> back  </span><span class=\"f60a5fa c3\">esc</span><span class=f8b8f9a> quit</span>",
+      "light": "<span class=\"f111827 ke5e7eb c1\"> </span><span class=\"f1d4ed8 ke5e7eb B c9\">Inventory</span><span class=\"f111827 ke5e7eb\">                                                                                </span>\n<span class=\"f2563eb c2\"><i class=g256d>╭</i><i class=g2500>─</i></span><span class=c1> </span><span class=\"f111827 B c9\"><i class=n>›</i> Servers</span><span class=c1> </span><span class=f2563eb><i class=\"g2500 c76\">────────────────────────────────────────────────────────────────────────────</i><i class=g256e>╮</i></span>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>     Name     SQL11                                                                     </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>     Role     Database                                                                  </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c1> </span><span class=\"f0f172a kd6e4fa c13\">&gt;   Patched  </span><span class=\"kd6e4fa c10\">2026-08-19</span><span class=\"f0f172a kd6e4fa c63\">                                                               </span><span class=c1> </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<i class=\"g2502 f2563eb\">│</i><span class=c88>                                                                                        </span><i class=\"g2502 f2563eb\">│</i>\n<span class=f2563eb><i class=g2570>╰</i><i class=\"g2500 c88\">────────────────────────────────────────────────────────────────────────────────────────</i><i class=g256f>╯</i></span>\nSelected: $estate.Berlin[1].Patched\n\n<span class=c1> </span><span class=\"f2563eb c3\">tab</span><span class=\"f6b7280 c7\"> next  </span><span class=\"f2563eb c9\">shift+tab</span><span class=\"f6b7280 c7\"> back  </span><span class=\"f2563eb c3\">esc</span><span class=f6b7280> quit</span>"
+    },
+    "keys": "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape",
+    "csharp": "var estate = new\n{\n    Warsaw = new[]\n    {\n        new Server(\"WEB01\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL01\", \"Database\", \"2026-10-12\"),\n        new Server(\"FS01\", \"File\", \"2026-09-30\")\n    },\n    Berlin = new[]\n    {\n        new Server(\"WEB11\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL11\", \"Database\", \"2026-08-19\")\n    }\n};\n\nTreeSelect tree = new TreeSelect(\"Tree\", new ObjectExplorer(estate, default, \"$estate\")) {\n    Label = \"Servers\",\n    Height = 10\n};\nAppBinding picked = new AppBinding(state =>\n    TextBlock.Plain(\"Selected: \" + (state[\"Tree\"] is ExplorerNode node ? node.Path : \"nothing\")));\nConsoleApp.Run(new Rows(new HeaderBar(\"Inventory\"), tree, picked));\n\nrecord Server(string Name, string Role, string Patched);",
+    "csharpFull": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\n\nvar estate = new\n{\n    Warsaw = new[]\n    {\n        new Server(\"WEB01\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL01\", \"Database\", \"2026-10-12\"),\n        new Server(\"FS01\", \"File\", \"2026-09-30\")\n    },\n    Berlin = new[]\n    {\n        new Server(\"WEB11\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL11\", \"Database\", \"2026-08-19\")\n    }\n};\n\nTreeSelect tree = new TreeSelect(\"Tree\", new ObjectExplorer(estate, default, \"$estate\")) {\n    Label = \"Servers\",\n    Height = 10\n};\nAppBinding picked = new AppBinding(state =>\n    TextBlock.Plain(\"Selected: \" + (state[\"Tree\"] is ExplorerNode node ? node.Path : \"nothing\")));\nConsoleApp.Run(new Rows(new HeaderBar(\"Inventory\"), tree, picked));\n\nrecord Server(string Name, string Role, string Patched);",
+    "csharpRepo": "Website/examples/interactive/tree.cs",
+    "powershell": "$estate = [pscustomobject] @{\n    Warsaw = @(\n        [pscustomobject] @{ Name = 'WEB01'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL01'; Role = 'Database'; Patched = '2026-10-12' }\n        [pscustomobject] @{ Name = 'FS01'; Role = 'File'; Patched = '2026-09-30' }\n    )\n    Berlin = @(\n        [pscustomobject] @{ Name = 'WEB11'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL11'; Role = 'Database'; Patched = '2026-08-19' }\n    )\n}\n\nShow-ConsoleApp -Title Inventory -Content {\n    $treeSelectParameters = @{\n        Key = 'Tree'\n        Label = 'Servers'\n        InputObject = $estate\n        RootPath = '$estate'\n        Height = 10\n    }\n    New-ConsoleTreeSelect @treeSelectParameters\n    New-ConsoleBinding -Content {\n        param($State)\n        $path = if ($State.Tree) { $State.Tree.Path } else { 'nothing' }\n        New-ConsoleText -Text \"Selected: $path\"\n    }\n}",
+    "powershellFull": "Import-Module ConsoleMonster\n\n$estate = [pscustomobject] @{\n    Warsaw = @(\n        [pscustomobject] @{ Name = 'WEB01'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL01'; Role = 'Database'; Patched = '2026-10-12' }\n        [pscustomobject] @{ Name = 'FS01'; Role = 'File'; Patched = '2026-09-30' }\n    )\n    Berlin = @(\n        [pscustomobject] @{ Name = 'WEB11'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL11'; Role = 'Database'; Patched = '2026-08-19' }\n    )\n}\n\nShow-ConsoleApp -Title Inventory -Content {\n    $treeSelectParameters = @{\n        Key = 'Tree'\n        Label = 'Servers'\n        InputObject = $estate\n        RootPath = '$estate'\n        Height = 10\n    }\n    New-ConsoleTreeSelect @treeSelectParameters\n    New-ConsoleBinding -Content {\n        param($State)\n        $path = if ($State.Tree) { $State.Tree.Path } else { 'nothing' }\n        New-ConsoleText -Text \"Selected: $path\"\n    }\n}",
+    "powershellFile": "tree.ps1",
+    "script": "$estate = [pscustomobject] @{\n    Warsaw = @(\n        [pscustomobject] @{ Name = 'WEB01'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL01'; Role = 'Database'; Patched = '2026-10-12' }\n        [pscustomobject] @{ Name = 'FS01'; Role = 'File'; Patched = '2026-09-30' }\n    )\n    Berlin = @(\n        [pscustomobject] @{ Name = 'WEB11'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL11'; Role = 'Database'; Patched = '2026-08-19' }\n    )\n}\n\nShow-ConsoleApp -Title Inventory -Content {\n    $treeSelectParameters = @{\n        Key = 'Tree'\n        Label = 'Servers'\n        InputObject = $estate\n        RootPath = '$estate'\n        Height = 10\n    }\n    New-ConsoleTreeSelect @treeSelectParameters\n    New-ConsoleBinding -Content {\n        param($State)\n        $path = if ($State.Tree) { $State.Tree.Path } else { 'nothing' }\n        New-ConsoleText -Text \"Selected: $path\"\n    }\n}",
+    "scriptFull": "Import-Module ConsoleMonster\n\n$estate = [pscustomobject] @{\n    Warsaw = @(\n        [pscustomobject] @{ Name = 'WEB01'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL01'; Role = 'Database'; Patched = '2026-10-12' }\n        [pscustomobject] @{ Name = 'FS01'; Role = 'File'; Patched = '2026-09-30' }\n    )\n    Berlin = @(\n        [pscustomobject] @{ Name = 'WEB11'; Role = 'Web'; Patched = '2026-10-28' }\n        [pscustomobject] @{ Name = 'SQL11'; Role = 'Database'; Patched = '2026-08-19' }\n    )\n}\n\nShow-ConsoleApp -Title Inventory -Content {\n    $treeSelectParameters = @{\n        Key = 'Tree'\n        Label = 'Servers'\n        InputObject = $estate\n        RootPath = '$estate'\n        Height = 10\n    }\n    New-ConsoleTreeSelect @treeSelectParameters\n    New-ConsoleBinding -Content {\n        param($State)\n        $path = if ($State.Tree) { $State.Tree.Path } else { 'nothing' }\n        New-ConsoleText -Text \"Selected: $path\"\n    }\n}",
+    "csharpFluent": "var estate = new\n{\n    Warsaw = new[]\n    {\n        new Server(\"WEB01\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL01\", \"Database\", \"2026-10-12\"),\n        new Server(\"FS01\", \"File\", \"2026-09-30\")\n    },\n    Berlin = new[]\n    {\n        new Server(\"WEB11\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL11\", \"Database\", \"2026-08-19\")\n    }\n};\nTreeSelect tree = ((TreeSelect)Ui.TreeSelect()\n    .Key(\"Tree\")\n    .Explorer(new ObjectExplorer(estate, default, \"$estate\"))\n    .Label(\"Servers\")\n    .Height(10)\n    .Build());\nConsoleApp.Run(Ui.Rows().Content(c =>\n{\n    c.HeaderBar(headerBar => headerBar.Title(\"Inventory\"));\n    c.Add(tree);\n    c.Binding(binding => binding.Configure(o => o.Content = state => Ui.Text(\"Selected: \"\n        + (state[\"Tree\"] is ExplorerNode node ? node.Path : \"nothing\"))));\n}));\n\nrecord Server(string Name, string Role, string Patched);\n",
+    "csharpFluentFull": "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nusing ConsoleMonster;\n\nvar estate = new\n{\n    Warsaw = new[]\n    {\n        new Server(\"WEB01\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL01\", \"Database\", \"2026-10-12\"),\n        new Server(\"FS01\", \"File\", \"2026-09-30\")\n    },\n    Berlin = new[]\n    {\n        new Server(\"WEB11\", \"Web\", \"2026-10-28\"),\n        new Server(\"SQL11\", \"Database\", \"2026-08-19\")\n    }\n};\nTreeSelect tree = ((TreeSelect)Ui.TreeSelect()\n    .Key(\"Tree\")\n    .Explorer(new ObjectExplorer(estate, default, \"$estate\"))\n    .Label(\"Servers\")\n    .Height(10)\n    .Build());\nConsoleApp.Run(Ui.Rows().Content(c =>\n{\n    c.HeaderBar(headerBar => headerBar.Title(\"Inventory\"));\n    c.Add(tree);\n    c.Binding(binding => binding.Configure(o => o.Content = state => Ui.Text(\"Selected: \"\n        + (state[\"Tree\"] is ExplorerNode node ? node.Path : \"nothing\"))));\n}));\n\nrecord Server(string Name, string Role, string Patched);\n",
+    "csharpFluentFile": "Program.cs",
+    "apiMap": [
+      {
+        "powershell": "New-ConsoleTreeSelect",
+        "csharp": "new TreeSelectInputOptions(…)",
+        "fluent": "Ui.TreeSelect()",
+        "memberId": "M:ConsoleMonster.Ui.TreeSelect",
+        "note": "Inside Content: c.TreeSelect(treeSelect => …)."
+      },
+      {
+        "powershell": "New-ConsoleTreeSelect -InputObject …",
+        "csharp": "new ObjectExplorer(…)",
+        "fluent": "new ObjectExplorer(…)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.value",
+        "note": " The value argument receives …."
+      },
+      {
+        "powershell": "New-ConsoleTreeSelect -RootPath …",
+        "csharp": "new ObjectExplorer(…)",
+        "fluent": "new ObjectExplorer(…)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.rootPath",
+        "note": " The rootPath argument receives …."
+      },
+      {
+        "powershell": "Show-ConsoleObject -RootPath …",
+        "csharp": "new ObjectExplorer(…)",
+        "fluent": "new ObjectExplorer(…)",
+        "memberId": "A:ConsoleMonster.Interactive.ObjectExplorer..ctor.rootPath",
+        "note": " The rootPath argument receives …."
+      },
+      {
+        "powershell": "New-ConsoleTreeSelect -Height …",
+        "csharp": "Height = …",
+        "fluent": ".Height(…)",
+        "memberId": "ConsoleMonster.Interactive.TreeSelectInputOptions.Height",
+        "note": null
+      },
+      {
+        "powershell": "New-ConsoleBinding -Content { … }",
+        "csharp": "Content = …",
+        "fluent": ".Content(c => { … })",
+        "memberId": "ConsoleMonster.Interactive.BindingOptions.Content",
+        "note": "The typed definition materializes the same AppBinding after callback and identity configuration. C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
+      }
+    ],
+    "parity": {
+      "dark": true,
+      "light": true,
+      "fluent": true
     }
   },
   "dashboard-frame-110": {
@@ -4169,7 +4252,10 @@
         "fluent": ".Show()",
         "memberId": "M:ConsoleMonster.Terminal.Write"
       }
-    ]
+    ],
+    "parity": {
+      "fluent": true
+    }
   },
   "dashboard-frame-60": {
     "title": "dotnet run",
@@ -4198,7 +4284,10 @@
         "fluent": ".Show()",
         "memberId": "M:ConsoleMonster.Terminal.Write"
       }
-    ]
+    ],
+    "parity": {
+      "fluent": true
+    }
   },
   "headless-app": {
     "title": "dotnet run",
@@ -4262,7 +4351,10 @@
         "memberId": "A:ConsoleMonster.Headless.HeadlessTerminal.Send.script",
         "note": "The scripted keys are queued on the headless terminal before the script runs, and input ends after them. The script argument receives …."
       }
-    ]
+    ],
+    "parity": {
+      "fluent": true
+    }
   },
   "large-run-example": {
     "title": "Fleet checks",

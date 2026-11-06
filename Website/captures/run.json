@@ -98,7 +98,7 @@
     "interactive/app-find-light.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "c0b69430429ea961c1d6e67234d50e30aa8243e233b4b5067de2423cd6deee79",
+      "sha256": "aa968d0d296fce5806755a26d63a2211be95d99bbaf17a38f64d70f85e7e3eb4",
       "screen": "light",
       "width": 70,
       "height": 12
@@ -170,7 +170,7 @@
     "interactive/app-tabs-dark.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9a523a53b0129a001036c645885b918a1844f9e8de18295485784271b7986d75",
+      "sha256": "6055963d108c6a6e4cb7e433c78d9c9c68362a9a2e9d433a70f1a90095455cd0",
       "screen": "dark",
       "width": 60,
       "height": 5
@@ -198,6 +198,38 @@
       "screen": "light",
       "width": 60,
       "height": 5
+    },
+    "interactive/tree-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "230d8c8c8ca397f704630e980ba4f9d672f5b6e380cc1a5e95c2a15077000fc5",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "230d8c8c8ca397f704630e980ba4f9d672f5b6e380cc1a5e95c2a15077000fc5",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e18e10dcd6b53226040ffe8d91d63b300e3b83aefd20fabed43d1f3276a30ade",
+      "screen": "light",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e18e10dcd6b53226040ffe8d91d63b300e3b83aefd20fabed43d1f3276a30ade",
+      "screen": "light",
+      "width": 90,
+      "height": 16
     }
   }
 }

@@ -17,7 +17,7 @@ namespace SiteFrames.Pages {
     /// the keys leave, in both themes, and the PowerShell 5.1 and 7 captures must draw the same screens as the program.
     /// </summary>
     internal static class AppPartFigures {
-        private sealed record Part(string Id, string Title, string Label, string Keys, int Width, int Height, string? Pick = null, bool RealTime = false);
+        private sealed record Part(string Id, string Title, string Label, string Keys, int Width, int Height, string? Pick = null, bool RealTime = false, string Area = "docs");
 
         private static readonly Part[] Parts = {
             new("app-splitter", "Splitter", "Two panes after dragging the divider to the right", "drag:24,2,36,2 Escape", 80, 6),
@@ -25,16 +25,17 @@ namespace SiteFrames.Pages {
             new("app-outline", "Outline and breadcrumb", "Down twice and Enter: Linux is current and the breadcrumb follows", "Down Down Enter Escape", 60, 8),
             new("app-tabs", "Tabs", "A click on the Disks tab", "click:14,0 Escape", 60, 5),
             new("app-chartview", "ChartView with LinkKey", "Down in the grid moves the chart's crosshair to the same sample", "Down*4 Escape", 90, 12),
-            new("app-find", "Find bar", "Slash, a query and Enter: the second of two matches", "/ \"timeout\" Enter wait:400 Escape Escape Escape", 70, 12, "2 of 2", true)
+            new("app-find", "Find bar", "Slash, a query and Enter: the second of two matches", "/ \"timeout\" Enter wait:400 Escape Escape Escape", 70, 12, "2 of 2", true),
+            new("tree", "TreeSelect", "Right expands, typing filters, a double-click opens SQL11 and Down picks Patched", "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, Area: "interactive")
         };
 
-        private static string ProgramPath(Site site, Part part) => Path.Combine(site.Website, "examples", "docs", part.Id + ".cs");
+        private static string ProgramPath(Site site, Part part) => Path.Combine(site.Website, "examples", part.Area, part.Id + ".cs");
 
-        private static string ScriptPath(Site site, Part part) => Path.Combine(site.Website, "examples", "docs", part.Id + ".ps1");
+        private static string ScriptPath(Site site, Part part) => Path.Combine(site.Website, "examples", part.Area, part.Id + ".ps1");
 
         private static InteractivePage.Story Story(Part part, string theme) =>
             new InteractivePage.Story(part.Id + "-" + theme, part.Title, string.Empty, part.Keys, part.Width, part.Height, false, part.RealTime) {
-                Area = "docs", ExampleId = part.Id, Theme = theme == "light" ? Theme.Light : Theme.Dark
+                Area = part.Area, ExampleId = part.Id, Theme = theme == "light" ? Theme.Light : Theme.Dark
             };
 
         /// <summary>Records each part's PowerShell twin, dark and light, on every available host.</summary>
@@ -44,20 +45,20 @@ namespace SiteFrames.Pages {
             }
         }
 
-        private static ScreenCapture Run(Site site, Part part, ITheme theme) {
+        private static ScreenCapture Run(Site site, Part part, ITheme theme, bool fluent = false) {
             ScreenCapture capture = new ScreenCapture(part.Width, part.Height);
             TerminalProfile profile = CSharpRunner.Profile(part.Width, part.Height, ColorDepth.TrueColor, GlyphTier.Full);
             ScriptedInput input = new ScriptedInput(part.Keys) { Paced = true, RealTime = part.RealTime };
             CSharpRunner.Execute(ProgramPath(site, part), profile, theme, new InteractiveOptions {
                 Mode = InteractionMode.Rich, Input = input, Capture = capture, Profile = profile, Theme = theme, Labels = new PromptLabels()
-            });
+            }, fluent: fluent);
             if (input.Remaining > 0) { throw new InvalidOperationException(part.Id + ".cs ended with " + input.Remaining + " scripted keys unused."); }
             return capture;
         }
 
         // The screen a figure shows: the last one the keys left, or the last one showing a phrase.
-        private static CellBuffer Frame(Site site, Part part, ITheme theme) {
-            ScreenCapture capture = Run(site, part, theme);
+        private static CellBuffer Frame(Site site, Part part, ITheme theme, bool fluent = false) {
+            ScreenCapture capture = Run(site, part, theme, fluent);
             CellBuffer? frame = part.Pick == null ? capture.LastFrame : capture.Frames.LastOrDefault(f => f.ToPlainText().Contains(part.Pick, StringComparison.Ordinal));
             return frame ?? throw new InvalidOperationException(part.Id + ": no screen" + (part.Pick == null ? string.Empty : " shows \"" + part.Pick + "\"") + "; the keys or the program changed.");
         }
@@ -67,6 +68,13 @@ namespace SiteFrames.Pages {
             bool same = InteractivePage.CheckExample(site, Story(part, theme), problems);
             WidgetsPage.Report(problems, part.Id + "/" + theme);
             return same;
+        }
+
+        // The generated fluent program, given the same keys, must leave the same screen as the initializer program.
+        private static bool SameFluent(Site site, Part part, CellBuffer expected) {
+            ParityResult result = Parity.Compare(expected, Frame(site, part, Theme.Dark, fluent: true));
+            if (!result.Identical) { WidgetsPage.Report(new List<string> { part.Id + ": C# fluent " + result.Detail }, part.Id + "/fluent"); }
+            return result.Identical;
         }
 
         public static void Render(Site site) {
@@ -84,7 +92,7 @@ namespace SiteFrames.Pages {
                 (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(ScriptPath(site, part)));
                 figure["script"] = script;
                 figure["scriptFull"] = scriptFull;
-                figure["parity"] = new JsonObject { ["dark"] = Check(site, part, "dark"), ["light"] = Check(site, part, "light") };
+                figure["parity"] = new JsonObject { ["dark"] = Check(site, part, "dark"), ["light"] = Check(site, part, "light"), ["fluent"] = SameFluent(site, part, dark) };
                 DocCards.Offer(part.Id, dark, Frames.Screen.Dark);
                 Figures.Add(part.Id, figure);
             }
