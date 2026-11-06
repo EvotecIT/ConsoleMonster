@@ -5,7 +5,7 @@ slug: app-parts
 order: 12
 group: apps
 summary: "Panes, folding sections, outlines, tabs, linked charts, trees and the find bar, each on its own."
-apis: [New-ConsoleSplitter, New-ConsoleAccordion, New-ConsoleCollapsible, New-ConsoleOutline, New-ConsoleBreadcrumb, New-ConsoleTabs, New-ConsoleChartView, New-ConsoleTreeSelect, LogViewport]
+apis: [New-ConsoleSplitter, New-ConsoleAccordion, New-ConsoleCollapsible, New-ConsoleOutline, New-ConsoleBreadcrumb, New-ConsoleTabs, New-ConsoleChartView, New-ConsoleTreeSelect, New-ConsoleLogRegion]
 chips: [Apps, Mouse, PowerShell, C#]
 card: app-chartview
 ---
@@ -92,13 +92,12 @@ New-ConsoleBinding -Content {
 `LogViewport`, a multiline text input and the document pager have a find bar. Press `/` in a log or the pager, or Ctrl+F in a text input where `/` is typing, then type: every match is highlighted and the bar counts them. Enter and Shift+Enter move to the next and previous match and Escape closes the bar; in a log or the pager the matches stay highlighted, so `n` and `N` keep moving, and a second Escape clears them. A query with a capital letter matches case. The frame is after `/`, `timeout` and Enter.
 
 ```powershell
-$logViewport = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.LogViewport')
-$log = $logViewport::new('Log')
-$log.Write('web-01 health check timeout, retrying', 'warn')
-Show-ConsoleApp -Content { $log }
+Show-ConsoleApp -Content {
+    New-ConsoleLogRegion -WidgetId deploy.log -NoElapsed -Height 8 -Content { $lines }
+}
 ```
 
-`LogViewport` has no cmdlet or fluent builder yet, so the script takes its type from the module's assembly and the fluent program constructs it as the C# one does. A multiline text input has the same find bar with a cmdlet and a builder: `New-ConsoleTextInput -Multiline` and `c.TextInput(t => t.Multiline())`.
+Inside `Show-ConsoleApp` content, `New-ConsoleLogRegion` makes the retained, scrollable log (`LogViewport` in C#, `Ui.LogViewport()` in fluent C#), and `Write-ConsoleLogEntry -WidgetId deploy.log` adds lines while the app runs. `Watch-ConsoleLog` and a multiline text input (`New-ConsoleTextInput -Multiline`) have the same find bar.
 
 ## Variations
 

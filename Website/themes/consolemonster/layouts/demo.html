@@ -187,7 +187,7 @@
   </section>
   {{~ end ~}}
 
-  {{~ ap = data.copy.appParts; if ap && (ap.demos | array.contains d.slug) ~}}
+  {{~ for ap in data.copy.demoDocs; if ap.demos | array.contains d.slug ~}}
   <section class="cm-showcase cm-reel-sec" aria-labelledby="parts-title">
     <header class="cm-reel-sec__head">
       <div>
@@ -196,7 +196,7 @@
       </div>
     </header>
   </section>
-  {{~ end ~}}
+  {{~ end; end ~}}
 
   {{~ if d.media ~}}
   <section class="cm-showcase" aria-labelledby="slides-title">

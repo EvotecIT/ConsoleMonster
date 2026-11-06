@@ -67,16 +67,10 @@ catch (OperationCanceledException cancelled)
     return;
 }
 
-// Then read the run back: Ctrl+F finds text, Enter moves to the next match, Escape quits.
-string text = string.Join("\n", events.Select(entry =>
-    entry.Time + " " + labels[entry.Level].PadRight(4) + " " + entry.Message));
+// Then read the run back: / finds text, n moves to the next match, Escape quits.
+LogViewport log = new LogViewport("worker.log") { ShowElapsed = false, Height = 7 };
+foreach ((_, string level, string message) in events)
+    log.Write(message, level);
 ConsoleApp.Run(new Rows(
     new TextBlock("[bold]Application log[/] [muted]· read the run back[/]"),
-    AppInput.Text(new TextInputOptions
-    {
-        Key = "Log",
-        Label = "./logs/worker.log",
-        Multiline = true,
-        Height = 5,
-        Value = text
-    })));
+    log));

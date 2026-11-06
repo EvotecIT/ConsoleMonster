@@ -1,4 +1,4 @@
-source a288b04b83518392064a3ea44a496077
+source 58446b4a8fb12e3d064a3ea44a496077
 Deploy 4.12.2 · / finds text
 ╭─ › deploy.log ─────────────────────────────────────────────────────╮
 │        Deploy 4.12.2 started                                       │

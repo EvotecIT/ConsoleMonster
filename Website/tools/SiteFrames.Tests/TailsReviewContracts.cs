@@ -28,8 +28,8 @@ namespace SiteFrames.Tests {
                 TailsPage.WriteReviewFrame(folder, "override", frames["timestamp-override"], light ? ExportTheme.Light : ExportTheme.Dark);
                 string text = File.ReadAllText(Path.Combine(folder, "override.txt"));
                 Assert.Contains("2026-10-23 00:00:00 +00:00", text);
-                Assert.Contains("q quit · PgUp history · End follow", text);
-                Assert.EndsWith("End follow\n", text.Replace("\r\n", "\n"));
+                Assert.Contains("q quit · PgUp history · End follow · / search", text);
+                Assert.EndsWith("End follow · / search\n", text.Replace("\r\n", "\n"));
                 Assert.DoesNotContain("0 history lines discarded", text);
                 XDocument svg = XDocument.Load(Path.Combine(folder, "override.svg"));
                 Assert.Equal("svg", svg.Root!.Name.LocalName);

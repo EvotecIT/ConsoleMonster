@@ -22,7 +22,8 @@ namespace SiteFrames.Pages {
     internal static partial class GalleryPage {
         // Gallery states that docs pages show as figures: the demo, its state, the figure id and its label.
         private static readonly (string Slug, int Step, string Id, string Label)[] DocsFigures = {
-            ("log-tail", 5, "log-tail-find", "Ctrl+F in the read-back text: both matches highlighted, the bar counts 1 of 2")
+            ("log-tail", 5, "log-tail-find", "Slash and a query in the read-back log: both matches highlighted, the bar counts 1 of 2"),
+            ("server-estate", 0, "server-estate-frame", "The server estate frame at 110 columns: meters, the attention list beside the sites, backups below, legend and footer")
         };
 
         private static readonly HashSet<string> Categories = new HashSet<string>(StringComparer.Ordinal) {

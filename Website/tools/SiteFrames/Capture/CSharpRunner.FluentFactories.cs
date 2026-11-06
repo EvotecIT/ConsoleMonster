@@ -64,7 +64,8 @@ namespace SiteFrames.Capture {
                     IParameterSymbol p = BoundParameter(ctor, arg, i);
                     ExpressionSyntax value = visited.ArgumentList!.Arguments[i].Expression;
                     string member = char.ToUpperInvariant(p.Name[0]) + p.Name.Substring(1);
-                    if (p.Name == "widgetId" && !build) {
+                    // The primary input of a factory goes in its call: Ui.Region(widgetId), Ui.LogViewport(key), Ui.DashboardFrame(title).
+                    if ((p.Name == "widgetId" || (p.Name == "key" && type.Name == "LogViewport") || (p.Name == "title" && type.Name == "DashboardFrame")) && !build) {
                         var primary = RootFactory(result)!;
                         result = result.ReplaceNode(primary, primary.WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value)))));
                         continue;

@@ -1,57 +1,67 @@
 ---
 title: Dashboard frames
-description: Declare a summary view with DashboardFrame in C#, a title line with facts, meters, a needs-attention list, sections, a legend and a footer, laid out for the terminal's width.
+description: Build a one-screen summary with New-ConsoleDashboardFrame or DashboardFrame, a title line with facts, meters, a needs-attention list, sections, a legend and a footer, laid out for the terminal's width.
 slug: dashboard-frames
 order: 15
-group: hosts
-summary: "One frame for summary output: facts, meters, needs attention, sections, legend and footer."
-apis: [DashboardFrame, Meter, AttentionList, FrameSection, FrameLegend, FrameFooter]
-chips: [C#, Reports, Width tiers]
+group: apps
+summary: "One frame for a summary: facts, meters, needs attention, sections, legend and footer."
+apis: [New-ConsoleDashboardFrame, DashboardFrame, Ui.DashboardFrame, Meter, AttentionItem, FrameSection]
+chips: [Reports, Width tiers, PowerShell, C#]
 card: dashboard-frame-110
 ---
 
-`DashboardFrame` (in `ConsoleMonster.Frames`) is the frame a product module declares for a summary view: the title line with the estate's facts and its state, a row of meters, a "Needs attention" list, summary sections packed beside it, detail sections, a legend and a footer. It prints once and scrolls like any output. The frame applies the width tiers, the ordering and the footer, so every summary built on it reads the same way.
-
-Frames are declared in C#, next to the data model of the module that owns the objects. PowerShell shows them through that module's registered default display, so there is no `New-Console*` command for a frame and no fluent builder; the parity catalogue lists it as C# only.
+A dashboard frame is a summary that prints once and says how something is doing: the title line with the scope's facts and its state, a row of meters, a "Needs attention" list with the worst problems first, summary sections packed beside it, detail sections below, a legend and a footer. You describe the parts; the frame decides where they go for the width it gets, so every summary built on it reads the same way. `New-ConsoleDashboardFrame` takes the parts as records, `DashboardFrame` takes them as objects in C#, and `Ui.DashboardFrame()` chains them in C# fluent.
 
 ## Try it
 
-The estate and its numbers are fictional and nothing is queried. Pick C# or C# fluent; both print the same cells.
+The estate and its numbers are fictional and nothing is queried. The three programs print the same cells.
 
-{{< cm-try key="dashboard" ids="dashboard-frame-110" project="EstateFrame" caption="At 110 columns the attention list and the summary sections share a row; Disk use drops into the shorter column, and Backups, a detail section, follows." >}}
+{{< cm-try key="dashboard" ids="server-estate-frame" project="ServerEstate" caption="At 110 columns the attention list and the sites share a row, and the backups, a detail section, follow below." >}}
 
 ## How it works
 
-The frame is a description, not a layout: you add facts, meters, attention items and sections, and it decides where they go for the width it gets.
+Each part is a record in PowerShell and an object in C#. Meters pick their kind from the fields they carry: `Healthy` with `Warning` and `Failing` is a composition bar, `Healthy` with `Whole` is a ratio, a number `Value` is a count and a text `Value` is a fact.
+
+```powershell
+New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -Meter @(
+    @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
+    @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
+) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{
+    Title = 'Sites'; Content = { $sites | New-ConsoleTable }
+} | Show-Console
+```
+
+The fluent builder names the same parts:
 
 ```csharp
-DashboardFrame frame = new DashboardFrame("Server estate");
-frame.Header.Facts.Add("48 servers");
-frame.Meters.Add(Meter.Composition("Servers healthy", 44, 3, 1));
-frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "SQL-03", "Disk D: 97% full", 1));
-frame.Sections.Add(new FrameSection("Sites", context => sitesTable));
-Terminal.Write(frame);
+Terminal.Write(Ui.DashboardFrame("Server estate")
+    .Fact("contoso.example", "48 servers")
+    .Meter(Meter.Composition("Servers healthy", 44, 3, 1))
+    .AttentionOf("server", 48)
+    .Attention(HealthState.Failing, "SQL-03", "Disk D: 97% full", "97%")
+    .Section("Sites", c => c.Add(sites)));
 ```
-### What each part does
 
-- **Title line.** `Header.Facts` follow the title, and `Header.States` sit at the right edge: `FrameState.Of(HealthState.Failing, 1, "failing")`. When every state has a count of zero and nothing needs attention, the line says "all healthy" instead.
-- **Meters.** `Meter.Composition`, `Meter.Ratio`, `Meter.Fact`, `Meter.Count` and `Meter.Missing`, in priority order. A row keeps as many as fit, first ones first.
-- **Needs attention.** Each `AttentionItem` has a state, an identity, a reason, an order and values. It prints first in the summary rows whenever it has items, worst first, with "3 of 48 servers" from `Noun` and `OutOf`.
-- **Sections.** A `FrameSection` builds its content for the width it gets. Summary sections pack side by side while their minimum widths fit; a later section drops into the shortest column. `Placement = FramePlacement.Detail` prints below, full width. `MinWidth`, `MaxWidth`, `Grow` and `FullWidth` shape the row.
-- **Legend and footer.** The legend lists the symbols you add; the footer prints `Counts` and a hint: `FrameHint.EveryRow` ("pipe to Format-Table for every row") for a batch of pipeline objects, `EveryProperty` for one object, `None` for a frame that does not come from the pipeline, as here.
+- **Title line.** Facts follow the title and states (`State`, `Count`, `Word`) sit at the right edge. When every state counts zero and nothing needs attention, the line says "all healthy". `-ObservedAt` adds how long ago the data was taken.
+- **Meters** print in the order given; a narrow row keeps the first ones.
+- **Needs attention** prints first in the summary rows whenever it has items, worst state first, then by `Order`, with "3 of 48 servers" from `-AttentionNoun` and `-AttentionOutOf`.
+- **Sections** build their content once. Summary sections pack side by side while their minimum widths fit, and a later one drops into the shortest column; `Placement = 'Detail'` prints a section below at full width. `MinWidth`, `MaxWidth`, `Grow` and `FullWidth` shape the row.
+- **Legend and footer.** The legend lists the states you name; the footer prints the counts. A frame the script builds has no footer hint; module views use `EveryRow` ("pipe to Format-Table for every row").
 
 ## Variations
 
-The same program at 60 columns: the facts move under the title, meters stack two to a row and each section takes the whole width. Below 80 columns a frame with a `Compact` view prints that view instead, with the meter counts and the footer.
+The same program at 60 columns: the facts move under the title, meters stack two to a row and each section takes the whole width.
 
-{{< cm-frame id="dashboard-frame-60" script="false" caption="The same program at 60 columns." >}}
+{{< cm-frame id="dashboard-frame-60" script="false" caption="The server estate program at 60 columns." >}}
 
-On the ASCII tier every cell inside the frame, including your own widgets, is folded to printable ASCII without changing the layout.
+- `-Length Summary` leaves out the detail sections and `Full` lifts the row caps; without it the frame follows the session's preference.
+- On the ASCII tier every cell inside the frame, including your own widgets, is folded to printable ASCII without changing the layout.
+- A module that owns summary objects declares its frame in C#, next to its data model, and registers it as their default display; `DashboardFrame.Compact` then gives it a narrow view of its own below 80 columns.
 
 ## Related
 
-The [readiness report](/demos/readiness-report/) builds a similar summary from ordinary widgets in PowerShell, C# and C# fluent, and [tables](/tables/) covers the tables inside the sections.
+The [server estate demo](/demos/server-estate/) is the program above with its download and run lines, and the [readiness report](/demos/readiness-report/) builds a similar summary from ordinary widgets. [Tables](/tables/) covers the tables inside the sections.
 
 ## Next
 
-[Pipeline charts](/docs/pipeline-charts/) draws numeric properties as charts you can put in a section, and [host overview](/docs/host-overview/) shows a finished read-only summary.
+[Pipeline charts](/docs/pipeline-charts/) draws numeric properties as charts you can put in a section, and [host overview](/docs/host-overview/) is a finished read-only summary for a login.

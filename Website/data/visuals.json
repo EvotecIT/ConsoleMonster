@@ -234,6 +234,12 @@
       "dark": "/site/nav/demos/scheduled-tasks-dark.svg",
       "light": "/site/nav/demos/scheduled-tasks-light.svg"
     },
+    "demos/server-estate": {
+      "w": 96,
+      "h": 60,
+      "dark": "/site/nav/demos/server-estate-dark.svg",
+      "light": "/site/nav/demos/server-estate-light.svg"
+    },
     "demos/service-browser": {
       "w": 96,
       "h": 60,

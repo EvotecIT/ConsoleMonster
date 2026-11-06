@@ -12,6 +12,6 @@ using ConsoleMonster.Widgets;
     ("info", "web-02 updated"),
     ("pass", "Deploy complete")
 };
-LogViewport log = new LogViewport("Log") { Label = "deploy.log", ShowElapsed = false, Height = 8 };
+LogViewport log = new LogViewport("deploy.log") { ShowElapsed = false, Height = 8 };
 foreach ((string level, string message) in lines) { log.Write(message, level); }
 ConsoleApp.Run(new Rows(new TextBlock("[bold]Deploy 4.12.2[/] [muted]· / finds text[/]"), log));

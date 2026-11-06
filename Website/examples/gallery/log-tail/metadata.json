@@ -56,14 +56,14 @@
         "caption": "The run is complete"
       },
       {
-        "keys": "Ctrl+F \"cache\"",
+        "keys": "/ \"cache\"",
         "incomplete": true,
-        "caption": "Ctrl+F and a query: every match is highlighted and counted"
+        "caption": "Press / and type: every match is highlighted and counted"
       },
       {
-        "keys": "Ctrl+F \"cache\" Enter",
+        "keys": "/ \"cache\" Escape n",
         "incomplete": true,
-        "caption": "Enter moves to the next match"
+        "caption": "Escape keeps the matches; n moves to the next one"
       }
     ]
   }

@@ -266,6 +266,7 @@ namespace SiteFrames {
                 if (Wants(only, "docs") || Wants(only, "diagrams")) { DiagramLadderFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "app-parts")) { AppPartFigures.Capture(site); }
+                if (Wants(only, "docs") || Wants(only, "headless")) { DocProgramFigures.Capture(site); }
                 if (Wants(only, "interactive")) {
                     InteractivePage.Capture(site);
                 }

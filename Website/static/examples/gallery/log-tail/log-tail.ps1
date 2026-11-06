@@ -48,18 +48,12 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
     }
 }
 
-# Then read the run back: Ctrl+F finds text, Enter moves to the next match, Escape quits.
-$lines = foreach ($entry in $events) {
-    "$($entry.Time) $($labels[$entry.Level].PadRight(4)) $($entry.Message)"
-}
+# Then read the run back: / finds text, n moves to the next match, Escape quits.
 Show-ConsoleApp -Content {
     '[bold]Application log[/] [muted]· read the run back[/]'
-    $textInputParameters = @{
-        Key = 'Log'
-        Label = './logs/worker.log'
-        Multiline = $true
-        Height = 5
-        Value = ($lines -join "`n")
+    New-ConsoleLogRegion -WidgetId worker.log -NoElapsed -Height 7 -Content {
+        foreach ($entry in $events) {
+            @{ Message = $entry.Message; Level = $entry.Level }
+        }
     }
-    New-ConsoleTextInput @textInputParameters
 }
