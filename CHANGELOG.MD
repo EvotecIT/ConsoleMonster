@@ -5,6 +5,8 @@
 - The recording player shows input captions: player data can carry `inputs` (the time, a label such as `↓ ×8` or `Right-click`, and optionally the cell and kind of a pointer gesture). The player draws a pointer with a click ring on that cell and a caption in the corner, outside the screen's text.
 - A new gallery showcase, `incident-workbench`, in PowerShell, C# and C# fluent: latency samples linked to their chart, a resizable split, wheel zoom, legend toggles, a runbook with an outline, folding sections and toggles, and the right-click context menu, all driven by the mouse. `dotnet new consolemonster --demo incident-workbench` starts a project from it.
 
+- `Show-ConsoleGrid`, prompts, menus and the other standalone views open the context menu too: a right click, the Menu key or Shift+F10 lists the keys that work there, including ones the footer has no room for, and choosing one presses its key.
+
 #### Fixed
 - A pointer gesture in a recording that skips delays lands where the previous input left the controls: a click after a splitter drag hits a chart's legend where it is drawn, not where it was.
 ### 2.2.1 - 2026-11-06
