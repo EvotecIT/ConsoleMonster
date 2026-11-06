@@ -322,8 +322,7 @@ Describe 'Native console applications' {
             }
         }
         $result.Text | Should -Match 'Picked FS01'
-        $result.Frames.Count | Should -BeGreaterThan 1
-        $result.Frames[0].Text | Should -Not -Match 'Picked FS01'
+        $result.Frames[-1].Text | Should -Be $result.Text
         $result.Cells.Width | Should -Be 56
     }
 

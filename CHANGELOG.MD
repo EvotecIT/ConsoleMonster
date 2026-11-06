@@ -1,3 +1,11 @@
+### Unreleased
+
+#### What's new
+- `New-ConsoleDashboardFrame` builds a dashboard frame from records: facts and states on the title line, meters (composition, ratio, count, fact or missing, chosen by the fields given), a needs-attention list, summary and detail sections, a legend and footer counts. C# gets `Ui.DashboardFrame()` with fluent builders (`Fact`, `State`, `Meter`, `Attention`, `AttentionOf`, `Section`, `Legend`, `FooterCount`, `FooterHint`). Modules that own summary objects still declare frames in C# and register them as default displays.
+- `Invoke-ConsoleHeadless` runs a script, usually an app, on a headless terminal with scripted keys, text and mouse input, and returns the final screen's text and cells, every distinct screen and the script's output, so Pester tests can assert on what the user would see.
+- Inside `Show-ConsoleApp` content, `New-ConsoleLogRegion` makes a retained, scrollable log with the find bar (`/` or Ctrl+F, Enter, `n` and `N`), the `LogViewport` C# apps use; `Ui.LogViewport()` covers fluent C#.
+- `Watch-ConsoleLog` has the same find bar: `/` or Ctrl+F searches the history, `n` and `N` move between matches, and `q` is typing while the bar is open.
+- A new gallery demo, `server-estate`, in PowerShell, C# and C# fluent, and as `dotnet new consolemonster --demo server-estate`. The `log-tail` demo now searches its run after the live part.
 ### 2.3.0 - 2026-11-06
 
 Everyday PowerShell covers more of what people type, diagrams read Mermaid, and the mouse can be scripted and shown. `Compare-Object`, `Select-String`, `Get-Acl`, certificates, `Group-Object`, `Measure-Object` and durations get readable views with `Enable-ConsoleFormatting`; Mermaid files and fences draw as diagrams; standalone prompts and grids get the right-click menu; and recordings can drive and show pointer gestures.

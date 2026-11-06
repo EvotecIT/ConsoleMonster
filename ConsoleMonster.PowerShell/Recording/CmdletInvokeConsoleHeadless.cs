@@ -54,10 +54,12 @@ namespace ConsoleMonster.PowerShell {
             List<ConsoleHeadlessScreen> screens = new List<ConsoleHeadlessScreen>();
             foreach (CellBuffer frame in frames) {
                 string text = Plain(frame);
+                // The blank screen an app restores when it ends is not a screen it drew.
+                if (text.Trim().Length == 0) { continue; }
                 if (screens.Count == 0 || screens[screens.Count - 1].Text != text) { screens.Add(new ConsoleHeadlessScreen(screens.Count, text, frame)); }
             }
             // An app restores the screen it started on when it ends; the result is the last screen it drew.
-            ConsoleHeadlessScreen? last = screens.LastOrDefault(screen => screen.Text.Trim().Length > 0);
+            ConsoleHeadlessScreen? last = screens.LastOrDefault();
             Cells = last?.Cells ?? final;
             Text = last?.Text ?? Plain(final);
             Frames = screens;
@@ -68,7 +70,7 @@ namespace ConsoleMonster.PowerShell {
         public string Text { get; }
         /// <summary>The cells of that screen, with their styles.</summary>
         public CellBuffer Cells { get; }
-        /// <summary>Every distinct screen, in order.</summary>
+        /// <summary>Every distinct, non-blank screen, in order.</summary>
         public IReadOnlyList<ConsoleHeadlessScreen> Frames { get; }
         /// <summary>What the script block returned, such as the app state from Show-ConsoleApp -PassThru.</summary>
         public IReadOnlyList<object?> Output { get; }
