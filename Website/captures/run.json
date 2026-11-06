@@ -5,10 +5,74 @@
   "scope": "produced-only",
   "requestedSet": "gallery",
   "filters": {
-    "SITEFRAMES_GALLERY": "incident-workbench"
+    "SITEFRAMES_GALLERY": "chart-table,container-status,event-log-summary,incident-workbench,operations-calendar,service-browser,stale-accounts"
   },
   "allSetsCompleted": false,
   "files": {
+    "gallery/chart-table-0.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "1e3d70ac934057d8b72ed6d1473541438627ae11f73a89d1ddd5ac136436f5cc",
+      "screen": "dark",
+      "width": 88,
+      "height": 24
+    },
+    "gallery/chart-table-1.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "ab456b994b284355f5f88185fa469a9e774dbc09cafb25817a3aefddeba1d775",
+      "screen": "dark",
+      "width": 88,
+      "height": 24
+    },
+    "gallery/chart-table-2.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "42ab1b2d30bf079ba583ca57bf9615aaa0a9efdeb7efba9174dd1adbfefef88f",
+      "screen": "dark",
+      "width": 88,
+      "height": 24
+    },
+    "gallery/container-status-0.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "315e1e2db622108fcf80278bfac7e64e59538c7c93abb8fc1d138656610531f4",
+      "screen": "dark",
+      "width": 100,
+      "height": 34
+    },
+    "gallery/container-status-1.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "474647639a8ca7db26aed674760615bcabab788b0d32ab5c8d0e73e113fd169b",
+      "screen": "dark",
+      "width": 100,
+      "height": 34
+    },
+    "gallery/container-status-2.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "1a0e3067eed55c9710e8ecfa8ea94a6b43ac94749d72e94ce7cbcf45bd40c591",
+      "screen": "dark",
+      "width": 100,
+      "height": 34
+    },
+    "gallery/container-status-3.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "fe6ee696153ea7c86f841c9229db7191c17e27c40b40b8b74f4430f812f47a56",
+      "screen": "dark",
+      "width": 100,
+      "height": 34
+    },
+    "gallery/event-log-summary-0.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "3d0242cbee468a400de3233b4ce0244d6c40fa0211d5d2d0fd45396d6408d6b8",
+      "screen": "dark",
+      "width": 100,
+      "height": 28
+    },
     "gallery/incident-workbench-0.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
@@ -80,6 +144,46 @@
       "screen": "dark",
       "width": 110,
       "height": 28
+    },
+    "gallery/operations-calendar-0.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0d96e5a6048d42fcb706408dc97340b123551e1db36e1a0da35f44b6be6f039d",
+      "screen": "dark",
+      "width": 100,
+      "height": 17
+    },
+    "gallery/service-browser-0.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9501856b0bdb702b59e56f2dbf88982f82de506650b89c718f10505b75015da3",
+      "screen": "dark",
+      "width": 100,
+      "height": 30
+    },
+    "gallery/service-browser-1.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "a46b75b0a830869341905ba9eadc461be6d0c71cd8e2e1cc2cc8a9a8c4e1e312",
+      "screen": "dark",
+      "width": 100,
+      "height": 30
+    },
+    "gallery/service-browser-2.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "261b73e6ca117d5db8e809a0120fc7f77bc801fdc38b5e94c02fed0d3c755ad0",
+      "screen": "dark",
+      "width": 100,
+      "height": 30
+    },
+    "gallery/stale-accounts-0.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "5f525f7d26a1c512943a85a59fd08187f54fafe7ed4bfab58601cd0487ebca66",
+      "screen": "dark",
+      "width": 100,
+      "height": 26
     }
   }
 }

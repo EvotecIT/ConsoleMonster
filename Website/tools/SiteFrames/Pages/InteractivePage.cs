@@ -86,8 +86,8 @@ namespace SiteFrames.Pages {
             yield return new Story("grid", "The grid", "An Out-GridView for the console on 5.1 and 7: typing filters, F3 sorts by column, Space marks rows, Enter shows every column of a row and Ctrl+Enter returns the original objects.",
                 "\"sql\" wait:200 Backspace Backspace Backspace F3 Down Space Down Space Enter wait:200 Escape Ctrl+Enter", 110, 22, false, false);
             // The same program as the grid, driven by the pointer: every click has the key the grid above uses.
-            yield return new Story("grid-mouse", "The grid with the mouse", "The same program, with the mouse. Clicking a header sorts by it, clicking a row moves to it, double-clicking shows every column, and clicking a hint in the footer presses its key: here Space to select and Ctrl+Enter to finish.",
-                "click:46,4 click:12,6 click:14,21 click:12,11 click:14,21 dclick:12,11 Escape click:30,21", 110, 22, false, false) { ExampleId = "grid" };
+            yield return new Story("grid-mouse", "The grid with the mouse", "The same program, with the mouse. Clicking a header sorts by it, clicking a row moves to it, double-clicking shows every column, a right click lists the keys that work there, and clicking a hint in the footer presses its key: here Space to select and Ctrl+Enter to finish.",
+                "click:46,4 click:12,6 click:14,21 click:12,11 click:14,21 dclick:12,11 Escape rclick:40,11 Escape click:30,21", 110, 22, false, false) { ExampleId = "grid" };
         }
 
         private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", story.Area, story.ExampleId + ".cs");

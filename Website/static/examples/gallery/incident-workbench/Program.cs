@@ -34,8 +34,11 @@ for (int i = 0; i < p50.Length; i++)
 }
 ChartView latencyChart = new ChartView("Latency", chart) { LinkKey = "Sample" };
 foreach (string time in times) { latencyChart.PointLabels.Add(time); }
-DataGrid samplesGrid = new DataGrid("Samples", samples) { LinkKey = "Sample" };
-IWidget latency = new Splitter(samplesGrid, latencyChart) { Key = "Panes", Ratio = 0.4 }.Fill();
+IWidget latency = new Splitter(new DataGrid("Samples", samples) { LinkKey = "Sample" }, latencyChart)
+{
+    Key = "Panes",
+    Ratio = 0.4
+}.Fill();
 Collapsible check = new Collapsible("Check", new Rows(
     new Toggle("Dashboards", true)
     {

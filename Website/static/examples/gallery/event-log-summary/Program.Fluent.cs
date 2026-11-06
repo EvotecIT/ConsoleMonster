@@ -6,14 +6,10 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: fictional counts already grouped from the System and Application logs of six servers.
-double[] errorsPerHour =
-{
-    4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4, 6, 5
-};
-double[] warningsPerHour =
-{
-    12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16, 14, 13, 15, 14
-};
+double[] errorsPerHour = { 4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4,
+    6, 5 };
+double[] warningsPerHour = { 12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24,
+    19, 16, 14, 13, 15, 14 };
 var sources = new SourceCount[]
 {
     new("Service Control Manager", 74),

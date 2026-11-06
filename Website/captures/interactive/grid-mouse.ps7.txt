@@ -1,4 +1,4 @@
-source 3181c7af791bb9ffb759fa3eb68aff5a
+source 262d67789012d555b759fa3eb68aff5a
  Services on FS01                                                                                 7 of 7 rows
 
  › type to filter
@@ -329,6 +329,72 @@ source 3181c7af791bb9ffb759fa3eb68aff5a
 │                                                                                                            │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
  ↑↓ move  esc closec6bb41cc73d78d86
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automatic   6.25 MB                                                          │
+│       WinRM           ✓ PASS  Automatic   9.38 MB                                                          │
+│       Spooler         ✓ PASS  Automatic   13.6 MB                                                          │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual      40.1 MB                                                          │
+│       MSSQLSERVER     ✓ PASS  Automatic    775 MB                                                          │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+│                                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done  esc cancel  enter details  f3 sort  f2 columns  ? keys943a63726b6badb0
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automati╭────────────────────────╮                                           │
+│       WinRM           ✓ PASS  Automati│ › move              ↑↓ │                                           │
+│       Spooler         ✓ PASS  Automati│   page       pgup/pgdn │                                           │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual  │   select         space │                                           │
+│       MSSQLSERVER     ✓ PASS  Automati│   all           ctrl+a │                                           │
+│                                       │   details        enter │                                           │
+│                                       │   sort              f3 │                                           │
+│                                       │   order             f4 │                                           │
+│                                       │   columns           f2 │                                           │
+│                                       │   done      ctrl+enter │                                           │
+│                                       │   cancel           esc │                                           │
+│                                       │   cancel        ctrl+q │                                           │
+╰───────────────────────────────────────│   keys               ? │───────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done ╰────────────────────────╯  f3 sort  f2 columns  ? keys943a63726b6badb0
+ Services on FS01                                                                    7 of 7 rows · 2 selected
+
+ › type to filter
+╭─ Memory ↑ ─────────────────────────────────────────────────────────────────────────────────────────────────╮
+│       Name            Status  Start type   Memory                                                          │
+│       ──────────────  ──────  ──────────  ───────                                                          │
+│    ✓  DFSR            ✗ FAIL  Automatic       0 B                                                          │
+│       W32Time         ✓ PASS  Automatic   3.13 MB                                                          │
+│       LanmanServer    ✓ PASS  Automati╭────────────────────────╮                                           │
+│       WinRM           ✓ PASS  Automati│ › move              ↑↓ │                                           │
+│       Spooler         ✓ PASS  Automati│   page       pgup/pgdn │                                           │
+│ ›  ✓  SQLSERVERAGENT  ▴ WARN  Manual  │   select         space │                                           │
+│       MSSQLSERVER     ✓ PASS  Automati│   all           ctrl+a │                                           │
+│                                       │   details        enter │                                           │
+│                                       │   sort              f3 │                                           │
+│                                       │   order             f4 │                                           │
+│                                       │   columns           f2 │                                           │
+│                                       │   done      ctrl+enter │                                           │
+│                                       │   cancel           esc │                                           │
+│                                       │   cancel        ctrl+q │                                           │
+╰───────────────────────────────────────│   keys               ? │───────────────────────────────────────────╯
+ ↑↓ move  space select  ctrl+enter done ╰────────────────────────╯  f3 sort  f2 columns  ? keysc6bb41cc73d78d86
  Services on FS01                                                                    7 of 7 rows · 2 selected
 
  › type to filter

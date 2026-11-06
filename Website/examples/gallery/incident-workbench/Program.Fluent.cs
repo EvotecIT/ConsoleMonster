@@ -7,33 +7,22 @@ using ConsoleMonster.Widgets;
 
 double[] p50 =
 {
-    41, 43, 40, 44, 42, 45, 47, 46, 52, 88, 131, 164, 158, 120, 84, 61, 52, 48, 46, 44, 45, 43, 42,
-    44
+    41, 43, 40, 44, 42, 45, 47, 46, 52, 88, 131, 164,
+    158, 120, 84, 61, 52, 48, 46, 44, 45, 43, 42, 44
 };
 double[] p95 =
 {
-    96, 98, 95, 101, 99, 104, 108, 112, 140, 262, 410, 486, 472, 355, 230, 160, 128, 117, 110, 104,
-    103, 100, 98, 101
+    96, 98, 95, 101, 99, 104, 108, 112, 140, 262, 410, 486,
+    472, 355, 230, 160, 128, 117, 110, 104, 103, 100, 98, 101
 };
 int[] errors = { 0, 0, 0, 1, 0, 0, 1, 0, 3, 18, 47, 62, 58, 31, 12, 4, 1, 0, 0, 1, 0, 0, 0, 0 };
 string[] times = new string[p50.Length];
-for (int i = 0; i < p50.Length; i++)
-{
-    times[i] = $"{13 + (i * 5 / 60):D2}:{i * 5 % 60:D2}";
-}
+for (int i = 0; i < p50.Length; i++) { times[i] = $"{13 + (i * 5 / 60):D2}:{i * 5 % 60:D2}"; }
 
 // Layout: construct the widgets shown on screen.
 LineChart chart = (LineChart)Ui.Chart().Type(ChartType.Line).Unit(" ms").Build();
-for (int i = 0; i < p50.Length; i++)
-{
-    chart.Add("p50", p50[i]);
-}
-
-for (int i = 0; i < p95.Length; i++)
-{
-    chart.Add("p95", p95[i]);
-}
-
+for (int i = 0; i < p50.Length; i++) { chart.Add("p50", p50[i]); }
+for (int i = 0; i < p95.Length; i++) { chart.Add("p95", p95[i]); }
 Grid samples = Ui.Grid()
     .Title("Samples")
     .AddColumn("Time")
@@ -44,13 +33,12 @@ for (int i = 0; i < p50.Length; i++)
 {
     samples.AddRow(times[i], times[i], p50[i], p95[i], errors[i]);
 }
-
 IWidget latency = Ui.Splitter()
     .First(c => c.DataGrid(grid => grid.Key("Samples").Grid(samples).LinkKey("Sample")))
     .Second(c => c.ChartView(view => view.Key("Latency")
         .Chart(chart)
-        .PointLabels(times)
-        .LinkKey("Sample")))
+        .LinkKey("Sample")
+        .PointLabels(times)))
     .Key("Panes")
     .Ratio(0.4)
     .Fill();

@@ -3,8 +3,7 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster;
 
 // Data: the same fictional snapshots used by the PowerShell twin.
-Service[] services =
-{
+Service[] services = {
     new("Spooler", "Running", "Automatic", "Print Spooler", 1234, "LocalSystem", "RPC",
         "Queues print jobs for lab printers."),
     new("WinRM", "Running", "Automatic", "Windows Remote Management", 2456, "NetworkService", "RPC",
@@ -27,16 +26,9 @@ Service[] services =
         "Verifies nightly backup snapshots."),
 };
 var grid = Ui.Grid().Title("Service browser");
-grid.AddColumn("Name")
-    .AddColumn("Status")
-    .AddColumn("StartType")
-    .AddColumn("DisplayName")
-    .AddColumn("ProcessId")
-    .AddColumn("Account")
-    .AddColumn("DependsOn")
-    .AddColumn("Description");
-foreach (var service in services)
-{
+grid.AddColumn("Name").AddColumn("Status").AddColumn("StartType").AddColumn("DisplayName")
+    .AddColumn("ProcessId").AddColumn("Account").AddColumn("DependsOn").AddColumn("Description");
+foreach (var service in services) {
     grid.AddRow(service, service.Name, service.Status, service.StartType, service.DisplayName,
         service.ProcessId, service.Account, service.DependsOn, service.Description);
 }
