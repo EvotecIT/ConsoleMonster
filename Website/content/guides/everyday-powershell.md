@@ -1,6 +1,6 @@
 ---
 title: Everyday PowerShell output
-description: "Enable-ConsoleFormatting makes everyday output readable: JSON, CSV, commands, modules, history, searches, ACLs, certificates and network replies alongside files, processes and hashtables."
+description: "Enable-ConsoleFormatting makes everyday output readable: files, processes, JSON, CSV, commands, history, searches, ACLs, certificates and network replies."
 slug: everyday-powershell
 card: formatting
 order: 1

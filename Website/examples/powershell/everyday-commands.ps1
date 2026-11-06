@@ -13,8 +13,8 @@ $key = [System.Security.Cryptography.RSA]::Create(2048)
 $padding = [System.Security.Cryptography.RSASignaturePadding]::Pkcs1
 $today = [datetime]::Today
 foreach ($site in @{ vpn = -3; api = 9; portal = 120 }.GetEnumerator() | Sort-Object Value) {
-    $request = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new(
-        "CN=$($site.Key).example.test", $key, 'SHA256', $padding)
+    $arguments = "CN=$($site.Key).example.test", $key, 'SHA256', $padding
+    $request = New-Object Security.Cryptography.X509Certificates.CertificateRequest $arguments
     $request.CreateSelfSigned($today.AddDays(-365), $today.AddDays($site.Value))
 }
 
