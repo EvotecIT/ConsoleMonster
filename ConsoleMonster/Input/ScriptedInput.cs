@@ -12,7 +12,10 @@ namespace ConsoleMonster.Input {
     /// <item>key names as <see cref="KeyChord.Parse"/> accepts them (<c>Ctrl+K</c>, <c>Shift+Tab</c>, <c>F2</c>, <c>?</c>);</item>
     /// <item><c>Down*3</c> repeats a key (at most 10000 times);</item>
     /// <item>quoted text (<c>"text"</c> or <c>'text'</c>) types each character;</item>
-    /// <item><c>paste:"text"</c> pastes; <c>resize:80x24</c> resizes; <c>wait:250</c> pauses (milliseconds).</item>
+    /// <item><c>paste:"text"</c> pastes; <c>resize:80x24</c> resizes; <c>wait:250</c> pauses (milliseconds);</item>
+    /// <item>the mouse at zero-based cells: <c>click:12,5</c>, <c>rclick:12,5</c> (right button), <c>dclick:12,5</c>
+    /// (double click), <c>move:12,5</c>, <c>wheel:12,5,-3</c> (three notches down; positive is up) and
+    /// <c>drag:12,5,30,5</c> (press, move cell by cell, release).</item>
     /// </list>
     /// Reading past the end throws <see cref="InputClosedException"/>, so a test whose script is too short fails instead of hanging.
     /// </summary>
@@ -192,6 +195,9 @@ namespace ConsoleMonster.Input {
                     steps.Add(new Step(InputEvent.Resized(int.Parse(size[0], CultureInfo.InvariantCulture), int.Parse(size[1], CultureInfo.InvariantCulture)), 0));
                     continue;
                 }
+                if (TryPointer(token, steps)) {
+                    continue;
+                }
                 int repeat = 1;
                 int star = token.LastIndexOf('*');
                 if (star > 0 && star < token.Length - 1 && int.TryParse(token.Substring(star + 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out int count)) {
@@ -209,6 +215,59 @@ namespace ConsoleMonster.Input {
                 }
             }
             return steps;
+        }
+
+        // click:C,R  rclick:C,R  dclick:C,R  move:C,R  wheel:C,R,N  drag:C1,R1,C2,R2 (zero-based cells).
+        private static bool TryPointer(string token, List<Step> steps) {
+            int colon = token.IndexOf(':');
+            if (colon <= 0) { return false; }
+            string verb = token.Substring(0, colon).ToLowerInvariant();
+            int arity = verb == "wheel" ? 3 : verb == "drag" ? 4 : verb == "click" || verb == "rclick" || verb == "dclick" || verb == "move" ? 2 : 0;
+            if (arity == 0) { return false; }
+            string[] parts = token.Substring(colon + 1).Split(',');
+            if (parts.Length != arity) { throw new FormatException("'" + token + "' needs " + arity.ToString(CultureInfo.InvariantCulture) + " comma-separated numbers."); }
+            int[] n = new int[arity];
+            for (int p = 0; p < arity; p++) {
+                if (!int.TryParse(parts[p], NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out n[p]) || (p != 2 || verb != "wheel") && n[p] < 0) {
+                    throw new FormatException("'" + token + "' has an invalid number.");
+                }
+            }
+            void Add(InputEvent e) => steps.Add(new Step(e, 0));
+            switch (verb) {
+                case "click":
+                case "rclick":
+                    int button = verb == "click" ? 1 : 3;
+                    Add(InputEvent.Mouse(n[0], n[1], button, true));
+                    Add(InputEvent.Mouse(n[0], n[1], button, false));
+                    break;
+                case "dclick":
+                    for (int r = 0; r < 2; r++) {
+                        Add(InputEvent.Mouse(n[0], n[1], 1, true));
+                        Add(InputEvent.Mouse(n[0], n[1], 1, false));
+                    }
+                    break;
+                case "move":
+                    Add(InputEvent.Pointer(n[0], n[1], MouseAction.Move));
+                    break;
+                case "wheel":
+                    if (n[2] == 0 || Math.Abs(n[2]) > 100) { throw new FormatException("'" + token + "' moves the wheel 1 to 100 notches."); }
+                    for (int r = 0; r < Math.Abs(n[2]); r++) {
+                        Add(InputEvent.Pointer(n[0], n[1], MouseAction.Wheel, wheelDelta: Math.Sign(n[2])));
+                    }
+                    break;
+                default:
+                    int distance = Math.Max(Math.Abs(n[2] - n[0]), Math.Abs(n[3] - n[1]));
+                    if (distance > 1000) { throw new FormatException("'" + token + "' drags at most 1000 cells."); }
+                    Add(InputEvent.Mouse(n[0], n[1], 1, true));
+                    for (int s = 1; s <= distance; s++) {
+                        int column = n[0] + (int)Math.Round((n[2] - n[0]) * (double)s / distance, MidpointRounding.AwayFromZero);
+                        int row = n[1] + (int)Math.Round((n[3] - n[1]) * (double)s / distance, MidpointRounding.AwayFromZero);
+                        Add(InputEvent.Pointer(column, row, MouseAction.Move, heldButtons: 1));
+                    }
+                    Add(InputEvent.Mouse(n[2], n[3], 1, false));
+                    break;
+            }
+            return true;
         }
 
         private static string ReadQuoted(string script, ref int i) {

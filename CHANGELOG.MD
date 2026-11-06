@@ -1,3 +1,12 @@
+### Unreleased
+
+#### What's new
+- Scripted input takes the mouse: `click:12,5`, `rclick:12,5`, `dclick:12,5`, `move:12,5`, `wheel:12,5,-3` and `drag:12,5,30,5` at zero-based cells, beside key names and typed text. Tests, the headless terminal, the debug socket and recordings can drive the pointer the way they drive keys.
+- The recording player shows input captions: player data can carry `inputs` (the time, a label such as `↓ ×8` or `Right-click`, and optionally the cell and kind of a pointer gesture). The player draws a pointer with a click ring on that cell and a caption in the corner, outside the screen's text.
+- A new gallery showcase, `incident-workbench`, in PowerShell, C# and C# fluent: latency samples linked to their chart, a resizable split, wheel zoom, legend toggles, a runbook with an outline, folding sections and toggles, and the right-click context menu, all driven by the mouse. `dotnet new consolemonster --demo incident-workbench` starts a project from it.
+
+#### Fixed
+- A pointer gesture in a recording that skips delays lands where the previous input left the controls: a click after a splitter drag hits a chart's legend where it is drawn, not where it was.
 ### 2.2.1 - 2026-11-06
 
 #### Fixed
