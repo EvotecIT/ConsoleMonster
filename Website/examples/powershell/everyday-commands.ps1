@@ -8,6 +8,11 @@ $log | Select-String -Pattern 'Warning|Error' -Context 1
 # ACLs and certificate stores are Windows features.
 $windows = $IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop'
 
+# Get-Acl and Cert:\ load the module behind these objects; the fixtures below load it themselves.
+if ($windows) {
+    Import-Module Microsoft.PowerShell.Security
+}
+
 # A folder ACL as Get-Acl returns it, built from fixed SDDL with well-known accounts.
 if ($windows) {
     $acl = New-Object System.Security.AccessControl.DirectorySecurity

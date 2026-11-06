@@ -212,6 +212,18 @@ Describe 'Everyday command views' {
             $text | Should -Match '▴ Expiring\s+│ soon\.example\.test.*│\s+9 │'
             $text | Should -Match '✓ Valid\s+│ new\.example\.test.*│\s+120 │'
             $text | Should -Match ([regex]::Escape($certificates[0].Thumbprint.Substring(0, 6)))
+            # The view reads only the fields it shows: certificate script properties that need
+            # Microsoft.PowerShell.Security (DnsNameList, EnhancedKeyUsageList) add nothing to $Error before it loads.
+            $bytes = [Convert]::ToBase64String($certificates[0].RawData)
+            $errors = & ([Diagnostics.Process]::GetCurrentProcess().Path) -NoProfile -NonInteractive -Command {
+                param($Module, $Text)
+                Import-Module $Module
+                $Error.Clear()
+                $certificate = New-Object Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList (, [Convert]::FromBase64String($Text))
+                $null = $certificate | New-ConsoleTable | Export-ConsoleFrame -Format Text
+                [string] (Get-Module Microsoft.PowerShell.Security).Name + '|' + $Error.Count
+            } -args (Join-Path $PSScriptRoot '../ConsoleMonster.psd1'), $bytes
+            $errors | Should -Be '|0'
             # Status and days follow the pinned presentation clock, as relative dates do in recordings.
             $env:CONSOLEMONSTER_NOW = [datetime]::Today.AddDays(200).ToString('yyyy-MM-dd') + 'T12:00:00Z'
             $pinned = $certificates | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 140

@@ -26,7 +26,7 @@
     "powershell/everyday-commands.light.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "46e016c5435af2635266e3472dc783faad9fb4054c8ee190b8e342b7a0ef64a5",
+      "sha256": "9f78b368ef7caf71573c1f4d47fa3baae7de45bd73d8d8c41809d064e80edadd",
       "screen": "light",
       "width": 100,
       "height": 120
@@ -34,7 +34,7 @@
     "powershell/everyday-commands.light.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "f7c65093372e070ac3ba8eb91395cf3bc7facb32a22b7d7b755e07f041539826",
+      "sha256": "9f78b368ef7caf71573c1f4d47fa3baae7de45bd73d8d8c41809d064e80edadd",
       "screen": "light",
       "width": 100,
       "height": 120
@@ -42,7 +42,7 @@
     "powershell/everyday-commands.rich.ps5.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "e8b36143f76ebe9fa807d5506345e778c294b7de3f3b9fd087dc21e2f576a2a1",
+      "sha256": "25e8f2654159b20c2b45cfc938ceeb8b699cc92a3c7d5be98d90d0de8b588f1b",
       "screen": "dark",
       "width": 100,
       "height": 120
@@ -50,7 +50,7 @@
     "powershell/everyday-commands.rich.ps7.ansi": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "e8b36143f76ebe9fa807d5506345e778c294b7de3f3b9fd087dc21e2f576a2a1",
+      "sha256": "0e52875598c8c2a92b014b76f0e361dd27239e1063fe33c70052a87b0e116842",
       "screen": "dark",
       "width": 100,
       "height": 120
