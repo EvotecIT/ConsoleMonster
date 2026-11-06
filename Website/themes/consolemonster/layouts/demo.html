@@ -187,6 +187,17 @@
   </section>
   {{~ end ~}}
 
+  {{~ ap = data.copy.appParts; if ap && (ap.demos | array.contains d.slug) ~}}
+  <section class="cm-showcase cm-reel-sec" aria-labelledby="parts-title">
+    <header class="cm-reel-sec__head">
+      <div>
+        <h2 id="parts-title">{{ ap.title }}</h2>
+        <p>{{ ap.body }} <a href="{{ ap.href }}">{{ ap.link }}</a></p>
+      </div>
+    </header>
+  </section>
+  {{~ end ~}}
+
   {{~ if d.media ~}}
   <section class="cm-showcase" aria-labelledby="slides-title">
     <div class="cm-showcase__head">

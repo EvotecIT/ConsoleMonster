@@ -1,0 +1,25 @@
+source 2de503013c28ddf3b78683a160b64c68
+› ▾ Synopsis
+  Lists servers and their roles.
+  ▸ Parameters  (2)
+  ▸ Examples  (1)
+
+
+
+ enter expand/collapse  + expand all  - collapse all  tab nextfeca8a8e831b5262
+  ▸ Synopsis
+› ▾ Parameters
+  -Name    server name or wildcard
+  -Role    web, db or cache
+  ▸ Examples  (1)
+
+
+ enter expand/collapse  + expand all  - collapse all  tab nextfeca8a8e831b5262
+  ▸ Synopsis
+› ▾ Parameters
+  -Name    server name or wildcard
+  -Role    web, db or cache
+  ▸ Examples  (1)
+
+
+ enter expand/collapse  + expand all  - collapse all  tab next

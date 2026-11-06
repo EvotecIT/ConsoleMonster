@@ -1,0 +1,16 @@
+source 7b7c9cab438ea6999da6b3b712716e8f
+ Overview  Disks  Services
+━━━━━━━━━━──────────────────────────────────────────────────
+SQL01 · Database · Warsaw
+Patched 2026-10-12
+ ←→ tabs  1-3 open tab  tab next  shift+tab back  esc quita0d3553806982020
+ Overview  Disks  Services
+──────────━━━━━━━───────────────────────────────────────────
+C:  41% used
+D:  97% used
+ ←→ tabs  1-3 open tab  tab next  shift+tab back  esc quita0d3553806982020
+ Overview  Disks  Services
+──────────━━━━━━━───────────────────────────────────────────
+C:  41% used
+D:  97% used
+ ←→ tabs  1-3 open tab  tab next  shift+tab back  esc quit

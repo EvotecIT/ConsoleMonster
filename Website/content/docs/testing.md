@@ -49,20 +49,13 @@ GoldenFile.Match("Golden/summary.txt", TestTerminal.RenderText(table, width: 80)
 
 ## Interactive apps in CI
 
-`HeadlessTerminal` runs the real app loop. Send keys with the same script syntax the recorder uses (`Down Enter`, quoted text, `paste:`, `resize:80x24`, `wait:250`), wait for text to appear, and compare what is on the screen.
+`HeadlessTerminal` runs the real app loop. Send keys with the same script syntax the recorder uses (`Down Enter`, quoted text, `paste:`, `resize:80x24`, `wait:250`, and the mouse at zero-based cells: `click:4,5`, `dclick:`, `rclick:`, `drag:`, `wheel:`), wait for text to appear, and compare what is on the screen.
 
-```csharp
-using var terminal = new HeadlessTerminal(80, 24);
-Task<AppState> run = ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {
-    Interactive = new InteractiveOptions { Target = terminal }
-});
-terminal.WaitForText("Color", TimeSpan.FromSeconds(5));
-terminal.Send("Down Enter");
-terminal.WaitForText("Picked Green", TimeSpan.FromSeconds(5));
-GoldenFile.Match("picked.txt", terminal.Snapshot().ToPlainText());
-terminal.Send("Escape");
-AppState state = await run;
-```
+The program below runs a small app on a 56 × 10 headless terminal, presses Down, clicks FS01, waits until the line under the list says so, keeps the screen and quits the app. Then it prints the kept screen in a panel, so the frame is exactly what a test would compare: the app's own cells, header, list, binding and footer included.
+
+{{< cm-frame id="headless-app" caption="Down, a click on FS01 at column 4, row 5, then Snapshot()." >}}
+
+In a test, compare the screen instead of printing it: `GoldenFile.Match("picked.txt", terminal.Snapshot().ToPlainText())`.
 
 `Snapshot()` returns the visible cells with their styles; `FrameRendered` reports each completed screen that differs from the previous one. `Resize(width, height)` sends the app a resize event, just as a real window would. The terminal defaults to true colour, full glyphs, hyperlinks and the invariant culture, so screens don't depend on the machine; pass a culture to test translated labels.
 
@@ -103,7 +96,7 @@ await ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {
 });
 ```
 
-The server listens on 127.0.0.1 only. Every request needs the token from `Address`, requests for another host name are refused, and input is accepted only when the page itself posts it. Secret patterns are masked on every screen it sends. Use it for local docs work, demos and visual tests; for a published site, record the app and embed the recording's player.
+Start it on the terminal of the headless program above, before the keys, and the page shows the same screens as they happen. The server listens on 127.0.0.1 only. Every request needs the token from `Address`, requests for another host name are refused, and input is accepted only when the page itself posts it. Secret patterns are masked on every screen it sends. Use it for local docs work, demos and visual tests; for a published site, record the app and embed the recording's player.
 
 ## Debug socket for agents
 
@@ -116,3 +109,7 @@ $env:CONSOLEMONSTER_DEBUG_SOCKET = '0'    # any free port
 ```
 
 The socket listens on 127.0.0.1, writes a discovery file with its port and a random token under the user's local application data folder, and accepts one JSON request per line after a `hello` with that token. The process removes these variables once it has read them, so programs it starts get a normal console. The wire protocol and its security model are documented in the repository's [Headless-Driver.md](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Headless-Driver.md).
+
+## Next
+
+The [app parts](/docs/app-parts/) are small apps to drive this way, [recording and replay](/docs/recording/) turns a run into a player or a GIF, and [the prompts, menus and forms](/interactive/) page shows apps driven by scripted keys and clicks.

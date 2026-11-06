@@ -1,26 +1,40 @@
-// Reveal a bounded stream of sample log events in a live region.
+// Reveal a bounded stream of sample log events, then search the run with the find bar.
 // All data is synthetic and inline; no services are contacted or changed.
+using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 
 // All values are synthetic. This example never connects to a host.
 // Data: fictional inputs kept in memory.
-string[] messages =
+(string Time, string Level, string Message)[] events =
 {
-    "[muted]09:41:00[/] [accent]INFO[/]  Worker started",
-    "[muted]09:41:01[/] [pass]INFO[/]  Loaded 12 queued jobs",
-    "[muted]09:41:02[/] [warn]WARN[/]  Cache cold; using local fallback",
-    "[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining",
-    "[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost"
+    ("09:41:00", "info", "Worker started"),
+    ("09:41:01", "info", "Loaded 12 queued jobs"),
+    ("09:41:02", "warn", "Cache cold; using local fallback"),
+    ("09:41:03", "info", "Cache warm; queue draining"),
+    ("09:41:04", "pass", "Batch complete; no jobs lost")
+};
+Dictionary<string, string> labels = new Dictionary<string, string>
+{
+    ["info"] = "INFO",
+    ["warn"] = "WARN",
+    ["pass"] = "OK"
+};
+Dictionary<string, string> roles = new Dictionary<string, string>
+{
+    ["info"] = "accent",
+    ["warn"] = "warn",
+    ["pass"] = "pass"
 };
 
 // Layout: construct the widgets shown on screen.
 IWidget Frame(int tick)
 {
     Rows lines = new Rows();
-    foreach (string line in messages.Take(tick + 1))
-        lines.Add(new TextBlock(line));
+    foreach ((string time, string level, string message) in events.Take(tick + 1))
+        lines.Add(new TextBlock("[muted]" + time + "[/] [" + roles[level] + "]" + labels[level]
+            .PadRight(4) + "[/]  " + message));
     return new Rows(
         new TextBlock("[bold]Application log[/] [muted]· worker events[/]"),
         new Panel() { Title = "./logs/worker.log", Content = lines },
@@ -52,3 +66,17 @@ catch (OperationCanceledException cancelled)
     // Ctrl+C is a normal way to leave the demo, after the session restores the terminal.
     return;
 }
+
+// Then read the run back: Ctrl+F finds text, Enter moves to the next match, Escape quits.
+string text = string.Join("\n", events.Select(entry =>
+    entry.Time + " " + labels[entry.Level].PadRight(4) + " " + entry.Message));
+ConsoleApp.Run(new Rows(
+    new TextBlock("[bold]Application log[/] [muted]· read the run back[/]"),
+    AppInput.Text(new TextInputOptions
+    {
+        Key = "Log",
+        Label = "./logs/worker.log",
+        Multiline = true,
+        Height = 5,
+        Value = text
+    })));

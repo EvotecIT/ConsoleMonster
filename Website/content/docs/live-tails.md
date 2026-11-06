@@ -84,6 +84,14 @@ Partial lines wait for their terminator and can use unbounded memory. Observed r
 
 Initialization scans the current file to find the requested completed history and retain any partial line, including with `-Tail 0`. Initial work grows with file size. Reads run synchronously, so cancellation is observed after an in-progress source read returns.
 
+## Search what a run wrote
+
+`Watch-ConsoleLog` follows; to search what a run wrote, open it in an app. A multiline text input, the app `LogViewport` and the document pager all have a find bar: Ctrl+F in a text input (`/` in a log viewport or the pager), type, and every match is highlighted and counted; Enter moves to the next match and Escape closes the bar. The [log tail demo](/demos/log-tail/) fills a bounded log live, then opens the run in a text input:
+
+{{< cm-frame id="log-tail-find" caption="Ctrl+F and cache: both matches are highlighted and the bar counts 1 of 2." >}}
+
+[App parts](/docs/app-parts/#the-find-bar) shows the find bar in a `LogViewport`, with `n` and `N` after the bar closes.
+
 ## Related
 
 Put a tail beside other widgets in a [live session](/docs/live-sessions/), or use the [logging provider](/docs/logging/) to send application events straight to a dashboard.

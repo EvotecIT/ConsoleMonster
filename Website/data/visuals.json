@@ -326,8 +326,14 @@
     "three-fluent": {
       "src": "/site/cards/three-fluent.svg"
     },
+    "app-chartview": {
+      "src": "/site/cards/app-chartview.svg"
+    },
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
+    },
+    "dashboard-frame-110": {
+      "src": "/site/cards/dashboard-frame-110.svg"
     },
     "diagram-4-120": {
       "src": "/site/cards/diagram-4-120.svg"

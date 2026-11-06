@@ -1,12 +1,13 @@
 {
   "slug": "log-tail",
   "title": "Log tail",
-  "pitch": "Watch a bounded log fill with synthetic events and a recoverable warning.",
+  "pitch": "Watch a bounded log fill with synthetic events, then search the run with the find bar.",
   "category": "Terminal apps",
   "tags": [
     "live",
     "logs",
-    "status"
+    "status",
+    "find"
   ],
   "terminal": {
     "width": 88,
@@ -20,29 +21,49 @@
   "makeItYours": [
     "Replace the inline messages with your event source.",
     "Keep a bounded buffer when following long runs.",
-    "Choose which levels deserve warning or failure colours."
+    "Choose which levels deserve warning or failure colours, and what the reader searches for afterwards."
   ],
   "mode": "live",
-  "steps": 5,
+  "steps": 7,
   "tier": "starter",
-  "useCase": "Use it when a command needs a bounded live event log that preserves its final state.",
+  "useCase": "Use it when a command needs a bounded live event log that preserves its final state and can be searched afterwards.",
   "featured": false,
   "capture": {
     "states": [
       {
-        "checkpoint": 0
+        "checkpoint": 0,
+        "contains": "1 / 5 events",
+        "caption": "The live run starts"
       },
       {
-        "checkpoint": 1
+        "checkpoint": 1,
+        "contains": "2 / 5 events",
+        "caption": "Jobs load"
       },
       {
-        "checkpoint": 2
+        "checkpoint": 2,
+        "contains": "3 / 5 events",
+        "caption": "A recoverable warning"
       },
       {
-        "checkpoint": 3
+        "checkpoint": 3,
+        "contains": "4 / 5 events",
+        "caption": "The cache warms"
       },
       {
-        "checkpoint": 4
+        "checkpoint": 4,
+        "contains": "5 / 5 events",
+        "caption": "The run is complete"
+      },
+      {
+        "keys": "Ctrl+F \"cache\"",
+        "incomplete": true,
+        "caption": "Ctrl+F and a query: every match is highlighted and counted"
+      },
+      {
+        "keys": "Ctrl+F \"cache\" Enter",
+        "incomplete": true,
+        "caption": "Enter moves to the next match"
       }
     ]
   }

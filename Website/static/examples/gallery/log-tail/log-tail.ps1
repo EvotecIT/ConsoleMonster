@@ -1,16 +1,21 @@
-﻿# Reveal a bounded stream of sample log events in a live region.
+﻿# Reveal a bounded stream of sample log events, then search the run with the find bar.
 
 Import-Module -Name ConsoleMonster
 # All data is synthetic and inline; no services are contacted or changed.
 
 # Data: fictional inputs kept in memory.
-$messages = @(
-    '[muted]09:41:00[/] [accent]INFO[/]  Worker started'
-    '[muted]09:41:01[/] [pass]INFO[/]  Loaded 12 queued jobs'
-    '[muted]09:41:02[/] [warn]WARN[/]  Cache cold; using local fallback'
-    '[muted]09:41:03[/] [pass]INFO[/]  Cache warm; queue draining'
-    '[muted]09:41:04[/] [pass]INFO[/]  Batch complete; no jobs lost'
+$events = @(
+    [pscustomobject] @{ Time = '09:41:00'; Level = 'info'; Message = 'Worker started' }
+    [pscustomobject] @{ Time = '09:41:01'; Level = 'info'; Message = 'Loaded 12 queued jobs' }
+    [pscustomobject] @{ Time = '09:41:02'; Level = 'warn'
+        Message = 'Cache cold; using local fallback' }
+    [pscustomobject] @{ Time = '09:41:03'; Level = 'info'; Message = 'Cache warm; queue draining' }
+    [pscustomobject] @{ Time = '09:41:04'; Level = 'pass'
+        Message = 'Batch complete; no jobs lost' }
 )
+$labels = @{ info = 'INFO'; warn = 'WARN'; pass = 'OK' }
+$roles = @{ info = 'accent'; warn = 'warn'; pass = 'pass' }
+
 # Layout: construct the widgets shown on screen.
 function New-DemoFrame {
     param(
@@ -20,8 +25,9 @@ function New-DemoFrame {
     New-ConsoleRows -Gap 1 -Content {
         '[bold]Application log[/] [muted]· worker events[/]'
         New-ConsolePanel -Title './logs/worker.log' -Content {
-            foreach ($line in $messages[0..$Tick]) {
-                $line
+            foreach ($entry in $events[0..$Tick]) {
+                $label = $labels[$entry.Level].PadRight(4)
+                "[muted]$($entry.Time)[/] [$($roles[$entry.Level])]$label[/]  $($entry.Message)"
             }
         }
         "[muted]$($Tick + 1) / 5 events · Ctrl+C stops the live run[/]"
@@ -40,4 +46,20 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
         Update-Console -WidgetId demo -Content $frame
         Wait-ConsoleDashboard -Seconds 0.65
     }
+}
+
+# Then read the run back: Ctrl+F finds text, Enter moves to the next match, Escape quits.
+$lines = foreach ($entry in $events) {
+    "$($entry.Time) $($labels[$entry.Level].PadRight(4)) $($entry.Message)"
+}
+Show-ConsoleApp -Content {
+    '[bold]Application log[/] [muted]· read the run back[/]'
+    $textInputParameters = @{
+        Key = 'Log'
+        Label = './logs/worker.log'
+        Multiline = $true
+        Height = 5
+        Value = ($lines -join "`n")
+    }
+    New-ConsoleTextInput @textInputParameters
 }
