@@ -174,6 +174,12 @@ namespace ConsoleMonster.Generators {
             return collection?.TypeArguments[0];
         }
 
+        private static bool Receives(INamedTypeSymbol receiver, INamedTypeSymbol type) {
+            for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) {
+                if (SymbolEqualityComparer.Default.Equals(current.OriginalDefinition, receiver.OriginalDefinition)) { return true; }
+            }
+            return type.AllInterfaces.Any(contract => SymbolEqualityComparer.Default.Equals(contract.OriginalDefinition, receiver.OriginalDefinition));
+        }
         private static bool HasNoFluent(ISymbol symbol) => symbol.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == NoFluentAttribute);
 
         private static string? Generate(INamedTypeSymbol type, Compilation compilation, IReadOnlyList<INamedTypeSymbol> types) {
@@ -195,6 +201,8 @@ namespace ConsoleMonster.Generators {
             if (handWritten != null) { existing.AddRange(handWritten.GetMembers().OfType<IMethodSymbol>()); }
             bool Taken(string name, params ITypeSymbol[] parameters) => existing.Any(m => {
                 int offset = m.IsExtensionMethod ? 1 : 0;
+                // A hand-written extension for another receiver (DashboardFrame.Title) leaves this type's method free.
+                if (m.IsExtensionMethod && m.Parameters.Length > 0 && m.Parameters[0].Type is INamedTypeSymbol receiverType && !Receives(receiverType, type)) { return false; }
                 return m.Name == name && m.Parameters.Length == parameters.Length + offset
                     && parameters.Select((parameter, index) => SymbolEqualityComparer.Default.Equals(parameter, m.Parameters[index + offset].Type)).All(equal => equal);
             });

@@ -72,6 +72,16 @@ namespace ConsoleMonster {
         /// <returns>The splitter with empty panes.</returns>
         public static Splitter Splitter() => new Splitter();
 
+        /// <summary>A retained, scrollable app log with a find bar: what New-ConsoleLogRegion makes inside Show-ConsoleApp content.</summary>
+        /// <param name="key">The app-state key, also the live target Write-ConsoleLogEntry -WidgetId addresses.</param>
+        /// <returns>The empty viewport.</returns>
+        public static LogViewport LogViewport(string key = "log") => new LogViewport(key);
+
+        /// <summary>A summary frame: title line, meters, needs attention, sections, legend and footer (New-ConsoleDashboardFrame).</summary>
+        /// <param name="title">The literal title, usually the view name.</param>
+        /// <returns>The empty frame.</returns>
+        public static Frames.DashboardFrame DashboardFrame(string title = "") => new Frames.DashboardFrame(title);
+
         /// <summary>State-dependent display definition.</summary>
         /// <returns>The state-dependent display definition.</returns>
         public static BindingOptions Binding() => new BindingOptions();

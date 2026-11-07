@@ -64,7 +64,8 @@ namespace SiteFrames.Capture {
                     IParameterSymbol p = BoundParameter(ctor, arg, i);
                     ExpressionSyntax value = visited.ArgumentList!.Arguments[i].Expression;
                     string member = char.ToUpperInvariant(p.Name[0]) + p.Name.Substring(1);
-                    if (p.Name == "widgetId" && !build) {
+                    // The primary input of a factory goes in its call: Ui.Region(widgetId), Ui.LogViewport(key), Ui.DashboardFrame(title).
+                    if ((p.Name == "widgetId" || (p.Name == "key" && type.Name == "LogViewport") || (p.Name == "title" && type.Name == "DashboardFrame")) && !build) {
                         var primary = RootFactory(result)!;
                         result = result.ReplaceNode(primary, primary.WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(value)))));
                         continue;
@@ -160,6 +161,7 @@ namespace SiteFrames.Capture {
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {
                 var visited = (InvocationExpressionSyntax)base.VisitInvocationExpression(node)!;
                 if (QuestionShow(node, visited) is ExpressionSyntax typedShow) { return typedShow.WithTriviaFrom(node); }
+                if (AppInputDefinition(node, visited) is ExpressionSyntax definitionBuild) { return definitionBuild.WithTriviaFrom(node); }
                 if (node.Expression is MemberAccessExpressionSyntax originalSetter && visited.Expression is MemberAccessExpressionSyntax setter
                     && model.GetSymbolInfo(node).Symbol is IMethodSymbol setterMethod && setterMethod.Name.EndsWith(originalSetter.Name.Identifier.ValueText, StringComparison.Ordinal)
                     && (setterMethod.ReducedFrom ?? setterMethod).ContainingType.Name.EndsWith("Fluent", StringComparison.Ordinal)
@@ -254,6 +256,26 @@ namespace SiteFrames.Capture {
                     if (current.GetMembers(name).OfType<IPropertySymbol>().FirstOrDefault() is IPropertySymbol property) { return property; }
                 }
                 return null;
+            }
+
+            // AppInput.Text(new TextInputOptions { ... }) is the initializer form of a control with no public class (a
+            // multiline text area); its fluent form is the Ui definition with the same setters, ended by Build.
+            private ExpressionSyntax? AppInputDefinition(InvocationExpressionSyntax node, InvocationExpressionSyntax visited) {
+                if (model.GetSymbolInfo(node).Symbol is not IMethodSymbol { IsStatic: true } method
+                    || method.ContainingType.ToDisplayString() != "ConsoleMonster.Interactive.AppInput"
+                    || node.ArgumentList.Arguments.Count != 1 || visited.ArgumentList.Arguments.Count != 1
+                    || model.GetTypeInfo(node.ArgumentList.Arguments[0].Expression).Type is not INamedTypeSymbol options) { return null; }
+                IMethodSymbol? definition = model.Compilation.GetTypeByMetadataName("ConsoleMonster.Ui")!.GetMembers().OfType<IMethodSymbol>()
+                    .FirstOrDefault(candidate => candidate.IsStatic && candidate.Arity == 0 && candidate.Parameters.Length == 0 && SymbolEqualityComparer.Default.Equals(candidate.ReturnType, options));
+                if (definition == null) { return null; }
+                ExpressionSyntax chain = visited.ArgumentList.Arguments[0].Expression;
+                ObjectCreationExpressionSyntax? root = chain.DescendantNodesAndSelf().OfType<ObjectCreationExpressionSyntax>()
+                    .FirstOrDefault(creation => creation.ArgumentList?.Arguments.Count is null or 0 && creation.Initializer == null
+                        && creation.Type.ToString() == options.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+                if (root == null) { return null; }
+                Namespaces.Add("ConsoleMonster");
+                ExpressionSyntax configured = chain.ReplaceNode(root, SyntaxFactory.ParseExpression("Ui." + definition.Name + "()"));
+                return Call(configured, "Build");
             }
 
             private static InvocationExpressionSyntax? RootFactory(ExpressionSyntax expression) {

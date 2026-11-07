@@ -4817,6 +4817,186 @@
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Invoke-ConsoleHeadless</command:name>
+      <command:verb>Invoke</command:verb>
+      <command:noun>ConsoleHeadless</command:noun>
+      <maml:description>
+        <maml:para>Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.</maml:para>
+        <maml:para>The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.</maml:para>
+      <maml:para>The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Invoke-ConsoleHeadless</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>ArgumentList</maml:name>
+          <maml:description>
+            <maml:para>Arguments passed to the script block.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Height</maml:name>
+          <maml:description>
+            <maml:para>Terminal height in cells (default 30).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>InputScript</maml:name>
+          <maml:description>
+            <maml:para>The keys, text and mouse actions to send, in the recorder's input grammar.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>ScriptBlock</maml:name>
+          <maml:description>
+            <maml:para>The script to run, usually one that calls Show-ConsoleApp or a prompt.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Width</maml:name>
+          <maml:description>
+            <maml:para>Terminal width in cells (default 0: terminal width, falling back to 100).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>ArgumentList</maml:name>
+        <maml:description>
+          <maml:para>Arguments passed to the script block.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Height</maml:name>
+        <maml:description>
+          <maml:para>Terminal height in cells (default 30).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>InputScript</maml:name>
+        <maml:description>
+          <maml:para>The keys, text and mouse actions to send, in the recorder's input grammar.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>ScriptBlock</maml:name>
+        <maml:description>
+          <maml:para>The script to run, usually one that calls Show-ConsoleApp or a prompt.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Width</maml:name>
+        <maml:description>
+          <maml:para>Terminal width in cells (default 0: terminal width, falling back to 100).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.PowerShell.ConsoleHeadlessResult</maml:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>What a script drew on a headless terminal: the final screen, every distinct screen, and the script's output.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {&#xD;
+                Show-ConsoleApp -Content {&#xD;
+                    New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01&#xD;
+                    New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }&#xD;
+                }&#xD;
+            }&#xD;
+            $result.Text | Should -Match 'Picked FS01'</dev:code>
+        <dev:remarks>
+          <maml:para>Drive a list with a key and a click, then check the screen.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Invoke-ConsolePester</command:name>
       <command:verb>Invoke</command:verb>
       <command:noun>ConsolePester</command:noun>
@@ -10156,6 +10336,394 @@ Show-ConsoleApp -Content {&#xD;
         <dev:code>$d = New-ConsoleDashboard -Title 'Deploy' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }</dev:code>
         <dev:remarks>
           <maml:para>A dashboard with lanes and a log that fills the rest of the screen</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleDashboardFrame</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleDashboardFrame</command:noun>
+      <maml:description>
+        <maml:para>Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.</maml:para>
+        <maml:para>For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.</maml:para>
+      <maml:para>For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleDashboardFrame</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Attention</maml:name>
+          <maml:description>
+            <maml:para>Needs-attention items: records with State, Identity, Reason, and optionally Order (worst first when given) and Values (short values beside the item).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>AttentionNoun</maml:name>
+          <maml:description>
+            <maml:para>What the attention list counts, in the singular, as in '3 of 48 servers' (default item).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>AttentionOutOf</maml:name>
+          <maml:description>
+            <maml:para>The total the attention list counts against.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int64</command:parameterValue>
+          <dev:type>
+            <maml:name>Int64</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Fact</maml:name>
+          <maml:description>
+            <maml:para>Facts after the title, such as the scope and counts.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>FooterCount</maml:name>
+          <maml:description>
+            <maml:para>Counts in the footer, such as '48 servers'.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>FooterHint</maml:name>
+          <maml:description>
+            <maml:para>The footer hint: None (default, for a frame the script builds), EveryRow or EveryProperty (for frames shown for pipeline objects).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">FrameHint</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">EveryRow</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">EveryProperty</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>FrameHint</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Legend</maml:name>
+          <maml:description>
+            <maml:para>Legend entries: an ordered dictionary of state to word, or records with State and Word.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Length</maml:name>
+          <maml:description>
+            <maml:para>An explicit length (Summary, Standard or Full); without it the session preference or Standard.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ConsoleViewLength</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Summary</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Full</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>ConsoleViewLength</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Meter</maml:name>
+          <maml:description>
+            <maml:para>Headline meters in priority order: records with Label and Kind (Composition, Ratio, Count, Fact or Missing). Composition takes Healthy, Warning, Failing, Unknown and NotEvaluated; Ratio takes Healthy, Whole and Rest; Count takes a number Value; Fact takes a text Value; Count and Fact also take Fact and State; Missing takes Reason. Without Kind, Whole means Ratio, Healthy means Composition, a number Value means Count, other Value means Fact, and no value means Missing.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>ObservedAt</maml:name>
+          <maml:description>
+            <maml:para>When the data was observed; the title line shows how long ago.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">DateTimeOffset</command:parameterValue>
+          <dev:type>
+            <maml:name>DateTimeOffset</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Section</maml:name>
+          <maml:description>
+            <maml:para>Sections: records with Title and Content (widgets, text or a script block), and optionally Placement (Summary or Detail), Facts, Meta, States, MinWidth, MaxWidth, Grow and FullWidth.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>State</maml:name>
+          <maml:description>
+            <maml:para>States at the right of the title line: records or hashtables with State (Healthy, Warning, Failing, Unknown or NotEvaluated), Count and Word.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+          <dev:type>
+            <maml:name>Object[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>The literal title, usually the view name.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Attention</maml:name>
+        <maml:description>
+          <maml:para>Needs-attention items: records with State, Identity, Reason, and optionally Order (worst first when given) and Values (short values beside the item).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>AttentionNoun</maml:name>
+        <maml:description>
+          <maml:para>What the attention list counts, in the singular, as in '3 of 48 servers' (default item).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>AttentionOutOf</maml:name>
+        <maml:description>
+          <maml:para>The total the attention list counts against.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int64</command:parameterValue>
+        <dev:type>
+          <maml:name>Int64</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Fact</maml:name>
+        <maml:description>
+          <maml:para>Facts after the title, such as the scope and counts.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>FooterCount</maml:name>
+        <maml:description>
+          <maml:para>Counts in the footer, such as '48 servers'.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>FooterHint</maml:name>
+        <maml:description>
+          <maml:para>The footer hint: None (default, for a frame the script builds), EveryRow or EveryProperty (for frames shown for pipeline objects).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">FrameHint</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">EveryRow</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">EveryProperty</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>FrameHint</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Legend</maml:name>
+        <maml:description>
+          <maml:para>Legend entries: an ordered dictionary of state to word, or records with State and Word.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Length</maml:name>
+        <maml:description>
+          <maml:para>An explicit length (Summary, Standard or Full); without it the session preference or Standard.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ConsoleViewLength</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Summary</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Full</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>ConsoleViewLength</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Meter</maml:name>
+        <maml:description>
+          <maml:para>Headline meters in priority order: records with Label and Kind (Composition, Ratio, Count, Fact or Missing). Composition takes Healthy, Warning, Failing, Unknown and NotEvaluated; Ratio takes Healthy, Whole and Rest; Count takes a number Value; Fact takes a text Value; Count and Fact also take Fact and State; Missing takes Reason. Without Kind, Whole means Ratio, Healthy means Composition, a number Value means Count, other Value means Fact, and no value means Missing.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>ObservedAt</maml:name>
+        <maml:description>
+          <maml:para>When the data was observed; the title line shows how long ago.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">DateTimeOffset</command:parameterValue>
+        <dev:type>
+          <maml:name>DateTimeOffset</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Section</maml:name>
+        <maml:description>
+          <maml:para>Sections: records with Title and Content (widgets, text or a script block), and optionally Placement (Summary or Detail), Facts, Meta, States, MinWidth, MaxWidth, Grow and FullWidth.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>State</maml:name>
+        <maml:description>
+          <maml:para>States at the right of the title line: records or hashtables with State (Healthy, Warning, Failing, Unknown or NotEvaluated), Count and Word.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Object[]</command:parameterValue>
+        <dev:type>
+          <maml:name>Object[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Title</maml:name>
+        <maml:description>
+          <maml:para>The literal title, usually the view name.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Frames.DashboardFrame</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(&#xD;
+                @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }&#xD;
+                @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }&#xD;
+            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{&#xD;
+                Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }&#xD;
+            } | Show-Console</dev:code>
+        <dev:remarks>
+          <maml:para>A small estate summary.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -15730,12 +16298,12 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
       <command:noun>ConsoleLogRegion</command:noun>
       <maml:description>
         <maml:para>Creates a log region: the newest lines of a log, bottom-aligned.</maml:para>
-        <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.</maml:para>
+        <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Creates a log region: the newest lines of a log, bottom-aligned.</maml:para>
-      <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept.</maml:para>
+      <maml:para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -16019,6 +16587,11 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
       <command:returnValue>
         <dev:type>
           <maml:name>ConsoleMonster.Widgets.LogRegion</maml:name>
+        </dev:type>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Interactive.LogViewport</maml:name>
         </dev:type>
       </command:returnValue>
     </command:returnValues>

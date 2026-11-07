@@ -7,7 +7,7 @@ keeps the screen. That makes apps testable, recordable and drivable the way web 
 
 | You want to | Use |
 |---|---|
-| Test an app in CI or against a golden file | `HeadlessTerminal` with `Send`, `WaitForText` and `Snapshot` |
+| Test an app in CI or against a golden file | `Invoke-ConsoleHeadless` in PowerShell, `HeadlessTerminal` with `Send`, `WaitForText` and `Snapshot` in C# |
 | Record an app, with its log panel, footer and dialogs | `Invoke-ConsoleRecording -Headless`, `HeadlessTerminal.Record` or `LiveSessionOptions.Recorder` |
 | Turn captured screens into GIF, APNG, SVG or an HTML player | `ScreenCapture.ToRecordedFrames`, `Recording.Export`, `SaveGraphics` |
 | Show an app in a web page for docs, demos or visual tests | `BrowserHost` |
@@ -35,6 +35,24 @@ input after the queued keys, so an app driven by a fixed script finishes on its 
 
 The terminal defaults to true colour, full glyphs, hyperlinks and the invariant culture, so screens don't depend on the
 machine. Pass a culture to test translated labels.
+
+In PowerShell, `Invoke-ConsoleHeadless` runs a script block (usually an app) on a headless terminal with the same input
+grammar, mouse tokens included, and returns the final screen's `Text` and `Cells`, every distinct screen in `Frames`
+and the script's `Output`:
+
+```powershell
+$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,4' {
+    Show-ConsoleApp -Content {
+        New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01
+        New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
+    }
+}
+$result.Text | Should -Match 'Picked FS01'
+```
+
+Input ends after the script, so an app that reads past the last key finishes on its own. The browser host and the
+debug socket stay C# APIs; for a PowerShell script or any unmodified program, set `CONSOLEMONSTER_HEADLESS` and
+`CONSOLEMONSTER_DEBUG_SOCKET` before starting it (see below).
 
 ## Recording what the user sees
 

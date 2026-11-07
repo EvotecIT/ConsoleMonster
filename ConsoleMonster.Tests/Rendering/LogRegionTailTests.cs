@@ -4,6 +4,7 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Input;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Rendering {
@@ -82,6 +83,57 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal("first\nsecond", frame.ToPlainText());
             Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[0, 0].Style.Color);
             Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[0, 1].Style.Color);
+        }
+
+        [Fact]
+        public void WrappedOldestPageKeepsSeverityAndSourceColumns() {
+            LogRegion log = new LogRegion { ShowElapsed = false, Wrap = true, ScrollOffset = int.MaxValue };
+            log.Write("L1");
+            log.WriteLiteral("L2", "warn", TimeSpan.Zero, null, "db");
+            for (int i = 3; i <= 5; i++) { log.Write("L" + i); }
+            string text = Render(log).ToPlainText();
+            Assert.Contains("WARN", text);
+            Assert.Contains("db", text);
+            Assert.Contains("L1", text);
+            Assert.Contains("L2", text);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void FindStylesSourceTextBeforeAsciiFallback(bool wrap) {
+            LogRegion log = new LogRegion { ShowElapsed = false, Wrap = wrap };
+            log.Write(RichText.FromMarkup("[pass]✅ needle[/]"));
+            LogFind find = new LogFind(new LogTail(log) { VisibleRows = 2 });
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 2, ColorDepth.TrueColor, GlyphTier.Ascii), Theme.Dark);
+            CellBuffer frame = new CellBuffer(30, 2);
+            find.Render(new Region(frame), context);
+            find.Handle(InputEvent.Character('/'));
+            foreach (char key in "needle") { find.Handle(InputEvent.Character(key)); }
+            find.Render(new Region(frame), context);
+            Assert.StartsWith("[OK] needle", frame.GetRowText(0));
+            for (int x = 5; x < 11; x++) { Assert.True((frame[x, 0].Style.Decoration & TextDecoration.Reverse) != 0); }
+            Assert.False((frame[0, 0].Style.Decoration & TextDecoration.Reverse) != 0);
+        }
+
+        [Fact]
+        public void WrappedFindUsesTheLastRequestedMatchBeforeAnotherRender() {
+            LogRegion log = new LogRegion { ShowElapsed = false, Wrap = true };
+            for (int i = 0; i < 5; i++) { log.Write((i == 1 || i == 4 ? "needle " : "entry ") + i + " with enough words to wrap twice"); }
+            LogFind find = new LogFind(new LogTail(log) { VisibleRows = 4 });
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(30, 4, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            CellBuffer frame = new CellBuffer(30, 4);
+            find.Render(new Region(frame), context);
+            find.Handle(InputEvent.Character('/'));
+            foreach (char key in "needle") { find.Handle(InputEvent.Character(key)); }
+            find.Handle(InputEvent.Press(ConsoleKey.Enter));
+            find.Render(new Region(frame), context);
+            find.Handle(InputEvent.Press(ConsoleKey.Enter));
+            find.Handle(InputEvent.Press(ConsoleKey.Enter));
+            frame.Clear();
+            find.Render(new Region(frame), context);
+            Assert.Contains("needle 4", frame.ToPlainText());
+            Assert.DoesNotContain("needle 1", frame.ToPlainText());
         }
 
         private static CellBuffer Render(LogRegion log) {

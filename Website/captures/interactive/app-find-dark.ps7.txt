@@ -1,0 +1,37 @@
+source 7f9ecd2f230e0ede064a3ea44a496077
+Deploy 4.12.2 · / finds text
+╭─ › deploy.log ─────────────────────────────────────────────────────╮
+│        Deploy 4.12.2 started                                       │
+│        web-01 drained                                              │
+│ ▴ WARN web-01 health check timeout, retrying                       │
+│        web-01 updated                                              │
+│ ▴ WARN web-02 health check timeout, retrying                       │
+│        web-02 updated                                              │
+│ ✓ OK   Deploy complete                                             │
+│                                                                    │
+╰────────────────────────────────────────────────────────────────────╯
+ pgup history  tab next  shift+tab back  esc quit  / searchee4b532ed63ba5e4
+Deploy 4.12.2 · / finds text
+╭─ › deploy.log ─────────────────────────────────────────────────────╮
+│        Deploy 4.12.2 started                                       │
+│        web-01 drained                                              │
+│ ▴ WARN web-01 health check timeout, retrying                       │
+│        web-01 updated                                              │
+│ ▴ WARN web-02 health check timeout, retrying                       │
+│        web-02 updated                                              │
+│ ✓ OK   Deploy complete                                             │
+│                                                                    │
+Find: timeout                                                   2 of 2
+ enter next  shift+enter previous  esc close  tab next064a3ea44a496077
+Deploy 4.12.2 · / finds text
+╭─ › deploy.log ─────────────────────────────────────────────────────╮
+│        Deploy 4.12.2 started                                       │
+│        web-01 drained                                              │
+│ ▴ WARN web-01 health check timeout, retrying                       │
+│        web-01 updated                                              │
+│ ▴ WARN web-02 health check timeout, retrying                       │
+│        web-02 updated                                              │
+│ ✓ OK   Deploy complete                                             │
+│                                                                    │
+╰────────────────────────────────────────────────────────────────────╯
+ pgup history  tab next  shift+tab back  esc quit  / search

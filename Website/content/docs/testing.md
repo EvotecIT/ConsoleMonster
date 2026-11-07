@@ -49,21 +49,24 @@ GoldenFile.Match("Golden/summary.txt", TestTerminal.RenderText(table, width: 80)
 
 ## Interactive apps in CI
 
-`HeadlessTerminal` runs the real app loop. Send keys with the same script syntax the recorder uses (`Down Enter`, quoted text, `paste:`, `resize:80x24`, `wait:250`), wait for text to appear, and compare what is on the screen.
+`Invoke-ConsoleHeadless` in PowerShell and `HeadlessTerminal` in C# run the real app loop on a terminal with no window. Send keys and clicks with the same script syntax the recorder uses (`Down Enter`, quoted text, `paste:`, `resize:80x24`, `wait:250`, and the mouse at zero-based cells: `click:4,5`, `dclick:`, `rclick:`, `drag:`, `wheel:`), then compare what is on the screen.
 
-```csharp
-using var terminal = new HeadlessTerminal(80, 24);
-Task<AppState> run = ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {
-    Interactive = new InteractiveOptions { Target = terminal }
-});
-terminal.WaitForText("Color", TimeSpan.FromSeconds(5));
-terminal.Send("Down Enter");
-terminal.WaitForText("Picked Green", TimeSpan.FromSeconds(5));
-GoldenFile.Match("picked.txt", terminal.Snapshot().ToPlainText());
-terminal.Send("Escape");
-AppState state = await run;
+The program below runs a small app on a 56 × 10 headless terminal, presses Down and clicks FS01, keeps the screen and prints it in a panel, so the frame is exactly what a test would compare.
+
+{{< cm-try key="headless" ids="headless-app" project="HeadlessTest" caption="Down and a click on FS01 at column 4, row 5: the screen the run kept." >}}
+
+In a test, assert on the screen instead of printing it. `Invoke-ConsoleHeadless` returns the last screen's `Text` and `Cells`, every distinct screen in `Frames` and the script's `Output`; input ends after the script, so an app finishes on its own:
+
+```powershell
+It 'picks a server with the mouse' {
+    $result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5' {
+        Show-ConsoleApp -Content { New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01 }
+    }
+    $result.Text | Should -Match '› FS01'
+}
 ```
 
+In C#, `terminal.WaitForText` waits for a screen, and `GoldenFile.Match("picked.txt", terminal.Snapshot().ToPlainText())` compares it with a reviewed file.
 `Snapshot()` returns the visible cells with their styles; `FrameRendered` reports each completed screen that differs from the previous one. `Resize(width, height)` sends the app a resize event, just as a real window would. The terminal defaults to true colour, full glyphs, hyperlinks and the invariant culture, so screens don't depend on the machine; pass a culture to test translated labels.
 
 ## Pester with a live dashboard
@@ -103,16 +106,20 @@ await ConsoleApp.RunAsync(layout, options: new ConsoleAppOptions {
 });
 ```
 
-The server listens on 127.0.0.1 only. Every request needs the token from `Address`, requests for another host name are refused, and input is accepted only when the page itself posts it. Secret patterns are masked on every screen it sends. Use it for local docs work, demos and visual tests; for a published site, record the app and embed the recording's player.
+Start it on the terminal of the headless program above, before the keys, and the page shows the same screens as they happen. The browser host is a C# API; to show a PowerShell app in a browser, host it from a small C# program or drive it through the debug socket below. The server listens on 127.0.0.1 only. Every request needs the token from `Address`, requests for another host name are refused, and input is accepted only when the page itself posts it. Secret patterns are masked on every screen it sends. Use it for local docs work, demos and visual tests; for a published site, record the app and embed the recording's player.
 
 ## Debug socket for agents
 
-The debug socket lets an agent or a script inspect and drive a running app the way browser tests drive a page: read the screen as text or PNG, read the control tree with each control's bounds and layout rule, send keys, text, clicks and resizes, and wait for text. It is off unless the host starts it, in code with `DebugSocket.Start(terminal)` or, for an unmodified app, with environment variables:
+The debug socket lets an agent or a script inspect and drive a running app the way browser tests drive a page: read the screen as text or PNG, read the control tree with each control's bounds and layout rule, send keys, text, clicks and resizes, and wait for text. It is off unless the host starts it, in code with `DebugSocket.Start(terminal)` or, for an unmodified app or a PowerShell script, with environment variables:
 
 ```powershell
 $env:CONSOLEMONSTER_HEADLESS = '120x40'
 $env:CONSOLEMONSTER_DEBUG_SOCKET = '0'    # any free port
-./MyTool.exe
+./MyTool.exe                               # or: pwsh -NoProfile -File ./inventory-app.ps1
 ```
 
 The socket listens on 127.0.0.1, writes a discovery file with its port and a random token under the user's local application data folder, and accepts one JSON request per line after a `hello` with that token. The process removes these variables once it has read them, so programs it starts get a normal console. The wire protocol and its security model are documented in the repository's [Headless-Driver.md](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Headless-Driver.md).
+
+## Next
+
+The [app parts](/docs/app-parts/) are small apps to drive this way, [recording and replay](/docs/recording/) turns a run into a player or a GIF, and [the prompts, menus and forms](/interactive/) page shows apps driven by scripted keys and clicks.

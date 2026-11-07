@@ -191,6 +191,21 @@ namespace ConsoleMonster.Tests.Live.Tails {
         }
 
         [Fact]
+        public void CtrlCQuitsWithTheFindBarOpen() {
+            FakeOutput output = new FakeOutput();
+            using (ScriptedInput input = new ScriptedInput("/ Ctrl+C F12")) {
+                LogTailOptions options = Options(output);
+                options.Input = input;
+                options.Count = 2;
+                int reads = 0;
+                ConsoleLogTail.Run(() => { reads++; return new[] { new TailedLogEntry("ready") }; }, options);
+                Assert.Equal(1, reads);
+                Assert.Equal(1, input.Remaining);
+                Assert.False(ConsoleInput.IsAcquired);
+            }
+        }
+
+        [Fact]
         public void ReaderFailureRestoresSessionAndReleasesLeaseBeforeRethrowing() {
             FakeOutput output = new FakeOutput();
             ConsoleInput.Override = new ScriptedInput("q");

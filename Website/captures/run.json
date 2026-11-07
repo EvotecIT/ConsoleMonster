@@ -3,273 +3,233 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "powershell",
+  "requestedSet": "app-parts",
   "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "powershell/compare-object.rich.ps5.ansi": {
+    "interactive/app-accordion-dark.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "03690acdca04a094414a0017c46385d777dd0441fe5cd584fd38d721209b14de",
+      "sha256": "e4d0c573f8dd3271027c211f8a9b5034d9aed8925d01838eb398a48d70aba1ff",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 70,
+      "height": 8
     },
-    "powershell/compare-object.rich.ps7.ansi": {
+    "interactive/app-accordion-dark.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "f652f6396625d560d7c8aa516e8b80f71ccacd68438c8ce5e67328153c87294c",
+      "sha256": "e4d0c573f8dd3271027c211f8a9b5034d9aed8925d01838eb398a48d70aba1ff",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 70,
+      "height": 8
     },
-    "powershell/everyday-commands.light.ps5.ansi": {
+    "interactive/app-accordion-light.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9f78b368ef7caf71573c1f4d47fa3baae7de45bd73d8d8c41809d064e80edadd",
+      "sha256": "cbfcd67145addfe304d209551d2d69b8f1d8c35cf43602d3bf1fececec00b372",
       "screen": "light",
-      "width": 100,
-      "height": 120
+      "width": 70,
+      "height": 8
     },
-    "powershell/everyday-commands.light.ps7.ansi": {
+    "interactive/app-accordion-light.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "9f78b368ef7caf71573c1f4d47fa3baae7de45bd73d8d8c41809d064e80edadd",
+      "sha256": "cbfcd67145addfe304d209551d2d69b8f1d8c35cf43602d3bf1fececec00b372",
       "screen": "light",
-      "width": 100,
-      "height": 120
+      "width": 70,
+      "height": 8
     },
-    "powershell/everyday-commands.rich.ps5.ansi": {
+    "interactive/app-chartview-dark.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "25e8f2654159b20c2b45cfc938ceeb8b699cc92a3c7d5be98d90d0de8b588f1b",
+      "sha256": "9fd16bf7e9b5a1006f93367856783e0119b161a0ca085f4e0171d70c3a9d5c63",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 90,
+      "height": 12
     },
-    "powershell/everyday-commands.rich.ps7.ansi": {
+    "interactive/app-chartview-dark.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "0e52875598c8c2a92b014b76f0e361dd27239e1063fe33c70052a87b0e116842",
+      "sha256": "9fd16bf7e9b5a1006f93367856783e0119b161a0ca085f4e0171d70c3a9d5c63",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 90,
+      "height": 12
     },
-    "powershell/export-markdown.rich.ps7.ansi": {
+    "interactive/app-chartview-light.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "0744fd6142bb25927164168c2f3f52f0a3a604110d8bc8666d074b5e1750904e",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/files.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "4a02c7cd722945761a48ffd43cfcc028a8a21f3c0ac856a6717116cc0d402572",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consolelist.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "4c48d6631c2c26a842ed2acfa58021c3935cf6ae7c10e7b61a66e52cd7137966",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consolelist.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "4c48d6631c2c26a842ed2acfa58021c3935cf6ae7c10e7b61a66e52cd7137966",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletable.16-ascii.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "0137b27816b23df5ee35183fd42d77e80b64c6141358d4d633959bb4f48d19f7",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletable.narrow.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "f162585e3e398bc8ded2e0b78953981ee2f1bec6a2d87ea76b00851042a29b1b",
-      "screen": "dark",
-      "width": 56,
-      "height": 120
-    },
-    "powershell/format-consoletable.nocolor.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "62251aff9b7ebff907191c7721ee1b49652e039e26afac326001f26e54a7efc9",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletable.plain.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "3550f612c6c1917ae228aec8556fe04f0041ae2768cab82633bf5d47eafd96fc",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletable.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "cf45f0162d9085ff00e49e573c9dd8bb237e9a5fa88c9a3c94c4011cd082dd86",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletable.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "cf45f0162d9085ff00e49e573c9dd8bb237e9a5fa88c9a3c94c4011cd082dd86",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletree.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "58849249535f72216439453cddbe4b59c006b818a3a0ee9b89b6254a14743f8a",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-consoletree.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "58849249535f72216439453cddbe4b59c006b818a3a0ee9b89b6254a14743f8a",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-list.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "f9f2406b289989b36fd7f65c7e2992e6e8b30236dc3d925d4a50883782acb3f3",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-list.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "dc4b4eefe49aea833d8e6630631280be3defd38a59485efb233860c0d15f8465",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-table.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "b06ab8212ea3cfbdba0b9054b5d420c1635daa1498f986cbedbee17041506f25",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/format-table.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "35d105c6d052d4b17b4f8bf72c5623ab6156a6c25331175c18ae6d2db3becd6f",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/job.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "ffaa3b603a330516a02c52340cef2a9e3eb0421d87b28c9eb573bd33e8e81434",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/job.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "ffaa3b603a330516a02c52340cef2a9e3eb0421d87b28c9eb573bd33e8e81434",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/markup.rich.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "34d4292b7270dafcd0a4a31bc228878e5cf319e55e1a7816cac7f239a793b00b",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/markup.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "34d4292b7270dafcd0a4a31bc228878e5cf319e55e1a7816cac7f239a793b00b",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/relative-dates.rich.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "58a45d9d07bc10b58442fb029e3e67a3587aeefde350833c56710a30aadba4c9",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
-    },
-    "powershell/streams.light.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "037297eb3d6c8ea5b7ec7c3a648354ba6dca8267b611028f020482fb021c5fe2",
+      "sha256": "2c39f7f5bc06d1b1217273aacc39ce3b7be6c8c815fad23784a8e0abe1d10c72",
       "screen": "light",
-      "width": 100,
-      "height": 120
+      "width": 90,
+      "height": 12
     },
-    "powershell/streams.light.ps7.ansi": {
+    "interactive/app-chartview-light.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "c54b4644c8c071958d7094072f1f942ee615d1e84e6bac55b8dc446e3294517b",
+      "sha256": "2c39f7f5bc06d1b1217273aacc39ce3b7be6c8c815fad23784a8e0abe1d10c72",
       "screen": "light",
-      "width": 100,
-      "height": 120
+      "width": 90,
+      "height": 12
     },
-    "powershell/streams.rich.ps5.ansi": {
+    "interactive/app-find-dark.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "97bcd721575ab275f2ab6f31ea66f4888266c3fd04822bef46b9b93275343358",
+      "sha256": "4b6a6b629b504bacd7373293724624d3febd76e15b7d09b8576212c453151082",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 70,
+      "height": 12
     },
-    "powershell/streams.rich.ps7.ansi": {
+    "interactive/app-find-dark.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "4f30a63bc426a280734df069f86c2ad014d555dbe27cf6678521518ceb26b734",
+      "sha256": "4b6a6b629b504bacd7373293724624d3febd76e15b7d09b8576212c453151082",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 70,
+      "height": 12
     },
-    "powershell/write-consoletext.rich.ps5.ansi": {
+    "interactive/app-find-light.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "3801ef77175f51064583a5372b7a3277900df4f35e1a42eb7c20dc319c13d45d",
-      "screen": "dark",
-      "width": 100,
-      "height": 120
+      "sha256": "0fae27ca317734ee43d7dbe4ddc1a7b4b1f30dd2fde64801b10f3de2ba628c3b",
+      "screen": "light",
+      "width": 70,
+      "height": 12
     },
-    "powershell/write-consoletext.rich.ps7.ansi": {
+    "interactive/app-find-light.ps7.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "3801ef77175f51064583a5372b7a3277900df4f35e1a42eb7c20dc319c13d45d",
+      "sha256": "0fae27ca317734ee43d7dbe4ddc1a7b4b1f30dd2fde64801b10f3de2ba628c3b",
+      "screen": "light",
+      "width": 70,
+      "height": 12
+    },
+    "interactive/app-outline-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "876d09195673fbd03c140cef777788a7842c80f0ea9f7effe19ce1c5df47de2f",
       "screen": "dark",
-      "width": 100,
-      "height": 120
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-outline-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "876d09195673fbd03c140cef777788a7842c80f0ea9f7effe19ce1c5df47de2f",
+      "screen": "dark",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-outline-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e6019f49b2d79454d712c208254a04954806f3974e8d040779d84e0de7dd7597",
+      "screen": "light",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-outline-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e6019f49b2d79454d712c208254a04954806f3974e8d040779d84e0de7dd7597",
+      "screen": "light",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-splitter-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f446899e5cb6376577dd30439a503ece8351119e30d8692f956eb3015f103996",
+      "screen": "dark",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-splitter-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f446899e5cb6376577dd30439a503ece8351119e30d8692f956eb3015f103996",
+      "screen": "dark",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-splitter-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "8801281e5e078dfd41751cd6391c0f6b7faa2cbb12c0ec8706eb057f5497d543",
+      "screen": "light",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-splitter-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "8801281e5e078dfd41751cd6391c0f6b7faa2cbb12c0ec8706eb057f5497d543",
+      "screen": "light",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-tabs-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "5363fb58bdac9ee6f54d3ec3011146794ae23cb2c19b474908777cc9e237b2f1",
+      "screen": "dark",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/app-tabs-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "5363fb58bdac9ee6f54d3ec3011146794ae23cb2c19b474908777cc9e237b2f1",
+      "screen": "dark",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/app-tabs-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "109c69b3cfec540dd5d1b82aa127353d27a0a13cd13b4f99530918b34a53831c",
+      "screen": "light",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/app-tabs-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "109c69b3cfec540dd5d1b82aa127353d27a0a13cd13b4f99530918b34a53831c",
+      "screen": "light",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/tree-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "d53cd0ddb3f24c3a6b2e6c4eed246c06516b124a0658726cfc9510f15bb368b7",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "d53cd0ddb3f24c3a6b2e6c4eed246c06516b124a0658726cfc9510f15bb368b7",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6ed4436d0c233b41053ba07106d471f8c3e2e7a1793ee72034d9bd8a04c99067",
+      "screen": "light",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6ed4436d0c233b41053ba07106d471f8c3e2e7a1793ee72034d9bd8a04c99067",
+      "screen": "light",
+      "width": 90,
+      "height": 16
     }
   }
 }

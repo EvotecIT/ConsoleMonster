@@ -24154,6 +24154,403 @@
           "CSharpTypeName": "System.Boolean"
         }
       ]
+    },
+    {
+      "Command": "New-ConsoleDashboardFrame",
+      "Job": "New-ConsoleDashboardFrame",
+      "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Attention",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.AttentionList",
+          "Member": "Items",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.AttentionItem]",
+          "Reason": "Records with State, Identity, Reason, Order and Values become AttentionItem entries.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "AttentionNoun",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.AttentionList",
+          "Member": "Noun",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "AttentionOutOf",
+          "ParameterType": "System.Int64",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.AttentionList",
+          "Member": "OutOf",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int64]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Fact",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.FrameHeader",
+          "Member": "Facts",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Reason": "Each fact follows the title, as Fact() adds it fluently.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "FooterCount",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.FrameFooter",
+          "Member": "Counts",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Reason": "Each count is added to the footer, as FooterCount() adds it fluently.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "FooterHint",
+          "ParameterType": "ConsoleMonster.Frames.FrameHint",
+          "Default": "None",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.FrameFooter",
+          "Member": "Hint",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Frames.FrameHint",
+          "Reason": "A frame a script builds does not come from pipeline objects, so the command defaults to None; C# keeps EveryRow for module views.",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Legend",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.FrameLegend",
+          "Member": "Add",
+          "Argument": "state",
+          "MemberKind": "Method",
+          "Conversion": "RecordCollection",
+          "CSharpTypeName": "ConsoleMonster.Frames.HealthState",
+          "Reason": "An ordered dictionary of state to word, or State and Word records, adds legend entries."
+        },
+        {
+          "Parameter": "Length",
+          "ParameterType": "ConsoleMonster.Views.ConsoleViewLength",
+          "Default": "Standard",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
+          "Member": "Length",
+          "MemberKind": "Property",
+          "Conversion": "NestedConfiguration",
+          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Views.ConsoleViewLength]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "Without -Length the frame uses the session preference, as a null Length does in C#."
+        },
+        {
+          "Parameter": "Meter",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
+          "Member": "Meters",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.Meter]",
+          "Reason": "Records choose Meter.Composition, Ratio, Count, Fact or Missing by Kind, or by the fields they carry.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "ObservedAt",
+          "ParameterType": "System.Nullable`1[System.DateTimeOffset]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.FrameHeader",
+          "Member": "ObservedAt",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.DateTimeOffset]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Section",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
+          "Member": "Sections",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameSection]",
+          "Reason": "Records with Title and Content become FrameSection entries whose content is built once, as Section() does fluently.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "State",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.FrameHeader",
+          "Member": "States",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameState]",
+          "Reason": "State, Count and Word records become FrameState.Of values.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
+          "Member": ".ctor",
+          "Argument": "title",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Reason": "The title is the constructor argument, Ui.DashboardFrame(title) in fluent C#."
+        }
+      ]
+    },
+    {
+      "Command": "Invoke-ConsoleHeadless",
+      "Job": "Invoke-ConsoleHeadless",
+      "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "ArgumentList",
+          "ParameterType": "System.Object[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ScriptBlockArguments",
+          "Reason": "Arguments are passed to the script block; a C# test calls its own code directly."
+        },
+        {
+          "Parameter": "Height",
+          "ParameterType": "System.Int32",
+          "Default": 30,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+          "Member": ".ctor",
+          "Argument": "height",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Reason": "The headless terminal is created at this height."
+        },
+        {
+          "Parameter": "InputScript",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+          "Member": "Send",
+          "Argument": "script",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Reason": "The scripted keys, text and mouse actions are queued before the script runs, and input ends after them."
+        },
+        {
+          "Parameter": "ScriptBlock",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ScriptBlockCallback",
+          "Reason": "Runs the script in this session with the headless terminal as its target and returns the screens it drew; C# passes the terminal as InteractiveOptions.Target and reads Snapshot and FrameRendered."
+        },
+        {
+          "Parameter": "Width",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+          "Member": ".ctor",
+          "Argument": "width",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Reason": "Zero uses the terminal width, falling back to 100; an explicit width creates the headless terminal at that width."
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -24286,291 +24683,123 @@
       "Disposition": "CSharpOnly"
     },
     {
-      "CSharpType": "ConsoleMonster.Frames.AttentionItem",
-      "Member": "Values",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
       "CSharpType": "ConsoleMonster.Frames.AttentionList",
       "Member": "GroupAtLeast",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.AttentionList",
-      "Member": "Items",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.AttentionItem]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.AttentionList",
-      "Member": "Noun",
-      "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.AttentionList",
-      "Member": "OutOf",
-      "CSharpTypeName": "System.Nullable`1[System.Int64]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.AttentionList",
       "Member": "PluralNoun",
       "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.AttentionList",
       "Member": "Title",
       "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
       "Member": "Compact",
       "CSharpTypeName": "System.Func`2[ConsoleMonster.Frames.FrameScale,ConsoleMonster.Layout.IWidget]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
-      "Member": "Length",
-      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Views.ConsoleViewLength]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
-      "Member": "Meters",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.Meter]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
-      "Member": "Sections",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameSection]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.Distribution",
       "Member": "BarWidth",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameFooter",
-      "Member": "Counts",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameFooter",
-      "Member": "Hint",
-      "CSharpTypeName": "ConsoleMonster.Frames.FrameHint",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameHeader",
-      "Member": "Facts",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameHeader",
-      "Member": "ObservedAt",
-      "CSharpTypeName": "System.Nullable`1[System.DateTimeOffset]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameHeader",
-      "Member": "States",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameState]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameHeader",
-      "Member": "Title",
-      "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "Facts",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "FullWidth",
-      "CSharpTypeName": "System.Boolean",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "Grow",
-      "CSharpTypeName": "System.Double",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "MaxWidth",
-      "CSharpTypeName": "System.Nullable`1[System.Int32]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "Meta",
-      "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "MinWidth",
-      "CSharpTypeName": "System.Nullable`1[System.Int32]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "Placement",
-      "CSharpTypeName": "ConsoleMonster.Frames.FramePlacement",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Frames.FrameSection",
-      "Member": "States",
-      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameState]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedColumn`1",
       "Member": "AlignRight",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedColumn`1",
       "Member": "Axis",
       "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedColumn`1",
       "Member": "MaxWidth",
       "CSharpTypeName": "System.Nullable`1[System.Int32]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedColumn`1",
       "Member": "Width",
       "CSharpTypeName": "System.Nullable`1[System.Int32]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedRows`1",
       "Member": "Columns",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.GroupedColumn`1[T]]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedRows`1",
       "Member": "Heading",
       "CSharpTypeName": "System.Func`3[System.String,System.Collections.Generic.IReadOnlyList`1[T],ConsoleMonster.Frames.GroupHeading]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedRows`1",
       "Member": "HealthyWord",
       "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedRows`1",
       "Member": "IsHealthy",
       "CSharpTypeName": "System.Func`2[T,System.Boolean]",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedRows`1",
       "Member": "Noun",
       "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Frames.GroupedRows`1",
       "Member": "PluralNoun",
       "CSharpTypeName": "System.String",
-      "Reason": "Dashboard frames are declared in C# by the module that owns the summary objects, next to its data model; PowerShell shows them through that module's registered default display, so frame parts have no PowerShell builder.",
-      "Alternative": "Declare the frame in the module's C# presentation code, acquire a lease with DefaultDisplay.RegisterModule, and register the frame builder through ModuleLease.Register on that lease; PowerShell users choose its length with $ConsoleViewLengthPreference.",
+      "Reason": "A script-built frame keeps this default; C# sets it, as module views do.",
+      "Alternative": "New-ConsoleDashboardFrame builds the frame from records; set this member from C# or a module's registered view.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25721,58 +25950,26 @@
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.LogViewport",
-      "Member": "Capacity",
-      "CSharpTypeName": "System.Int32",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure Capacity, and embed it in Show-ConsoleApp.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
-      "Member": "Height",
-      "CSharpTypeName": "System.Int32",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure Height, and embed it in Show-ConsoleApp.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
-      "Member": "ShowElapsed",
-      "CSharpTypeName": "System.Boolean",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure ShowElapsed, and embed it in Show-ConsoleApp.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
       "Member": "ScrollOffset",
       "CSharpTypeName": "System.Int32",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure ScrollOffset, and embed it in Show-ConsoleApp.",
+      "Reason": "Scroll position and framing are runtime state of the app log; the reader moves them with the keys.",
+      "Alternative": "New-ConsoleLogRegion inside Show-ConsoleApp content makes the LogViewport; wrap it in New-ConsolePanel for a shared frame.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.LogViewport",
       "Member": "HorizontalOffset",
       "CSharpTypeName": "System.Int32",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure HorizontalOffset, and embed it in Show-ConsoleApp.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
-      "Member": "Filter",
-      "CSharpTypeName": "ConsoleMonster.Widgets.LogFilter",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure Filter, and embed it in Show-ConsoleApp.",
+      "Reason": "Scroll position and framing are runtime state of the app log; the reader moves them with the keys.",
+      "Alternative": "New-ConsoleLogRegion inside Show-ConsoleApp content makes the LogViewport; wrap it in New-ConsolePanel for a shared frame.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Interactive.LogViewport",
       "Member": "Border",
       "CSharpTypeName": "ConsoleMonster.Glyphs.BoxStyle",
-      "Reason": "The retained log viewport wraps the existing bounded LogRegion without adding a second log constructor cmdlet.",
-      "Alternative": "Create LogViewport in PowerShell or C#, configure Border, and embed it in Show-ConsoleApp.",
+      "Reason": "Scroll position and framing are runtime state of the app log; the reader moves them with the keys.",
+      "Alternative": "New-ConsoleLogRegion inside Show-ConsoleApp content makes the LogViewport; wrap it in New-ConsolePanel for a shared frame.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -28582,11 +28779,19 @@
       "Reason": "Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+      "Member": "Theme",
+      "CSharpTypeName": "ConsoleMonster.Styling.ITheme",
+      "Reason": "Invoke-ConsoleHeadless draws with the default dark theme so test screens are the same on every machine; a C# test that checks another theme sets it on its terminal.",
+      "Alternative": "Compare text and cells from the dark run, or drive the app from C# with HeadlessTerminal.Theme set.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 105,
+  "ExpectedCount": 107,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -28794,7 +28999,8 @@
     "ConsoleMonster.Widgets.TreeHierarchyOptions",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView"
+    "ConsoleMonster.Widgets.WatchView",
+    "ConsoleMonster.Headless.HeadlessTerminal"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -29162,7 +29368,8 @@
     "ConsoleMonster.Widgets.TreeValuePlacement",
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
-    "ConsoleMonster.Widgets.WatchView"
+    "ConsoleMonster.Widgets.WatchView",
+    "ConsoleMonster.Headless.HeadlessTerminal"
   ],
   "RelatedBindings": [
     {
@@ -31626,6 +31833,132 @@
       "Command": "New-ConsoleBreadcrumb",
       "Parameter": "Segments",
       "Reason": "The shared factory/view adapter applies this option to the resulting BreadcrumbInputOptions."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameHeader",
+      "Member": "Title",
+      "MemberId": "ConsoleMonster.Frames.FrameHeader.Title",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Title",
+      "Reason": "The constructor title is the header title."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.AttentionItem",
+      "Member": "Values",
+      "MemberId": "ConsoleMonster.Frames.AttentionItem.Values",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Attention",
+      "Reason": "An attention record's Values become the short values beside the item."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "Facts",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.Facts",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's Facts field sets FrameSection.Facts."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "FullWidth",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.FullWidth",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's FullWidth field sets FrameSection.FullWidth."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "Grow",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.Grow",
+      "CSharpTypeName": "System.Double",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's Grow field sets FrameSection.Grow."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "MaxWidth",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.MaxWidth",
+      "CSharpTypeName": "System.Nullable`1[System.Int32]",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's MaxWidth field sets FrameSection.MaxWidth."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "Meta",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.Meta",
+      "CSharpTypeName": "System.String",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's Meta field sets FrameSection.Meta."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "MinWidth",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.MinWidth",
+      "CSharpTypeName": "System.Nullable`1[System.Int32]",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's MinWidth field sets FrameSection.MinWidth."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "Placement",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.Placement",
+      "CSharpTypeName": "ConsoleMonster.Frames.FramePlacement",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's Placement field sets FrameSection.Placement."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.FrameSection",
+      "Member": "States",
+      "MemberId": "ConsoleMonster.Frames.FrameSection.States",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.FrameState]",
+      "Command": "New-ConsoleDashboardFrame",
+      "Parameter": "Section",
+      "Reason": "A section record's States field sets FrameSection.States."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Capacity",
+      "MemberId": "ConsoleMonster.Interactive.LogViewport.Capacity",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleLogRegion",
+      "Parameter": "Capacity",
+      "Reason": "Inside Show-ConsoleApp content the region becomes a LogViewport that keeps the same capacity."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Height",
+      "MemberId": "ConsoleMonster.Interactive.LogViewport.Height",
+      "CSharpTypeName": "System.Int32",
+      "Command": "New-ConsoleLogRegion",
+      "Parameter": "Height",
+      "Reason": "Inside Show-ConsoleApp content the region becomes a LogViewport of the same height."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "ShowElapsed",
+      "MemberId": "ConsoleMonster.Interactive.LogViewport.ShowElapsed",
+      "CSharpTypeName": "System.Boolean",
+      "Command": "New-ConsoleLogRegion",
+      "Parameter": "NoElapsed",
+      "Reason": "Inside Show-ConsoleApp content -NoElapsed hides the elapsed time in the LogViewport."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Interactive.LogViewport",
+      "Member": "Filter",
+      "MemberId": "ConsoleMonster.Interactive.LogViewport.Filter",
+      "CSharpTypeName": "ConsoleMonster.Widgets.LogFilter",
+      "Command": "New-ConsoleLogRegion",
+      "Parameter": "Filter",
+      "Reason": "Inside Show-ConsoleApp content -Tag, -Level and -Filter become the LogViewport filter."
     }
   ],
   "Endings": [
@@ -32343,6 +32676,16 @@
           "InitializerTypes": [
             "ConsoleMonster.Interactive.Accordion"
           ]
+        },
+        {
+          "Command": "New-ConsoleDashboardFrame",
+          "Noun": "DashboardFrame",
+          "ReturnType": "ConsoleMonster.Frames.DashboardFrame",
+          "ContentBuilder": true,
+          "Pattern": "Ui.DashboardFrame()",
+          "InitializerTypes": [
+            "ConsoleMonster.Frames.DashboardFrame"
+          ]
         }
       ],
       "NonWidgetCommands": [
@@ -32463,6 +32806,10 @@
         {
           "Noun": "FooterBar",
           "Reason": "Show-ConsoleApp -FooterHints builds the same footer; Footer accepts an explicitly composed widget."
+        },
+        {
+          "Noun": "LogViewport",
+          "Reason": "New-ConsoleLogRegion makes a LogViewport inside Show-ConsoleApp content, so the app log has no command of its own."
         }
       ],
       "PrimaryInputs": [
@@ -32593,6 +32940,22 @@
           "Parameter": "Title",
           "Position": -2147483648,
           "Reason": "The diagram title is a named PowerShell option and an optional Ui.Diagram argument."
+        },
+        {
+          "Noun": "DashboardFrame",
+          "Argument": "title",
+          "Command": "New-ConsoleDashboardFrame",
+          "Parameter": "Title",
+          "Position": 0,
+          "Reason": "The title is the one required input, positional in both surfaces."
+        },
+        {
+          "Noun": "LogViewport",
+          "Argument": "key",
+          "Command": "New-ConsoleLogRegion",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The app log's key is the region's widget id, positional in both surfaces."
         }
       ],
       "Pattern": "Ui.{Noun}()",
@@ -32638,6 +33001,14 @@
         {
           "CSharpType": "ConsoleMonster.Widgets.FlowEdge",
           "Reason": "A passive flow data record, equivalent to a node or edge row in PowerShell."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Frames.AttentionItem",
+          "Reason": "A dashboard frame's attention item or section, the same record New-ConsoleDashboardFrame takes; the frame lays it out."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Frames.FrameSection",
+          "Reason": "A dashboard frame's attention item or section, the same record New-ConsoleDashboardFrame takes; the frame lays it out."
         }
       ]
     },

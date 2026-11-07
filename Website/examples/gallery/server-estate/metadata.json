@@ -1,0 +1,36 @@
+{
+  "slug": "server-estate",
+  "title": "Server estate",
+  "pitch": "One frame for a whole estate: facts and state on the title line, meters, problems worst first, sites beside them and backups below.",
+  "category": "Dashboards",
+  "tags": [
+    "dashboard frame",
+    "meters",
+    "needs attention",
+    "offline"
+  ],
+  "terminal": {
+    "width": 110,
+    "height": 30
+  },
+  "runtime": {
+    "powershell": "7.4+",
+    "dotnet": "8.0+"
+  },
+  "addons": [],
+  "makeItYours": [
+    "Fill the meters and the attention list from results you already have in memory.",
+    "Add a section per area you report on, and mark the long ones Detail so they print below.",
+    "Name what the attention list counts with AttentionNoun and AttentionOutOf."
+  ],
+  "mode": "static",
+  "steps": 1,
+  "tier": "starter",
+  "useCase": "Use it when one screen has to say how an estate is doing and what to fix first.",
+  "featured": false,
+  "capture": {
+    "states": [
+      {}
+    ]
+  }
+}

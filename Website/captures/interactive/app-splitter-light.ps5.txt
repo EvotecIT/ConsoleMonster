@@ -1,0 +1,13 @@
+source c3b4171dd588e8e31677d2ab260a0576
+╭─ Servers ────────────╮│╭─ Notes ─────────────────────────────────────────────╮
+│ ╭─ › Server ───────╮ │││ WEB01 serves the public site.                       │
+│ │ › type to filt…  │ │││ SQL01 holds the orders database.                    │
+│ ╰──────────────────╯ │││ FS01 keeps the shared folders.                      │
+╰──────────────────────╯│╰─────────────────────────────────────────────────────╯
+ tab next  shift+tab back  esc quit8d9b27c4e2e221f2
+╭─ Servers ────────────────────────╮│╭─ Notes ─────────────────────────────────╮
+│ ╭─ › Server ───────────────────╮ │││ WEB01 serves the public site.           │
+│ │ › type to filter             │ │││ SQL01 holds the orders database.        │
+│ ╰──────────────────────────────╯ │││ FS01 keeps the shared folders.          │
+╰──────────────────────────────────╯│╰─────────────────────────────────────────╯
+ tab next  shift+tab back  esc quit

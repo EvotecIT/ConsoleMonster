@@ -1,0 +1,17 @@
+source ba08d95df0d62bdf0bed4a694b62dc6f
+Guide › Install
+› Install
+    Windows
+    Linux
+  Configure
+  Run
+
+ ↑↓ move  enter open  tab next  shift+tab back  esc quit15c6620b99c6c1ec
+Guide › Install › Linux
+  Install
+    Windows
+›   Linux
+  Configure
+  Run
+
+ ↑↓ move  enter open  tab next  shift+tab back  esc quit

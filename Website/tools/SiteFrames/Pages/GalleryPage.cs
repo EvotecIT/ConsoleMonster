@@ -20,6 +20,12 @@ using SiteFrames.Replay;
 namespace SiteFrames.Pages {
     /// <summary>Runs the copyable gallery programs and exports their frames, storyboards and metadata.</summary>
     internal static partial class GalleryPage {
+        // Gallery states that docs pages show as figures: the demo, its state, the figure id and its label.
+        private static readonly (string Slug, int Step, string Id, string Label)[] DocsFigures = {
+            ("log-tail", 5, "log-tail-find", "Slash and a query in the read-back log: both matches highlighted, the bar counts 1 of 2"),
+            ("server-estate", 0, "server-estate-frame", "The server estate frame at 110 columns: meters, the attention list beside the sites, backups below, legend and footer")
+        };
+
         private static readonly HashSet<string> Categories = new HashSet<string>(StringComparer.Ordinal) {
             "Dashboards", "Wizards", "Terminal apps", "Everyday", "Welcome screens", "Reports"
         };
@@ -143,6 +149,17 @@ namespace SiteFrames.Pages {
                     CellBuffer frame = TripletFrame(site, demo, step);
                     timeline.Add(new TimedFrame(step * (long)holdMilliseconds, frame));
                     parity.Add(new JsonObject { ["step"] = step, ["identical"] = true, ["styles"] = 3, ["encoding"] = "UTF-8 SVG" });
+                    foreach ((string slug, int at, string id, string label) in DocsFigures) {
+                        if (slug != demo.Slug || at != step) { continue; }
+                        JsonObject figure = Figures.WithProgram(site, new JsonObject {
+                            ["title"] = demo.Title, ["file"] = Path.GetFileName(demo.PowerShell), ["label"] = label,
+                            ["meta"] = new JsonArray(demo.Width + "×" + frame.Height, "24-bit", "Full"), ["frame"] = site.Frame(frame, null)
+                        }, demo.CSharp);
+                        (string script, string scriptFull) = SourceSnippets.Program(Site.ReadText(demo.PowerShell));
+                        figure["script"] = script;
+                        figure["scriptFull"] = scriptFull;
+                        Figures.Add(id, figure);
+                    }
                     if (review != null) {
                         ExportOptions options = new ExportOptions { Title = demo.Title, Theme = ExportTheme.Dark, WindowChrome = true };
                         site.Write(Path.Combine(review, demo.Slug + "-" + step + ".html"), ConsoleExporter.ToHtml(frame, options));

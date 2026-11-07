@@ -18,7 +18,7 @@ namespace ConsoleMonster.Tests.Live.Tails {
             LogTailView view = new LogTailView();
             CellBuffer following = Render(view, 60, theme);
             Assert.Equal("Following latest", following.GetRowText(2).TrimEnd());
-            Assert.Equal("q quit · PgUp history · End follow", following.GetRowText(3).TrimEnd());
+            Assert.Equal("q quit · PgUp history · End follow · / search", following.GetRowText(3).TrimEnd());
             RenderContext context = new RenderContext(TerminalProfile.Fixed(60, 4), theme);
             Assert.Equal(context.Style(ThemeToken.Accent), following[0, 3].Style);
             Assert.Equal(context.Style(ThemeToken.Muted), following[2, 3].Style);

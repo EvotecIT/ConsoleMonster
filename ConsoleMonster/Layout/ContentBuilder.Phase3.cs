@@ -38,6 +38,14 @@ namespace ConsoleMonster.Layout {
         public ContentBuilder Breadcrumb(BreadcrumbInputOptions definition) => Add(definition.Build());
         /// <summary>Adds a configured accordion.</summary><param name="configure">Group settings.</param><returns>This builder.</returns>
         public ContentBuilder Accordion(Action<Accordion>? configure = null) { var accordion = Ui.Accordion(); configure?.Invoke(accordion); return Add(accordion); }
+        /// <summary>Adds a configured app log with a find bar.</summary><param name="configure">Viewport settings.</param><returns>This builder.</returns>
+        public ContentBuilder LogViewport(Action<LogViewport> configure) { var log = Ui.LogViewport(); configure(log); return Add(log); }
+        /// <summary>Adds an app log with a find bar.</summary><param name="log">The viewport.</param><returns>This builder.</returns>
+        public ContentBuilder LogViewport(LogViewport log) => Add(log);
+        /// <summary>Adds a configured summary frame.</summary><param name="configure">Frame settings.</param><returns>This builder.</returns>
+        public ContentBuilder DashboardFrame(Action<Frames.DashboardFrame> configure) { var frame = Ui.DashboardFrame(); configure(frame); return Add(frame); }
+        /// <summary>Adds a summary frame.</summary><param name="frame">The frame.</param><returns>This builder.</returns>
+        public ContentBuilder DashboardFrame(Frames.DashboardFrame frame) => Add(frame);
         /// <summary>Adds an accordion.</summary><param name="accordion">The group.</param><returns>This builder.</returns>
         public ContentBuilder Accordion(Accordion accordion) => Add(accordion);
         /// <summary>Adds a configured splitter.</summary><param name="configure">Splitter settings.</param><returns>This builder.</returns>

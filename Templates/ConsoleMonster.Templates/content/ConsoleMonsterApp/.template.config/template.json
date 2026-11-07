@@ -176,6 +176,9 @@
         },
         {
           "choice": "incident-workbench"
+        },
+        {
+          "choice": "server-estate"
         }
       ],
       "defaultValue": "none"
@@ -864,6 +867,22 @@
         "incident-workbench/Program.Fluent.cs": "Program.Fluent.cs"
       },
       "condition": "(demo == \"incident-workbench\")"
+    },
+    {
+      "source": "gallery/",
+      "target": "./",
+      "include": [
+        "server-estate/Program.cs",
+        "server-estate/Program.Fluent.cs"
+      ],
+      "copyOnly": [
+        "**/*.cs"
+      ],
+      "rename": {
+        "server-estate/Program.cs": "Program.cs",
+        "server-estate/Program.Fluent.cs": "Program.Fluent.cs"
+      },
+      "condition": "(demo == \"server-estate\")"
     }
   ]
 }

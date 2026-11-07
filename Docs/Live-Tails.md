@@ -60,9 +60,11 @@ Use `Watch-ConsoleLog -Path ./service.log -TimestampFormat 'yyyy-MM-dd HH:mm:ss 
 | Up / PgUp / Home | Scroll toward older entries and pause following. |
 | Down / PgDn | Scroll toward newer entries; reaching the newest resumes following. |
 | End | Return to the newest entries and resume following. |
+| / or Ctrl+F | Open the find bar: type to highlight and count matches, Enter and Shift+Enter move, Escape closes it and keeps the matches. While the bar is open, q is typing. |
+| n / N | Move to the next or previous kept match; Escape clears the matches. |
 | q / Escape / Ctrl+C | End the tail and restore the terminal. |
 
-The view shares its follow, pause and filter model with the app `LogViewport` (see [Full-screen controls](Full-Screen-Controls.md)), so both behave the same way. New entries still arrive while paused. The warning-colored `⏸ Paused · viewing history` state shows how many new lines have been applied since pausing, including each row of a multiline entry. The counter resets when End or forward navigation resumes following. The viewport stays on its retained history until navigation resumes following; eviction can remove the oldest history. Long messages are clipped to the available row width rather than wrapped. The footer highlights the keys in `q quit · PgUp history · End follow`; Escape and Ctrl+C also quit.
+The view shares its follow, pause and filter model with the app `LogViewport` (see [Full-screen controls](Full-Screen-Controls.md)), so both behave the same way. New entries still arrive while paused. The warning-colored `⏸ Paused · viewing history` state shows how many new lines have been applied since pausing, including each row of a multiline entry. The counter resets when End or forward navigation resumes following. The viewport stays on its retained history until navigation resumes following; eviction can remove the oldest history. Long messages are clipped to the available row width rather than wrapped. The footer highlights the keys in `q quit · PgUp history · End follow · / search`, and adds `n next` while matches are kept; Escape and Ctrl+C also quit. The find bar is the same one `LogViewport` and `New-ConsoleLogRegion` inside `Show-ConsoleApp` use.
 
 ## C#
 

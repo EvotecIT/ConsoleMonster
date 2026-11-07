@@ -51,6 +51,9 @@ namespace SiteFrames.Pages {
             public ColorDepth Depth { get; set; } = ColorDepth.TrueColor;
             public GlyphTier Glyphs { get; set; } = GlyphTier.Full;
 
+            /// <summary>Whether the generated C# fluent program must draw the same screens as the program.</summary>
+            public bool CheckFluent { get; set; }
+
             /// <summary>
             /// Keys sent only once the screen shows a text: each step waits (up to ten seconds) for its text, then sends its
             /// keys. When set, the capture uses these instead of <see cref="Keys"/>, which stays the same keys as one script.
@@ -62,6 +65,15 @@ namespace SiteFrames.Pages {
         }
 
         private static readonly TimeSpan StepTimeout = TimeSpan.FromSeconds(10);
+
+        internal static readonly (string Ready, string Keys)[] TreeSteps = {
+            ("Selected: $estate.Warsaw", "Right"),
+            ("WEB01", "Down*4 Right"),
+            ("WEB11", "\"sql\""),
+            ("Selected: $estate.Warsaw[1]", "dclick:8,3"),
+            ("Role     Database", "Down Down"),
+            ("Selected: $estate.Berlin[1].Patched", "Escape")
+        };
 
         private static IEnumerable<Story> Stories() {
             yield return new Story("select", "Selection", "A list that filters as you type, with groups, badges, and choices that are unavailable with their reason. The answer comes back as the chosen object, not a string.",
@@ -88,6 +100,9 @@ namespace SiteFrames.Pages {
             // The same program as the grid, driven by the pointer: every click has the key the grid above uses.
             yield return new Story("grid-mouse", "The grid with the mouse", "The same program, with the mouse. Clicking a header sorts by it, clicking a row moves to it, double-clicking shows every column (Escape closes it), a right click lists the keys that work there, and clicking a hint in the footer presses its key: here Space to select and Ctrl+Enter to finish.",
                 "click:46,4 click:12,6 click:14,21 click:12,11 click:14,21 dclick:12,11 Escape rclick:40,11 Escape click:30,21", 110, 22, false, false) { ExampleId = "grid" };
+            // A TreeSelect: Right expands, typing filters the open branches, a double-click opens a row as Enter does.
+            yield return new Story("tree", "A tree you can filter", "An object tree inside an app. Right expands a branch, typing filters what is open, and a double-click (or Enter) opens a row as its own tree. The line underneath shows the path of the selected node, which is the value in app state.",
+                "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, false, false) { CheckFluent = true, Steps = TreeSteps };
         }
 
         private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", story.Area, story.ExampleId + ".cs");
@@ -102,7 +117,7 @@ namespace SiteFrames.Pages {
         // The driver: the scripted keys and the capture, set as the process defaults the shown program's prompts pick up. The
         // run gets a fresh, empty temporary folder (a program may keep state there, such as the menu's presets), and every key
         // must be used: a program that ends early, or waits for more keys, fails the render.
-        private static ScreenCapture Capture(Site site, Story story, ITheme? theme = null) {
+        private static ScreenCapture Capture(Site site, Story story, ITheme? theme = null, bool fluent = false) {
             ScreenCapture capture = new ScreenCapture(story.Width, story.Height, story.Inline);
             ScriptedInput keys = new ScriptedInput(story.Steps == null ? story.Keys : string.Empty) { Paced = true, RealTime = story.RealTime };
             foreach ((string ready, string step) in story.Steps ?? Array.Empty<(string, string)>()) {
@@ -125,7 +140,7 @@ namespace SiteFrames.Pages {
                 Environment.SetEnvironmentVariable("TMP", fresh);
                 Environment.SetEnvironmentVariable("TEMP", fresh);
                 Environment.SetEnvironmentVariable("TMPDIR", fresh);
-                CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? story.Theme ?? Theme.Dark, options);
+                CSharpRunner.Execute(ProgramPath(site, story), Profile(story), theme ?? story.Theme ?? Theme.Dark, options, fluent: fluent);
             } finally {
                 Environment.SetEnvironmentVariable("TMP", tmp);
                 Environment.SetEnvironmentVariable("TEMP", temp);
@@ -200,10 +215,11 @@ namespace SiteFrames.Pages {
                 ". " + q(script) + "\n" +
                 "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
                 "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
-                "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
+                "$cmPreviousScreen = $null\n$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
                 "    $cmHtml = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToHtml($cmFrame)\n" +
                 "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
-                "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                "    $cmScreen = $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                "    if ($cmScreen -cne $cmPreviousScreen) { $cmScreen; $cmPreviousScreen = $cmScreen }\n" +
                 "}\n" +
                 "[IO.File]::WriteAllText(" + q(output) + ", ('source " + Fingerprint(site, story) + "' + [string][char]12 + (@($cmScreens) -join [string][char]12)), [Text.UTF8Encoding]::new($false))\n";
             string wrapper = Path.Combine(Path.GetTempPath(), "cmsite-interactive-" + story.Id + "-" + (host ?? PowerShellHost.Core).Id + ".ps1");
@@ -280,12 +296,22 @@ namespace SiteFrames.Pages {
                     entry["powershellFull"] = powershellFull;
                     entry["powershellFile"] = story.ExampleId + ".ps1";
                     entry["parity"] = Parity(site, story, capture, problems);
+                    if (story.CheckFluent) { entry["fluentParity"] = SameFluent(site, story, capture, problems); }
                 }
                 SourceStyles.Add(site, entry, ProgramPath(site, story));
                 list.Add(entry);
             }
             site.WriteJson(site.Data("interactive"), new JsonObject { ["stories"] = list });
             WidgetsPage.Report(problems, "interactive");
+        }
+
+        // Whether the generated C# fluent program drew the same screens, cells and styles, as the program for the same keys.
+        private static bool SameFluent(Site site, Story story, ScreenCapture capture, List<string> problems) {
+            List<string> expected = Distinct(capture.Frames.Select(Describe));
+            List<string> fluent = Distinct(Capture(site, story, null, true).Frames.Select(Describe));
+            if (expected.SequenceEqual(fluent)) { return true; }
+            problems.Add(story.Id + ": the C# fluent program drew " + fluent.Count + " distinct screens that differ from the program's " + expected.Count + ".");
+            return false;
         }
 
         // Whether the PowerShell twin drew the same screens (by their text) as the C# program for the same keys.

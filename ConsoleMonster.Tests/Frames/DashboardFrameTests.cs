@@ -20,6 +20,38 @@ public sealed class DashboardFrameTests {
 
     private static string[] Lines(string text) => text.Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
 
+    [Fact]
+    public void FluentBuilderDrawsTheSameFrameAsTheInitializerForm() {
+        DashboardFrame declared = new DashboardFrame("Server estate");
+        declared.Header.Facts.Add("48 servers");
+        declared.Header.States.Add(FrameState.Of(HealthState.Failing, 1, "failing"));
+        declared.Meters.Add(Meter.Composition("Servers healthy", 44, 3, 1));
+        declared.Attention.Noun = "server";
+        declared.Attention.OutOf = 48;
+        AttentionItem disk = new AttentionItem(HealthState.Failing, "SQL-03", "Disk D: 97% full", 0);
+        disk.Values.Add("97%");
+        declared.Attention.Items.Add(disk);
+        declared.Sections.Add(new FrameSection("Sites", _ => new TextBlock("London 22")));
+        declared.Sections.Add(new FrameSection("Backups", _ => new TextBlock("Nightly OK")) { Placement = FramePlacement.Detail });
+        declared.Legend.Add(HealthState.Failing, "failing");
+        declared.Footer.Counts.Add("48 servers");
+        declared.Footer.Hint = FrameHint.None;
+
+        DashboardFrame fluent = Ui.DashboardFrame("Server estate")
+            .Fact("48 servers")
+            .State(HealthState.Failing, 1, "failing")
+            .Meter(Meter.Composition("Servers healthy", 44, 3, 1))
+            .AttentionOf("server", 48)
+            .Attention(HealthState.Failing, "SQL-03", "Disk D: 97% full", "97%")
+            .Section("Sites", c => c.Markup("London 22"))
+            .Section("Backups", c => c.Markup("Nightly OK"), section => section.Placement = FramePlacement.Detail)
+            .Legend(HealthState.Failing, "failing")
+            .FooterCount("48 servers")
+            .FooterHint(FrameHint.None);
+
+        foreach (int width in new[] { 100, 60 }) { Assert.Equal(Render(declared, width), Render(fluent, width)); }
+        Assert.Contains("1 of 48 servers", Render(fluent, 100));
+    }
     [Theory]
     [InlineData(5, 120, GlyphTier.Full)]
     [InlineData(5, 100, GlyphTier.Full)]

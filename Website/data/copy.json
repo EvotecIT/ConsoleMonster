@@ -1,4 +1,27 @@
 {
+  "demoDocs": [
+    {
+      "demos": ["incident-workbench", "chart-table", "help-sections", "settings-tabs"],
+      "title": "The parts it is built from",
+      "body": "Panes, folding sections, outlines, tabs, linked charts, trees and the find bar are ordinary controls you can use on their own, each in PowerShell, C# and C# fluent.",
+      "link": "App parts, one by one",
+      "href": "/docs/app-parts/"
+    },
+    {
+      "demos": ["log-tail"],
+      "title": "Search a log",
+      "body": "New-ConsoleLogRegion inside Show-ConsoleApp, LogViewport in C# and Watch-ConsoleLog all have the same find bar: / to search, n and N to move.",
+      "link": "Live log tails",
+      "href": "/docs/live-tails/#search-what-a-run-wrote"
+    },
+    {
+      "demos": ["server-estate"],
+      "title": "How the frame lays itself out",
+      "body": "Meters, the attention list, summary and detail sections, the narrow layout and how a module registers a frame as its default display.",
+      "link": "Dashboard frames",
+      "href": "/docs/dashboard-frames/"
+    }
+  ],
   "gridViewFallback": {
     "title": "Out-GridView in the terminal",
     "label": "Choose nodes with the existing grid; working native Out-GridView commands stay unchanged.",

@@ -51,6 +51,81 @@ namespace ConsoleMonster.Tests.Live.Tails {
         }
 
         [Fact]
+        public void FindBarTakesTypingIncludingQuitKeysAndCountsMatches() {
+            LogTailView view = new LogTailView(10);
+            Dispatch queue = new Dispatch(view);
+            foreach (string line in new[] { "disk full on sql-03", "backup quiet", "disk quota on fs-02" }) { view.Post(queue, new TailedLogEntry(line)); }
+            queue.Flush();
+            Assert.False(view.FindsWith(InputEvent.Character('q')));
+            Assert.True(view.Navigate(queue, InputEvent.Character('/')));
+            foreach (char key in "disk q") {
+                Assert.True(view.FindsWith(InputEvent.Character(key)), "the open bar takes '" + key + "', so q does not quit");
+                view.Navigate(queue, InputEvent.Character(key));
+            }
+            queue.Flush();
+            Assert.Contains("1 of 1", Screen(view));
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Backspace));
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Backspace));
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Enter));
+            queue.Flush();
+            Assert.Contains("2 of 2", Screen(view));
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Escape));
+            queue.Flush();
+            Assert.True(view.FindsWith(InputEvent.Character('n')), "kept matches take n");
+            Assert.True(view.FindsWith(InputEvent.Press(ConsoleKey.Escape)), "the first Escape clears the matches");
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Escape));
+            queue.Flush();
+            Assert.False(view.FindsWith(InputEvent.Press(ConsoleKey.Escape)), "with no matches Escape quits again");
+        }
+
+        private static string Screen(LogTailView view) {
+            CellBuffer buffer = new CellBuffer(80, 8);
+            view.Render(new Region(buffer), new RenderContext(TerminalProfile.Fixed(80, 8, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
+            return buffer.ToPlainText();
+        }
+
+        [Fact]
+        public void FindRevealsAMatchBeyondTheRightEdge() {
+            LogTailView view = new LogTailView();
+            Dispatch queue = new Dispatch(view);
+            view.Post(queue, new TailedLogEntry(new string('x', 100) + " needle"));
+            queue.Flush();
+            Screen(view);
+            view.Navigate(queue, InputEvent.Character('/'));
+            foreach (char key in "needle") { view.Navigate(queue, InputEvent.Character(key)); }
+            queue.Flush();
+            CellBuffer buffer = new CellBuffer(80, 8);
+            view.Render(new Region(buffer), new RenderContext(TerminalProfile.Fixed(80, 8), Theme.Dark));
+            Assert.Contains("needle", buffer.GetRowText(0));
+            Assert.Contains("1 of 1", buffer.GetRowText(7));
+        }
+
+        [Fact]
+        public void QueuedCloseAndNextUseThePrecedingQueryAndInterleavedApplicationKeepsNavigation() {
+            LogTailView view = new LogTailView();
+            Dispatch queue = new Dispatch(view);
+            view.Post(queue, new TailedLogEntry("needle one"));
+            view.Post(queue, new TailedLogEntry("needle two"));
+            queue.Flush();
+            Screen(view);
+            view.Navigate(queue, InputEvent.Character('/'));
+            foreach (char key in "needle") { view.Navigate(queue, InputEvent.Character(key)); }
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Escape));
+            Assert.True(view.Navigate(queue, InputEvent.Character('n')));
+            queue.Flush();
+            CellBuffer buffer = new CellBuffer(80, 8);
+            view.Render(new Region(buffer), new RenderContext(TerminalProfile.Fixed(80, 8), Theme.Dark));
+            Assert.True((buffer[0, 1].Style.Decoration & TextDecoration.Reverse) != 0);
+            Assert.False((buffer[0, 0].Style.Decoration & TextDecoration.Reverse) != 0);
+            view.Navigate(queue, InputEvent.Character('/'));
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.Escape));
+            Assert.True(queue.Pending.TryDequeue(out LiveEvent? opening));
+            view.Apply(opening!);
+            view.Navigate(queue, InputEvent.Press(ConsoleKey.UpArrow));
+            queue.Flush();
+            Assert.False(view.Following);
+        }
+        [Fact]
         public void UpPausesAndNewLinesPreserveVisibleAnchor() {
             LogTailView view = new LogTailView(10);
             Dispatch queue = new Dispatch(view);

@@ -380,7 +380,7 @@
     },
     {
       "verb": "New",
-      "count": 53,
+      "count": 54,
       "commands": [
         {
           "name": "New-ConsoleAccordion",
@@ -446,6 +446,11 @@
           "name": "New-ConsoleDashboard",
           "synopsis": "Defines a live console dashboard: a header with title and clock, the body and a footer.",
           "url": "/powershell/commands/new-consoledashboard/"
+        },
+        {
+          "name": "New-ConsoleDashboardFrame",
+          "synopsis": "Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.",
+          "url": "/powershell/commands/new-consoledashboardframe/"
         },
         {
           "name": "New-ConsoleDataGrid",
@@ -811,12 +816,17 @@
     },
     {
       "verb": "Invoke",
-      "count": 4,
+      "count": 5,
       "commands": [
         {
           "name": "Invoke-ConsoleDashboard",
           "synopsis": "Runs a console dashboard live while a script does the work.",
           "url": "/powershell/commands/invoke-consoledashboard/"
+        },
+        {
+          "name": "Invoke-ConsoleHeadless",
+          "synopsis": "Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.",
+          "url": "/powershell/commands/invoke-consoleheadless/"
         },
         {
           "name": "Invoke-ConsolePester",

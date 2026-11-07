@@ -56,7 +56,7 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private int Top => Math.Max(0, Shown - Math.Max(1, VisibleRows));
+        private int Top => Math.Max(0, Shown - (Region.Wrap ? 1 : Math.Max(1, VisibleRows)));
 
         private void Recount() {
             _counted = Region.Filter;

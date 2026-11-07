@@ -190,7 +190,9 @@ log or the pager (Ctrl+F in a text area, where `/` is typing) and type: every
 match is highlighted, the bar shows "2 of 5", Enter and Shift+Enter move to the
 next and previous match, and Escape closes the bar. In a log or the pager the
 matches stay highlighted after the bar closes, so `n` and `N` keep moving, and a
-second Escape clears them. A query with a capital letter matches case.
+second Escape clears them. A query with a capital letter matches case. In PowerShell, `New-ConsoleLogRegion` inside
+`Show-ConsoleApp` content makes the `LogViewport` (C# `Ui.LogViewport()` or `new LogViewport(key)`), and
+`Watch-ConsoleLog` has the same find bar.
 
 ## Charts you can explore
 
@@ -318,7 +320,7 @@ Wheel changes month; dragging beyond the month navigates at most four times per
 second. Minimum, maximum and unavailable days reject invalid commits visibly,
 including an unavailable interior day. Unattended prompts require a valid default.
 
-`LogViewport` retains a capped `LogRegion` with severity, elapsed time, an optional source tag
+`LogViewport` (what `New-ConsoleLogRegion` makes inside `Show-ConsoleApp` content) retains a capped `LogRegion` with severity, elapsed time, an optional source tag
 and literal messages. Each tag has its own column and a colour that stays the same for that source.
 `Filter` (`new LogFilter(tag, level, text)`) shows one source, a minimum level or matching text;
 hidden lines stay in the history and come back when the filter changes, and a new filter returns the view to the

@@ -31,6 +31,8 @@ The tail reads only completed lines, recognises each line's timestamp and level,
 | Up / PgUp / Home | Move toward older history and pause following. |
 | Down / PgDn | Move toward newer history; reaching the newest resumes following. |
 | End | Resume following at the newest entries. |
+| / or Ctrl+F | Open the find bar: type to highlight and count matches; Enter and Shift+Enter move, Escape closes it and keeps the matches. While it is open, q is typing. |
+| n / N | Move to the next or previous kept match; Escape clears them. |
 | q / Escape / Ctrl+C | Quit and restore the terminal. |
 
 ## Select and highlight literal text
@@ -84,6 +86,19 @@ Partial lines wait for their terminator and can use unbounded memory. Observed r
 
 Initialization scans the current file to find the requested completed history and retain any partial line, including with `-Tail 0`. Initial work grows with file size. Reads run synchronously, so cancellation is observed after an in-progress source read returns.
 
+## Search what a run wrote
+
+`Watch-ConsoleLog` has a find bar: press `/` (or Ctrl+F), type, and every match in the history is highlighted and counted; `n` and `N` keep moving after the bar closes. The same find bar is in every log an app shows: inside `Show-ConsoleApp` content, `New-ConsoleLogRegion` makes a retained, scrollable log (`LogViewport` in C#, `Ui.LogViewport()` in fluent C#). The [log tail demo](/demos/log-tail/) fills a bounded log live, then opens the run in one, in PowerShell, C# and C# fluent:
+
+{{< cm-frame id="log-tail-find" caption="/ and cache: both matches are highlighted and the bar counts 1 of 2." >}}
+
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleLogRegion -WidgetId worker.log -NoElapsed -Height 7 -Content { $events }
+}
+```
+
+[App parts](/docs/app-parts/#the-find-bar) shows the find bar on a deploy log, with all three languages side by side.
 ## Related
 
 Put a tail beside other widgets in a [live session](/docs/live-sessions/), or use the [logging provider](/docs/logging/) to send application events straight to a dashboard.
