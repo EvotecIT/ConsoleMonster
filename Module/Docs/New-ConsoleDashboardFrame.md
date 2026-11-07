@@ -26,11 +26,11 @@ For a script that builds its own summary. The frame prints once and lays itself 
 ### EXAMPLE 1
 ```powershell
 New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
-    @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
-    @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{
-    Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
-} | Show-Console
+                @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
+                @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
+            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{
+                Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
+            } | Show-Console
 ```
 
 A small estate summary.

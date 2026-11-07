@@ -77,6 +77,12 @@ namespace ConsoleMonster.Live.Tails {
                 try {
                     using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, session.Cancellation)) {
                         Poll(read, options, entry => view.Post(session, entry), input => {
+                            if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { return false; }
+                            // Route quit and find keys against the state after earlier queued input, even when paste or
+                            // scripted input arrives faster than the render thread can apply it.
+                            var applied = session.QueueFlush();
+                            applied.Wait(linked.Token);
+                            if (!applied.Result) { return false; }
                             if (!view.FindsWith(input) && LogTailKeys.Quit(input)) { return false; }
                             view.Navigate(session, input);
                             return true;

@@ -15,7 +15,7 @@ namespace ConsoleMonster.Live.Tails {
     public sealed class LogTailView : LiveWidget {
         private readonly LogTail _tail;
         private readonly LogFind _find;
-        // The input thread decides which keys belong to the find bar before they are queued; the render thread updates these.
+        // The input thread tracks queued open/close actions; only it writes _finding. The render thread publishes matches.
         private volatile bool _finding;
         private volatile bool _matches;
 
@@ -62,7 +62,10 @@ namespace ConsoleMonster.Live.Tails {
         public bool Navigate(ILiveDispatcher dispatcher, InputEvent input) {
             if (dispatcher == null) { throw new ArgumentNullException(nameof(dispatcher)); }
             if (input == null) { throw new ArgumentNullException(nameof(input)); }
-            if (FindsWith(input)) {
+            if (input.Is(ConsoleKey.C, KeyModifiers.Control)) { return false; }
+            // Next/previous/clear are accepted even before the preceding query is applied. They become no-ops if the
+            // applied bar has no matches, rather than being lost because an older frame published its state late.
+            if (_finding || LogFind.Opens(input) || SearchStep(input)) {
                 if (!_finding && LogFind.Opens(input)) { _finding = true; }
                 else if (_finding && input.Is(ConsoleKey.Escape)) { _finding = false; }
                 dispatcher.Post(new LiveEvent(WidgetId, "find") { Payload = input });
@@ -78,6 +81,9 @@ namespace ConsoleMonster.Live.Tails {
         internal bool FindsWith(InputEvent input) => _finding || LogFind.Opens(input) || (_matches && (input.Is(ConsoleKey.Escape)
             || (input.Kind == InputEventKind.Key && (input.Char == 'n' || input.Char == 'N') && (input.Modifiers & ~KeyModifiers.Shift) == KeyModifiers.None)));
 
+        private static bool SearchStep(InputEvent input) => input.Is(ConsoleKey.Escape)
+            || input.Kind == InputEventKind.Key && (input.Char == 'n' || input.Char == 'N') && (input.Modifiers & ~KeyModifiers.Shift) == KeyModifiers.None;
+
         /// <inheritdoc />
         public override void Apply(LiveEvent liveEvent) {
             if (liveEvent.Operation == "append" && liveEvent.Payload is TailedLogEntry entry) {
@@ -86,7 +92,6 @@ namespace ConsoleMonster.Live.Tails {
             }
             if (liveEvent.Operation == "find" && liveEvent.Payload is InputEvent key) {
                 _find.Handle(key);
-                _finding = _find.Bar.Open;
                 _matches = _find.Bar.Active;
                 return;
             }
@@ -107,8 +112,7 @@ namespace ConsoleMonster.Live.Tails {
             _tail.Region.TimestampFormat = TimestampFormat ?? DefaultTimestampFormat();
             _find.Glyphs = context.Glyphs.Tier;
             if (logRows > 0) {
-                _tail.Region.Render(region.Sub(0, 0, region.Width, logRows), context);
-                _find.Highlight(region.Sub(0, 0, region.Width, logRows), logRows, context);
+                _find.Render(region.Sub(0, 0, region.Width, logRows), context);
             }
             _tail.RenderState(region, logRows, context, true);
             if (footerRows == 2) {

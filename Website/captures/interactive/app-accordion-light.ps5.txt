@@ -14,12 +14,4 @@ source 41bc1ba00a297812ec476a2d5c11bf29
   ▸ Examples  (1)
 
 
- enter expand/collapse  + expand all  - collapse all  tab nextf0a0c69c1817253c
-  ▸ Synopsis
-› ▾ Parameters
-  -Name    server name or wildcard
-  -Role    web, db or cache
-  ▸ Examples  (1)
-
-
  enter expand/collapse  + expand all  - collapse all  tab next

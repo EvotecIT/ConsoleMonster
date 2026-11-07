@@ -340,6 +340,98 @@ Describe 'Native console applications' {
         $result.Text | Should -Match 'Find: timeout\s+2 of 2'
     }
 
+    It 'preserves script output records and restores the target after a headless failure' {
+        $record = [pscustomobject] @{ Name = 'WEB01'; Count = 42 }
+        $result = Invoke-ConsoleHeadless -ArgumentList $record { param($item) $item }
+        $result.Output[0].Name | Should -Be 'WEB01'
+        $result.Output[0].Count | Should -Be 42
+        $text = Use-ConsoleTarget -Width 53 {
+            { Invoke-ConsoleHeadless { throw 'headless failure' } } | Should -Throw '*headless failure*'
+            Write-ConsoleText 'target restored'
+        }
+        $text | Should -Match 'target restored'
+        ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ConsoleInput'))::IsAcquired | Should -BeFalse
+    }
+
+    It 'keeps headless screens whose text matches but cell styles differ' {
+        $result = Invoke-ConsoleHeadless -Width 20 -Height 4 {
+            $writer = [ConsoleMonster.Terminal]::Target.Writer
+            $writer.Write(([string][char]27 + '[31mready'))
+            $writer.Flush()
+            $writer.Write(([string][char]27 + '[H' + [char]27 + '[32mready'))
+            $writer.Flush()
+        }
+        $result.Frames.Count | Should -Be 2
+        $result.Frames[0].Text | Should -Be $result.Frames[1].Text
+        $result.Frames[0].Cells[0, 0].Style | Should -Not -Be $result.Cells[0, 0].Style
+        $result.Cells[0, 0].Style | Should -Be $result.Frames[1].Cells[0, 0].Style
+    }
+
+    It 'keeps a visible whitespace screen using <Name>' -ForEach @(
+        @{ Name = 'background'; Sgr = 42; Expected = 'on ansi16\(2\)' }
+        @{ Name = 'reverse'; Sgr = 7; Expected = 'Reverse' }
+        @{ Name = 'underline'; Sgr = 4; Expected = 'Underline' }
+        @{ Name = 'strikethrough'; Sgr = 9; Expected = 'Strikethrough' }
+    ) {
+        $result = Invoke-ConsoleHeadless -Width 20 -Height 4 -ArgumentList $Sgr {
+            param($style)
+            $writer = [ConsoleMonster.Terminal]::Target.Writer
+            $writer.Write('ready')
+            $writer.Flush()
+            $writer.Write(([string][char]27 + '[2J' + [char]27 + '[H' + [char]27 + '[' + $style + 'm   '))
+            $writer.Flush()
+        }
+        $result.Frames.Count | Should -Be 2
+        $result.Text.Trim() | Should -Be ''
+        $result.Cells[0, 0].Style.ToString() | Should -Match $Expected
+    }
+
+    It 'reveals and highlights matches in wrapped log entries' {
+        $result = Invoke-ConsoleHeadless -Width 30 -Height 9 -InputScript '/ "needle" Enter' {
+            Show-ConsoleApp -Content {
+                New-ConsoleLogRegion Log -NoElapsed -Height 4 -Wrap -Content {
+                    [pscustomobject] @{ Message = 'oldest line wraps onto another row'; Level = 'info' }
+                    [pscustomobject] @{ Message = 'needle second line wraps onto another row'; Level = 'info' }
+                    [pscustomobject] @{ Message = 'third line wraps onto another row'; Level = 'info' }
+                    [pscustomobject] @{ Message = 'fourth line wraps onto another row'; Level = 'info' }
+                    [pscustomobject] @{ Message = 'newest line wraps onto another row'; Level = 'info' }
+                }
+            }
+        }
+        $result.Text | Should -Match 'needle second'
+        $result.Text | Should -Match '1 of 1'
+        $highlighted = $false
+        for ($y = 0; $y -lt 4; $y++) {
+            for ($x = 0; $x -lt $result.Cells.Width - 5; $x++) {
+                if ($result.Cells.GetRowText($y).Substring($x).StartsWith('needle')) {
+                    $highlighted = $result.Cells[$x, $y].Style.Decoration.ToString().Contains('Reverse')
+                }
+            }
+        }
+        $highlighted | Should -BeTrue
+    }
+
+    It 'rejects pipeline input before running <Command>' -ForEach @(
+        @{ Command = 'New-ConsoleDashboardFrame'; Argument = 'Unexpected' }
+        @{ Command = 'Invoke-ConsoleHeadless'; Argument = { throw 'script must not run' } }
+    ) {
+        { 1, 2 | & $Command $Argument -ErrorAction SilentlyContinue } |
+            Should -Throw -ExpectedMessage '*does not accept pipeline objects*'
+    }
+
+    It 'accepts PowerShell records throughout a dashboard frame' {
+        $frame = New-ConsoleDashboardFrame 'Records' -State ([pscustomobject] @{
+            State = 'Warning'; Count = 1; Word = 'warning'
+        }) -Meter ([pscustomobject] @{ Label = 'Open alerts'; Value = 3 }) -Section ([pscustomobject] @{
+            Title = 'Sites'; Content = { 'London' }
+            States = @([pscustomobject] @{ State = 'Healthy'; Count = 2; Word = 'healthy' })
+        }) -Legend ([pscustomobject] @{ State = 'Warning'; Word = 'needs attention' })
+        $text = $frame | Export-ConsoleFrame -Format Text -Width 100
+        foreach ($expected in 'Records', '1 warning', 'Open alerts', '3', 'Sites', 'London', '2 healthy', 'needs attention') {
+            $text | Should -Match ([regex]::Escape($expected))
+        }
+    }
+
     It 'builds a dashboard frame from records, inferring each meter kind' {
         $frame = New-ConsoleDashboardFrame 'Server estate' -Fact '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
             @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }

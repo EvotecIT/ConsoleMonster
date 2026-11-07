@@ -258,6 +258,9 @@ namespace ConsoleMonster.Widgets {
             return shown.ToArray();
         }
 
+        // Search styles are applied to the source line, so the same wrapping and clipping preserve their positions.
+        internal Func<LogEntry, StyledLine, RenderContext, StyledLine>? TransformLine { get; set; }
+
         private int SourceWidth(LogEntry[] all, int end, int count) {
             // A filter on one tag shows only that source, and the state line already names it.
             if (Filter?.Tag != null) { return 0; }
@@ -271,13 +274,16 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <inheritdoc />
-        public override void Render(Region region, RenderContext context) {
+        public override void Render(Region region, RenderContext context) => Render(region, context, null);
+
+        /// <summary>Renders the current window, optionally revealing a wrapped entry in this layout.</summary>
+        internal void Render(Region region, RenderContext context, LogEntry? reveal) {
             if (region.Height <= 0) {
                 return;
             }
             Style muted = context.Style(ThemeToken.Muted);
             LogEntry[] all = VisibleEntries();
-            int end = all.Length - Math.Max(0, Math.Min(ScrollOffset, Math.Max(0, all.Length - region.Height)));
+            int end = all.Length - Math.Max(0, Math.Min(ScrollOffset, Math.Max(0, all.Length - (Wrap ? 1 : region.Height))));
             int count = Math.Min(end, region.Height);
             _timestampWidth = 0;
             if (ShowTimestamp) {
@@ -294,7 +300,7 @@ namespace ConsoleMonster.Widgets {
             levelWidth = _levelColumn.Resolve(levelWidth);
             _sourceWidth = SourceWidth(all, end, count);
             if (Wrap) {
-                RenderWrapped(region, context, all, end, count, levelWidth, muted);
+                RenderWrapped(region, context, all, end, count, levelWidth, muted, reveal);
                 return;
             }
             for (int i = 0; i < count; i++) {
@@ -347,7 +353,32 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Newest entries that fit as whole entries, rows filling from the top; the newest entry alone may be cut at the bottom.
-        private void RenderWrapped(Region region, RenderContext context, LogEntry[] all, int end, int count, int levelWidth, Style muted) {
+        private void RenderWrapped(Region region, RenderContext context, LogEntry[] all, int end, int count, int levelWidth, Style muted, LogEntry? reveal) {
+            int selected = reveal == null ? -1 : Array.IndexOf(all, reveal);
+            int requestedEnd = selected >= 0 ? selected + 1 : end;
+            end = requestedEnd;
+            count = Math.Min(end, region.Height);
+            // Resolving a full oldest page can introduce a wider level/source column, which changes wrapping. The
+            // measured columns only grow; repeat until both selection and prefix widths describe the same window.
+            while (true) {
+                int previousEnd = end, previousLevel = levelWidth, previousSource = _sourceWidth;
+                int widest = 0;
+                for (int i = end - count; i < end; i++) { widest = Math.Max(widest, DisplayWidth.Measure(Tag(all[i].Level, context))); }
+                levelWidth = _levelColumn.Resolve(widest);
+                _sourceWidth = SourceWidth(all, end, count);
+                int oldestRows = 0, oldestCount = 0;
+                foreach (LogEntry entry in all) {
+                    int needed = WrapEntry(entry, muted, Math.Max(1, region.Width - PrefixWidth(entry, levelWidth)), context).Count;
+                    if (oldestCount > 0 && oldestRows + needed > region.Height) { break; }
+                    oldestCount++;
+                    oldestRows += needed;
+                    if (oldestRows >= region.Height) { break; }
+                }
+                end = Math.Max(requestedEnd, oldestCount);
+                count = Math.Min(end, region.Height);
+                if (end == previousEnd && levelWidth == previousLevel && _sourceWidth == previousSource) { break; }
+            }
+            ScrollOffset = all.Length - end;
             List<KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>> shown = new List<KeyValuePair<LogEntry, IReadOnlyList<StyledLine>>>();
             int rows = 0;
             for (int i = end - 1; i >= end - count; i--) {
@@ -398,8 +429,16 @@ namespace ConsoleMonster.Widgets {
             return kept;
         }
         private StyledLine EntryLine(LogEntry entry, Style style, RenderContext context) {
+            StyledLine line = UnhighlightedEntryLine(entry, style, context);
+            line = TransformLine?.Invoke(entry, line, context) ?? line;
+            StyledText text = new StyledText(new[] { line });
+            if (entry.RichText != null) { text = Rendering.LinkTargets.Show(text, context); }
+            return Glyphs.SymbolFallback.ForOutput(text, context.Glyphs.Tier).Lines[0];
+        }
+
+        private StyledLine UnhighlightedEntryLine(LogEntry entry, Style style, RenderContext context) {
             if (entry.RichText != null) {
-                return entry.RichText.ToStyledText(context).Lines[entry.LineIndex].WithBaseStyle(style);
+                return Text.Markup.Parse(entry.RichText.ToMarkup(), context.Theme, context.Depth).Lines[entry.LineIndex].WithBaseStyle(style);
             }
             string? needle = HighlightText;
             if (needle == null || needle.Length == 0) {

@@ -168,14 +168,7 @@ namespace ConsoleMonster.Interactive {
             _tail.ClampScroll();
             if (stateRows > 0) { _tail.RenderState(region, rows, context, false); }
             if (rows <= 0) { return; }
-            int offset = _find.HorizontalOffset;
-            if (offset == 0) { _tail.Region.Render(region.Sub(0, 0, region.Width, rows), context); }
-            else {
-                var content = new CellBuffer(region.Width + offset, rows);
-                _tail.Region.Render(new Region(content), context);
-                region.Buffer.Blit(content, offset, 0, region.Width, rows, region.Bounds.X, region.Bounds.Y);
-            }
-            _find.Highlight(region, rows, context);
+            _find.Render(region.Sub(0, 0, region.Width, rows), context);
             if (_find.Bar.Open) { InputArrangement.RecordBar(this, _find.Bar.Widget(PromptLabels.For(context.Profile.Language))); }
         }
 

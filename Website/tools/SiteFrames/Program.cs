@@ -137,7 +137,8 @@ namespace SiteFrames {
                     return LargeRunFigures.Review(new Site(website), only);
                 case "review-doc-programs":
                     return DocProgramFigures.Review(new Site(website));
-                case "review-app-parts" when only != null:
+                case "review-app-parts":
+                    if (only == null) { Console.Error.WriteLine("Pass an output directory: SiteFrames review-app-parts [WebsiteRoot] [OutputDirectory]"); return 2; }
                     return AppPartFigures.Review(new Site(website), only);
                 case "review-object":
                     if (only == null) {
@@ -178,7 +179,7 @@ namespace SiteFrames {
                 case "tails-review" when only != null:
                     return TailsPage.Review(new Site(website), only);
                 default:
-                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-markdown|review-object|review-large-run|review-overview|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
+                    Console.Error.WriteLine("Usage: SiteFrames render|capture|readme|review-chart|review-text|review-markdown|review-object|review-large-run|review-overview|review-doc-programs|review-app-parts|app-review|help-review|help-proof|review-errors|review-error-shapes|native-styling|native-styling-all|builtins|builtins-proof|verify-gridview|review-gridview|review-prompt|theme-files-review|tails-review [WebsiteRoot] [area|output]");
                     return 2;
             }
         }

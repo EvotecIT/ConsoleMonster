@@ -20,13 +20,13 @@ namespace ConsoleMonster.PowerShell {
     /// $result.Text | Should -Match 'Picked FS01'</code></example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleHeadless")]
     [OutputType(typeof(ConsoleHeadlessResult))]
-    public sealed class CmdletInvokeConsoleHeadless : PSCmdlet {
+    public sealed class CmdletInvokeConsoleHeadless : NoPipelineInputCmdlet {
         /// <summary><para type="description">The script to run, usually one that calls Show-ConsoleApp or a prompt.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public ScriptBlock ScriptBlock { get; set; } = null!;
         /// <summary><para type="description">The keys, text and mouse actions to send, in the recorder's input grammar.</para></summary>
         [Parameter] public string? InputScript { get; set; }
-        /// <summary><para type="description">Terminal width in cells (default 100).</para></summary>
-        [Parameter, ValidateRange(10, 1000)] public int Width { get; set; } = 100;
+        /// <summary><para type="description">Terminal width in cells (default 0: terminal width, falling back to 100).</para></summary>
+        [Parameter, ValidateRange(0, 1000)] public int Width { get; set; }
         /// <summary><para type="description">Terminal height in cells (default 30).</para></summary>
         [Parameter, ValidateRange(3, 1000)] public int Height { get; set; } = 30;
         /// <summary><para type="description">Arguments passed to the script block.</para></summary>
@@ -34,7 +34,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            using (HeadlessTerminal terminal = new HeadlessTerminal(Width, Height)) {
+            using (HeadlessTerminal terminal = new HeadlessTerminal(Terminal.ResolveWidth(Width), Height)) {
                 var frames = new List<CellBuffer>();
                 terminal.FrameRendered += frame => { lock (frames) { frames.Add(frame); } };
                 if (!string.IsNullOrEmpty(InputScript)) { terminal.Send(InputScript!); }
@@ -43,7 +43,7 @@ namespace ConsoleMonster.PowerShell {
                 using (Terminal.Use(terminal)) { output = ScriptBlock.Invoke(ArgumentList ?? Array.Empty<object>()); }
                 CellBuffer[] drawn;
                 lock (frames) { drawn = frames.ToArray(); }
-                WriteObject(new ConsoleHeadlessResult(terminal.Snapshot(), drawn, output.Select(item => item?.BaseObject).ToArray()));
+                WriteObject(new ConsoleHeadlessResult(terminal.Snapshot(), drawn, output.Select(item => item == null ? null : Binding.PSObjectMemberSource.Identity(item)).ToArray()));
             }
         }
     }
@@ -55,8 +55,9 @@ namespace ConsoleMonster.PowerShell {
             foreach (CellBuffer frame in frames) {
                 string text = Plain(frame);
                 // The blank screen an app restores when it ends is not a screen it drew.
-                if (text.Trim().Length == 0) { continue; }
-                if (screens.Count == 0 || screens[screens.Count - 1].Text != text) { screens.Add(new ConsoleHeadlessScreen(screens.Count, text, frame)); }
+                if (!HeadlessTerminal.HasContent(frame)) { continue; }
+                // HeadlessTerminal already compares complete cells, including styles and dimensions.
+                screens.Add(new ConsoleHeadlessScreen(screens.Count, text, frame));
             }
             // An app restores the screen it started on when it ends; the result is the last screen it drew.
             ConsoleHeadlessScreen? last = screens.LastOrDefault();
@@ -70,7 +71,7 @@ namespace ConsoleMonster.PowerShell {
         public string Text { get; }
         /// <summary>The cells of that screen, with their styles.</summary>
         public CellBuffer Cells { get; }
-        /// <summary>Every distinct, non-blank screen, in order.</summary>
+        /// <summary>Every distinct screen with visible cells, in order.</summary>
         public IReadOnlyList<ConsoleHeadlessScreen> Frames { get; }
         /// <summary>What the script block returned, such as the app state from Show-ConsoleApp -PassThru.</summary>
         public IReadOnlyList<object?> Output { get; }

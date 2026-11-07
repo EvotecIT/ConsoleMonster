@@ -14,12 +14,4 @@ Guide › Install › Linux
   Configure
   Run
 
- ↑↓ move  enter open  tab next  shift+tab back  esc quit15c6620b99c6c1ec
-Guide › Install › Linux
-  Install
-    Windows
-›   Linux
-  Configure
-  Run
-
  ↑↓ move  enter open  tab next  shift+tab back  esc quit

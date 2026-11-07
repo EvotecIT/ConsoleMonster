@@ -20,7 +20,7 @@ namespace ConsoleMonster.PowerShell {
     /// } | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleDashboardFrame")]
     [OutputType(typeof(DashboardFrame))]
-    public sealed class CmdletNewConsoleDashboardFrame : PSCmdlet {
+    public sealed class CmdletNewConsoleDashboardFrame : NoPipelineInputCmdlet {
         /// <summary><para type="description">The literal title, usually the view name.</para></summary>
         [Parameter(Mandatory = true, Position = 0), AllowEmptyString] public string Title { get; set; } = string.Empty;
         /// <summary><para type="description">Facts after the title, such as the scope and counts.</para></summary>
@@ -82,7 +82,7 @@ namespace ConsoleMonster.PowerShell {
             WriteObject(frame);
         }
 
-        private static IEnumerable<object> Records(object? value) => PSItems.Items(value).Select(item => PSText.Unwrap(item) ?? item);
+        private static IEnumerable<object> Records(object? value) => PSItems.Items(value);
 
         private static Meter ToMeter(object item) {
             PSItems.RecordFields(item, "Label Kind Healthy Warning Failing Unknown NotEvaluated Whole Rest Value Fact State Reason");
@@ -120,7 +120,7 @@ namespace ConsoleMonster.PowerShell {
             foreach (object fact in PSItems.Items(PSItems.Field(item, "Facts"))) { section.Facts.Add(PSWidgets.ToText(fact)); }
             if (PSItems.Field(item, "Meta") is object meta) { section.Meta = PSWidgets.ToText(meta); }
             foreach (object state in PSItems.Items(PSItems.Field(item, "States"))) {
-                object record = PSText.Unwrap(state) ?? state;
+                object record = Binding.PSObjectMemberSource.Identity(state);
                 PSItems.RecordFields(record, "State Count Word");
                 section.States.Add(FrameState.Of(Health(record, "State"), Number(record, "Count"), Text(record, "Word")));
             }

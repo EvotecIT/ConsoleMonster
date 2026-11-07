@@ -1,6 +1,6 @@
 ---
 title: Dashboard frames
-description: Build a one-screen summary with New-ConsoleDashboardFrame or DashboardFrame, a title line with facts, meters, a needs-attention list, sections, a legend and a footer, laid out for the terminal's width.
+description: Build a dashboard frame with facts, meters, attention items and sections in PowerShell or C#, laid out for the terminal's width.
 slug: dashboard-frames
 order: 15
 group: apps

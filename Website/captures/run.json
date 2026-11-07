@@ -3,19 +3,233 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "gallery",
-  "filters": {
-    "SITEFRAMES_GALLERY": "server-estate"
-  },
+  "requestedSet": "app-parts",
+  "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "gallery/server-estate-0.ps7.ansi": {
+    "interactive/app-accordion-dark.ps5.txt": {
       "platform": "windows",
       "category": "neutral",
-      "sha256": "ba4738461b3694e05d4f3a3ac160623f08e6685b7bd730a32255c7f0345e604d",
+      "sha256": "e4d0c573f8dd3271027c211f8a9b5034d9aed8925d01838eb398a48d70aba1ff",
       "screen": "dark",
-      "width": 110,
-      "height": 30
+      "width": 70,
+      "height": 8
+    },
+    "interactive/app-accordion-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e4d0c573f8dd3271027c211f8a9b5034d9aed8925d01838eb398a48d70aba1ff",
+      "screen": "dark",
+      "width": 70,
+      "height": 8
+    },
+    "interactive/app-accordion-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "cbfcd67145addfe304d209551d2d69b8f1d8c35cf43602d3bf1fececec00b372",
+      "screen": "light",
+      "width": 70,
+      "height": 8
+    },
+    "interactive/app-accordion-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "cbfcd67145addfe304d209551d2d69b8f1d8c35cf43602d3bf1fececec00b372",
+      "screen": "light",
+      "width": 70,
+      "height": 8
+    },
+    "interactive/app-chartview-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9fd16bf7e9b5a1006f93367856783e0119b161a0ca085f4e0171d70c3a9d5c63",
+      "screen": "dark",
+      "width": 90,
+      "height": 12
+    },
+    "interactive/app-chartview-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "9fd16bf7e9b5a1006f93367856783e0119b161a0ca085f4e0171d70c3a9d5c63",
+      "screen": "dark",
+      "width": 90,
+      "height": 12
+    },
+    "interactive/app-chartview-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "2c39f7f5bc06d1b1217273aacc39ce3b7be6c8c815fad23784a8e0abe1d10c72",
+      "screen": "light",
+      "width": 90,
+      "height": 12
+    },
+    "interactive/app-chartview-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "2c39f7f5bc06d1b1217273aacc39ce3b7be6c8c815fad23784a8e0abe1d10c72",
+      "screen": "light",
+      "width": 90,
+      "height": 12
+    },
+    "interactive/app-find-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "4b6a6b629b504bacd7373293724624d3febd76e15b7d09b8576212c453151082",
+      "screen": "dark",
+      "width": 70,
+      "height": 12
+    },
+    "interactive/app-find-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "4b6a6b629b504bacd7373293724624d3febd76e15b7d09b8576212c453151082",
+      "screen": "dark",
+      "width": 70,
+      "height": 12
+    },
+    "interactive/app-find-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0fae27ca317734ee43d7dbe4ddc1a7b4b1f30dd2fde64801b10f3de2ba628c3b",
+      "screen": "light",
+      "width": 70,
+      "height": 12
+    },
+    "interactive/app-find-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "0fae27ca317734ee43d7dbe4ddc1a7b4b1f30dd2fde64801b10f3de2ba628c3b",
+      "screen": "light",
+      "width": 70,
+      "height": 12
+    },
+    "interactive/app-outline-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "876d09195673fbd03c140cef777788a7842c80f0ea9f7effe19ce1c5df47de2f",
+      "screen": "dark",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-outline-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "876d09195673fbd03c140cef777788a7842c80f0ea9f7effe19ce1c5df47de2f",
+      "screen": "dark",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-outline-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e6019f49b2d79454d712c208254a04954806f3974e8d040779d84e0de7dd7597",
+      "screen": "light",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-outline-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "e6019f49b2d79454d712c208254a04954806f3974e8d040779d84e0de7dd7597",
+      "screen": "light",
+      "width": 60,
+      "height": 8
+    },
+    "interactive/app-splitter-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f446899e5cb6376577dd30439a503ece8351119e30d8692f956eb3015f103996",
+      "screen": "dark",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-splitter-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "f446899e5cb6376577dd30439a503ece8351119e30d8692f956eb3015f103996",
+      "screen": "dark",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-splitter-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "8801281e5e078dfd41751cd6391c0f6b7faa2cbb12c0ec8706eb057f5497d543",
+      "screen": "light",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-splitter-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "8801281e5e078dfd41751cd6391c0f6b7faa2cbb12c0ec8706eb057f5497d543",
+      "screen": "light",
+      "width": 80,
+      "height": 6
+    },
+    "interactive/app-tabs-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "5363fb58bdac9ee6f54d3ec3011146794ae23cb2c19b474908777cc9e237b2f1",
+      "screen": "dark",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/app-tabs-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "5363fb58bdac9ee6f54d3ec3011146794ae23cb2c19b474908777cc9e237b2f1",
+      "screen": "dark",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/app-tabs-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "109c69b3cfec540dd5d1b82aa127353d27a0a13cd13b4f99530918b34a53831c",
+      "screen": "light",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/app-tabs-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "109c69b3cfec540dd5d1b82aa127353d27a0a13cd13b4f99530918b34a53831c",
+      "screen": "light",
+      "width": 60,
+      "height": 5
+    },
+    "interactive/tree-dark.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "d53cd0ddb3f24c3a6b2e6c4eed246c06516b124a0658726cfc9510f15bb368b7",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-dark.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "d53cd0ddb3f24c3a6b2e6c4eed246c06516b124a0658726cfc9510f15bb368b7",
+      "screen": "dark",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-light.ps5.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6ed4436d0c233b41053ba07106d471f8c3e2e7a1793ee72034d9bd8a04c99067",
+      "screen": "light",
+      "width": 90,
+      "height": 16
+    },
+    "interactive/tree-light.ps7.txt": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "6ed4436d0c233b41053ba07106d471f8c3e2e7a1793ee72034d9bd8a04c99067",
+      "screen": "light",
+      "width": 90,
+      "height": 16
     }
   }
 }

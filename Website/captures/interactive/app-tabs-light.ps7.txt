@@ -8,9 +8,4 @@ Patched 2026-10-12
 ──────────━━━━━━━───────────────────────────────────────────
 C:  41% used
 D:  97% used
- ←→ tabs  1-3 open tab  tab next  shift+tab back  esc quitc8f03594428d825b
- Overview  Disks  Services
-──────────━━━━━━━───────────────────────────────────────────
-C:  41% used
-D:  97% used
  ←→ tabs  1-3 open tab  tab next  shift+tab back  esc quit

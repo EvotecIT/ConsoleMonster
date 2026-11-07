@@ -1,4 +1,4 @@
-source 2222e49bcca943e4896ac7f0addf568b
+source 8b865391493f79a4896ac7f0addf568b
  Inventory
 ╭─ › Servers ────────────────────────────────────────────────────────────────────────────╮
 │ > + Warsaw  3 items                                                                    │
@@ -14,12 +14,44 @@ source 2222e49bcca943e4896ac7f0addf568b
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 Selected: $estate.Warsaw
 
- tab next  shift+tab back  esc quit36210960d6ebe5af
+ tab next  shift+tab back  esc quit7d8315bc1c25dc3d
  Inventory
 ╭─ › Servers ────────────────────────────────────────────────────────────────────────────╮
-│     Name     SQL11                                                                     │
-│     Role     Database                                                                  │
-│ >   Patched  2026-08-19                                                                │
+│ > - Warsaw  3 items                                                                    │
+│     + [0]   WEB01                                                                      │
+│     + [1]   SQL01                                                                      │
+│     + [2]   FS01                                                                       │
+│   + Berlin  2 items                                                                    │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+Selected: $estate.Warsaw
+
+ tab next  shift+tab back  esc quitc0144eb6d78ebc51
+ Inventory
+╭─ › Servers ────────────────────────────────────────────────────────────────────────────╮
+│   - Warsaw  3 items                                                                    │
+│     + [0]   WEB01                                                                      │
+│     + [1]   SQL01                                                                      │
+│     + [2]   FS01                                                                       │
+│ > - Berlin  2 items                                                                    │
+│     + [0]   WEB11                                                                      │
+│     + [1]   SQL11                                                                      │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+Selected: $estate.Berlin
+
+ tab next  shift+tab back  esc quitc9fc50e677f70e5b
+ Inventory
+╭─ › Servers ────────────────────────────────────────────────────────────────────────────╮
+│ >   + [1]  SQL01                                                                       │
+│     + [1]  SQL11                                                                       │
+│                                                                                        │
 │                                                                                        │
 │                                                                                        │
 │                                                                                        │
@@ -28,7 +60,23 @@ Selected: $estate.Warsaw
 │                                                                                        │
 │                                                                                        │
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
-Selected: $estate.Berlin[1].Patched
+Selected: $estate.Warsaw[1]
+
+ tab next  shift+tab back6970761ce0641787
+ Inventory
+╭─ › Servers ────────────────────────────────────────────────────────────────────────────╮
+│ >   Name     SQL11                                                                     │
+│     Role     Database                                                                  │
+│     Patched  2026-08-19                                                                │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+│                                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────╯
+Selected: $estate.Berlin[1].Name
 
  tab next  shift+tab back  esc quit36210960d6ebe5af
  Inventory

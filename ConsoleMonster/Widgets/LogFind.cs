@@ -6,6 +6,8 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Input;
 using ConsoleMonster.Interactive;
+using ConsoleMonster.Styling;
+using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
@@ -17,8 +19,9 @@ namespace ConsoleMonster.Widgets {
     internal sealed class LogFind {
         private readonly LogTail _tail;
         private int _horizontalOffset;
+        private LogEntry? _revealEntry;
 
-        internal LogFind(LogTail tail) { _tail = tail; }
+        internal LogFind(LogTail tail) { _tail = tail; tail.Region.TransformLine = HighlightEntry; }
 
         internal FindBar Bar { get; } = new FindBar();
 
@@ -86,20 +89,44 @@ namespace ConsoleMonster.Widgets {
             Bar.Search(lines, line >= 0 ? line : FirstShown(), line >= 0 ? column : 0);
         }
 
-        /// <summary>Highlights the matches on the drawn rows (the log occupies the region's first <paramref name="rows"/> rows).</summary>
-        internal void Highlight(Region region, int rows, RenderContext context) {
-            if (!Bar.Active) { return; }
-            int first = FirstShown();
-            List<LogEntry> entries = Shown().ToList();
-            for (int i = 0; i < Bar.Matches.Count; i++) {
-                FindBar.Match match = Bar.Matches[i];
-                int y = match.Line - first;
-                if (y < 0 || y >= rows) { continue; }
-                LogEntry entry = entries[match.Line];
-                int from = MatchColumn(entry, match.Start) - _horizontalOffset;
-                int to = MatchColumn(entry, match.Start + match.Length) - _horizontalOffset;
-                Bar.HighlightCells(region, y, from, to, i == Bar.Current, context);
+        /// <summary>Draws the log at its search offset and highlights matches in the visible cells.</summary>
+        internal void Render(Region region, RenderContext context) {
+            ContentWidth = region.Width;
+            Glyphs = context.Glyphs.Tier;
+            if (_horizontalOffset == 0) { _tail.Region.Render(region, context, _revealEntry); }
+            else {
+                var content = new CellBuffer(region.Width + _horizontalOffset, region.Height);
+                _tail.Region.Render(new Region(content), context);
+                region.Buffer.Blit(content, _horizontalOffset, 0, region.Width, region.Height, region.Bounds.X, region.Bounds.Y);
             }
+            _revealEntry = null;
+        }
+
+        // Apply search styling before LogRegion wraps/truncates. UTF-16 match offsets belong to the original text,
+        // while the existing renderer retains the styles across graphemes, word breaks, prefixes and continuation rows.
+        private StyledLine HighlightEntry(LogEntry entry, StyledLine source, RenderContext context) {
+            if (!Bar.Active) { return source; }
+            int line = Shown().TakeWhile(item => !ReferenceEquals(item, entry)).Count();
+            List<TextSpan> spans = new List<TextSpan>();
+            int position = 0;
+            foreach (TextSpan span in source) {
+                int end = position + span.Text.Length;
+                int copied = position;
+                for (int i = 0; i < Bar.Matches.Count; i++) {
+                    FindBar.Match match = Bar.Matches[i];
+                    if (match.Line != line) { continue; }
+                    int from = Math.Max(position, match.Start), to = Math.Min(end, match.Start + match.Length);
+                    if (from >= to) { continue; }
+                    if (from > copied) { spans.Add(new TextSpan(span.Text.Substring(copied - position, from - copied), span.Style)); }
+                    Style highlight = i == Bar.Current ? context.Style(ThemeToken.Accent).With(TextDecoration.Bold | TextDecoration.Reverse)
+                        : context.Style(ThemeToken.Highlight).With(TextDecoration.Bold | TextDecoration.Underline);
+                    spans.Add(new TextSpan(span.Text.Substring(from - position, to - from), span.Style.WithColor(highlight.Color).With(highlight.Decoration)));
+                    copied = to;
+                }
+                if (copied < end) { spans.Add(new TextSpan(span.Text.Substring(copied - position), span.Style)); }
+                position = end;
+            }
+            return new StyledLine(spans);
         }
 
         private IEnumerable<LogEntry> Shown() => _tail.Region.Entries.Where(entry => _tail.Region.Shows(entry));
@@ -116,6 +143,14 @@ namespace ConsoleMonster.Widgets {
             FindBar.Match match = Bar.Matches[Bar.Current];
             int line = match.Line;
             LogEntry entry = Shown().ElementAt(line);
+            if (_tail.Region.Wrap) {
+                _horizontalOffset = 0;
+                // Resolve against the layout being drawn, after the viewport reserves its paused-state row. A later
+                // key replaces this request even if no frame was drawn between the two keys.
+                _revealEntry = entry;
+                _tail.Pause();
+                return;
+            }
             int from = MatchColumn(entry, match.Start), to = MatchColumn(entry, match.Start + match.Length);
             if (from < _horizontalOffset) { _horizontalOffset = from; }
             else if (ContentWidth > 0 && to >= _horizontalOffset + ContentWidth) {

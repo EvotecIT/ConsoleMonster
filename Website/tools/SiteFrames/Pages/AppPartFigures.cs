@@ -17,7 +17,9 @@ namespace SiteFrames.Pages {
     /// the keys leave, in both themes, and the PowerShell 5.1 and 7 captures must draw the same screens as the program.
     /// </summary>
     internal static class AppPartFigures {
-        private sealed record Part(string Id, string Title, string Label, string Keys, int Width, int Height, string? Pick = null, bool RealTime = false, string Area = "docs");
+        private sealed record Part(string Id, string Title, string Label, string Keys, int Width, int Height, string? Pick = null, bool RealTime = false, string Area = "docs") {
+            internal (string Ready, string Keys)[]? Steps { get; init; }
+        }
 
         private static readonly Part[] Parts = {
             new("app-splitter", "Splitter", "Two panes after dragging the divider to the right", "drag:24,2,36,2 Escape", 80, 6),
@@ -25,8 +27,12 @@ namespace SiteFrames.Pages {
             new("app-outline", "Outline and breadcrumb", "Down twice and Enter: Linux is current and the breadcrumb follows", "Down Down Enter Escape", 60, 8),
             new("app-tabs", "Tabs", "A click on the Disks tab", "click:14,0 Escape", 60, 5),
             new("app-chartview", "ChartView with LinkKey", "Down in the grid moves the chart's crosshair to the same sample", "Down*4 Escape", 90, 12),
-            new("app-find", "Find bar", "Slash, a query and Enter: the second of two matches", "/ \"timeout\" Enter wait:400 Escape Escape Escape", 70, 12, "2 of 2", true),
-            new("tree", "TreeSelect", "Right expands, typing filters, a double-click opens SQL11 and Down picks Patched", "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, Area: "interactive")
+            new("app-find", "Find bar", "Slash, a query and Enter: the second of two matches", "/ \"timeout\" Enter Escape Escape Escape", 70, 12, "2 of 2") {
+                Steps = new[] { ("Deploy complete", "/ \"timeout\" Enter"), ("2 of 2", "Escape Escape Escape") }
+            },
+            new("tree", "TreeSelect", "Right expands, typing filters, a double-click opens SQL11 and Down picks Patched", "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, Area: "interactive") {
+                Steps = InteractivePage.TreeSteps
+            }
         };
 
         private static string ProgramPath(Site site, Part part) => Path.Combine(site.Website, "examples", part.Area, part.Id + ".cs");
@@ -35,7 +41,7 @@ namespace SiteFrames.Pages {
 
         private static InteractivePage.Story Story(Part part, string theme) =>
             new InteractivePage.Story(part.Id + "-" + theme, part.Title, string.Empty, part.Keys, part.Width, part.Height, false, part.RealTime) {
-                Area = part.Area, ExampleId = part.Id, Theme = theme == "light" ? Theme.Light : Theme.Dark
+                Area = part.Area, ExampleId = part.Id, Theme = theme == "light" ? Theme.Light : Theme.Dark, Steps = part.Steps
             };
 
         /// <summary>Records each part's PowerShell twin, dark and light, on every available host.</summary>
@@ -48,7 +54,11 @@ namespace SiteFrames.Pages {
         private static ScreenCapture Run(Site site, Part part, ITheme theme, bool fluent = false) {
             ScreenCapture capture = new ScreenCapture(part.Width, part.Height);
             TerminalProfile profile = CSharpRunner.Profile(part.Width, part.Height, ColorDepth.TrueColor, GlyphTier.Full);
-            ScriptedInput input = new ScriptedInput(part.Keys) { Paced = true, RealTime = part.RealTime };
+            ScriptedInput input = new ScriptedInput(part.Steps == null ? part.Keys : string.Empty) { Paced = true, RealTime = part.RealTime };
+            foreach ((string ready, string keys) in part.Steps ?? Array.Empty<(string, string)>()) {
+                input.WaitForOutput(capture, ready, TimeSpan.FromSeconds(10));
+                input.Append(keys);
+            }
             CSharpRunner.Execute(ProgramPath(site, part), profile, theme, new InteractiveOptions {
                 Mode = InteractionMode.Rich, Input = input, Capture = capture, Profile = profile, Theme = theme, Labels = new PromptLabels()
             }, fluent: fluent);

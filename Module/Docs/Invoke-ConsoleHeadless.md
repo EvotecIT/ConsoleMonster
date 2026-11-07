@@ -103,7 +103,7 @@ Accept wildcard characters: False
 ```
 
 ### -Width
-Terminal width in cells (default 100).
+Terminal width in cells (default 0: terminal width, falling back to 100).
 
 ```yaml
 Type: Int32
@@ -127,7 +127,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-- `ConsoleMonster.PowerShell.ConsoleHeadlessResult`
+- `ConsoleMonster.PowerShell.ConsoleHeadlessResult`: What a script drew on a headless terminal: the final screen, every distinct screen, and the script's output.
 
 ## RELATED LINKS
 

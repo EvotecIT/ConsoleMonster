@@ -264,11 +264,13 @@ namespace ConsoleMonster.Headless {
             if ((long)width * height > 250000) { throw new ArgumentOutOfRangeException(nameof(width), "A screen holds at most 250000 cells."); }
         }
 
-        private static bool HasContent(CellBuffer frame) {
+        /// <summary>Whether a screen has visible text, background colours or decorations on whitespace.</summary>
+        internal static bool HasContent(CellBuffer frame) {
             for (int y = 0; y < frame.Height; y++) {
                 for (int x = 0; x < frame.Width; x++) {
                     Cell cell = frame[x, y];
-                    if (!string.IsNullOrWhiteSpace(cell.Glyph) || !cell.Style.BackgroundColor.IsDefault) { return true; }
+                    if (!string.IsNullOrWhiteSpace(cell.Glyph) || !cell.Style.BackgroundColor.IsDefault
+                        || (cell.Style.Decoration & (TextDecoration.Reverse | TextDecoration.Underline | TextDecoration.Strikethrough)) != 0) { return true; }
                 }
             }
             return false;

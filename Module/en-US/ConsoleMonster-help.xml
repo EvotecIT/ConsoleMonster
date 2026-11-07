@@ -4832,7 +4832,7 @@
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Invoke-ConsoleHeadless</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ArgumentList</maml:name>
           <maml:description>
             <maml:para>Arguments passed to the script block.</maml:para>
@@ -4883,7 +4883,7 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Width</maml:name>
           <maml:description>
-            <maml:para>Terminal width in cells (default 100).</maml:para>
+            <maml:para>Terminal width in cells (default 0: terminal width, falling back to 100).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
           <dev:type>
@@ -4895,7 +4895,7 @@
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ArgumentList</maml:name>
         <maml:description>
           <maml:para>Arguments passed to the script block.</maml:para>
@@ -4946,7 +4946,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Width</maml:name>
         <maml:description>
-          <maml:para>Terminal width in cells (default 100).</maml:para>
+          <maml:para>Terminal width in cells (default 0: terminal width, falling back to 100).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
         <dev:type>
@@ -4968,6 +4968,9 @@
         <dev:type>
           <maml:name>ConsoleMonster.PowerShell.ConsoleHeadlessResult</maml:name>
         </dev:type>
+        <maml:description>
+          <maml:para>What a script drew on a headless terminal: the final screen, every distinct screen, and the script's output.</maml:para>
+        </maml:description>
       </command:returnValue>
     </command:returnValues>
     <maml:alertSet>
@@ -4979,12 +4982,12 @@
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {&#xD;
-    Show-ConsoleApp -Content {&#xD;
-        New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01&#xD;
-        New-ConsoleBinding -Content { param($State) &quot;Picked $($State.Server)&quot; }&#xD;
-    }&#xD;
-}&#xD;
-$result.Text | Should -Match 'Picked FS01'</dev:code>
+                Show-ConsoleApp -Content {&#xD;
+                    New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01&#xD;
+                    New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }&#xD;
+                }&#xD;
+            }&#xD;
+            $result.Text | Should -Match 'Picked FS01'</dev:code>
         <dev:remarks>
           <maml:para>Drive a list with a key and a click, then check the screen.</maml:para>
         </dev:remarks>
@@ -10355,7 +10358,7 @@ Show-ConsoleApp -Content {&#xD;
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleDashboardFrame</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Attention</maml:name>
           <maml:description>
             <maml:para>Needs-attention items: records with State, Identity, Reason, and optionally Order (worst first when given) and Values (short values beside the item).</maml:para>
@@ -10391,7 +10394,7 @@ Show-ConsoleApp -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Fact</maml:name>
           <maml:description>
             <maml:para>Facts after the title, such as the scope and counts.</maml:para>
@@ -10403,7 +10406,7 @@ Show-ConsoleApp -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>FooterCount</maml:name>
           <maml:description>
             <maml:para>Counts in the footer, such as '48 servers'.</maml:para>
@@ -10421,6 +10424,11 @@ Show-ConsoleApp -Content {&#xD;
             <maml:para>The footer hint: None (default, for a frame the script builds), EveryRow or EveryProperty (for frames shown for pipeline objects).</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">FrameHint</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">EveryRow</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">EveryProperty</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+          </command:parameterValueGroup>
           <dev:type>
             <maml:name>FrameHint</maml:name>
             <maml:uri />
@@ -10445,13 +10453,18 @@ Show-ConsoleApp -Content {&#xD;
             <maml:para>An explicit length (Summary, Standard or Full); without it the session preference or Standard.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ConsoleViewLength</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Summary</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Full</command:parameterValue>
+          </command:parameterValueGroup>
           <dev:type>
             <maml:name>ConsoleViewLength</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Meter</maml:name>
           <maml:description>
             <maml:para>Headline meters in priority order: records with Label and Kind (Composition, Ratio, Count, Fact or Missing). Composition takes Healthy, Warning, Failing, Unknown and NotEvaluated; Ratio takes Healthy, Whole and Rest; Count takes a number Value; Fact takes a text Value; Count and Fact also take Fact and State; Missing takes Reason. Without Kind, Whole means Ratio, Healthy means Composition, a number Value means Count, other Value means Fact, and no value means Missing.</maml:para>
@@ -10475,7 +10488,7 @@ Show-ConsoleApp -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Section</maml:name>
           <maml:description>
             <maml:para>Sections: records with Title and Content (widgets, text or a script block), and optionally Placement (Summary or Detail), Facts, Meta, States, MinWidth, MaxWidth, Grow and FullWidth.</maml:para>
@@ -10487,7 +10500,7 @@ Show-ConsoleApp -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>State</maml:name>
           <maml:description>
             <maml:para>States at the right of the title line: records or hashtables with State (Healthy, Warning, Failing, Unknown or NotEvaluated), Count and Word.</maml:para>
@@ -10514,7 +10527,7 @@ Show-ConsoleApp -Content {&#xD;
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Attention</maml:name>
         <maml:description>
           <maml:para>Needs-attention items: records with State, Identity, Reason, and optionally Order (worst first when given) and Values (short values beside the item).</maml:para>
@@ -10550,7 +10563,7 @@ Show-ConsoleApp -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Fact</maml:name>
         <maml:description>
           <maml:para>Facts after the title, such as the scope and counts.</maml:para>
@@ -10562,7 +10575,7 @@ Show-ConsoleApp -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>FooterCount</maml:name>
         <maml:description>
           <maml:para>Counts in the footer, such as '48 servers'.</maml:para>
@@ -10580,6 +10593,11 @@ Show-ConsoleApp -Content {&#xD;
           <maml:para>The footer hint: None (default, for a frame the script builds), EveryRow or EveryProperty (for frames shown for pipeline objects).</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">FrameHint</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">EveryRow</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">EveryProperty</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">None</command:parameterValue>
+        </command:parameterValueGroup>
         <dev:type>
           <maml:name>FrameHint</maml:name>
           <maml:uri />
@@ -10604,13 +10622,18 @@ Show-ConsoleApp -Content {&#xD;
           <maml:para>An explicit length (Summary, Standard or Full); without it the session preference or Standard.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ConsoleViewLength</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Summary</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Standard</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Full</command:parameterValue>
+        </command:parameterValueGroup>
         <dev:type>
           <maml:name>ConsoleViewLength</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Meter</maml:name>
         <maml:description>
           <maml:para>Headline meters in priority order: records with Label and Kind (Composition, Ratio, Count, Fact or Missing). Composition takes Healthy, Warning, Failing, Unknown and NotEvaluated; Ratio takes Healthy, Whole and Rest; Count takes a number Value; Fact takes a text Value; Count and Fact also take Fact and State; Missing takes Reason. Without Kind, Whole means Ratio, Healthy means Composition, a number Value means Count, other Value means Fact, and no value means Missing.</maml:para>
@@ -10634,7 +10657,7 @@ Show-ConsoleApp -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Section</maml:name>
         <maml:description>
           <maml:para>Sections: records with Title and Content (widgets, text or a script block), and optionally Placement (Summary or Detail), Facts, Meta, States, MinWidth, MaxWidth, Grow and FullWidth.</maml:para>
@@ -10646,7 +10669,7 @@ Show-ConsoleApp -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>State</maml:name>
         <maml:description>
           <maml:para>States at the right of the title line: records or hashtables with State (Healthy, Warning, Failing, Unknown or NotEvaluated), Count and Word.</maml:para>
@@ -10694,11 +10717,11 @@ Show-ConsoleApp -Content {&#xD;
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(&#xD;
-    @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }&#xD;
-    @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }&#xD;
-) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{&#xD;
-    Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }&#xD;
-} | Show-Console</dev:code>
+                @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }&#xD;
+                @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }&#xD;
+            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{&#xD;
+                Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }&#xD;
+            } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A small estate summary.</maml:para>
         </dev:remarks>

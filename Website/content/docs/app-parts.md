@@ -1,6 +1,6 @@
 ---
 title: App parts, one by one
-description: Splitter, Accordion, Outline and Breadcrumb, Tabs, ChartView with LinkKey, TreeSelect and the find bar, each as a small app in PowerShell, C# and C# fluent with the screen it drew.
+description: Explore panes, folding sections, outlines, tabs, linked charts, trees and searchable logs in small PowerShell, C# and C# fluent apps.
 slug: app-parts
 order: 12
 group: apps
@@ -26,7 +26,7 @@ Two panes side by side, or top and bottom with `-Vertical` (`Vertical = true`). 
 
 ```powershell
 New-ConsoleSplitter -Key Panes -Ratio 0.3 -First {
-    New-ConsolePanel -Title Servers -Content { 'WEB01  Web' }
+    New-ConsolePanel -Title Servers -Content { New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01 }
 } -Second {
     New-ConsolePanel -Title Notes -Content { 'WEB01 serves the public site.' }
 }

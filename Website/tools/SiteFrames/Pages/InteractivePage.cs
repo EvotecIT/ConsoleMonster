@@ -66,6 +66,15 @@ namespace SiteFrames.Pages {
 
         private static readonly TimeSpan StepTimeout = TimeSpan.FromSeconds(10);
 
+        internal static readonly (string Ready, string Keys)[] TreeSteps = {
+            ("Selected: $estate.Warsaw", "Right"),
+            ("WEB01", "Down*4 Right"),
+            ("WEB11", "\"sql\""),
+            ("Selected: $estate.Warsaw[1]", "dclick:8,3"),
+            ("Role     Database", "Down Down"),
+            ("Selected: $estate.Berlin[1].Patched", "Escape")
+        };
+
         private static IEnumerable<Story> Stories() {
             yield return new Story("select", "Selection", "A list that filters as you type, with groups, badges, and choices that are unavailable with their reason. The answer comes back as the chosen object, not a string.",
                 "Down Down \"we\" Down Enter", 100, 16, true, false);
@@ -93,7 +102,7 @@ namespace SiteFrames.Pages {
                 "click:46,4 click:12,6 click:14,21 click:12,11 click:14,21 dclick:12,11 Escape rclick:40,11 Escape click:30,21", 110, 22, false, false) { ExampleId = "grid" };
             // A TreeSelect: Right expands, typing filters the open branches, a double-click opens a row as Enter does.
             yield return new Story("tree", "A tree you can filter", "An object tree inside an app. Right expands a branch, typing filters what is open, and a double-click (or Enter) opens a row as its own tree. The line underneath shows the path of the selected node, which is the value in app state.",
-                "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, false, false) { CheckFluent = true };
+                "Right Down*4 Right \"sql\" dclick:8,3 Down Down Escape", 90, 16, false, false) { CheckFluent = true, Steps = TreeSteps };
         }
 
         private static string ProgramPath(Site site, Story story) => Path.Combine(site.Website, "examples", story.Area, story.ExampleId + ".cs");
@@ -206,10 +215,11 @@ namespace SiteFrames.Pages {
                 ". " + q(script) + "\n" +
                 "if ($cmKeys.Remaining -gt 0) { throw ('The script ended with ' + $cmKeys.Remaining + ' scripted keys unused.') }\n" +
                 "$cmSha = [System.Security.Cryptography.SHA256]::Create()\n" +
-                "$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
+                "$cmPreviousScreen = $null\n$cmScreens = foreach ($cmFrame in $cmCapture.Frames) {\n" +
                 "    $cmHtml = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ConsoleExporter'))::ToHtml($cmFrame)\n" +
                 "    $cmHash = ([BitConverter]::ToString($cmSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($cmHtml))) -replace '-', '').Substring(0, 16).ToLowerInvariant()\n" +
-                "    $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                "    $cmScreen = $cmHash + \"`n\" + ($cmFrame.ToPlainText() -replace \"`r`n\", \"`n\").TrimEnd()\n" +
+                "    if ($cmScreen -cne $cmPreviousScreen) { $cmScreen; $cmPreviousScreen = $cmScreen }\n" +
                 "}\n" +
                 "[IO.File]::WriteAllText(" + q(output) + ", ('source " + Fingerprint(site, story) + "' + [string][char]12 + (@($cmScreens) -join [string][char]12)), [Text.UTF8Encoding]::new($false))\n";
             string wrapper = Path.Combine(Path.GetTempPath(), "cmsite-interactive-" + story.Id + "-" + (host ?? PowerShellHost.Core).Id + ".ps1");

@@ -1,4 +1,4 @@
-source 4bec1bffe5e66cc6518766607ec2068a
+source 59eec851bf4af7cb518766607ec2068a
 Deploy 4.12.2 · / finds text
 ╭─ › deploy.log ─────────────────────────────────────────────────────╮
 │        Deploy 4.12.2 started                                       │
@@ -22,43 +22,7 @@ Deploy 4.12.2 · / finds text
 │ ✓ OK   Deploy complete                                             │
 │                                                                    │
 Find: timeout                                                   2 of 2
- enter next  shift+enter previous  esc close  tab next22b5cb02af6d8299
-Deploy 4.12.2 · / finds text
-╭─ › deploy.log ─────────────────────────────────────────────────────╮
-│        Deploy 4.12.2 started                                       │
-│        web-01 drained                                              │
-│ ▴ WARN web-01 health check timeout, retrying                       │
-│        web-01 updated                                              │
-│ ▴ WARN web-02 health check timeout, retrying                       │
-│        web-02 updated                                              │
-│ ✓ OK   Deploy complete                                             │
-│                                                                    │
-Find: timeout                                                   2 of 2
- enter next  shift+enter previous  esc close  tab next22b5cb02af6d8299
-Deploy 4.12.2 · / finds text
-╭─ › deploy.log ─────────────────────────────────────────────────────╮
-│        Deploy 4.12.2 started                                       │
-│        web-01 drained                                              │
-│ ▴ WARN web-01 health check timeout, retrying                       │
-│        web-01 updated                                              │
-│ ▴ WARN web-02 health check timeout, retrying                       │
-│        web-02 updated                                              │
-│ ✓ OK   Deploy complete                                             │
-│                                                                    │
-Find: timeout                                                   2 of 2
  enter next  shift+enter previous  esc close  tab next518766607ec2068a
-Deploy 4.12.2 · / finds text
-╭─ › deploy.log ─────────────────────────────────────────────────────╮
-│        Deploy 4.12.2 started                                       │
-│        web-01 drained                                              │
-│ ▴ WARN web-01 health check timeout, retrying                       │
-│        web-01 updated                                              │
-│ ▴ WARN web-02 health check timeout, retrying                       │
-│        web-02 updated                                              │
-│ ✓ OK   Deploy complete                                             │
-│                                                                    │
-╰────────────────────────────────────────────────────────────────────╯
- pgup history  tab next  shift+tab back  esc quit  / search518766607ec2068a
 Deploy 4.12.2 · / finds text
 ╭─ › deploy.log ─────────────────────────────────────────────────────╮
 │        Deploy 4.12.2 started                                       │
