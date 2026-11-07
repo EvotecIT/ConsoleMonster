@@ -24161,6 +24161,21 @@
       "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
       "Bindings": [
         {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
           "Parameter": "Attention",
           "ParameterType": "System.Object[]",
           "Default": null,
@@ -24434,6 +24449,21 @@
       "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
       "Bindings": [
         {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
           "Parameter": "ArgumentList",
           "ParameterType": "System.Object[]",
           "Default": null,
@@ -24504,7 +24534,7 @@
         {
           "Parameter": "Width",
           "ParameterType": "System.Int32",
-          "Default": 100,
+          "Default": 0,
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -24518,7 +24548,7 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32",
-          "Reason": "The headless terminal is created at this width."
+          "Reason": "Zero uses the terminal width, falling back to 100; an explicit width creates the headless terminal at that width."
         }
       ]
     }
