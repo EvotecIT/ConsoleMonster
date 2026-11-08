@@ -146,7 +146,8 @@ Schema version 2 adds an optional `Style` section to theme files. Version 1 file
     "Border": "Single",
     "Density": "Compact",
     "StatusMarkers": "Words",
-    "HeaderDecoration": "Underline"
+    "HeaderDecoration": "Underline",
+    "Background": "Dark"
   },
   "Tokens": { }
 }
@@ -159,6 +160,8 @@ Schema version 2 adds an optional `Style` section to theme files. Version 1 file
 - `StatusMarkers`: `Symbols` (✓ ✗ ▲, today), `Words` (`[PASS]`, `[FAIL]`, the ASCII forms at any glyph tier) or `Both`.
   Words help screen-reader users and people who find small symbols hard to tell apart.
 - `HeaderDecoration`: how table and section headers are emphasised when the token's decoration is not enough.
+- `Background`: `Dark` or `Light`, the background the theme is made for. Presets set it; a custom theme inherits it
+  from `BaseTheme` or states it, and the checker and exports use it to pick a default page background.
 
 Settings-file `Style` values override the theme's `Style`, so a user can keep a team theme's colours with their own
 density.
@@ -198,16 +201,25 @@ For each status token it reports:
 - WCAG contrast against the colour the text is actually drawn on: the token's own background when it has one (for
   example `Critical` in `ColorBlindSafe` is dark text on rose), otherwise the intended page background: the
   background given with `-Background`, or the default dark or light terminal background for the theme's variant
-  (`Surface` is for header and footer bars, not the page);
+  (`Surface` is for header and footer bars, not the page). A custom theme states its variant with the
+  `Style.Background` field of section 3 (`Dark` or `Light`); without it and without `-Background`, the contrast
+  checks report that the background is unknown instead of guessing;
 - the CIELAB distance between pass, warning and fail text colours in normal vision and under simulated protanopia,
   deuteranopia and tritanopia (full severity, Machado et al. 2009);
-- whether each status still has a non-colour marker (symbol, word, underline or bold);
+- whether the statuses can be told apart without colour: each status's rendered marker (its symbol or word at the
+  current glyph tier, and its decorations) must differ from every other status's. A decoration they all share, such
+  as bold for pass, warning and fail in `HighContrast`, does not count, and when the markers cannot be rendered the
+  result is unknown rather than a pass;
 - for a token drawn as a filled block, such as `Critical` in the colour-blind presets (dark text on the fail colour),
   that it differs from the text tokens by its fill, not by hue. Sharing the fail hue is intended (critical is a
   stronger fail), so it is not compared by distance with fail.
 
 `AccessibleThemeTests` already checks the pass, warning and fail distances; the fill rule is added there with the
 checker.
+
+A theme that uses palette indexes, such as the `Terminal` preset, has no RGB values of its own. The checker takes the
+palette with `-Palette` (a list of 16 colours, or an imported terminal scheme) and otherwise reports its contrast and
+distance checks as indeterminate, while still checking the non-colour markers.
 
 The output is an ordinary ConsoleMonster view with pass and fail rows, and objects for scripts. Built-in and custom
 themes are held to the same bar.
