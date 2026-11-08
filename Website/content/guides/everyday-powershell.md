@@ -1,6 +1,6 @@
 ---
 title: Everyday PowerShell output
-description: "Enable-ConsoleFormatting makes everyday output readable: files as trees, processes, services, JSON, CSV, commands, history, jobs, drives, searches, ACLs, certificates and network replies, each summed up underneath."
+description: "Enable-ConsoleFormatting makes everyday output readable and sums it up: folder trees, processes, services, events, JSON, history, jobs, drives and certificates."
 slug: everyday-powershell
 card: formatting
 order: 1
