@@ -66,9 +66,11 @@ $themeReport = New-ConsoleRows -Gap 1 -Content {
             [pscustomobject]@{ Label = 'Publish report'; Status = 'Pending'; Detail = 'queued' }
         }
     }
+    # Detail takes the spare width, as the Flexible column does in the C# report.
+    $detail = @{ Name = 'Detail'; Flexible = $true }
     $targets |
         New-ConsoleTable -Property Target, Status,
-            Detail -StatusProperty Status -Title 'Targets' -Expand
+            $detail -StatusProperty Status -Title 'Targets' -Expand
     New-ConsolePanel -Title 'Recent log' -Content {
         New-ConsoleLogRegion -Height 3 -Content {
             [pscustomobject]@{ Message = 'Loaded deployment plan'; Level = 'Info'; AtSeconds = 1 }
