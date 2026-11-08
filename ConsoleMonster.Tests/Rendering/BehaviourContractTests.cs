@@ -400,16 +400,25 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void AppIdleUpdates_PreserveTerminalCellDiffing() {
-            using var writer = new StringWriter();
+            using var writer = new global::ConsoleMonster.Tests.Interactive.FrameCountingWriter();
             var profile = TerminalProfile.Fixed(48, 12, ColorDepth.None, GlyphTier.Ascii).WithMode(OutputMode.Interactive);
-            using var input = new global::ConsoleMonster.Input.ScriptedInput("wait:500 Escape") { RealTime = true };
+            using var input = new global::ConsoleMonster.Input.ScriptedInput(string.Empty) { EndsQuietly = true };
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             int polls = 0;
+            bool ready = false;
             ConsoleApp.Run(new TextBlock("Idle content"), options: new ConsoleAppOptions {
                 Interactive = new InteractiveOptions { Input = input, Target = new WriterTarget(writer, profile), Profile = profile, Mode = InteractionMode.Rich },
                 Live = new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false, FramesPerSecond = 60 },
-                ProcessEvents = _ => polls++
-            });
+                ProcessEvents = _ => {
+                    polls++;
+                    if (!ready && polls > 3 && writer.Frames >= 3) {
+                        ready = true;
+                        input.Append("Escape");
+                    }
+                }
+            }, cancellationToken: deadline.Token);
             Assert.True(polls > 2, "The app must process idle ticks while its actual live output is running.");
+            Assert.True(ready, "Idle polls and multiple live frames must precede Escape.");
             Assert.Contains("Idle content", writer.ToString());
             int clears = writer.ToString().Split(new[] { "\u001b[2J" }, StringSplitOptions.None).Length - 1;
             // Alternate-screen setup, the first frame and the committed Escape can clear; idle ticks cannot.

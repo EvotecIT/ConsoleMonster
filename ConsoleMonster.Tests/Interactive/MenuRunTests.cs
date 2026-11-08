@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
@@ -24,17 +23,17 @@ namespace ConsoleMonster.Tests.Interactive
     {
         private const int Width = 90;
         private const int Height = 24;
-        private static InteractiveOptions Options(ScreenCapture capture, string keys, GlyphTier tier = GlyphTier.Full)
+        private static InteractiveOptions Options(ScreenCapture capture, FrameSignalSurface frames, string keys, GlyphTier tier = GlyphTier.Full)
         {
             return new InteractiveOptions
             {
                 Mode = InteractionMode.Rich,
                 Input = new ScriptedInput(keys)
                 {
-                    Paced = true,
-                    RealTime = true
+                    Paced = true
                 },
                 Capture = capture,
+                Surface = frames,
                 Theme = Theme.Dark,
                 Profile = TerminalProfile.Fixed(capture.Width, capture.Height, ColorDepth.TrueColor, tier),
                 Labels = new PromptLabels()
@@ -50,7 +49,7 @@ namespace ConsoleMonster.Tests.Interactive
             return frame!;
         }
 
-        private static Menu Patching(IWidget shown, Action<RunContext>? during = null)
+        private static Menu Patching(IWidget shown, FrameSignalSurface frames, string initial = "00:0", Action<RunContext>? during = null, string? updated = null)
         {
             Menu menu = new Menu("Toolbox")
             {
@@ -61,9 +60,9 @@ namespace ConsoleMonster.Tests.Interactive
                 i.Hotkey = 'p';
                 i.Action = ctx => ctx.Run(shown, run =>
                 {
-                    Thread.Sleep(350);
+                    frames.WaitForFrame("ctrl+c", initial);
                     during?.Invoke(run);
-                    Thread.Sleep(350);
+                    if (updated != null) { frames.WaitForFrame("ctrl+c", updated); }
                     return new MenuRunResult("Done");
                 });
             });
@@ -83,7 +82,8 @@ namespace ConsoleMonster.Tests.Interactive
                 Status = StatusKind.Running
             };
             ScreenCapture capture = new ScreenCapture(Width, Height);
-            Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "status", text: "verifying"))).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q", tier), StorageRoot = Storage() });
+            using var frames = new FrameSignalSurface(capture);
+            Patching(dashboard, frames, "copying files", run => run.Session.Post(new LiveEvent("dashboard", "status", text: "verifying")), "verifying").Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, frames, "Enter Escape Ctrl+Q", tier), StorageRoot = Storage() });
             CellBuffer running = RunFrame(capture, "4 servers  " + separator + "  copying files  " + separator + "  00:0");
             Assert.Contains("Toolbox " + crumb + " Patch " + crumb + " Running", running.GetRowText(0));
             // The dashboard's title is said once, on the panel, not again in the breadcrumb.
@@ -101,7 +101,8 @@ namespace ConsoleMonster.Tests.Interactive
         {
             Dashboard dashboard = new Dashboard("Patching", new ProgressBar("Overall", "overall") { Total = 2 });
             ScreenCapture capture = new ScreenCapture(Width, Height);
-            Patching(dashboard).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
+            using var frames = new FrameSignalSurface(capture);
+            Patching(dashboard, frames).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, frames, "Enter Escape Ctrl+Q"), StorageRoot = Storage() });
             CellBuffer running = RunFrame(capture, "00:0");
             Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.DoesNotContain("·  00:0", running.ToPlainText());
@@ -117,7 +118,8 @@ namespace ConsoleMonster.Tests.Interactive
                 Subtitle = "title test"
             };
             ScreenCapture capture = new ScreenCapture(Width, Height);
-            Patching(dashboard, run => run.Session.Post(new LiveEvent("dashboard", "title", text: "Updated check"))).Run(new MenuOptions { Layout = layout, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
+            using var frames = new FrameSignalSurface(capture);
+            Patching(dashboard, frames, "Initial check", run => run.Session.Post(new LiveEvent("dashboard", "title", text: "Updated check")), "Updated check").Run(new MenuOptions { Layout = layout, Interactive = Options(capture, frames, "Enter Escape Ctrl+Q"), StorageRoot = Storage() });
             CellBuffer initial = RunFrame(capture, "Initial check");
             CellBuffer updated = RunFrame(capture, "Updated check");
             foreach (CellBuffer frame in new[]
@@ -159,7 +161,8 @@ namespace ConsoleMonster.Tests.Interactive
             SimulatedClock clock = new SimulatedClock();
             MenuRunResult? result = null;
             ScreenCapture capture = new ScreenCapture(Width, Height);
-            Clocked(clock, clock.ToSessionOptions(), r => result = r).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:600 Escape Ctrl+Q"), StorageRoot = Storage() });
+            using var frames = new FrameSignalSurface(capture);
+            Clocked(clock, clock.ToSessionOptions(), r => result = r).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, frames, "Enter Escape Ctrl+Q"), StorageRoot = Storage() });
             Assert.NotNull(result);
             Assert.Equal(TimeSpan.FromSeconds(83), result!.Elapsed);
             Assert.Contains(capture.Frames, f => f.ToPlainText().Contains("00:01:23"));
@@ -186,7 +189,8 @@ namespace ConsoleMonster.Tests.Interactive
         public void ShellRun_PlainWidget_IsTitledWithTheRunLabel()
         {
             ScreenCapture capture = new ScreenCapture(Width, Height);
-            Patching(new ProgressBar("Overall", "overall") { Total = 2 }).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, "Enter wait:1100 Escape Ctrl+Q"), StorageRoot = Storage() });
+            using var frames = new FrameSignalSurface(capture);
+            Patching(new ProgressBar("Overall", "overall") { Total = 2 }, frames).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(capture, frames, "Enter Escape Ctrl+Q"), StorageRoot = Storage() });
             CellBuffer running = RunFrame(capture, "00:0");
             Assert.Contains("Toolbox › Patch › Running", running.GetRowText(0));
             Assert.Contains("Run", running.GetRowText(1));
@@ -206,12 +210,13 @@ namespace ConsoleMonster.Tests.Interactive
                 Detail = "saving"
             };
             ScreenCapture capture = new ScreenCapture(Width, Height);
+            using var frames = new FrameSignalSurface(capture);
             FormResult result;
             try
             {
-                result = form.Show(new FormOptions { Interactive = Options(capture, "Enter Enter wait:1100 Enter"), AfterSubmit = ctx => ctx.Run(dashboard, run =>
+                result = form.Show(new FormOptions { Interactive = Options(capture, frames, "Enter Enter Enter"), AfterSubmit = ctx => ctx.Run(dashboard, run =>
                 {
-                    Thread.Sleep(700);
+                    frames.WaitForFrame("ctrl+c", "lab-east  ·  saving  ·  00:0");
                     return new MenuRunResult("Saved");
                 }) });
             }
