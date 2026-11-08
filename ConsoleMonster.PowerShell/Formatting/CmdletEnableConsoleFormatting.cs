@@ -27,8 +27,8 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt</code>
     /// </example>
     /// <example>
-    ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
-    ///   <code>Enable-ConsoleFormatting -ProfileSnippet</code>
+    ///   <para>The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)</para>
+    ///   <code>Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet</code>
     /// </example>
     /// <example>
     ///   <para>Exclude native format command styling from the default set</para>

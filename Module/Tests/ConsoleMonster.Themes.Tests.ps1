@@ -29,11 +29,36 @@
         $loaded.ToJson() | Should -BeExactly $document.ToJson()
     }
 
-    It 'selects each built-in preset including ColorBlindSafe' {
-        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
+    It 'selects each built-in preset including both ColorBlindSafe variants' {
+        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeLight') {
             Set-ConsoleTheme -Theme $preset
             [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly $preset
         }
+        Set-ConsoleTheme -Theme ColorBlindSafeDark
+        [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly 'ColorBlindSafe'
+        Set-ConsoleTheme -Theme ColorBlindSafe
+        [ConsoleMonster.Terminal]::Theme.Name | Should -BeIn 'ColorBlindSafe', 'ColorBlindSafeLight'
+    }
+
+    It 'adds the selected theme to the profile snippet until the theme is replaced' {
+        Set-ConsoleTheme -Theme ColorBlindSafeLight
+        $snippet = @(Enable-ConsoleFormatting -ProfileSnippet)
+        $snippet | Should -Contain 'Set-ConsoleTheme -Theme ColorBlindSafeLight'
+        [Array]::IndexOf($snippet, 'Set-ConsoleTheme -Theme ColorBlindSafeLight') | Should -BeLessThan ([Array]::IndexOf($snippet, 'Enable-ConsoleFormatting'))
+        [ConsoleMonster.Terminal]::Theme = [ConsoleMonster.Styling.Theme]::Dark
+        @(Enable-ConsoleFormatting -ProfileSnippet) | Should -Not -Contain 'Set-ConsoleTheme -Theme ColorBlindSafeLight'
+    }
+
+    It 'quotes a theme file path with straight and typographic apostrophes in the profile snippet' {
+        $path = Join-Path $TestDrive ("Team's " + [char]0x2019 + "theme.json")
+        Export-ConsoleTheme -Path $path
+        Set-ConsoleTheme -Path $path
+        $line = @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Path *' }
+        $tokens = $null; $errors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($line, [ref]$tokens, [ref]$errors)
+        $errors | Should -BeNullOrEmpty
+        $command = $ast.Find({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true)
+        $command.CommandElements[2].Value | Should -BeExactly $path
     }
 
     It 'exports and reloads every style and tier as <Extension>' -ForEach @(

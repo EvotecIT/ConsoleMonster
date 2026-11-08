@@ -164,11 +164,16 @@ namespace ConsoleMonster.PowerShell {
             string options = (included != ConsoleFormattingFeature.None ? " -Include " + FeatureList(included) : string.Empty) + (excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty)
                 + (!string.Equals(errorLayout, "Standard", StringComparison.OrdinalIgnoreCase) ? " -ErrorLayout " + errorLayout : string.Empty)
                 + (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
-            return new[] {
+            List<string> lines = new List<string> {
                 "# ConsoleMonster: nicer default output in every session." + (string.IsNullOrEmpty(profilePath) ? string.Empty : " Add these lines to " + profilePath),
-                "Import-Module ConsoleMonster",
-                "Enable-ConsoleFormatting" + options
+                "Import-Module ConsoleMonster"
             };
+            string? theme = CmdletSetConsoleTheme.ProfileLine;
+            if (theme != null) {
+                lines.Add(theme);
+            }
+            lines.Add("Enable-ConsoleFormatting" + options);
+            return lines;
         }
 
         /// <summary>Restores the owned Write-Progress function and ends the progress area.</summary>

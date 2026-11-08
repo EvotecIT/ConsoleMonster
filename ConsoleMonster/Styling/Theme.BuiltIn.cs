@@ -12,11 +12,15 @@ namespace ConsoleMonster.Styling {
         public static Theme HighContrast { get; } = BuildHighContrast();
 
         /// <summary>
-        /// A dark-background preset with blue/orange status contrast, explicit low-colour fallbacks and bold/underlined
-        /// emphasis. Widgets retain their status labels and glyphs in every colour tier.
+        /// A dark-background preset for red-green colour blindness: blue pass, rose fail, yellow warning, explicit
+        /// low-colour fallbacks and bold/underlined emphasis. Widgets retain their status labels and glyphs in every colour tier.
         /// </summary>
         /// <remarks>Terminal palettes and individual colour perception vary; this is a starting point, not an accessibility certification.</remarks>
         public static Theme ColorBlindSafe { get; } = BuildColorBlindSafe();
+
+        /// <summary>The light-background counterpart of <see cref="ColorBlindSafe"/>: blue pass, magenta fail, dark gold warning.</summary>
+        /// <remarks>Terminal palettes and individual colour perception vary; this is a starting point, not an accessibility certification.</remarks>
+        public static Theme ColorBlindSafeLight { get; } = BuildColorBlindSafeLight();
 
         // Titles, headers and highlights use the terminal's own foreground (bold), so the dark theme stays readable when
         // it is used on a light background that could not be detected (for example inside Windows Terminal).

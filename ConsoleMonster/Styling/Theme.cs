@@ -81,7 +81,7 @@ namespace ConsoleMonster.Styling {
             return TokenNames.TryGetValue(name.Trim(), out token);
         }
 
-        /// <summary>Returns a built-in theme by name (Dark, Light, HighContrast or ColorBlindSafe), or <see cref="Dark"/>.</summary>
+        /// <summary>Returns a built-in theme by name (Dark, Light, HighContrast, ColorBlindSafe or ColorBlindSafeLight), or <see cref="Dark"/>.</summary>
         /// <param name="name">The name.</param>
         /// <returns>The theme.</returns>
         public static Theme FromName(string? name) {
@@ -94,7 +94,12 @@ namespace ConsoleMonster.Styling {
                     return HighContrast;
                 case "colorblindsafe":
                 case "color-blind-safe":
+                case "colorblindsafedark":
+                case "color-blind-safe-dark":
                     return ColorBlindSafe;
+                case "colorblindsafelight":
+                case "color-blind-safe-light":
+                    return ColorBlindSafeLight;
                 default:
                     return Dark;
             }

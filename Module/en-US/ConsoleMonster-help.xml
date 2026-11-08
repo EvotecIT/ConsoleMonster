@@ -2082,9 +2082,9 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 5</maml:title>
-        <dev:code>Enable-ConsoleFormatting -ProfileSnippet</dev:code>
+        <dev:code>Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet</dev:code>
         <dev:remarks>
-          <maml:para>The lines to keep it on in every session (printed, never written to the profile)</maml:para>
+          <maml:para>The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
@@ -29126,12 +29126,12 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:noun>ConsoleTheme</command:noun>
       <maml:description>
         <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-        <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
+        <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-      <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
+      <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Name">
@@ -29139,7 +29139,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.</maml:para>
+            <maml:para>The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -29147,6 +29147,8 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
             <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -29187,7 +29189,7 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Theme</maml:name>
         <maml:description>
-          <maml:para>The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.</maml:para>
+          <maml:para>The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
@@ -29195,6 +29197,8 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
@@ -29220,6 +29224,13 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Set-ConsoleTheme -Theme ColorBlindSafe</dev:code>
+        <dev:remarks>
+          <maml:para>Use status colours that stay distinct with red-green colour blindness</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
         <dev:code># Requires an existing team-theme.psd1 file. Changes the active session theme.&#xD;
             Set-ConsoleTheme -Path ./team-theme.psd1</dev:code>
         <dev:remarks>

@@ -61,10 +61,10 @@ Add a minimal themed shell prompt to the default formatting
 
 ### EXAMPLE 5
 ```powershell
-Enable-ConsoleFormatting -ProfileSnippet
+Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet
 ```
 
-The lines to keep it on in every session (printed, never written to the profile)
+The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)
 
 ### EXAMPLE 6
 ```powershell

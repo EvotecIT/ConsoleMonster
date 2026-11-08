@@ -73,8 +73,8 @@ namespace SiteFrames.Pages {
                 if (!found) { WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "docs"); }
             }
 
-            // One composition in the three built-in themes.
-            foreach ((string id, ITheme theme, Frames.Screen screen) in new[] { ("theme-dark", (ITheme)Theme.Dark, Frames.Screen.Dark), ("theme-light", Theme.Light, Frames.Screen.Light), ("theme-contrast", Theme.HighContrast, Frames.Screen.Dark) }) {
+            // One composition in the built-in themes.
+            foreach ((string id, ITheme theme, Frames.Screen screen) in new[] { ("theme-dark", (ITheme)Theme.Dark, Frames.Screen.Dark), ("theme-light", Theme.Light, Frames.Screen.Light), ("theme-contrast", Theme.HighContrast, Frames.Screen.Dark), ("theme-colorblind", Theme.ColorBlindSafe, Frames.Screen.Dark), ("theme-colorblind-light", Theme.ColorBlindSafeLight, Frames.Screen.Light) }) {
                 CellBuffer frame = Figures.Summary(site, 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
                 DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
