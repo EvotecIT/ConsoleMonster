@@ -4,7 +4,7 @@ Compare a built-in theme with a team file using the same report.
 .DESCRIPTION
 Draws illustrative status, table and log widgets twice, then leaves the team
 theme active. Download the two team JSON files beside this script. An optional
-export folder receives starting JSON files for all four built-in presets.
+export folder receives starting JSON files for all five built-in presets.
 .PARAMETER BaseTheme
 Dark or Light, matching the background of your terminal.
 .PARAMETER Path
@@ -13,7 +13,7 @@ beside this script, according to BaseTheme.
 .PARAMETER Width
 The report width in terminal columns. Use 120 or 60 to compare layouts.
 .PARAMETER ExportDirectory
-Optional folder to create for Dark, Light, HighContrast, ColorBlindSafe and
+Optional folder to create for Dark, Light, HighContrast, ColorBlindSafeDark and
 ColorBlindSafeLight JSON exports. Existing files with those preset names are replaced.
 .EXAMPLE
 ./theme-files.ps1 -BaseTheme Dark -Width 120

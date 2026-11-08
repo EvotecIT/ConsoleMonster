@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 using ConsoleMonster.Capabilities;
@@ -9,7 +8,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Selects the theme used by every ConsoleMonster widget.</para>
-    /// <para type="description">Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant on a light background; ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
+    /// <para type="description">Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
     /// </summary>
     /// <example>
     /// <para>Use the light theme for this session</para>
@@ -56,19 +55,26 @@ namespace ConsoleMonster.PowerShell {
 
         private static void Apply(Theme theme, string profileLine) {
             Terminal.Theme = theme;
-            _selected = new KeyValuePair<ITheme, string>(theme, profileLine);
+            _selected = new Selection(theme, profileLine);
         }
 
         // The command that recreates the active theme, for Enable-ConsoleFormatting -ProfileSnippet; null when the
         // theme was not chosen with Set-ConsoleTheme or has since been replaced.
         internal static string? ProfileLine {
             get {
-                KeyValuePair<ITheme, string>? selected = _selected;
-                return selected.HasValue && ReferenceEquals(selected.Value.Key, Terminal.Theme) ? selected.Value.Value : null;
+                Selection? selected = _selected;
+                return selected != null && ReferenceEquals(selected.Theme, Terminal.Theme) ? selected.ProfileLine : null;
             }
         }
 
-        private static KeyValuePair<ITheme, string>? _selected;
+        // One immutable reference, written and read atomically, so parallel runspaces never see half of a selection.
+        private static volatile Selection? _selected;
+
+        private sealed class Selection {
+            internal Selection(ITheme theme, string profileLine) { Theme = theme; ProfileLine = profileLine; }
+            internal ITheme Theme { get; }
+            internal string ProfileLine { get; }
+        }
 
         // PowerShell treats the typographic single quotes as quote characters too; each one is escaped by doubling it.
         private static readonly Regex QuotePattern = new Regex("['\u2018\u2019\u201A\u201B]");

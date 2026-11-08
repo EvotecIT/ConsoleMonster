@@ -166,7 +166,8 @@ density.
 ### A theme that follows the terminal
 
 A new `Terminal` preset maps every token to one of the terminal's 16 palette colours (green for pass, red for fail,
-yellow for warning, blue for info and so on) and emits palette indexes at every colour depth, never RGB. The terminal's
+yellow for warning, blue for info and so on) and emits palette indexes at every colour-enabled depth, never RGB. With no colour (`NO_COLOR`,
+`CONSOLEMONSTER_COLOR=none`, plain mode) it emits no colour at all, like every other theme. The terminal's
 own scheme then decides the actual colours, so ConsoleMonster always matches it, and a user who has already set up a
 colour-blind or low-vision scheme in their terminal gets it in ConsoleMonster without choosing anything.
 
@@ -195,15 +196,21 @@ Test-ConsoleTheme -Theme ColorBlindSafeLight -Background White
 For each status token it reports:
 
 - WCAG contrast against the colour the text is actually drawn on: the token's own background when it has one (for
-  example `Critical` in `ColorBlindSafe` is dark text on rose), otherwise the intended page background (dark, light or
-  the theme's `Surface` background);
-- the CIELAB distance between the effective colours of pass, warning, fail and critical (a token with its own
-  background is compared by that background) in normal vision and under simulated protanopia,
+  example `Critical` in `ColorBlindSafe` is dark text on rose), otherwise the intended page background: the
+  background given with `-Background`, or the default dark or light terminal background for the theme's variant
+  (`Surface` is for header and footer bars, not the page);
+- the CIELAB distance between pass, warning and fail text colours in normal vision and under simulated protanopia,
   deuteranopia and tritanopia (full severity, Machado et al. 2009);
-- whether each status still has a non-colour marker (symbol, word, underline or bold).
+- whether each status still has a non-colour marker (symbol, word, underline or bold);
+- for a token drawn as a filled block, such as `Critical` in the colour-blind presets (dark text on the fail colour),
+  that it differs from the text tokens by its fill, not by hue. Sharing the fail hue is intended (critical is a
+  stronger fail), so it is not compared by distance with fail.
 
-The output is an ordinary ConsoleMonster view with pass and fail rows, and objects for scripts. The checks are the same
-ones `AccessibleThemeTests` uses for the built-in presets, so built-in and custom themes are held to the same bar.
+`AccessibleThemeTests` already checks the pass, warning and fail distances; the fill rule is added there with the
+checker.
+
+The output is an ordinary ConsoleMonster view with pass and fail rows, and objects for scripts. Built-in and custom
+themes are held to the same bar.
 `-Strict` makes failures terminating, for CI in repositories that ship a team theme.
 
 ## 5. Exports follow the active theme
@@ -222,8 +229,9 @@ Change:
 
 - Widgets and objects render with the active theme by default.
 - Captured frames keep their cell colours, as today. The default page palette becomes the one that matches the theme
-  the frame was captured with (its `Surface` background, or its light or dark variant), so captured colours sit on the
-  background they were chosen for. Frames that do not record their theme keep today's `Auto` behaviour.
+  the frame was captured with: the terminal background recorded with the capture when there is one, otherwise the
+  default dark or light background for that theme's variant. Captured colours then sit on the background they were
+  chosen for. Frames that do not record their theme keep today's `Auto` behaviour.
 - `-Theme Dark|Light|HighContrast` keeps working as an explicit choice for both inputs, and a new `-Theme Current` names
   the default. Documentation and website captures keep fixed themes through their existing explicit options.
 

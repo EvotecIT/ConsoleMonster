@@ -38,7 +38,7 @@ namespace SiteFrames.Pages {
         /// <param name="site">The source website, including its team JSON examples.</param>
         /// <param name="outputDirectory">An explicit review directory outside the repository; no existing directory is cleaned.</param>
         /// <param name="powershell">Also run the public PowerShell example through the site's existing source-module capture runner.</param>
-        /// <returns>Zero after writing the text, HTML, SVG, site frame bundle and four preset exports.</returns>
+        /// <returns>Zero after writing the text, HTML, SVG, site frame bundle and five preset exports.</returns>
         /// <remarks>HTML comes from ConsoleExporter; site fragments and their stylesheet come from Site.Frame and FrameStyles.</remarks>
         public static int Review(Site site, string outputDirectory, bool powershell = false) {
             string output = Path.GetFullPath(outputDirectory);
@@ -68,8 +68,9 @@ namespace SiteFrames.Pages {
             }
 
             JsonArray presets = new JsonArray();
-            foreach (Theme preset in new[] { Theme.Dark, Theme.Light, Theme.HighContrast, Theme.ColorBlindSafe, Theme.ColorBlindSafeLight }) {
-                string name = Path.Combine("presets", preset.Name + ".json");
+            // Files are named after the Set-ConsoleTheme -Theme value, as the PowerShell example writes them.
+            foreach ((string file, Theme preset) in new[] { ("Dark", Theme.Dark), ("Light", Theme.Light), ("HighContrast", Theme.HighContrast), ("ColorBlindSafeDark", Theme.ColorBlindSafe), ("ColorBlindSafeLight", Theme.ColorBlindSafeLight) }) {
+                string name = Path.Combine("presets", file + ".json");
                 site.Write(Path.Combine(output, name), ThemeFile.FromTheme(preset).ToJson());
                 presets.Add(name.Replace('\\', '/'));
             }

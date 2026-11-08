@@ -131,7 +131,8 @@ The same partial theme in `team-dark.psd1`:
 `Name` and `Tokens` are required. `SchemaVersion` is optional and defaults to `1`;
 version `1` is the supported version. `BaseTheme` can be `Dark`, `Light`,
 `HighContrast`, `ColorBlindSafe`, `ColorBlindSafeDark` or `ColorBlindSafeLight`. Without it, unspecified styles use terminal
-defaults. A base names a built-in preset, not another file.
+defaults. A base names a built-in preset, not another file, and does not detect the background: `ColorBlindSafe`
+is always the dark variant, so a file for light terminals uses `ColorBlindSafeLight`.
 
 Token names and keys are case-insensitive. Styles accept `Foreground`,
 `Background` and `Decoration`. An omitted field inherits; an explicit `null`
@@ -165,7 +166,7 @@ and [team-light.json](../Website/examples/themes/team-light.json), then run:
 
 The sample data includes pass, warning, failure and pending states. Use the first
 command on a dark terminal and the second on a light terminal. Add
-`-ExportDirectory ./presets` to write all four starting preset files. The script
+`-ExportDirectory ./presets` to write all five starting preset files. The script
 leaves the team theme active; `Set-ConsoleTheme -Theme Dark` or `Light` restores a
 built-in palette.
 

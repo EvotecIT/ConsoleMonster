@@ -79,8 +79,8 @@ Write-ConsoleText 'Deployment ready' -Role Pass
 
 Choose `Dark`, `Light`, `HighContrast` or `ColorBlindSafe` with `-Theme`.
 `ColorBlindSafe` keeps pass, warning and fail distinct with red-green colour
-blindness (blue, yellow and underlined rose) and switches to its light variant on
-a light background; `ColorBlindSafeLight` and `ColorBlindSafeDark` pick one
+blindness (blue, yellow and underlined rose) and switches to its light variant when it
+detects a light background (otherwise it stays dark); `ColorBlindSafeLight` and `ColorBlindSafeDark` pick one
 explicitly. Status widgets retain their symbols and words. To keep the theme in
 every session, set `CONSOLEMONSTER_THEME=colorblind` or add the
 `Set-ConsoleTheme` line to your profile. Export any preset
