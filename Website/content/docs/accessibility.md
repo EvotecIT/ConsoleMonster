@@ -17,7 +17,7 @@ ConsoleMonster's output works for people who use a screen reader, need high cont
 | Less movement, same layout | `CONSOLEMONSTER_MOTION=reduced` | Spinners show a static glyph and the screen redraws at most once a second; the final state is kept. |
 | No colour | `NO_COLOR=1` | Colour goes, the layout and status words stay. |
 | High contrast | `CONSOLEMONSTER_THEME=highcontrast` | The high-contrast palette. On Windows it is chosen automatically when High Contrast is on and no theme is set. |
-| Colour-blind safe | `CONSOLEMONSTER_THEME=colorblind` | A palette that keeps pass, warning and failure apart without relying on red and green. |
+| Colour-blind safe | `CONSOLEMONSTER_THEME=colorblind` | A palette that keeps pass, warning and failure apart without relying on red and green, in a dark or light variant chosen from the background. |
 
 ## Meaning never depends on colour
 
@@ -29,7 +29,15 @@ Every status carries a symbol or a word as well as a colour: in tables, status l
 
 {{< cm-frame ids="theme-dark,theme-contrast" caption="The same summary in `Theme.Dark` and `Theme.HighContrast`." >}}
 
-In code, `Theme.HighContrast` and `Theme.ColorBlindSafe` are the same palettes, and a [theme file](/docs/themes/) can start from either.
+## Colour-blind safe
+
+Pass is blue, warning is yellow (dark gold on light backgrounds) and failure is rose (magenta on light backgrounds) and underlined. The three stay apart for protanopia and deuteranopia, and every status keeps its symbol.
+
+{{< cm-frame ids="theme-colorblind,theme-colorblind-light" caption="The same summary in `Theme.ColorBlindSafe` and `Theme.ColorBlindSafeLight`." >}}
+
+`CONSOLEMONSTER_THEME=colorblind` and `Set-ConsoleTheme ColorBlindSafe` pick the light or dark variant from the terminal background. Where the background can't be detected, `colorblind-light` and `colorblind-dark`, or `Set-ConsoleTheme ColorBlindSafeLight` and `ColorBlindSafeDark`, choose one.
+
+In code, `Theme.HighContrast`, `Theme.ColorBlindSafe` and `Theme.ColorBlindSafeLight` are the same palettes, and a [theme file](/docs/themes/) can start from any of them.
 
 ## Accessible output
 

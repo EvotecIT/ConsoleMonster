@@ -68,7 +68,7 @@ namespace SiteFrames.Pages {
             }
 
             JsonArray presets = new JsonArray();
-            foreach (Theme preset in new[] { Theme.Dark, Theme.Light, Theme.HighContrast, Theme.ColorBlindSafe }) {
+            foreach (Theme preset in new[] { Theme.Dark, Theme.Light, Theme.HighContrast, Theme.ColorBlindSafe, Theme.ColorBlindSafeLight }) {
                 string name = Path.Combine("presets", preset.Name + ".json");
                 site.Write(Path.Combine(output, name), ThemeFile.FromTheme(preset).ToJson());
                 presets.Add(name.Replace('\\', '/'));
@@ -84,7 +84,7 @@ namespace SiteFrames.Pages {
                 ["files"] = files,
                 ["presets"] = presets
             };
-            Console.WriteLine("Theme review: " + output + " (8 frames, HTML, SVG and text; 4 JSON presets).");
+            Console.WriteLine("Theme review: " + output + " (8 frames, HTML, SVG and text; 5 JSON presets).");
             if (powershell) {
                 string quote(string value) => "'" + value.Replace("'", "''") + "'";
                 foreach (PowerShellHost host in OperatingSystem.IsWindows() ? PowerShellHost.All : new[] { PowerShellHost.Core }) {

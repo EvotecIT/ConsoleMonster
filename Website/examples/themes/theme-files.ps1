@@ -13,8 +13,8 @@ beside this script, according to BaseTheme.
 .PARAMETER Width
 The report width in terminal columns. Use 120 or 60 to compare layouts.
 .PARAMETER ExportDirectory
-Optional folder to create for Dark, Light, HighContrast and ColorBlindSafe JSON
-exports. Existing files with those preset names are replaced.
+Optional folder to create for Dark, Light, HighContrast, ColorBlindSafe and
+ColorBlindSafeLight JSON exports. Existing files with those preset names are replaced.
 .EXAMPLE
 ./theme-files.ps1 -BaseTheme Dark -Width 120
 .EXAMPLE
@@ -43,7 +43,7 @@ if (-not $Path) {
 
 if ($ExportDirectory) {
     $null = New-Item -ItemType Directory -Path $ExportDirectory -Force
-    foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
+    foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeDark', 'ColorBlindSafeLight') {
         Set-ConsoleTheme -Theme $preset
         Export-ConsoleTheme -Path (Join-Path $ExportDirectory ($preset + '.json'))
     }
