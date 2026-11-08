@@ -130,7 +130,7 @@ The same partial theme in `team-dark.psd1`:
 
 `Name` and `Tokens` are required. `SchemaVersion` is optional and defaults to `1`;
 version `1` is the supported version. `BaseTheme` can be `Dark`, `Light`,
-`HighContrast`, `ColorBlindSafe` or `ColorBlindSafeLight`. Without it, unspecified styles use terminal
+`HighContrast`, `ColorBlindSafe`, `ColorBlindSafeDark` or `ColorBlindSafeLight`. Without it, unspecified styles use terminal
 defaults. A base names a built-in preset, not another file.
 
 Token names and keys are case-insensitive. Styles accept `Foreground`,

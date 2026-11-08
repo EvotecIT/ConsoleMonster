@@ -49,6 +49,18 @@
         @(Enable-ConsoleFormatting -ProfileSnippet) | Should -Not -Contain 'Set-ConsoleTheme -Theme ColorBlindSafeLight'
     }
 
+    It 'quotes a theme file path with straight and typographic apostrophes in the profile snippet' {
+        $path = Join-Path $TestDrive ("Team's " + [char]0x2019 + "theme.json")
+        Export-ConsoleTheme -Path $path
+        Set-ConsoleTheme -Path $path
+        $line = @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Path *' }
+        $tokens = $null; $errors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($line, [ref]$tokens, [ref]$errors)
+        $errors | Should -BeNullOrEmpty
+        $command = $ast.Find({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true)
+        $command.CommandElements[2].Value | Should -BeExactly $path
+    }
+
     It 'exports and reloads every style and tier as <Extension>' -ForEach @(
         @{ Extension = 'json' }
         @{ Extension = 'psd1' }

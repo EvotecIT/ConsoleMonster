@@ -13,6 +13,7 @@ namespace ConsoleMonster.Tests.Themes {
         [InlineData("Light")]
         [InlineData("HighContrast")]
         [InlineData("ColorBlindSafe")]
+        [InlineData("ColorBlindSafeLight")]
         public void Json_RoundTripsEveryTokenDefinitionAndColourTier(string preset) {
             Theme original = Theme.FromName(preset).Rename("Team's theme – 日本語");
             Theme actual = ThemeFile.Parse(ThemeFile.FromTheme(original).ToJson()).ToTheme();
@@ -49,6 +50,16 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.Null(actual.Get(ThemeToken.Focus).BackgroundColor);
             Assert.Equal(Theme.Light.Get(ThemeToken.Pass), actual.Get(ThemeToken.Pass));
             Assert.DoesNotContain("BaseTheme", document.ToJson());
+        }
+
+        [Theory]
+        [InlineData("ColorBlindSafe", "ColorBlindSafe")]
+        [InlineData("color-blind-safe-dark", "ColorBlindSafe")]
+        [InlineData("ColorBlindSafeLight", "ColorBlindSafeLight")]
+        public void Import_ColorBlindBaseThemeNames_InheritTheMatchingVariant(string baseTheme, string expected) {
+            Hashtable data = new Hashtable { ["Name"] = "Team", ["BaseTheme"] = baseTheme, ["Tokens"] = new Hashtable() };
+            Theme actual = ThemeFile.Import(data).ToTheme();
+            EqualDefinitions(Theme.FromName(expected), actual);
         }
 
         [Fact]

@@ -194,8 +194,11 @@ Test-ConsoleTheme -Theme ColorBlindSafeLight -Background White
 
 For each status token it reports:
 
-- WCAG contrast against the intended background (dark, light or the theme's `Surface` background);
-- the CIELAB distance between pass, warning, fail and critical in normal vision and under simulated protanopia,
+- WCAG contrast against the colour the text is actually drawn on: the token's own background when it has one (for
+  example `Critical` in `ColorBlindSafe` is dark text on rose), otherwise the intended page background (dark, light or
+  the theme's `Surface` background);
+- the CIELAB distance between the effective colours of pass, warning, fail and critical (a token with its own
+  background is compared by that background) in normal vision and under simulated protanopia,
   deuteranopia and tritanopia (full severity, Machado et al. 2009);
 - whether each status still has a non-colour marker (symbol, word, underline or bold).
 
@@ -205,15 +208,24 @@ ones `AccessibleThemeTests` uses for the built-in presets, so built-in and custo
 
 ## 5. Exports follow the active theme
 
-`Export-ConsoleFrame`, `Export-ConsoleRecording` and `Invoke-ConsoleRecording` take an `ExportTheme` of `Auto`, `Dark`,
-`Light` or `HighContrast` and render with the matching built-in theme, so a session using `ColorBlindSafe` or a team
-theme exports in different colours from what the user saw. `ExportOptions.DarkTheme` and `LightTheme` already allow a
-custom theme in C#.
+Exports have two kinds of input, and the theme reaches them differently:
 
-Change: exports render with the active theme by default, choosing the page background from that theme's `Surface`
-token (or its light or dark variant). `-Theme Dark|Light|HighContrast` keeps working as an explicit choice, and a new
-`-Theme Current` names the default. Documentation and website captures keep fixed themes through their existing
-explicit options.
+- **Widgets and objects** (`Export-ConsoleFrame` with a widget or ordinary objects, and recordings that re-render
+  dashboard widgets from recorded events) are rendered at export time with the built-in theme that matches
+  `ExportTheme` (`Auto`, `Dark`, `Light` or `HighContrast`). A session using `ColorBlindSafe` or a team theme therefore
+  exports in different colours from what the user saw. `ExportOptions.DarkTheme` and `LightTheme` already allow a
+  custom theme in C#.
+- **Captured frames** (a `CellBuffer` from a snapshot, `ScreenCapture` or a session recording) already carry their cell
+  colours. `ExportTheme` only chooses the page palette for them: background, default foreground and chrome.
+
+Change:
+
+- Widgets and objects render with the active theme by default.
+- Captured frames keep their cell colours, as today. The default page palette becomes the one that matches the theme
+  the frame was captured with (its `Surface` background, or its light or dark variant), so captured colours sit on the
+  background they were chosen for. Frames that do not record their theme keep today's `Auto` behaviour.
+- `-Theme Dark|Light|HighContrast` keeps working as an explicit choice for both inputs, and a new `-Theme Current` names
+  the default. Documentation and website captures keep fixed themes through their existing explicit options.
 
 ## Delivery
 

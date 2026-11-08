@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
 
@@ -47,7 +48,7 @@ namespace ConsoleMonster.PowerShell {
             try {
                 string path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
                 Theme candidate = ConsoleThemeDataFile.Load(path).ToTheme();
-                Apply(candidate, "Set-ConsoleTheme -Path '" + path.Replace("'", "''") + "'");
+                Apply(candidate, "Set-ConsoleTheme -Path '" + QuotePattern.Replace(path, "$0$0") + "'");
             } catch (Exception ex) when (ex is FormatException || ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException) {
                 ThrowTerminatingError(new ErrorRecord(ex, "InvalidConsoleThemeFile", ErrorCategory.InvalidData, Path));
             }
@@ -68,5 +69,8 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static KeyValuePair<ITheme, string>? _selected;
+
+        // PowerShell treats the typographic single quotes as quote characters too; each one is escaped by doubling it.
+        private static readonly Regex QuotePattern = new Regex("['\u2018\u2019\u201A\u201B]");
     }
 }
