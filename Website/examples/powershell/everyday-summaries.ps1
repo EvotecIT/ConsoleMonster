@@ -4,7 +4,7 @@ Enable-ConsoleFormatting
 # An invented release folder with fixed sizes and times.
 $temp = if ($IsMacOS -or $IsLinux) { '/tmp' } else { $env:TEMP }
 $root = Join-Path $temp 'release'
-Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue
+if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
 $files = [ordered] @{
     'bin/ConsoleMonster.dll' = 1048576
     'bin/ConsoleMonster.xml' = 262144

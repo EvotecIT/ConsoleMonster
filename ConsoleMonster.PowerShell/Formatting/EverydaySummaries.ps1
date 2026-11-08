@@ -165,13 +165,16 @@
     }
 }
 
-# Certificates: how many, and how many have expired or expire within 30 days (the same rule as the Status column).
+# Certificates: how many, and how many have expired or expire within 30 days (the same rule and clock as the Status column).
 @{
     TypeName = 'System.Security.Cryptography.X509Certificates.X509Certificate2'
     Summary = {
         param($items)
         if ($items.Count -lt 3) { return }
         $now = [datetime]::Now; $expired = 0; $expiring = 0
+        $pinned = [datetimeoffset]::MinValue
+        if ([datetimeoffset]::TryParse([string] $env:CONSOLEMONSTER_NOW, [cultureinfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::AssumeUniversal, [ref] $pinned)) { $now = $pinned.LocalDateTime }
         foreach ($item in $items) {
             if ($item.NotAfter -lt $now) { $expired++ } elseif ($item.NotAfter -lt $now.AddDays(30)) { $expiring++ }
         }

@@ -24,8 +24,12 @@ namespace ConsoleMonster.PowerShell {
             }
             List<ViewFact> facts = new List<ViewFact>();
             foreach (PSObject? result in output) {
-                ViewFact? fact = Fact(result?.BaseObject);
-                if (fact != null) { facts.Add(fact); }
+                // A fact naming an unknown presenter is left out; the view and the other facts still show.
+                try {
+                    ViewFact? fact = Fact(result?.BaseObject);
+                    if (fact != null) { facts.Add(fact); }
+                } catch (ArgumentException) {
+                }
             }
             return facts.Count == 0 ? null : new ViewFacts(facts);
         }

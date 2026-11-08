@@ -36,8 +36,10 @@ $servers | od
 '== table'
 $servers | Show-ConsoleTable
 Register-ConsoleView -TypeName Contoso.Broken -Property Name -Summary { throw 'no summary today' }
+Register-ConsoleView -TypeName Contoso.Odd -Property Name -Summary { @{ Value = 1; Presenter = 'Nope' }; @{ Value = 2; Label = 'kept' } }
 '== broken'
 [pscustomobject] @{ PSTypeName = 'Contoso.Broken'; Name = 'still shown' } | od
+[pscustomobject] @{ PSTypeName = 'Contoso.Odd'; Name = 'odd one' } | od
 '== end'
 '@
         $console, $rest = ($text -split '== console')[1] -split '== table'
@@ -48,6 +50,8 @@ Register-ConsoleView -TypeName Contoso.Broken -Property Name -Summary { throw 'n
         $table | Should -Not -Match 'servers ·'
         $broken | Should -Match 'still shown'
         $broken | Should -Not -Match 'no summary today'
+        $broken | Should -Match 'odd one'
+        $broken | Should -Match '(?m)^ 2 kept$'
     }
 
     It 'lists a recursive folder as one tree with listed folder sizes and keeps one folder as a table' {

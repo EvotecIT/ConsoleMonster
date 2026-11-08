@@ -35,7 +35,7 @@ function New-Record([string] $Type, [hashtable] $Data) {
 # A release folder with fixed sizes and times.
 $temp = if ($IsMacOS -or $IsLinux) { '/tmp' } else { $env:TEMP }
 $root = Join-Path $temp 'release'
-Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue
+if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
 $files = [ordered] @{
     'bin/ConsoleMonster.dll' = 1048576; 'bin/ConsoleMonster.xml' = 262144; 'bin/runtimes/libcm.so' = 393216
     'docs/README.md' = 15360; 'docs/CHANGELOG.md' = 63488; 'install.ps1' = 2048
