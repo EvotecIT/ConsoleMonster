@@ -327,13 +327,16 @@ BeforeAll {
         'Module/Examples/Example-RichText.ps1'       = @{ Arguments = '-LogFolder ([IO.Path]::GetTempPath())' }
         'Module/Examples/Example-ScriptMenu.ps1'     = @{ Arguments = '-Layout Inline'; Input = 'b Enter Escape End Enter' }
         # The whole fleet story as an app on a fixed 140 x 40 screen captured headless: apply the Nightly preset from the
-        # presets list and go back to the sidebar (Esc), choose the domain and look at its servers once they load (the keys
-        # keep their pauses), add Cert chain, review the command, run on the simulated clock, rerun the failed checks from
-        # the results, look at the history and quit. The phrases must have been on screen.
+        # presets list, wait for the loaded servers, add Cert chain, review the command, run on the simulated clock, then
+        # rerun failed checks from the results, look at the history and quit. The phrases must have been on screen.
         'Module/Examples/Example-FleetHealth.ps1'    = @{
             Arguments = '-Layout Shell -Speed 0'
-            Input     = 'wait:300 Enter wait:300 Down wait:200 Down wait:200 Up wait:300 Enter wait:300 Escape wait:300 Down wait:300 Enter wait:300 Enter wait:300 Enter wait:2500 Enter wait:300 Down Down Down wait:300 Enter wait:300 PageDown wait:300 Enter wait:300 Down Down Down Down Down Down Down Down Down wait:300 Space wait:300 Enter wait:300 PageDown wait:500 PageDown wait:800 Enter wait:8000 Down wait:300 Enter wait:500 Shift+Tab wait:300 Down wait:800 End wait:300 Enter'
-            RealTime  = $true
+            InputSteps = @(
+                @{ Keys = 'Enter Down Down Up Enter Escape Down Enter Enter Enter' }
+                @{ Ready = '11 selected'; Keys = 'Enter Down Down Down Enter PageDown Enter Down Down Down Down Down Down Down Down Down Space Enter PageDown PageDown Enter' }
+                @{ Ready = 'Fleet check finished'; Keys = 'Down Enter Shift+Tab Down End Enter' }
+            )
+            Paced     = $true
             Screen    = '140x40'
             Expect    = @(
                 "Preset 'Nightly"
@@ -348,11 +351,17 @@ BeforeAll {
         }
         # The same app in the Inline layout, in the scrollback: apply the Nightly preset from the presets list, choose the
         # domain, page through to the review, run, rerun the failed checks from the next steps, open the history and quit.
-        # Without a Screen the phrases are looked up in what the run printed.
+        # Capture inline prompts and forms; summaries and toasts still go to the scrollback.
         'Module/Examples/Example-FleetHealth.ps1 (Inline)' = @{
             Arguments = '-Layout Inline -Speed 0'
-            Input     = 'wait:300 p wait:300 Down wait:200 Enter wait:300 n wait:300 Enter wait:300 Enter wait:2000 PageDown wait:300 PageDown wait:300 PageDown wait:500 Enter wait:5000 Down wait:300 Enter wait:500 h wait:500 End wait:300 Enter'
-            RealTime  = $true
+            InputSteps = @(
+                @{ Keys = 'p Down Enter n Enter Enter' }
+                @{ Ready = '11 selected'; Keys = 'PageDown PageDown PageDown Enter' }
+                @{ Ready = 'Next steps'; Keys = 'Down Enter h End Enter' }
+            )
+            Paced     = $true
+            Screen    = '140x40'
+            Inline    = $true
             Expect    = @(
                 "all sites' applied"
                 'Invoke-FleetCheck -Domain corp.contoso.com'
@@ -415,9 +424,33 @@ BeforeAll {
     foreach ($story in $interactive.stories) {
         $name = "Website/examples/interactive/$($story.id).ps1"
         if (Test-Path -LiteralPath (Join-Path $script:RepositoryRoot $name)) {
-            $script:ExampleCases[$name] = @{ Input = $story.keys; RealTime = $true; Paced = $true; Screen = "$($story.player.w)x$($story.player.h)"; Expect = @($story.title.Substring(0, 0)) }
+            $script:ExampleCases[$name] = @{ Input = $story.keys; Paced = $true; Screen = "$($story.player.w)x$($story.player.h)" }
         }
     }
+    # App bindings render asynchronously; these transitions also prove that the keys reached the intended screens.
+    $script:ExampleCases['Website/examples/interactive/screens.ps1'].Input = ''
+    $script:ExampleCases['Website/examples/interactive/screens.ps1'].InputSteps = @(
+        @{ Ready = 'Type a number'; Keys = '"2"' }
+        @{ Ready = 'SQL01 is the'; Keys = 'Escape' }
+        @{ Ready = 'Type a number'; Keys = '"3"' }
+        @{ Ready = 'FS11 is the'; Keys = 'Escape' }
+        @{ Ready = 'Type a number'; Keys = 'Escape' }
+    )
+    $script:ExampleCases['Website/examples/interactive/controls.ps1'].Input = ''
+    $script:ExampleCases['Website/examples/interactive/controls.ps1'].InputSteps = @(
+        @{ Ready = 'Run nightly checks'; Keys = 'Space Tab Right Right Space Right Right Space Ctrl+PageDown' }
+        @{ Ready = 'Email the report'; Keys = 'Space' }
+        @{ Ready = 'Email yes'; Keys = 'Escape' }
+    )
+    $script:ExampleCases['Website/examples/interactive/tree.ps1'].Input = ''
+    $script:ExampleCases['Website/examples/interactive/tree.ps1'].InputSteps = @(
+        @{ Ready = 'Selected: $estate.Warsaw'; Keys = 'Right' }
+        @{ Ready = 'WEB01'; Keys = 'Down Down Down Down Right' }
+        @{ Ready = 'WEB11'; Keys = '"sql"' }
+        @{ Ready = 'Selected: $estate.Warsaw[1]'; Keys = 'dclick:8,3' }
+        @{ Ready = 'Role     Database'; Keys = 'Down Down' }
+        @{ Ready = 'Selected: $estate.Berlin[1].Patched'; Keys = 'Escape' }
+    )
 }
 
 Describe 'Examples run headless' -Tag 'Examples' {
@@ -461,11 +494,10 @@ Describe 'Examples run headless' -Tag 'Examples' {
             Set-ItResult -Skipped -Because 'the example runs Windows commands, as its recording does'
             return
         }
-        # Scripted keys run instantly unless the case asks for real time, which honours their wait: pauses.
-        $realTime = if ($case['RealTime']) { '$true' } else { '$false' }
+        # Site reading pauses are skipped; readiness steps yield until the app paints the expected state.
         # Paced keys wait for the prompt to take the previous one, as the site's recordings do.
         $paced = if ($case['Paced']) { '$true' } else { '$false' }
-        $keys = if ($case['Input']) { "`$scriptedKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('$($case['Input'] -replace "'", "''")'); `$scriptedKeys.RealTime = $realTime; `$scriptedKeys.Paced = $paced; ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = `$scriptedKeys" } else { '' }
+        $keys = if ($case['Input'] -or $case['InputSteps']) { "`$scriptedKeys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('$($case['Input'] -replace "'", "''")'); `$scriptedKeys.Paced = $paced; ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = `$scriptedKeys" } else { '' }
         $arguments = if ($case['Arguments']) { $case['Arguments'] } else { '' }
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         # Clear-Host needs a real console on Windows; the example's interactive recording covers it.
@@ -490,9 +522,20 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $expect = ''
         if ($case['Screen']) {
             $width, $height = $case['Screen'] -split 'x'
-            $screen = "`$capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new($width, $height, `$false); `$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default; `$options.Mode = 'Rich'; `$options.Capture = `$capture; `$options.Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, $height, 'TrueColor', 'Full')"
+            $inline = if ($case['Inline']) { '$true' } else { '$false' }
+            $screen = "`$capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new($width, $height, $inline); `$options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default; `$options.Mode = 'Rich'; `$options.Capture = `$capture; `$options.Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($width, $height, 'TrueColor', 'Full')"
             $phrases = @($case['Expect'] | ForEach-Object { "'" + ($_ -replace "'", "''") + "'" }) -join ', '
             $expect = "`$frames = @(`$capture.Frames | ForEach-Object { `$_.ToPlainText() }); foreach (`$phrase in @($phrases)) { if (`$frames | Where-Object { `$_.Contains(`$phrase) }) { 'EXAMPLE-SAW: ' + `$phrase } else { 'EXAMPLE-MISSING: ' + `$phrase } }"
+        }
+        $inputComplete = if ($case['InputSteps']) {
+            "if (`$scriptedKeys.Remaining -ne 0) { throw 'The example ended before consuming its scripted interaction.' }"
+        } else { '' }
+        foreach ($step in $case['InputSteps']) {
+            if ($step.Ready) {
+                $ready = $step.Ready.Replace("'", "''")
+                $keys += "`n`$scriptedKeys.WaitForOutput(`$capture, '$ready', [TimeSpan]::FromSeconds(30))"
+            }
+            $keys += "`n`$scriptedKeys.Append('$($step.Keys.Replace("'", "''"))')"
         }
         $script = @"
 foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }
@@ -500,14 +543,15 @@ foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONS
 `$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
 Import-Module ConsoleMonster -Force
 if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Show-Console).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
-$keys
 $screen
+$keys
 $(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
 $pager
 $clearHost
 $location
 try {
     $invoke
+    $inputComplete
     'EXAMPLE-DONE'
 } catch {
     'EXAMPLE-FAILED: ' + `$_
@@ -533,12 +577,14 @@ foreach (`$e in `$Error) { 'EXAMPLE-ERROR: ' + `$e }
             $report | Should -Match 'EXAMPLE-ERRORS=0' -Because $report
         }
         # On a captured screen the child reports each phrase it saw; otherwise the phrase must be in what it printed.
-        $printed = ($lines | ForEach-Object { ($_ -replace ($escape + '\][^\a]*?(\a|' + $escape + '\\)'), '') -replace ($escape + '\[[0-9;?]*[ -/]*[@-~]'), '' }) -join "`n"
+        $printed = ($lines | ForEach-Object { ($_ -replace ($escape + '\][^\a]*?(\a|' + $escape + '\\)'), '') -replace ($escape + '\[[0-9;?]*[ -/]*[@-~]'), '' } | Where-Object { $_ -notmatch 'EXAMPLE-' }) -join "`n"
         foreach ($phrase in @($case['Expect'])) {
             if (-not $phrase) {
                 continue
             }
-            if ($case['Screen']) {
+            if ($case['Inline']) {
+                ($report.Contains('EXAMPLE-SAW: ' + $phrase) -or $printed.Contains($phrase)) | Should -BeTrue -Because "the inline run should have shown '$phrase'. $report"
+            } elseif ($case['Screen']) {
                 $report | Should -Match ('EXAMPLE-SAW: ' + [regex]::Escape($phrase)) -Because $report
             } else {
                 $printed.Contains($phrase) | Should -BeTrue -Because "the run should have printed '$phrase'. $report"
