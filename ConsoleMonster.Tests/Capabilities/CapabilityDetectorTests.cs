@@ -12,6 +12,9 @@ namespace ConsoleMonster.Tests.Capabilities {
         [InlineData("DARK", ThemePreference.Dark, false)]
         [InlineData("auto", ThemePreference.Auto, false)]
         [InlineData("", ThemePreference.Auto, false)]
+        [InlineData("colorblind", ThemePreference.ColorBlind, false)]
+        [InlineData("color-blind-safe-light", ThemePreference.ColorBlindLight, false)]
+        [InlineData("ColorBlind-Dark", ThemePreference.ColorBlindDark, false)]
         [InlineData("sepia", ThemePreference.Auto, true)]
         public void Detect_ThemeEnvironmentValue_UsesPreferenceOrRecordsIgnoredValue(string value, ThemePreference expected, bool invalid) {
             TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {

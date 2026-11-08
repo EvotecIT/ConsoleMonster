@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Selects the theme used by every ConsoleMonster widget.
 
-Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
+Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant on a light background; ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ## SYNTAX
 ### Name (Default)
@@ -24,7 +24,7 @@ Set-ConsoleTheme -Path <string> [<CommonParameters>]
 ## DESCRIPTION
 Selects the theme used by every ConsoleMonster widget.
 
-Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds, HighContrast uses saturated primaries and ColorBlindSafe uses blue/orange status contrast. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
+Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant on a light background; ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ## EXAMPLES
 
@@ -36,6 +36,13 @@ Set-ConsoleTheme -Theme Light
 Use the light theme for this session
 
 ### EXAMPLE 2
+```powershell
+Set-ConsoleTheme -Theme ColorBlindSafe
+```
+
+Use status colours that stay distinct with red-green colour blindness
+
+### EXAMPLE 3
 ```powershell
 # Requires an existing team-theme.psd1 file. Changes the active session theme.
             Set-ConsoleTheme -Path ./team-theme.psd1
@@ -62,13 +69,13 @@ Accept wildcard characters: False
 ```
 
 ### -Theme
-The built-in theme: Dark, Light, HighContrast or ColorBlindSafe.
+The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark.
 
 ```yaml
 Type: String
 Parameter Sets: Name
 Aliases: None
-Possible values: Dark, Light, HighContrast, ColorBlindSafe
+Possible values: Dark, Light, HighContrast, ColorBlindSafe, ColorBlindSafeLight, ColorBlindSafeDark
 
 Required: True
 Position: 0

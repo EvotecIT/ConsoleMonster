@@ -104,7 +104,19 @@ namespace ConsoleMonster.Capabilities {
                     themePreference = ThemePreference.HighContrast;
                     break;
                 case "colorblind":
+                case "colorblindsafe":
+                case "color-blind-safe":
                     themePreference = ThemePreference.ColorBlind;
+                    break;
+                case "colorblind-light":
+                case "colorblindsafe-light":
+                case "color-blind-safe-light":
+                    themePreference = ThemePreference.ColorBlindLight;
+                    break;
+                case "colorblind-dark":
+                case "colorblindsafe-dark":
+                case "color-blind-safe-dark":
+                    themePreference = ThemePreference.ColorBlindDark;
                     break;
                 case "light":
                     themePreference = ThemePreference.Light;

@@ -10,7 +10,11 @@ namespace ConsoleMonster.Capabilities {
         Dark,
         /// <summary>Use the high contrast palette.</summary>
         HighContrast,
-        /// <summary>Use the colour-blind-safe palette.</summary>
-        ColorBlind
+        /// <summary>Use the colour-blind-safe palette, in its light or dark variant from the detected background.</summary>
+        ColorBlind,
+        /// <summary>Use the light-background colour-blind-safe palette.</summary>
+        ColorBlindLight,
+        /// <summary>Use the dark-background colour-blind-safe palette.</summary>
+        ColorBlindDark
     }
 }

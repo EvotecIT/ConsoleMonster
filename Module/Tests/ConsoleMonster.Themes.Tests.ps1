@@ -29,11 +29,24 @@
         $loaded.ToJson() | Should -BeExactly $document.ToJson()
     }
 
-    It 'selects each built-in preset including ColorBlindSafe' {
-        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
+    It 'selects each built-in preset including both ColorBlindSafe variants' {
+        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeLight') {
             Set-ConsoleTheme -Theme $preset
             [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly $preset
         }
+        Set-ConsoleTheme -Theme ColorBlindSafeDark
+        [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly 'ColorBlindSafe'
+        Set-ConsoleTheme -Theme ColorBlindSafe
+        [ConsoleMonster.Terminal]::Theme.Name | Should -BeIn 'ColorBlindSafe', 'ColorBlindSafeLight'
+    }
+
+    It 'adds the selected theme to the profile snippet until the theme is replaced' {
+        Set-ConsoleTheme -Theme ColorBlindSafeLight
+        $snippet = @(Enable-ConsoleFormatting -ProfileSnippet)
+        $snippet | Should -Contain 'Set-ConsoleTheme -Theme ColorBlindSafeLight'
+        [Array]::IndexOf($snippet, 'Set-ConsoleTheme -Theme ColorBlindSafeLight') | Should -BeLessThan ([Array]::IndexOf($snippet, 'Enable-ConsoleFormatting'))
+        [ConsoleMonster.Terminal]::Theme = [ConsoleMonster.Styling.Theme]::Dark
+        @(Enable-ConsoleFormatting -ProfileSnippet) | Should -Not -Contain 'Set-ConsoleTheme -Theme ColorBlindSafeLight'
     }
 
     It 'exports and reloads every style and tier as <Extension>' -ForEach @(

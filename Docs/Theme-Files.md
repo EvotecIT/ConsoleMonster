@@ -50,19 +50,22 @@ Set-ConsoleTheme -Path (Join-Path $HOME 'team-dark.json')
 This selects ConsoleMonster's widget palette; it does not change the terminal
 application's own colour scheme or background.
 
-## Four starting presets
+## Starting presets
 
 `Dark` suits dark backgrounds; `Light` suits white backgrounds. `HighContrast`
-uses saturated primaries on a dark background. `ColorBlindSafe` uses blue and
-orange for pass/fail, with an underline on failures, on a dark background.
-Status widgets also retain symbols and words, so colour is not the only signal.
+uses saturated primaries on a dark background. `ColorBlindSafe` keeps pass,
+warning and fail apart with red-green colour blindness: blue, yellow and
+underlined rose on dark backgrounds, and blue, dark gold and underlined magenta
+in `ColorBlindSafeLight`. `-Theme ColorBlindSafe` picks the variant from the
+detected background. Status widgets also retain symbols and words, so colour is
+not the only signal.
 Check a customised palette in the terminal and colour tiers your team uses.
 
 ```powershell
 Import-Module ConsoleMonster
 
 $null = New-Item -ItemType Directory -Path ./presets -Force
-foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafe') {
+foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeDark', 'ColorBlindSafeLight') {
     Set-ConsoleTheme -Theme $preset
     Export-ConsoleTheme -Path (Join-Path ./presets ($preset + '.json'))
 }
@@ -127,7 +130,7 @@ The same partial theme in `team-dark.psd1`:
 
 `Name` and `Tokens` are required. `SchemaVersion` is optional and defaults to `1`;
 version `1` is the supported version. `BaseTheme` can be `Dark`, `Light`,
-`HighContrast` or `ColorBlindSafe`. Without it, unspecified styles use terminal
+`HighContrast`, `ColorBlindSafe` or `ColorBlindSafeLight`. Without it, unspecified styles use terminal
 defaults. A base names a built-in preset, not another file.
 
 Token names and keys are case-insensitive. Styles accept `Foreground`,

@@ -6,6 +6,11 @@
 - Inside `Show-ConsoleApp` content, `New-ConsoleLogRegion` makes a retained, scrollable log with the find bar (`/` or Ctrl+F, Enter, `n` and `N`), the `LogViewport` C# apps use; `Ui.LogViewport()` covers fluent C#.
 - `Watch-ConsoleLog` has the same find bar: `/` or Ctrl+F searches the history, `n` and `N` move between matches, and `q` is typing while the bar is open.
 - A new gallery demo, `server-estate`, in PowerShell, C# and C# fluent, and as `dotnet new consolemonster --demo server-estate`. The `log-tail` demo now searches its run after the live part.
+- `ColorBlindSafeLight` is a colour-blind-safe theme for light backgrounds: blue pass, dark gold warning and underlined magenta fail. `Set-ConsoleTheme ColorBlindSafe` and `CONSOLEMONSTER_THEME=colorblind` pick the light or dark variant from the detected background; `ColorBlindSafeLight`/`ColorBlindSafeDark` and `colorblind-light`/`colorblind-dark` choose one (`ThemePreference.ColorBlindLight` and `ColorBlindDark` in C#).
+- `Enable-ConsoleFormatting -ProfileSnippet` includes the `Set-ConsoleTheme` line for a theme chosen in the session.
+
+#### Fixed
+- `ColorBlindSafe` keeps fail and warning apart under deuteranopia and protanopia: fail is now an underlined rose instead of orange, which looked like the yellow warning. Critical, low and gap tokens no longer fall back to red-green Dark colours.
 ### 2.3.0 - 2026-11-06
 
 Everyday PowerShell covers more of what people type, diagrams read Mermaid, and the mouse can be scripted and shown. `Compare-Object`, `Select-String`, `Get-Acl`, certificates, `Group-Object`, `Measure-Object` and durations get readable views with `Enable-ConsoleFormatting`; Mermaid files and fences draw as diagrams; standalone prompts and grids get the right-click menu; and recordings can drive and show pointer gestures.
