@@ -43,7 +43,8 @@ if (-not $Path) {
 
 if ($ExportDirectory) {
     $null = New-Item -ItemType Directory -Path $ExportDirectory -Force
-    foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeDark', 'ColorBlindSafeLight') {
+    $presets = 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeDark', 'ColorBlindSafeLight'
+    foreach ($preset in $presets) {
         Set-ConsoleTheme -Theme $preset
         Export-ConsoleTheme -Path (Join-Path $ExportDirectory ($preset + '.json'))
     }
