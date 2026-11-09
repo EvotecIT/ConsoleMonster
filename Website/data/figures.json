@@ -4384,8 +4384,8 @@
       }
     ],
     "parity": {
-      "dark": false,
-      "light": false,
+      "dark": true,
+      "light": true,
       "fluent": true
     }
   },
