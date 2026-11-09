@@ -1,7 +1,10 @@
 # Proposal: one settings model and themes that cover style
 
-Status: proposal. Nothing in this document is built. It describes how a user would set up ConsoleMonster once, see the
-result while choosing, and keep it in every session and every tool built on ConsoleMonster.
+Status: the settings core (section 1, without `Get-ConsoleCapability -Explain`) and the settings picker (section 2)
+are built. `Get-ConsoleSetting` reports each source, and the picker previews themes, colour depths, glyph sets,
+cultures and languages. Style, the checker, the terminal palette and theme-aware exports are still proposals. The
+document describes how a user would set up ConsoleMonster once, see the result while choosing, and keep it in every
+session and every tool built on ConsoleMonster.
 
 ## Why
 
