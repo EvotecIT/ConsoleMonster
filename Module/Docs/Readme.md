@@ -494,7 +494,7 @@ Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRec
 ### [Show-ConsoleSettings](Show-ConsoleSettings.md)
 Chooses ConsoleMonster's settings in the terminal with a live preview.
 
-A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use for this session" applies them now only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.
+A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use now" applies them to this session only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.
 
 ### [Show-ConsoleStatusLine](Show-ConsoleStatusLine.md)
 Shows one status line that updates in place, with an optional spinner, clock and elapsed time.

@@ -60,7 +60,8 @@ namespace ConsoleMonster {
     /// environment variable, the settings file, then detection. The file is <c>settings.json</c> in
     /// <see cref="ChoiceStore.DefaultRoot"/>; <c>CONSOLEMONSTER_SETTINGS</c> names another file, or <c>none</c> to ignore it.
     /// An invalid entry is ignored and listed in <see cref="Problems"/>, so a bad file never stops a program.
-    /// Test and headless terminals never read it. An application that needs fixed output sets <see cref="FilePath"/> to null.
+    /// Test and headless terminals can read it too (saved accessibility or language settings reach them); a program or test
+    /// that needs fixed output sets <see cref="FilePath"/> to null.
     /// </remarks>
     public static class ConsoleSettings {
         private sealed class Definition {
@@ -412,8 +413,8 @@ namespace ConsoleMonster {
             if (!string.IsNullOrEmpty(folder)) { Directory.CreateDirectory(folder); }
             string temp = path + ".tmp";
             File.WriteAllText(temp, MiniJson.Write(root) + "\n", new UTF8Encoding(false));
-            if (File.Exists(path)) { File.Delete(path); }
-            File.Move(temp, path);
+            // Replace in one step, so a crash never leaves the user without the file.
+            if (File.Exists(path)) { File.Replace(temp, path, null); } else { File.Move(temp, path); }
             _loaded = false;
         }
 

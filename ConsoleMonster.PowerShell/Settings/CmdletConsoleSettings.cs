@@ -91,8 +91,13 @@ namespace ConsoleMonster.PowerShell {
             } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidOperationException || ex is FormatException) {
                 ThrowTerminatingError(new ErrorRecord(ex, "ConsoleSettingNotSaved", ErrorCategory.WriteError, ConsoleSettings.FilePath));
             }
-            if (ConsoleSettings.Get(Name) is ConsoleSetting setting && setting.Source != ConsoleSettingSource.Session) {
-                WriteWarning(Name + " is still " + setting.Value + " from " + setting.Variable + ".");
+            // The value applies now, but in new sessions the environment variable still wins over the file.
+            if (Save.IsPresent && ConsoleSettings.Get(Name) is ConsoleSetting setting) {
+                foreach (string variable in setting.Variable.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)) {
+                    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable(variable))) {
+                        WriteWarning(variable + " is set, so new sessions keep using it instead of the saved " + setting.Name + ".");
+                    }
+                }
             }
         }
     }
@@ -138,7 +143,7 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>
     /// <para type="synopsis">Chooses ConsoleMonster's settings in the terminal with a live preview.</para>
-    /// <para type="description">A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use for this session" applies them now only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.</para>
+    /// <para type="description">A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use now" applies them to this session only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.</para>
     /// </summary>
     /// <example>
     ///   <para>Choose with the preview, then list what applies now and where each value came from</para>
