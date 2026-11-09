@@ -28,6 +28,32 @@ public sealed class AttentionItem {
 }
 
 /// <summary>
+/// Many items with one state and reason, already counted: the total and a few of their identities. A summary of a streamed
+/// result uses it, because it keeps counts and samples rather than every item.
+/// </summary>
+public sealed class AttentionGroup {
+    /// <summary>Creates a group.</summary>
+    /// <param name="state">The state; healthy groups are ignored.</param><param name="reason">The literal reason, shown Muted.</param>
+    /// <param name="count">How many items the group stands for; at least the number of names.</param><param name="names">Some of their literal identities.</param>
+    /// <param name="order">Sort key within a state, smallest first.</param>
+    public AttentionGroup(HealthState state, string reason, long count, IEnumerable<string> names, IComparable? order = null) {
+        string[] samples = (names ?? Array.Empty<string>()).Select(name => name ?? string.Empty).ToArray();
+        if (count < Math.Max(1, samples.Length)) throw new ArgumentOutOfRangeException(nameof(count), "A group counts at least one item and every name it shows.");
+        State = state; Reason = reason ?? string.Empty; Count = count; Names = samples; Order = order;
+    }
+    /// <summary>The state.</summary>
+    public HealthState State { get; }
+    /// <summary>The literal reason.</summary>
+    public string Reason { get; }
+    /// <summary>How many items the group stands for.</summary>
+    public long Count { get; }
+    /// <summary>The identities shown; the rest are counted as more.</summary>
+    public IReadOnlyList<string> Names { get; }
+    /// <summary>The sort key within a state.</summary>
+    public IComparable? Order { get; }
+}
+
+/// <summary>
 /// The <c>Needs attention</c> list: every non-healthy item, worst first. It is never capped outside
 /// <see cref="Views.ConsoleViewLength.Summary"/>, and identical reasons for several targets become one item that still names every target.
 /// </summary>
@@ -40,31 +66,40 @@ public sealed class AttentionList {
     public long? OutOf { get; set; }
     /// <summary>The items, in any order.</summary>
     public IList<AttentionItem> Items { get; } = new List<AttentionItem>();
+    /// <summary>Counted groups, for results too large to keep item by item; they sort with the items.</summary>
+    public IList<AttentionGroup> Groups { get; } = new List<AttentionGroup>();
     /// <summary>Identical state and reason for this many items or more become one grouped item (default 3).</summary>
     public int GroupAtLeast { get => _groupAtLeast; set => _groupAtLeast = value < 2 ? throw new ArgumentOutOfRangeException(nameof(value), "Grouping needs at least two items.") : value; }
     private int _groupAtLeast = 3;
     /// <summary>The section title.</summary>
     public string Title { get; set; } = "Needs attention";
 
-    internal int Count => Items.Count(item => item.State != HealthState.Healthy);
+    internal int Count => (int)Math.Min(int.MaxValue, Total);
+
+    private long Total => Items.Count(item => item.State != HealthState.Healthy) + Groups.Where(group => group.State != HealthState.Healthy).Sum(group => group.Count);
 
     internal FrameSection ToSection(FrameScale scale, RenderContext context) {
         AttentionItem[] items = Items.Where(item => item.State != HealthState.Healthy).ToArray();
+        AttentionGroup[] groups = Groups.Where(group => group.State != HealthState.Healthy).ToArray();
+        long total = Total;
         string count = OutOf.HasValue
-            ? FrameText.Number(items.Length, context) + " of " + FrameText.Count(OutOf.Value, Noun, PluralNoun, context)
-            : FrameText.Count(items.Length, Noun, PluralNoun, context);
-        FrameSection section = new FrameSection(Title, context => new AttentionView(this, items, scale)) { Grow = 1 };
+            ? FrameText.Number(total, context) + " of " + FrameText.Count(OutOf.Value, Noun, PluralNoun, context)
+            : FrameText.Count(total, Noun, PluralNoun, context);
+        FrameSection section = new FrameSection(Title, context => new AttentionView(this, items, groups, total, scale)) { Grow = 1 };
         section.Facts.Add(count);
         section.Facts.Add("worst first");
-        foreach (IGrouping<HealthState, AttentionItem> group in items.GroupBy(item => item.State)) section.States.Add(FrameState.Of(group.Key, group.Count(), string.Empty));
+        foreach (IGrouping<HealthState, long> group in items.Select(item => (item.State, Count: 1L)).Concat(groups.Select(group => (group.State, group.Count)))
+                     .GroupBy(pair => pair.State, pair => pair.Count)) section.States.Add(FrameState.Of(group.Key, group.Sum(), string.Empty));
         return section;
     }
 
     private sealed class AttentionView : IWidget {
         private readonly AttentionList _list;
         private readonly AttentionItem[] _items;
+        private readonly AttentionGroup[] _groups;
+        private readonly long _total;
         private readonly FrameScale _scale;
-        internal AttentionView(AttentionList list, AttentionItem[] items, FrameScale scale) { _list = list; _items = items; _scale = scale; }
+        internal AttentionView(AttentionList list, AttentionItem[] items, AttentionGroup[] groups, long total, FrameScale scale) { _list = list; _items = items; _groups = groups; _total = total; _scale = scale; }
 
         private List<Entry> Entries(RenderContext context) {
             List<Entry> entries = new List<Entry>();
@@ -78,6 +113,9 @@ public sealed class AttentionList {
                 }
             }
             foreach (AttentionItem item in _items) { if (!grouped.Contains(item)) entries.Add(new Entry(item.State, item.Identity, item.Reason, item.Values, null, item.Order)); }
+            foreach (AttentionGroup group in _groups) {
+                entries.Add(new Entry(group.State, FrameText.Count(group.Count, _list.Noun, _list.PluralNoun, context), group.Reason, null, group.Names.ToArray(), group.Order) { Total = group.Count });
+            }
             return entries.OrderByDescending(entry => FrameText.Rank(entry.State)).ThenBy(entry => entry.Order, Comparer<IComparable?>.Create(Compare))
                 .ThenBy(entry => entry.Identity, StringComparer.OrdinalIgnoreCase).ToList();
         }
@@ -110,7 +148,7 @@ public sealed class AttentionList {
             bool narrow = false;
             for (int i = 0; i < shown && !narrow; i++) narrow = WideWidth(entries[i], identity, valueWidths, context) > width;
             List<StyledLine> lines = new List<StyledLine>();
-            int represented = 0;
+            long represented = 0;
             for (int i = 0; i < shown; i++) {
                 Entry entry = entries[i];
                 List<StyledLine> itemLines = new List<StyledLine>();
@@ -139,16 +177,19 @@ public sealed class AttentionList {
                 if (itemLines.Count > cap - lines.Count) break;
                 lines.AddRange(itemLines);
                 if (entry.Names != null) {
-                    if (_scale.AttentionCap.HasValue) represented += SummaryNames(entry.Names, width, cap - lines.Count, context, lines);
+                    // A counted group shows its samples and says how many more it stands for; those are represented, not hidden.
+                    long unnamed = entry.Total - entry.Names.Length;
+                    string more = unnamed > 0 ? (entry.Names.Length > 0 ? ", " : string.Empty) + "+" + FrameText.Number(unnamed, context) + " more" : string.Empty;
+                    if (_scale.AttentionCap.HasValue) represented += SummaryNames(entry.Names, width, cap - lines.Count, context, lines) + unnamed;
                     else {
-                        StyledLine names = FrameText.Line("[muted]" + FrameText.Escape(string.Join(", ", entry.Names)) + "[/]", context);
+                        StyledLine names = FrameText.Line("[muted]" + FrameText.Escape(string.Join(", ", entry.Names)) + FrameText.Escape(more) + "[/]", context);
                         foreach (StyledLine wrapped in TextWrapper.Wrap(names, Math.Max(1, width - 2))) lines.Add(Indent(wrapped, 2));
-                        represented += entry.Names.Length;
+                        represented += entry.Total;
                     }
                 } else represented++;
                 if (lines.Count >= cap) break;
             }
-            long hidden = _items.Length - represented;
+            long hidden = _total - represented;
             if (hidden > 0) {
                 lines.Add(FrameText.Line("[muted]+" + FrameText.Number(hidden, context) + " more " + FrameText.Dot(context)
                     + " set $ConsoleViewLengthPreference = 'Standard' for every item[/]", context));
@@ -220,5 +261,8 @@ public sealed class AttentionList {
         internal IList<string>? Values { get; }
         internal string[]? Names { get; }
         internal IComparable? Order { get; }
+        // How many items the entry stands for: its names, or a counted group's total.
+        internal long Total { get => _total ?? Names?.Length ?? 1; init => _total = value; }
+        private readonly long? _total;
     }
 }
