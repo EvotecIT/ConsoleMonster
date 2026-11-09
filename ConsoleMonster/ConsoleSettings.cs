@@ -313,7 +313,9 @@ namespace ConsoleMonster {
             string? problem = null;
             try {
                 loaded = ThemeFileLoader(path);
-            } catch (Exception ex) when (ex is FormatException || ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException) {
+            } catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException)) {
+                // Any loader failure (a bad file, or a .psd1 read where no PowerShell runspace is available) leaves the
+                // theme to the other sources: a saved setting never stops a program.
                 problem = "Theme: ignored theme file '" + path + "': " + ex.Message;
             }
             lock (Gate) {
