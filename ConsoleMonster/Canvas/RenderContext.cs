@@ -23,7 +23,9 @@ namespace ConsoleMonster.Canvas {
         public RenderContext(TerminalProfile profile, ITheme theme, IGlyphSet? glyphs = null, long tick = 0, TimeSpan elapsed = default) {
             Profile = profile ?? throw new ArgumentNullException(nameof(profile));
             Theme = theme ?? throw new ArgumentNullException(nameof(theme));
-            Glyphs = glyphs ?? GlyphSet.For(profile.Glyphs);
+            // The theme's style, with the profile's Border and StatusMarkers choices above it.
+            ThemeAppearance look = theme is Theme concrete ? concrete.Appearance : ThemeAppearance.Default;
+            Glyphs = StyledGlyphSet.For(glyphs ?? GlyphSet.For(profile.Glyphs), profile.Border ?? look.Border, profile.StatusMarkers ?? look.StatusMarkers);
             _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = new Style[(int)ThemeToken.Gap + 1];

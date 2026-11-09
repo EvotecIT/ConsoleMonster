@@ -236,7 +236,7 @@ namespace ConsoleMonster.Export {
         }
 
         internal static RenderContext CreateContext(ExportOptions options, ITheme theme, int height) {
-            TerminalProfile profile = TerminalProfile.Fixed(options.Width, height, options.ColorDepth, options.Glyphs);
+            TerminalProfile profile = TerminalProfile.Fixed(options.Width, height, options.ColorDepth, options.Glyphs).WithBorder(options.Border).WithStatusMarkers(options.StatusMarkers);
             if (options.Culture != null) {
                 profile = profile.WithCulture(options.Culture);
             }
@@ -244,7 +244,7 @@ namespace ConsoleMonster.Export {
         }
 
         internal static ExportOptions Ready(ExportOptions? options) {
-            ExportOptions o = options?.Clone() ?? new ExportOptions();
+            ExportOptions o = (options ?? new ExportOptions()).ResolveCurrent().Clone();
             o.Width = Terminal.ResolveWidth(o.Width);
             o.Validate();
             return o;

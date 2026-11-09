@@ -168,11 +168,38 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("probe widths: " + probeWidths);
             decisions.Add("theme preference: " + themePreference + " (CONSOLEMONSTER_THEME)");
             CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
+            Glyphs.BoxStyle? border = ParseBorder(Get("CONSOLEMONSTER_BORDER"), decisions);
+            Styling.StatusMarkerStyle? markers = ParseMarkers(Get("CONSOLEMONSTER_STATUS_MARKERS"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
                 env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
                 WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource
-            }.WithAccessibility(accessible, reducedMotion);
+            }.WithAccessibility(accessible, reducedMotion).WithBorder(border).WithStatusMarkers(markers);
+        }
+
+        // CONSOLEMONSTER_BORDER: the frame for default frames (rounded, single, double, heavy, ascii), or auto for the theme's.
+        private static Glyphs.BoxStyle? ParseBorder(string value, List<string> decisions) {
+            switch (value.ToLowerInvariant()) {
+                case "": case "auto": return null;
+                case "rounded": return Glyphs.BoxStyle.Rounded;
+                case "single": return Glyphs.BoxStyle.Single;
+                case "double": return Glyphs.BoxStyle.Double;
+                case "heavy": return Glyphs.BoxStyle.Heavy;
+                case "ascii": return Glyphs.BoxStyle.Ascii;
+            }
+            decisions.Add("CONSOLEMONSTER_BORDER: ignored invalid value '" + value + "'");
+            return null;
+        }
+
+        // CONSOLEMONSTER_STATUS_MARKERS: symbols or words, or auto for the theme's.
+        private static Styling.StatusMarkerStyle? ParseMarkers(string value, List<string> decisions) {
+            switch (value.ToLowerInvariant()) {
+                case "": case "auto": return null;
+                case "symbols": return Styling.StatusMarkerStyle.Symbols;
+                case "words": return Styling.StatusMarkerStyle.Words;
+            }
+            decisions.Add("CONSOLEMONSTER_STATUS_MARKERS: ignored invalid value '" + value + "'");
+            return null;
         }
 
         // CONSOLEMONSTER_CULTURE: a culture name (en-US, pl-PL), "invariant", or empty/"current" for the current culture.

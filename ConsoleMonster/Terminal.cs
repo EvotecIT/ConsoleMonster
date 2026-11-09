@@ -148,6 +148,15 @@ namespace ConsoleMonster {
             }
         }
 
+        // Whether a theme was chosen rather than detected: assigned, named by a preference (setting, variable or Windows High
+        // Contrast) or a theme file in the settings. Exports made without a theme of their own follow a chosen one.
+        internal static bool HasChosenTheme {
+            get {
+                lock (Gate) { if (_theme != null) { return true; } }
+                return Profile.ThemePreference != ThemePreference.Auto || ConsoleSettings.ThemeFromPath() != null;
+            }
+        }
+
         /// <summary>Discards the cached profile so the next use detects the terminal again (after a resize or font change).</summary>
         public static void Refresh() {
             lock (Gate) {

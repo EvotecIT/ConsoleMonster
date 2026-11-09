@@ -16,7 +16,13 @@ namespace ConsoleMonster.Export {
         Light = 2,
 
         /// <summary>The built-in high-contrast theme on black.</summary>
-        HighContrast = 3
+        HighContrast = 3,
+
+        /// <summary>
+        /// The theme in use (<see cref="Terminal.Theme"/>: a colour-blind, team or other chosen theme) on the background it is
+        /// made for (<see cref="Styling.ThemeAppearance.Background"/>), so the export looks like the terminal.
+        /// </summary>
+        Current = 4
     }
 
     /// <summary>A file format for frame and recording exports.</summary>
@@ -53,6 +59,34 @@ namespace ConsoleMonster.Export {
 
         /// <summary>Height in cells for widgets; 0 (default) uses the height the widget measures at <see cref="Width"/>.</summary>
         public int Height { get; set; }
+
+        // The frame and status markers chosen for the terminal (Border and StatusMarkers settings), which Current carries
+        // into the export so it draws like the terminal; null leaves them to the export theme.
+        internal Glyphs.BoxStyle? Border { get; set; }
+        internal Styling.StatusMarkerStyle? StatusMarkers { get; set; }
+
+        // A copy with Current replaced by the export theme that matches the theme in use, its colours and the terminal's
+        // frame and marker choices; any other theme returns this object unchanged.
+        internal ExportOptions ResolveCurrent() {
+            if (Theme != ExportTheme.Current) { return this; }
+            ExportOptions o = Clone();
+            (ExportTheme theme, ITheme colors) = Current();
+            o.Theme = theme;
+            o.DarkTheme ??= colors;
+            o.LightTheme ??= colors;
+            Capabilities.TerminalProfile profile = Terminal.Profile;
+            o.Border ??= profile.Border;
+            o.StatusMarkers ??= profile.StatusMarkers;
+            return o;
+        }
+
+        // The theme in use and the export theme that matches its background, for ExportTheme.Current.
+        internal static (ExportTheme Theme, ITheme Colors) Current() {
+            ITheme theme = Terminal.Theme;
+            if (ReferenceEquals(theme, Styling.Theme.HighContrast)) { return (ExportTheme.HighContrast, theme); }
+            bool light = theme is Styling.Theme concrete && concrete.Appearance.Background == Styling.ThemeBackground.Light;
+            return (light ? ExportTheme.Light : ExportTheme.Dark, theme);
+        }
 
         /// <summary>The colours (default <see cref="ExportTheme.Auto"/>).</summary>
         public ExportTheme Theme { get; set; } = ExportTheme.Auto;

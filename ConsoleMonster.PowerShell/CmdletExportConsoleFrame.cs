@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0, 1000)]
         public int Height { get; set; }
 
-        /// <summary><para type="description">Auto (both HTML renderings), Dark, Light or HighContrast. Raster Auto uses Dark.</para></summary>
+        /// <summary><para type="description">Auto (both HTML renderings), Dark, Light, HighContrast, or Current: the theme in use on the background it is made for. Without -Theme, Current is used when a theme was chosen (Set-ConsoleTheme, Set-ConsoleSetting Theme, CONSOLEMONSTER_THEME or the settings file), so the export looks like your terminal; otherwise Auto. Raster Auto uses Dark.</para></summary>
         [Parameter]
         public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
@@ -111,7 +111,7 @@ namespace ConsoleMonster.PowerShell {
             ExportOptions options = new ExportOptions {
                 Width = Width,
                 Height = Height,
-                Theme = Theme,
+                Theme = MyInvocation.BoundParameters.ContainsKey(nameof(Theme)) || !Terminal.HasChosenTheme ? Theme : ExportTheme.Current,
                 Title = Title,
                 WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle,
                 FontSize = FontSize

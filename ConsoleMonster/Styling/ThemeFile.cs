@@ -12,7 +12,8 @@ namespace ConsoleMonster.Styling {
     /// loading never changes <see cref="Terminal.Theme"/>. PowerShell data-file syntax belongs to the PowerShell adapter.
     /// </summary>
     /// <remarks>
-    /// Documents contain SchemaVersion (1), Name, optional BaseTheme and Tokens. Keys and token names are
+    /// Documents contain SchemaVersion (1 or 2), Name, optional BaseTheme, Tokens and, from version 2, an optional Style
+    /// (Border, StatusMarkers and Background; omitted fields inherit from BaseTheme). Keys and token names are
     /// case-insensitive. BaseTheme must name a built-in preset; omitted tokens and style fields inherit from it.
     /// Without BaseTheme, omitted values use terminal defaults. An explicit null foreground/background clears inheritance.
     /// Exports contain every token, both colours, all fallback indices and decorations, without an inheritance dependency.
@@ -41,7 +42,7 @@ namespace ConsoleMonster.Styling {
                 styles.Add(token, theme is Theme concrete ? concrete.Get(token) : Capture(theme, token));
             }
             // Apply the same rules as file import, including validation of programmatically created ThemeColor values.
-            return Import(Data(new Theme(theme.Name, styles)));
+            return Import(Data(new Theme(theme.Name, styles, (theme as Theme)?.Appearance)));
         }
 
         /// <summary>Parses JSON and validates every key, token, colour, fallback and decoration before returning.</summary>
@@ -65,8 +66,9 @@ namespace ConsoleMonster.Styling {
         /// <returns>A complete, validated document; the input dictionary is not retained or modified.</returns>
         /// <exception cref="FormatException">An unknown key, token, preset or invalid value is present.</exception>
         public static ThemeFile Import(IDictionary data) {
-            Dictionary<string, object?> root = Map(data, "Theme", "SchemaVersion", "Name", "BaseTheme", "Tokens");
-            if (root.TryGetValue("SchemaVersion", out object? version)) { Integer(version, "SchemaVersion", 1, 1); }
+            Dictionary<string, object?> root = Map(data, "Theme", "SchemaVersion", "Name", "BaseTheme", "Tokens", "Style");
+            int schema = root.TryGetValue("SchemaVersion", out object? version) ? Integer(version, "SchemaVersion", 1, 2) : 1;
+            if (schema < 2 && root.ContainsKey("Style")) { throw Error("Style", "needs SchemaVersion 2"); }
             string name = RequiredString(Get(root, "Name"), "Name");
             Theme? basis = root.TryGetValue("BaseTheme", out object? baseName) ? Preset(RequiredString(baseName, "BaseTheme")) : null;
             Dictionary<string, object?> tokens = Map(Get(root, "Tokens"), "Tokens");
@@ -78,7 +80,25 @@ namespace ConsoleMonster.Styling {
                 if (!specified.Add(token)) { throw Error("Tokens." + pair.Key, "is a duplicate theme token"); }
                 styles[token] = ReadStyle(pair.Value, "Tokens." + pair.Key, styles[token]);
             }
-            return new ThemeFile(new Theme(name, styles));
+            ThemeAppearance appearance = ReadAppearance(root.TryGetValue("Style", out object? style) ? style : null, basis?.Appearance ?? ThemeAppearance.Default);
+            return new ThemeFile(new Theme(name, styles, appearance));
+        }
+
+        private static ThemeAppearance ReadAppearance(object? value, ThemeAppearance basis) {
+            if (value == null) { return basis; }
+            Dictionary<string, object?> style = Map(value, "Style", "Border", "StatusMarkers", "Background");
+            Glyphs.BoxStyle border = style.TryGetValue("Border", out object? b) ? Named(b, "Style.Border", Glyphs.BoxStyle.Rounded, Glyphs.BoxStyle.Single, Glyphs.BoxStyle.Double, Glyphs.BoxStyle.Heavy, Glyphs.BoxStyle.Ascii) : basis.Border;
+            StatusMarkerStyle markers = style.TryGetValue("StatusMarkers", out object? m) ? Named(m, "Style.StatusMarkers", StatusMarkerStyle.Symbols, StatusMarkerStyle.Words) : basis.StatusMarkers;
+            ThemeBackground background = style.TryGetValue("Background", out object? g) ? Named(g, "Style.Background", ThemeBackground.Dark, ThemeBackground.Light) : basis.Background;
+            return new ThemeAppearance(border, markers, background);
+        }
+
+        private static T Named<T>(object? value, string path, params T[] allowed) where T : struct, Enum {
+            string text = RequiredString(value, path);
+            foreach (T candidate in allowed) {
+                if (string.Equals(candidate.ToString(), text, StringComparison.OrdinalIgnoreCase)) { return candidate; }
+            }
+            throw Error(path, "must be one of " + string.Join(", ", allowed));
         }
 
         /// <summary>Returns a complete data-only dictionary suitable for an adapter's native serialization.</summary>
@@ -104,7 +124,17 @@ namespace ConsoleMonster.Styling {
                     ["Decoration"] = style.Decoration.ToString()
                 });
             }
-            return new Dictionary<string, object?> { ["SchemaVersion"] = 1, ["Name"] = theme.Name, ["Tokens"] = tokens };
+            Dictionary<string, object?> data = new Dictionary<string, object?> { ["SchemaVersion"] = 1, ["Name"] = theme.Name, ["Tokens"] = tokens };
+            if (!theme.Appearance.Equals(ThemeAppearance.Default)) {
+                // Version 1 files stay version 1; a theme with a style of its own needs version 2.
+                data["SchemaVersion"] = 2;
+                data["Style"] = new Dictionary<string, object?> {
+                    ["Border"] = theme.Appearance.Border.ToString(),
+                    ["StatusMarkers"] = theme.Appearance.StatusMarkers.ToString(),
+                    ["Background"] = theme.Appearance.Background.ToString()
+                };
+            }
+            return data;
         }
 
         private static object? ColorData(ThemeColor? color) => color.HasValue ? new Dictionary<string, object?> {

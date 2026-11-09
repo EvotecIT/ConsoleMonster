@@ -84,7 +84,7 @@ namespace ConsoleMonster.Export {
             ExportOptions o = new ExportOptions {
                 Width = Terminal.ResolveWidth(Width),
                 Height = Height,
-                Theme = Theme == ExportTheme.Auto ? ExportTheme.Dark : Theme,
+                Theme = Resolved.Theme,
                 Title = Title,
                 WindowChrome = WindowChrome,
                 ChromeStyle = ChromeStyle,
@@ -95,8 +95,12 @@ namespace ConsoleMonster.Export {
                 Culture = Culture,
                 Padding = Padding
             };
-            o.DarkTheme = CustomTheme;
-            o.LightTheme = CustomTheme;
+            o.DarkTheme = CustomTheme ?? Resolved.Colors;
+            o.LightTheme = CustomTheme ?? Resolved.Colors;
+            if (Theme == ExportTheme.Current) {
+                o.Border = Terminal.Profile.Border;
+                o.StatusMarkers = Terminal.Profile.StatusMarkers;
+            }
             o.Validate();
             if (Height < 1) {
                 throw new ArgumentOutOfRangeException(nameof(Height), "A recording needs a fixed height of at least one row.");
@@ -117,12 +121,16 @@ namespace ConsoleMonster.Export {
             return o;
         }
 
-        internal ExportPalette Palette => Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark;
+        internal ExportPalette Palette => Resolved.Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : Resolved.Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark;
+
+        // Auto is dark for recordings; Current is the theme in use on its background.
+        private (ExportTheme Theme, ITheme? Colors) Resolved =>
+            Theme == ExportTheme.Current ? ExportOptions.Current() : (Theme == ExportTheme.Auto ? ExportTheme.Dark : Theme, (ITheme?)null);
 
         /// <summary>A render context to use instead of the export one (the in-terminal player renders with the terminal's).</summary>
         internal RenderContext? Context { get; set; }
 
-        internal ITheme RenderTheme => CustomTheme ?? (Theme == ExportTheme.HighContrast ? Styling.Theme.HighContrast : Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
+        internal ITheme RenderTheme => CustomTheme ?? Resolved.Colors ?? (Resolved.Theme == ExportTheme.HighContrast ? Styling.Theme.HighContrast : Resolved.Theme == ExportTheme.Light ? Styling.Theme.Light : Styling.Theme.Dark);
     }
 
     /// <summary>One distinct screen of a recording and how long it stays (after speed scaling).</summary>
