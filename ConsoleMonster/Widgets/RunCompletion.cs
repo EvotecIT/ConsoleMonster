@@ -11,6 +11,7 @@ namespace ConsoleMonster.Widgets {
     /// <summary>A compact completion line with a status, literal item and target, and a fixed right-aligned duration column.</summary>
     public sealed class RunCompletion : IWidget {
         private readonly RunItemSnapshot _item;
+        internal string GroupTitle => _item.Item.Label;
         /// <summary>Creates a line over an immutable completed item.</summary>
         /// <param name="item">The completion to display. Full detail remains in the run snapshot and summary.</param>
         public RunCompletion(RunItemSnapshot item) { _item = item ?? throw new ArgumentNullException(nameof(item)); }

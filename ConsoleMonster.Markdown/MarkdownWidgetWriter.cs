@@ -33,6 +33,17 @@ namespace ConsoleMonster.Markdown {
                 if (tree.ShowRoot) { Node(output, tree.Root, 0, presenter); }
                 else { foreach (TreeNode node in tree.Root.Children) { Node(output, node, 0, presenter); } }
                 output.Append('\n');
+            } else if (widget is TestRuns.TestRunSummary summary) {
+                Table(output, summary.FileTable(), context);
+                if (summary.ShowFailures && summary.Snapshot.Failures.Count > 0) {
+                    Heading(output, context.Labels.TestsFailures);
+                    output.Append("| Test | Message | File | Line |\n| :--- | :--- | :--- | ---: |\n");
+                    foreach (TestRuns.TestRecord failure in summary.Snapshot.Failures.Take(summary.MaxFailures)) {
+                        Row(output, new[] { Escape(string.Join(" / ", failure.Blocks.Concat(new[] { failure.Name }))), Escape(failure.Message ?? ""), Escape(failure.File ?? ""), failure.Line.ToString(System.Globalization.CultureInfo.InvariantCulture) }, false);
+                    }
+                    output.Append('\n');
+                }
+                output.Append(Prose(TestRuns.TestRunText.SummaryLine(summary.Snapshot, context.Glyphs))).Append("\n\n");
             } else if (widget is TextBlock text) {
                 output.Append(Prose(text.IsMarkup ? Plain(text.Content, context) : text.Content)).Append("\n\n");
             } else if (widget is IContainer container && Transparent(widget)) {

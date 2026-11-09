@@ -20,6 +20,7 @@ namespace ConsoleMonster.Tests.Live {
     public sealed class ConsoleRunTests {
         [Fact]
         public async Task ForEachAsync_ReturnsResultsInInputOrder_AndPrintsALinePerItem() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             List<string> lines = new List<string>();
             IReadOnlyList<RunResult<int, int>> results = await ConsoleRun.ForEachAsync(Enumerable.Range(1, 20), async (n, token) => {
                 await Task.Delay((20 - n) * 3, token);
@@ -152,6 +153,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public async Task ForEachAsync_LiveSessionCancellation_ReachesTheBodyAndStopsAdmission() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             TerminalProfile profile = TerminalProfile.Fixed(80, 20, ColorDepth.None, GlyphTier.Ascii);
             IReadOnlyList<RunResult<int, bool>> results = await ConsoleRun.ForEachAsync(new[] { 1, 2 }, (item, token) => {
                 LiveSession session = Assert.IsType<LiveSession>(LiveSession.Current);

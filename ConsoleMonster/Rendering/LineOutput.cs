@@ -35,6 +35,9 @@ namespace ConsoleMonster.Rendering {
 
         private ColorDepth Depth => SgrEncoder.DepthFor(Profile);
 
+        // Workflow commands must bypass cell rendering, ANSI stripping and stream timestamps.
+        internal void WriteCommand(string line) { _writer.Write(line + Environment.NewLine); _writer.Flush(); }
+
         /// <inheritdoc />
         public void WriteBlock(CellBuffer buffer) {
             if (buffer == null) {
@@ -102,7 +105,8 @@ namespace ConsoleMonster.Rendering {
         }
 
         private void Emit() {
-            _writer.Write(_sb.ToString());
+            string text = _sb.ToString();
+            _writer.Write(ContinuousIntegration.Provider == ContinuousIntegrationProvider.Azure ? ContinuousIntegration.AzureLiteral(text) : text);
             _writer.Flush();
             _sb.Clear();
         }
