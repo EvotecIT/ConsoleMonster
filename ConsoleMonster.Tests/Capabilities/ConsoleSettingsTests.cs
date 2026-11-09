@@ -91,7 +91,7 @@ namespace ConsoleMonster.Tests.Capabilities {
         [Fact]
         public void CataloguePreviewUsesTheBrowsedPaletteAndItsOwnCheckerVerdict() {
             ConsoleSettings.Set("Theme", "Dark");
-            foreach (string name in new[] { "Dracula", "Nord", "Dracula · accessible", "Nord · accessible" }) {
+            foreach (string name in new[] { "Dracula", "Nord", "Dracula · accessible", "Nord · accessible", "Catppuccin Latte" }) {
                 Theme expected = Theme.FromName(name);
                 IWidget preview = SettingsPicker.Preview(new Dictionary<string, string> { ["Theme"] = name });
                 var frame = Terminal.Render(preview, TerminalProfile.Fixed(110, 30), Theme.Dark);
@@ -100,6 +100,8 @@ namespace ConsoleMonster.Tests.Capabilities {
                 Assert.Contains("Statuses apart for colour-blind users: " + (expected.IsAccessible ? "yes" : "no"), text);
                 Assert.Contains(Enumerable.Range(0, frame.Height).SelectMany(y => Enumerable.Range(0, frame.Width).Select(x => frame[x, y])),
                     cell => cell.Style.Color == expected.Get(ThemeToken.Pass).Resolve(ColorDepth.TrueColor).Color);
+                // Each scheme is previewed on its own background, so a light scheme is not drawn on the dark terminal.
+                Assert.Equal(expected.Scheme!.Background, frame[0, 0].Style.BackgroundColor);
                 Assert.Equal("Dark", ConsoleSettings.Get("Theme").Value);
             }
         }

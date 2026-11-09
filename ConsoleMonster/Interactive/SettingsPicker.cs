@@ -69,11 +69,12 @@ namespace ConsoleMonster.Interactive {
             cancel.Clicked += (_, __) => { state[ActionKey] = SettingsPickerAction.Cancel; state.RequestExit(); };
             Columns buttons = new Columns().Add(save, LayoutSize.Fixed(10)).Add(apply, LayoutSize.Fixed(13)).Add(cancel, LayoutSize.Fixed(12));
             Rows left = new Rows(new Panel(choices, "Settings"), buttons, new AppBinding(current => Notes(settings, selects))) { Gap = 1 };
-            AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current)), "settings.preview");
+            AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current), 1), "settings.preview");
             // Size only the closed controls; open lists overlay the preview.
             Func<int> settingsWidth = () => labelWidth + 1 + 2
                 + settings.Max(setting => DisplayWidth.Measure(Label(setting, selects[setting.Name].Value as string ?? setting.Value))) + 2 + 4;
-            SettingsColumns body = new SettingsColumns(left, new Panel(preview, "Preview"), settingsWidth);
+            // The preview pads itself, so its page colour reaches the frame.
+            SettingsColumns body = new SettingsColumns(left, new Panel(preview, "Preview") { PaddingLeft = 0, PaddingRight = 0 }, settingsWidth);
             Rows layout = new Rows(
                 new TextBlock("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
                 body) { Gap = 1 };
@@ -222,8 +223,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         // Fixed sample content that shows every status token, a panel, a progress bar, a chart and an error, drawn with
-        // the chosen theme, colours, glyphs, culture and language.
-        internal static IWidget Preview(IReadOnlyDictionary<string, string> values) {
+        // the chosen theme, colours, glyphs, culture and language. The margin is painted with the theme's page too.
+        internal static IWidget Preview(IReadOnlyDictionary<string, string> values, int margin = 0) {
             Table table = new Table { CardsBelow = 0 };
             table.AddColumn("Check").AddColumn("State")
                 .AddColumn(new TableColumn("Size") { Presenter = Presenters.CellPresenters.Bytes, Alignment = HorizontalAlignment.Right })
@@ -244,26 +245,50 @@ namespace ConsoleMonster.Interactive {
                 table,
                 new Columns(status, new Rows(progress, chart)),
                 new TextBlock("[fail]Error:[/] [muted]Cannot reach[/] [accent]sql01.contoso.test[/] [muted](port 1433)[/] [link=https://consolemonster.dev/]docs[/]")) { Gap = 1 };
-            return new PreviewScope(content, values);
+            return new PreviewScope(content, values, margin);
         }
 
         // Draws a widget as the chosen settings would, whatever is in effect now.
         private sealed class PreviewScope : IContainer {
             private readonly IWidget _child;
             private readonly IReadOnlyDictionary<string, string> _values;
+            private readonly int _margin;
 
-            internal PreviewScope(IWidget child, IReadOnlyDictionary<string, string> values) { _child = child; _values = values; }
+            internal PreviewScope(IWidget child, IReadOnlyDictionary<string, string> values, int margin) { _child = child; _values = values; _margin = margin; }
 
             public IReadOnlyList<IWidget> Children => new[] { _child };
 
             public Size Measure(Constraints constraints, RenderContext context) {
                 RenderContext scoped = Scoped(context);
-                return WithCheck(scoped, constraints.MaxWidth).Measure(constraints, scoped);
+                Size inner = WithCheck(scoped, constraints.MaxWidth - 2 * _margin).Measure(constraints.Shrink(2 * _margin, 0), scoped);
+                return new Size(inner.Width + 2 * _margin, inner.Height);
             }
 
             public void Render(Region region, RenderContext context) {
                 RenderContext scoped = Scoped(context);
-                WithCheck(scoped, region.Width).Render(region, scoped);
+                int width = Math.Max(0, region.Width - 2 * _margin);
+                WithCheck(scoped, width).Render(region.Sub(_margin, 0, width, region.Height), scoped);
+                Paint(region, scoped);
+            }
+
+            // Each theme is shown on its own page, as it would look in its own terminal: a scheme on its background, a
+            // built-in on a light or dark page for its Appearance. Cells the sample left to the terminal take the page's
+            // colours; a theme that follows the terminal keeps the terminal's.
+            private static void Paint(Region region, RenderContext context) {
+                if (!context.HasColor || (context.Theme is Theme following && following.FollowsTerminal)) { return; }
+                (Color foreground, Color background) = Theme.Page(context.Theme);
+                if (background.IsDefault) { return; }
+                CellBuffer buffer = region.Buffer;
+                for (int y = region.Bounds.Y; y < region.Bounds.Bottom; y++) {
+                    for (int x = region.Bounds.X; x < region.Bounds.Right; x++) {
+                        Cell cell = buffer[x, y];
+                        if (cell.IsContinuation) { continue; }
+                        Style style = cell.Style;
+                        if (style.BackgroundColor.IsDefault) { style = style.WithBackgroundColor(background); }
+                        if (style.Color.IsDefault) { style = style.WithColor(foreground); }
+                        if (!style.Equals(cell.Style)) { buffer.Set(x, y, cell.Glyph, style, cell.Width); }
+                    }
+                }
             }
 
             private IWidget WithCheck(RenderContext context, int width) {
