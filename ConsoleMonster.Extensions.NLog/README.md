@@ -23,6 +23,7 @@ log.Info("Order {OrderId} for {Customer} totals {Total}", 1042, "Ada", 42.50m);
 
 The logger name appears as the shortened category `Orders`. String values in the template print without quotes;
 numbers and dates are highlighted. Event properties not used in the template follow as muted `key=value` fields.
+NLog captures such as `{@Payload}` and `{$Payload}` retain their native serialization and string rendering.
 Events remain native NLog events, so other targets still receive their structured properties.
 
 ## XML configuration

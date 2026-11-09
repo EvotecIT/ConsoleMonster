@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using ConsoleMonster.Logging;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Json;
+using Serilog.Parsing;
 
 namespace ConsoleMonster.Extensions.Serilog {
     /// <summary>Renders Serilog events with the same entry renderer as ConsoleMonster's ILogger provider.</summary>
@@ -28,7 +30,7 @@ namespace ConsoleMonster.Extensions.Serilog {
             foreach (KeyValuePair<string, LogEventPropertyValue> property in logEvent.Properties) {
                 if (property.Key == Constants.SourceContextPropertyName) {
                     category = (property.Value as ScalarValue)?.Value as string ?? string.Empty;
-                    continue;
+                    if (!logEvent.MessageTemplate.Tokens.OfType<PropertyToken>().Any(token => token.PropertyName == property.Key)) { continue; }
                 }
                 if (property.Value is ScalarValue scalar) { properties.Add(new LogProperty(property.Key, scalar.Value)); }
                 else {

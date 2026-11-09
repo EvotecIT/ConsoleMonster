@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Logging;
 using ConsoleMonster.Output;
@@ -13,6 +14,7 @@ namespace ConsoleMonster.Extensions.NLog {
     [Target("ConsoleMonster")]
     public sealed class ConsoleMonsterTarget : Target {
         private readonly LogEntryRenderer _renderer = new LogEntryRenderer();
+        private IValueFormatter _valueFormatter = null!;
 
         /// <summary>The invariant timestamp format, or null to omit timestamps (default HH:mm:ss).</summary>
         public string? TimestampFormat { get; set; } = "HH:mm:ss";
@@ -30,6 +32,13 @@ namespace ConsoleMonster.Extensions.NLog {
         public ITerminalWriter? Writer { get; set; }
 
         /// <inheritdoc />
+        protected override void InitializeTarget() {
+            base.InitializeTarget();
+            // Resolve services before logging: NLog prohibits service lookup in a log-event callback.
+            _valueFormatter = (IValueFormatter)LoggingConfiguration.LogFactory.ServiceRepository.GetService(typeof(IValueFormatter));
+        }
+
+        /// <inheritdoc />
         protected override void Write(LogEventInfo logEvent) {
             if (logEvent.Level == LogLevel.Off) { return; }
             List<LogProperty> properties = new List<LogProperty>();
@@ -43,7 +52,10 @@ namespace ConsoleMonster.Extensions.NLog {
             // NLog binds positional as well as named template arguments, including values not stored as event properties.
             List<LogProperty> arguments = new List<LogProperty>();
             foreach (MessageTemplateParameter parameter in parameters) {
-                LogProperty property = new LogProperty(parameter.Name, parameter.Value);
+                LogProperty property = parameter.CaptureType == CaptureType.Normal
+                    ? new LogProperty(parameter.Name, parameter.Value)
+                    : new LogProperty(parameter.Name, parameter.Value,
+                        format => FormatCaptured(parameter, format, logEvent.FormatProvider ?? CultureInfo.InvariantCulture));
                 arguments.Add(property);
                 properties.Add(property);
             }
@@ -59,6 +71,11 @@ namespace ConsoleMonster.Extensions.NLog {
                 Writer = Writer
             }, logEvent.LoggerName ?? string.Empty, logEvent.Level.Ordinal, 0, message, logEvent.Exception,
                 timestamp: new DateTimeOffset(logEvent.TimeStamp));
+        }
+        private string FormatCaptured(MessageTemplateParameter parameter, string? format, IFormatProvider provider) {
+            StringBuilder text = new StringBuilder();
+            _valueFormatter.FormatValue(parameter.Value, format ?? parameter.Format, parameter.CaptureType, provider, text);
+            return text.ToString();
         }
     }
 }

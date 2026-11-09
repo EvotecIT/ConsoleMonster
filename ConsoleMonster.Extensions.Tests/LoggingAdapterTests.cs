@@ -96,6 +96,43 @@ namespace ConsoleMonster.Extensions.Tests {
             }
         }
 
+        [Theory]
+        [InlineData(true, "     Orders  From Shop.Orders")]
+        [InlineData(false, "     From Shop.Orders")]
+        public void Serilog_SourceContextRemainsAvailableToTheMessageTemplate(bool category, string expected) {
+            StringTerminalWriter writer = new StringTerminalWriter();
+            using (var logger = new LoggerConfiguration().WriteTo.ConsoleMonster(options => {
+                options.Writer = writer; options.Profile = Profile(OutputMode.Plain); options.TimestampFormat = null;
+                options.IncludeCategory = category;
+            }).CreateLogger()) {
+                logger.ForContext("SourceContext", "Shop.Orders").Information("From {SourceContext}");
+            }
+            Assert.Equal(expected + Environment.NewLine, writer.ToString());
+        }
+
+        [Fact]
+        public void NLog_DestructuringSerializesFieldsAndStringifyUsesTheNativeCapture() {
+            StringTerminalWriter writer = new StringTerminalWriter();
+            using (LogFactory factory = NLogFactory(writer, Profile(OutputMode.Plain))) {
+                var log = factory.GetLogger("Orders");
+                var payload = new Payload { Id = 42, Customer = "Ada" };
+                log.Info("Payload {@Payload}", payload);
+                log.Info("Opaque {$Payload}", payload);
+            }
+            string text = writer.ToString();
+            Assert.Contains("Payload {", text);
+            Assert.Contains("\"Id\":42", text);
+            Assert.Contains("\"Customer\":\"Ada\"", text);
+            Assert.Contains("Opaque \"opaque\"", text);
+            Assert.Equal(2, text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Length);
+        }
+
+        private sealed class Payload {
+            public int Id { get; set; }
+            public string Customer { get; set; } = string.Empty;
+            public override string ToString() => "opaque";
+        }
+
         [Fact]
         public void Serilog_DestructuredObjectsStayCompactInMessagesAndUnusedProperties() {
             StringTerminalWriter writer = new StringTerminalWriter();
@@ -206,11 +243,60 @@ namespace ConsoleMonster.Extensions.Tests {
             Assert.Equal(1, rows.Count(row => row.Contains("Compiling")));
         }
 
-        private static LogFactory NLogFactory(ITerminalWriter? writer, TerminalProfile profile) {
+        [Theory]
+        [InlineData("Microsoft")]
+        [InlineData("Serilog")]
+        [InlineData("NLog")]
+        public void NativeAdapters_PostTypedLiteralValuesAndMutedPropertiesToTheLiveLog(string adapter) {
+            TerminalProfile profile = Profile(OutputMode.Stream).WithColorDepth(ColorDepth.TrueColor);
+            StringTerminalWriter printed = new StringTerminalWriter();
+            StringTerminalWriter screen = new StringTerminalWriter();
+            LogRegion region = new LogRegion("log");
+            using (LiveSession session = new LiveSession(region, new LiveSessionOptions {
+                Output = new LineOutput(screen, profile, false), Profile = profile, CaptureConsole = false,
+                HandleCancelKey = false, PrintFinalState = false
+            })) {
+                session.Start();
+                if (adapter == "Microsoft") {
+                    using var provider = new ConsoleMonsterLoggerProvider(new ConsoleMonsterLoggerOptions {
+                        Writer = printed, Profile = profile, TimestampFormat = null
+                    });
+                    provider.CreateLogger("Shop.Orders").Log(MelLevel.Warning, default, new[] {
+                        new KeyValuePair<string, object?>("Host", "node-1"),
+                        new KeyValuePair<string, object?>("Count", 42),
+                        new KeyValuePair<string, object?>("Customer", "A[fail]da[/]"),
+                        new KeyValuePair<string, object?>("{OriginalFormat}", "Paid {Count} by {Customer}")
+                    }, null, (_, __) => "Paid 42 by A[fail]da[/]");
+                } else if (adapter == "Serilog") {
+                    using var logger = new LoggerConfiguration().WriteTo.ConsoleMonster(options => {
+                        options.Writer = printed; options.Profile = profile; options.TimestampFormat = null;
+                    }).CreateLogger();
+                    logger.ForContext("SourceContext", "Shop.Orders").ForContext("Host", "node-1")
+                        .Warning("Paid {Count} by {Customer}", 42, "A[fail]da[/]");
+                } else {
+                    using var factory = NLogFactory(printed, profile, "$log");
+                    factory.GetLogger("Shop.Orders").WithProperty("Host", "node-1")
+                        .Warn("Paid {Count} by {Customer}", 42, "A[fail]da[/]");
+                }
+                session.Stop();
+            }
+            Assert.Empty(printed.ToString());
+            LogEntry entry = Assert.Single(region.Entries);
+            Assert.Equal("warn", entry.Level);
+            RichText text = Assert.IsType<RichText>(entry.RichText);
+            Assert.Equal("Orders Paid 42 by A[fail]da[/] Host=node-1", text.PlainText);
+            var context = Terminal.CreateContext(profile);
+            StyledLine line = Assert.Single(text.ToStyledText(context).Lines);
+            Assert.Contains(line, span => span.Text == "42" && span.Style.Color.Equals(context.Style(ThemeToken.Highlight).Color));
+            Assert.Contains(line, span => span.Text == "A[fail]da[/]" && span.Style.Color.Equals(context.Style(ThemeToken.Pass).Color));
+            Assert.Contains(line, span => span.Text.Contains("Host=node-1") && span.Style.Color.Equals(context.Style(ThemeToken.Muted).Color));
+        }
+
+        private static LogFactory NLogFactory(ITerminalWriter? writer, TerminalProfile profile, string? region = null) {
             LogFactory factory = new LogFactory();
             LoggingConfiguration configuration = new LoggingConfiguration();
             configuration.AddRule(global::NLog.LogLevel.Trace, global::NLog.LogLevel.Fatal, new ConsoleMonsterTarget {
-                Name = "readable", Writer = writer, Profile = profile, TimestampFormat = null, LogRegion = null
+                Name = "readable", Writer = writer, Profile = profile, TimestampFormat = null, LogRegion = region
             });
             factory.Configuration = configuration;
             return factory;
