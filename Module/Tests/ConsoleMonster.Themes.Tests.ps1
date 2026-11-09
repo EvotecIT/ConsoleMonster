@@ -150,4 +150,56 @@
         Test-Path -LiteralPath $unsupported | Should -BeFalse
         [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
     }
+
+    It 'checks the active and named themes without changing the selection' {
+        Set-ConsoleTheme ColorBlindSafeLight
+        $before = [ConsoleMonster.Terminal]::Theme
+        $active = Test-ConsoleTheme
+        $active.Passed | Should -BeTrue
+        $dark = Test-ConsoleTheme -Theme Dark
+        $dark.Passed | Should -BeFalse
+        @($dark.Results | Where-Object { $_.Check -eq 'ColourVision' -and $_.Outcome -eq 'Fail' }).Count | Should -BeGreaterThan 0
+        [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
+    }
+
+    It 'loads a <Extension> theme for checking and makes failures terminating in Strict mode' -ForEach @(
+        @{ Extension = 'json' }
+        @{ Extension = 'psd1' }
+    ) {
+        Set-ConsoleTheme Dark
+        $path = Join-Path $TestDrive "check.$Extension"
+        Export-ConsoleTheme -Path $path
+        Set-ConsoleTheme ColorBlindSafeLight
+        $report = Test-ConsoleTheme -Path $path
+        $report.Passed | Should -BeFalse
+        $caught = $null
+        try {
+            Test-ConsoleTheme -Path $path -Strict
+        } catch {
+            $caught = $_
+        }
+        $caught.FullyQualifiedErrorId | Should -BeLike 'ConsoleThemeCheckFailed,*'
+        @($caught.TargetObject.Results | Where-Object Outcome -EQ Fail).Count | Should -BeGreaterThan 0
+        [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly ColorBlindSafeLight
+        (Test-ConsoleTheme -Theme ColorBlindSafeLight -Background White -Strict).Passed | Should -BeTrue
+    }
+
+    It 'renders every measurement and verdict at 80 columns without hiding a column' {
+        $oldColumns = $env:COLUMNS
+        try {
+            $env:COLUMNS = '80'
+            $text = Test-ConsoleTheme -Theme Dark | Out-String -Width 80
+        } finally {
+            $env:COLUMNS = $oldColumns
+        }
+        $text | Should -Match 'Contrast Pass'
+        $text | Should -Match 'Too close under deuteranopia'
+        $text | Should -Match 'Unknown'
+        $text | Should -Match '4.5:1'
+        $text | Should -Match 'Fill Critical'
+        @($text -split '\r?\n' | Where-Object Length -GT 80).Count | Should -Be 0
+        $text | Should -Not -Match 'columns \('
+        (Get-Help Test-ConsoleTheme).Synopsis | Should -Match 'contrast'
+    }
+
 }

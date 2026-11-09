@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary>The type names the view is selected by, sorted.</summary>
         /// <returns>The type names.</returns>
         public static IReadOnlyList<string> TypeNames() {
-            SortedSet<string> names = new SortedSet<string>(StringComparer.Ordinal) { typeof(ConsoleRendering).FullName!, DeserializedRendering };
+            SortedSet<string> names = new SortedSet<string>(StringComparer.Ordinal) { typeof(ConsoleRendering).FullName!, DeserializedRendering, typeof(Styling.ThemeCheckReport).FullName! };
             foreach (Type type in typeof(IWidget).Assembly.GetExportedTypes().Concat(typeof(WidgetFormatData).Assembly.GetExportedTypes())
                 .Concat(typeof(Graphics.ConsoleImage).Assembly.GetExportedTypes())) {
                 if (type.IsClass && !type.IsAbstract && !type.IsGenericTypeDefinition && typeof(IWidget).IsAssignableFrom(type) && type.FullName != null) {
