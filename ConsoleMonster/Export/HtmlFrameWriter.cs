@@ -36,7 +36,7 @@ namespace ConsoleMonster.Export {
                         if (Frame[x, y].Style.BackgroundColor.IsDefault) { return Palette.Background; }
                     }
                 }
-                return ExportPalette.ToCss(background)!;
+                return Palette.Css(background)!;
             }
         }
 
@@ -117,7 +117,7 @@ namespace ConsoleMonster.Export {
             string scope = options.Fragment ? ".cm-export" : ":root,.cm-export";
             css.Append(scope).Append("{--cm-fg:").Append(first.Foreground).Append(";--cm-bg:").Append(first.Background)
                 .Append(";--cm-chrome:#2b2b2b;--cm-chrome-fg:#a8a8a8;--cm-desk:#3a3a3f;color-scheme:").Append(adaptive ? "dark light" : first.Name).Append("}\n.cm-export{display:inline-block}\n");
-            WindowChrome.AppendTokens(css, scope, options, !adaptive && first == ExportPalette.Light);
+            WindowChrome.AppendTokens(css, scope, options, !adaptive && first.IsLight);
             if (adaptive) {
                 css.Append("@media (prefers-color-scheme: light){").Append(scope).Append("{--cm-fg:").Append(ExportPalette.Light.Foreground).Append(";--cm-bg:").Append(ExportPalette.Light.Background).Append("}\n");
                 WindowChrome.AppendTokens(css, scope, options, true);

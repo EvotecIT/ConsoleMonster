@@ -9,14 +9,17 @@ using Xunit;
 namespace ConsoleMonster.Tests.Themes {
     public sealed class ThemeCheckTests {
         [Theory]
-        [InlineData("Dark", 2)]
-        [InlineData("ColorBlindSafeLight", 1)]
-        public void PickerSummarisesTheHighlightedThemeInAtMostTwoLines(string name, int lineCount) {
+        [InlineData("Dark", 2, 60)]
+        [InlineData("ColorBlindSafeLight", 1, 60)]
+        [InlineData("Terminal", 1, 140)]
+        [InlineData("Terminal", 2, 80)]
+        public void PickerSummarisesTheHighlightedThemeInAtMostTwoLines(string name, int lineCount, int width) {
             var values = new Dictionary<string, string> { ["Theme"] = name };
-            string text = Terminal.RenderText(SettingsPicker.Preview(values), TerminalProfile.Fixed(60, 40, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            string text = Terminal.RenderText(SettingsPicker.Preview(values), TerminalProfile.Fixed(width, 40, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
             string summary = text.Substring(text.IndexOf("Statuses apart", StringComparison.Ordinal)).Trim();
             Assert.Equal(lineCount, summary.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Length);
-            Assert.Contains(name == "Dark" ? ": no" : ": yes", summary);
+            string joined = string.Join(" ", summary.Split('\n').Select(line => line.Trim()));
+            Assert.Contains(name == "Dark" ? ": no" : name == "Terminal" ? ": unknown, the terminal did not report its colours" : ": yes", joined);
             if (name == "Dark") {
                 Assert.Contains("pass and fail", summary);
                 Assert.Contains("deuteranopia", summary);

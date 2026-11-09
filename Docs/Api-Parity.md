@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **112 commands**, **1238 parameters** and **378 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **113 commands**, **1243 parameters** and **379 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -643,6 +643,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.ConsoleSettings.FilePath` | CSharpOnly: An application or test pins or ignores the settings file for its own process before it first draws. | Set CONSOLEMONSTER_SETTINGS to a file path, or to none, before importing the module. |
 | `ConsoleMonster.Styling.ThemeCheckOptions.GlyphTier` | Host policy: The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly. | Use Set-ConsoleSetting Glyphs before Test-ConsoleTheme. |
 | `ConsoleMonster.Styling.ThemeCheckOptions.StatusMarkers` | Host policy: The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly. | Use Set-ConsoleSetting StatusMarkers before Test-ConsoleTheme. |
+| `ConsoleMonster.Styling.Theme.Terminal` | Preset: The terminal-palette preset is selected by Set-ConsoleTheme Terminal. | Use Set-ConsoleTheme Terminal or Set-ConsoleSetting Theme Terminal. |
 
 ## .NET host integrations
 

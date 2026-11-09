@@ -100,6 +100,9 @@ namespace ConsoleMonster.Capabilities {
             ThemePreference themePreference = ThemePreference.Auto;
             string themeValue = Get("CONSOLEMONSTER_THEME");
             switch (themeValue.ToLowerInvariant()) {
+                case "terminal":
+                    themePreference = ThemePreference.Terminal;
+                    break;
                 case "highcontrast":
                     themePreference = ThemePreference.HighContrast;
                     break;
