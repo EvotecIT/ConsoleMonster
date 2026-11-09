@@ -219,3 +219,62 @@ target and restores that target when it finishes.
 For more on role-based styling and the supported tiers, see
 [Themes on the site](https://consolemonster.dev/docs/themes/) and
 [the output export guide](Output-Exports.md).
+
+## Schemes and version 3
+
+`Import-ConsoleTheme` converts a Windows Terminal scheme JSON, an XML iTerm2 `.itermcolors` plist in sRGB, or a flat
+base16 YAML file into a theme. Export a single Windows Terminal scheme entry when settings contain several.
+Import always reports the checks; a failing colour scheme is still imported.
+
+```powershell
+Import-ConsoleTheme -Path ./my-scheme.yaml -Accessible -OutFile ./my-theme.json
+Set-ConsoleTheme -Path ./my-theme.json
+Test-ConsoleTheme -Path ./my-theme.json
+```
+
+Without `-OutFile`, import writes `<source-name>.theme.json` beside its source. It does not change the active theme.
+`-Accessible` chooses pass, warning and fail from the scheme's colours, then adjusts OKLCH lightness where needed,
+keeping hue and retaining chroma as far as the sRGB gamut allows. The report lists the adjusted tokens. The source
+palette is retained unchanged. Unusual palettes can still fail; inspect the actual measurements.
+
+A version 3 file embeds the scheme instead of depending on a catalogue entry:
+
+```json
+{
+  "SchemaVersion": 3,
+  "Name": "Team scheme",
+  "BaseScheme": {
+    "Scheme": {
+      "Name": "My terminal",
+      "Foreground": "#eeeeee",
+      "Background": "#112233",
+      "Palette": [
+        "#000000", "#cc3333", "#44aa44", "#cccc44", "#3377cc", "#aa44aa", "#44aaaa", "#cccccc",
+        "#777777", "#ff5555", "#66cc66", "#eeee66", "#6699ff", "#cc66cc", "#66cccc", "#ffffff"
+      ],
+      "Selection": "#334455",
+      "Cursor": "#ffffff"
+    }
+  },
+  "Variant": "Accessible",
+  "Tokens": { "Accent": { "Foreground": "#6699ff" } }
+}
+```
+
+`Palette` contains exactly sixteen RGB colours in ANSI order. `Selection`, `Cursor` and `SignatureAccent` are optional.
+`Variant` is omitted for the faithful theme or set to `Accessible`. `BaseTheme` and `BaseScheme` are mutually exclusive.
+Named catalogue references arrive separately. Tokens and style fields override the derived theme. Exports retain the
+scheme and only token overrides, so derivation remains the source of the theme. Versions 1 and 2 still load; ordinary
+preset/style files continue exporting in their existing version without requiring version 3.
+
+`Set-ConsoleTheme -Path ./my-theme.json -Accessible -Save` selects the accessible derivation without editing the file.
+The Theme setting stores the path followed by ` · accessible`, so new sessions retain that choice. Explicit file
+colour overrides remain explicit, even if they equal the faithful colour or fail a check. A decoration-only override
+keeps the accessible variant's derived foreground and background.
+
+`Terminal` is a separate preset that emits palette indexes at every colour depth. For a custom version 3 token,
+`"Foreground": { "PaletteIndex": 4 }` keeps the blue index even on a true-colour terminal; it cannot be combined with
+RGB fallbacks. `"BaseTheme": "Terminal"` inherits those roles. `Terminal.Palette` exposes the guarded startup probe.
+Checking Terminal uses the measured palette or reports Unknown. Exporting a Terminal-themed session captures the
+measured palette and defaults, or the background variant defaults when probing is unavailable; the capability
+decisions state which choice was made. `Auto` keeps its existing behaviour.
