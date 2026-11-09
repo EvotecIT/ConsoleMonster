@@ -83,8 +83,10 @@ iTerm2 `.itermcolors` plist in sRGB, or a flat base16 `.yaml`/`.yml` scheme. Wit
 checks fail. Import does not change the active theme.
 
 A faithful theme chooses colours from the palette unchanged, preferring a normal or bright candidate with 3:1
-contrast. The accessible variant first chooses status colours from that palette, then adjusts only OKLCH lightness
-where contrast or colour-vision separation requires it (reducing chroma at the sRGB gamut boundary). Fail is also
+contrast while keeping the role's hue; grey bright slots do not replace coloured statuses. `Gap` uses the muted
+text colour. The accessible variant first chooses status colours from that palette, then adjusts OKLCH lightness
+while retaining hue and at least half the source chroma. If that hue cannot meet the bars, it tries another palette
+colour in the same family: blue-to-cyan, orange-to-yellow or red-to-magenta. Fail is also
 underlined. The report lists tokens **adjusted for contrast**. Arbitrary imported palettes may still fall short;
 the report gives the measurements. A version 3 file keeps the embedded scheme, so it can also be selected with
 `Set-ConsoleTheme -Path ./my-theme.json -Accessible -Save` without rewriting the source file.

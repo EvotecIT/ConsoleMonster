@@ -234,7 +234,8 @@ Test-ConsoleTheme -Path ./my-theme.json
 
 Without `-OutFile`, import writes `<source-name>.theme.json` beside its source. It does not change the active theme.
 `-Accessible` chooses pass, warning and fail from the scheme's colours, then adjusts OKLCH lightness where needed,
-keeping hue and retaining chroma as far as the sRGB gamut allows. The report lists the adjusted tokens. The source
+keeping hue and at least half the source chroma. If that cannot meet the bars, it tries another palette colour in
+the same status family: blue-to-cyan, orange-to-yellow or red-to-magenta. The report lists the adjusted tokens. The source
 palette is retained unchanged. Unusual palettes can still fail; inspect the actual measurements.
 
 A version 3 file embeds the scheme instead of depending on a catalogue entry:

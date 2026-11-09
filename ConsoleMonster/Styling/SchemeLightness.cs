@@ -18,6 +18,14 @@ namespace ConsoleMonster.Styling {
         internal double Lightness { get; }
         internal double A { get; }
         internal double B { get; }
+        internal double Chroma => Math.Sqrt(A * A + B * B);
+        internal double Hue => (Math.Atan2(B, A) * 180 / Math.PI + 360) % 360;
+
+        internal static bool IsRoleCandidate(Color basis, Color candidate) {
+            SchemeLightness source = new SchemeLightness(basis), target = new SchemeLightness(candidate);
+            double difference = Math.Abs(source.Hue - target.Hue);
+            return target.Chroma >= .05 && Math.Min(difference, 360 - difference) <= 30;
+        }
 
         internal Color At(double lightness) {
             double scale = 1;
@@ -37,7 +45,8 @@ namespace ConsoleMonster.Styling {
             SchemeLightness lch = new SchemeLightness(original);
             List<Color> colors = new List<Color> { original };
             for (int i = 0; i <= 200; i++) { colors.Add(lch.At(i / 200.0)); }
-            return colors.Distinct().Where(color => ThemeCheck.Contrast(color, background) >= contrast)
+            return colors.Distinct().Where(color => ThemeCheck.Contrast(color, background) >= contrast
+                    && new SchemeLightness(color).Chroma >= lch.Chroma * .5)
                 .OrderBy(color => Math.Abs(new SchemeLightness(color).Lightness - lch.Lightness)).ToList();
         }
 

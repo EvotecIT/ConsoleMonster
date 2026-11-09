@@ -30,21 +30,25 @@ namespace ConsoleMonster.Styling {
             ThemeColor Rgb(Color color) => new ThemeColor(color, color.Downsample(ColorDepth.Ansi16).Index);
             Color Role(int index) {
                 int first = light ? index + 8 : index, second = light ? index : index + 8;
-                if (ThemeCheck.Contrast(scheme.Palette[first], scheme.Background) >= 3) { return scheme.Palette[first]; }
-                if (ThemeCheck.Contrast(scheme.Palette[second], scheme.Background) >= 3) { return scheme.Palette[second]; }
-                return scheme.Foreground;
+                Color basis = scheme.Palette[index];
+                foreach (int candidate in new[] { first, second }) {
+                    Color color = scheme.Palette[candidate];
+                    if ((color == basis || SchemeLightness.IsRoleCandidate(basis, color)) && ThemeCheck.Contrast(color, scheme.Background) >= 3) { return color; }
+                }
+                return basis;
             }
-            Color muted = new[] { scheme.Palette[8], scheme.Palette[7], scheme.Foreground }
+            Color halfway = Color.FromRgb(Mix(scheme.Background.R, scheme.Foreground.R, .5), Mix(scheme.Background.G, scheme.Foreground.G, .5), Mix(scheme.Background.B, scheme.Foreground.B, .5));
+            Color muted = new[] { scheme.Palette[8], scheme.Palette[7], halfway }
                 .FirstOrDefault(color => ThemeCheck.Contrast(color, scheme.Background) >= 3);
             if (muted.Kind != ColorKind.Rgb) { muted = scheme.Foreground; }
             ThemeColor foreground = Rgb(scheme.Foreground), background = Rgb(scheme.Background);
             ThemeColor blue = Rgb(Role(4)), red = Rgb(Role(1)), cyan = Rgb(Role(6));
-            Color surfaceColor = Color.FromRgb(Mix(scheme.Background.R, scheme.Foreground.R), Mix(scheme.Background.G, scheme.Foreground.G), Mix(scheme.Background.B, scheme.Foreground.B));
+            Color surfaceColor = Color.FromRgb(Mix(scheme.Background.R, scheme.Foreground.R, .08), Mix(scheme.Background.G, scheme.Foreground.G, .08), Mix(scheme.Background.B, scheme.Foreground.B, .08));
             ThemeColor surface = Rgb(surfaceColor), selection = Rgb(scheme.Selection ?? Role(4));
             Dictionary<ThemeToken, ThemeStyle> styles = new Dictionary<ThemeToken, ThemeStyle>();
             foreach (ThemeToken token in AllTokens()) { styles[token] = new ThemeStyle(foreground); }
             foreach (ThemeToken token in new[] { ThemeToken.Title, ThemeToken.Header, ThemeToken.Strong }) { styles[token] = new ThemeStyle(foreground, null, TextDecoration.Bold); }
-            foreach (ThemeToken token in new[] { ThemeToken.Muted, ThemeToken.Border, ThemeToken.Skip, ThemeToken.Pending, ThemeToken.Low }) { styles[token] = new ThemeStyle(Rgb(muted)); }
+            foreach (ThemeToken token in new[] { ThemeToken.Muted, ThemeToken.Border, ThemeToken.Skip, ThemeToken.Pending, ThemeToken.Low, ThemeToken.Gap }) { styles[token] = new ThemeStyle(Rgb(muted)); }
             styles[ThemeToken.Subtle] = new ThemeStyle(Rgb(scheme.Palette[8]), null, TextDecoration.Dim);
             styles[ThemeToken.Pass] = new ThemeStyle(Rgb(Role(2)));
             styles[ThemeToken.Warn] = new ThemeStyle(Rgb(Role(3)));
@@ -58,12 +62,11 @@ namespace ConsoleMonster.Styling {
             int[] series = { 4, 3, 5, 6, 2, 1 };
             for (int i = 0; i < series.Length; i++) { styles[ThemeToken.Series1 + i] = new ThemeStyle(Rgb(Role(series[i]))); }
             styles[ThemeToken.Critical] = new ThemeStyle(background, red);
-            styles[ThemeToken.Gap] = new ThemeStyle(background);
             Theme theme = new Theme(scheme.Name + (accessible ? " · accessible" : ""), styles,
                 new ThemeAppearance(background: light ? ThemeBackground.Light : ThemeBackground.Dark)) { Scheme = scheme, IsAccessible = accessible };
             return accessible ? AccessibleScheme(theme) : theme;
         }
 
-        private static byte Mix(byte background, byte foreground) => (byte)Math.Round(background + (foreground - background) * 0.08);
+        private static byte Mix(byte background, byte foreground, double amount) => (byte)Math.Round(background + (foreground - background) * amount);
     }
 }

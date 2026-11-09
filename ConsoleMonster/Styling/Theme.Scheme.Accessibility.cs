@@ -8,7 +8,7 @@ namespace ConsoleMonster.Styling {
         private static Theme AccessibleScheme(Theme theme) {
             TerminalScheme scheme = theme.Scheme!;
             Color[] trio = SchemeTrio(scheme);
-            Color[] chosen = AdjustTrio(trio, scheme.Background);
+            Color[] chosen = AdjustTrio(trio, scheme);
             HashSet<ThemeToken> adjusted = new HashSet<ThemeToken>();
             ThemeToken[] statuses = { ThemeToken.Pass, ThemeToken.Warn, ThemeToken.Fail };
             for (int i = 0; i < statuses.Length; i++) {
@@ -16,7 +16,7 @@ namespace ConsoleMonster.Styling {
                 theme = theme.With(statuses[i], new ThemeStyle(SchemeRgb(chosen[i]), null,
                     statuses[i] == ThemeToken.Fail ? TextDecoration.Underline : TextDecoration.None));
             }
-            // Check every actual text/background pair. Gap is also a severity label, despite its background-coloured faithful mapping.
+            // Check every actual text/background pair, including muted severity labels such as Gap.
             foreach (ThemeToken token in AllTokens()) {
                 if (token == ThemeToken.Subtle || token == ThemeToken.Critical || statuses.Contains(token)) { continue; }
                 ThemeStyle style = theme.Get(token);
@@ -47,10 +47,9 @@ namespace ConsoleMonster.Styling {
             Color[] best = { scheme.Palette[4], scheme.Palette[3], scheme.Palette[1] };
             double bestScore = -1;
             for (int constrained = 1; constrained >= 0; constrained--) {
-                foreach (int p in new[] { 4, 12, 6, 14 }) {
-                    foreach (int w in new[] { 3, 11 }) {
-                        foreach (int f in new[] { 1, 9, 5, 13 }) {
-                            Color a = scheme.Palette[p], b = scheme.Palette[w], c = scheme.Palette[f];
+                foreach (Color a in StatusColors(scheme, 0, false)) {
+                    foreach (Color b in StatusColors(scheme, 1, false)) {
+                        foreach (Color c in StatusColors(scheme, 2, false)) {
                             if (constrained == 1 && (ThemeCheck.Contrast(a, scheme.Background) < 3
                                 || ThemeCheck.Contrast(b, scheme.Background) < 3 || ThemeCheck.Contrast(c, scheme.Background) < 3)) { continue; }
                             double score = TrioDistance(a, b, c);
@@ -63,31 +62,68 @@ namespace ConsoleMonster.Styling {
             return best;
         }
 
-        private static Color[] AdjustTrio(Color[] original, Color background) {
+        private static Color[] AdjustTrio(Color[] original, TerminalScheme scheme) {
+            Color background = scheme.Background;
             if (original.All(color => ThemeCheck.Contrast(color, background) >= 4.5) && TrioDistance(original[0], original[1], original[2]) >= 25) { return original; }
             List<Color>[] candidates = original.Select(color => SchemeLightness.Candidates(color, background, 4.5)).ToArray();
-            if (candidates.Any(list => list.Count == 0)) { return original; }
-            Color[] best = candidates.Select(list => list[0]).ToArray();
-            double bestCost = double.MaxValue, bestDistance = -1;
+            if (FindTrio(candidates, original, false, out Color[] chosen)) { return chosen; }
+            // A hue that loses its chroma at the required lightness needs another published colour in the same family.
+            candidates = Enumerable.Range(0, 3).Select(role => StatusColors(scheme, role, true)
+                .SelectMany(color => SchemeLightness.Candidates(color, background, 4.5)).Distinct()
+                .OrderByDescending(color => new SchemeLightness(color).Chroma).ToList()).ToArray();
+            if (FindTrio(candidates, original, true, out Color[] expanded)) { return expanded; }
+            // Importing never rejects a failed check, even when a palette cannot meet all three bars.
+            return chosen;
+        }
+
+        private static bool FindTrio(List<Color>[] candidates, Color[] original, bool mostChroma, out Color[] best) {
+            best = candidates.Select((list, i) => list.Count == 0 ? original[i] : list[0]).ToArray();
+            if (candidates.Any(list => list.Count == 0)) { return false; }
+            double bestCost = double.MaxValue;
             double[] initial = original.Select(color => new SchemeLightness(color).Lightness).ToArray();
+            double Cost(Color color, int role) => mostChroma ? -new SchemeLightness(color).Chroma : Math.Abs(new SchemeLightness(color).Lightness - initial[role]);
+            double wmin = candidates[1].Min(color => Cost(color, 1)), fmin = candidates[2].Min(color => Cost(color, 2));
             foreach (Color p in candidates[0]) {
-                double pcost = Math.Abs(new SchemeLightness(p).Lightness - initial[0]);
-                if (pcost >= bestCost) { continue; }
+                double pcost = Cost(p, 0);
+                if (pcost + wmin + fmin >= bestCost) { continue; }
                 foreach (Color w in candidates[1]) {
-                    double cost = pcost + Math.Abs(new SchemeLightness(w).Lightness - initial[1]);
-                    if (cost >= bestCost) { continue; }
+                    double cost = pcost + Cost(w, 1);
+                    if (cost + fmin >= bestCost) { continue; }
                     double pw = ThemeCheck.MinimumStatusDistance(p, w);
+                    if (pw < 25) { continue; }
                     foreach (Color f in candidates[2]) {
-                        double total = cost + Math.Abs(new SchemeLightness(f).Lightness - initial[2]);
+                        double total = cost + Cost(f, 2);
                         if (total >= bestCost) { continue; }
                         double distance = Math.Min(pw, Math.Min(ThemeCheck.MinimumStatusDistance(p, f), ThemeCheck.MinimumStatusDistance(w, f)));
                         if (distance >= 25) { bestCost = total; best = new[] { p, w, f }; }
-                        else if (bestCost == double.MaxValue && distance > bestDistance) { bestDistance = distance; best = new[] { p, w, f }; }
                     }
                 }
             }
-            // Imported palettes may make the bars impossible. Keep the best measured result; importing never rejects a failed check.
-            return best;
+            return bestCost != double.MaxValue;
+        }
+
+        private static Color[] StatusColors(TerminalScheme scheme, int role, bool expanded) {
+            int[] bases = role == 0 ? new[] { 4, 6 } : role == 1 ? new[] { 3 } : new[] { 1, 5 };
+            List<Color> colors = bases.SelectMany(index => new[] { scheme.Palette[index], scheme.Palette[index + 8] }
+                .Where(color => SchemeLightness.IsRoleCandidate(scheme.Palette[index], color))).Distinct().ToList();
+            if (expanded) {
+                colors.AddRange(scheme.Palette.Where(color => {
+                    SchemeLightness lch = new SchemeLightness(color);
+                    return lch.Chroma >= .05 && (role == 1 ? lch.Hue >= 30 && lch.Hue <= 120
+                        : HueBetween(lch.Hue, new SchemeLightness(scheme.Palette[bases[0]]).Hue, new SchemeLightness(scheme.Palette[bases[1]]).Hue));
+                }));
+            }
+            if (role == 2) {
+                double red = new SchemeLightness(scheme.Palette[1]).Hue, magenta = new SchemeLightness(scheme.Palette[5]).Hue;
+                colors = colors.Where(color => HueBetween(new SchemeLightness(color).Hue, red, magenta, 10)).ToList();
+            }
+            return colors.Count == 0 ? new[] { scheme.Palette[bases[0]] } : colors.Distinct().ToArray();
+        }
+
+        private static bool HueBetween(double hue, double a, double b, double padding = 0) {
+            double span = (b - a + 360) % 360;
+            if (span > 180) { return HueBetween(hue, b, a, padding); }
+            return (hue - a + 360) % 360 <= span + padding || (a - hue + 360) % 360 <= padding;
         }
         private static double TrioDistance(Color p, Color w, Color f) => Math.Min(ThemeCheck.MinimumStatusDistance(p, w),
             Math.Min(ThemeCheck.MinimumStatusDistance(p, f), ThemeCheck.MinimumStatusDistance(w, f)));

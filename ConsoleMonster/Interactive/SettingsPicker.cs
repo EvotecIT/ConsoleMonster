@@ -236,6 +236,11 @@ namespace ConsoleMonster.Interactive {
                 string prefix = width >= 60 ? "Statuses apart for colour-blind users: " : "Colour-blind: ";
                 string summary = prefix + verdict;
                 string detail = string.Empty;
+                if (unknown && context.Theme is Theme following && following.FollowsTerminal && Terminal.Palette == null) {
+                    const string reason = "the terminal did not report its colours";
+                    if ((summary + ", " + reason).Length <= width) { summary += ", " + reason; }
+                    else { summary += ","; detail = reason; }
+                }
                 if (failed != null) {
                     var pair = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail
                         && result.Tokens.SequenceEqual(failed.Tokens)).OrderBy(result => result.Value);
