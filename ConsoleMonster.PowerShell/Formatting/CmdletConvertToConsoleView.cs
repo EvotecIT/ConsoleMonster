@@ -1,24 +1,45 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Drafts a reusable console view from sample objects.</para>
-    /// <para type="description">Returns a ready-to-paste Register-ConsoleView script. Examines the first 50 objects and chooses up to six nonempty columns, preferring DefaultDisplayPropertySet or a name or identity column. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Input objects are not changed. Empty input produces no draft.</para>
+    /// <para type="description">Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.</para>
     /// <para type="description">Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.</para>
     /// </summary>
     /// <example>
-    /// <para>Draft and inspect a view, then paste the returned script into your profile.</para>
+    /// <para>Draft Name, Id, CPU, Handles and SI with a processes count. The Id presenter uses a named variable, plain columns stay names, and the registration uses a splat when needed. Paste the returned script into your profile; drop -Summary $summary to omit its count line.</para>
     /// <code>Get-Process | ConvertTo-ConsoleView</code>
     /// </example>
     /// <example>
-    /// <para>Register the draft now and return its script for later editing.</para>
-    /// <code>Get-ChildItem -File | ConvertTo-ConsoleView -Register</code>
+    /// <para>Register the drafted columns and summary now, and return the compact script for later editing. The next listing uses this view when console formatting is enabled.</para>
+    /// <code>
+    /// Get-ChildItem -File | ConvertTo-ConsoleView -Register
+    /// Get-ChildItem -File
+    /// </code>
     /// </example>
     /// <example>
     /// <para>Save a data-only view and load it explicitly. Modules can ship a same-named file beside their manifest.</para>
-    /// <code>Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1
-    /// Register-ConsoleView -Path ./Processes.consoleviews.psd1</code>
+    /// <code>
+    /// Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
+    /// Register-ConsoleView -Path ./Processes.consoleviews.psd1
+    /// </code>
+    /// </example>
+    /// <example>
+    /// <para>Keep a process draft in your profile. Plain columns remain names; the Id presenter and count summary are named variables. Remove the Summary entry to leave the count line out.</para>
+    /// <code>$id = @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
+    /// $summary = {
+    ///     param($items)
+    ///     @{ Value = @($items).Count; Label = 'processes' }
+    /// }
+    /// $view = @{
+    ///     TypeName = 'System.Diagnostics.Process'
+    ///     Property = @('Name', $id, 'CPU', 'Handles', 'SI')
+    ///     Summary = $summary
+    /// }
+    /// Register-ConsoleView @view
+    /// Get-Process</code>
     /// </example>
     [Cmdlet(VerbsData.ConvertTo, "ConsoleView")]
     [OutputType(typeof(string))]
@@ -31,7 +52,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter AsDataFile { get; set; }
 
-        /// <summary><para type="description">Also registers the drafted columns in this session. Use Enable-ConsoleFormatting to show registered views on the console. The summary remains a commented suggestion.</para></summary>
+        /// <summary><para type="description">Also registers the drafted columns and default summary in this session. Use Enable-ConsoleFormatting to show registered views on the console. The summary counts items using the type name and adds lowercase status counts with pass, warning and failure roles.</para></summary>
         [Parameter]
         public SwitchParameter Register { get; set; }
 
@@ -62,14 +83,23 @@ namespace ConsoleMonster.PowerShell {
                 WriteWarning("No nonempty properties were found in the first 50 samples; no view was drafted.");
                 return;
             }
-            string output = AsDataFile ? draft.DataFile() : draft.Script();
+            string output = AsDataFile ? draft.DataFile() : draft.Script(ProtectedVariables());
             if (AsDataFile && System.Array.Exists(output.Split('\n'), line => line.Length >= 100)) {
                 WriteWarning("A type or property name cannot fit in a data-file literal under 100 characters. "
                     + "No view was drafted or registered; omit -AsDataFile to use a script instead.");
                 return;
             }
-            if (Register) { ConsoleHostViews.Register(new ConsoleViewRegistration(typeName, property: draft.Property)); }
+            if (Register) {
+                ConsoleHostViews.Register(new ConsoleViewRegistration(typeName, property: draft.Property) { Summary = draft.Summary() });
+            }
             WriteObject(output);
         }
+
+        // Ask this PowerShell runtime for its protected and type-constrained variables instead of copying its list.
+        private IEnumerable<string> ProtectedVariables() => InvokeCommand.InvokeScript("Microsoft.PowerShell.Utility\\Get-Variable")
+            .Select(item => item.BaseObject).OfType<PSVariable>()
+            .Where(variable => (variable.Options & (ScopedItemOptions.ReadOnly | ScopedItemOptions.Constant)) != 0
+                || variable.Attributes.Count > 0)
+            .Select(variable => variable.Name);
     }
 }

@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Drafts a reusable console view from sample objects.
 
-Returns a ready-to-paste Register-ConsoleView script. Examines the first 50 objects and chooses up to six nonempty columns, preferring DefaultDisplayPropertySet or a name or identity column. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Input objects are not changed. Empty input produces no draft.
+Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.
 
 Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.
 
@@ -21,7 +21,7 @@ ConvertTo-ConsoleView [-InputObject] <psobject[]> [-AsDataFile] [-Register] [<Co
 ## DESCRIPTION
 Drafts a reusable console view from sample objects.
 
-Returns a ready-to-paste Register-ConsoleView script. Examines the first 50 objects and chooses up to six nonempty columns, preferring DefaultDisplayPropertySet or a name or identity column. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Input objects are not changed. Empty input produces no draft.
+Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.
 
 Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.
 
@@ -32,22 +32,41 @@ Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleview
 Get-Process | ConvertTo-ConsoleView
 ```
 
-Draft and inspect a view, then paste the returned script into your profile.
+Draft Name, Id, CPU, Handles and SI with a processes count. The Id presenter uses a named variable, plain columns stay names, and the registration uses a splat when needed. Paste the returned script into your profile; drop -Summary $summary to omit its count line.
 
 ### EXAMPLE 2
 ```powershell
 Get-ChildItem -File | ConvertTo-ConsoleView -Register
+Get-ChildItem -File
 ```
 
-Register the draft now and return its script for later editing.
+Register the drafted columns and summary now, and return the compact script for later editing. The next listing uses this view when console formatting is enabled.
 
 ### EXAMPLE 3
 ```powershell
-Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1
-            Register-ConsoleView -Path ./Processes.consoleviews.psd1
+Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
+Register-ConsoleView -Path ./Processes.consoleviews.psd1
 ```
 
 Save a data-only view and load it explicitly. Modules can ship a same-named file beside their manifest.
+
+### EXAMPLE 4
+```powershell
+$id = @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
+$summary = {
+    param($items)
+    @{ Value = @($items).Count; Label = 'processes' }
+}
+$view = @{
+    TypeName = 'System.Diagnostics.Process'
+    Property = @('Name', $id, 'CPU', 'Handles', 'SI')
+    Summary = $summary
+}
+Register-ConsoleView @view
+Get-Process
+```
+
+Keep a process draft in your profile. Plain columns remain names; the Id presenter and count summary are named variables. Remove the Summary entry to leave the count line out.
 
 ## PARAMETERS
 
@@ -84,7 +103,7 @@ Accept wildcard characters: False
 ```
 
 ### -Register
-Also registers the drafted columns in this session. Use Enable-ConsoleFormatting to show registered views on the console. The summary remains a commented suggestion.
+Also registers the drafted columns and default summary in this session. Use Enable-ConsoleFormatting to show registered views on the console. The summary counts items using the type name and adds lowercase status counts with pass, warning and failure roles.
 
 ```yaml
 Type: SwitchParameter

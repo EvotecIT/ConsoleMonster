@@ -20,22 +20,61 @@ Pipe a few results into `ConvertTo-ConsoleView` to get a working registration sc
 Get-ContosoBackup | ConvertTo-ConsoleView
 ```
 
-Paste the script into your profile and adjust the columns. It samples the first 50 objects,
-chooses up to six nonempty columns and reuses the default table's presenters, with status
-words, bars for widely varying sizes and relative dates for recent values. A commented
-`-Summary` block suggests a total count and counts by status. Add `-Register` to try the
-draft in this session; `Enable-ConsoleFormatting` makes registered views show on the console.
+For the backup objects above, the draft is ready to paste into your profile:
+
+```powershell
+# Contoso.Backup: keep these lines in your profile; ConvertTo-ConsoleView -AsDataFile makes the module form.
+$state = @{ Name = 'State'; Expression = 'State'; Presenter = 'StatusWord' }
+$size = @{ Name = 'Size'; Expression = 'Size'; Presenter = 'BytesBar' }
+$took = @{ Name = 'Took'; Expression = 'Took'; Presenter = 'Duration' }
+
+$summary = {
+    param($items)
+    @{ Value = @($items).Count; Label = 'backups' }
+    $roles = @{
+        failed = 'Fail'; error = 'Fail'; stopped = 'Fail'
+        warning = 'Warn'; degraded = 'Warn'
+        completed = 'Pass'; passed = 'Pass'; success = 'Pass'; ok = 'Pass'
+    }
+    $items | Group-Object -Property 'State' | ForEach-Object {
+        $label = $_.Name.ToLowerInvariant()
+        $fact = @{ Value = $_.Count; Label = $label }
+        if ($roles.ContainsKey($label)) { $fact.Role = $roles[$label] }
+        $fact
+    }
+}
+# Drop -Summary $summary to leave the line out.
+$view = @{
+    TypeName = 'Contoso.Backup'
+    Property = @('Server', $state, $size, $took)
+    Summary = $summary
+}
+Register-ConsoleView @view
+```
+
+Plain columns stay names; presenters get short named variables. Short registrations stay
+on one line, and longer ones use a splat. The summary is on by default: it counts backups
+and each status, with lowercase labels and pass, warning or failure roles. Remove
+`-Summary $summary` (or the `Summary` entry in a splat) to leave the line out.
+
+The draft samples the first 50 objects and chooses up to six nonempty columns, with the
+name or identity first, even when a default display set puts it last. For `Get-Process`,
+that gives `Name`, `Id`, `CPU`, `Handles` and `SI`. Presenters reuse the default table's
+inference, with status words, bars for widely varying sizes and relative dates for recent
+values. Add `-Register` to install the columns and summary now; `Enable-ConsoleFormatting`
+makes registered views show on the console.
 
 To keep a data-only file instead:
 
 ```powershell
 Get-ContosoBackup | ConvertTo-ConsoleView -AsDataFile |
-    Set-Content ContosoBackup.consoleviews.psd1
+    Set-Content ContosoBackup.consoleviews.psd1 -Encoding UTF8
 Register-ConsoleView -Path ./ContosoBackup.consoleviews.psd1
 ```
 
 Ship it as `ModuleName.consoleviews.psd1` beside that module's manifest for automatic
-discovery. The file uses property names for expressions and contains no script blocks.
+discovery. Plain columns are strings in its `Property` list; only presenter columns need
+hashtables. The file contains no script blocks, so summaries stay in the profile script.
 Sample one object shape at a time. Deserialized input warns and drafts for the base type;
 that view does not apply to job or remote output. `Select-Object` input keeps its
 `Selected.` type name and warns that the view targets that selected shape.

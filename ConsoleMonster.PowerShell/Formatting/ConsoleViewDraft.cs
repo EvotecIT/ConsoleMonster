@@ -48,14 +48,17 @@ namespace ConsoleMonster.PowerShell {
             PSFormatting.ChoosePresenters(columns, rows, true);
             List<int> selected = Enumerable.Range(0, columns.Count)
                 .Where(c => rows.Any(row => !Empty(row[c]))).ToList();
-            if (display == null || display.ReferencedPropertyNames.Count == 0) {
-                int identity = ValueShaper.TitleIndex(selected.Select(c => columns[c].Name).ToList());
-                if (identity > 0) {
-                    int column = selected[identity];
-                    selected.RemoveAt(identity);
-                    selected.Insert(0, column);
-                }
+            int identity = ValueShaper.TitleIndex(selected.Select(c => columns[c].Name).ToList());
+            if (identity > 0) {
+                int column = selected[identity];
+                selected.RemoveAt(identity);
+                selected.Insert(0, column);
             }
+            // Keep an Id and its CPU metric next to the record name, ahead of ancillary counters.
+            int leading = selected.Count > 0 ? selected[0] : -1;
+            selected = selected.OrderBy(c => c == leading ? 0
+                : columns[c].Name.Equals("Id", StringComparison.OrdinalIgnoreCase) ? 1
+                : columns[c].Name.Equals("CPU", StringComparison.OrdinalIgnoreCase) ? 2 : 3).ToList();
             List<object> properties = new List<object>();
             string? status = null;
             DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -76,7 +79,9 @@ namespace ConsoleMonster.PowerShell {
                 Hashtable column = new Hashtable { ["Name"] = columns[c].Name, ["Expression"] = columns[c].Name };
                 if (presenterName != null) { column["Presenter"] = presenterName; }
                 if (presenter == CellPresenters.StatusWord && status == null) { status = columns[c].Name; }
-                properties.Add(column);
+                // A wildcard-bearing member still needs a literal expression instead of expanding a selection pattern.
+                properties.Add(presenterName == null && columns[c].Name.IndexOfAny(new[] { '*', '?' }) < 0
+                    ? (object)columns[c].Name : column);
             }
             return new ConsoleViewDraft(typeName, properties.ToArray(), status);
         }
