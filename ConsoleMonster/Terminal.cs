@@ -94,6 +94,7 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(profile));
             }
             switch (profile.ThemePreference) {
+                case ThemePreference.Terminal: return Styling.Theme.Terminal;
                 case ThemePreference.HighContrast:
                     return Styling.Theme.HighContrast;
                 case ThemePreference.ColorBlind:
@@ -134,7 +135,8 @@ namespace ConsoleMonster {
                 }
                 // Host callbacks and flow-local preferences must not be cached or invoked while holding Gate.
                 switch (ApplyProfilePolicy(profile).ThemePreference) {
-                    case ThemePreference.HighContrast: return Styling.Theme.HighContrast;
+                    case ThemePreference.Terminal: return Styling.Theme.Terminal;
+                case ThemePreference.HighContrast: return Styling.Theme.HighContrast;
                     case ThemePreference.ColorBlind: return ReferenceEquals(detected, Styling.Theme.Light) ? Styling.Theme.ColorBlindSafeLight : Styling.Theme.ColorBlindSafe;
                     case ThemePreference.ColorBlindLight: return Styling.Theme.ColorBlindSafeLight;
                     case ThemePreference.ColorBlindDark: return Styling.Theme.ColorBlindSafe;

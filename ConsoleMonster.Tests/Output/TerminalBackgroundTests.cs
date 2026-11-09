@@ -1,4 +1,5 @@
 using ConsoleMonster.Output;
+using ConsoleMonster.Styling;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Output {
@@ -20,6 +21,21 @@ namespace ConsoleMonster.Tests.Output {
         [InlineData("\u001b]11;rgb:xx/ff/ff\u0007")]
         [InlineData("\u001b]10;rgb:ff/ff/ff\u0007")]
         public void InvalidOscRepliesKeepTheFallback(string reply) => Assert.False(TerminalBackground.TryParseOsc11(reply, out _));
+
+        [Theory]
+        [InlineData("\u001b]4;2;rgb:1234/abcd/ffff\u0007", 2, "#12abff")]
+        [InlineData("\u001b]4;15;rgb:1/2/f\u001b\\", 15, "#1122ff")]
+        public void Osc4PreservesTheRequestedIndexAndNormalisesTerminalPrecision(string reply, int index, string hex) {
+            Assert.True(TerminalPalette.TryParseOsc4(reply, out int actual, out Color color));
+            Assert.Equal(index, actual);
+            Assert.Equal(Color.FromHex(hex), color);
+        }
+
+        [Theory]
+        [InlineData("\u001b]4;16;rgb:ff/ff/ff\u0007")]
+        [InlineData("\u001b]4;1;rgb:ff/ff/ff")]
+        [InlineData("\u001b]4;1;rgb:xx/ff/ff\u0007")]
+        public void Osc4RejectsIncompleteInvalidOrOutOfRangeReplies(string reply) => Assert.False(TerminalPalette.TryParseOsc4(reply, out _, out _));
 
         [Theory]
         [InlineData(0, 0, 0, false)]

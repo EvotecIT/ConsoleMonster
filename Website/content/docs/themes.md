@@ -1,12 +1,12 @@
 ---
 title: Themes
-description: The dark, light and high-contrast themes, the roles they define and how their colours are reduced for 256 and 16-colour consoles.
+description: Built-in themes, following your terminal palette, importing schemes and checking accessible variants.
 slug: themes
 order: 4
 group: start
 card: theme-dark
-chips: [Dark, Light, High contrast]
-summary: "Dark, light and high contrast, and how colours are reduced per tier."
+chips: [Themes, Terminal, Schemes]
+summary: "Choose a theme, follow your terminal or import a colour scheme."
 ---
 
 Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Accent`, `Pass`, `Warn`, `Fail`, `Info`, `Skip`, `Running`, `Pending`, `Border`, `Title`, `Header`, `Surface`, `Focus` and six chart series. A theme maps each role to a 24-bit colour with its 256 and 16-colour fallbacks, so a role stays distinguishable on every tier.
@@ -46,6 +46,53 @@ Terminal.Write(new Rule("[bold]High contrast[/]"));
 ```
 
 </div>
+
+## Follow your terminal
+
+Choose **Terminal (follow my terminal)** in the Theme list in `Show-ConsoleSettings`, or use:
+
+```powershell
+Set-ConsoleTheme Terminal -Save
+Test-ConsoleTheme -Theme Terminal
+Export-ConsoleTheme -Path ./terminal-theme.json
+```
+
+`Terminal` keeps ANSI palette indexes even at true-colour depth, so your terminal application chooses the colours.
+Before ConsoleMonster opens the keyboard, it asks for the sixteen colours with OSC 4 and the default foreground and
+background with OSC 10/11. Each guarded exchange has a 100 ms timeout and runs only in an interactive Unix terminal,
+never with redirected input/output or in CI. `Terminal.Palette` contains the result, or null when it is unavailable.
+The probe cannot run after another ConsoleMonster input reader has started.
+
+Exports and recordings use the measured RGB palette when available. Otherwise they use the background variant's
+default colours; the capability decisions record that fallback. An unavailable palette leaves colour checks Unknown.
+`Auto` continues choosing the built-in light or dark theme from the detected background.
+
+## Import a colour scheme
+
+```powershell
+Import-ConsoleTheme -Path ./my-scheme.json -OutFile ./my-theme.json
+Set-ConsoleTheme -Path ./my-theme.json
+
+Import-ConsoleTheme -Path ./my-scheme.itermcolors -Accessible -OutFile ./my-accessible-theme.json
+Set-ConsoleTheme -Path ./my-accessible-theme.json
+```
+
+Import accepts a single Windows Terminal scheme object (or `settings.json` containing one `schemes` entry), an XML
+iTerm2 `.itermcolors` plist in sRGB, or a flat base16 `.yaml`/`.yml` scheme. Without `-OutFile`, it writes
+`<source-name>.theme.json` beside the source. It reports the same verdict as `Test-ConsoleTheme` and imports even when
+checks fail. Import does not change the active theme.
+
+A faithful theme chooses colours from the palette unchanged, preferring a normal or bright candidate with 3:1
+contrast while keeping the role's hue; grey bright slots do not replace coloured statuses. `Gap` uses the muted
+text colour. The accessible variant first chooses status colours from that palette, then adjusts OKLCH lightness
+while retaining hue and at least half the source chroma. If that hue cannot meet the bars, it tries another palette
+colour in the same family: blue-to-cyan, orange-to-yellow or red-to-magenta. Fail is also
+underlined. The report lists tokens **adjusted for contrast**. Arbitrary imported palettes may still fall short;
+the report gives the measurements. A version 3 file keeps the embedded scheme, so it can also be selected with
+`Set-ConsoleTheme -Path ./my-theme.json -Accessible -Save` without rewriting the source file.
+
+In C#, use `TerminalScheme.Load(path)` and `Theme.FromScheme(scheme, accessible: true)`. See
+[theme files](#share-a-team-theme-file) for token overrides and [checking themes](#check-a-theme) for measurements.
 
 ## Keep a theme for every session
 

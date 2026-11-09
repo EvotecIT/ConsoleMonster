@@ -987,6 +987,17 @@
       ]
     },
     {
+      "verb": "Import",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Import-ConsoleTheme",
+          "synopsis": "Imports a terminal colour scheme as a version 3 ConsoleMonster theme.",
+          "url": "/powershell/commands/import-consoletheme/"
+        }
+      ]
+    },
+    {
       "verb": "Register",
       "count": 1,
       "commands": [

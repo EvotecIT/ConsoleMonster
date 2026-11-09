@@ -26,7 +26,7 @@ namespace ConsoleMonster.Export {
             sb.Append(",\"bg\":");
             ExportText.AppendJson(sb, palette.Background);
             sb.Append(",\"palette\":");
-            ExportText.AppendJson(sb, string.Join(":", ExportPalette.Ansi16Hex()));
+            ExportText.AppendJson(sb, string.Join(":", palette.PaletteHex()));
             sb.Append("}}");
             if (options.Timestamp.HasValue) {
                 sb.Append(",\"timestamp\":").Append(options.Timestamp.Value.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));

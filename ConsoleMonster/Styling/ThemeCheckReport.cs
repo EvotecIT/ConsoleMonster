@@ -53,7 +53,9 @@ namespace ConsoleMonster.Styling {
 
     /// <summary>Accessibility measurements for a theme, independent of any report renderer.</summary>
     public sealed class ThemeCheckReport {
-        internal ThemeCheckReport(string themeName, List<ThemeCheckResult> results) { ThemeName = themeName; Results = results.AsReadOnly(); }
+        internal ThemeCheckReport(string themeName, List<ThemeCheckResult> results, IReadOnlyList<ThemeToken>? adjustedTokens = null) { ThemeName = themeName; Results = results.AsReadOnly(); AdjustedTokens = adjustedTokens ?? System.Array.Empty<ThemeToken>(); }
+        /// <summary>Scheme tokens adjusted in lightness for the accessible variant.</summary>
+        public IReadOnlyList<ThemeToken> AdjustedTokens { get; }
         /// <summary>The name of the theme that was checked.</summary>
         public string ThemeName { get; }
         /// <summary>True only when every result passes. Unknown measurements prevent a confirmed pass.</summary>

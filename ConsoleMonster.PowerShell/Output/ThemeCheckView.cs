@@ -31,6 +31,7 @@ namespace ConsoleMonster.PowerShell {
                     unknowns.Count == 0 ? null : unknowns.Count + (unknowns.Count == 1 ? " unknown" : " unknowns")
                 }.Where(text => text != null).Select(text => text!));
             Rows rows = new Rows(TextBlock.Plain(report.ThemeName + ": " + verdict));
+            if (report.AdjustedTokens.Count > 0) { rows.Add(TextBlock.Plain("adjusted for contrast: " + string.Join(", ", report.AdjustedTokens), ThemeToken.Muted)); }
             if (detailed) {
                 foreach (ThemeCheckResult result in report.Results) { rows.Add(Line(result.Outcome, Describe(new[] { result }), context)); }
             } else {
