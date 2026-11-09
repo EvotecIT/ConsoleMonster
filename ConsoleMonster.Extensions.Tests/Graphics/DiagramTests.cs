@@ -135,6 +135,27 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             }
         }
 
+        [Theory]
+        [InlineData(StatusKind.Fail, true)]
+        [InlineData(StatusKind.Pass, false)]
+        public void LinkStatus_FailingLink_IsColouredAlongItsLength(StatusKind status, bool coloured) {
+            Diagram diagram = new Diagram("Replication") { Links = { new DiagramLink("AD1", "GDN-RODC") { Label = "RPC unavailable", Status = status } } };
+            diagram.ShowSummary = false;
+            diagram.ShowLegend = false;
+            ExportOptions options = new ExportOptions { Width = 100, Glyphs = GlyphTier.Full, ColorDepth = ColorDepth.TrueColor };
+            CellBuffer frame = ConsoleExporter.Render(diagram, options, Theme.Dark);
+            Color fail = new RenderContext(TerminalProfile.Fixed(100, 40), Theme.Dark).Style(StatusKind.Fail).Color;
+            int failingLineCells = 0;
+            for (int y = 0; y < frame.Height; y++) {
+                for (int x = 0; x < frame.Width; x++) {
+                    Cell cell = frame[x, y];
+                    if ((cell.Glyph == "─" || cell.Glyph == "│" || cell.Glyph == "▶" || cell.Glyph == "▼") && cell.Style.Color.Equals(fail)) failingLineCells++;
+                }
+            }
+            // The line itself carries the status, not only the marker on its label.
+            Assert.Equal(coloured, failingLineCells > 2);
+        }
+
         [Fact]
         public void ImportedTopology_ReportsOnlyTheStatusesItDeclares() {
             var chart = TopologyChart.Create().WithTitle("Replication")

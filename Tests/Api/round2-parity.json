@@ -25498,6 +25498,30 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Layout.Responsive",
+      "Member": "Fallback",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Reason": "Breakpoint layouts are composed by C# views that hold several alternative widgets; a script draws once for the width it already knows.",
+      "Alternative": "Build the layout for $Host.UI.RawUI.WindowSize.Width in the script, or register a C# view that uses Responsive.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Layout.Steady",
+      "Member": "Content",
+      "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+      "Reason": "Holding a live region's size needs the same widget instance across frames, which C# live views keep.",
+      "Alternative": "Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Layout.Steady",
+      "Member": "MinHeight",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "Holding a live region's size needs the same widget instance across frames, which C# live views keep.",
+      "Alternative": "Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Live.LiveEvent",
       "Member": "Payload",
       "CSharpTypeName": "System.Object",
@@ -25984,6 +26008,14 @@
       "Reason": "The Lanes collection assigns insertion order; PowerShell record order is pipeline order.",
       "Alternative": "Supply records in the required order to New-ConsoleLanes.",
       "Disposition": "RuntimeOwned"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Matrix",
+      "Member": "Overflow",
+      "CSharpTypeName": "ConsoleMonster.Widgets.MatrixOverflow",
+      "Reason": "Dense overflow belongs to an explicit cross-tab model with many columns, which automatic object tables do not construct.",
+      "Alternative": "Set Overflow on Matrix before passing it to Show-Console.",
+      "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.RecordView",
@@ -29148,9 +29180,11 @@
     "ConsoleMonster.Layout.Padding",
     "ConsoleMonster.Layout.Panel",
     "ConsoleMonster.Layout.Prioritized",
+    "ConsoleMonster.Layout.Responsive",
     "ConsoleMonster.Layout.Rows",
     "ConsoleMonster.Layout.Sized",
     "ConsoleMonster.Layout.Stack",
+    "ConsoleMonster.Layout.Steady",
     "ConsoleMonster.Live.ConsoleRun",
     "ConsoleMonster.Live.ConsoleUpdate",
     "ConsoleMonster.Live.ConsoleWatch",
@@ -29450,10 +29484,12 @@
     "ConsoleMonster.Layout.Padding",
     "ConsoleMonster.Layout.Panel",
     "ConsoleMonster.Layout.Prioritized",
+    "ConsoleMonster.Layout.Responsive",
     "ConsoleMonster.Layout.Rows",
     "ConsoleMonster.Layout.Size",
     "ConsoleMonster.Layout.Sized",
     "ConsoleMonster.Layout.Stack",
+    "ConsoleMonster.Layout.Steady",
     "ConsoleMonster.Layout.VerticalAlignment",
     "ConsoleMonster.Live.ConsoleRun",
     "ConsoleMonster.Live.ConsoleTableRow",
@@ -29591,6 +29627,7 @@
     "ConsoleMonster.Widgets.MarkdownView",
     "ConsoleMonster.Widgets.Matrix",
     "ConsoleMonster.Widgets.MatrixLabel",
+    "ConsoleMonster.Widgets.MatrixOverflow",
     "ConsoleMonster.Widgets.PathHop",
     "ConsoleMonster.Widgets.PathSet",
     "ConsoleMonster.Widgets.Phases",
