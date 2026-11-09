@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+      <PackageVersion>2.4.0</PackageVersion>
+        <Title>ConsoleMonster.Extensions.Serilog</Title>
+        <Description>Serilog output through ConsoleMonster: structured log lines, exceptions and coordinated live output.</Description>
+        <AssemblyName>ConsoleMonster.Extensions.Serilog</AssemblyName>
+        <AssemblyTitle>ConsoleMonster.Extensions.Serilog</AssemblyTitle>
+        <RootNamespace>ConsoleMonster.Extensions.Serilog</RootNamespace>
+        <VersionPrefix>2.4.0</VersionPrefix>
+        <AssemblyVersion>2.4.0</AssemblyVersion>
+        <FileVersion>2.4.0</FileVersion>
+        <TargetFrameworks>netstandard2.0;net472;net8.0;net10.0</TargetFrameworks>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <PackageId>ConsoleMonster.Extensions.Serilog</PackageId>
+        <PackageTags>console;terminal;logging;serilog;consolemonster</PackageTags>
+        <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/EvotecIT/ConsoleMonster</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>Changes in each release: https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD</PackageReleaseNotes>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <DebugType>portable</DebugType>
+        <NeutralLanguage>en</NeutralLanguage>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net10.0' ">
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Serilog" Version="4.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="..\Website\static\site\icon-192.png" Pack="true" PackagePath="\icon.png" Visible="false" />
+    </ItemGroup>
+</Project>

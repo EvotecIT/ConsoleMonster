@@ -19,6 +19,8 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster.Extensions.Logging\ConsoleMonster.Extensions.Logging.csproj" />
+        <ProjectReference Include="../ConsoleMonster.Extensions.Serilog/ConsoleMonster.Extensions.Serilog.csproj" />
+        <ProjectReference Include="../ConsoleMonster.Extensions.NLog/ConsoleMonster.Extensions.NLog.csproj" />
         <ProjectReference Include="..\ConsoleMonster.Hosting\ConsoleMonster.Hosting.csproj" />
         <ProjectReference Include="..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
         <Compile Include="..\ConsoleMonster.Tests\Rendering\Golden.cs" Link="Rendering\Golden.cs" />

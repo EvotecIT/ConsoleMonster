@@ -32638,6 +32638,34 @@
         "Profile",
         "Writer"
       ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions",
+      "Package": "ConsoleMonster.Extensions.Serilog",
+      "Reason": "Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters.",
+      "Members": [
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "IncludeCategory",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget",
+      "Package": "ConsoleMonster.Extensions.NLog",
+      "Reason": "NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters.",
+      "Members": [
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "IncludeCategory",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
     }
   ],
   "IntegrationOperations": [
@@ -32650,6 +32678,11 @@
       "CSharpType": "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggingExtensions",
       "Member": "AddConsoleMonster",
       "Reason": "The .NET logging provider is configured through its logging builder; PowerShell launches the same project with dotnet."
+    },
+    {
+      "CSharpType": "Serilog.ConsoleMonsterLoggerConfigurationExtensions",
+      "Member": "ConsoleMonster",
+      "Reason": "Serilog registers the native sink through LoggerSinkConfiguration; PowerShell launches the same .NET project with dotnet."
     }
   ],
   "FluentExceptions": [

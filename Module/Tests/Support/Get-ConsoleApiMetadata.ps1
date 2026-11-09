@@ -11,10 +11,11 @@ function Get-ConsoleApiAssemblies {
     $framework = Split-Path $directory -Leaf
     $configuration = Split-Path (Split-Path $directory) -Leaf
     $names = @('ConsoleMonster', 'ConsoleMonster.PowerShell', 'ConsoleMonster.PowerShell.Display', 'ConsoleMonster.Markdown', 'ConsoleMonster.Graphics')
-    if ($IncludeIntegrations) { $names += 'ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging' }
+    $integrations = @('ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging', 'ConsoleMonster.Extensions.Serilog', 'ConsoleMonster.Extensions.NLog')
+    if ($IncludeIntegrations) { $names += $integrations }
     foreach ($name in $names) {
         $path = Join-Path $directory ($name + '.dll')
-        if ($IncludeIntegrations -and $RepositoryRoot -and $name -in @('ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging')) {
+        if ($IncludeIntegrations -and $RepositoryRoot -and $name -in $integrations) {
             $consumerPath = Join-Path $RepositoryRoot "ConsoleMonster.Extensions.Tests/bin/$configuration/$framework/$name.dll"
             if (Test-Path -LiteralPath $consumerPath) { $path = $consumerPath }
         }
@@ -22,7 +23,18 @@ function Get-ConsoleApiAssemblies {
             $path = Join-Path $RepositoryRoot "$name/bin/$configuration/$framework/$name.dll"
         }
         if (-not (Test-Path -LiteralPath $path)) { throw "Build the shipped assembly before checking its API: $path" }
-        if ($PSVersionTable.PSEdition -eq 'Core' -and $name -notin @('ConsoleMonster.Hosting', 'ConsoleMonster.Extensions.Logging')) {
+        $dependencies = switch ($name) {
+            'ConsoleMonster.Extensions.Serilog' { 'Serilog' }
+            'ConsoleMonster.Extensions.NLog' { 'NLog' }
+        }
+        foreach ($dependency in $dependencies) {
+            $dependencyPath = Join-Path (Split-Path $path) ($dependency + '.dll')
+            if (-not (Test-Path -LiteralPath $dependencyPath)) {
+                throw "Build ConsoleMonster.Extensions.Tests before checking its integration APIs: $dependencyPath"
+            }
+            $null = [Reflection.Assembly]::LoadFrom($dependencyPath)
+        }
+        if ($PSVersionTable.PSEdition -eq 'Core' -and $name -notin $integrations) {
             $context = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext($ModuleAssembly)
             $context.LoadFromAssemblyPath([IO.Path]::GetFullPath($path))
         } else {

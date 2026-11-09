@@ -1,6 +1,8 @@
 ### Unreleased
 
 #### What's new
+- Critical and Fatal log entries use the `CRIT` label and Critical style across Microsoft.Extensions.Logging, Serilog, NLog and live log regions, keeping the message as written.
+- Native Serilog and NLog output: `ConsoleMonster.Extensions.Serilog` adds `WriteTo.ConsoleMonster`, and `ConsoleMonster.Extensions.NLog` adds `ConsoleMonsterTarget` for code and XML configuration. Both keep native structured events, highlight template values, show unused properties as muted fields and render exceptions through `ExceptionView`. Entries print above a live view or post to its configured log region; redirected output stays plain and append-only. Neither package requires `Microsoft.Extensions.Logging`.
 - `Theme.Schemes` ships ten named palettes with upstream provenance and licence notices. `Set-ConsoleTheme Dracula` keeps the faithful colours; `-Accessible` selects the checked variant and saves as `Dracula · accessible`. Solarized, Gruvbox, Catppuccin and Tokyo Night pick light or dark for the detected background, while explicit variant names stay fixed. Version 3 files accept a catalogue name in `BaseScheme`. `Show-ConsoleSettings` groups the Theme list into Built in, Follow my terminal, Schemes and Your files, and draws each preview on that theme's own background, so a light scheme no longer sits on a dark terminal. The [colour scheme gallery](https://consolemonster.dev/docs/colour-schemes/) shows every scheme faithful and accessible with the checker's verdict.
 
 ### 2.4.0 - 2026-11-09
