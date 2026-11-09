@@ -63,12 +63,18 @@ namespace ConsoleMonster.Tests.Themes {
 
         [Fact]
         public void SettingsPreviewDrawsTheHighlightedDensity() {
+            Theme theme = Theme.Dark;
             var values = new System.Collections.Generic.Dictionary<string, string> { ["Density"] = "Compact" };
             string Preview() => FrameComposer.RenderBlock(global::ConsoleMonster.Interactive.SettingsPicker.Preview(values), 80,
-                Terminal.CreateContext(TestTerminal.Profile(80), Theme.Dark)).ToPlainText();
+                Terminal.CreateContext(TestTerminal.Profile(80), theme)).ToPlainText();
             Assert.Contains("│Check", Preview());
             values["Density"] = "Comfortable";
             Assert.Contains("│ Check", Preview());
+            values["Density"] = "cOmPaCt";
+            Assert.Contains("│Check", Preview());
+            theme = Theme.Dark.WithAppearance(new ThemeAppearance(ThemeDensity.Compact));
+            values["Density"] = "bogus";
+            Assert.Contains("│Check", Preview());
         }
 
         [Fact]

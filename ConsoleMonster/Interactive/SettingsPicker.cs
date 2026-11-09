@@ -220,7 +220,8 @@ namespace ConsoleMonster.Interactive {
                 string markers = Value("StatusMarkers");
                 profile = profile.WithStatusMarkers(markers == "Auto" || markers.Length == 0 ? (StatusMarkerStyle?)null : (StatusMarkerStyle)Enum.Parse(typeof(StatusMarkerStyle), markers));
                 string density = Value("Density");
-                profile = profile.WithDensity(density.Length == 0 ? (ThemeDensity?)null : (ThemeDensity)Enum.Parse(typeof(ThemeDensity), density));
+                profile = profile.WithDensity(string.Equals(density, "Compact", StringComparison.OrdinalIgnoreCase) ? ThemeDensity.Compact
+                    : string.Equals(density, "Comfortable", StringComparison.OrdinalIgnoreCase) ? ThemeDensity.Comfortable : (ThemeDensity?)null);
                 string culture = Value("Culture");
                 if (culture == "Invariant") { profile = profile.WithCulture(CultureInfo.InvariantCulture); }
                 else if (culture != "Current" && culture.Length > 0) { profile = profile.WithCulture(Culture(culture) ?? profile.Culture); }

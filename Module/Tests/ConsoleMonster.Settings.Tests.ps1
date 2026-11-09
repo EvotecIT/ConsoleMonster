@@ -94,6 +94,19 @@ Reset-ConsoleSetting Density
         (Get-Content -LiteralPath $script:File -Raw | ConvertFrom-Json).Density | Should -Be 'Compact'
     }
 
+    It 'reports an invalid environment density and keeps the picker usable' {
+        $text = Invoke-SettingsChild -File $script:File -Environment @{ CONSOLEMONSTER_DENSITY = 'bogus' } -Script @'
+$setting = Get-ConsoleSetting Density -WarningVariable problems -WarningAction SilentlyContinue
+"density=$($setting.Value)/$($setting.Source)"
+"problem=$($problems -match 'CONSOLEMONSTER_DENSITY.*bogus')"
+$screen = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings -WarningAction SilentlyContinue }
+"picker=$($screen.Text -match 'Density.*Comfortable \(default\)')/$($screen.Text -match 'bogus')"
+'@
+        $text | Should -Match 'density=Comfortable/Default'
+        $text | Should -Match 'problem=.*CONSOLEMONSTER_DENSITY.*bogus'
+        $text | Should -Match 'picker=True/False'
+    }
+
     It 'fits complete choice labels at 110 columns and still renders below their natural width' {
         $text = Invoke-SettingsChild -File $script:File -Script @'
 Set-ConsoleTheme Dark

@@ -68,6 +68,39 @@ namespace ConsoleMonster.Tests.Capabilities {
         }
 
         [Theory]
+        [InlineData("bogus")]
+        [InlineData("1")]
+        [InlineData(" ")]
+        public void InvalidEnvironmentDensityIsReportedWithoutHidingSavedPreferences(string invalid) {
+            const string variable = "CONSOLEMONSTER_DENSITY";
+            File("{}");
+            Environment.SetEnvironmentVariable(variable, invalid);
+            string problem = Assert.Single(ConsoleSettings.Problems);
+            Assert.Contains(variable, problem);
+            Assert.Contains("'" + invalid + "'", problem);
+            Assert.Equal(("Comfortable", ConsoleSettingSource.Default), (ConsoleSettings.Get("Density").Value, ConsoleSettings.Get("Density").Source));
+            Assert.Null(ConsoleSettings.Variable(variable));
+            var captured = new Dictionary<string, string> { [variable] = invalid };
+            Assert.False(Overlaid(captured).ContainsKey(variable));
+            Assert.Null(new CapabilityDetector(new TerminalEnvironment(captured)).Detect().Density);
+            Assert.Single(ConsoleSettings.Problems);
+
+            File("{\"Density\":\"Compact\"}");
+            Assert.Equal(("Compact", ConsoleSettingSource.File), (ConsoleSettings.Get("Density").Value, ConsoleSettings.Get("Density").Source));
+            Assert.Equal("compact", ConsoleSettings.Variable(variable));
+            Assert.Equal("compact", Overlaid(new Dictionary<string, string> { [variable] = invalid })[variable]);
+            ConsoleSettings.Set("Density", "Comfortable");
+            Assert.Equal(ConsoleSettingSource.Session, ConsoleSettings.Get("Density").Source);
+            ConsoleSettings.Reset("Density");
+            ConsoleSettings.Set("Density", "Compact", save: true);
+            Assert.Equal(ConsoleSettingSource.File, ConsoleSettings.Get("Density").Source);
+
+            Environment.SetEnvironmentVariable(variable, "cOmPaCt");
+            Assert.Equal(("Compact", ConsoleSettingSource.Environment), (ConsoleSettings.Get("Density").Value, ConsoleSettings.Get("Density").Source));
+            Assert.Empty(ConsoleSettings.Problems);
+        }
+
+        [Theory]
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]

@@ -25,6 +25,7 @@
 - `Steady` keeps a live region at the largest size it has needed, so a table that loses rows when workers finish no longer moves everything below it. `MinHeight` reserves the rows from the first frame, and `Reset()` releases them. The size is held for the width it was rendered at, so a resize starts fresh instead of keeping a narrow, wrapped height. Keep the same `Steady` instance across frames.
 
 #### Fixed
+- An invalid `CONSOLEMONSTER_DENSITY` value is ignored and reported in settings problems, so it no longer stops the settings picker or hides a saved Density preference.
 - A failing or warning diagram link is coloured along its whole length, and a failing node's box in its status, instead of only marking the label with a symbol.
 - A matrix inside a `DashboardFrame` section no longer collapses to "0 non-healthy cells" when everything is healthy. The frame gave the section its measured width and the matrix switched to its list at that width; a matrix now reports the width it needs to keep the layout it measured, at every width.
 - `ColorBlindSafe` keeps fail and warning apart under deuteranopia and protanopia: fail is now an underlined rose instead of orange, which looked like the yellow warning. Critical, low and gap tokens no longer fall back to red-green Dark colours.

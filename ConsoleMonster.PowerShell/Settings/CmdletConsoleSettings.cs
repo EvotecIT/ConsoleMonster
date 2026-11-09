@@ -11,7 +11,7 @@ using ConsoleMonster.PowerShell.Binding;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows ConsoleMonster's settings: the value of each and where it came from.</para>
-    /// <para type="description">Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</para>
+    /// <para type="description">Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their configured value or built-in fallback and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. This describes preference overrides, not the final themed appearance: without a Density override, Comfortable with source Default can still render with Compact spacing from the theme. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Invalid Density environment values and unusable file entries are ignored and reported as warnings.</para>
     /// </summary>
     /// <example>
     ///   <para>Every setting and its source</para>
@@ -31,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessWithoutPipelineInput() {
-            foreach (string problem in ConsoleSettings.Problems) { WriteWarning("Settings file: " + problem); }
+            foreach (string problem in ConsoleSettings.Problems) { WriteWarning("Settings: " + problem); }
             if (Name == null) {
                 foreach (ConsoleSetting setting in ConsoleSettings.Current) { WriteObject(ConsoleSettingOutput.Wrap(setting)); }
                 return;
@@ -162,7 +162,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            foreach (string problem in ConsoleSettings.Problems) { WriteWarning("Settings file: " + problem); }
+            foreach (string problem in ConsoleSettings.Problems) { WriteWarning("Settings: " + problem); }
             InteractiveOptions interactive = PSInteractive.Options(this, null);
             if (interactive.ResolveMode() != InteractionMode.Rich) {
                 foreach (ConsoleSetting setting in ConsoleSettings.Current) { WriteObject(ConsoleSettingOutput.Wrap(setting)); }
