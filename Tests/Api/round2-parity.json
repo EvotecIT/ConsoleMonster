@@ -7778,7 +7778,7 @@
       "Bindings": [
         {
           "Parameter": "Bytes",
-          "ParameterType": "System.Byte[]",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -7790,9 +7790,10 @@
           "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
           "Member": ".ctor",
           "MemberKind": "Constructor",
-          "Conversion": "Identity",
+          "Conversion": "BytesOrStream",
           "CSharpTypeName": "System.Byte[]",
-          "Argument": "encoded"
+          "Argument": "encoded",
+          "Reason": "Byte arrays construct ConsoleImage directly; a Stream uses ConsoleImage.FromStream(stream, name), reading from the current position without closing it, within the decoder limit."
         },
         {
           "Parameter": "Height",
@@ -18337,7 +18338,7 @@
       "Bindings": [
         {
           "Parameter": "Bytes",
-          "ParameterType": "System.Byte[]",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -18349,9 +18350,10 @@
           "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
           "Member": ".ctor",
           "MemberKind": "Constructor",
-          "Conversion": "Identity",
+          "Conversion": "BytesOrStream",
           "CSharpTypeName": "System.Byte[]",
-          "Argument": "encoded"
+          "Argument": "encoded",
+          "Reason": "Byte arrays construct ConsoleImage directly; a Stream uses ConsoleImage.FromStream(stream, name), reading from the current position without closing it, within the decoder limit."
         },
         {
           "Parameter": "Height",

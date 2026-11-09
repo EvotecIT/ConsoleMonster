@@ -10,6 +10,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A chart next to its numbers</para>
     ///   <code>New-ConsoleColumns -Content { New-ConsolePanel -Title 'Latency' -Content { New-ConsoleImage -Path ./latency.png -Width 40 }; New-ConsolePanel -Title 'Summary' -Content { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) } } | Show-Console</code>
     /// </example>
+    /// <example>
+    ///   <para>Create a widget from an open stream, leaving it open for the caller</para>
+    ///   <code>New-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</code>
+    /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleImage", DefaultParameterSetName = "Path")]
     [OutputType(typeof(ConsoleImage))]
     public sealed class CmdletNewConsoleImage : ConsoleImageCommand {
