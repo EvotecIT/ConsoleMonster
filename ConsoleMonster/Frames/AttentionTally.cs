@@ -7,7 +7,8 @@ namespace ConsoleMonster.Frames;
 /// <summary>
 /// Counts attention findings as rows go by, keeping a total and the first few identities per state and reason, so the
 /// summary of a streamed or very large result can name what is wrong without holding every row. Memory grows with the
-/// number of distinct reasons, never with the number of rows.
+/// number of distinct reasons, not with the number of rows, so keep reasons generic and put what is specific to one row
+/// (an error code, a path) in its identity. A tally is not thread-safe; use one per stream.
 /// </summary>
 public sealed class AttentionTally {
     private readonly Dictionary<(HealthState State, string Reason), Bucket> _buckets = new Dictionary<(HealthState, string), Bucket>();
@@ -36,7 +37,8 @@ public sealed class AttentionTally {
 
     /// <summary>
     /// Adds the findings to an attention list: a reason whose every identity was kept adds them as items, which the list
-    /// groups as usual; a reason with more findings than samples becomes a counted group.
+    /// groups as usual; a reason with more findings than samples becomes a counted group. Each call adds them again, so call
+    /// it once per list.
     /// </summary>
     /// <param name="list">The attention list.</param>
     public void AddTo(AttentionList list) {
