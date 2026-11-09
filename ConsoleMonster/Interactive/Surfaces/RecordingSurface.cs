@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Text;
 
@@ -8,6 +9,7 @@ namespace ConsoleMonster.Interactive {
     internal sealed class RecordingSurface : IPromptSurface {
         private readonly List<CellBuffer> _frames = new List<CellBuffer>();
         private readonly List<Caret?> _carets = new List<Caret?>();
+        private CellBuffer? _lastFrame;
 
         public RecordingSurface(int width, int height, bool inline) {
             Width = width;
@@ -29,7 +31,7 @@ namespace ConsoleMonster.Interactive {
 
         public bool Completed { get; private set; }
 
-        public CellBuffer? LastFrame => _frames.Count == 0 ? null : _frames[_frames.Count - 1];
+        public CellBuffer? LastFrame => Volatile.Read(ref _lastFrame);
 
         /// <summary>Changes the size, as a window resize would.</summary>
         public void Resize(int width, int height) {
@@ -44,6 +46,8 @@ namespace ConsoleMonster.Interactive {
             copy.CopyFrom(frame);
             _frames.Add(copy);
             _carets.Add(caret);
+            // Readiness checks run on the input thread while a live renderer presents frames.
+            Volatile.Write(ref _lastFrame, copy);
         }
 
         public void Complete(IReadOnlyList<StyledLine>? summary) {

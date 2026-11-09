@@ -73,8 +73,8 @@ namespace SiteFrames.Pages {
                 if (!found) { WidgetsPage.Report(new List<string> { "missing capture " + id + "; run the capture command." }, "docs"); }
             }
 
-            // One composition in the three built-in themes.
-            foreach ((string id, ITheme theme, Frames.Screen screen) in new[] { ("theme-dark", (ITheme)Theme.Dark, Frames.Screen.Dark), ("theme-light", Theme.Light, Frames.Screen.Light), ("theme-contrast", Theme.HighContrast, Frames.Screen.Dark) }) {
+            // One composition in the built-in themes.
+            foreach ((string id, ITheme theme, Frames.Screen screen) in new[] { ("theme-dark", (ITheme)Theme.Dark, Frames.Screen.Dark), ("theme-light", Theme.Light, Frames.Screen.Light), ("theme-contrast", Theme.HighContrast, Frames.Screen.Dark), ("theme-colorblind", Theme.ColorBlindSafe, Frames.Screen.Dark), ("theme-colorblind-light", Theme.ColorBlindSafeLight, Frames.Screen.Light) }) {
                 CellBuffer frame = Figures.Summary(site, 46, ColorDepth.TrueColor, GlyphTier.Full, theme);
                 DocCards.Offer(id, frame, screen);
                 JsonObject data = screen == Frames.Screen.Light ? LightOnly(site, frame) : site.Frame(frame, null);
@@ -131,6 +131,7 @@ namespace SiteFrames.Pages {
             // the light page, per host.
             ThemedHostFigures(site, powershell, "streams", "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Include Streams in ");
             ThemedHostFigures(site, powershell, "everyday-commands", "Select-String, Get-Acl, certificates, Group-Object, Measure-Object and a TimeSpan typed at the prompt with Enable-ConsoleFormatting in ");
+            Copy(site, powershell, "everyday-summaries", "rich", "ps7", "everyday-summaries", "PowerShell 7");
             Copy(site, powershell, "compare-object", "rich", "ps5", "compare-object-ps5", "PowerShell 5.1");
             Copy(site, powershell, "compare-object", "rich", "ps7", "compare-object-ps7", "PowerShell 7");
             Copy(site, powershell, "job", "rich", "ps5", "job-ps5", "PowerShell 5.1");

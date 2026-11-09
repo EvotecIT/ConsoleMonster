@@ -8,7 +8,7 @@ namespace ConsoleMonster.PowerShell.Binding {
     internal sealed class PresenterNameCompleter : IArgumentCompleter {
         private static readonly string[] Names = {
             "Auto", "Text", "Number", "Bytes", "Duration", "Date", "DateRelative", "DateBoth", "Boolean", "Status", "StatusWord",
-            "Progress", "DataBar", "Sparkline", "Link", "Markup", "Emoji", "Identifier", "Chip", "MemberSignature"
+            "Progress", "DataBar", "BytesBar", "DurationBar", "Sparkline", "Link", "Markup", "Emoji", "Identifier", "Chip", "MemberSignature"
         };
 
         /// <inheritdoc />

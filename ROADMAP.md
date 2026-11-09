@@ -124,6 +124,9 @@ Grouped under the step they would join; the rest stays unscheduled.
   that MP4 is unavailable and suggests GIF. Revisit a managed H.264 encoder in 2027: Proxeno.Kiln is pre-release,
   and US H.264 patents run to about November 2027.
 - Unscheduled, terminal work: QR codes and barcodes in the terminal through CodeGlyphX.
+- Settings and themes: one settings file with a live picker, themes that cover border, density and status markers,
+  a theme that follows the terminal palette, a theme checker and exports that follow the active theme
+  (`Docs/Proposals/Settings-And-Themes.md`).
 
 ## Not planned
 

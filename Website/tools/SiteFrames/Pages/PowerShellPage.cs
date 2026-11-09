@@ -69,6 +69,8 @@ namespace SiteFrames.Pages {
             // Everyday views for commands typed at the prompt (Select-String, Get-Acl, certificates, Group/Measure, TimeSpan).
             yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
             yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
+            // Summary lines under default views and a recursive listing as one tree, typed at the prompt.
+            yield return new Run("everyday-summaries", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true };
         }
 
         private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);

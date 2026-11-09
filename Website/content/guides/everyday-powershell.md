@@ -1,6 +1,6 @@
 ---
 title: Everyday PowerShell output
-description: "Enable-ConsoleFormatting makes everyday output readable: files, processes, JSON, CSV, commands, history, searches, ACLs, certificates and network replies."
+description: "Enable-ConsoleFormatting makes everyday output readable and sums it up: folder trees, processes, services, events, JSON, history, jobs, drives and certificates."
 slug: everyday-powershell
 card: formatting
 order: 1
@@ -12,7 +12,7 @@ You do not have to change your commands to get readable output. One line turns i
 Enable-ConsoleFormatting
 ```
 
-Files and folders, processes, services, JSON and CSV records, commands, modules, history, `Select-String` matches, ACLs, certificates, groups, measurements, durations, network replies, event log records, IP addresses, volumes, dictionaries and `Compare-Object` results are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
+Files and folders, processes, services, JSON and CSV records, commands, modules, history, jobs, drives, `Select-String` matches, ACLs, certificates, groups, measurements, durations, network replies, event log records, IP addresses, volumes, dictionaries and `Compare-Object` results are then shown as ConsoleMonster tables and records when they reach the console. Objects stay the same: pipelines into other commands, `Out-String`, redirected output, transcripts, jobs and remoting keep PowerShell's behaviour. `Disable-ConsoleFormatting` turns it off.
 
 Typed records with their own PowerShell table view keep its columns and expressions. An explicit `Register-ConsoleView` registration takes precedence.
 
@@ -65,6 +65,48 @@ $rows = 'Name,Count', 'api-01,0012', 'api-02,2048' | ConvertFrom-Csv
 $rows | Select-Object Name, Count
 $rows | Export-Csv ./inventory-copy.csv -NoTypeInformation
 ```
+
+## Summaries and folder trees
+
+A line under the view sums it up, so the answer to "how much?" or "anything wrong?" is the last thing on screen:
+
+```powershell
+Get-ChildItem -Recurse
+Get-Process
+Get-Service
+Get-WinEvent -LogName System -MaxEvents 200
+Test-Connection example.com -Count 10
+Get-History
+```
+
+<div class="cm-migration-map" tabindex="0" role="region" aria-label="Summary lines under everyday views">
+
+| View | The line under it |
+| --- | --- |
+| `Get-ChildItem` | Folders, files, the size of the files and the largest one. With `-Recurse` the listing is one tree, folders first, each with the size of the files listed under it. |
+| `Get-Process` | How many, their memory together and the process using the most. Memory draws a bar against the largest. |
+| `Get-Service` | Running and stopped, and automatic services that are not running, which the start type column also marks. |
+| `Get-WinEvent` | Errors, warnings and information, the time they cover and a sparkline of when they happened. |
+| `Test-Connection` | Replies, minimum, average and maximum latency and its shape, one line per destination. |
+| `Get-History` | Commands, failures, the time they took and the slowest. Durations draw a bar. |
+| Certificates, `Select-String`, `Get-Job` | Expired and expiring certificates; matches and files; jobs by state. |
+
+</div>
+
+Small results get no line, and only the console view has it: `Show-ConsoleTable`, `Out-String` and captured output stay as they were. `Get-Job` and `Get-PSDrive` have views of their own too: jobs with their state, start, duration and command; drives with used and free space and a usage bar that warns at 80% and fails at 95%.
+
+Your own types can have the line. The script gets the objects shown together and returns facts: strings, or hashtables with `Value`, `Label`, `Caption`, `Presenter` and `Role`:
+
+```powershell
+Register-ConsoleView -TypeName Contoso.Server -Property Name, State -Summary {
+    param($servers)
+    @{ Value = $servers.Count; Label = 'servers' }
+    $stopped = @($servers | Where-Object State -ne 'Running').Count
+    if ($stopped) { @{ Value = $stopped; Label = 'stopped'; Role = 'Warn' } }
+}
+```
+
+{{< cm-frame ids="everyday-summaries" script="true" >}}
 
 ## Commands, modules and history
 

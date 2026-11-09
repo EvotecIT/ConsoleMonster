@@ -58,6 +58,17 @@ namespace ConsoleMonster.PowerShell {
         // Columns empty on every row (unrequested statistics, a file's inheritance targets) are left out.
         internal bool HideEmptyColumns { get; private set; }
 
+        /// <summary>
+        /// A script block that sums up the objects shown together under the view ($_ and the first argument are the objects):
+        /// it returns facts, each a string or a hashtable with Value, Label, Caption, Presenter and Role. Only the console
+        /// view shows them; Show-ConsoleTable and captured output do not. Null for no summary.
+        /// </summary>
+        public ScriptBlock? Summary { get => _summary; init => _summary = value; }
+        private ScriptBlock? _summary;
+
+        // The trusted built-in summaries are added once, while the built-in views are registered.
+        internal void AttachSummary(ScriptBlock summary) => _summary = summary;
+
         /// <summary>Whether this is one of ConsoleMonster's own views (files and folders, processes, services).</summary>
         public bool IsBuiltIn { get; }
 
@@ -164,11 +175,16 @@ namespace ConsoleMonster.PowerShell {
             string options = (included != ConsoleFormattingFeature.None ? " -Include " + FeatureList(included) : string.Empty) + (excluded != ConsoleFormattingFeature.None ? " -Exclude " + FeatureList(excluded) : string.Empty)
                 + (!string.Equals(errorLayout, "Standard", StringComparison.OrdinalIgnoreCase) ? " -ErrorLayout " + errorLayout : string.Empty)
                 + (noBuiltIn ? " -NoBuiltIn" : string.Empty) + (force ? " -Force" : string.Empty);
-            return new[] {
+            List<string> lines = new List<string> {
                 "# ConsoleMonster: nicer default output in every session." + (string.IsNullOrEmpty(profilePath) ? string.Empty : " Add these lines to " + profilePath),
-                "Import-Module ConsoleMonster",
-                "Enable-ConsoleFormatting" + options
+                "Import-Module ConsoleMonster"
             };
+            string? theme = CmdletSetConsoleTheme.ProfileLine;
+            if (theme != null) {
+                lines.Add(theme);
+            }
+            lines.Add("Enable-ConsoleFormatting" + options);
+            return lines;
         }
 
         /// <summary>Restores the owned Write-Progress function and ends the progress area.</summary>
@@ -272,13 +288,18 @@ namespace ConsoleMonster.PowerShell {
                 AddBuiltIn(ConsoleViewRegistration.Define("System.Diagnostics.Process", ConsoleViewKind.Table, new object[] {
                     "Id", "ProcessName",
                     Hashtable("CPU (s)", ScriptBlock.Create("if ($null -ne $_.CPU) { [math]::Round($_.CPU, 1) }"), null),
-                    Hashtable("Memory", ScriptBlock.Create("$_.WorkingSet64"), "Bytes"),
+                    Hashtable("Memory", ScriptBlock.Create("$_.WorkingSet64"), "BytesBar"),
                     unix ? (object)Hashtable("Threads", ScriptBlock.Create("$_.Threads.Count"), null) : "Handles"
                 }, null, "System.Diagnostics.Process", null, true));
             }
             AddBuiltIn(ConsoleViewRegistration.Define("System.ServiceProcess.ServiceController", ConsoleViewKind.Table, new object[] {
                 Hashtable("Status", ScriptBlock.Create("[string] $_.Status"), "StatusWord"),
-                "Name", "DisplayName"
+                "Name", "DisplayName",
+                // An automatic service that is not running is the one to look at.
+                new System.Collections.Hashtable(StringComparer.OrdinalIgnoreCase) {
+                    ["Name"] = "StartType", ["Markup"] = true, ["Priority"] = 6,
+                    ["Expression"] = ScriptBlock.Create("$start = [string] $_.StartType; if ($start -eq 'Automatic' -and [string] $_.Status -ne 'Running') { '[warn]' + $start + '[/]' } else { $start }")
+                }
             }, null, "System.ServiceProcess.ServiceController", null, true));
             AddBuiltIn(ConsoleViewRegistration.Define("System.Version", ConsoleViewKind.Table, new object[] {
                 Hashtable("Version", ScriptBlock.Create("$_.ToString()"), null), "Major", "Minor", "Build", "Revision"
@@ -302,6 +323,7 @@ namespace ConsoleMonster.PowerShell {
             foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume", "Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume" }) {
                 AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
             }
+            AttachEverydaySummaries();
             // Ready only once every built-in is in: a concurrent lookup never sees half of them.
             lock (Gate) {
                 _builtInsReady = true;

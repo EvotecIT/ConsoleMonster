@@ -155,6 +155,12 @@ namespace ConsoleMonster.Presenters {
         /// <summary>Numbers with a data bar.</summary>
         public static ICellPresenter DataBar { get; } = new DataBarPresenter();
 
+        /// <summary>Byte sizes with a data bar scaled to the column's largest size (see <see cref="DataBarPresenter"/>).</summary>
+        public static ICellPresenter BytesBar { get; } = new DataBarPresenter(null, new BytesPresenter());
+
+        /// <summary>Durations with a data bar scaled to the column's longest duration (see <see cref="DataBarPresenter"/>).</summary>
+        public static ICellPresenter DurationBar { get; } = new DataBarPresenter(null, new DurationPresenter());
+
         /// <summary>Series as sparklines.</summary>
         public static ICellPresenter Sparkline { get; } = new SparklinePresenter();
 
@@ -175,7 +181,7 @@ namespace ConsoleMonster.Presenters {
 
         /// <summary>
         /// Returns a built-in presenter by name (case-insensitive): Text, Auto, Status, Number, Bytes, Duration, Date,
-        /// DateRelative, DateBoth, Boolean, Bar (DataBar), Sparkline, Progress, Link, Chip and MemberSignature.
+        /// DateRelative, DateBoth, Boolean, Bar (DataBar), BytesBar, DurationBar, Sparkline, Progress, Link, Chip and MemberSignature.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="unit">The unit for Number, or null.</param>
@@ -222,6 +228,11 @@ namespace ConsoleMonster.Presenters {
                 case "bar":
                 case "databar":
                     return DataBar;
+                case "bytesbar":
+                case "sizebar":
+                    return BytesBar;
+                case "durationbar":
+                    return DurationBar;
                 case "sparkline":
                     return Sparkline;
                 case "progress":
@@ -233,7 +244,7 @@ namespace ConsoleMonster.Presenters {
                 case "url":
                     return Link;
                 default:
-                    throw new ArgumentException("Unknown presenter '" + name + "'. Use Text, Emoji, Auto, Status, StatusWord, Identifier, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, Sparkline, Progress or Link.", nameof(name));
+                    throw new ArgumentException("Unknown presenter '" + name + "'. Use Text, Emoji, Auto, Status, StatusWord, Identifier, Number, Bytes, Duration, Date, DateRelative, DateBoth, Boolean, Bar, BytesBar, DurationBar, Sparkline, Progress or Link.", nameof(name));
             }
         }
 

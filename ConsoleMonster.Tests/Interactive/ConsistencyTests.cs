@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
@@ -28,15 +27,14 @@ namespace ConsoleMonster.Tests.Interactive
     {
         private const int Width = 90;
         private const int Height = 24;
-        private static InteractiveOptions Options(ScreenCapture capture, string keys, GlyphTier tier, bool realTime = false)
+        private static InteractiveOptions Options(ScreenCapture capture, string keys, GlyphTier tier)
         {
             return new InteractiveOptions
             {
                 Mode = InteractionMode.Rich,
                 Input = new ScriptedInput(keys)
                 {
-                    Paced = true,
-                    RealTime = realTime
+                    Paced = true
                 },
                 Capture = capture,
                 Theme = Theme.Dark,
@@ -83,7 +81,7 @@ namespace ConsoleMonster.Tests.Interactive
             Assert.True(cells > 4, surface + ": no footer on row " + row);
         }
 
-        private static Menu Toolbox(List<string> log)
+        private static Menu Toolbox(List<string> log, FrameSignalSurface? frames = null)
         {
             Menu menu = new Menu("Toolbox")
             {
@@ -96,7 +94,7 @@ namespace ConsoleMonster.Tests.Interactive
                 i.Hotkey = 'p';
                 i.Action = ctx => ctx.Run(new Dashboard("Patching", new ProgressBar("Overall", "overall") { Total = 2 }), run =>
                 {
-                    Thread.Sleep(400);
+                    frames?.WaitForFrame("Running", "ctrl+c");
                     log.Add("ran");
                     return new MenuRunResult("Done");
                 });
@@ -127,7 +125,13 @@ namespace ConsoleMonster.Tests.Interactive
         {
             List<string> log = new List<string>();
             ScreenCapture shell = new ScreenCapture(Width, Height);
-            Toolbox(log).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(shell, "t wait:50 Escape Down Enter wait:900 Escape Ctrl+Q", tier, true), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-consistency-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
+            using var frames = new FrameSignalSurface(shell);
+            InteractiveOptions options = Options(shell, "t", tier);
+            options.Surface = frames;
+            var input = (ScriptedInput)options.Input!;
+            input.WaitForOutput(shell, "SRV01", TimeSpan.FromSeconds(10));
+            input.Append("Escape Down Enter Escape Ctrl+Q");
+            Toolbox(log, frames).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = options, StorageRoot = Path.Combine(Path.GetTempPath(), "cm-consistency-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
             Assert.Equal(new[] { "ran" }, log.ToArray());
             HeaderBar targets = new HeaderBar("Toolbox")
             {
@@ -203,7 +207,7 @@ namespace ConsoleMonster.Tests.Interactive
         {
             Style focus = Context(tier).Style(ThemeToken.Focus);
             ScreenCapture shell = new ScreenCapture(Width, Height);
-            Toolbox(new List<string>()).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(shell, "t wait:10 Ctrl+Q", tier), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-consistency-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
+            Toolbox(new List<string>()).Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(shell, "t Ctrl+Q", tier), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-consistency-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
             ScreenCapture prompt = new ScreenCapture(Width, 12, inline: true);
             new SelectPrompt<string>("Environment", new[] { new Choice("prod", "Production"), new Choice("lab", "Lab") }).Show(Options(prompt, "Enter", tier));
             ScreenCapture form = new ScreenCapture(Width, Height);

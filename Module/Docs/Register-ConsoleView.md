@@ -13,7 +13,7 @@ Objects whose type names include -TypeName are shown in the given view when they
 ## SYNTAX
 ### Register (Default)
 ```powershell
-Register-ConsoleView [-TypeName] <string[]> [-View <ConsoleViewKind>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <scriptblock>] [-Group <string>] [-Shaper <scriptblock>] [<CommonParameters>]
+Register-ConsoleView [-TypeName] <string[]> [-View <ConsoleViewKind>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <scriptblock>] [-Group <string>] [-Shaper <scriptblock>] [-Summary <scriptblock>] [<CommonParameters>]
 ```
 
 ### File
@@ -34,6 +34,18 @@ Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ N
 ```
 
 Show a module's result objects as a table
+
+### EXAMPLE 2
+```powershell
+Register-ConsoleView -TypeName 'Contoso.Server' -Property Name, State -Summary {
+    param($servers)
+    @{ Value = $servers.Count; Label = 'servers' }
+    $stopped = @($servers | Where-Object State -ne 'Running').Count
+    if ($stopped) { @{ Value = $stopped; Label = 'stopped'; Role = 'Warn' } }
+}
+```
+
+Sum up the servers under the table: 3 servers · 1 stopped
 
 ## PARAMETERS
 
@@ -106,6 +118,25 @@ A script block that turns each object of the type into what is shown instead ($_
 ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
 Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.
+
+```yaml
+Type: ScriptBlock
+Parameter Sets: Register
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Summary
+A script block that sums up the objects shown together, under the view on the console ($_ and the first argument
+are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before
+it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing
+when there is nothing worth saying, for example for one or two objects.
 
 ```yaml
 Type: ScriptBlock

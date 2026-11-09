@@ -35,6 +35,22 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
+        /// <summary>Adds the trusted summary scripts (the facts line under a view) to the built-in views they name.</summary>
+        private static void AttachEverydaySummaries() {
+            using (Stream stream = typeof(ConsoleFormatting).Assembly.GetManifestResourceStream("ConsoleMonster.PowerShell.Formatting.EverydaySummaries.ps1")!)
+            using (StreamReader reader = new StreamReader(stream)) {
+                foreach (PSObject item in ScriptBlock.Create(reader.ReadToEnd()).Invoke()) {
+                    IDictionary data = (IDictionary)item.BaseObject;
+                    ScriptBlock summary = ScriptBlock.Create(((ScriptBlock)data["Summary"]!).ToString());
+                    foreach (object type in NativeFormatDefinition.Sequence(data["TypeName"])) {
+                        lock (Gate) {
+                            if (BuiltIns.TryGetValue((string)type, out ConsoleViewRegistration? registration)) { registration.AttachSummary(summary); }
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary>Detaches trusted callbacks from the initializing runspace before sharing built-in definitions.</summary>
         /// <param name="value">A value from the embedded built-in definition.</param>
         /// <returns>The same literal value or a copy containing only unbound scriptblocks.</returns>

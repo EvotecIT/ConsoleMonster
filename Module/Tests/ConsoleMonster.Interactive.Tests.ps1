@@ -409,7 +409,7 @@ try { Read-ConsoleSelect 'Pick' -Choices 'a', 'b' -ErrorAction Stop } catch { "i
         It 'applies a built-in menu preset from the presets list and shows it in the review command' {
             # A fixed screen captured in memory: the preset list with its preview, then the form's review with the command.
             $text = Invoke-PromptChild -Script @'
-$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('wait:200 Enter wait:200 Down wait:200 Enter wait:200 Escape wait:200 Down wait:200 Enter wait:200 PageDown wait:400'); $keys.RealTime = $true
+$keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Enter Down Enter Escape Down Enter PageDown'); $keys.Paced = $true
 $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default
 $options.Input = $keys; $options.Mode = 'Rich'
 $capture = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.ScreenCapture'))::new(120, 30, $false); $options.Capture = $capture
@@ -426,12 +426,13 @@ $menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuItem 'Quit' -Exit
 }
 # The keys end on the review, which ends the menu with an input error.
-try { Show-ConsoleMenu $menu -Layout Shell -StorageRoot ([IO.Path]::GetTempPath()) -ErrorAction Stop } catch { 'ended=' + $_.FullyQualifiedErrorId.Split(',')[0] }
+try { Show-ConsoleMenu $menu -Layout Shell -StorageRoot ([IO.Path]::GetTempPath()) -ErrorAction Stop } catch { 'ended=' + $_.Exception.GetBaseException().GetType().Name }
 $frames = @($capture.Frames | ForEach-Object { $_.ToPlainText() })
 foreach ($phrase in 'built in', 'sunday preview', "Preset 'Sunday' applied", 'Start-AppBackup -Target Weekly -Copies 4') {
     if ($frames | Where-Object { $_.Contains($phrase) }) { "saw=$phrase" } else { "missing=$phrase" }
 }
 '@
+            $text | Should -Match 'ended=InputClosedException'
             $text | Should -Match 'saw=built in'
             $text | Should -Match 'saw=sunday preview'
             $text | Should -Match "saw=Preset 'Sunday' applied"

@@ -27,8 +27,8 @@ namespace ConsoleMonster.PowerShell {
     ///   <code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt</code>
     /// </example>
     /// <example>
-    ///   <para>The lines to keep it on in every session (printed, never written to the profile)</para>
-    ///   <code>Enable-ConsoleFormatting -ProfileSnippet</code>
+    ///   <para>The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)</para>
+    ///   <code>Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet</code>
     /// </example>
     /// <example>
     ///   <para>Exclude native format command styling from the default set</para>
@@ -160,15 +160,25 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Register")]
         public ScriptBlock? Shaper { get; set; }
 
+        /// <summary><para type="description">
+        /// A script block that sums up the objects shown together, under the view on the console ($_ and the first argument
+        /// are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before
+        /// it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing
+        /// when there is nothing worth saying, for example for one or two objects.
+        /// </para></summary>
+        [Parameter(ParameterSetName = "Register")]
+        public ScriptBlock? Summary { get; set; }
+
         /// <inheritdoc />
         protected override void EndProcessing() {
             if (Path.Length > 0) {
                 foreach (string path in Path) { ConsoleHostViews.Import(this, SessionState.Path.GetUnresolvedProviderPathFromPSPath(path)); }
                 return;
             }
-            bool viewGiven = MyInvocation.BoundParameters.ContainsKey(nameof(View)) || Property != null || GroupBy != null || Title != null || Group != null;
+            bool viewGiven = MyInvocation.BoundParameters.ContainsKey(nameof(View)) || Property != null || GroupBy != null || Title != null || Group != null || Summary != null;
             foreach (string type in TypeName) {
-                ConsoleHostViews.Register(new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title), Shaper, onlyIfMissing: Shaper != null && !viewGiven);
+                ConsoleViewRegistration registration = new ConsoleViewRegistration(type, View, Property, GroupBy is PSObject ps ? ps.BaseObject : GroupBy, Group ?? TypeName[0], Title) { Summary = Summary };
+                ConsoleHostViews.Register(registration, Shaper, onlyIfMissing: Shaper != null && !viewGiven);
             }
         }
     }

@@ -19,11 +19,10 @@ namespace ConsoleMonster.Tests.Interactive
     [Collection("Live sessions")]
     public sealed class MenuActionTests
     {
-        private static RecordingSurface Run(Menu menu, string keys, MenuLayout layout, bool realTime = false, int width = 100, int height = 26)
+        private static RecordingSurface Run(Menu menu, string keys, MenuLayout layout, int width = 100, int height = 26)
         {
             RecordingSurface surface = new RecordingSurface(width, height, false);
             InteractiveOptions options = PromptHarness.Options(keys, surface);
-            ((ScriptedInput)options.Input!).RealTime = realTime;
             PromptHarness.Guard(surface, () =>
             {
                 menu.Run(new MenuOptions { Layout = layout, Interactive = options, StorageRoot = Path.Combine(Path.GetTempPath(), "cm-menu-none-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });

@@ -17,15 +17,10 @@ foreach ($route in @(@{ Path = 'api'; Name = 'api' }, @{ Path = 'powershell/comm
     $marker = "<template data-cm-api-nav>{{NAV_ACTIONS}}</template>"
     [IO.File]::WriteAllText((Join-Path $Out "$($route.Name)-header.html"), $header.Value + "`n" + $marker + "`n")
     [IO.File]::WriteAllText((Join-Path $Out "$($route.Name)-footer.html"), $footer.Value + "`n")
-    # Reference pages share the site's identity. Keep route-specific WebPage and breadcrumb nodes out of this fragment:
-    # their URLs describe the temporary chrome page, not each generated type or command page.
-    $identity = @([regex]::Matches($html, '(?s)<script\b[^>]*type="application/ld\+json"[^>]*>(.*?)</script>') |
-        Where-Object { ($_.Groups[1].Value | ConvertFrom-Json).'@type' -in @('WebSite', 'Organization') } |
-        ForEach-Object { $_.Value })
-    if ($identity.Count -ne 2) { throw "Expected website and publisher structured data in $page." }
-    # The shared site script versions its runtime requests from this page metadata, including on reference pages.
+    # PowerForge generates reference-page JSON-LD from site.json. Copy only the shared script's runtime asset version
+    # so each page keeps versioned asset requests without duplicating website and publisher entities.
     $runtime = [regex]::Match($html, '<meta\b[^>]*name="cm-runtime"[^>]*>')
     if (-not $runtime.Success) { throw "No runtime asset version in $page." }
-    [IO.File]::WriteAllText((Join-Path $Out "$($route.Name)-head.html"), $runtime.Value + "`n" + ($identity -join "`n") + "`n")
+    [IO.File]::WriteAllText((Join-Path $Out "$($route.Name)-head.html"), $runtime.Value + "`n")
 }
 Write-Output "API chrome written to $Out"
