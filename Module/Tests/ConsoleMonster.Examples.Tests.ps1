@@ -539,6 +539,8 @@ Describe 'Examples run headless' -Tag 'Examples' {
         }
         $script = @"
 foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }
+# Readiness markers and output assertions below use English, regardless of the host UI language.
+`$env:CONSOLEMONSTER_LANGUAGE = 'en'
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
 `$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
 Import-Module ConsoleMonster -Force
