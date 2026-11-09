@@ -15,6 +15,6 @@ Backup Warn
 │ Authored padding                     │
 ╰──────────────────────────────────────╯
 ✓ Build                            ready
-▴ Deploy                            held
+▲ Deploy                            held
 Host  web01
 State ready

@@ -35,18 +35,6 @@ Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ N
 
 Show a module's result objects as a table
 
-### EXAMPLE 2
-```powershell
-Register-ConsoleView -TypeName 'Contoso.Server' -Property Name, State -Summary {
-    param($servers)
-    @{ Value = $servers.Count; Label = 'servers' }
-    $stopped = @($servers | Where-Object State -ne 'Running').Count
-    if ($stopped) { @{ Value = $stopped; Label = 'stopped'; Role = 'Warn' } }
-}
-```
-
-Sum up the servers under the table: 3 servers · 1 stopped
-
 ## PARAMETERS
 
 ### -Group
@@ -204,7 +192,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

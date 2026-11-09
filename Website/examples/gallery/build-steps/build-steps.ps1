@@ -12,7 +12,7 @@ function New-DemoFrame {
     )
 
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Build pipeline[/] [muted]· Orbit.Tools[/]'
+        '[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]'
         New-ConsolePanel -Title 'Release checklist' -Content {
             foreach ($index in 0..3) {
                 $status = if ($index -lt $Tick) { 'pass' }

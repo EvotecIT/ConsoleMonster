@@ -111,11 +111,22 @@ namespace ConsoleMonster.Widgets {
             bool footer = HasFooter && region.Height > 3;
             int bodyHeight = region.Height - 2 - (footer ? 1 : 0);
             if (bodyHeight > 0) {
-                Content.Render(region.Sub(0, 2, region.Width, bodyHeight), context);
+                BodyForRegion().Render(region.Sub(0, 2, region.Width, bodyHeight), context);
             }
             if (footer) {
                 DrawFooter(region.Sub(0, region.Height - 1, region.Width, 1), context);
             }
+        }
+
+        private IWidget BodyForRegion() {
+            if (!(Content is Rows rows) || rows.Children.Count == 0) return Content;
+            foreach (LayoutSize size in rows.Sizes) if (size.Kind == LayoutSizeKind.Fraction) return Content;
+            Rows body = new Rows { Gap = rows.Gap };
+            for (int i = 0; i < rows.Children.Count; i++) {
+                body.Add(rows.Children[i], i == rows.Children.Count - 1 && rows.Sizes[i].Kind == LayoutSizeKind.Auto
+                    ? LayoutSize.Fraction(1) : rows.Sizes[i]);
+            }
+            return body;
         }
 
         // Header and footer are the shared bars, so a dashboard looks the same full screen, inline and inside a menu run.

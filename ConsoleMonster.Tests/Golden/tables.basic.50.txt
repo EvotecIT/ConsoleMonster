@@ -38,7 +38,7 @@ _dmarc.evotec.xyz
   Data        v=DMARC1; p=reject;
               rua=mailto:dmarc@evotec.xyz;
               ruf=mailto:forensic@evotec.xyz; fo=1
-  Latency     ! 133 ms
+  Latency     ▲ 133 ms
   Cache file  /var/cache/dns/evo…z/_dmarc.TXT.json
 
 selector1._domainkey.evotec.xyz
@@ -72,7 +72,7 @@ DMARC
   RFC     7489
 
 DKIM
-  Status  ! WARN
+  Status  ▲ WARN
   Detail  selector2 key is 1024-bit; selector1 is
           2048-bit. Rotate selector2 to a 2048-bi…
   Took    212 ms
@@ -92,7 +92,7 @@ TLS-RPT
   RFC     8460
 
 DNSSEC
-  Status  ! WARN
+  Status  ▲ WARN
   Detail  zone is not signed
   Took    95 ms
   RFC     4033
@@ -111,7 +111,7 @@ Certificate
   Serial            04:A1:7F:3C:9E:22:51:0B:6D:8E:
                     F0:13:44:2A:BC:91
   Valid from (UTC)  2026-08-09 12:00 (2 mo ago)
-  Valid to (UTC)    ! 2026-11-08 12:00 (in 22 d)
+  Valid to (UTC)    ▲ 2026-11-08 12:00 (in 22 d)
   Key               ECDSA P-256
   OCSP stapling     √ yes
   Revoked           – no
@@ -122,7 +122,7 @@ Certificate
   Chain  3 certificates
     Subject                  Expires    Key
     ───────────────────────  ─────────  ──────────
-    CN=mail.evotec.xyz       ! in 22 d  ECDSA
+    CN=mail.evotec.xyz       ▲ in 22 d  ECDSA
                                         P-256
     CN=R11, O=Let's Encrypt  in 4 mo    RSA 2048
     CN=ISRG Root X1          in 8 y     RSA 4096
@@ -134,44 +134,44 @@ Domains  2
     Result    × FAIL
     Passed    9
     Failed    × 2
-    Warnings  ! 5
+    Warnings  ▲ 5
     Duration  24 s
     Score     ▄▄▄▄▄▄     56 %
   eu.ad.adatum.com
     Result    × FAIL
     Passed    13
     Failed    × 1
-    Warnings  ! 1
+    Warnings  ▲ 1
     Duration  16 s
     Score     ▄▄▄▄▄▄▄▄▄  87 %
 
 Domain controllers  5
   DC01.ad.adatum.com
-    Result    ! WARN
+    Result    ▲ WARN
     Passed    26
     Failed    0
-    Warnings  ! 3
+    Warnings  ▲ 3
     Duration  17 s
     Score     ▄▄▄▄▄▄▄▄▄  90 %
   DC02.ad.adatum.com
-    Result    ! WARN
+    Result    ▲ WARN
     Passed    23
     Failed    0
-    Warnings  ! 6
+    Warnings  ▲ 6
     Duration  17 s
     Score     ▄▄▄▄▄▄▄▄   79 %
   DC03.ad.adatum.com
     Result    × FAIL
     Passed    23
     Failed    × 3
-    Warnings  ! 4
+    Warnings  ▲ 4
     Duration  19 s
     Score     ▄▄▄▄▄▄▄▄   77 %
   DC07.eu.ad.adatum.com
     Result    × FAIL
     Passed    21
     Failed    × 4
-    Warnings  ! 4
+    Warnings  ▲ 4
     Duration  16 s
     Score     ▄▄▄▄▄▄▄    72 %
   DC09.eu.ad.adatum.com
@@ -185,7 +185,7 @@ Domain controllers  5
 Total
   Passed    145
   Failed    × 10
-  Warnings  ! 23
+  Warnings  ▲ 23
   Duration  2 m 04 s
   Score     80.14 %
 

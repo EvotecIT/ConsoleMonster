@@ -1,6 +1,7 @@
 using ConsoleMonster;
 using System.Globalization;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -69,7 +70,8 @@ dashboard.CompactSummary = () =>
     double done = results.Segments.Sum(s => s.Value);
     double failed = results.Segments.First(s => s.Label == "Failed").Value;
     double warned = results.Segments.First(s => s.Label == "Warnings").Value;
-    return done + "/" + TotalRules + " · [fail]✗" + failed + "[/] [warn]▴" + warned + "[/]";
+    return done + "/" + TotalRules + " · [fail]✗" + failed + "[/] [warn]"
+        + GlyphSet.Full.Get(Glyph.Warning) + warned + "[/]";
 };
 using StreamReader recording = new StreamReader(path);
 LiveSession.Replay(

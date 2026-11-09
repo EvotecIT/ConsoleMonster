@@ -240,7 +240,7 @@ void Execute(MenuContext context, List<Work> work)
     Dashboard dashboard = new Dashboard()
     {
         Content = body,
-        Title = "[bold]Fleet health check[/]",
+        Title = "[accent bold]Fleet health check[/]",
         Subtitle = domain,
         Footer = "Ctrl+C cancel · results keep the findings"
     };

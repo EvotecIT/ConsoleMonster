@@ -121,15 +121,22 @@ namespace ConsoleMonster.Layout {
                     region.Write(paddingLeft, 0, title);
                     top = 1;
                 }
-                Content.Render(region.Sub(paddingLeft, top + PaddingTop, region.Width - paddingLeft - paddingRight, region.Height - top - PaddingTop - PaddingBottom), context);
+                RenderContent(region.Sub(paddingLeft, top + PaddingTop, region.Width - paddingLeft - paddingRight, region.Height - top - PaddingTop - PaddingBottom), context);
                 return;
             }
             if (region.Width < context.DefaultSpacing(4, 2) || region.Height < 2) {
-                Content.Render(region, context);
+                RenderContent(region, context);
                 return;
             }
             DrawBorder(region, context);
-            Content.Render(region.Sub(1 + paddingLeft, 1 + PaddingTop, region.Width - 2 - paddingLeft - paddingRight, region.Height - 2 - PaddingTop - PaddingBottom), context);
+            RenderContent(region.Sub(1 + paddingLeft, 1 + PaddingTop, region.Width - 2 - paddingLeft - paddingRight, region.Height - 2 - PaddingTop - PaddingBottom), context);
+        }
+
+        private void RenderContent(Region region, RenderContext context) {
+            if (Content is Widgets.Sparkline spark && HasTitle && !string.IsNullOrEmpty(spark.Title) &&
+                Text.Markup.Strip(Title!).IndexOf(Text.Markup.Strip(spark.Title!), StringComparison.OrdinalIgnoreCase) >= 0) {
+                spark.Render(region, context, false);
+            } else Content.Render(region, context);
         }
 
         private void DrawBorder(Region region, RenderContext context) {

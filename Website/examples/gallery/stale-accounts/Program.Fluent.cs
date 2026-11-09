@@ -71,7 +71,7 @@ foreach (var mark in marks)
         mark.Label);
 var report = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Rule("[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
+    c3.Rule("[accent bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
     c3.Add(table);
     c3.Columns(columns => columns.Content(c2 =>
     {

@@ -14,9 +14,14 @@ $hosts = @(
 # Layout: construct the widgets shown on screen.
 $content = {
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Fleet health[/] [muted]· production inventory[/]'
+        '[accent bold]Fleet health[/] [muted]· production inventory[/]'
         New-ConsolePanel -Title 'Fleet summary' -Content {
-            '[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]'
+            New-ConsoleFacts -Content {
+                @{ Value = 2; Label = 'healthy'; Role = 'Pass' }
+                @{ Value = 1; Label = 'warning'; Role = 'Warn' }
+                @{ Value = 1; Label = 'offline'; Role = 'Fail' }
+                @{ Value = 1; Label = 'running'; Role = 'Running' }
+            }
         }
 
         $textInputParameters = @{

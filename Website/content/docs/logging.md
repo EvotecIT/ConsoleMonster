@@ -21,7 +21,8 @@ The provider depends only on `Microsoft.Extensions.Logging.Abstractions` and Con
 
 ## What it writes
 
-- The level tag and colour that `Write-ConsoleLogEntry` and the dashboard log region use: `◆ CRIT` for Critical in the Critical style, `✗ ERR` for Error, `▴ WARN` for Warning, `DBG` and `VERB` muted for Debug and Trace, and no tag for Information.
+- The level tag and colour that `Write-ConsoleLogEntry` and the dashboard log region use: `◆ CRIT` for Critical in the Critical style, `✗ ERR` for Error, `▲ WARN` for Warning, `DBG` and `VERB` muted for Debug and Trace, and no tag for Information.
+- With Words markers, the level appears once as `[FAIL]`, `[WARN]` or `[OK]`. ASCII logs retain their short level words.
 - A timestamp (`TimestampFormat`, default `HH:mm:ss`; null leaves it out), then the category (the last part by default, `Full` or `None`) and the scopes in brackets.
 - An exception's type and message under the entry, with up to `MaxExceptionLines` lines of details.
 - While a ConsoleMonster dashboard or [`AddConsoleDashboard`](/docs/hosting/) shows, entries go into its log region, so they never print over the view.

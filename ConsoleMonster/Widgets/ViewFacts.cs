@@ -10,7 +10,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets;
 
 /// <summary>One fact under a view: an optional caption, the value (presented like a table cell) and an optional label.</summary>
-internal sealed class ViewFact {
+public sealed class ViewFact {
     /// <summary>Creates a fact.</summary>
     public ViewFact(object? value, string? label = null, string? caption = null, ICellPresenter? presenter = null, ThemeToken? role = null, bool newLine = false) {
         Value = value; Label = label; Caption = caption; Presenter = presenter; Role = role; NewLine = newLine;
@@ -25,7 +25,7 @@ internal sealed class ViewFact {
     public string? Label { get; }
     /// <summary>The presenter, or null for automatic.</summary>
     public ICellPresenter? Presenter { get; }
-    /// <summary>The value's colour, or null for the text colour.</summary>
+    /// <summary>The value's colour, or null for a neutral muted fact.</summary>
     public ThemeToken? Role { get; }
 }
 
@@ -33,9 +33,29 @@ internal sealed class ViewFact {
 /// The line under a default view that sums it up: <c>22 folders · 10 files · 117 KB</c>. Values are presented like table
 /// cells (sizes, durations, dates), a sparkline or bar value draws inline, and lines break only between facts.
 /// </summary>
-internal sealed class ViewFacts : IWidget {
-    private const int Indent = 1;
+public sealed class ViewFacts : IWidget {
+    internal int Indent { get; set; } = 1;
     private const int MaxSparkline = 40;
+
+    /// <summary>Creates an empty facts line.</summary>
+    public ViewFacts() { }
+
+    /// <summary>Adds a complete fact descriptor.</summary>
+    /// <param name="fact">The fact.</param><returns>This line.</returns>
+    public ViewFacts Add(ViewFact fact) {
+        Facts.Add(fact ?? throw new ArgumentNullException(nameof(fact)));
+        return this;
+    }
+
+    /// <summary>Adds a value and its literal label, with an optional semantic colour.</summary>
+    /// <param name="value">The value, presented like a table cell.</param>
+    /// <param name="label">The literal word after the value.</param>
+    /// <param name="role">The semantic colour; null draws a neutral fact.</param>
+    /// <returns>This facts line.</returns>
+    public ViewFacts Add(object? value, string? label = null, ThemeToken? role = null) {
+        Facts.Add(new ViewFact(value, label, role: role));
+        return this;
+    }
 
     /// <summary>Creates the line from facts.</summary>
     public ViewFacts(IEnumerable<ViewFact> facts) {
@@ -50,15 +70,15 @@ internal sealed class ViewFacts : IWidget {
         List<StyledLine> lines = new List<StyledLine>();
         int room = Math.Max(1, width - Indent);
         Style muted = context.Style(ThemeToken.Muted);
-        TextSpan separator = new TextSpan(" " + context.Glyphs.Get(Glyph.Dot) + " ", muted);
+        TextSpan separator = new TextSpan(FactFlow.DefaultSeparator(context), muted);
         List<TextSpan> current = new List<TextSpan>();
         int used = 0;
         PresenterContext presenter = new PresenterContext(context);
         foreach (ViewFact fact in Facts) {
             StyledLine part = Present(fact, presenter, muted, context);
             if (part.Width == 0) { continue; }
-            if (used > 0 && (fact.NewLine || used + separator.Text.Length + part.Width > room)) { Flush(); }
-            if (used > 0) { current.Add(separator); used += separator.Text.Length; }
+            if (used > 0 && (fact.NewLine || used + DisplayWidth.Measure(separator.Text) + part.Width > room)) { Flush(); }
+            if (used > 0) { current.Add(separator); used += DisplayWidth.Measure(separator.Text); }
             current.AddRange(part);
             used += part.Width;
         }
@@ -81,22 +101,23 @@ internal sealed class ViewFacts : IWidget {
         List<TextSpan> spans = new List<TextSpan>();
         if (!string.IsNullOrEmpty(fact.Caption)) { spans.Add(new TextSpan(fact.Caption + " ", muted)); }
         PresentedValue value = CellPresenters.Present(fact.Value, fact.Presenter, null, presenter);
-        Style? tone = fact.Role.HasValue ? context.Style(fact.Role.Value) : (Style?)null;
+        Style tone = context.Style(fact.Role ?? ThemeToken.Muted);
         // A sparkline fact is its shape: the caption and label say what it is, so its last value is not repeated.
         foreach (TextSpan span in value.Visual == CellVisualKind.Sparkline ? StyledLine.Empty : value.Line) {
-            spans.Add(tone.HasValue ? new TextSpan(span.Text, span.Style.WithColor(tone.Value.Color).With(TextDecoration.Bold)) : span);
+            spans.Add(new TextSpan(span.Text, span.Style.Combine(value.Number.HasValue || fact.Label != null ? tone.With(TextDecoration.Bold) : tone)));
         }
-        string visual = Visual(value, context);
+        string visual = Visual(value, context, (fact.Role ?? ThemeToken.Muted).ToString().ToLowerInvariant());
         if (visual.Length > 0) {
             if (value.Line.Width > 0 && value.Visual != CellVisualKind.Sparkline) { spans.Add(new TextSpan(" ", Style.Plain)); }
-            spans.Add(new TextSpan(visual, tone ?? context.Style(ThemeToken.Accent)));
+            if (value.Visual == CellVisualKind.Sparkline) spans.Add(new TextSpan(visual, tone));
+            else spans.AddRange(context.Markup(visual).Lines[0]);
         }
-        if (!string.IsNullOrEmpty(fact.Label)) { spans.Add(new TextSpan(" " + fact.Label, muted)); }
+        if (!string.IsNullOrEmpty(fact.Label)) { spans.Add(new TextSpan(" " + fact.Label, tone)); }
         return new StyledLine(spans);
     }
 
-    // The cell visuals as text: a sparkline in the tier's vertical ramp, a bar in eighth blocks over a light shade.
-    private static string Visual(PresentedValue value, RenderContext context) {
+    // Inline cell visuals use the same comparison and part-of-whole bar language as their full widgets.
+    private static string Visual(PresentedValue value, RenderContext context, string role) {
         switch (value.Visual) {
             case CellVisualKind.Sparkline:
                 IReadOnlyList<double>? series = value.Series;
@@ -115,21 +136,11 @@ internal sealed class ViewFacts : IWidget {
             case CellVisualKind.Bar:
             case CellVisualKind.Progress:
                 int cells = Math.Max(4, Math.Min(12, value.VisualWidth));
-                double amount = cells * (double.IsNaN(value.Fraction) ? 0 : Math.Max(0, Math.Min(1, value.Fraction)));
-                int eighths = (int)Math.Round(amount * 8, MidpointRounding.AwayFromZero);
-                int whole = Math.Min(cells, eighths / 8);
-                string partial = whole < cells ? context.Glyphs.HorizontalFill(eighths % 8) : string.Empty;
-                int rest = cells - whole - (partial.Length > 0 ? 1 : 0);
-                return Repeat(context.Glyphs.Get(Glyph.BlockFull), whole) + partial + Repeat(context.Glyphs.Get(Glyph.ShadeLight), Math.Max(0, rest));
+                return BarDrawer.Markup(cells, value.Fraction, role, context, value.Visual == CellVisualKind.Progress,
+                    value.Visual == CellVisualKind.Progress ? BarShape.Line : BarShape.Block);
             default:
                 return string.Empty;
         }
-    }
-
-    private static string Repeat(string glyph, int count) {
-        System.Text.StringBuilder text = new System.Text.StringBuilder();
-        for (int i = 0; i < count; i++) { text.Append(glyph); }
-        return text.ToString();
     }
 
     /// <inheritdoc />

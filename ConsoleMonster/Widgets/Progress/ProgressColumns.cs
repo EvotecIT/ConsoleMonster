@@ -272,22 +272,22 @@ namespace ConsoleMonster.Widgets {
             public override int Measure(IReadOnlyList<ProgressRow> rows, RenderContext context) {
                 int width = 0;
                 foreach (ProgressRow row in rows) {
-                    width = Math.Max(width, Text(row).Length);
+                    width = Math.Max(width, DisplayWidth.Measure(Text(row, context)));
                     if (row.Total > 0) {
-                        string total = NumberFormat.Compact(row.Total);
-                        width = Math.Max(width, total.Length * 2 + 1);
+                        string total = row.Total.ToString("N0", context.Culture);
+                        width = Math.Max(width, DisplayWidth.Measure(total) * 2 + 1);
                     }
                 }
                 return MaxWidth > 0 ? Math.Min(width, MaxWidth) : width;
             }
 
-            public override StyledLine Render(ProgressRow row, RenderContext context) => StyledLine.From(Text(row), context.Style(ThemeToken.Muted));
+            public override StyledLine Render(ProgressRow row, RenderContext context) => StyledLine.From(Text(row, context), context.Style(ThemeToken.Muted));
 
-            private static string Text(ProgressRow row) {
+            private static string Text(ProgressRow row, RenderContext context) {
                 if (row.Status == StatusKind.Pending && row.Done <= 0) {
                     return string.Empty;
                 }
-                return row.Total > 0 ? NumberFormat.Compact(row.Done) + "/" + NumberFormat.Compact(row.Total) : NumberFormat.Compact(row.Done);
+                return row.Total > 0 ? row.Done.ToString("N0", context.Culture) + "/" + row.Total.ToString("N0", context.Culture) : row.Done.ToString("N0", context.Culture);
             }
         }
 
@@ -304,11 +304,11 @@ namespace ConsoleMonster.Widgets {
                 bool ascii = g.Tier == GlyphTier.Ascii;
                 Style muted = context.Style(ThemeToken.Muted);
                 List<TextSpan> spans = new List<TextSpan> {
-                    new TextSpan((ascii ? "P" : g.Get(Glyph.Check)) + row.Passed.ToString(CultureInfo.InvariantCulture), muted),
+                    new TextSpan((ascii ? "P" : g.Get(Glyph.Check)) + " " + row.Passed.ToString("N0", context.Culture), muted),
                     new TextSpan(" ", Style.Plain),
-                    new TextSpan((ascii ? "F" : g.Get(Glyph.Cross)) + row.Failed.ToString(CultureInfo.InvariantCulture), row.Failed > 0 ? context.Style(ThemeToken.Fail) : muted),
+                    new TextSpan((ascii ? "F" : g.Get(Glyph.Cross)) + " " + row.Failed.ToString("N0", context.Culture), row.Failed > 0 ? context.Style(ThemeToken.Fail) : muted),
                     new TextSpan(" ", Style.Plain),
-                    new TextSpan((ascii ? "W" : g.Get(Glyph.Warning)) + row.Warned.ToString(CultureInfo.InvariantCulture), row.Warned > 0 ? context.Style(ThemeToken.Warn) : muted)
+                    new TextSpan((ascii ? "W" : g.Get(Glyph.Warning)) + " " + row.Warned.ToString("N0", context.Culture), row.Warned > 0 ? context.Style(ThemeToken.Warn) : muted)
                 };
                 return new StyledLine(spans);
             }

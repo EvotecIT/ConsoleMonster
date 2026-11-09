@@ -22,7 +22,7 @@ IWidget Frame(int tick)
 
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Markup("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
+        c2.Markup("[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
         c2.Panel(p => p.Title("Release checklist").Content(c =>
         {
             c.Add(checklist);

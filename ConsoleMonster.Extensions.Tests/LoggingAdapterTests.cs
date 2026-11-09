@@ -241,7 +241,7 @@ namespace ConsoleMonster.Extensions.Tests {
             string[] rows = Enumerable.Range(0, 16).Select(y => Row(screen.Snapshot(), y)).ToArray();
             Assert.Equal("WARN Build  Compiling 42 files", rows[0]);
             Assert.StartsWith("Build", rows[1]);
-            Assert.Contains("100%", rows[1]);
+            Assert.EndsWith("4/4", rows[1].TrimEnd());
             Assert.Equal(1, rows.Count(row => row.Contains("Compiling")));
         }
 

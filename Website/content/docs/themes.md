@@ -116,7 +116,7 @@ The light theme meets WCAG contrast on white, and the dark theme keeps titles re
 ## Frames and status words
 
 A theme is more than colours. Its style picks the frame drawn around panels, tables and inputs, and whether statuses
-show as symbols (✓ ✗ ▴) or as words (`[OK]` `[FAIL]` `[WARN]`). Words help screen readers and anyone who finds small
+show as symbols (✓ ✗ ▲) or as words (`[OK]` `[FAIL]` `[WARN]`). Words help screen readers and anyone who finds small
 symbols hard to tell apart, and they look the same in every terminal font. Keep your own style whatever the theme:
 
 ```powershell

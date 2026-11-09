@@ -9,7 +9,7 @@ $selected = $tasks[0]
 # Layout: construct the widgets shown on screen.
 $content = {
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Server toolbox[/] [muted]· operations[/]'
+        '[accent bold]Server toolbox[/] [muted]· operations[/]'
         New-ConsoleSelect -Key Task -Label Task -Choices $tasks -Value $selected
         # Rebuild this section when an input or button changes state.
         New-ConsoleBinding -Content {

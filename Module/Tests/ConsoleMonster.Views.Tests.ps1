@@ -4,11 +4,13 @@
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
-        # A child process with redirected output (plain text) and en-US culture.
+        # A redirected child with en-US culture and an explicit ASCII/Words profile.
         function Invoke-ViewChild {
             param([Parameter(Mandatory)][string] $Script, [hashtable] $Environment = @{})
             $lines = [System.Collections.Generic.List[string]]::new()
             $lines.Add("foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_LANGUAGE', 'CONSOLEMONSTER_TASKBAR', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'COLUMNS') { [Environment]::SetEnvironmentVariable(`$n, `$null) }")
+            $lines.Add("[Environment]::SetEnvironmentVariable('CONSOLEMONSTER_GLYPHS', 'Ascii')")
+            $lines.Add("[Environment]::SetEnvironmentVariable('CONSOLEMONSTER_STATUS_MARKERS', 'Words')")
             foreach ($name in $Environment.Keys) {
                 $lines.Add("[Environment]::SetEnvironmentVariable('$name', '$($Environment[$name])')")
             }
@@ -119,7 +121,7 @@ $servers | & ([Management.Automation.CmdletInfo]::new('Out-ConsoleDefault', (Get
         $text | Should -Match 'a plain string'
         $builtIn, $native = ($text -split '== built-in')[1] -split '== native'
         # Removing a custom view restores the generic record view; opting out restores PowerShell's native table.
-        $builtIn | Should -Match '[|│] srv01\s+[|│] (\S+ )?Running\s+[|│]'
+        $builtIn | Should -Match '[|│] srv01\s+[|│] \[BUSY\]\s+[|│]'
         $native | Should -Match 'Name\s+State\s*\n-+\s+-+'
     }
 

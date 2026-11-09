@@ -32,8 +32,8 @@ namespace ConsoleMonster.Widgets {
                 for (int c = 0; c < _desired.Length && c < cells.Length; c++) {
                     Measure(cells[c], _table._columns[c], ref _desired[c], ref _minimum[c], ref _table._freeText[c]);
                     CellContent content = cells[c];
-                    if (content.Presented != null && !content.IsEmpty) {
-                        if (content.Alignment == HorizontalAlignment.Right) {
+                    if (!content.IsEmpty) {
+                        if (content.Alignment == HorizontalAlignment.Right || (_table._columns[c].Presenter == null && content.Widget == null && content.Lines.Count == 1 && LooksNumeric(content.Lines[0].PlainText.Trim()))) {
                             _right[c]++;
                         } else {
                             _other[c]++;
@@ -59,7 +59,7 @@ namespace ConsoleMonster.Widgets {
                 if (_right[column] + _other[column] == 0) {
                     return null;
                 }
-                return _right[column] > _other[column] ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                return _right[column] > 0 && _other[column] == 0 ? HorizontalAlignment.Right : HorizontalAlignment.Left;
             }
         }
     }

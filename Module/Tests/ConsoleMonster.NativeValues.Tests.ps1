@@ -16,7 +16,7 @@
         $nativeText = $native | Export-ConsoleFrame -Format Text -Width 160
         $nativeText | Should -Be ($console | Export-ConsoleFrame -Format Text -Width 160)
         $nativeText | Should -Match '✓ Pass'
-        $nativeText | Should -Match '▴ Warning'
+        $nativeText | Should -Match '▲ Warning'
         $nativeText | Should -Match '✗ Fail'
         $nativeText | Should -Match '2 KB'
         $nativeText | Should -Match '2026-10-21'
@@ -30,7 +30,7 @@
     It 'keeps list labels and uses the same status bytes date duration and collection presenters' {
         $native = Convert-TestNativeView -Rows $script:NativeRows -Kind List -Arguments @{Property=$script:NativeProperties}
         $text = $native | Export-ConsoleFrame -Format Markdown
-        foreach ($value in @('| Name | one |','| State | ✓ Pass |','| State | ▴ Warning |','| State | ✗ Fail |','| Bytes | 2 KB |','| Duration | 2 m 00 s |','| Tags | a, b |')) {
+        foreach ($value in @('| Name | one |','| State | ✓ Pass |','| State | ▲ Warning |','| State | ✗ Fail |','| Bytes | 2 KB |','| Duration | 2 m 00 s |','| Tags | a, b |')) {
             $text | Should -Match ([regex]::Escape($value))
         }
         $text | Should -Match '\| Date \| 2026-10-21'

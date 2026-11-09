@@ -62,8 +62,8 @@ foreach (Step step in steps)
     phases.Set(step.Key, step.Status, step.Label, step.Detail);
 var facts = new KeyValueList
 {
-    Columns = 2,
-    KeyRole = ThemeToken.Accent
+    Columns = 1,
+    KeyRole = ThemeToken.Muted
 };
 foreach (Pair pair in context)
     facts.Add(pair.Key, pair.Value);
@@ -83,7 +83,7 @@ Terminal.Write(new Rows(
     new Panel(
         new TextBlock(expired ? "Chain validation failed." : "Chain validation passed."),
         verdict) { Verdict = true, Status = chainStatus },
-    new KeyValueList { KeyRole = chainStatus.ToToken() }
+    new KeyValueList { KeyRole = ThemeToken.Muted }
         .Add("Cause",
             expired ? "Expired intermediate certificate." : "Trusted root and complete chain.")
         .Add("Proof", proof)

@@ -633,7 +633,7 @@ $findings = [ordered] @{
 }
 $lanes = New-ConsoleLanes
 $dashboardParameters = @{
-    Title = '[bold]Nightly checks[/]'
+    Title = '[accent bold]Nightly checks[/]'
     Subtitle = 'ad.adatum.com forest assessment · 12 targets · 332 rules'
     Footer = '[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]'
 }

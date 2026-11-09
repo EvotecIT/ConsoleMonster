@@ -283,7 +283,7 @@ namespace ConsoleMonster.Widgets {
             StyledText text = item.Cell != null ? new StyledText(new[] { Present(item, context).Lines[0] }) : context.Markup(item.Value);
             bool first = true;
             foreach (StyledLine line in text.Lines) {
-                StyledLine full = line;
+                StyledLine full = line.WithBaseStyle(context.Style(ThemeToken.Text));
                 if (first && (prefix.Length > 0 || pad > 0)) {
                     List<TextSpan> spans = new List<TextSpan>();
                     if (prefix.Length > 0) {
@@ -292,7 +292,7 @@ namespace ConsoleMonster.Widgets {
                     if (pad > 0) {
                         spans.Add(new TextSpan(new string(' ', pad)));
                     }
-                    spans.AddRange(line);
+                    spans.AddRange(full);
                     full = new StyledLine(spans);
                 }
                 first = false;
