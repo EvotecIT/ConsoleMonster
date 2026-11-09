@@ -42,13 +42,11 @@ namespace ConsoleMonster.Interactive {
             Dictionary<string, Select> selects = new Dictionary<string, Select>(StringComparer.Ordinal);
             Rows choices = new Rows();
             int labelWidth = 0;
-            int choiceWidth = 0;
-            foreach (ConsoleSetting setting in settings) { labelWidth = Math.Max(labelWidth, setting.Name.Length + 2); }
+            foreach (ConsoleSetting setting in settings) { labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(setting.Name)); }
             foreach (ConsoleSetting setting in settings) {
                 List<Choice> list = new List<Choice>();
                 foreach (string value in Values(setting)) {
                     string choiceLabel = Label(setting, value);
-                    choiceWidth = Math.Max(choiceWidth, DisplayWidth.Measure(choiceLabel));
                     list.Add(new Choice(value, choiceLabel));
                 }
                 // One row per setting: its name, then a dropdown without a frame of its own.
@@ -69,8 +67,10 @@ namespace ConsoleMonster.Interactive {
             Columns buttons = new Columns().Add(save, LayoutSize.Fixed(10)).Add(apply, LayoutSize.Fixed(13)).Add(cancel, LayoutSize.Fixed(12));
             Rows left = new Rows(new Panel(choices, "Settings"), buttons, new AppBinding(current => Notes(settings, selects))) { Gap = 1 };
             AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current)), "settings.preview");
-            int settingsWidth = labelWidth + 1 + 2 + choiceWidth + 2 + 4; // Row gap, focus gutter, dropdown mark, panel borders and padding.
-            Columns body = new Columns().Add(left, LayoutSize.Fraction(2, settingsWidth)).Add(new Panel(preview, "Preview"), LayoutSize.Fraction(3, 40));
+            // Size only the closed controls; open lists overlay the preview.
+            Func<int> settingsWidth = () => labelWidth + 1 + 2
+                + settings.Max(setting => DisplayWidth.Measure(Label(setting, selects[setting.Name].Value as string ?? setting.Value))) + 2 + 4;
+            SettingsColumns body = new SettingsColumns(left, new Panel(preview, "Preview"), settingsWidth);
             Rows layout = new Rows(
                 new TextBlock("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
                 body) { Gap = 1 };
@@ -85,6 +85,25 @@ namespace ConsoleMonster.Interactive {
             }
             SettingsPickerAction action = state.Get(ActionKey, SettingsPickerAction.Cancel);
             return new Result(action, chosen);
+        }
+
+        // Recompute the cap on resize and the natural width when a closed choice changes.
+        private sealed class SettingsColumns : IContainer {
+            private readonly IWidget _settings;
+            private readonly IWidget _preview;
+            private readonly Func<int> _naturalWidth;
+
+            internal SettingsColumns(IWidget settings, IWidget preview, Func<int> naturalWidth) {
+                _settings = settings; _preview = preview; _naturalWidth = naturalWidth;
+            }
+
+            public IReadOnlyList<IWidget> Children => new[] { _settings, _preview };
+            public Size Measure(Constraints constraints, RenderContext context) => Layout(constraints.MaxWidth).Measure(constraints, context);
+            public void Render(Region region, RenderContext context) => Layout(region.Width).Render(region, context);
+
+            private Columns Layout(int width) => new Columns()
+                .Add(_settings, LayoutSize.Fixed(Math.Min(_naturalWidth(), width * 45 / 100)))
+                .Add(_preview, LayoutSize.Fraction(1, 40));
         }
 
         // Applies a result: each value that differs from what is in effect is set (and saved); a choice that means detection
@@ -166,10 +185,10 @@ namespace ConsoleMonster.Interactive {
         // Fixed sample content that shows every status token, a panel, a progress bar, a chart and an error, drawn with
         // the chosen theme, colours, glyphs, culture and language.
         internal static IWidget Preview(IReadOnlyDictionary<string, string> values) {
-            Table table = new Table();
+            Table table = new Table { CardsBelow = 0 };
             table.AddColumn("Check").AddColumn("State")
                 .AddColumn(new TableColumn("Size") { Presenter = Presenters.CellPresenters.Bytes, Alignment = HorizontalAlignment.Right })
-                .AddColumn(new TableColumn("Changed") { Presenter = Presenters.CellPresenters.Date, Priority = 1 });
+                .AddColumn(new TableColumn("Changed") { Presenter = Presenters.CellPresenters.Date, Priority = -1 });
             DateTime when = new DateTime(2026, 11, 9, 14, 30, 0);
             table.AddRow("Backups", TableCell.ForStatus(StatusKind.Pass, "passed"), TableCell.FromValue(52_428_800L), TableCell.FromValue(when));
             table.AddRow("Certificates", TableCell.ForStatus(StatusKind.Warn, "expiring"), TableCell.FromValue(4_096L), TableCell.FromValue(when.AddDays(-3)));
@@ -231,6 +250,12 @@ namespace ConsoleMonster.Interactive {
                 if (contrast != null) {
                     string ratio = contrast.Tokens[0] + " text too faint: " + contrast.Value!.Value.ToString("0.0", CultureInfo.InvariantCulture) + ":1";
                     detail += (detail.Length > 0 ? ". " : string.Empty) + ratio;
+                    if (failed != null && detail.Length > width) {
+                        summary = ThemeCheckText.Pair(failed.Tokens, true) + " look alike " + ThemeCheckText.Conditions(report.Results
+                            .Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail && result.Tokens.SequenceEqual(failed.Tokens))
+                            .Select(result => result.Vision));
+                        detail = ratio;
+                    }
                 }
                 Rows notes = new Rows(new TextBlock(summary) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis });
                 if (detail.Length > 0) { notes.Add(new TextBlock(detail) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }); }
