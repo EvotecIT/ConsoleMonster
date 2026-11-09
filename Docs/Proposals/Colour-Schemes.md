@@ -1,7 +1,8 @@
 # Proposal: colour schemes as the source of themes
 
-Status: PR 1 implements the theme checker (section 4), `Test-ConsoleTheme` and the picker summary. Scheme derivation,
-terminal palettes, import and the catalogue remain proposals. This design replaces "A theme that follows the terminal", "Importing colour schemes" and the scheme parts of
+Status: PR 1 implements the theme checker (section 4). PR 2 implements scheme derivation, accessible variants, the
+Terminal preset and startup palette probe, version 3 files and import (sections 1–3 and the relevant parts of 6).
+The named catalogue, picker groups and site gallery (section 5) remain for PR 3. This design replaces "A theme that follows the terminal", "Importing colour schemes" and the scheme parts of
 "Checking a theme" in [Settings-And-Themes.md](Settings-And-Themes.md) with one design, and adds a curated catalogue.
 
 ## Why
@@ -38,7 +39,7 @@ One mapping, the same for every source, so a scheme looks like itself everywhere
 | Tokens | From |
 |---|---|
 | `Text`, `Title` (bold), `Header` (bold), `Strong` (bold) | foreground |
-| `Muted`, `Border`, `Skip`, `Pending`, `Low` | bright black, or white when bright black has under 3:1 (see below) |
+| `Muted`, `Border`, `Skip`, `Pending`, `Low`, `Gap` | bright black, then white, then the foreground blended halfway toward the background (see below) |
 | `Subtle` | bright black, dim |
 | `Pass` | green |
 | `Warn` | yellow |
@@ -51,13 +52,16 @@ One mapping, the same for every source, so a scheme looks like itself everywhere
 | `SurfaceAccent` | blue on `Surface` |
 | `Series1`–`Series6` | blue, yellow, magenta, cyan, green, red: neighbours differ in lightness as well as hue |
 | `Critical` | the background colour on a red fill |
-| `Gap` | the background |
 
 Each role prefers the first candidate that has at least 3:1 against the background: the normal colour, then the
-bright one (or the reverse on light schemes). Muted roles try bright black, then white, then the unmodified
-foreground. If none qualifies, they keep the foreground and report its low contrast. Upstream palettes need this:
+bright one (or the reverse on light schemes). A bright candidate must stay within 30° of the normal colour's OKLCH
+hue and have chroma of at least 0.05: some schemes use their bright slots for greys. If neither eligible colour
+reaches 3:1, keep the published normal colour and let the checker report its contrast. Muted roles, including `Gap`,
+try bright black, then white, then the foreground blended halfway toward the background. If none qualifies, they
+keep the foreground and report its low contrast. Upstream palettes need this:
 Solarized's bright black *is* its background, so a literal mapping draws muted text invisibly. The faithful theme
-never changes a colour, it only chooses among them. A catalogue entry may name a **signature accent** (Dracula's
+never adjusts a role colour; only the specified muted and surface blends create colours outside the palette.
+A catalogue entry may name a **signature accent** (Dracula's
 purple, Nord's frost blue) to replace `Accent`, because that colour is what makes the scheme recognisable; nothing
 else is hand-tuned.
 
@@ -68,13 +72,17 @@ else is hand-tuned.
    protanopia, deuteranopia and tritanopia while keeping 3:1 contrast. Fail is underlined and `Critical` keeps its
    fill, so status never depends on hue alone.
 2. **Adjust lightness, never hue.** Where the best trio is still under the colour-vision bar (CIELAB distance 25), or a
-   text role is under 4.5:1, move only that colour's lightness (in OKLCH, keeping hue and chroma as far as the gamut
-   allows) until it passes. The variant records which colours it adjusted, and `Test-ConsoleTheme` lists them.
+   text role is under 4.5:1, move that colour's OKLCH lightness while retaining hue and at least half its original
+   chroma. Gamut mapping must not turn a recognisable status colour almost grey or black. If that hue cannot meet
+   the bars with enough chroma, try another colour from the scheme's own status family: blue-to-cyan for pass,
+   orange-to-yellow for warning, red-to-magenta for fail. Among passing trios, favour the most chroma. Solarized's
+   orange, for example, is stored in its bright-red slot and can supply a dark orange warning on a light background.
+   The variant records which tokens it adjusted, and `Test-ConsoleTheme` lists them.
 
 Measured on the catalogue below (minimum CIELAB distance between pass, warning and fail under the three simulations,
 with 3:1 contrast): step 1 alone reaches the bar for Dracula (32.9), Nord (32.7), Tokyo Night Day (29.1), Catppuccin
-Mocha (28.9), Gruvbox Dark (28.5), Tokyo Night (28.3) and Solarized Dark (27.0). Solarized Light (23.1) and Gruvbox
-Light (23.8) need step 2, and Catppuccin Latte has no trio at 3:1, so its variant is adjusted. The literal mapping
+Mocha (28.9), Gruvbox Dark (28.5), Tokyo Night (28.3) and Solarized Dark (27.0). Gruvbox Light (23.8) needs step 2. Solarized Light and Catppuccin Latte have no eligible trio at 3:1 once grey
+bright slots are excluded, so their variants also need adjustment. The literal mapping
 (green, yellow, red) reaches 2 to 13 on every one of them, which is why accessibility is a variant and not a hope.
 Contrast is the larger gap: most of these schemes, and all four light ones, have status colours under 4.5:1 as
 published.

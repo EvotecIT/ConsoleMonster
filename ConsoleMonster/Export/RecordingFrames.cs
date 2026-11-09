@@ -20,8 +20,8 @@ namespace ConsoleMonster.Export {
         /// <summary>Screen height in cells (default 30).</summary>
         public int Height { get; set; } = 30;
 
-        /// <summary>Dark (default) or Light. Auto is treated as Dark: a recording is played in one scheme.</summary>
-        public ExportTheme Theme { get; set; } = ExportTheme.Dark;
+        /// <summary>Auto uses a terminal recording's captured palette when present, otherwise Dark; explicit themes override it.</summary>
+        public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
         /// <summary>A custom theme to render with (default: the built-in dark or light theme).</summary>
         public ITheme? CustomTheme { get; set; }
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Export {
             ExportOptions o = new ExportOptions {
                 Width = Terminal.ResolveWidth(Width),
                 Height = Height,
-                Theme = Resolved.Theme,
+                Theme = Theme == ExportTheme.Auto ? ExportTheme.Auto : Resolved.Theme,
                 Title = Title,
                 WindowChrome = WindowChrome,
                 ChromeStyle = ChromeStyle,
@@ -122,7 +122,8 @@ namespace ConsoleMonster.Export {
             return o;
         }
 
-        internal ExportPalette Palette => Resolved.Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : Resolved.Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark;
+        internal ExportPalette Palette => ExportPalette.ForTheme(CustomTheme ?? Resolved.Colors,
+            Resolved.Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : Resolved.Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Dark);
 
         // Auto is dark for recordings; Current is the theme in use on its background.
         private (ExportTheme Theme, ITheme? Colors) Resolved =>

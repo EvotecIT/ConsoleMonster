@@ -66,9 +66,9 @@ namespace ConsoleMonster.PowerShell {
         [ValidateRange(0.01, 100)]
         public double Speed { get; set; } = 1;
 
-        /// <summary><para type="description">Dark (default), Light or HighContrast.</para></summary>
+        /// <summary><para type="description">Auto (default) uses a terminal recording's captured palette, otherwise Dark. Dark, Light and HighContrast override it; Current uses the session's active theme.</para></summary>
         [Parameter]
-        public ExportTheme Theme { get; set; } = ExportTheme.Dark;
+        public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
         /// <summary><para type="description">The title (page title, title bar, asciicast title).</para></summary>
         [Parameter]

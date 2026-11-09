@@ -54,7 +54,7 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Maximum slide font size in pixels. The window otherwise fills the safe area.</summary>
         public double MaxFontSize { get; set; } = 72;
         /// <summary>Widget dimensions, theme, title, natural-size typography and window chrome.</summary>
-        public ExportOptions Frame { get; set; } = new ExportOptions { Theme = ExportTheme.Dark };
+        public ExportOptions Frame { get; set; } = new ExportOptions();
         /// <summary>Recording frame rate, speed and final hold. The graphics layer also caps idle gaps.</summary>
         public RecordingExportOptions Playback { get; set; } = new RecordingExportOptions();
         /// <summary>Installed font family; null uses embedded JetBrains Mono.</summary>
@@ -66,6 +66,12 @@ namespace ConsoleMonster.Graphics {
         private TimeSpan? _idleLimit;
         /// <summary>Total plays: zero loops indefinitely, one plays once.</summary>
         public int LoopCount { get; set; }
+        internal GraphicsExportOptions ForRecording(ConsoleMonster.Sessions.SessionRecording recording) {
+            GraphicsExportOptions copy = (GraphicsExportOptions)MemberwiseClone();
+            copy.Frame = recording.ResolveFrameOptions(Frame);
+            return copy;
+        }
+
         internal void Validate() {
             if (Preset < GraphicsPreset.Docs || Preset > GraphicsPreset.Social) { throw new ArgumentOutOfRangeException(nameof(Preset)); }
             if (Fit < GraphicsFit.Content || Fit > GraphicsFit.Terminal) { throw new ArgumentOutOfRangeException(nameof(Fit)); }

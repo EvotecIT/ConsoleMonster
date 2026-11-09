@@ -201,7 +201,16 @@ namespace ConsoleMonster.Capabilities {
 
         /// <summary>Human-readable notes explaining how each value was chosen (shown by <c>Get-ConsoleCapability</c>). The
         /// <c>images:</c> note describes the final <see cref="ImageProtocol"/> of this profile, including its output guards.</summary>
-        public IReadOnlyList<string> Decisions => ImageSource == null ? _decisions : new List<string>(_decisions) { ImageDecision }.AsReadOnly();
+        public IReadOnlyList<string> Decisions {
+            get {
+                bool followsTerminal = ThemePreference == ThemePreference.Terminal || Terminal.HasAssignedTerminalTheme;
+                if (ImageSource == null && !followsTerminal) { return _decisions; }
+                List<string> decisions = new List<string>(_decisions);
+                if (ImageSource != null) { decisions.Add(ImageDecision); }
+                if (followsTerminal) { decisions.Add(Terminal.PaletteDecision); }
+                return decisions.AsReadOnly();
+            }
+        }
 
         /// <summary>The recorded notes without the computed image note, which copies recompute for their own output.</summary>
         internal IReadOnlyList<string> RecordedDecisions => _decisions;

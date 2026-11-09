@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 115,
+  "ExpectedCount": 116,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -116,7 +116,8 @@
     "Write-ConsoleText",
     "Add-ConsoleJobSummary",
     "Use-ConsoleGroup",
-    "Write-ConsoleAnnotation"
+    "Write-ConsoleAnnotation",
+    "Import-ConsoleTheme"
   ],
   "Retired": [
     "Add-ConsoleItem",

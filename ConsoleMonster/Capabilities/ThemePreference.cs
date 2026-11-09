@@ -15,6 +15,8 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Use the light-background colour-blind-safe palette.</summary>
         ColorBlindLight,
         /// <summary>Use the dark-background colour-blind-safe palette.</summary>
-        ColorBlindDark
+        ColorBlindDark,
+        /// <summary>Follow the terminal's own sixteen palette colours.</summary>
+        Terminal
     }
 }

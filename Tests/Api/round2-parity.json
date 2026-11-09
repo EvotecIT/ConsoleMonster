@@ -1991,7 +1991,7 @@
         {
           "Parameter": "Theme",
           "ParameterType": "ConsoleMonster.Export.ExportTheme",
-          "Default": "Dark",
+          "Default": "Auto",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -16219,6 +16219,25 @@
       "CSharpType": "ConsoleMonster.Terminal",
       "Bindings": [
         {
+          "Parameter": "Accessible",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+          "Member": "ToTheme",
+          "MemberKind": "Method",
+          "Argument": "accessible",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity",
+          "Reason": "Re-derives an embedded scheme accessibly while preserving explicit file overrides."
+        },
+        {
           "CSharpType": "ConsoleMonster.Styling.ThemeFile",
           "Member": "Load",
           "Argument": "path",
@@ -25148,6 +25167,84 @@
           "CSharpTypeName": "System.String"
         }
       ]
+    },
+    {
+      "Command": "Import-ConsoleTheme",
+      "Job": "Import-ConsoleTheme",
+      "CSharpType": "ConsoleMonster.Styling.TerminalScheme",
+      "Bindings": [
+        {
+          "Parameter": "Accessible",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.Theme",
+          "Member": "FromScheme",
+          "MemberKind": "Method",
+          "Argument": "accessible",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity"
+        },
+        {
+          "Parameter": "OutFile",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+          "Member": "Save",
+          "MemberKind": "Method",
+          "Argument": "path",
+          "CSharpTypeName": "System.String",
+          "Conversion": "DestinationPath",
+          "Reason": "Defaults the destination beside the source and writes a version 3 scheme theme before returning its check report."
+        },
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.TerminalScheme",
+          "Member": "Load",
+          "MemberKind": "Method",
+          "Argument": "path",
+          "CSharpTypeName": "System.String",
+          "Conversion": "SchemeFilePath",
+          "Reason": "Loads Windows Terminal JSON, iTerm2 XML or flat base16 YAML in the shared scheme parser."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline input at the PowerShell boundary."
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -29448,11 +29545,19 @@
       "Disposition": "Host policy",
       "Reason": "The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly.",
       "Alternative": "Use Set-ConsoleSetting StatusMarkers before Test-ConsoleTheme."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Styling.Theme",
+      "Member": "Terminal",
+      "CSharpTypeName": "ConsoleMonster.Styling.Theme",
+      "Reason": "The terminal-palette preset is selected by Set-ConsoleTheme Terminal.",
+      "Alternative": "Use Set-ConsoleTheme Terminal or Set-ConsoleSetting Theme Terminal.",
+      "Disposition": "Preset"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 115,
+  "ExpectedCount": 116,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29667,7 +29772,8 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
-    "ConsoleMonster.ContinuousIntegration"
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.Styling.TerminalScheme"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -30050,7 +30156,8 @@
     "ConsoleMonster.Styling.ThemeCheckOptions",
     "ConsoleMonster.ContinuousIntegration",
     "ConsoleMonster.ContinuousIntegrationProvider",
-    "ConsoleMonster.Export.IFrameExportProvider"
+    "ConsoleMonster.Export.IFrameExportProvider",
+    "ConsoleMonster.Styling.TerminalScheme"
   ],
   "RelatedBindings": [
     {
