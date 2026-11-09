@@ -53,11 +53,13 @@ One mapping, the same for every source, so a scheme looks like itself everywhere
 | `Critical` | the background colour on a red fill |
 | `Gap` | the background |
 
-Each role takes the first of its candidates that has at least 3:1 against the background: the normal colour, then the
-bright one (or the reverse on light schemes), and for the muted roles bright black, then white, then the foreground
-blended halfway to the background. Upstream palettes need this: Solarized's bright black *is* its background, so a
-literal mapping draws muted text invisibly. The faithful theme never changes a colour, it only chooses among them. A catalogue entry may name a **signature accent** (Dracula's purple, Nord's frost
-blue) to replace `Accent`, because that colour is what makes the scheme recognisable; nothing else is hand-tuned.
+Each role prefers the first candidate that has at least 3:1 against the background: the normal colour, then the
+bright one (or the reverse on light schemes). Muted roles try bright black, then white, then the unmodified
+foreground. If none qualifies, they keep the foreground and report its low contrast. Upstream palettes need this:
+Solarized's bright black *is* its background, so a literal mapping draws muted text invisibly. The faithful theme
+never changes a colour, it only chooses among them. A catalogue entry may name a **signature accent** (Dracula's
+purple, Nord's frost blue) to replace `Accent`, because that colour is what makes the scheme recognisable; nothing
+else is hand-tuned.
 
 **The accessible variant.** Two steps, and the second only when the first is not enough:
 
@@ -151,8 +153,8 @@ retyping.
 
 Rules for entry, so the list stays useful rather than long:
 
-- the scheme is widely used and published under a licence that allows redistribution (all of the above are MIT, to be
-  confirmed per scheme), with the notice kept beside the data;
+- the scheme is widely used and published under a licence that allows redistribution (MIT or Apache-2.0 for the entries
+  above), with the notice kept beside the data;
 - its accessible variant passes every check; the faithful form ships whatever the checker says about it, and the
   picker and the gallery show that result;
 - light and dark variants of one family are paired, so `Set-ConsoleTheme Solarized` picks the variant for the
@@ -160,8 +162,8 @@ Rules for entry, so the list stays useful rather than long:
 - the faithful form uses the upstream values unchanged; the only per-scheme choice is the signature accent, and only
   the accessible variant may adjust lightness.
 
-A test walks the catalogue: every entry derives, round-trips through a theme file and passes the checker, so adding a
-scheme is adding data and a review, not code.
+A test walks the catalogue: every entry derives and round-trips through a theme file. Its accessible variant must
+pass the checker; its faithful form keeps its reported failures. Adding a scheme is adding data and a review, not code.
 
 ## 6. Where people meet it
 
