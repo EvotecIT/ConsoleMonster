@@ -14952,7 +14952,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
     <command:syntax>
       <command:syntaxItem parameterSetName="Path">
         <maml:name>New-ConsoleImage</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</maml:para>
@@ -14964,7 +14964,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</maml:para>
@@ -14976,7 +14976,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Path</maml:name>
           <maml:description>
             <maml:para>A PNG, JPEG, GIF, BMP, TIFF or PPM file. Files from Get-ChildItem and path strings can also be piped in.</maml:para>
@@ -14988,7 +14988,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
             <maml:para>Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</maml:para>
@@ -15003,19 +15003,19 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Bytes">
         <maml:name>New-ConsoleImage</maml:name>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Bytes</maml:name>
           <maml:description>
-            <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+            <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
           <dev:type>
-            <maml:name>Byte[]</maml:name>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</maml:para>
@@ -15027,7 +15027,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</maml:para>
@@ -15039,7 +15039,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
             <maml:para>Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</maml:para>
@@ -15054,19 +15054,19 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Bytes</maml:name>
         <maml:description>
-          <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+          <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
         <dev:type>
-          <maml:name>Byte[]</maml:name>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Height</maml:name>
         <maml:description>
           <maml:para>Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</maml:para>
@@ -15078,7 +15078,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</maml:para>
@@ -15090,7 +15090,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Path</maml:name>
         <maml:description>
           <maml:para>A PNG, JPEG, GIF, BMP, TIFF or PPM file. Files from Get-ChildItem and path strings can also be piped in.</maml:para>
@@ -15102,7 +15102,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Width</maml:name>
         <maml:description>
           <maml:para>Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</maml:para>
@@ -15115,7 +15115,13 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues>
       <command:returnValue>
         <dev:type>
@@ -15134,6 +15140,13 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
         <dev:code>New-ConsoleColumns -Content { New-ConsolePanel -Title 'Latency' -Content { New-ConsoleImage -Path ./latency.png -Width 40 }; New-ConsolePanel -Title 'Summary' -Content { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) } } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A chart next to its numbers</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</dev:code>
+        <dev:remarks>
+          <maml:para>Create a widget from an open stream, leaving it open for the caller</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -33731,7 +33744,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:syntax>
       <command:syntaxItem parameterSetName="Path">
         <maml:name>Show-ConsoleImage</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</maml:para>
@@ -33743,7 +33756,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</maml:para>
@@ -33755,7 +33768,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Path</maml:name>
           <maml:description>
             <maml:para>A PNG, JPEG, GIF, BMP, TIFF or PPM file. Files from Get-ChildItem and path strings can also be piped in.</maml:para>
@@ -33767,7 +33780,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Protocol</maml:name>
           <maml:description>
             <maml:para>The protocol your terminal supports, when detection chose another one: Kitty, ITerm2, Sixel, HalfBlock or None (the placeholder). Redirected and CI output keep the placeholder.</maml:para>
@@ -33786,7 +33799,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
             <maml:para>Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</maml:para>
@@ -33801,19 +33814,19 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Bytes">
         <maml:name>Show-ConsoleImage</maml:name>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Bytes</maml:name>
           <maml:description>
-            <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+            <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
           <dev:type>
-            <maml:name>Byte[]</maml:name>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Height</maml:name>
           <maml:description>
             <maml:para>Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</maml:para>
@@ -33825,7 +33838,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</maml:para>
@@ -33837,7 +33850,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Protocol</maml:name>
           <maml:description>
             <maml:para>The protocol your terminal supports, when detection chose another one: Kitty, ITerm2, Sixel, HalfBlock or None (the placeholder). Redirected and CI output keep the placeholder.</maml:para>
@@ -33856,7 +33869,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Width</maml:name>
           <maml:description>
             <maml:para>Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</maml:para>
@@ -33871,19 +33884,19 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Bytes</maml:name>
         <maml:description>
-          <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+          <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
         <dev:type>
-          <maml:name>Byte[]</maml:name>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Height</maml:name>
         <maml:description>
           <maml:para>Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</maml:para>
@@ -33895,7 +33908,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</maml:para>
@@ -33907,7 +33920,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Path</maml:name>
         <maml:description>
           <maml:para>A PNG, JPEG, GIF, BMP, TIFF or PPM file. Files from Get-ChildItem and path strings can also be piped in.</maml:para>
@@ -33919,7 +33932,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Protocol</maml:name>
         <maml:description>
           <maml:para>The protocol your terminal supports, when detection chose another one: Kitty, ITerm2, Sixel, HalfBlock or None (the placeholder). Redirected and CI output keep the placeholder.</maml:para>
@@ -33938,7 +33951,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Width</maml:name>
         <maml:description>
           <maml:para>Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</maml:para>
@@ -33951,7 +33964,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues />
     <maml:alertSet>
       <maml:alert>
@@ -33985,6 +34004,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:code>Show-ConsoleImage -Path ./diagram.png -Protocol Kitty</dev:code>
         <dev:remarks>
           <maml:para>Use Kitty graphics in a terminal that supports it but isn't detected</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 5</maml:title>
+        <dev:code>Show-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</dev:code>
+        <dev:remarks>
+          <maml:para>Show an image from an open stream, leaving it open for the caller</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

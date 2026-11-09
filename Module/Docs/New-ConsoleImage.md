@@ -18,7 +18,7 @@ New-ConsoleImage [[-Path] <string>] [-Label <string>] [-Width <int>] [-Height <i
 
 ### Bytes
 ```powershell
-New-ConsoleImage -Bytes <byte[]> [-Label <string>] [-Width <int>] [-Height <int>] [<CommonParameters>]
+New-ConsoleImage -Bytes <Object> [-Label <string>] [-Width <int>] [-Height <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,13 +35,20 @@ New-ConsoleColumns -Content { New-ConsolePanel -Title 'Latency' -Content { New-C
 
 A chart next to its numbers
 
+### EXAMPLE 2
+```powershell
+New-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40
+```
+
+Create a widget from an open stream, leaving it open for the caller
+
 ## PARAMETERS
 
 ### -Bytes
-Encoded image bytes, for example a chart rendered to PNG in memory.
+Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.
 
 ```yaml
-Type: Byte[]
+Type: Object
 Parameter Sets: Bytes
 Aliases: None
 Possible values:
@@ -122,7 +129,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

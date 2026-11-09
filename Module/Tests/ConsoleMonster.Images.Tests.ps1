@@ -5,6 +5,50 @@ Describe 'Inline images' {
         $script:ModulePath = (Resolve-Path (Join-Path $PSScriptRoot '../ConsoleMonster.psd1')).Path
         # 2x2 PNG: red, green / blue, transparent white.
         $script:Png = [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGElEQVR4nGP4z8Dwn6GB4T8DA8N/EGAAAELVCHmF7Ec3AAAAAElFTkSuQmCC')
+        Import-Module $script:ModulePath -Force
+    }
+
+    It 'New-ConsoleImage accepts byte arrays, numeric arrays and open streams through Bytes' {
+        $bytes = New-ConsoleImage -Bytes $script:Png -Label dot.png -Width 4
+        $numbers = New-ConsoleImage -Bytes ([int[]] $script:Png) -Label dot.png -Width 4
+        $stream = [IO.MemoryStream]::new()
+        try {
+            $stream.WriteByte(42)
+            $stream.Write($script:Png, 0, $script:Png.Length)
+            $stream.Position = 1
+            $image = New-ConsoleImage -Bytes $stream -Label dot.png -Width 4
+            $image.Placeholder | Should -Be $bytes.Placeholder
+            $numbers.Placeholder | Should -Be $bytes.Placeholder
+            $image.Width | Should -Be 4
+            $stream.Position | Should -Be $stream.Length
+            $stream.CanRead | Should -BeTrue
+        } finally { $stream.Dispose() }
+    }
+
+    It 'Show-ConsoleImage reads an open stream in redirected output' {
+        $module = $script:ModulePath.Replace("'", "''")
+        $png = [Convert]::ToBase64String($script:Png)
+        $output = @(Invoke-TestChild -Runtime $script:Runtime -TimeoutSeconds 60 -Script "Import-Module '$module'; `$stream = [IO.MemoryStream]::new([Convert]::FromBase64String('$png')); try { Show-ConsoleImage -Bytes `$stream -Label dot.png -Protocol Sixel; 'OPEN=' + `$stream.CanRead; 'POSITION=' + `$stream.Position } finally { `$stream.Dispose() }")
+        $output | Should -Contain '[image: dot.png 2x2]'
+        $output | Should -Contain 'OPEN=True'
+        $output | Should -Contain "POSITION=$($script:Png.Length)"
+    }
+
+    It '<Command> reports the stream byte limit without closing it' -ForEach @(
+        @{ Command = 'Show-ConsoleImage' }
+        @{ Command = 'New-ConsoleImage' }
+    ) {
+        $path = Join-Path $TestDrive "$Command.png"
+        $stream = [IO.File]::Open($path, [IO.FileMode]::Create)
+        try {
+            $stream.SetLength(64MB + 1)
+            $errors = @()
+            & $Command -Bytes $stream -ErrorAction SilentlyContinue -ErrorVariable errors
+            $errors.Count | Should -Be 1
+            $errors[0].FullyQualifiedErrorId | Should -BeLike 'ConsoleImageInvalid,*'
+            $errors[0].Exception.Message | Should -BeLike '*byte limit*'
+            $stream.CanRead | Should -BeTrue
+        } finally { $stream.Dispose() }
     }
 
     It '<Command> continues past damaged and oversized files in redirected output' -ForEach @(
