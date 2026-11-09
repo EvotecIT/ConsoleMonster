@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
 
-Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Set-ConsoleSetting [-Name] <string> [-Value] <string> [-Save] [-WhatIf] [-Confir
 ## DESCRIPTION
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
 
-Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.
 
 ## EXAMPLES
 
@@ -87,7 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -Value
-The value. Get-ConsoleSetting lists the values each setting takes; Theme also takes a theme file path, Language and Culture a culture name such as pl or de-DE.
+The value. Get-ConsoleSetting lists the values each setting takes; Theme also takes a theme file path; catalogue choices can end in · accessible. Language and Culture take a culture name such as pl or de-DE.
 
 ```yaml
 Type: String
@@ -107,7 +107,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

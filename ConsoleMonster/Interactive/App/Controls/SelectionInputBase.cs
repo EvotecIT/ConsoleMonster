@@ -61,6 +61,9 @@ namespace ConsoleMonster.Interactive {
         /// </summary>
         public string? LinkKey { get; set; }
 
+        // The open dropdown's minimum width in cells, frame included, when its entries are wider than the closed control.
+        internal int ListWidth { get; set; }
+
         int? ILinkedSelection.LinkIndex => Read(() => {
             Choice? focused = _list.FocusedChoice;
             if (focused == null) { return (int?)null; }
@@ -242,7 +245,7 @@ namespace ConsoleMonster.Interactive {
                 return;
             }
             DrawSummary(region, context);
-            if (_open) { InputArrangement.RecordPopup(this, new Popup(this)); }
+            if (_open) { InputArrangement.RecordPopup(this, new Popup(this), ListWidth); }
         }
 
         // The closed dropdown: the chosen value (or a dash) and the dropdown mark, as form choice fields draw it.

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Serialization;
@@ -11,20 +10,9 @@ using Xunit;
 namespace ConsoleMonster.Tests.Themes {
     public sealed class SchemeThemeTests {
         public static IEnumerable<object[]> Catalogue() {
-            using Stream stream = typeof(SchemeThemeTests).Assembly.GetManifestResourceStream("Colour-Schemes.catalogue.json")!;
-            using StreamReader reader = new StreamReader(stream);
-            IDictionary palettes = (IDictionary)MiniJson.Read(reader.ReadToEnd())!;
-            foreach (DictionaryEntry entry in palettes) { yield return new[] { entry.Key }; }
+            foreach (ThemeScheme entry in Theme.Schemes) { yield return new object[] { entry.Name }; }
         }
-        private static TerminalScheme Scheme(string name) {
-            using Stream stream = typeof(SchemeThemeTests).Assembly.GetManifestResourceStream("Colour-Schemes.catalogue.json")!;
-            using StreamReader reader = new StreamReader(stream);
-            IDictionary data = (IDictionary)((IDictionary)MiniJson.Read(reader.ReadToEnd())!)[name]!;
-            Dictionary<string, object?> copy = new Dictionary<string, object?>();
-            foreach (DictionaryEntry pair in data) { copy[(string)pair.Key] = pair.Value; }
-            copy["name"] = name;
-            return TerminalScheme.ParseWindowsTerminal(MiniJson.Write(copy));
-        }
+        private static TerminalScheme Scheme(string name) => Theme.Schemes.Single(entry => entry.Name == name).Scheme;
 
         [Theory]
         [MemberData(nameof(Catalogue))]
@@ -37,6 +25,7 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.NotEqual(scheme.Background, theme.Get(ThemeToken.Gap).Color!.Value.TrueColor);
             foreach ((ThemeToken token, int normal) in new[] { (ThemeToken.Pass, 2), (ThemeToken.Warn, 3), (ThemeToken.Fail, 1), (ThemeToken.Info, 6), (ThemeToken.Accent, 4), (ThemeToken.Accent2, 5) }) {
                 Color color = theme.Get(token).Color!.Value.TrueColor;
+                if (token == ThemeToken.Accent && scheme.SignatureAccent.HasValue) { Assert.Equal(scheme.SignatureAccent.Value, color); continue; }
                 Assert.Contains(color, new[] { scheme.Palette[normal], scheme.Palette[normal + 8] });
                 SchemeLightness basis = new SchemeLightness(scheme.Palette[normal]), bright = new SchemeLightness(scheme.Palette[normal + 8]);
                 double hue = Math.Abs(basis.Hue - bright.Hue);

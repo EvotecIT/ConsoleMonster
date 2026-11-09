@@ -16,7 +16,7 @@ namespace ConsoleMonster.Styling {
     /// (Border, Density, StatusMarkers and Background; omitted fields inherit from BaseTheme). Keys and token names are
     /// case-insensitive. BaseTheme must name a built-in preset; omitted tokens and style fields inherit from it.
     /// Without BaseTheme, omitted values use terminal defaults. An explicit null foreground/background clears inheritance.
-    /// Version 3 also supports an embedded BaseScheme, an Accessible Variant and PaletteIndex colours. Preset exports contain complete token definitions; scheme exports retain the source scheme and explicit overrides.
+    /// Version 3 also supports a named or embedded BaseScheme, an Accessible Variant and PaletteIndex colours. Preset exports contain complete token definitions; scheme exports embed the selected source scheme and retain explicit overrides.
     /// </remarks>
     public sealed partial class ThemeFile {
         private readonly Theme _theme;

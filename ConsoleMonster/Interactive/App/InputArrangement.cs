@@ -29,10 +29,12 @@ namespace ConsoleMonster.Interactive {
         internal IDisposable Begin(int x, int y, Rect clip) { _inputs.Clear(); _scrolls.Clear(); _containers.Clear(); _popups.Clear(); return new Scope(this, x, y, clip); }
         // A control asks for content drawn above the frame, anchored to where it was arranged; the app overlay paints it
         // after the content pass. Outside an app (a one-off render) there is no layer and the request is dropped.
-        internal static void RecordPopup(InputControl owner, IWidget popup) {
+        // A minimum width lets a list be wider than its closed control; the overlay still keeps it inside the body.
+        internal static void RecordPopup(InputControl owner, IWidget popup, int minWidth = 0) {
             Scope? scope = _current;
             if (scope == null || !scope.Owner._inputs.TryGetValue(owner, out Entry? entry)) { return; }
             Rect anchor = entry.Bounds.Intersect(entry.Clip);
+            if (anchor.Width > 0 && minWidth > anchor.Width) { anchor = new Rect(anchor.X, anchor.Y, minWidth, anchor.Height); }
             if (anchor.Width > 0 && anchor.Height > 0) { scope.Owner._popups.Add(new Popup(owner, popup, anchor)); }
         }
         // A one-row bar painted over the control's last row (a find bar): anchored to the row above it, so the overlay

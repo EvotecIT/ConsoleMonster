@@ -69,6 +69,9 @@ default colours; the capability decisions record that fallback. An unavailable p
 
 ## Import a colour scheme
 
+The [colour scheme gallery](/docs/colour-schemes/) shows Dracula, Nord, Solarized, Gruvbox, Catppuccin and Tokyo Night,
+each faithful and accessible, with what the checker says about it. Any other scheme can be imported from its file:
+
 ```powershell
 Import-ConsoleTheme -Path ./my-scheme.json -OutFile ./my-theme.json
 Set-ConsoleTheme -Path ./my-theme.json

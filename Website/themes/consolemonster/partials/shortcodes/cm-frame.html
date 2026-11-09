@@ -8,7 +8,18 @@
 <div class="cm-figure__frames">
 {{~ for id in ids; key = id | string.strip; fig = data.figures[key]; if a.platform && data.figures[key + "-" + a.platform]; fig = data.figures[key + "-" + a.platform]; end ~}}
 {{~ screen_frame = fig.frame; screen_title = fig.title; screen_meta = fig.meta; screen_label = fig.label; screen_dark = !fig.frame.light ~}}
+{{~ if fig.verdict ~}}<div class="cm-figure__item">{{~ end ~}}
 {{ include "screen" }}
+{{~ ## A figure with a theme check (verdict: the lines Test-ConsoleTheme prints) shows the verdict under its window and
+     the rest of the report on request. ## ~}}
+{{~ if fig.verdict ~}}
+{{~ if fig.verdict.size > 1 ~}}
+<details class="cm-figure__verdict"><summary>{{ fig.verdict[0] | html.escape }}</summary><ul>{{ for line in fig.verdict offset:1 }}<li>{{ line | html.escape }}</li>{{ end }}</ul></details>
+{{~ else ~}}
+<p class="cm-figure__verdict">{{ fig.verdict[0] | html.escape }}</p>
+{{~ end ~}}
+</div>
+{{~ end ~}}
 {{~ end ~}}
 </div>
 {{~ end ~}}
