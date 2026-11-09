@@ -20,8 +20,10 @@ public static class ConsoleViewStyle {
             : context.Profile.Glyphs == GlyphTier.Basic ? GlyphSet.ConsoleViewBasic : GlyphSet.ConsoleViewAscii;
         return new RenderContext(context.Profile, theme, glyphs, context.Tick, context.Elapsed);
     }
-    internal static bool IsApplied(RenderContext context) => ReferenceEquals(context.Glyphs, GlyphSet.ConsoleViewFull)
-        || ReferenceEquals(context.Glyphs, GlyphSet.ConsoleViewBasic) || ReferenceEquals(context.Glyphs, GlyphSet.ConsoleViewAscii);
+    internal static bool IsApplied(RenderContext context) {
+        IGlyphSet glyphs = StyledGlyphSet.Unwrap(context.Glyphs);
+        return ReferenceEquals(glyphs, GlyphSet.ConsoleViewFull) || ReferenceEquals(glyphs, GlyphSet.ConsoleViewBasic) || ReferenceEquals(glyphs, GlyphSet.ConsoleViewAscii);
+    }
 
     /// <summary>Builds and renders a deferred view using that view's isolated destination context.</summary>
     /// <param name="build">The pure view factory.</param><returns>An opt-in widget.</returns>

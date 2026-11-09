@@ -280,13 +280,13 @@ Accept wildcard characters: False
 ```
 
 ### -Theme
-Auto (both HTML renderings), Dark, Light or HighContrast. Raster Auto uses Dark.
+Auto (both HTML renderings), Dark, Light, HighContrast, or Current: the theme in use on the background it is made for. Without -Theme, Current is used when a theme was chosen (Set-ConsoleTheme, Set-ConsoleSetting Theme, CONSOLEMONSTER_THEME or the settings file), so the export looks like your terminal; otherwise Auto. Raster Auto uses Dark.
 
 ```yaml
 Type: ExportTheme
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Auto, Dark, Light, HighContrast
+Possible values: Auto, Dark, Light, HighContrast, Current
 
 Required: False
 Position: named

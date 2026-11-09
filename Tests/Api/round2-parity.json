@@ -29511,6 +29511,7 @@
     "ConsoleMonster.Styling.RichStyle",
     "ConsoleMonster.Styling.Severity",
     "ConsoleMonster.Styling.StatusKind",
+    "ConsoleMonster.Styling.StatusMarkerStyle",
     "ConsoleMonster.Styling.Style",
     "ConsoleMonster.Styling.TextDecoration",
     "ConsoleMonster.Styling.ThemeFile",

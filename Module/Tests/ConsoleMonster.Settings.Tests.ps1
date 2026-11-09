@@ -55,12 +55,27 @@ Set-ConsoleSetting Theme Dark
         $overridden | Should -Match 'session=Session/Dark'
     }
 
+    It 'exports in the chosen theme unless -Theme says otherwise' {
+        $text = Invoke-SettingsChild -File $script:File -Script @'
+$chosen = New-ConsoleText 'ok' -Role Pass | Export-ConsoleFrame -Format Html -Width 20
+"auto=$($chosen -match 'cm-light' -and $chosen -match 'cm-dark')"
+Set-ConsoleSetting Theme ColorBlindSafeLight
+$chosen = New-ConsoleText 'ok' -Role Pass | Export-ConsoleFrame -Format Html -Width 20
+$explicit = New-ConsoleText 'ok' -Role Pass | Export-ConsoleFrame -Format Html -Width 20 -Theme Auto
+"chosen=$($chosen -match 'cm-dark')/$($chosen -match '#ffffff')"
+"explicit=$($explicit -match 'cm-light' -and $explicit -match 'cm-dark')"
+'@
+        $text | Should -Match 'auto=True'
+        $text | Should -Match 'chosen=False/True'
+        $text | Should -Match 'explicit=True'
+    }
+
     It 'saves what is chosen in the settings picker, and Escape changes nothing' {
         $text = Invoke-SettingsChild -File $script:File -Script @'
 $null = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Escape' { Show-ConsoleSettings }
 "cancelled=$(Test-Path $env:CONSOLEMONSTER_SETTINGS)/$((Get-ConsoleSetting Theme).Value)"
-# Theme list: Auto, Dark, Light. Nine settings, then Save.
-$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
+# Theme list: Auto, Dark, Light. Eleven settings, then Save.
+$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
 "saved=$((Get-ConsoleSetting Theme).Value)/$((Get-ConsoleSetting Theme).Source)"
 '@
         $text | Should -Match 'cancelled=False/Auto'

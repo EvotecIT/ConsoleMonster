@@ -77,13 +77,16 @@ namespace ConsoleMonster.Graphics {
             RecordingExportOptions playback = source.Clone();
             playback.IdleLimit = settings.IdleLimit;
             playback.Theme = settings.Frame.Theme;
-            playback.CustomTheme = settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme : settings.Frame.DarkTheme;
+            playback.CustomTheme = settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme : settings.Frame.Theme == ExportTheme.Current ? null : settings.Frame.DarkTheme;
             // Speed-up must not turn a ten-fps export into a sixty-fps animation.
             playback.FramesPerSecond = source.FramesPerSecond / Math.Max(1, source.Speed);
             return playback;
         }
-        private static CellBuffer Render(IWidget widget, GraphicsExportOptions settings) => ConsoleExporter.Render(widget, settings.Frame,
-            settings.Frame.Theme == ExportTheme.Light ? settings.Frame.LightTheme ?? Theme.Light : settings.Frame.DarkTheme ?? (settings.Frame.Theme == ExportTheme.HighContrast ? Theme.HighContrast : Theme.Dark));
+        private static CellBuffer Render(IWidget widget, GraphicsExportOptions settings) {
+            ExportOptions frame = settings.Frame.ResolveCurrent();
+            return ConsoleExporter.Render(widget, frame,
+                frame.Theme == ExportTheme.Light ? frame.LightTheme ?? Theme.Light : frame.DarkTheme ?? (frame.Theme == ExportTheme.HighContrast ? Theme.HighContrast : Theme.Dark));
+        }
         private static bool IsEmpty(CellBuffer frame) {
             for (int y = 0; y < frame.Height; y++) {
                 for (int x = 0; x < frame.Width; x++) {

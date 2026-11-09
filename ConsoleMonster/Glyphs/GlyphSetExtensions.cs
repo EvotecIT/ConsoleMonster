@@ -33,6 +33,10 @@ namespace ConsoleMonster.Glyphs {
             }
         }
 
+        // Whether status markers are already words (the ASCII tier, or the Words style), so a status word after one repeats it.
+        internal static bool MarkersAreWords(this IGlyphSet glyphs) =>
+            glyphs.Tier == Capabilities.GlyphTier.Ascii || (glyphs is StyledGlyphSet styled && styled.Words);
+
         /// <summary>
         /// The text of a semantic icon in the glyph set's tier (see <see cref="GlyphIcon"/>). Custom glyph sets resolve by
         /// their <see cref="IGlyphSet.Tier"/>; the status icons (Warning, Done) use the set's own symbols.
@@ -42,7 +46,8 @@ namespace ConsoleMonster.Glyphs {
         /// <returns>One cell of text.</returns>
         public static string Icon(this IGlyphSet glyphs, GlyphIcon icon) {
             int tier = glyphs.Tier == Capabilities.GlyphTier.Full ? 0 : glyphs.Tier == Capabilities.GlyphTier.Basic ? 1 : 2;
-            bool consoleView = ReferenceEquals(glyphs, GlyphSet.ConsoleViewFull) || ReferenceEquals(glyphs, GlyphSet.ConsoleViewBasic) || ReferenceEquals(glyphs, GlyphSet.ConsoleViewAscii);
+            IGlyphSet set = StyledGlyphSet.Unwrap(glyphs);
+            bool consoleView = ReferenceEquals(set, GlyphSet.ConsoleViewFull) || ReferenceEquals(set, GlyphSet.ConsoleViewBasic) || ReferenceEquals(set, GlyphSet.ConsoleViewAscii);
             switch (icon) {
                 case GlyphIcon.Warning:
                     return glyphs.Get(Glyph.Warning);

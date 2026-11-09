@@ -23,7 +23,7 @@ namespace ConsoleMonster.Graphics {
         internal static GraphicsLayout Layout(CellBuffer frame, GraphicsExportOptions options, int? columns = null, int? rows = null) {
             options.Validate();
             _ = Font.Value;
-            ExportOptions source = options.Frame;
+            ExportOptions source = options.Frame.ResolveCurrent();
             ExportOptions render = new ExportOptions {
                 Theme = source.Theme == ExportTheme.Auto ? ExportTheme.Dark : source.Theme, DarkTheme = source.DarkTheme,
                 LightTheme = source.LightTheme, Width = frame.Width, Height = frame.Height,

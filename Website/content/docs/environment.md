@@ -18,6 +18,8 @@ Variables are read when the profile is detected. They take precedence over the [
 | `CONSOLEMONSTER_GLYPHS` | `full`, `basic`, `ascii` | The glyph tier: box drawing, block and braille characters, status symbols and spinners. |
 | `CONSOLEMONSTER_MODE` | `interactive` (or `live`), `stream`, `plain` | Interactive redraws in place; stream writes append-only lines; plain writes ASCII lines without colour or escape sequences. |
 | `CONSOLEMONSTER_THEME` | `dark`, `light`, `highcontrast`, `colorblind`, `colorblind-light`, `colorblind-dark`, `auto` | The palette. `auto` honors Windows High Contrast before reading the console background; `colorblind` picks its light or dark variant from the background the same way; an explicit theme takes precedence. |
+| `CONSOLEMONSTER_BORDER` | `rounded`, `single`, `double`, `heavy`, `ascii` or `auto` | The frame for panels, tables and inputs that use the default frame; `auto` uses the theme's. A widget's own frame stays. |
+| `CONSOLEMONSTER_STATUS_MARKERS` | `symbols`, `words` or `auto` | Status symbols (✓ ✗ ▴) or bracketed words (`[OK]` `[FAIL]` `[WARN]`) in status columns, lists and headers; `auto` uses the theme's. |
 | `CONSOLEMONSTER_CULTURE` | a culture name, `invariant` or `current` | Numbers and dates in tables and presenters. An unknown name is ignored. |
 | `CONSOLEMONSTER_LANGUAGE` | a language name such as `de` or `pl` | The language of built-in labels, separately from the number culture. German, Spanish, French and Italian are built in; others fall back to English. |
 | `CONSOLEMONSTER_EMOJI_WIDTH` | `1`, `2` or `auto` | The width of emoji, for consoles that draw them narrow. |

@@ -5,12 +5,12 @@
             $assembly = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'
         }
         Import-Module $assembly -Force
-        $script:OriginalTheme = [ConsoleMonster.Terminal]::Theme
         $script:Fixtures = Join-Path $PSScriptRoot 'Fixtures/Themes'
     }
 
     AfterEach {
-        [ConsoleMonster.Terminal]::Theme = $script:OriginalTheme
+        # Back to the detected theme, so later tests in this session see no chosen theme.
+        Reset-ConsoleSetting Theme
     }
 
     It 'uses the same public C# writer and reader for <Extension> themes' -ForEach @(

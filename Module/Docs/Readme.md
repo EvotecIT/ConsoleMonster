@@ -82,7 +82,7 @@ Returns the enabled feature names, whether compact errors are enabled, and wheth
 ### [Get-ConsoleSetting](Get-ConsoleSetting.md)
 Shows ConsoleMonster's settings: the value of each and where it came from.
 
-Lists the theme, colour, glyphs, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.
+Lists the theme, colour, glyphs, frames (Border), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.
 
 ### [Invoke-ConsoleDashboard](Invoke-ConsoleDashboard.md)
 Runs a console dashboard live while a script does the work.
@@ -422,7 +422,7 @@ Each named field takes its value and shows it at once, text and number boxes inc
 ### [Set-ConsoleSetting](Set-ConsoleSetting.md)
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
 
-Sets Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
 
 ### [Set-ConsoleTheme](Set-ConsoleTheme.md)
 Selects the theme used by every ConsoleMonster widget.

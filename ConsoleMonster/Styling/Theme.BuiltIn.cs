@@ -91,7 +91,7 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Gap] = new ThemeStyle(ThemeColor.Hex("#7339bd", 13, 92)),
                 [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#0f172a", 0, 233), ThemeColor.Hex("#d6e4fa", 7, 189))
             };
-            return new Theme("Light", s);
+            return new Theme("Light", s, new ThemeAppearance(background: ThemeBackground.Light));
         }
 
         private static Theme BuildHighContrast() {

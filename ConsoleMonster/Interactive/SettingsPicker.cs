@@ -210,6 +210,11 @@ namespace ConsoleMonster.Interactive {
                     case "Basic": profile = profile.WithGlyphs(GlyphTier.Basic); break;
                     case "Ascii": profile = profile.WithGlyphs(GlyphTier.Ascii); break;
                 }
+                // Auto leaves the frame and markers to the previewed theme.
+                string border = Value("Border");
+                profile = profile.WithBorder(border == "Auto" || border.Length == 0 ? (BoxStyle?)null : (BoxStyle)Enum.Parse(typeof(BoxStyle), border));
+                string markers = Value("StatusMarkers");
+                profile = profile.WithStatusMarkers(markers == "Auto" || markers.Length == 0 ? (StatusMarkerStyle?)null : (StatusMarkerStyle)Enum.Parse(typeof(StatusMarkerStyle), markers));
                 string culture = Value("Culture");
                 if (culture == "Invariant") { profile = profile.WithCulture(CultureInfo.InvariantCulture); }
                 else if (culture != "Current" && culture.Length > 0) { profile = profile.WithCulture(Culture(culture) ?? profile.Culture); }

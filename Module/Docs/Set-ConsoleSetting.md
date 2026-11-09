@@ -8,7 +8,7 @@ schema: 2.0.0
 ## SYNOPSIS
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
 
-Sets Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,7 +19,7 @@ Set-ConsoleSetting [-Name] <string> [-Value] <string> [-Save] [-WhatIf] [-Confir
 ## DESCRIPTION
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
 
-Sets Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
 
 ## EXAMPLES
 
@@ -39,6 +39,13 @@ Keep animations still and leave the mouse to the terminal, for this session only
 
 ### EXAMPLE 3
 ```powershell
+Set-ConsoleSetting Border Single -Save; Set-ConsoleSetting StatusMarkers Words -Save
+```
+
+Square frames and status words instead of symbols, from now on
+
+### EXAMPLE 4
+```powershell
 # Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
             Set-ConsoleSetting Theme ./team-theme.json -Save
 ```
@@ -48,7 +55,7 @@ Use a team theme file in every session
 ## PARAMETERS
 
 ### -Name
-The setting: Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.
+The setting: Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.
 
 ```yaml
 Type: String

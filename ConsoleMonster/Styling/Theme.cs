@@ -14,7 +14,14 @@ namespace ConsoleMonster.Styling {
         /// <summary>Creates a theme from a complete token table.</summary>
         /// <param name="name">The theme name.</param>
         /// <param name="styles">Styles per token; tokens without an entry render with the terminal default.</param>
-        public Theme(string name, IReadOnlyDictionary<ThemeToken, ThemeStyle> styles) {
+        public Theme(string name, IReadOnlyDictionary<ThemeToken, ThemeStyle> styles) : this(name, styles, null) { }
+
+        /// <summary>Creates a theme from a complete token table and a style.</summary>
+        /// <param name="name">The theme name.</param>
+        /// <param name="styles">Styles per token; tokens without an entry render with the terminal default.</param>
+        /// <param name="appearance">Frames, status markers and background; null uses <see cref="ThemeAppearance.Default"/>.</param>
+        public Theme(string name, IReadOnlyDictionary<ThemeToken, ThemeStyle> styles, ThemeAppearance? appearance) {
+            Appearance = appearance ?? ThemeAppearance.Default;
             if (styles == null) {
                 throw new ArgumentNullException(nameof(styles));
             }
@@ -25,9 +32,10 @@ namespace ConsoleMonster.Styling {
             }
         }
 
-        private Theme(string name, ThemeStyle[] styles) {
+        private Theme(string name, ThemeStyle[] styles, ThemeAppearance appearance) {
             Name = name;
             _styles = styles;
+            Appearance = appearance;
         }
 
         private static int TokenCount => (int)ThemeToken.Gap + 1;
@@ -39,6 +47,15 @@ namespace ConsoleMonster.Styling {
 
         /// <inheritdoc />
         public string Name { get; }
+
+        /// <summary>The style beside the colours: frames, status markers and the background the theme is made for.</summary>
+        public ThemeAppearance Appearance { get; }
+
+        /// <summary>Returns a copy of the theme with another style.</summary>
+        /// <param name="appearance">The style.</param>
+        /// <returns>A new theme.</returns>
+        public Theme WithAppearance(ThemeAppearance appearance) =>
+            new Theme(Name, (ThemeStyle[])_styles.Clone(), appearance ?? throw new ArgumentNullException(nameof(appearance)));
 
         /// <summary>Returns the definition of a token.</summary>
         /// <param name="token">The token.</param>
@@ -65,13 +82,13 @@ namespace ConsoleMonster.Styling {
         public Theme With(ThemeToken token, ThemeStyle style) {
             ThemeStyle[] copy = (ThemeStyle[])_styles.Clone();
             copy[(int)token] = style;
-            return new Theme(Name, copy);
+            return new Theme(Name, copy, Appearance);
         }
 
         /// <summary>Returns a copy of the theme under a new name.</summary>
         /// <param name="name">The name.</param>
         /// <returns>A new theme.</returns>
-        public Theme Rename(string name) => new Theme(name ?? throw new ArgumentNullException(nameof(name)), (ThemeStyle[])_styles.Clone());
+        public Theme Rename(string name) => new Theme(name ?? throw new ArgumentNullException(nameof(name)), (ThemeStyle[])_styles.Clone(), Appearance);
 
         /// <summary>Parses a token name case-insensitively (<c>pass</c>, <c>Muted</c>, <c>series3</c>).</summary>
         /// <param name="name">The name.</param>

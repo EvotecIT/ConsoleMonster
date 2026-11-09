@@ -232,6 +232,37 @@ namespace ConsoleMonster.Capabilities {
         /// </summary>
         public CultureInfo? Language { get; private set; }
 
+        /// <summary>
+        /// The frame for panels, tables and inputs that use the default frame, chosen with <c>CONSOLEMONSTER_BORDER</c> or the
+        /// Border setting; null uses the theme's (<see cref="Styling.ThemeAppearance.Border"/>). Set with <see cref="WithBorder"/>.
+        /// </summary>
+        public global::ConsoleMonster.Glyphs.BoxStyle? Border { get; private set; }
+
+        /// <summary>
+        /// How statuses are marked, chosen with <c>CONSOLEMONSTER_STATUS_MARKERS</c> or the StatusMarkers setting; null uses the
+        /// theme's (<see cref="Styling.ThemeAppearance.StatusMarkers"/>). Set with <see cref="WithStatusMarkers"/>.
+        /// </summary>
+        public Styling.StatusMarkerStyle? StatusMarkers { get; private set; }
+
+        /// <summary>Returns a copy that draws default frames with this style, whatever the theme says.</summary>
+        /// <param name="border">The frame, or null to follow the theme. <see cref="T:ConsoleMonster.Glyphs.BoxStyle"/> None is not a frame style.</param>
+        /// <returns>The copy.</returns>
+        public TerminalProfile WithBorder(global::ConsoleMonster.Glyphs.BoxStyle? border) {
+            if (border == global::ConsoleMonster.Glyphs.BoxStyle.None) { throw new ArgumentException("Choose a frame style; widgets draw no frame themselves.", nameof(border)); }
+            TerminalProfile copy = Copy();
+            copy.Border = border;
+            return copy;
+        }
+
+        /// <summary>Returns a copy that marks statuses this way, whatever the theme says.</summary>
+        /// <param name="markers">The markers, or null to follow the theme.</param>
+        /// <returns>The copy.</returns>
+        public TerminalProfile WithStatusMarkers(Styling.StatusMarkerStyle? markers) {
+            TerminalProfile copy = Copy();
+            copy.StatusMarkers = markers;
+            return copy;
+        }
+
         /// <summary>Whether accessible interaction and append-only live narration were requested.</summary>
         public bool IsAccessible { get; private set; }
 
@@ -302,7 +333,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
                 IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
-                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride
+                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers
             };
         }
 
@@ -377,7 +408,7 @@ namespace ConsoleMonster.Capabilities {
                 themePreference ?? ThemePreference,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers
             };
         }
     }
