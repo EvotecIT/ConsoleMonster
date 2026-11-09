@@ -56,34 +56,25 @@ namespace ConsoleMonster.Tests.Themes {
             }
         }
 
-        /// <summary>
-        /// Pass, warning and fail must stay apart for red-green colour blindness, not just in normal vision: each pair keeps a
-        /// CIELAB distance of at least 25 after a full-severity protanopia and deuteranopia simulation (Machado et al. 2009),
-        /// and each status keeps WCAG 4.5:1 contrast against its intended background.
-        /// </summary>
+        /// <summary>Presets report their real status separation; the accessible variants also meet every contrast and fill rule.</summary>
         [Theory]
-        [InlineData("ColorBlindSafe", 0x1e, 0x1e, 0x1e)]
-        [InlineData("ColorBlindSafeLight", 0xff, 0xff, 0xff)]
-        public void ColorBlindSafe_StatusesStayDistinctUnderSimulatedRedGreenColourBlindness(string name, byte r, byte g, byte b) {
-            Theme theme = Theme.FromName(name);
-            ThemeToken[] statuses = { ThemeToken.Pass, ThemeToken.Warn, ThemeToken.Fail };
-            Color[] colours = statuses.Select(token => theme.Resolve(token, ColorDepth.TrueColor).Color).ToArray();
-            double[] background = Linear(r, g, b);
-            foreach (Color colour in colours) {
-                Assert.True(Contrast(Linear(colour.R, colour.G, colour.B), background) >= 4.5, name + " " + colour + " contrast");
-            }
-            double[][][] simulations = {
-                new[] { new[] { 0.152286, 1.052583, -0.204868 }, new[] { 0.114503, 0.786281, 0.099216 }, new[] { -0.003882, -0.048116, 1.051998 } },
-                new[] { new[] { 0.367322, 0.860646, -0.227968 }, new[] { 0.280085, 0.672501, 0.047413 }, new[] { -0.011820, 0.042940, 0.968881 } }
-            };
-            foreach (double[][] matrix in simulations) {
-                double[][] lab = colours.Select(colour => Lab(Simulate(matrix, Linear(colour.R, colour.G, colour.B)))).ToArray();
-                for (int i = 0; i < lab.Length; i++) {
-                    for (int j = i + 1; j < lab.Length; j++) {
-                        double distance = Math.Sqrt(lab[i].Zip(lab[j], (x, y) => (x - y) * (x - y)).Sum());
-                        Assert.True(distance >= 25, name + " " + statuses[i] + "/" + statuses[j] + " distance " + distance.ToString("0"));
-                    }
-                }
+        [InlineData("Dark", false)]
+        [InlineData("Light", false)]
+        [InlineData("HighContrast", false)]
+        [InlineData("ColorBlindSafe", true)]
+        [InlineData("ColorBlindSafeLight", true)]
+        [InlineData("ConsoleViewDark", false)]
+        [InlineData("ConsoleViewLight", false)]
+        public void PresetsReportTheirActualAccessibility(string name, bool colourBlindSafe) {
+            ITheme theme = name == "ConsoleViewDark" ? Theme.ConsoleViewDark : name == "ConsoleViewLight" ? Theme.ConsoleViewLight : Theme.FromName(name);
+            ThemeCheckReport report = ThemeCheck.Run(theme);
+            Assert.Equal(colourBlindSafe, report.Passed);
+            Assert.Equal(colourBlindSafe, report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision).All(result => result.Outcome == ThemeCheckOutcome.Pass));
+            Assert.All(report.Results.Where(result => result.Check == ThemeCheckKind.Markers), result => Assert.Equal(ThemeCheckOutcome.Pass, result.Outcome));
+            if (colourBlindSafe) {
+                Assert.All(report.Results, result => Assert.Equal(ThemeCheckOutcome.Pass, result.Outcome));
+                double minimum = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Detail.Contains("tritanopia")).Min(result => result.Value!.Value);
+                Assert.InRange(minimum, name == "ColorBlindSafe" ? 59.7 : 46.5, name == "ColorBlindSafe" ? 59.8 : 46.6);
             }
         }
 
@@ -96,23 +87,5 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile.WithThemePreference(ThemePreference.ColorBlind)));
         }
 
-        private static double[] Linear(byte r, byte g, byte b) =>
-            new[] { r, g, b }.Select(v => v / 255.0).Select(v => v <= 0.04045 ? v / 12.92 : Math.Pow((v + 0.055) / 1.055, 2.4)).ToArray();
-
-        private static double Luminance(double[] c) => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-
-        private static double Contrast(double[] a, double[] b) {
-            double la = Luminance(a), lb = Luminance(b);
-            return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
-        }
-
-        private static double[] Simulate(double[][] m, double[] c) =>
-            m.Select(row => Math.Min(1, Math.Max(0, row[0] * c[0] + row[1] * c[1] + row[2] * c[2]))).ToArray();
-
-        private static double[] Lab(double[] c) {
-            double x = (0.4124 * c[0] + 0.3576 * c[1] + 0.1805 * c[2]) / 0.95047, y = Luminance(c), z = (0.0193 * c[0] + 0.1192 * c[1] + 0.9505 * c[2]) / 1.08883;
-            Func<double, double> f = t => t > 0.008856 ? Math.Pow(t, 1.0 / 3) : 7.787 * t + 16.0 / 116;
-            return new[] { 116 * f(y) - 16, 500 * (f(x) - f(y)), 200 * (f(y) - f(z)) };
-        }
     }
 }

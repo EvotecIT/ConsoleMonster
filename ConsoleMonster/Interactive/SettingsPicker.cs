@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
@@ -193,9 +194,32 @@ namespace ConsoleMonster.Interactive {
 
             public IReadOnlyList<IWidget> Children => new[] { _child };
 
-            public Size Measure(Constraints constraints, RenderContext context) => _child.Measure(constraints, Scoped(context));
+            public Size Measure(Constraints constraints, RenderContext context) {
+                RenderContext scoped = Scoped(context);
+                return WithCheck(scoped, constraints.MaxWidth).Measure(constraints, scoped);
+            }
 
-            public void Render(Region region, RenderContext context) => _child.Render(region, Scoped(context));
+            public void Render(Region region, RenderContext context) {
+                RenderContext scoped = Scoped(context);
+                WithCheck(scoped, region.Width).Render(region, scoped);
+            }
+
+            private IWidget WithCheck(RenderContext context, int width) {
+                ThemeCheckReport report = ThemeCheck.Run(context.Theme, new ThemeCheckOptions { GlyphTier = context.Profile.Glyphs, StatusMarkers = context.Profile.StatusMarkers });
+                ThemeCheckResult? failed = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
+                bool unknown = report.Results.Any(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Unknown);
+                string verdict = failed == null ? (unknown ? "unknown" : "yes") : "no";
+                string summary = (width >= 40 ? "Statuses apart for colour-blind users: " : "Colour-blind statuses: ") + verdict;
+                string detail = failed == null ? string.Empty : string.Join("/", failed.Tokens) + " " + failed.Detail.ToLowerInvariant().Replace("too close under ", "too close: ");
+                ThemeCheckResult? contrast = report.Results.Where(result => result.Check == ThemeCheckKind.Contrast && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
+                if (contrast != null) {
+                    string ratio = "Text contrast: " + contrast.Value!.Value.ToString("0.0", CultureInfo.InvariantCulture) + ":1";
+                    detail += (detail.Length > 0 ? " " : string.Empty) + ratio;
+                }
+                Rows notes = new Rows(new TextBlock(summary) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis });
+                if (detail.Length > 0) { notes.Add(new TextBlock(detail) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }); }
+                return new Rows(_child, notes) { Gap = 1 };
+            }
 
             private RenderContext Scoped(RenderContext context) {
                 TerminalProfile profile = context.Profile;
