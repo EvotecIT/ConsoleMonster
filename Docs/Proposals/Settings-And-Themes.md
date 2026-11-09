@@ -161,7 +161,8 @@ Schema version 2 adds an optional `Style` section to theme files. Version 1 file
 - `Border`: the default `BoxStyle` for panels, tables and rules. A widget's own `-Border` still wins. `Ascii` is still
   forced by the ASCII glyph tier.
 - `Density`: `Comfortable` (today) or `Compact` (no boxed table cell padding, smaller default gaps in unboxed tables and lists, no default
-  horizontal panel padding or gap between layout tiles; explicit spacing stays as authored).
+  horizontal panel padding or gap between framed layout tiles. Unframed children keep one-cell separation,
+  and larger default gaps shrink by one; explicit spacing stays as authored).
 - `StatusMarkers`: `Symbols` (✓ ✗ ▲, today), `Words` (`[PASS]`, `[FAIL]`, the ASCII forms at any glyph tier) or `Both`.
   Words help screen-reader users and people who find small symbols hard to tell apart.
 - `HeaderDecoration`: how table and section headers are emphasised when the token's decoration is not enough.

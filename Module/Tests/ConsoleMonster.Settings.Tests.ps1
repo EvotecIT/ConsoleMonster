@@ -1,4 +1,4 @@
-Describe 'Settings saved for every session' {
+﻿Describe 'Settings saved for every session' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -80,9 +80,9 @@ $explicit = New-ConsolePanel -NoExpand -PaddingLeft 1 -PaddingRight 1 -Content {
 $default = New-ConsoleKeyValue -InputObject @{ Key = 'value' } | Export-ConsoleFrame -Format Text -Width 20 -Theme Current
 $explicit = New-ConsoleKeyValue -InputObject @{ Key = 'value' } -Gap 2 | Export-ConsoleFrame -Format Text -Width 20 -Theme Current
 "lists=$($default.Trim() -eq 'Key value')/$($explicit.Trim() -eq 'Key  value')"
-$default = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 2 -Theme Current
+$default = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 3 -Theme Current
 $explicit = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -ColumnGap 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 3 -Theme Current
-"grids=$($default.Trim() -eq 'ab')/$($explicit.Trim() -eq 'a b')"
+"grids=$($default.Trim() -eq 'a b')/$($explicit.Trim() -eq 'a b')"
 Reset-ConsoleSetting Density
 "restored=$((Get-ConsoleSetting Density).Value)/$((Get-ConsoleSetting Density).Source)"
 '@
@@ -92,6 +92,20 @@ Reset-ConsoleSetting Density
         $text | Should -Match 'grids=True/True'
         $text | Should -Match 'restored=Compact/File'
         (Get-Content -LiteralPath $script:File -Raw | ConvertFrom-Json).Density | Should -Be 'Compact'
+    }
+
+    It 'fits complete choice labels at 110 columns and still renders below their natural width' {
+        $text = Invoke-SettingsChild -File $script:File -Script @'
+Set-ConsoleTheme Dark
+Set-ConsoleSetting Glyphs Full
+Set-ConsoleSetting Density Comfortable
+$wide = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+$narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+"wide=$($wide.Text -match 'Density.*Comfortable \(default\)')"
+"narrow=$($narrow.Text -match 'Density')/$($narrow.Text -match 'Comfortable \(default\)')"
+'@
+        $text | Should -Match 'wide=True'
+        $text | Should -Match 'narrow=True/False'
     }
 
     It 'saves what is chosen in the settings picker, and Escape changes nothing' {

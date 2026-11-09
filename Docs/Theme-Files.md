@@ -139,7 +139,8 @@ Version `2` adds an optional `Style` section beside the colours:
 `Heavy` or `Ascii`); a widget that names its own frame keeps it, and the ASCII glyph tier still draws ASCII.
 `Density` is `Comfortable` (the default) or `Compact`. Compact removes boxed table cell padding, reduces default
 unboxed table and list gaps from two cells to one, removes default horizontal panel padding and closes default
-layout tile gaps. Explicit padding, gaps and column gaps stay as authored. `Set-ConsoleSetting Density Compact`
+gaps between framed layout tiles. A one-cell default gap between unframed children stays one; larger default
+gaps shrink by one. Explicit padding, gaps and column gaps stay as authored. `Set-ConsoleSetting Density Compact`
 or `CONSOLEMONSTER_DENSITY=compact` overrides the theme; C# uses `TerminalProfile.WithDensity`.
 `StatusMarkers` is `Symbols` (✓ ✗ ▴) or `Words` (`[OK]` `[FAIL]` `[WARN]` at every glyph tier). `Background` is the
 background the theme is made for, which `Export-ConsoleFrame` uses for the page. Omitted fields inherit from

@@ -21,6 +21,33 @@ public sealed class DashboardFrameTests {
     private static string[] Lines(string text) => text.Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
 
     [Fact]
+    public void CompactSummaryColumnsShrinkTheirDefaultGapButKeepSeparation() {
+        DashboardFrame frame = new DashboardFrame("Summary");
+        frame.Sections.Add(new FrameSection("A", _ => new TextBlock("x") { Alignment = global::ConsoleMonster.Layout.HorizontalAlignment.Right }) { MinWidth = 10, MaxWidth = 10 });
+        frame.Sections.Add(new FrameSection("B", _ => new TextBlock("y")) { MinWidth = 10, MaxWidth = 10 });
+        frame.Scale = FrameScale.Of(100, 30, ConsoleViewLength.Standard);
+        foreach (var density in new[] { Styling.ThemeDensity.Comfortable, Styling.ThemeDensity.Compact }) {
+            var context = Terminal.CreateContext(TestTerminal.Profile(100).WithDensity(density), Styling.Theme.Dark);
+            string text = global::ConsoleMonster.Rendering.FrameComposer.RenderBlock(frame, 100, context).ToPlainText();
+            string row = Assert.Single(Lines(text), line => line.Contains("x") && line.Contains("y"));
+            Assert.Contains(density == Styling.ThemeDensity.Compact ? "x y" : "x  y", row);
+        }
+    }
+
+    [Fact]
+    public void CompactMeterTilesShrinkTheirDefaultGapInMeasurementAndDrawing() {
+        var meters = new[] { Meter.Count("Left", 1), Meter.Count("Right", 2) };
+        MeterRow tiles = new MeterRow(meters, FrameScale.Of(100, 30));
+        foreach (var density in new[] { Styling.ThemeDensity.Comfortable, Styling.ThemeDensity.Compact }) {
+            var context = Terminal.CreateContext(TestTerminal.Profile(100).WithDensity(density), Styling.Theme.Dark);
+            int gap = density == Styling.ThemeDensity.Compact ? 1 : 2;
+            Assert.Equal(56 + gap, tiles.Measure(new global::ConsoleMonster.Layout.Constraints(100), context).Width);
+            string text = global::ConsoleMonster.Rendering.FrameComposer.RenderBlock(tiles, 100, context).ToPlainText();
+            Assert.Equal(28 + gap, Lines(text)[0].IndexOf("Right", StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
     public void FluentBuilderDrawsTheSameFrameAsTheInitializerForm() {
         DashboardFrame declared = new DashboardFrame("Server estate");
         declared.Header.Facts.Add("48 servers");
@@ -225,14 +252,17 @@ public sealed class DashboardFrameTests {
         Assert.True(Lines(text).Count(line => line.TrimStart().StartsWith("Host")) >= 8);
     }
 
-    [Fact]
-    public void GroupedRows_WideTerminal_FlowsGroupsWithoutSplittingThem() {
+    [Theory]
+    [InlineData(Styling.ThemeDensity.Comfortable)]
+    [InlineData(Styling.ThemeDensity.Compact)]
+    public void GroupedRows_WideTerminal_FlowsGroupsWithoutSplittingThem(Styling.ThemeDensity density) {
         string[] names = Enumerable.Range(1, 40).Select(i => "HOST" + i.ToString("00")).ToArray();
         GroupedRows<string> rows = new GroupedRows<string>(names, name => "Site " + ((int.Parse(name.Substring(4)) - 1) / 10 + 1), FrameScale.Of(220, 60));
         rows.Columns.Add(new GroupedColumn<string>("Host", (name, _) => name) { Width = 40 });
         rows.Columns.Add(new GroupedColumn<string>("Note", (name, _) => "ok") { Width = 40 });
-        string[] lines = Lines(TestTerminal.RenderText(rows, 218, 0, GlyphTier.Full, CultureInfo.InvariantCulture));
+        string[] lines = Lines(Terminal.RenderText(rows, TestTerminal.Profile(218).WithDensity(density), Styling.Theme.Dark));
         Assert.Equal(2, lines[0].Split(new[] { "Host" }, StringSplitOptions.None).Length - 1);
+        Assert.Equal(density == Styling.ThemeDensity.Compact ? 85 : 86, lines[0].IndexOf("Host", 4, StringComparison.Ordinal));
         foreach (string site in new[] { "Site 1", "Site 2", "Site 3", "Site 4" }) Assert.Single(lines, line => line.Contains(site));
     }
 
@@ -253,7 +283,7 @@ public sealed class DashboardFrameTests {
     [InlineData(80, 24, 2, 1)]
     public void Scale_FollowsTheTerminalSize(int width, int height, int tiles, int columns) {
         FrameScale scale = FrameScale.Of(width, height);
-        Assert.Equal(tiles, scale.MeterTiles);
+        Assert.Equal(tiles, scale.MeterTiles());
         Assert.Equal(columns, scale.DetailColumns(96));
         Assert.Equal(Math.Max(20, height - 6), scale.HeaderRepeat);
         Assert.Null(scale.AttentionCap);

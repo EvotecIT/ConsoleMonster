@@ -185,8 +185,8 @@ public sealed class GroupedRows<T> : IWidget {
         return FrameText.Line(markup, context);
     }
 
-    private List<List<StyledLine>> Flow(Layout layout, int width) {
-        int flows = Math.Max(1, Math.Min(Scale.DetailColumns(layout.Total), (width + FlowGap) / (layout.Total + FlowGap)));
+    private List<List<StyledLine>> Flow(Layout layout, int width, int gap) {
+        int flows = Math.Max(1, Math.Min(Scale.DetailColumns(layout.Total, gap), (width + gap) / (layout.Total + gap)));
         if (flows > 1) {
             // Whole groups fill each column up to an even share; a group never splits across columns.
             List<List<StyledLine>> columns = new List<List<StyledLine>>();
@@ -222,9 +222,10 @@ public sealed class GroupedRows<T> : IWidget {
     /// <inheritdoc />
     public Size Measure(Constraints constraints, RenderContext context) {
         Layout layout = Build(constraints.MaxWidth, context);
-        List<List<StyledLine>> flows = Flow(layout, constraints.MaxWidth);
+        int gap = LayoutSpacing.Gap(FlowGap, context);
+        List<List<StyledLine>> flows = Flow(layout, constraints.MaxWidth, gap);
         int height = flows.Max(column => column.Count) + layout.Notes.Count;
-        int width = flows.Count * layout.Total + (flows.Count - 1) * FlowGap;
+        int width = flows.Count * layout.Total + (flows.Count - 1) * gap;
         foreach (StyledLine note in layout.Notes) width = Math.Max(width, note.Width);
         return new Size(Math.Min(constraints.MaxWidth, width), Math.Min(constraints.MaxHeight, height));
     }
@@ -232,11 +233,12 @@ public sealed class GroupedRows<T> : IWidget {
     /// <inheritdoc />
     public void Render(Region region, RenderContext context) {
         Layout layout = Build(region.Width, context);
-        List<List<StyledLine>> flows = Flow(layout, region.Width);
+        int gap = LayoutSpacing.Gap(FlowGap, context);
+        List<List<StyledLine>> flows = Flow(layout, region.Width, gap);
         int x = 0;
         foreach (List<StyledLine> column in flows) {
             for (int y = 0; y < column.Count && y < region.Height; y++) region.Write(x, y, column[y], layout.Total);
-            x += layout.Total + FlowGap;
+            x += layout.Total + gap;
         }
         int top = flows.Max(column => column.Count);
         for (int i = 0; i < layout.Notes.Count && top + i < region.Height; i++) region.Write(0, top + i, layout.Notes[i], region.Width);

@@ -32,6 +32,21 @@ namespace ConsoleMonster.Layout {
         public int ColumnGap { get => _columnGap ?? 1; set => _columnGap = value; }
         private int? _columnGap;
 
+        private int EffectiveGap(int width, int maxHeight, RenderContext context) {
+            int gap = _columnGap ?? LayoutSpacing.Gap(1, context, _children);
+            if (_columnGap.HasValue || gap != 0) { return gap; }
+            int columns = EffectiveColumns(width, 0);
+            int[] widths = ColumnWidths(width, columns, 0);
+            foreach (int cellWidth in widths) { if (cellWidth < 2) { return 1; } }
+            int y = 0;
+            foreach (int height in RowHeights(widths, columns, maxHeight, context)) {
+                // Include clipping of later rows: a one-row panel renders without its border.
+                if (y < maxHeight && Math.Min(height, maxHeight - y) < 2) { return 1; }
+                y += height + RowGap;
+            }
+            return 0;
+        }
+
         /// <summary>Blank rows between grid rows (default 0).</summary>
         public int RowGap { get; set; }
 
@@ -56,8 +71,9 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
-            int columns = EffectiveColumns(constraints.MaxWidth, context);
-            int[] widths = ColumnWidths(constraints.MaxWidth, columns, context);
+            int gap = EffectiveGap(constraints.MaxWidth, constraints.MaxHeight, context);
+            int columns = EffectiveColumns(constraints.MaxWidth, gap);
+            int[] widths = ColumnWidths(constraints.MaxWidth, columns, gap);
             int[] heights = RowHeights(widths, columns, constraints.MaxHeight, context);
             int height = TrackAllocator.Sum(heights) + (RowGap * Math.Max(0, heights.Length - 1));
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -65,8 +81,9 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
-            int columns = EffectiveColumns(region.Width, context);
-            int[] widths = ColumnWidths(region.Width, columns, context);
+            int gap = EffectiveGap(region.Width, region.Height, context);
+            int columns = EffectiveColumns(region.Width, gap);
+            int[] widths = ColumnWidths(region.Width, columns, gap);
             int[] heights = RowHeights(widths, columns, region.Height, context);
             int used = TrackAllocator.Sum(heights) + (RowGap * Math.Max(0, heights.Length - 1));
             if (FillHeight && heights.Length > 0 && used < region.Height) {
@@ -84,14 +101,13 @@ namespace ConsoleMonster.Layout {
                         break;
                     }
                     _children[index].Render(region.Sub(x, y, widths[c], heights[r]), context);
-                    x += widths[c] + (_columnGap ?? context.DefaultSpacing(1, 0));
+                    x += widths[c] + gap;
                 }
                 y += heights[r] + RowGap;
             }
         }
 
-        private int EffectiveColumns(int width, RenderContext context) {
-            int gap = _columnGap ?? context.DefaultSpacing(1, 0);
+        private int EffectiveColumns(int width, int gap) {
             int columns = Math.Min(Columns, Math.Max(1, _children.Count));
             while (columns > 1 && (width - (gap * (columns - 1))) / columns < MinColumnWidth) {
                 columns--;
@@ -99,8 +115,7 @@ namespace ConsoleMonster.Layout {
             return columns;
         }
 
-        private int[] ColumnWidths(int width, int columns, RenderContext context) {
-            int gap = _columnGap ?? context.DefaultSpacing(1, 0);
+        private static int[] ColumnWidths(int width, int columns, int gap) {
             int[] widths = new int[columns];
             int space = Math.Max(0, width - (gap * (columns - 1)));
             for (int c = 0; c < columns; c++) {

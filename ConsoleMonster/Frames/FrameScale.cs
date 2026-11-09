@@ -86,7 +86,7 @@ public sealed class FrameScale {
     /// <summary>Usable width: one gutter cell on the left and one free cell on the right.</summary>
     public int ContentWidth => Math.Max(0, Width - 2);
     /// <summary>Meter tiles per line (28 cells plus a 2-cell gap each).</summary>
-    internal int MeterTiles => Math.Max(1, Width / 30);
+    internal int MeterTiles(int gap = 2) => Math.Max(1, Width / (Meter.TileWidth + gap));
     /// <summary>Whether sections stack full width instead of packing side by side.</summary>
     internal bool Stacked => Width < 100;
     /// <summary>Most attention items in <see cref="ConsoleViewLength.Summary"/>; null means uncapped.</summary>
@@ -99,8 +99,8 @@ public sealed class FrameScale {
     internal int HeaderRepeat => Math.Max(20, Height - 6);
 
     /// <summary>How many columns a detail table of this minimum width flows into.</summary>
-    /// <param name="minimumWidth">The table's minimum width.</param><returns>One to three columns.</returns>
-    internal int DetailColumns(int minimumWidth) => Math.Max(1, Math.Min(3, (ContentWidth + 4) / (Math.Max(1, minimumWidth) + 4)));
+    /// <param name="minimumWidth">The table's minimum width.</param><param name="gap">Cells between flowed groups.</param><returns>One to three columns.</returns>
+    internal int DetailColumns(int minimumWidth, int gap = 4) => Math.Max(1, Math.Min(3, (ContentWidth + gap) / (Math.Max(1, minimumWidth) + gap)));
 
     /// <summary>How many matrix columns fit after a label block.</summary>
     /// <param name="labelWidth">Cells taken by row labels.</param><param name="cellWidth">Cells per column including its gap.</param><param name="width">Available width, or the content width.</param>

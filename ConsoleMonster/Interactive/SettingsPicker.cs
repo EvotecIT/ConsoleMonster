@@ -41,11 +41,14 @@ namespace ConsoleMonster.Interactive {
             Dictionary<string, Select> selects = new Dictionary<string, Select>(StringComparer.Ordinal);
             Rows choices = new Rows();
             int labelWidth = 0;
+            int choiceWidth = 0;
             foreach (ConsoleSetting setting in settings) { labelWidth = Math.Max(labelWidth, setting.Name.Length + 2); }
             foreach (ConsoleSetting setting in settings) {
                 List<Choice> list = new List<Choice>();
                 foreach (string value in Values(setting)) {
-                    list.Add(new Choice(value, Label(setting, value)));
+                    string choiceLabel = Label(setting, value);
+                    choiceWidth = Math.Max(choiceWidth, DisplayWidth.Measure(choiceLabel));
+                    list.Add(new Choice(value, choiceLabel));
                 }
                 // One row per setting: its name, then a dropdown without a frame of its own.
                 Select select = new Select(setting.Name, list) { Label = setting.Name, Dropdown = true, Border = Glyphs.BoxStyle.None, LinkKey = "settings.link." + setting.Name };
@@ -65,7 +68,8 @@ namespace ConsoleMonster.Interactive {
             Columns buttons = new Columns().Add(save, LayoutSize.Fixed(10)).Add(apply, LayoutSize.Fixed(13)).Add(cancel, LayoutSize.Fixed(12));
             Rows left = new Rows(new Panel(choices, "Settings"), buttons, new AppBinding(current => Notes(settings, selects))) { Gap = 1 };
             AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current)), "settings.preview");
-            Columns body = new Columns().Add(left, LayoutSize.Fraction(2, 30)).Add(new Panel(preview, "Preview"), LayoutSize.Fraction(3, 40));
+            int settingsWidth = labelWidth + 1 + 2 + choiceWidth + 2 + 4; // Row gap, focus gutter, dropdown mark, panel borders and padding.
+            Columns body = new Columns().Add(left, LayoutSize.Fraction(2, settingsWidth)).Add(new Panel(preview, "Preview"), LayoutSize.Fraction(3, 40));
             Rows layout = new Rows(
                 new TextBlock("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
                 body) { Gap = 1 };

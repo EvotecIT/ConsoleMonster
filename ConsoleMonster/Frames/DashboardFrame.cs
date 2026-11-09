@@ -156,6 +156,7 @@ public sealed class DashboardFrame : IWidget {
     /// </summary>
     private static List<IWidget> Summary(List<FrameSection> sections, int content, FrameScale scale, RenderContext context) {
         List<IWidget> rows = new List<IWidget>();
+        int gap = LayoutSpacing.Gap(SectionGap, context);
         int index = 0;
         while (index < sections.Count) {
             List<FrameSection> row = new List<FrameSection>();
@@ -164,8 +165,8 @@ public sealed class DashboardFrame : IWidget {
                 FrameSection section = sections[index];
                 int minimum = section.Minimum(content, scale, context);
                 bool alone = scale.Stacked || section.FullWidth || (row.Count > 0 && row[0].FullWidth);
-                if (row.Count > 0 && (alone || used + SectionGap + minimum > content)) break;
-                used += (row.Count > 0 ? SectionGap : 0) + minimum;
+                if (row.Count > 0 && (alone || used + gap + minimum > content)) break;
+                used += (row.Count > 0 ? gap : 0) + minimum;
                 row.Add(section);
                 index++;
             }
@@ -192,14 +193,14 @@ public sealed class DashboardFrame : IWidget {
                 heights[target] += 1 + block.Measure(new Constraints(width), context).Height;
                 index++;
             }
-            rows.Add(new Lane(columns, widths, SectionGap));
+            rows.Add(new Lane(columns, widths, gap));
         }
         return rows;
     }
 
     /// <summary>Shares a row's width: minimums first, then natural widths for fixed sections, then the rest by grow weight.</summary>
     private static int[] Widths(List<FrameSection> row, int content, FrameScale scale, RenderContext context) {
-        int available = content - SectionGap * (row.Count - 1);
+        int available = content - LayoutSpacing.Gap(SectionGap, context) * (row.Count - 1);
         int[] minimum = new int[row.Count];
         int[] natural = new int[row.Count];
         int[] widths = new int[row.Count];

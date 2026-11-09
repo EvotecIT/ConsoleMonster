@@ -82,7 +82,8 @@ for one run; in C#, `Theme.WithAppearance` gives a theme its style and `Terminal
 
 `Comfortable` keeps today's spacing and is the default. `Compact` removes boxed table cell padding, reduces
 unboxed table and list gaps from two cells to one, removes default horizontal panel padding, and closes the
-default gap between layout tiles. Spaces already one cell wide stay as they are. Explicit padding, gaps and
+default gap between framed layout tiles. Unframed children keep at least one cell of default separation;
+larger default gaps shrink by one. Explicit padding, gaps and
 column gaps keep the values the author set. In C#, use `new ThemeAppearance(ThemeDensity.Compact)` with
 `Theme.WithAppearance`, or `profile.WithDensity(ThemeDensity.Compact)` for an override.
 
