@@ -11,8 +11,8 @@ using Xunit;
 namespace ConsoleMonster.Tests.Rendering {
     /// <summary>Width negotiation, overflow, stable widths, cards, record views, groups, totals and top-N.</summary>
     public sealed class TableNegotiationTests {
-        private static string Render(Table table, int width, GlyphTier tier = GlyphTier.Full) {
-            return TableShowcaseGoldenTests.WithInvariantCulture(() => Terminal.RenderText(table, TerminalProfile.Fixed(width, 60, ColorDepth.None, tier), Theme.Dark));
+        private static string Render(Table table, int width, GlyphTier tier = GlyphTier.Full, ThemeDensity? density = null) {
+            return TableShowcaseGoldenTests.WithInvariantCulture(() => Terminal.RenderText(table, TerminalProfile.Fixed(width, 60, ColorDepth.None, tier).WithDensity(density), Theme.Dark));
         }
 
         private static Table Wide() {
@@ -286,8 +286,10 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Contains("Showing 3 of 6 · 2 of 3 groups", text);
         }
 
-        [Fact]
-        public void Table_GroupHeadingWiderThanTheFirstColumn_WidensItSoNoColumnLineIsCovered() {
+        [Theory]
+        [InlineData(ThemeDensity.Comfortable)]
+        [InlineData(ThemeDensity.Compact)]
+        public void Table_GroupHeadingWiderThanTheFirstColumn_WidensItSoNoColumnLineIsCovered(ThemeDensity density) {
             Table grouped = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
             grouped.AddColumn(new TableColumn("Host"));
             grouped.AddColumn(new TableColumn("Name"));
@@ -296,7 +298,7 @@ namespace ConsoleMonster.Tests.Rendering {
             grouped.AddValues("dc01.example.test", "dc01", 3);
             grouped.AddGroup("Domain controllers");
             grouped.AddValues("dc02.example.test", "dc02", 4);
-            string[] lines = Render(grouped, 80).Replace("\r\n", "\n").Split('\n');
+            string[] lines = Render(grouped, 80, density: density).Replace("\r\n", "\n").Split('\n');
             string row = Array.Find(lines, line => line.Contains("dc02"))!;
             foreach (string rule in lines.Where(line => line.Contains("Small") || line.Contains("Domain controllers"))) {
                 for (int i = 0; i < row.Length; i++) {

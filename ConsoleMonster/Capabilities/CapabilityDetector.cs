@@ -283,7 +283,8 @@ namespace ConsoleMonster.Capabilities {
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
                 profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) { ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource }.WithLanguage(profile.Language)
-                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride);
+                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride)
+                .WithBorder(profile.Border).WithStatusMarkers(profile.StatusMarkers).WithDensity(profile.Density);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {

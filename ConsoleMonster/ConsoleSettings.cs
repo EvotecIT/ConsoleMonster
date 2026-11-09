@@ -114,7 +114,7 @@ namespace ConsoleMonster {
                 new[] { "Auto", "Rounded", "Single", "Double", "Heavy", "Ascii" }),
             new Definition("Density", "CONSOLEMONSTER_DENSITY", "Comfortable",
                 "Spacing chosen by widgets. Compact reduces default padding and gaps; explicit spacing stays as authored.",
-                new[] { "Comfortable", "Compact" }),
+                new[] { "Comfortable", "Compact" }, value => value.ToLowerInvariant()),
             new Definition("StatusMarkers", "CONSOLEMONSTER_STATUS_MARKERS", "Auto",
                 "How statuses are marked: Symbols (✓ ✗ ▴) or Words ([OK] [FAIL] [WARN]), which suit screen readers. Auto uses the theme's.",
                 new[] { "Auto", "Symbols", "Words" }),
@@ -202,6 +202,9 @@ namespace ConsoleMonster {
         public static IReadOnlyList<string> Problems {
             get { lock (Gate) { EnsureLoaded(); return _problems.ToArray(); } }
         }
+
+        // Only values mapped to an absent variable mean "use detection/the theme". A literal default can still override a theme.
+        internal static bool UsesDetection(string name, string value) => Find(name).ToVariable(value) == null;
 
         /// <summary>One effective setting.</summary>
         /// <param name="name">The setting name (case-insensitive).</param>

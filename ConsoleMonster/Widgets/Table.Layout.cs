@@ -528,7 +528,7 @@ namespace ConsoleMonster.Widgets {
             bool ruled = !GroupHeadersAsRows && (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule));
             if (ruled) {
                 // Boxed "├─ label ─┼": the label, a space either side and a rule glyph either side; Minimal "─ label ─ ".
-                int want = label + (IsBoxed ? 2 : 4);
+                int want = label + (IsBoxed ? 4 - 2 * gap : 4);
                 int grow = want - widths[0] <= Math.Max(8, widths[0]) ? Math.Min(Math.Min(want, CapOf(visible[0])) - widths[0], free) : 0;
                 if (grow > 0) {
                     widths[0] += grow;
@@ -538,7 +538,7 @@ namespace ConsoleMonster.Widgets {
                     return;
                 }
             }
-            int needed = label + (IsBoxed ? GroupHeadersAsRows ? 4 : 6 : ruled ? 3 : 0);
+            int needed = label + (IsBoxed ? GroupHeadersAsRows ? 2 + 2 * gap : 6 : ruled ? 3 : 0);
             int extra = Math.Min(needed - (TrackAllocator.Sum(widths) + Overhead(visible, gap)), free);
             if (extra <= 0) {
                 return;

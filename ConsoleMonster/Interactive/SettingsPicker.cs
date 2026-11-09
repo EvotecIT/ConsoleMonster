@@ -82,8 +82,8 @@ namespace ConsoleMonster.Interactive {
             return new Result(action, chosen);
         }
 
-        // Applies a result: each value that differs from what is in effect is set (and saved); a choice of the default
-        // removes the stored value instead, so the file only holds what the user changed.
+        // Applies a result: each value that differs from what is in effect is set (and saved); a choice that means detection
+        // removes the stored value instead. Literal choices (including Comfortable) remain explicit.
         internal static IReadOnlyList<string> Apply(Result result) {
             List<string> changed = new List<string>();
             if (result.Action == SettingsPickerAction.Cancel) { return changed; }
@@ -91,12 +91,12 @@ namespace ConsoleMonster.Interactive {
             foreach (KeyValuePair<string, string> pair in result.Values) {
                 ConsoleSetting current = ConsoleSettings.Get(pair.Key);
                 bool differs = !string.Equals(current.Value, pair.Value, StringComparison.OrdinalIgnoreCase);
-                if (string.Equals(pair.Value, current.DefaultValue, StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(pair.Value, current.DefaultValue, StringComparison.OrdinalIgnoreCase) && ConsoleSettings.UsesDetection(pair.Key, pair.Value)) {
                     if (differs || (save && current.Source == ConsoleSettingSource.File) || current.Source == ConsoleSettingSource.Session) {
                         ConsoleSettings.Reset(pair.Key, save);
                         if (differs) { changed.Add(pair.Key); }
                     }
-                } else if (differs || (save && current.Source != ConsoleSettingSource.File)) {
+                } else if (differs || current.Source == ConsoleSettingSource.Default || (save && current.Source != ConsoleSettingSource.File)) {
                     ConsoleSettings.Set(pair.Key, pair.Value, save);
                     if (differs) { changed.Add(pair.Key); }
                 }

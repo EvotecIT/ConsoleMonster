@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Text;
+using ConsoleMonster.Glyphs;
 using Xunit;
 
 namespace ConsoleMonster.Tests.Capabilities {
@@ -68,14 +69,20 @@ namespace ConsoleMonster.Tests.Capabilities {
             Assert.Equal(ThemePreference.Dark, profile.WithThemePreference(ThemePreference.Dark).ThemePreference);
         }
 
-        [Fact]
-        public void RefreshFont_UsesNewFontAndPreservesGlyphOverrideAndAmbiguousWidthDowngrade() {
+        [Theory]
+        [InlineData(Styling.ThemeDensity.Comfortable)]
+        [InlineData(Styling.ThemeDensity.Compact)]
+        public void RefreshFont_UsesNewFontAndPreservesStyleGlyphOverrideAndAmbiguousWidthDowngrade(Styling.ThemeDensity density) {
             CapabilityDetector detector = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
                 ["CONSOLEMONSTER_GLYPHS"] = "full"
             }, isWindows: true));
-            TerminalProfile profile = TerminalProfile.Fixed(80, 24).WithWidthProfile(TerminalWidthProfile.Standard.WithAmbiguousWidth(2));
+            TerminalProfile profile = TerminalProfile.Fixed(80, 24).WithWidthProfile(TerminalWidthProfile.Standard.WithAmbiguousWidth(2))
+                .WithDensity(density).WithBorder(BoxStyle.Double).WithStatusMarkers(Styling.StatusMarkerStyle.Words);
             TerminalProfile refreshed = detector.RefreshFont(profile, "Cascadia Mono");
             Assert.Equal("Cascadia Mono", refreshed.FontFace);
+            Assert.Equal(density, refreshed.Density);
+            Assert.Equal(BoxStyle.Double, refreshed.Border);
+            Assert.Equal(Styling.StatusMarkerStyle.Words, refreshed.StatusMarkers);
             Assert.Equal(GlyphTier.Ascii, refreshed.Glyphs);
             Assert.Contains(refreshed.Decisions, decision => decision.Contains("CONSOLEMONSTER_GLYPHS"));
             Assert.Contains(refreshed.Decisions, decision => decision.Contains("ambiguous width 2"));
