@@ -7,11 +7,26 @@ using System.Threading.Tasks;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
 using ConsoleMonster.Styling;
+using ConsoleMonster.Capabilities;
+using ConsoleMonster.Output;
 using Xunit;
 
 namespace ConsoleMonster.Tests {
     [Collection("Live sessions")]
-    public sealed class ContinuousIntegrationTests {
+    public sealed class ContinuousIntegrationTests : IDisposable {
+        private readonly Dictionary<string, string?> _workspaceRoots = new Dictionary<string, string?>();
+
+        public ContinuousIntegrationTests() {
+            foreach (string variable in new[] { "GITHUB_WORKSPACE", "BUILD_SOURCESDIRECTORY", "CI_PROJECT_DIR" }) {
+                _workspaceRoots[variable] = Environment.GetEnvironmentVariable(variable);
+                Environment.SetEnvironmentVariable(variable, null);
+            }
+        }
+
+        public void Dispose() {
+            foreach (var entry in _workspaceRoots) { Environment.SetEnvironmentVariable(entry.Key, entry.Value); }
+        }
+
         [Fact]
         public void WorkflowCommandsAndDefaultRunCompletionsBypassAnActiveLiveConsoleCapture() {
             var target = global::ConsoleMonster.Testing.TestTerminal.Target();
@@ -59,6 +74,47 @@ namespace ConsoleMonster.Tests {
             Assert.StartsWith("Build [literal]", target.Text);
             Assert.Contains("Error: literal [pass]value[/] (build.ps1:4", target.Text);
             Assert.DoesNotContain("::", target.Text);
+        }
+
+        [Theory]
+        [InlineData(ContinuousIntegrationProvider.GitHub, "GITHUB_WORKSPACE")]
+        [InlineData(ContinuousIntegrationProvider.Azure, "BUILD_SOURCESDIRECTORY")]
+        [InlineData(ContinuousIntegrationProvider.GitLab, "CI_PROJECT_DIR")]
+        public void AnnotationPathsUseTheProviderWorkspaceAndPreserveOutsidePaths(ContinuousIntegrationProvider provider, string variable) {
+            string root = Path.Combine(Environment.CurrentDirectory, "ci-workspace");
+            string outside = Path.Combine(root + "-other", "App.cs");
+            string? previous = Environment.GetEnvironmentVariable(variable);
+            var lines = new List<string>();
+            try {
+                Environment.SetEnvironmentVariable(variable, root);
+                using (ContinuousIntegration.UseProvider(provider)) {
+                    ContinuousIntegration.Annotate(AnnotationLevel.Error, "failure", file: Path.Combine(root, "src", "App.cs").Replace('/', '\\'), line: 42, write: lines.Add);
+                    ContinuousIntegration.Annotate(AnnotationLevel.Error, "failure", file: outside.Replace('/', '\\'), line: 42, write: lines.Add);
+                }
+            } finally { Environment.SetEnvironmentVariable(variable, previous); }
+            string[] expected = provider == ContinuousIntegrationProvider.GitHub
+                ? new[] { "::error file=src/App.cs,line=42::failure", "::error file=" + outside.Replace('\\', '/').Replace(":", "%3A") + ",line=42::failure" }
+                : provider == ContinuousIntegrationProvider.Azure
+                    ? new[] { "##vso[task.logissue type=error;sourcepath=src/App.cs;linenumber=42]failure", "##vso[task.logissue type=error;sourcepath=" + outside.Replace('\\', '/') + ";linenumber=42]failure" }
+                    : new[] { "Error: failure (src/App.cs:42)", "Error: failure (" + outside.Replace('\\', '/') + ":42)" };
+            Assert.Equal(expected, lines);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TerminalAnnotationShowsOneRelativeLabelWithOnlySupportedLinks(bool hyperlinks) {
+            using var writer = new StringWriter();
+            TerminalProfile profile = TerminalProfile.Fixed(200, 4, ColorDepth.None).WithHyperlinks(hyperlinks);
+            if (!hyperlinks) { profile = profile.WithMode(OutputMode.Stream); }
+            using (Terminal.Use(new WriterTarget(writer, profile)))
+            using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None)) {
+                ContinuousIntegration.Annotate(AnnotationLevel.Error, "Value cannot be null", file: Path.Combine(Environment.CurrentDirectory, "src", "App.cs"), line: 42);
+            }
+            string output = writer.ToString();
+            Assert.Equal("Error: Value cannot be null (src/App.cs:42)", Regex.Replace(output, "\x1b\\]8;;[^\x1b]*\x1b\\\\", "").Trim());
+            if (hyperlinks) { Assert.Contains("\x1b]8;;" + new Uri(Path.Combine(Environment.CurrentDirectory, "src", "App.cs")).AbsoluteUri + "\x1b\\src/App.cs:42\x1b]8;;\x1b\\", output); }
+            else { Assert.DoesNotContain("\x1b", output, StringComparison.Ordinal); }
         }
         [Fact]
         public async Task ConcurrentRunCompletionsAreWholeGroupsAndKeepTheirResults() {
@@ -135,7 +191,7 @@ namespace ConsoleMonster.Tests {
             using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.Azure)) {
                 ContinuousIntegration.Annotate(level, "text %3B;]\r\n##vso[x]", "Title", file, 12, 3, lines.Add);
             }
-            Assert.Equal("##vso[task.logissue type=" + command + ";sourcepath=" + Path.Combine(Environment.CurrentDirectory, "source%3B%5D%AZP25.ps1") + ";linenumber=12;columnnumber=3]Title: text %AZP253B%3B%5D%0D%0A##vso[x%5D", Assert.Single(lines));
+            Assert.Equal("##vso[task.logissue type=" + command + ";sourcepath=" + Path.Combine(Environment.CurrentDirectory, "source%3B%5D%AZP25.ps1").Replace('\\', '/') + ";linenumber=12;columnnumber=3]Title: text %AZP253B%3B%5D%0D%0A##vso[x%5D", Assert.Single(lines));
         }
 
         [Fact]

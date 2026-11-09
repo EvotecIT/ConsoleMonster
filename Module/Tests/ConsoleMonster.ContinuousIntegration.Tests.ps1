@@ -73,6 +73,21 @@ $markdown = @([pscustomobject]@{ Check = 'Build'; Result = 'Passed' }, [pscustom
         ($text -join "`n") | Should -Not -Match '::group::|::notice|##vso|section_start:'
     }
 
+    It 'resolves annotation locations in the runspace and prints a single relative terminal label' {
+        $text = Invoke-CiChild @'
+Set-Location (Split-Path $failureFile)
+$env:GITHUB_WORKSPACE = (Get-Location).ProviderPath
+$env:CONSOLEMONSTER_CI = 'github'
+Write-ConsoleAnnotation -Level Error -Message 'Value cannot be null' -File ./src/App.cs -Line 42
+Write-ConsoleAnnotation -Level Warning -Message 'Outside' -File ../outside.ps1 -Line 7
+New-PSDrive -Name CiSource -PSProvider FileSystem -Root (Get-Location).ProviderPath | Out-Null
+Write-ConsoleAnnotation -Level Notice -Message 'Drive' -File CiSource:/src/App.cs -Line 42
+$env:CONSOLEMONSTER_CI = 'none'
+Write-ConsoleAnnotation -Level Error -Message 'Value cannot be null' -File (Join-Path (Get-Location) 'src/App.cs') -Line 42
+'@
+        ($text -join "`n") | Should -BeExactly "::error file=src/App.cs,line=42::Value cannot be null`n::warning file=../outside.ps1,line=7::Outside`n::notice file=src/App.cs,line=42::Drive`nError: Value cannot be null (src/App.cs:42)"
+    }
+
     It 'groups sequential run bodies and Start-ConsoleRun completion output in CI' {
         $text = Invoke-CiChild @'
 $env:CONSOLEMONSTER_CI = 'github'
@@ -100,6 +115,25 @@ Disable-ConsoleFormatting -Feature Errors
 & $failureFile
 '@
         @($disabled | Where-Object { $_ -match '^::error' }).Count | Should -Be 0
+    }
+
+    It 'keeps parallel CI groups, host messages and result records intact' {
+        $text = Invoke-CiChild @'
+$env:CONSOLEMONSTER_CI = 'github'
+$results = @(1..4 | Invoke-ConsoleRun -Parallel -ThrottleLimit 4 {
+    Write-Host "working $_"
+    Write-Warning "warning $_"
+    Write-Progress -Activity "progress $_" -PercentComplete 50
+    "result $_"
+} -WarningAction SilentlyContinue -WarningVariable warnings)
+"RESULTS=$($results -join ',')"
+"WARNINGS=$(@($warnings).Count)"
+'@
+        $text | Should -Contain 'RESULTS=result 1,result 2,result 3,result 4'
+        $text | Should -Contain 'WARNINGS=4'
+        @($text | Where-Object { $_ -match '^working [1-4]$' }).Count | Should -Be 4
+        @($text | Where-Object { $_ -eq '::endgroup::' }).Count | Should -Be 4
+        ($text -join "`n") | Should -Not -Match 'Writer is closed|Process terminated'
     }
 
     It 'bounds errors shown by one default-output pipeline and counts the remainder once' {

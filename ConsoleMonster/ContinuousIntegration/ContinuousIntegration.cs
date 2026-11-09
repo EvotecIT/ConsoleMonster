@@ -66,46 +66,51 @@ namespace ConsoleMonster {
         /// <param name="level">Error, Warning or Notice.</param>
         /// <param name="message">Literal message, escaped for the selected protocol.</param>
         /// <param name="title">Optional annotation title (prepended to the message outside GitHub).</param>
-        /// <param name="file">Optional source file.</param>
+        /// <param name="file">Optional source file. Files within the provider workspace become checkout-relative paths with forward slashes; outside paths stay as supplied. Terminal labels are relative to the current directory.</param>
         /// <param name="line">One-based source line, or null.</param>
         /// <param name="column">One-based source column, or null.</param>
         /// <param name="write">Optional host stdout sink; receives complete unstyled command lines.</param>
-        public static void Annotate(AnnotationLevel level, string message, string? title = null, string? file = null, int? line = null, int? column = null, Action<string>? write = null) {
+        public static void Annotate(AnnotationLevel level, string message, string? title = null, string? file = null, int? line = null, int? column = null, Action<string>? write = null) =>
+            Annotate(level, message, title, file, line, column, write, null);
+
+        // PowerShell has a runspace-local working directory, independent of the process directory.
+        internal static void Annotate(AnnotationLevel level, string message, string? title, string? file, int? line, int? column, Action<string>? write, string? directory, string? resolvedFile = null) {
             if (message == null) { throw new ArgumentNullException(nameof(message)); }
             if (!Enum.IsDefined(typeof(AnnotationLevel), level)) { throw new ArgumentOutOfRangeException(nameof(level)); }
             if (line < 1) { throw new ArgumentOutOfRangeException(nameof(line)); }
             if (column < 1) { throw new ArgumentOutOfRangeException(nameof(column)); }
             ContinuousIntegrationProvider provider = Provider;
+            string? source = AnnotationPath(file, provider, directory, resolvedFile);
             lock (OutputGate) {
                 if (provider == ContinuousIntegrationProvider.GitHub) {
                     var properties = new List<string>();
-                    Property(properties, "file", file, GitHubProperty);
+                    Property(properties, "file", source, GitHubProperty);
                     Property(properties, "line", line?.ToString(CultureInfo.InvariantCulture), GitHubProperty);
                     Property(properties, "col", column?.ToString(CultureInfo.InvariantCulture), GitHubProperty);
                     Property(properties, "title", title, GitHubProperty);
                     Write("::" + level.ToString().ToLowerInvariant() + (properties.Count == 0 ? "" : " " + string.Join(",", properties)) + "::" + GitHubData(message), write);
                 } else if (provider == ContinuousIntegrationProvider.Azure && level != AnnotationLevel.Notice) {
                     var properties = new List<string> { "type=" + level.ToString().ToLowerInvariant() };
-                    Property(properties, "sourcepath", string.IsNullOrEmpty(file) ? null : System.IO.Path.GetFullPath(file), AzureEscape);
+                    Property(properties, "sourcepath", source, AzureEscape);
                     Property(properties, "linenumber", line?.ToString(CultureInfo.InvariantCulture), AzureEscape);
                     Property(properties, "columnnumber", column?.ToString(CultureInfo.InvariantCulture), AzureEscape);
                     Write("##vso[task.logissue " + string.Join(";", properties) + "]" + AzureEscape(Message(title, message)), write);
                 } else {
-                    string location = string.IsNullOrEmpty(file) ? "" : file + (line.HasValue ? ":" + line.Value.ToString(CultureInfo.InvariantCulture) : "");
+                    string location = string.IsNullOrEmpty(source) ? "" : source + (line.HasValue ? ":" + line.Value.ToString(CultureInfo.InvariantCulture) : "");
                     string text = Message(title, message) + (location.Length == 0 ? "" : " (" + location + ")");
                     if ((provider == ContinuousIntegrationProvider.None || provider == ContinuousIntegrationProvider.GitLab) && write == null) {
-                        Terminal.WriteMarkup(AnnotationMarkup(level, message, title, file, line));
+                        Terminal.WriteMarkup(AnnotationMarkup(level, message, title, file, line, Terminal.GetCurrentProfile().SupportsHyperlinks, directory, resolvedFile));
                     } else { WriteLog(level + ": " + SingleLine(text), write); }
                 }
             }
         }
 
         private static bool Enabled(string variable) => string.Equals(Environment.GetEnvironmentVariable(variable), "true", StringComparison.OrdinalIgnoreCase);
-        internal static string AnnotationMarkup(AnnotationLevel level, string message, string? title, string? file, int? line) {
+        internal static string AnnotationMarkup(AnnotationLevel level, string message, string? title, string? file, int? line, bool hyperlinks, string? directory = null, string? resolvedFile = null) {
             string markup = Text.Markup.Escape(level + ": " + Message(title, message));
             if (!string.IsNullOrEmpty(file)) {
-                string location = Text.Markup.Escape(file!) + (line.HasValue ? ":" + line.Value.ToString(CultureInfo.InvariantCulture) : "");
-                string? link = TestRuns.TestRunText.Link(new TestRuns.TestRecord("", "", Styling.StatusKind.Fail) { File = file });
+                string location = Text.Markup.Escape(AnnotationPath(file, Provider, directory, resolvedFile)!) + (line.HasValue ? ":" + line.Value.ToString(CultureInfo.InvariantCulture) : "");
+                string? link = hyperlinks ? TestRuns.TestRunText.Link(new TestRuns.TestRecord("", "", Styling.StatusKind.Fail) { File = resolvedFile ?? FullAnnotationPath(file!, directory) }) : null;
                 markup += " (" + (link == null ? location : "[link=" + link + "]" + location + "[/]") + ")";
             }
             return "[" + (level == AnnotationLevel.Error ? "fail" : level == AnnotationLevel.Warning ? "warn" : "muted") + "]" + markup + "[/]";

@@ -49,7 +49,7 @@ Accept wildcard characters: False
 ```
 
 ### -File
-The optional source file; relative paths resolve from the current PowerShell location.
+The optional source file; relative paths resolve from the current PowerShell location. Files inside the provider workspace use checkout-relative paths with forward slashes; outside paths stay as supplied. Terminal labels are relative to the current location and show the file and line once, linked where supported.
 
 ```yaml
 Type: String

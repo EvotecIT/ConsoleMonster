@@ -13,6 +13,7 @@ namespace ConsoleMonster.TestHost {
     internal static class UnixLiveRunProbe {
 #if !NETFRAMEWORK
         internal static void Run(Action<object> report) {
+            using var provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             using LiveRun run = new LiveRun(new[] { new RunItem("Synthetic work") }, new LiveRunOptions {
                 InteractiveKeys = true, ProgressInterval = TimeSpan.Zero,
                 Session = new LiveSessionOptions {

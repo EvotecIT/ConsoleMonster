@@ -40349,7 +40349,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>File</maml:name>
           <maml:description>
-            <maml:para>The optional source file; relative paths resolve from the current PowerShell location.</maml:para>
+            <maml:para>The optional source file; relative paths resolve from the current PowerShell location. Files inside the provider workspace use checkout-relative paths with forward slashes; outside paths stay as supplied. Terminal labels are relative to the current location and show the file and line once, linked where supported.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -40429,7 +40429,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>File</maml:name>
         <maml:description>
-          <maml:para>The optional source file; relative paths resolve from the current PowerShell location.</maml:para>
+          <maml:para>The optional source file; relative paths resolve from the current PowerShell location. Files inside the provider workspace use checkout-relative paths with forward slashes; outside paths stay as supplied. Terminal labels are relative to the current location and show the file and line once, linked where supported.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>

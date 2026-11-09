@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true)] [AllowEmptyString] public string Message { get; set; } = string.Empty;
         /// <summary><para type="description">An optional title; Azure and plain lines prepend it to the message.</para></summary>
         [Parameter] public string? Title { get; set; }
-        /// <summary><para type="description">The optional source file; relative paths resolve from the current PowerShell location.</para></summary>
+        /// <summary><para type="description">The optional source file; relative paths resolve from the current PowerShell location. Files inside the provider workspace use checkout-relative paths with forward slashes; outside paths stay as supplied. Terminal labels are relative to the current location and show the file and line once, linked where supported.</para></summary>
         [Parameter] public string? File { get; set; }
         /// <summary><para type="description">The one-based source line.</para></summary>
         [Parameter] [ValidateRange(1, int.MaxValue)] public int? Line { get; set; }
@@ -24,10 +24,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            string? file = string.IsNullOrEmpty(File) ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(File);
+            string directory = SessionState.Path.CurrentFileSystemLocation.ProviderPath;
+            string? resolvedFile = string.IsNullOrEmpty(File) ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(File);
             if (ContinuousIntegration.Provider == ContinuousIntegrationProvider.None || ContinuousIntegration.Provider == ContinuousIntegrationProvider.GitLab) {
-                HostOutput.WriteMarkup(this, ContinuousIntegration.AnnotationMarkup(Level, Message, Title, file, Line));
-            } else { ContinuousIntegration.Annotate(Level, Message, Title, file, Line, Column, text => HostOutput.WriteHostLine(this, text)); }
+                var profile = Terminal.GetCurrentProfile();
+                HostOutput.WriteMarkup(this, ContinuousIntegration.AnnotationMarkup(Level, Message, Title, File, Line, !HostOutput.UseHost(this, profile) && profile.SupportsHyperlinks, directory, resolvedFile));
+            } else { ContinuousIntegration.Annotate(Level, Message, Title, File, Line, Column, text => HostOutput.WriteHostLine(this, text), directory, resolvedFile); }
         }
     }
 }

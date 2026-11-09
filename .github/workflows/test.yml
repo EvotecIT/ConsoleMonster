@@ -484,6 +484,9 @@ jobs:
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-results.xml'
+          if ($env:PESTER_SHARD -eq '1') {
+            Write-ConsoleAnnotation -Level Notice -Title 'Pester report' -Message 'Test results and failures are recorded on this job summary page.' -File (Join-Path $env:GITHUB_WORKSPACE 'Module/Tests/ConsoleMonster.ContinuousIntegration.Tests.ps1') -Line 1
+          }
           Invoke-ConsolePester -Configuration $configuration
         timeout-minutes: 20
       - uses: actions/upload-artifact@v7
