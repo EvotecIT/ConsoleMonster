@@ -23,9 +23,10 @@ namespace ConsoleMonster.Canvas {
         public RenderContext(TerminalProfile profile, ITheme theme, IGlyphSet? glyphs = null, long tick = 0, TimeSpan elapsed = default) {
             Profile = profile ?? throw new ArgumentNullException(nameof(profile));
             Theme = theme ?? throw new ArgumentNullException(nameof(theme));
-            // The theme's style, with the profile's Border and StatusMarkers choices above it.
+            // The theme's style, with the profile's Border, Density and StatusMarkers choices above it.
             ThemeAppearance look = theme is Theme concrete ? concrete.Appearance : ThemeAppearance.Default;
             Glyphs = StyledGlyphSet.For(glyphs ?? GlyphSet.For(profile.Glyphs), profile.Border ?? look.Border, profile.StatusMarkers ?? look.StatusMarkers);
+            Density = profile.Density ?? look.Density;
             _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = new Style[(int)ThemeToken.Gap + 1];
@@ -42,6 +43,12 @@ namespace ConsoleMonster.Canvas {
 
         /// <summary>The glyph set.</summary>
         public IGlyphSet Glyphs { get; }
+
+        /// <summary>The profile's spacing override, or the theme's density.</summary>
+        public ThemeDensity Density { get; }
+
+        // Keep authored spacing literal; only callers with an unset default use this.
+        internal int DefaultSpacing(int comfortable, int compact) => Density == ThemeDensity.Compact ? compact : comfortable;
 
         /// <summary>The colour depth being rendered.</summary>
         public ColorDepth Depth => Profile.ColorDepth;
@@ -124,6 +131,7 @@ namespace ConsoleMonster.Canvas {
             Profile = profile;
             Theme = theme;
             Glyphs = glyphs;
+            Density = profile.Density ?? (theme is Theme concrete ? concrete.Appearance.Density : ThemeDensity.Comfortable);
             _tick = tick;
             Elapsed = elapsed;
             _tokenStyles = tokenStyles;

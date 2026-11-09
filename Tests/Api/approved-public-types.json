@@ -449,6 +449,7 @@
     "ConsoleMonster.Styling.ThemeAppearance",
     "ConsoleMonster.Styling.ThemeBackground",
     "ConsoleMonster.Styling.ThemeColor",
+    "ConsoleMonster.Styling.ThemeDensity",
     "ConsoleMonster.Styling.ThemeFile",
     "ConsoleMonster.Styling.ThemeStyle",
     "ConsoleMonster.Styling.ThemeToken",

@@ -68,10 +68,12 @@ namespace ConsoleMonster.Layout {
         public StatusKind? Status { get; set; }
 
         /// <summary>Cells between the left border and the content (default 1).</summary>
-        public int PaddingLeft { get; set; } = 1;
+        public int PaddingLeft { get => _paddingLeft ?? 1; set => _paddingLeft = value; }
+        private int? _paddingLeft;
 
         /// <summary>Cells between the content and the right border (default 1).</summary>
-        public int PaddingRight { get; set; } = 1;
+        public int PaddingRight { get => _paddingRight ?? 1; set => _paddingRight = value; }
+        private int? _paddingRight;
 
         /// <summary>Rows between the top border and the content (default 0).</summary>
         public int PaddingTop { get; set; }
@@ -94,7 +96,9 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
-            int horizontal = (HasBorder ? 2 : 0) + PaddingLeft + PaddingRight;
+            int paddingLeft = _paddingLeft ?? context.DefaultSpacing(1, 0);
+            int paddingRight = _paddingRight ?? context.DefaultSpacing(1, 0);
+            int horizontal = (HasBorder ? 2 : 0) + paddingLeft + paddingRight;
             int vertical = (HasBorder ? 2 : (!HasTitle ? 0 : 1)) + PaddingTop + PaddingBottom;
             Size inner = Content.Measure(constraints.Shrink(horizontal, vertical), context);
             int titleWidth = !HasTitle ? 0 : context.Markup(Title!).Width + 4 + (Verdict && Status.HasValue ? DisplayWidth.Measure(context.Glyphs.StatusSymbol(Status.Value)) + 1 : 0);
@@ -105,6 +109,8 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
+            int paddingLeft = _paddingLeft ?? context.DefaultSpacing(1, 0);
+            int paddingRight = _paddingRight ?? context.DefaultSpacing(1, 0);
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
             }
@@ -112,18 +118,18 @@ namespace ConsoleMonster.Layout {
                 int top = 0;
                 if (HasTitle) {
                     StyledLine title = TitleLine(context, region.Width);
-                    region.Write(PaddingLeft, 0, title);
+                    region.Write(paddingLeft, 0, title);
                     top = 1;
                 }
-                Content.Render(region.Sub(PaddingLeft, top + PaddingTop, region.Width - PaddingLeft - PaddingRight, region.Height - top - PaddingTop - PaddingBottom), context);
+                Content.Render(region.Sub(paddingLeft, top + PaddingTop, region.Width - paddingLeft - paddingRight, region.Height - top - PaddingTop - PaddingBottom), context);
                 return;
             }
-            if (region.Width < 4 || region.Height < 2) {
+            if (region.Width < context.DefaultSpacing(4, 2) || region.Height < 2) {
                 Content.Render(region, context);
                 return;
             }
             DrawBorder(region, context);
-            Content.Render(region.Sub(1 + PaddingLeft, 1 + PaddingTop, region.Width - 2 - PaddingLeft - PaddingRight, region.Height - 2 - PaddingTop - PaddingBottom), context);
+            Content.Render(region.Sub(1 + paddingLeft, 1 + PaddingTop, region.Width - 2 - paddingLeft - paddingRight, region.Height - 2 - PaddingTop - PaddingBottom), context);
         }
 
         private void DrawBorder(Region region, RenderContext context) {

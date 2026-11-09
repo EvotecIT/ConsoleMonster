@@ -77,7 +77,7 @@ namespace ConsoleMonster {
             internal string[] Values { get; }
             // The environment value that has the setting's effect, or null for "leave it to detection".
             internal Func<string, string?> ToVariable { get; }
-            // The setting value an environment variable stands for.
+            // The setting value an environment variable stands for, or null when it is unusable.
             internal Func<string, string?> FromVariable { get; }
         }
 
@@ -112,6 +112,10 @@ namespace ConsoleMonster {
             new Definition("Border", "CONSOLEMONSTER_BORDER", "Auto",
                 "The frame around panels, tables and inputs. Auto uses the theme's (rounded unless the theme says otherwise).",
                 new[] { "Auto", "Rounded", "Single", "Double", "Heavy", "Ascii" }),
+            new Definition("Density", "CONSOLEMONSTER_DENSITY", "Comfortable",
+                "Spacing chosen by widgets. Compact reduces default padding and gaps; explicit spacing stays as authored.",
+                new[] { "Comfortable", "Compact" }, value => value.ToLowerInvariant(),
+                value => Canonical(new[] { "Comfortable", "Compact" }, value)),
             new Definition("StatusMarkers", "CONSOLEMONSTER_STATUS_MARKERS", "Auto",
                 "How statuses are marked: Symbols (✓ ✗ ▴) or Words ([OK] [FAIL] [WARN]), which suit screen readers. Auto uses the theme's.",
                 new[] { "Auto", "Symbols", "Words" }),
@@ -195,10 +199,25 @@ namespace ConsoleMonster {
             }
         }
 
-        /// <summary>Entries in the settings file that were ignored, with the reason.</summary>
+        /// <summary>Settings file and environment values that were ignored, with the reason.</summary>
         public static IReadOnlyList<string> Problems {
-            get { lock (Gate) { EnsureLoaded(); return _problems.ToArray(); } }
+            get {
+                lock (Gate) {
+                    EnsureLoaded();
+                    List<string> problems = new List<string>(_problems);
+                    foreach (Definition definition in Definitions) {
+                        string? environment = Environment.GetEnvironmentVariable(definition.Variable);
+                        if (!string.IsNullOrEmpty(environment) && EnvironmentValue(definition, environment) == null) {
+                            problems.Add(definition.Variable + ": ignored invalid value '" + environment + "'");
+                        }
+                    }
+                    return problems.ToArray();
+                }
+            }
         }
+
+        // Only values mapped to an absent variable mean "use detection/the theme". A literal default can still override a theme.
+        internal static bool UsesDetection(string name, string value) => Find(name).ToVariable(value) == null;
 
         /// <summary>One effective setting.</summary>
         /// <param name="name">The setting name (case-insensitive).</param>
@@ -225,7 +244,7 @@ namespace ConsoleMonster {
             lock (Gate) {
                 if (save) { Write(definition.Name, normalized); }
                 // A saved value is the file's; this process holds it too only where an environment variable would win.
-                if (!save || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(definition.Variable)) || HasEnvironmentOverride(definition)) {
+                if (!save || EnvironmentValue(definition, Environment.GetEnvironmentVariable(definition.Variable)) != null || HasEnvironmentOverride(definition)) {
                     SessionValues[definition.Name] = normalized;
                 } else {
                     SessionValues.Remove(definition.Name);
@@ -280,7 +299,7 @@ namespace ConsoleMonster {
             lock (Gate) {
                 EnsureLoaded();
                 if (SessionValues.TryGetValue(definition.Name, out string? session)) { return definition.ToVariable(session); }
-                if (!string.IsNullOrEmpty(environment) || HasEnvironmentOverride(definition)) { return environment; }
+                if (EnvironmentValue(definition, environment) != null || HasEnvironmentOverride(definition)) { return environment; }
                 return FileValue(definition) is string file ? definition.ToVariable(file) : null;
             }
         }
@@ -293,12 +312,13 @@ namespace ConsoleMonster {
                     string? value;
                     if (SessionValues.TryGetValue(definition.Name, out string? session)) {
                         value = definition.ToVariable(session);
-                    } else if (variables.TryGetValue(definition.Variable, out string? existing) && !string.IsNullOrEmpty(existing)
+                    } else if (variables.TryGetValue(definition.Variable, out string? existing) && EnvironmentValue(definition, existing) != null
                         || definition.Name == "Color" && variables.TryGetValue("NO_COLOR", out string? noColor) && !string.IsNullOrEmpty(noColor)) {
                         continue;
                     } else if (FileValue(definition) is string file) {
                         value = definition.ToVariable(file);
                     } else {
+                        if (!string.IsNullOrEmpty(existing)) { variables.Remove(definition.Variable); }
                         continue;
                     }
                     if (value == null) { variables.Remove(definition.Variable); } else { variables[definition.Variable] = value; }
@@ -336,12 +356,12 @@ namespace ConsoleMonster {
         private static ConsoleSetting Effective(Definition definition) {
             ConsoleSettingSource source = ConsoleSettingSource.Default;
             string value = definition.Fallback;
-            string? environment = Environment.GetEnvironmentVariable(definition.Variable);
+            string? environment = EnvironmentValue(definition, Environment.GetEnvironmentVariable(definition.Variable));
             if (SessionValues.TryGetValue(definition.Name, out string? session)) {
                 value = session;
                 source = ConsoleSettingSource.Session;
-            } else if (!string.IsNullOrEmpty(environment)) {
-                value = definition.FromVariable(environment!.Trim()) ?? environment;
+            } else if (environment != null) {
+                value = environment!;
                 source = ConsoleSettingSource.Environment;
             } else if (HasEnvironmentOverride(definition)) {
                 value = "None";
@@ -356,6 +376,9 @@ namespace ConsoleMonster {
         // NO_COLOR is the environment's colour choice too, so a file value never turns colour back on.
         private static bool HasEnvironmentOverride(Definition definition) =>
             definition.Name == "Color" && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NO_COLOR"));
+
+        private static string? EnvironmentValue(Definition definition, string? value) =>
+            string.IsNullOrEmpty(value) ? null : definition.FromVariable(value!.Trim());
 
         private static string? FileValue(Definition definition) =>
             _file.TryGetValue(definition.Name, out object? value) && value is string text ? text : null;

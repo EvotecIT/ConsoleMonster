@@ -41,11 +41,14 @@ namespace ConsoleMonster.Interactive {
             Dictionary<string, Select> selects = new Dictionary<string, Select>(StringComparer.Ordinal);
             Rows choices = new Rows();
             int labelWidth = 0;
+            int choiceWidth = 0;
             foreach (ConsoleSetting setting in settings) { labelWidth = Math.Max(labelWidth, setting.Name.Length + 2); }
             foreach (ConsoleSetting setting in settings) {
                 List<Choice> list = new List<Choice>();
                 foreach (string value in Values(setting)) {
-                    list.Add(new Choice(value, Label(setting, value)));
+                    string choiceLabel = Label(setting, value);
+                    choiceWidth = Math.Max(choiceWidth, DisplayWidth.Measure(choiceLabel));
+                    list.Add(new Choice(value, choiceLabel));
                 }
                 // One row per setting: its name, then a dropdown without a frame of its own.
                 Select select = new Select(setting.Name, list) { Label = setting.Name, Dropdown = true, Border = Glyphs.BoxStyle.None, LinkKey = "settings.link." + setting.Name };
@@ -65,7 +68,8 @@ namespace ConsoleMonster.Interactive {
             Columns buttons = new Columns().Add(save, LayoutSize.Fixed(10)).Add(apply, LayoutSize.Fixed(13)).Add(cancel, LayoutSize.Fixed(12));
             Rows left = new Rows(new Panel(choices, "Settings"), buttons, new AppBinding(current => Notes(settings, selects))) { Gap = 1 };
             AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current)), "settings.preview");
-            Columns body = new Columns().Add(left, LayoutSize.Fraction(2, 30)).Add(new Panel(preview, "Preview"), LayoutSize.Fraction(3, 40));
+            int settingsWidth = labelWidth + 1 + 2 + choiceWidth + 2 + 4; // Row gap, focus gutter, dropdown mark, panel borders and padding.
+            Columns body = new Columns().Add(left, LayoutSize.Fraction(2, settingsWidth)).Add(new Panel(preview, "Preview"), LayoutSize.Fraction(3, 40));
             Rows layout = new Rows(
                 new TextBlock("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
                 body) { Gap = 1 };
@@ -82,8 +86,8 @@ namespace ConsoleMonster.Interactive {
             return new Result(action, chosen);
         }
 
-        // Applies a result: each value that differs from what is in effect is set (and saved); a choice of the default
-        // removes the stored value instead, so the file only holds what the user changed.
+        // Applies a result: each value that differs from what is in effect is set (and saved); a choice that means detection
+        // removes the stored value instead. Literal choices (including Comfortable) remain explicit.
         internal static IReadOnlyList<string> Apply(Result result) {
             List<string> changed = new List<string>();
             if (result.Action == SettingsPickerAction.Cancel) { return changed; }
@@ -91,12 +95,12 @@ namespace ConsoleMonster.Interactive {
             foreach (KeyValuePair<string, string> pair in result.Values) {
                 ConsoleSetting current = ConsoleSettings.Get(pair.Key);
                 bool differs = !string.Equals(current.Value, pair.Value, StringComparison.OrdinalIgnoreCase);
-                if (string.Equals(pair.Value, current.DefaultValue, StringComparison.OrdinalIgnoreCase)) {
+                if (string.Equals(pair.Value, current.DefaultValue, StringComparison.OrdinalIgnoreCase) && ConsoleSettings.UsesDetection(pair.Key, pair.Value)) {
                     if (differs || (save && current.Source == ConsoleSettingSource.File) || current.Source == ConsoleSettingSource.Session) {
                         ConsoleSettings.Reset(pair.Key, save);
                         if (differs) { changed.Add(pair.Key); }
                     }
-                } else if (differs || (save && current.Source != ConsoleSettingSource.File)) {
+                } else if (differs || current.Source == ConsoleSettingSource.Default || (save && current.Source != ConsoleSettingSource.File)) {
                     ConsoleSettings.Set(pair.Key, pair.Value, save);
                     if (differs) { changed.Add(pair.Key); }
                 }
@@ -215,6 +219,9 @@ namespace ConsoleMonster.Interactive {
                 profile = profile.WithBorder(border == "Auto" || border.Length == 0 ? (BoxStyle?)null : (BoxStyle)Enum.Parse(typeof(BoxStyle), border));
                 string markers = Value("StatusMarkers");
                 profile = profile.WithStatusMarkers(markers == "Auto" || markers.Length == 0 ? (StatusMarkerStyle?)null : (StatusMarkerStyle)Enum.Parse(typeof(StatusMarkerStyle), markers));
+                string density = Value("Density");
+                profile = profile.WithDensity(string.Equals(density, "Compact", StringComparison.OrdinalIgnoreCase) ? ThemeDensity.Compact
+                    : string.Equals(density, "Comfortable", StringComparison.OrdinalIgnoreCase) ? ThemeDensity.Comfortable : (ThemeDensity?)null);
                 string culture = Value("Culture");
                 if (culture == "Invariant") { profile = profile.WithCulture(CultureInfo.InvariantCulture); }
                 else if (culture != "Current" && culture.Length > 0) { profile = profile.WithCulture(Culture(culture) ?? profile.Culture); }

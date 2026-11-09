@@ -1,4 +1,4 @@
-Describe 'Settings saved for every session' {
+﻿Describe 'Settings saved for every session' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
@@ -8,7 +8,7 @@ Describe 'Settings saved for every session' {
         function Invoke-SettingsChild {
             param([Parameter(Mandatory)][string] $File, [Parameter(Mandatory)][string] $Script, [hashtable] $Environment = @{})
             $lines = @(
-                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_THEME', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MOTION', 'CONSOLEMONSTER_NOMOUSE', 'CONSOLEMONSTER_LANGUAGE', 'CONSOLEMONSTER_CULTURE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
+                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_THEME', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_DENSITY', 'CONSOLEMONSTER_MOTION', 'CONSOLEMONSTER_NOMOUSE', 'CONSOLEMONSTER_LANGUAGE', 'CONSOLEMONSTER_CULTURE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
                 "`$env:CONSOLEMONSTER_SETTINGS = '$File'"
                 foreach ($name in $Environment.Keys) { "`$env:$name = '$($Environment[$name])'" }
                 "Import-Module '$($script:ModulePath)' -Force"
@@ -70,12 +70,63 @@ $explicit = New-ConsoleText 'ok' -Role Pass | Export-ConsoleFrame -Format Html -
         $text | Should -Match 'explicit=True'
     }
 
+    It 'keeps authored spacing while Compact changes unbound PowerShell defaults and current exports' {
+        $text = Invoke-SettingsChild -File $script:File -Script @'
+Set-ConsoleSetting Density Compact -Save
+"density=$((Get-ConsoleSetting Density).Value)/$((Get-ConsoleSetting Density).Source)/$([ConsoleMonster.Terminal]::Profile.Density)"
+$default = New-ConsolePanel -NoExpand -Content { New-ConsoleText 'x' } | Export-ConsoleFrame -Format Text -Width 5 -Theme Current
+$explicit = New-ConsolePanel -NoExpand -PaddingLeft 1 -PaddingRight 1 -Content { New-ConsoleText 'x' } | Export-ConsoleFrame -Format Text -Width 5 -Theme Current
+"panels=$($default -match '│x')/$($explicit -match '│ x │')"
+$default = New-ConsoleKeyValue -InputObject @{ Key = 'value' } | Export-ConsoleFrame -Format Text -Width 20 -Theme Current
+$explicit = New-ConsoleKeyValue -InputObject @{ Key = 'value' } -Gap 2 | Export-ConsoleFrame -Format Text -Width 20 -Theme Current
+"lists=$($default.Trim() -eq 'Key value')/$($explicit.Trim() -eq 'Key  value')"
+$default = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 3 -Theme Current
+$explicit = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -ColumnGap 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 3 -Theme Current
+"grids=$($default.Trim() -eq 'a b')/$($explicit.Trim() -eq 'a b')"
+Reset-ConsoleSetting Density
+"restored=$((Get-ConsoleSetting Density).Value)/$((Get-ConsoleSetting Density).Source)"
+'@
+        $text | Should -Match 'density=Compact/File/Compact'
+        $text | Should -Match 'panels=True/True'
+        $text | Should -Match 'lists=True/True'
+        $text | Should -Match 'grids=True/True'
+        $text | Should -Match 'restored=Compact/File'
+        (Get-Content -LiteralPath $script:File -Raw | ConvertFrom-Json).Density | Should -Be 'Compact'
+    }
+
+    It 'reports an invalid environment density and keeps the picker usable' {
+        $text = Invoke-SettingsChild -File $script:File -Environment @{ CONSOLEMONSTER_DENSITY = 'bogus' } -Script @'
+$setting = Get-ConsoleSetting Density -WarningVariable problems -WarningAction SilentlyContinue
+"density=$($setting.Value)/$($setting.Source)"
+"problem=$($problems -match 'CONSOLEMONSTER_DENSITY.*bogus')"
+$screen = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings -WarningAction SilentlyContinue }
+"picker=$($screen.Text -match 'Density.*Comfortable \(default\)')/$($screen.Text -match 'bogus')"
+'@
+        $text | Should -Match 'density=Comfortable/Default'
+        $text | Should -Match 'problem=.*CONSOLEMONSTER_DENSITY.*bogus'
+        $text | Should -Match 'picker=True/False'
+    }
+
+    It 'fits complete choice labels at 110 columns and still renders below their natural width' {
+        $text = Invoke-SettingsChild -File $script:File -Script @'
+Set-ConsoleTheme Dark
+Set-ConsoleSetting Glyphs Full
+Set-ConsoleSetting Density Comfortable
+$wide = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+$narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+"wide=$($wide.Text -match 'Density.*Comfortable \(default\)')"
+"narrow=$($narrow.Text -match 'Density')/$($narrow.Text -match 'Comfortable \(default\)')"
+'@
+        $text | Should -Match 'wide=True'
+        $text | Should -Match 'narrow=True/False'
+    }
+
     It 'saves what is chosen in the settings picker, and Escape changes nothing' {
         $text = Invoke-SettingsChild -File $script:File -Script @'
 $null = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Escape' { Show-ConsoleSettings }
 "cancelled=$(Test-Path $env:CONSOLEMONSTER_SETTINGS)/$((Get-ConsoleSetting Theme).Value)"
-# Theme list: Auto, Dark, Light. Eleven settings, then Save.
-$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
+# Theme list: Auto, Dark, Light. Twelve settings, then Save.
+$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
 "saved=$((Get-ConsoleSetting Theme).Value)/$((Get-ConsoleSetting Theme).Source)"
 '@
         $text | Should -Match 'cancelled=False/Auto'

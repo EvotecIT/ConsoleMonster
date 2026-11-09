@@ -71,13 +71,21 @@ symbols hard to tell apart, and they look the same in every terminal font. Keep 
 
 ```powershell
 Set-ConsoleSetting Border Single -Save
+Set-ConsoleSetting Density Compact -Save
 Set-ConsoleSetting StatusMarkers Words -Save
 ```
 
-`Show-ConsoleSettings` previews both. A widget that asks for its own frame (`New-ConsolePanel -Border Double`) keeps
-it, and the ASCII glyph tier still draws ASCII. `CONSOLEMONSTER_BORDER` and `CONSOLEMONSTER_STATUS_MARKERS` set them
+`Show-ConsoleSettings` previews these choices. A widget that asks for its own frame (`New-ConsolePanel -Border Double`) keeps
+it, and the ASCII glyph tier still draws ASCII. `CONSOLEMONSTER_BORDER`, `CONSOLEMONSTER_DENSITY` and `CONSOLEMONSTER_STATUS_MARKERS` set them
 for one run; in C#, `Theme.WithAppearance` gives a theme its style and `TerminalProfile.WithBorder` and
-`WithStatusMarkers` override it.
+`WithDensity` and `WithStatusMarkers` override it.
+
+`Comfortable` keeps today's spacing and is the default. `Compact` removes boxed table cell padding, reduces
+unboxed table and list gaps from two cells to one, removes default horizontal panel padding, and closes the
+default gap between framed layout tiles. Unframed children keep at least one cell of default separation;
+larger default gaps shrink by one. Explicit padding, gaps and
+column gaps keep the values the author set. In C#, use `new ThemeAppearance(ThemeDensity.Compact)` with
+`Theme.WithAppearance`, or `profile.WithDensity(ThemeDensity.Compact)` for an override.
 
 Exports follow your choice too: once you pick a theme, `Export-ConsoleFrame` draws in it on the background it is made
 for. `-Theme Auto` still gives both the dark and the light rendering, and `-Theme Current` asks for the theme in use.
@@ -138,7 +146,7 @@ A partial JSON file can inherit from a built-in palette. Save this as
 ```
 
 `Name` and `Tokens` are required; `SchemaVersion` defaults to `1`. With `"SchemaVersion": 2` a file can also set its
-[style](#frames-and-status-words): `"Style": { "Border": "Single", "StatusMarkers": "Words", "Background": "Dark" }`. Missing tokens
+[style](#frames-and-status-words): `"Style": { "Border": "Single", "Density": "Compact", "StatusMarkers": "Words", "Background": "Dark" }`. Missing tokens
 and style fields inherit from `BaseTheme`. Styles accept `Foreground`,
 `Background` and `Decoration`. Explicit `null` colours use terminal defaults;
 `"Decoration": "None"` clears inherited decoration. Fallback indices use ANSI

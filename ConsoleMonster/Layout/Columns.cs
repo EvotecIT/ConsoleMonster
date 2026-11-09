@@ -24,7 +24,19 @@ namespace ConsoleMonster.Layout {
         }
 
         /// <summary>Blank columns between children (default 1).</summary>
-        public int Gap { get; set; } = 1;
+        public int Gap { get => _gap ?? 1; set => _gap = value; }
+        private int? _gap;
+
+        private int EffectiveGap(int width, int maxHeight, RenderContext context) {
+            int gap = _gap ?? LayoutSpacing.Gap(1, context, _children);
+            if (_gap.HasValue || gap != 0) { return gap; }
+            // A cramped panel falls back to bare content. Its declared border cannot separate these columns.
+            int[] widths = ComputeWidths(width, maxHeight, 0, context);
+            for (int i = 0; i < _children.Count; i++) {
+                if (widths[i] < 2 || _children[i].Measure(new Constraints(widths[i], maxHeight), context).Height < 2) { return 1; }
+            }
+            return 0;
+        }
 
         /// <summary>
         /// Width below which the columns stack vertically. -1 (default) uses the sum of the children's minimum widths
@@ -52,14 +64,15 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
-            if (IsCollapsed(constraints.MaxWidth)) {
+            int gap = EffectiveGap(constraints.MaxWidth, constraints.MaxHeight, context);
+            if (IsCollapsed(constraints.MaxWidth, gap)) {
                 int stackedHeight = 0;
                 foreach (IWidget child in _children) {
                     stackedHeight += child.Measure(new Constraints(constraints.MaxWidth, constraints.MaxHeight), context).Height;
                 }
                 return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? stackedHeight : Math.Min(stackedHeight, constraints.MaxHeight));
             }
-            int[] widths = ComputeWidths(constraints.MaxWidth, constraints.MaxHeight, context);
+            int[] widths = ComputeWidths(constraints.MaxWidth, constraints.MaxHeight, gap, context);
             int height = 0;
             bool hasFraction = false;
             for (int i = 0; i < _children.Count; i++) {
@@ -69,13 +82,14 @@ namespace ConsoleMonster.Layout {
                 }
                 height = Math.Max(height, _children[i].Measure(new Constraints(widths[i], constraints.MaxHeight), context).Height);
             }
-            int width = hasFraction ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, TrackAllocator.Sum(widths) + (Gap * Math.Max(0, _children.Count - 1)));
+            int width = hasFraction ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, TrackAllocator.Sum(widths) + (gap * Math.Max(0, _children.Count - 1)));
             return new Size(width, height);
         }
 
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
-            if (IsCollapsed(region.Width)) {
+            int gap = EffectiveGap(region.Width, region.Height, context);
+            if (IsCollapsed(region.Width, gap)) {
                 int y = 0;
                 foreach (IWidget child in _children) {
                     int h = child.Measure(new Constraints(region.Width, Math.Max(0, region.Height - y)), context).Height;
@@ -84,10 +98,10 @@ namespace ConsoleMonster.Layout {
                 }
                 return;
             }
-            int[] widths = ComputeWidths(region.Width, region.Height, context);
+            int[] widths = ComputeWidths(region.Width, region.Height, gap, context);
             if (LayoutNotes.IsRecording) {
                 // The allocator offers fixed columns first, then each auto column what is left; fill columns take the rest.
-                int offered = Math.Max(0, region.Width - Gap * (_children.Count - 1));
+                int offered = Math.Max(0, region.Width - gap * (_children.Count - 1));
                 for (int i = 0; i < _children.Count; i++) { if (_sizes[i].Kind == LayoutSizeKind.Fixed) { offered -= widths[i]; } }
                 for (int i = 0; i < _children.Count; i++) {
                     int offer = _sizes[i].Kind == LayoutSizeKind.Auto ? Math.Max(0, offered) : widths[i];
@@ -100,17 +114,17 @@ namespace ConsoleMonster.Layout {
                 if (widths[i] > 0) {
                     _children[i].Render(region.Sub(x, 0, widths[i], region.Height), context);
                 }
-                x += widths[i] + Gap;
+                x += widths[i] + gap;
             }
         }
 
-        private bool IsCollapsed(int width) {
+        private bool IsCollapsed(int width, int gap) {
             if (_children.Count < 2) {
                 return false;
             }
             int threshold = CollapseBelow;
             if (threshold < 0) {
-                threshold = Gap * (_children.Count - 1);
+                threshold = gap * (_children.Count - 1);
                 foreach (LayoutSize spec in _sizes) {
                     threshold += spec.Kind == LayoutSizeKind.Fixed ? (int)spec.Value : (spec.Min > 0 ? spec.Min : (spec.Kind == LayoutSizeKind.Fraction ? DefaultFractionMin : 0));
                 }
@@ -118,9 +132,9 @@ namespace ConsoleMonster.Layout {
             return width < threshold;
         }
 
-        private int[] ComputeWidths(int width, int maxHeight, RenderContext context) {
+        private int[] ComputeWidths(int width, int maxHeight, int gap, RenderContext context) {
             Func<int, int, int> measure = (index, remaining) => _children[index].Measure(new Constraints(remaining, maxHeight), context).Width;
-            return TrackAllocator.Allocate(width, _sizes, Gap, measure, false);
+            return TrackAllocator.Allocate(width, _sizes, gap, measure, false);
         }
     }
 }

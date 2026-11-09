@@ -29550,6 +29550,7 @@
     "ConsoleMonster.Styling.StatusMarkerStyle",
     "ConsoleMonster.Styling.Style",
     "ConsoleMonster.Styling.TextDecoration",
+    "ConsoleMonster.Styling.ThemeDensity",
     "ConsoleMonster.Styling.ThemeFile",
     "ConsoleMonster.Styling.ThemeToken",
     "ConsoleMonster.Terminal",

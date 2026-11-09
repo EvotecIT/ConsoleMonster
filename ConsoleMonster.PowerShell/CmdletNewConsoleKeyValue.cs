@@ -75,7 +75,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void EndProcessing() {
-            KeyValueList list = new KeyValueList(WidgetId) { Gap = Gap, MaxKeyFraction = MaxKeyFraction, Columns = Columns, KeyRole = KeyRole };
+            KeyValueList list = new KeyValueList(WidgetId) { MaxKeyFraction = MaxKeyFraction, Columns = Columns, KeyRole = KeyRole };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Gap))) { list.Gap = Gap; }
             foreach (object input in _input) {
                 object? raw = PSText.Unwrap(input);
                 if (PSItems.IsPairRecord(input) || raw is KeyValueItem) {

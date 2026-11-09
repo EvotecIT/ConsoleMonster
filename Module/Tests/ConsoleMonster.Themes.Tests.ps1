@@ -40,6 +40,20 @@
         [ConsoleMonster.Terminal]::Theme.Name | Should -BeIn 'ColorBlindSafe', 'ColorBlindSafeLight'
     }
 
+    It 'round trips Compact density through JSON and PSD1 style files' {
+        $path = Join-Path $TestDrive 'compact.psd1'
+        "@{ SchemaVersion = 2; Name = 'Team'; BaseTheme = 'Dark'; Style = @{ Density = 'Compact' }; Tokens = @{} }" | Set-Content -LiteralPath $path -Encoding UTF8
+        Set-ConsoleTheme -Path $path
+        [ConsoleMonster.Terminal]::Theme.Appearance.Density.ToString() | Should -BeExactly Compact
+        foreach ($extension in 'json', 'psd1') {
+            $exported = Join-Path $TestDrive "compact.$extension"
+            Export-ConsoleTheme -Path $exported
+            Set-ConsoleTheme -Theme Dark
+            Set-ConsoleTheme -Path $exported
+            [ConsoleMonster.Terminal]::Theme.Appearance.Density.ToString() | Should -BeExactly Compact
+        }
+    }
+
     It 'adds the selected theme to the profile snippet until the theme is replaced' {
         Set-ConsoleTheme -Theme ColorBlindSafeLight
         $snippet = @(Enable-ConsoleFormatting -ProfileSnippet)

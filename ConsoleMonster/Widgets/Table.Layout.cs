@@ -23,7 +23,7 @@ namespace ConsoleMonster.Widgets {
                 return new TableLayout(TableMode.Record) { Record = BuildRecordView(presenter) };
             }
             int count = _columns.Count;
-            int gap = IsBoxed ? 0 : 2;
+            int gap = IsBoxed ? context.DefaultSpacing(1, 0) : context.DefaultSpacing(2, 1);
             StyledLine[] headers = new StyledLine[count];
             int[] desired = new int[count];
             int[] minimum = new int[count];
@@ -72,7 +72,7 @@ namespace ConsoleMonster.Widgets {
                 return new TableLayout(TableMode.Cards) { Record = BuildCards(presenter) };
             }
             // Hide columns by ascending priority (ties: rightmost first) until the minimums fit; the key column stays.
-            TableLayout layout = new TableLayout(TableMode.Grid) { Gap = gap, AvailableWidth = maxWidth };
+            TableLayout layout = new TableLayout(TableMode.Grid) { Gap = gap, CellPadding = IsBoxed ? gap : 0, AvailableWidth = maxWidth };
             List<int> hiddenColumns = new List<int>();
             for (int c = 0; c < count; c++) {
                 if (c != KeyColumn && !_columns[c].IsKey && _columns[c].Placement == ColumnPlacement.Below && maxWidth <= _columns[c].BelowWidth) {
@@ -108,7 +108,7 @@ namespace ConsoleMonster.Widgets {
             WidenForGroupHeadings(widths, visible, rows, maxWidth, gap);
             layout.Visible = visible.ToArray();
             layout.Gaps = new int[visible.Count];
-            for (int v = 1; v < visible.Count; v++) layout.Gaps[v] = Math.Max(0, _columns[visible[v]].Gap ?? gap);
+            for (int v = 1; v < visible.Count; v++) layout.Gaps[v] = Math.Max(0, _columns[visible[v]].Gap ?? (IsBoxed ? 0 : gap));
             layout.Widths = widths;
             layout.Alignments = new HorizontalAlignment[visible.Count];
             layout.HeaderLines = new List<StyledLine>[visible.Count];
@@ -246,7 +246,7 @@ namespace ConsoleMonster.Widgets {
             return victim;
         }
 
-        private int Overhead(int columns, int gap) => IsBoxed ? (columns * 3) + 1 : gap * Math.Max(0, columns - 1);
+        private int Overhead(int columns, int gap) => IsBoxed ? (columns * (1 + 2 * gap)) + 1 : gap * Math.Max(0, columns - 1);
 
         private int Overhead(IReadOnlyList<int> columns, int gap) {
             if (IsBoxed) return Overhead(columns.Count, gap);
@@ -528,7 +528,7 @@ namespace ConsoleMonster.Widgets {
             bool ruled = !GroupHeadersAsRows && (IsBoxed || (Border == TableBorder.Minimal || Border == TableBorder.Rule));
             if (ruled) {
                 // Boxed "├─ label ─┼": the label, a space either side and a rule glyph either side; Minimal "─ label ─ ".
-                int want = label + (IsBoxed ? 2 : 4);
+                int want = label + (IsBoxed ? 4 - 2 * gap : 4);
                 int grow = want - widths[0] <= Math.Max(8, widths[0]) ? Math.Min(Math.Min(want, CapOf(visible[0])) - widths[0], free) : 0;
                 if (grow > 0) {
                     widths[0] += grow;
@@ -538,7 +538,7 @@ namespace ConsoleMonster.Widgets {
                     return;
                 }
             }
-            int needed = label + (IsBoxed ? GroupHeadersAsRows ? 4 : 6 : ruled ? 3 : 0);
+            int needed = label + (IsBoxed ? GroupHeadersAsRows ? 2 + 2 * gap : 6 : ruled ? 3 : 0);
             int extra = Math.Min(needed - (TrackAllocator.Sum(widths) + Overhead(visible, gap)), free);
             if (extra <= 0) {
                 return;

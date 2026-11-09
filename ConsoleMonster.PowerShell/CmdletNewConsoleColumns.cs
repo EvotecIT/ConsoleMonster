@@ -50,7 +50,8 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
-            Columns columns = new Columns { Gap = Gap, CollapseBelow = CollapseBelow < 0 ? -1 : CollapseBelow };
+            Columns columns = new Columns { CollapseBelow = CollapseBelow < 0 ? -1 : CollapseBelow };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Gap))) { columns.Gap = Gap; }
             for (int i = 0; i < children.Count; i++) {
                 int width = FixedWidth != null && i < FixedWidth.Length ? FixedWidth[i] : 0;
                 if (width > 0) {
