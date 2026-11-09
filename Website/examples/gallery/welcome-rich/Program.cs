@@ -1,6 +1,7 @@
 // Print an offline welcome screen with a logo, host summary, git status and tip.
 // All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 using ConsoleMonster.Styling;
@@ -21,7 +22,7 @@ ViewFacts git = new ViewFacts()
     .Add(1, "staged", ThemeToken.Pass)
     .Add("0 ahead / 0 behind");
 
-string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+string separator = Terminal.GetCurrentProfile().Glyphs == GlyphTier.Ascii
     ? "|" : "·";
 
 // Layout: compose the screen from the data above.

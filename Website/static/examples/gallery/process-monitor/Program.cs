@@ -38,7 +38,11 @@ IWidget Frame(int tick)
             .Add(new ViewFact($"{1640 + tick * 64:N0} MiB", default, "Memory"))
             .Add(4, "processes"),
         table,
-        new Panel() { Title = "CPU history", Content = new Rows(new TextBlock("[muted]CPU %[/]"), history) },
+        new Panel()
+        {
+            Title = "CPU history",
+            Content = new Rows(new TextBlock("[muted]CPU %[/]"), history)
+        },
         new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))
     {
         Gap = 1

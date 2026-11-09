@@ -36,9 +36,9 @@ namespace SiteFrames.Tests {
             var process = GalleryPage.Read(site).Single(demo => demo.Slug == "process-monitor");
             var chart = Assert.Single(ApiMappingNotes.ForPair(site, process.CSharp, process.CSharpFluent, process.PowerShell),
                 row => row!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.Chart")!;
-            Assert.Equal("New-ConsoleChart -Type Sparkline", chart["powershell"]!.GetValue<string>());
-            Assert.Equal("Ui.Chart().Type(ChartType.Sparkline)", chart["fluent"]!.GetValue<string>());
-            Assert.Equal("new Sparkline(…)", chart["csharp"]!.GetValue<string>());
+            Assert.Equal("New-ConsoleChart -Type Line", chart["powershell"]!.GetValue<string>());
+            Assert.Equal("Ui.Chart().Type(ChartType.Line)", chart["fluent"]!.GetValue<string>());
+            Assert.Equal("new LineChart(…)", chart["csharp"]!.GetValue<string>());
         }
 
         private static Site Repository() {

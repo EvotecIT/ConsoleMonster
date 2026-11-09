@@ -5,10 +5,82 @@
   "scope": "produced-only",
   "requestedSet": "gallery",
   "filters": {
-    "SITEFRAMES_GALLERY": "patch-progress"
+    "SITEFRAMES_GALLERY": "everyday-formatting,readiness-report,welcome-rich,patch-progress,process-monitor,fleet,port-matrix,stress,toolbox,worker-progress"
   },
   "allSetsCompleted": false,
   "files": {
+    "gallery/everyday-formatting-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "873d91236b66fb6bafc0d31f754d53876371598c973d5aefc3d3b391c92ab96a",
+      "screen": "dark",
+      "width": 88,
+      "height": 28
+    },
+    "gallery/fleet-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "c3824a1d650f57db41390e3c53ef0d80c51947d119aa483d48ea6fdc3434da9e",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-1.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "249e86e7b62a7648aa9d3baf765c03e630d0393a5ccc283ae2591c32bdd567fb",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-2.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "5b4092150b789dd82db80eeaaf60b9b59045518c5abfc4de5e864d0bcfbb2008",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-3.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "8ce7cd86fb20c68b2b4786a57102bf3a2e831636bbc6f756927004089e4d9cc9",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-4.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "a37d75933dc2a24d935c1671d4f8411cd4079edaf1039f8421f577f4f4699ab9",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-5.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "baf73250f05a2d94e28372b79877ce3e3cfa809d834d51b973d4db2eedfd5b02",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-6.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "9e6f2ec2de7ebd48cb797cf807b17fc4d275d5feff524f3b9979a0999fef58b4",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
+    "gallery/fleet-7.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "76adec1078091ff00e0987980cf18b1fb6390362fdadded810eb8483f9855b2a",
+      "screen": "dark",
+      "width": 160,
+      "height": 50
+    },
     "gallery/patch-progress-0.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
@@ -24,6 +96,214 @@
       "screen": "dark",
       "width": 88,
       "height": 22
+    },
+    "gallery/port-matrix-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "ce799490f7f475e448ec221afd50be9ea92b35679bf62fded8e4b505a40b9d03",
+      "screen": "dark",
+      "width": 100,
+      "height": 24
+    },
+    "gallery/process-monitor-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "1536d1644eaf80d71ca220026bf5ef1c609af9e149328ece45e3b74248dbb6b0",
+      "screen": "dark",
+      "width": 100,
+      "height": 26
+    },
+    "gallery/process-monitor-1.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "b1a984ab7908763d4dac76e76bc6ad0c5c630628c652ae436a16a38d49b284ab",
+      "screen": "dark",
+      "width": 100,
+      "height": 26
+    },
+    "gallery/process-monitor-2.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "551016264dab849cf2b187d9ec37cc8c1661ac892e0bd83d9dd2a2fb1124a5e3",
+      "screen": "dark",
+      "width": 100,
+      "height": 26
+    },
+    "gallery/readiness-report-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "229003904baa404027b1a9914b00bffa6f8d4d98784f3806747161e460bc8e47",
+      "screen": "dark",
+      "width": 88,
+      "height": 30
+    },
+    "gallery/stress-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "cb0ba55192efe84f5c073b7783b8198da02fd88063c5b361e0aae25f0ccb3a82",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/stress-1.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "96b7a52880b2bcc5ef6bd8f47d5fe6e9125f6085dc42ea9ca8aec3cbb59797d1",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/stress-2.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "cf6c3cebc4859cb048e044798b12d6dd9548267cd5b0819e5a278b918a1dba7e",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/stress-3.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "7888f19220ec4666c75636bf69eb1338404a5ff19d42b20839b1e59a315c0ca5",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/stress-4.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "4b5a27733db0fd755f5d7763c4c0b1f2adaa0e0f4d12ba4c640bef88650a6df1",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/stress-5.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "5e50e3903df0122d4dec0a2cf418a4a18a9abbbc1391c21cc4e6f51ee3e5ba3a",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/stress-6.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "caee64cb9ccf3ed363f9bde7c9855d9f803b170b25b82de472869068ebb57bd9",
+      "screen": "dark",
+      "width": 140,
+      "height": 48
+    },
+    "gallery/toolbox-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "e6498529b5b1d52f74a1d745f023af49a5ef03348c723f0958198b589ed5fd05",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-1.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "9d113d2317bf9ab3460e02161427b25a7827e56a6ef6db9df0a75e1fc0993223",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-2.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "08051684937e130f0f533c1dd1d506c1f6526476aee8badb073ea0847d6782ee",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-3.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "0e2635b27f2aa1bf2dcb02ba086394ab31f60be962625e47bd108dffc519dba9",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-4.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "eb019499a175440f0b4cc40857d7d333df40e22a735016d85a8072455c4005a8",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-5.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "7697bbaaa1fd30db421fd878204e4ee9a9a7b849f50c89f8666d42a722f1f007",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-6.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "4a43e5bdf8f84a72f7c02736fa7375ccc4cf477da0b5cf83f7a9f08b190b8071",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/toolbox-7.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "dcc298c28451dae4d9902a3e3d9a0b4489d29031360268a00572f0e17d0c7a4e",
+      "screen": "dark",
+      "width": 128,
+      "height": 40
+    },
+    "gallery/welcome-rich-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "10ef6a1d72d0862d44c3fb0979517f76cd033566422192c599402b1c8e7471a4",
+      "screen": "dark",
+      "width": 88,
+      "height": 24
+    },
+    "gallery/worker-progress-0.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "df1afe77a5ddb54f6c4cb74b5f4d67ced32783a3acd178c71cbdc29b5230a7a0",
+      "screen": "dark",
+      "width": 88,
+      "height": 28
+    },
+    "gallery/worker-progress-1.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "ce646b66fe6e9143257c72f035c10ffec85481e9f992e720e9bb1d63d12d5497",
+      "screen": "dark",
+      "width": 88,
+      "height": 28
+    },
+    "gallery/worker-progress-2.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "4e5c56866635144c6232b1c50c6a2fbb87a0168956381515249fd5b42a56e41d",
+      "screen": "dark",
+      "width": 88,
+      "height": 28
+    },
+    "gallery/worker-progress-3.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "b82c52ca00837375c67f40ea1a999481df2f9fa55d338dbf7329e66ea2f4317c",
+      "screen": "dark",
+      "width": 88,
+      "height": 28
+    },
+    "gallery/worker-progress-4.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "e5ddf4b21b3a77635a24ce8601cf2b530c7534879db68b461da94fd7fa15584a",
+      "screen": "dark",
+      "width": 88,
+      "height": 28
     }
   }
 }

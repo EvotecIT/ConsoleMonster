@@ -26,10 +26,14 @@ $report = New-ConsoleRows -Gap 1 -Content {
     $columns = @(' ') + @($ports | ForEach-Object { @{ Name = $_; Presenter = 'Status' } })
     New-ConsoleTable -InputObject $rows -Property $columns -Border None
     New-ConsoleFacts -Content {
-        @{ Value = @($states | Where-Object { $_ -eq 'Pass' }).Count; Label = 'passed'; Role = 'Pass' }
-        @{ Value = @($states | Where-Object { $_ -eq 'Fail' }).Count; Label = 'failed'; Role = 'Fail' }
-        @{ Value = @($states | Where-Object { $_ -eq 'Warn' }).Count; Label = 'warning'; Role = 'Warn' }
-        @{ Value = @($states | Where-Object { $_ -eq 'Skip' }).Count; Label = 'skipped'; Role = 'Skip' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Pass' }).Count; Label = 'passed'
+            Role = 'Pass' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Fail' }).Count; Label = 'failed'
+            Role = 'Fail' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Warn' }).Count; Label = 'warning'
+            Role = 'Warn' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Skip' }).Count; Label = 'skipped'
+            Role = 'Skip' }
     }
     New-ConsolePanel -Title 'Exceptions to investigate' -Content {
         New-ConsoleStatusList -Content {

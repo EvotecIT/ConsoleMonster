@@ -29,7 +29,8 @@ function New-DemoFrame {
             }
             New-ConsolePanel -Title Session -Content {
                 New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
-                        'Updates' = (800 + $Tick * 320).ToString('N0', [cultureinfo]::InvariantCulture)
+                        'Updates' = (800 + $Tick * 320).ToString('N0',
+                            [cultureinfo]::InvariantCulture)
                         'Queue' = [string] (24 - $Tick * 5)
                         'Workers' = '8'
                         'Dropped' = '[muted]0[/]'

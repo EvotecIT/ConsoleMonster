@@ -1,6 +1,7 @@
 // Show the same task data as plain text and a formatted table.
 // All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
@@ -14,7 +15,7 @@ var tasks = new TaskItem[]
     new("Archive old drafts", "Waiting", 8)
 };
 
-string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+string separator = Terminal.GetCurrentProfile().Glyphs == GlyphTier.Ascii
     ? "|" : "·";
 
 // Layout: compose the screen from the data above.
@@ -35,7 +36,8 @@ foreach (var task in tasks)
 }
 
 Rows layout = new Rows(
-    new Rule($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer output[/]"),
+    new Rule(($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer "
+        + $"output[/]")),
     new TextBlock($"[bold]Before[/] [muted]{separator} plain text[/]"),
     new TextBlock(baseline),
     new TextBlock($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]"),

@@ -80,7 +80,14 @@ function New-StressFrame {
                     New-ConsoleKeyValue -WidgetId stats -InputObject $stats
                     New-ConsoleRule -Title 'updates/s'
                     $values = @($sampleRates | Select-Object -First $samples)
-                    New-ConsoleChart -WidgetId rate -Height 3 -Unit '/s' -Type Sparkline -Values $values
+                    $chartParameters = @{
+                        WidgetId = 'rate'
+                        Height = 3
+                        Unit = '/s'
+                        Type = 'Sparkline'
+                        Values = $values
+                    }
+                    New-ConsoleChart @chartParameters
                     New-ConsoleRule -Title 'CPU % (100% = one core)'
                     New-ConsoleChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
                         [pscustomobject]@{ Key = 'cpu'; Role = 'Accent2'

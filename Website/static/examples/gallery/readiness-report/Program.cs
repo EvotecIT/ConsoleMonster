@@ -1,6 +1,7 @@
 // Show a readiness report with status checks and score bars.
 // All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
@@ -22,7 +23,7 @@ var areaScores = new AreaScoreRow[]
     new("Recovery", 35)
 };
 
-string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+string separator = Terminal.GetCurrentProfile().Glyphs == GlyphTier.Ascii
     ? "|" : "·";
 
 // Layout: compose the screen from the data above.

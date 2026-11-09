@@ -25,9 +25,12 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
     var table = Ui.Table(rows)
         .Column(row => row.Host)
         .Column(row => row.Stage)
-        .Column("Result", row => row.Result == "Retry needed"
-            ? TableCell.FromValue(Ui.StatusList().Add("[warn]Retry needed[/]", StatusKind.Warn))
-            : TableCell.FromValue(row.Result), column => column.Presenter(CellPresenters.StatusWord));
+        .Column(
+            "Result",
+            row => row.Result == "Retry needed"
+                ? TableCell.FromValue(Ui.StatusList().Add("[warn]Retry needed[/]", StatusKind.Warn))
+                : TableCell.FromValue(row.Result),
+            column => column.Presenter(CellPresenters.StatusWord));
     IWidget summary = outcomes.Count > 0
         ? Ui.Facts().Add(outcomes.Count(result => result.Succeeded), "passed", ThemeToken.Pass)
             .Add(outcomes.Count(result => !result.Succeeded), "retry needed", ThemeToken.Warn)
