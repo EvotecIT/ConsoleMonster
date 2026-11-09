@@ -116,6 +116,7 @@
         <TypeName>ConsoleMonster.Widgets.Tabs</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ViewFacts</TypeName>
         <TypeName>ConsoleMonster.Widgets.ViewHeader</TypeName>
         <TypeName>ConsoleMonster.Widgets.ViewHint</TypeName>
         <TypeName>ConsoleMonster.Widgets.WatchView</TypeName>

@@ -45,9 +45,9 @@ Register-ConsoleView -TypeName Contoso.Odd -Property Name -Summary { @{ Value = 
         $console, $rest = ($text -split '== console')[1] -split '== table'
         $table, $rest = $rest -split '== broken'
         $broken = ($rest -split '== end')[0]
-        $console | Should -Match '3 servers · 1 down · disk 3 GB'
+        $console | Should -Match '3 servers \| 1 down \| disk 3 GB'
         $table | Should -Match 'db1'
-        $table | Should -Not -Match 'servers ·'
+        $table | Should -Not -Match 'servers \|'
         $broken | Should -Match 'still shown'
         $broken | Should -Not -Match 'no summary today'
         $broken | Should -Match 'odd one'
@@ -77,11 +77,11 @@ Get-ChildItem -LiteralPath '$root' | od
             $tree | Should -Match 'old/\s+50 B'
             $tree | Should -Match 'june\.log\s+50 B'
             $tree | Should -Not -Match '[┌╭]'
-            $tree | Should -Match '2 folders · 3 files · 160 B · largest today\.log'
+            $tree | Should -Match '2 folders \| 3 files \| 160 B \| largest today\.log'
             # Folders that were not listed themselves (-File) still hold their files.
             $files | Should -Match 'old/\s+50 B'
-            $files | Should -Match '3 files · 160 B'
-            $folder | Should -Match '[┌╭]'
+            $files | Should -Match '3 files \| 160 B'
+            $folder | Should -Match '(?m)^\+-[-+]+\+$'
             $folder | Should -Match 'readme\.txt'
         } finally {
             Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue
@@ -112,10 +112,10 @@ $(foreach ($level in 'Error', 'Warning', 'Warning', 'Information') { New-Fake 'S
         $pings, $rest = $rest -split '== services'
         $services, $rest = $rest -split '== events'
         $events = ($rest -split '== end')[0]
-        $history | Should -Match '4 commands · 1 failed · took 1 m 40 s · slowest 40 s \(#4\)'
-        $pings | Should -Match '(?m)^ alpha\.test 3/3 replies · min 10 ms · avg 20 ms · max 30 ms'
-        $pings | Should -Match '(?m)^ beta\.test 2/3 replies · min 10 ms · avg 20 ms · max 30 ms'
-        $services | Should -Match '3 running · 2 stopped · 1 automatic not running'
-        $events | Should -Match '1 error · 2 warnings · 1 information · over 6 h'
+        $history | Should -Match '4 commands \| 1 failed \| took 1 m 40 s \| slowest 40 s \(#4\)'
+        $pings | Should -Match '(?m)^ alpha\.test 3/3 replies \| min 10 ms \| avg 20 ms \| max 30 ms'
+        $pings | Should -Match '(?m)^ beta\.test 2/3 replies \| min 10 ms \| avg 20 ms \| max 30 ms'
+        $services | Should -Match '3 running \| 2 stopped \| 1 automatic not running'
+        $events | Should -Match '1 error \| 2 warnings \| 1 information \| over 6 h'
     }
 }

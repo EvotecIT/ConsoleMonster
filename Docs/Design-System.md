@@ -212,7 +212,8 @@ the corresponding numeric edges. A Sparkline inside a panel whose title contains
 
 Printed reports keep their measured height. A Dashboard given a full-screen region fills its last automatic row;
 an explicit Fill row takes precedence. Ordinary Rows and Show-ConsoleApp layouts retain their existing sizing.
-DashboardFrame sections start together in their columns, with a separate Title heading per section and a short rule marking headings without a state. Its legend
+DashboardFrame sections start together in their columns, with a separate Title heading per section and a short rule marking headings without a state.
+Four blank cells separate frame columns (three in Compact), so a status caption cannot read as part of the next heading. Its legend
 is one Muted facts line directly under the summary it explains, including the footer counts; details follow it.
 
 Table columns whose non-empty values are all numeric align right, including values supplied as text. An explicit
