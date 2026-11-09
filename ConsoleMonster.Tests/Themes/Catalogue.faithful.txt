@@ -1,0 +1,299 @@
+Catppuccin Mocha
+Contrast | Text | - | Pass | 11.341 | 4.500
+Contrast | Muted | - | Pass | 9.262 | 4.500
+Contrast | Pass | - | Pass | 11.031 | 4.500
+Contrast | Warn | - | Pass | 12.907 | 4.500
+Contrast | Fail | - | Pass | 7.083 | 4.500
+Contrast | Info | - | Pass | 11.011 | 4.500
+Contrast | Skip | - | Pass | 9.262 | 4.500
+Contrast | Running | - | Pass | 11.011 | 4.500
+Contrast | Pending | - | Pass | 9.262 | 4.500
+Contrast | Low | - | Pass | 9.262 | 4.500
+Contrast | Critical | - | Pass | 7.083 | 4.500
+Contrast | Gap | - | Pass | 9.262 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 32.877 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 79.832 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 53.714 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 4.538 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 42.304 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 41.296 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 8.761 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 20.765 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Pass | 28.891 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 35.798 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 73.666 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 42.072 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Catppuccin Latte
+Contrast | Text | - | Pass | 7.062 | 4.500
+Contrast | Muted | - | Pass | 7.062 | 4.500
+Contrast | Pass | - | Fail | 2.957 | 4.500
+Contrast | Warn | - | Fail | 2.314 | 4.500
+Contrast | Fail | - | Pass | 4.801 | 4.500
+Contrast | Info | - | Fail | 3.311 | 4.500
+Contrast | Skip | - | Pass | 7.062 | 4.500
+Contrast | Running | - | Fail | 3.311 | 4.500
+Contrast | Pending | - | Pass | 7.062 | 4.500
+Contrast | Low | - | Pass | 7.062 | 4.500
+Contrast | Critical | - | Pass | 4.801 | 4.500
+Contrast | Gap | - | Pass | 7.062 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 74.888 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 120.882 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 60.781 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 5.194 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 52.131 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 57.132 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 23.379 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 9.395 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Pass | 32.381 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 83.445 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 119.185 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 42.390 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Dracula
+Contrast | Text | - | Pass | 13.359 | 4.500
+Contrast | Muted | - | Fail | 3.026 | 4.500
+Contrast | Pass | - | Pass | 10.376 | 4.500
+Contrast | Warn | - | Pass | 12.744 | 4.500
+Contrast | Fail | - | Pass | 4.532 | 4.500
+Contrast | Info | - | Pass | 10.288 | 4.500
+Contrast | Skip | - | Fail | 3.026 | 4.500
+Contrast | Running | - | Pass | 10.288 | 4.500
+Contrast | Pending | - | Fail | 3.026 | 4.500
+Contrast | Low | - | Fail | 3.026 | 4.500
+Contrast | Critical | - | Pass | 4.532 | 4.500
+Contrast | Gap | - | Fail | 3.026 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 51.374 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 136.628 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 91.134 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 6.746 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 53.774 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 53.938 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 12.085 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 20.338 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Pass | 30.803 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 57.518 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 138.711 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 87.603 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Gruvbox Dark
+Contrast | Text | - | Pass | 10.747 | 4.500
+Contrast | Muted | - | Fail | 4.016 | 4.500
+Contrast | Pass | - | Pass | 4.758 | 4.500
+Contrast | Warn | - | Pass | 5.945 | 4.500
+Contrast | Fail | - | Fail | 4.286 | 4.500
+Contrast | Info | - | Pass | 4.647 | 4.500
+Contrast | Skip | - | Fail | 4.016 | 4.500
+Contrast | Running | - | Pass | 4.647 | 4.500
+Contrast | Pending | - | Fail | 4.016 | 4.500
+Contrast | Low | - | Fail | 4.016 | 4.500
+Contrast | Critical | - | Fail | 4.286 | 4.500
+Contrast | Gap | - | Fail | 4.016 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 28.830 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 80.118 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 55.248 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 5.502 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 29.167 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 34.223 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 11.853 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 1.714 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Fail | 10.827 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 32.609 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 80.063 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 49.846 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Gruvbox Light
+Contrast | Text | - | Pass | 10.220 | 4.500
+Contrast | Muted | - | Fail | 3.235 | 4.500
+Contrast | Pass | - | Fail | 4.287 | 4.500
+Contrast | Warn | - | Fail | 3.325 | 4.500
+Contrast | Fail | - | Pass | 7.597 | 4.500
+Contrast | Info | - | Fail | 4.401 | 4.500
+Contrast | Skip | - | Fail | 3.235 | 4.500
+Contrast | Running | - | Fail | 4.401 | 4.500
+Contrast | Pending | - | Fail | 3.235 | 4.500
+Contrast | Low | - | Fail | 3.235 | 4.500
+Contrast | Critical | - | Pass | 7.597 | 4.500
+Contrast | Gap | - | Fail | 3.235 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 28.714 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 67.338 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 46.524 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 5.812 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 32.247 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 38.053 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 12.486 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 12.079 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Fail | 23.836 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 32.543 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 66.339 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 41.118 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Nord
+Contrast | Text | - | Pass | 9.245 | 4.500
+Contrast | Muted | - | Pass | 10.257 | 4.500
+Contrast | Pass | - | Pass | 6.127 | 4.500
+Contrast | Warn | - | Pass | 7.998 | 4.500
+Contrast | Fail | - | Fail | 3.053 | 4.500
+Contrast | Info | - | Pass | 6.243 | 4.500
+Contrast | Skip | - | Pass | 10.257 | 4.500
+Contrast | Running | - | Pass | 6.243 | 4.500
+Contrast | Pending | - | Pass | 10.257 | 4.500
+Contrast | Low | - | Pass | 10.257 | 4.500
+Contrast | Critical | - | Fail | 3.053 | 4.500
+Contrast | Gap | - | Pass | 10.257 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 26.660 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 61.402 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 52.630 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 12.915 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 33.262 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 45.616 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 18.816 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 18.769 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Pass | 35.126 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 31.348 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 63.435 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 42.488 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Solarized Dark
+Contrast | Text | - | Pass | 4.748 | 4.500
+Contrast | Muted | - | Pass | 12.252 | 4.500
+Contrast | Pass | - | Pass | 4.685 | 4.500
+Contrast | Warn | - | Pass | 4.678 | 4.500
+Contrast | Fail | - | Fail | 3.246 | 4.500
+Contrast | Info | - | Pass | 4.754 | 4.500
+Contrast | Skip | - | Pass | 12.252 | 4.500
+Contrast | Running | - | Pass | 4.754 | 4.500
+Contrast | Pending | - | Pass | 12.252 | 4.500
+Contrast | Low | - | Pass | 12.252 | 4.500
+Contrast | Critical | - | Fail | 3.246 | 4.500
+Contrast | Gap | - | Pass | 12.252 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 30.397 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 90.396 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 62.062 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 3.424 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 40.114 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 36.907 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 4.319 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 11.298 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Fail | 15.587 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 32.907 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 89.495 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 57.490 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Solarized Light
+Contrast | Text | - | Fail | 4.130 | 4.500
+Contrast | Muted | - | Pass | 13.917 | 4.500
+Contrast | Pass | - | Fail | 2.970 | 4.500
+Contrast | Warn | - | Fail | 2.975 | 4.500
+Contrast | Fail | - | Fail | 4.272 | 4.500
+Contrast | Info | - | Fail | 2.928 | 4.500
+Contrast | Skip | - | Pass | 13.917 | 4.500
+Contrast | Running | - | Fail | 2.928 | 4.500
+Contrast | Pending | - | Pass | 13.917 | 4.500
+Contrast | Low | - | Pass | 13.917 | 4.500
+Contrast | Critical | - | Fail | 4.272 | 4.500
+Contrast | Gap | - | Pass | 13.917 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 30.397 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 73.577 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 44.567 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 3.424 | 25.000
+ColourVision | Pass,Fail | protanopia | Fail | 24.878 | 25.000
+ColourVision | Warn,Fail | protanopia | Fail | 21.465 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 4.319 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 6.813 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Fail | 10.206 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 32.907 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 77.178 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 44.944 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Tokyo Night Dark
+Contrast | Text | - | Pass | 10.587 | 4.500
+Contrast | Muted | - | Pass | 8.096 | 4.500
+Contrast | Pass | - | Pass | 9.352 | 4.500
+Contrast | Warn | - | Pass | 8.547 | 4.500
+Contrast | Fail | - | Pass | 6.460 | 4.500
+Contrast | Info | - | Pass | 9.963 | 4.500
+Contrast | Skip | - | Pass | 8.096 | 4.500
+Contrast | Running | - | Pass | 9.963 | 4.500
+Contrast | Pending | - | Pass | 8.096 | 4.500
+Contrast | Low | - | Pass | 8.096 | 4.500
+Contrast | Critical | - | Pass | 6.460 | 4.500
+Contrast | Gap | - | Pass | 8.096 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 42.146 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 91.241 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 53.577 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 10.556 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 53.603 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 43.609 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 2.176 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Pass | 26.623 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Pass | 28.314 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 45.769 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 77.744 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 32.755 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000
+
+Tokyo Night Day
+Contrast | Text | - | Pass | 4.525 | 4.500
+Contrast | Muted | - | Fail | 3.574 | 4.500
+Contrast | Pass | - | Fail | 4.040 | 4.500
+Contrast | Warn | - | Fail | 3.749 | 4.500
+Contrast | Fail | - | Fail | 3.005 | 4.500
+Contrast | Info | - | Fail | 4.262 | 4.500
+Contrast | Skip | - | Fail | 3.574 | 4.500
+Contrast | Running | - | Fail | 4.262 | 4.500
+Contrast | Pending | - | Fail | 3.574 | 4.500
+Contrast | Low | - | Fail | 3.574 | 4.500
+Contrast | Critical | - | Fail | 3.005 | 4.500
+Contrast | Gap | - | Fail | 3.574 | 4.500
+ColourVision | Pass,Warn | normal vision | Pass | 28.634 | 25.000
+ColourVision | Pass,Fail | normal vision | Pass | 97.975 | 25.000
+ColourVision | Warn,Fail | normal vision | Pass | 69.733 | 25.000
+ColourVision | Pass,Warn | protanopia | Fail | 3.810 | 25.000
+ColourVision | Pass,Fail | protanopia | Pass | 33.084 | 25.000
+ColourVision | Warn,Fail | protanopia | Pass | 29.275 | 25.000
+ColourVision | Pass,Warn | deuteranopia | Fail | 4.829 | 25.000
+ColourVision | Pass,Fail | deuteranopia | Fail | 14.188 | 25.000
+ColourVision | Warn,Fail | deuteranopia | Fail | 11.275 | 25.000
+ColourVision | Pass,Warn | tritanopia | Pass | 32.011 | 25.000
+ColourVision | Pass,Fail | tritanopia | Pass | 98.824 | 25.000
+ColourVision | Warn,Fail | tritanopia | Pass | 67.218 | 25.000
+Markers | Pass,Warn | - | Pass | 1.000 | 1.000
+Markers | Pass,Fail | - | Pass | 1.000 | 1.000
+Markers | Warn,Fail | - | Pass | 1.000 | 1.000
+Fill | Critical | - | Pass | 1.000 | 1.000

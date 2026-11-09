@@ -123,13 +123,13 @@ Accept wildcard characters: False
 ```
 
 ### -Theme
-A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.
+A built-in preset, catalogue scheme or family. Catalogue names accept · accessible. Omit both Theme and Path to check the active theme. Paired families and ColorBlindSafe select the detected background; explicit variant names choose one.
 
 ```yaml
 Type: String
 Parameter Sets: Name
 Aliases: None
-Possible values: Dark, Light, HighContrast, ColorBlindSafe, ColorBlindSafeLight, ColorBlindSafeDark, Terminal
+Possible values:
 
 Required: False
 Position: named

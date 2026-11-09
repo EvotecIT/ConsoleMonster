@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace ConsoleMonster.Styling {
-    // Shared wording for the library's verdicts, the report view and the settings preview.
+    // Shared wording for the library's verdicts and ThemeCheckVerdict's readable lines.
     internal static class ThemeCheckText {
         internal static string Pair(IEnumerable<ThemeToken> tokens, bool sentence = true) {
             string text = Join(tokens.Select(token => token == ThemeToken.Warn ? "warning" : token.ToString().ToLowerInvariant()));

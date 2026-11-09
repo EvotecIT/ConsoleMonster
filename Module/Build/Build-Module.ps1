@@ -96,7 +96,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     New-ConfigurationDocumentation -Enable -PathReadme 'Docs/Readme.md' -Path 'Docs' -SyncExternalHelpToProjectRoot
 
     # The manifest loads the generated format view, so it must ship beside the entry script.
-    New-ConfigurationInformation -IncludeRoot '*.psm1', '*.psd1', '*.Libraries.ps1', '*.ps1xml', 'License*'
+    New-ConfigurationInformation -IncludeRoot '*.psm1', '*.psd1', '*.Libraries.ps1', '*.ps1xml', 'License*' -IncludeAll 'Images', 'Resources', 'Templates', 'Bin', 'Lib', 'en-US', 'Notices'
 
     New-ConfigurationImportModule -ImportSelf
 

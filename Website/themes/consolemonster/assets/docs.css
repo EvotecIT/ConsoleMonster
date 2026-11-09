@@ -133,3 +133,12 @@
 
 /* Package names in guide titles can be longer than a compact viewport. */
 .cm-body--docs .cm-masthead h1 { overflow-wrap: anywhere; }
+
+/* A frame with what the theme checker says about it (cm-frame figures with a verdict): the verdict in muted text under
+   the window, the rest of the report one click away. */
+.cm-figure__item { min-width: 0; }
+.cm-prose .cm-figure__verdict { margin: var(--cm-space-2) 0 0; color: var(--cm-muted); font-size: 14px; line-height: 1.45; }
+.cm-figure__verdict summary { cursor: pointer; width: fit-content; }
+.cm-figure__verdict summary:hover { color: var(--cm-ink-2); }
+.cm-prose .cm-figure__verdict ul { margin: var(--cm-space-1) 0 0; padding-left: 1.2em; }
+.cm-prose .cm-figure__verdict li { margin: 0; }

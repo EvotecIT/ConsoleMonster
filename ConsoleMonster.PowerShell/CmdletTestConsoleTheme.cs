@@ -17,9 +17,9 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsDiagnostic.Test, "ConsoleTheme", DefaultParameterSetName = "Name")]
     [OutputType(typeof(ThemeCheckReport))]
     public sealed class CmdletTestConsoleTheme : NoPipelineInputCmdlet {
-        /// <summary><para type="description">A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.</para></summary>
+        /// <summary><para type="description">A built-in preset, catalogue scheme or family. Catalogue names accept · accessible. Omit both Theme and Path to check the active theme. Paired families and ColorBlindSafe select the detected background; explicit variant names choose one.</para></summary>
         [Parameter(ParameterSetName = "Name")]
-        [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark", "Terminal")]
+        [Binding.ThemeName, ArgumentCompleter(typeof(Binding.ThemeNameCompleter))]
         public string? Theme { get; set; }
 
         /// <summary><para type="description">A literal .json or restricted .psd1 theme file. Relative paths use the current PowerShell location.</para></summary>

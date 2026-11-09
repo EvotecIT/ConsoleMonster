@@ -46,12 +46,15 @@ namespace ConsoleMonster.Interactive {
             foreach (ConsoleSetting setting in settings) {
                 List<Choice> list = new List<Choice>();
                 foreach (string value in Values(setting)) {
-                    string choiceLabel = Label(setting, value);
-                    list.Add(new Choice(value, choiceLabel));
+                    Choice choice = new Choice(value, Label(setting, value));
+                    if (setting.Name == "Theme") { ThemeGroup(choice, value); }
+                    list.Add(choice);
                 }
                 // One row per setting: its name, then a dropdown without a frame of its own.
                 Select select = new Select(setting.Name, list) { Label = setting.Name, Dropdown = true, Border = Glyphs.BoxStyle.None, LinkKey = "settings.link." + setting.Name };
                 select.Value = setting.Value;
+                // The open Theme list is wider than the closed control, so scheme names and their groups read in full.
+                if (setting.Name == "Theme") { select.ListWidth = list.Max(choice => DisplayWidth.Measure(choice.RichTitle?.PlainText ?? choice.Label)) + 10; }
                 bool locked = setting.Source == ConsoleSettingSource.Environment;
                 if (locked) { select.Disabled = true; }
                 selects[setting.Name] = select;
@@ -66,11 +69,12 @@ namespace ConsoleMonster.Interactive {
             cancel.Clicked += (_, __) => { state[ActionKey] = SettingsPickerAction.Cancel; state.RequestExit(); };
             Columns buttons = new Columns().Add(save, LayoutSize.Fixed(10)).Add(apply, LayoutSize.Fixed(13)).Add(cancel, LayoutSize.Fixed(12));
             Rows left = new Rows(new Panel(choices, "Settings"), buttons, new AppBinding(current => Notes(settings, selects))) { Gap = 1 };
-            AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current)), "settings.preview");
+            AppBinding preview = new AppBinding(current => Preview(Chosen(settings, selects, current), 1), "settings.preview");
             // Size only the closed controls; open lists overlay the preview.
             Func<int> settingsWidth = () => labelWidth + 1 + 2
                 + settings.Max(setting => DisplayWidth.Measure(Label(setting, selects[setting.Name].Value as string ?? setting.Value))) + 2 + 4;
-            SettingsColumns body = new SettingsColumns(left, new Panel(preview, "Preview"), settingsWidth);
+            // The preview pads itself, so its page colour reaches the frame.
+            SettingsColumns body = new SettingsColumns(left, new Panel(preview, "Preview") { PaddingLeft = 0, PaddingRight = 0 }, settingsWidth);
             Rows layout = new Rows(
                 new TextBlock("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
                 body) { Gap = 1 };
@@ -130,7 +134,7 @@ namespace ConsoleMonster.Interactive {
 
         private static IEnumerable<string> Values(ConsoleSetting setting) {
             bool listed = false;
-            foreach (string value in setting.Values) {
+            foreach (string value in setting.Name == "Theme" ? ThemeOrder(setting.Values) : setting.Values) {
                 if (string.Equals(value, setting.Value, StringComparison.OrdinalIgnoreCase)) { listed = true; }
                 yield return value;
             }
@@ -138,9 +142,44 @@ namespace ConsoleMonster.Interactive {
             if (!listed) { yield return setting.Value; }
         }
 
+        private const string BuiltInGroup = "Built in";
+        private const string TerminalGroup = "Follow my terminal";
+        private const string SchemesGroup = "Schemes";
+        private const string FilesGroup = "Your files";
+
+        // The built-in themes, Terminal, then each scheme family followed by its variants, each with its accessible form
+        // beside it, so the list reads in the groups ThemeGroup gives it.
+        private static IEnumerable<string> ThemeOrder(IReadOnlyList<string> values) {
+            List<string> order = values.Where(value => !Theme.TrySchemeName(value, out _, out _, out _)).ToList();
+            foreach (IGrouping<string, ThemeScheme> family in Theme.Schemes.GroupBy(entry => entry.Family)) {
+                IEnumerable<string> names = family.Count() > 1 ? new[] { family.Key }.Concat(family.Select(entry => entry.Name)) : family.Select(entry => entry.Name);
+                foreach (string name in names) { order.Add(name); order.Add(name + ConsoleSettings.AccessibleThemeSuffix); }
+            }
+            return order.Where(value => values.Contains(value, StringComparer.OrdinalIgnoreCase));
+        }
+
+        // Every theme choice sits under a heading; a family's variants are indented under it and each accessible form is
+        // quieter than the palette it derives from. The plain label stays what the closed list shows and the filter matches.
+        private static void ThemeGroup(Choice choice, string value) {
+            // The heading already says it follows the terminal.
+            if (value == "Terminal") { choice.Group = TerminalGroup; choice.RichTitle = RichText.Plain(value); return; }
+            if (Theme.TrySchemeName(value, out string name, out bool accessible, out bool family)) {
+                choice.Group = SchemesGroup;
+                bool variant = !family && Theme.Schemes.Any(entry => entry.Name == name && entry.Name != entry.Family);
+                string title = (variant ? "  " : string.Empty) + Markup.Escape(name);
+                if (family) { choice.Description = "Picks the " + name + " variant for the terminal's background."; }
+                if (accessible) { title += " [muted]" + Markup.Escape(ConsoleSettings.AccessibleThemeSuffix.Trim()) + "[/]"; }
+                choice.RichTitle = RichText.FromMarkup(title);
+                return;
+            }
+            choice.Group = IsFile(value) ? FilesGroup : BuiltInGroup;
+        }
+
+        private static bool IsFile(string value) => value.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || value.EndsWith(".psd1", StringComparison.OrdinalIgnoreCase);
+
         private static string Label(ConsoleSetting setting, string value) {
             if (setting.Name == "Theme" && value == "Terminal") { return "Terminal (follow my terminal)"; }
-            if (setting.Name == "Theme" && (value.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || value.EndsWith(".psd1", StringComparison.OrdinalIgnoreCase))) {
+            if (setting.Name == "Theme" && IsFile(value)) {
                 return System.IO.Path.GetFileName(value) + " (file)";
             }
             if (string.Equals(value, setting.DefaultValue, StringComparison.OrdinalIgnoreCase)) { return value + " (default)"; }
@@ -184,8 +223,8 @@ namespace ConsoleMonster.Interactive {
         }
 
         // Fixed sample content that shows every status token, a panel, a progress bar, a chart and an error, drawn with
-        // the chosen theme, colours, glyphs, culture and language.
-        internal static IWidget Preview(IReadOnlyDictionary<string, string> values) {
+        // the chosen theme, colours, glyphs, culture and language. The margin is painted with the theme's page too.
+        internal static IWidget Preview(IReadOnlyDictionary<string, string> values, int margin = 0) {
             Table table = new Table { CardsBelow = 0 };
             table.AddColumn("Check").AddColumn("State")
                 .AddColumn(new TableColumn("Size") { Presenter = Presenters.CellPresenters.Bytes, Alignment = HorizontalAlignment.Right })
@@ -206,63 +245,55 @@ namespace ConsoleMonster.Interactive {
                 table,
                 new Columns(status, new Rows(progress, chart)),
                 new TextBlock("[fail]Error:[/] [muted]Cannot reach[/] [accent]sql01.contoso.test[/] [muted](port 1433)[/] [link=https://consolemonster.dev/]docs[/]")) { Gap = 1 };
-            return new PreviewScope(content, values);
+            return new PreviewScope(content, values, margin);
         }
 
         // Draws a widget as the chosen settings would, whatever is in effect now.
         private sealed class PreviewScope : IContainer {
             private readonly IWidget _child;
             private readonly IReadOnlyDictionary<string, string> _values;
+            private readonly int _margin;
 
-            internal PreviewScope(IWidget child, IReadOnlyDictionary<string, string> values) { _child = child; _values = values; }
+            internal PreviewScope(IWidget child, IReadOnlyDictionary<string, string> values, int margin) { _child = child; _values = values; _margin = margin; }
 
             public IReadOnlyList<IWidget> Children => new[] { _child };
 
             public Size Measure(Constraints constraints, RenderContext context) {
                 RenderContext scoped = Scoped(context);
-                return WithCheck(scoped, constraints.MaxWidth).Measure(constraints, scoped);
+                Size inner = WithCheck(scoped, constraints.MaxWidth - 2 * _margin).Measure(constraints.Shrink(2 * _margin, 0), scoped);
+                return new Size(inner.Width + 2 * _margin, inner.Height);
             }
 
             public void Render(Region region, RenderContext context) {
                 RenderContext scoped = Scoped(context);
-                WithCheck(scoped, region.Width).Render(region, scoped);
+                int width = Math.Max(0, region.Width - 2 * _margin);
+                WithCheck(scoped, width).Render(region.Sub(_margin, 0, width, region.Height), scoped);
+                Paint(region, scoped);
+            }
+
+            // Each theme is shown on its own page, as it would look in its own terminal: a scheme on its background, a
+            // built-in on a light or dark page for its Appearance. Cells the sample left to the terminal take the page's
+            // colours; a theme that follows the terminal keeps the terminal's.
+            private static void Paint(Region region, RenderContext context) {
+                if (!context.HasColor || (context.Theme is Theme following && following.FollowsTerminal)) { return; }
+                (Color foreground, Color background) = Theme.Page(context.Theme);
+                if (background.IsDefault) { return; }
+                CellBuffer buffer = region.Buffer;
+                for (int y = region.Bounds.Y; y < region.Bounds.Bottom; y++) {
+                    for (int x = region.Bounds.X; x < region.Bounds.Right; x++) {
+                        Cell cell = buffer[x, y];
+                        if (cell.IsContinuation) { continue; }
+                        Style style = cell.Style;
+                        if (style.BackgroundColor.IsDefault) { style = style.WithBackgroundColor(background); }
+                        if (style.Color.IsDefault) { style = style.WithColor(foreground); }
+                        if (!style.Equals(cell.Style)) { buffer.Set(x, y, cell.Glyph, style, cell.Width); }
+                    }
+                }
             }
 
             private IWidget WithCheck(RenderContext context, int width) {
                 ThemeCheckReport report = ThemeCheck.Run(context.Theme, new ThemeCheckOptions { GlyphTier = context.Profile.Glyphs, StatusMarkers = context.Profile.StatusMarkers });
-                ThemeCheckResult? failed = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
-                bool unknown = report.Results.Any(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Unknown);
-                string verdict = failed == null ? (unknown ? "unknown" : "yes") : "no";
-                string prefix = width >= 60 ? "Statuses apart for colour-blind users: " : "Colour-blind: ";
-                string summary = prefix + verdict;
-                string detail = string.Empty;
-                if (unknown && context.Theme is Theme following && following.FollowsTerminal && Terminal.Palette == null) {
-                    const string reason = "the terminal did not report its colours";
-                    if ((summary + ", " + reason).Length <= width) { summary += ", " + reason; }
-                    else { summary += ","; detail = reason; }
-                }
-                if (failed != null) {
-                    var pair = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail
-                        && result.Tokens.SequenceEqual(failed.Tokens)).OrderBy(result => result.Value);
-                    string words = ThemeCheckText.Pair(failed.Tokens, false);
-                    string reason = "look alike " + ThemeCheckText.Conditions(pair.Select(result => result.Vision));
-                    string full = summary + ": " + words + " " + reason;
-                    if (full.Length <= width) { summary = full; }
-                    else if ((summary + ": " + words + " look alike").Length <= width) { summary += ": " + words + " look alike"; detail = ThemeCheckText.Conditions(pair.Select(result => result.Vision)); }
-                    else if ((summary + ": " + words).Length <= width) { summary += ": " + words; detail = reason; }
-                    else { detail = words + " " + reason; }
-                }
-                ThemeCheckResult? contrast = report.Results.Where(result => result.Check == ThemeCheckKind.Contrast && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
-                if (contrast != null) {
-                    string ratio = contrast.Tokens[0] + " text too faint: " + contrast.Value!.Value.ToString("0.0", CultureInfo.InvariantCulture) + ":1";
-                    detail += (detail.Length > 0 ? ". " : string.Empty) + ratio;
-                    if (failed != null && detail.Length > width) {
-                        summary = ThemeCheckText.Pair(failed.Tokens, true) + " look alike " + ThemeCheckText.Conditions(report.Results
-                            .Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail && result.Tokens.SequenceEqual(failed.Tokens))
-                            .Select(result => result.Vision));
-                        detail = ratio;
-                    }
-                }
+                (string summary, string detail) = ThemeCheckVerdict.Preview(report, context.Theme, width);
                 Rows notes = new Rows(new TextBlock(summary) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis });
                 if (detail.Length > 0) { notes.Add(new TextBlock(detail) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }); }
                 // Reserve the verdict before the sample uses the available height in a narrow pane.
@@ -306,6 +337,7 @@ namespace ConsoleMonster.Interactive {
             }
 
             private static ITheme ThemeFor(string name, RenderContext context) {
+                if (Theme.TrySchemeName(name, out _, out _, out _)) { return Theme.FromName(name); }
                 switch (name) {
                     case "Auto": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.Auto));
                     case "ColorBlindSafe": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind));
@@ -314,7 +346,7 @@ namespace ConsoleMonster.Interactive {
                         return Theme.FromName(name);
                     default:
                         // A theme file: the one in effect when it is the current setting, otherwise the active theme.
-                        return ConsoleSettings.ThemeFromPath() ?? context.Theme;
+                        return ConsoleSettings.ThemeFromSetting() ?? context.Theme;
                 }
             }
         }

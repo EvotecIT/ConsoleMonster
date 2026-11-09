@@ -131,7 +131,8 @@ namespace ConsoleMonster.Capabilities {
                 case "auto":
                     break;
                 default:
-                    decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'");
+                    if (Styling.Theme.TrySchemeName(themeValue, out string schemeName, out _, out _)) { decisions.Add("theme scheme: " + schemeName); }
+                    else { decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'"); }
                     break;
             }
             if (themePreference == ThemePreference.Auto && env.IsWindows && env.HighContrast) {

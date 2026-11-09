@@ -20,6 +20,15 @@ namespace ConsoleMonster.Styling {
             return new Theme(Name, styles, appearance) { Scheme = scheme, IsAccessible = IsAccessible, AdjustedTokens = AdjustedTokens }.WithAllSchemeOverrides();
         }
 
+        // The page a theme is shown on away from the terminal: its scheme's own colours, or a plain light or dark page
+        // for its Appearance. The checker measures against this background and the settings preview paints it.
+        internal static (Color Foreground, Color Background) Page(ITheme theme) =>
+            theme is Theme concrete ? concrete.Scheme is TerminalScheme scheme ? (scheme.Foreground, scheme.Background)
+                : Page(concrete.Appearance.Background == ThemeBackground.Light) : (Color.Default, Color.Default);
+
+        private static (Color Foreground, Color Background) Page(bool light) =>
+            (Color.FromHex(light ? "#24292f" : "#cccccc"), Color.FromHex(light ? "#ffffff" : "#0c0c0c"));
+
         internal Theme ForExport() {
             if (!FollowsTerminal) { return this; }
             TerminalScheme? scheme = global::ConsoleMonster.Terminal.Palette;
@@ -28,7 +37,8 @@ namespace ConsoleMonster.Styling {
                 for (int i = 0; i < 16; i++) { AnsiPalette.Get16(i, out byte r, out byte g, out byte b); colors[i] = Color.FromRgb(r, g, b); }
                 bool light = Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo known)
                     ? known.IsLight : Appearance.Background == ThemeBackground.Light;
-                scheme = new TerminalScheme("Terminal (fallback)", colors, Color.FromHex(light ? "#24292f" : "#cccccc"), Color.FromHex(light ? "#ffffff" : "#0c0c0c"));
+                (Color foreground, Color background) = Page(light);
+                scheme = new TerminalScheme("Terminal (fallback)", colors, foreground, background);
             }
             return ResolvePalette(scheme);
         }

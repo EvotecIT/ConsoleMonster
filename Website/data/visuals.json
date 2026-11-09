@@ -338,6 +338,9 @@
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
     },
+    "scheme-dracula": {
+      "src": "/site/cards/scheme-dracula.svg"
+    },
     "dashboard-frame-110": {
       "src": "/site/cards/dashboard-frame-110.svg"
     },
