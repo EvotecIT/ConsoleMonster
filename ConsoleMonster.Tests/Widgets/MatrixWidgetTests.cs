@@ -104,7 +104,10 @@ namespace ConsoleMonster.Tests.Widgets {
             string row = Array.Find(text.Split('\n'), line => line.StartsWith("Repli", StringComparison.Ordinal)) ?? string.Empty;
             switch (expected) {
                 case "per column":
-                    Assert.Contains("site-A", text);
+                    // The bands share "site-", so the header shows what tells them apart.
+                    string header = Array.Find(text.Split('\n'), line => line.TrimStart().StartsWith("A", StringComparison.Ordinal)) ?? string.Empty;
+                    Assert.DoesNotContain("site-", text);
+                    Assert.Matches(@"^\s*A\s+B\s+C\s+D\s*$", header);
                     Assert.Contains(new string('+', 25) + "x" + new string('+', 14), row.Replace(" ", string.Empty));
                     break;
                 case "per column, full glyphs":
