@@ -174,7 +174,7 @@ try
 catch (OperationCanceledException cancelled)
     when (cancelled.CancellationToken == session.Cancellation)
 {
-    // Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
+// Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
 }
 
 record Container(string Name, string Image, int Limit, int[] Cpu, int[] Memory, int[] Restarts);

@@ -16,20 +16,20 @@
       "matches": 6,
       "parity": {
         "dark-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "dark-ps5": {
           "version": "5.1",
-          "identical": true
+          "identical": false
         },
         "light-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "light-ps5": {
           "version": "5.1",
-          "identical": true
+          "identical": false
         }
       }
     },
@@ -40,7 +40,7 @@
       "matches": 2,
       "parity": {
         "dark-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "dark-ps5": {
@@ -48,7 +48,7 @@
           "identical": true
         },
         "light-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "light-ps5": {
@@ -64,20 +64,20 @@
       "matches": 6,
       "parity": {
         "dark-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "dark-ps5": {
           "version": "5.1",
-          "identical": true
+          "identical": false
         },
         "light-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "light-ps5": {
           "version": "5.1",
-          "identical": true
+          "identical": false
         }
       }
     },
@@ -88,7 +88,7 @@
       "matches": 2,
       "parity": {
         "dark-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "dark-ps5": {
@@ -96,7 +96,7 @@
           "identical": true
         },
         "light-ps7": {
-          "version": "7.6",
+          "version": "7.5",
           "identical": true
         },
         "light-ps5": {

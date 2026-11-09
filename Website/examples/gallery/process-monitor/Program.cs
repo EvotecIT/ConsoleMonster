@@ -35,8 +35,8 @@ IWidget Frame(int tick)
     return new Rows(
         new Rule("[accent bold]Process monitor[/] [muted]· refresh 1s[/]"),
         new ViewFacts()
-            .Add(new ViewFact($"{56 + tick * 5}%", caption: "CPU", role: ThemeToken.Accent))
-                .Add(new ViewFact($"{1640 + tick * 64} MiB", caption: "Memory"))
+            .Add(new ViewFact($"{56 + tick * 5}%", default, "CPU", default, ThemeToken.Accent))
+            .Add(new ViewFact($"{1640 + tick * 64} MiB", default, "Memory"))
             .Add(4, "processes"),
         table,
         new Panel() { Title = "CPU history", Content = history },

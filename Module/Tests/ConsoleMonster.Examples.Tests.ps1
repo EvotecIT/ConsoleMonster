@@ -258,6 +258,7 @@ BeforeAll {
             foreach ($item in $Node) { Get-JsonPowerShellString -Node $item -Name $Name }
             return
         }
+        if ($Node -isnot [System.Management.Automation.PSCustomObject]) { return }
         foreach ($property in $Node.PSObject.Properties) {
             Get-JsonPowerShellString -Node $property.Value -Name $property.Name
         }
@@ -633,6 +634,18 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
             Get-NativeStyleViolation -Code $snippet
         }
         @($violations) | Should -BeNullOrEmpty -Because (@($violations) -join '; ')
+    }
+
+    It 'ignores timestamp and other scalar metadata while finding nested PowerShell samples' {
+        $data = [pscustomobject]@{
+            PublishedAt = [datetime]'2026-11-09T12:00:00Z'
+            Count = 3
+            Enabled = $true
+            Details = @([pscustomobject]@{ PowerShell = 'New-ConsoleFacts -Content { 3 }' })
+        }
+        $snippets = @(Get-JsonPowerShellString -Node $data -Name '')
+        $snippets.Count | Should -Be 1
+        $snippets[0] | Should -Be 'New-ConsoleFacts -Content { 3 }'
     }
 
     It 'flags the .NET form and accepts the labelled alternative' {

@@ -93,6 +93,20 @@ namespace ConsoleMonster.Tests.Interactive {
             });
         }
 
+        [Theory]
+        [InlineData(ThemeToken.Fail)]
+        [InlineData(ThemeToken.Muted)]
+        public void FactsInlineSparklinesUseTheirSemanticTone(ThemeToken role) {
+            var facts = Ui.Facts().Add(new ViewFact(new[] { 1.0, 3, 2 },
+                presenter: ConsoleMonster.Presenters.CellPresenters.Sparkline, role: role));
+            RenderContext context = Context(GlyphTier.Full);
+            CellBuffer cells = new CellBuffer(80, 1);
+            facts.Render(new Region(cells), context);
+            var visible = Enumerable.Range(0, 80).Select(x => cells[x, 0]).Where(c => c.Glyph != " ").ToArray();
+            Assert.NotEmpty(visible);
+            Assert.All(visible, cell => Assert.Equal(context.Style(role), cell.Style));
+        }
+
         [Fact]
         public void DashboardFillsItsLastSectionWithoutPaddingPrintedReportsOrOrdinaryRows() {
             var body = new Rows(new TextBlock("Summary"), new Panel(new TextBlock("Details"), "Section"));

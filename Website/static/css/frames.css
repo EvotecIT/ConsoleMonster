@@ -21,7 +21,6 @@
 .cm-screen .f15803d{color:#15803d}
 .cm-screen .f16a34a{color:#16a34a}
 .cm-screen .f16c60c{color:#16c60c}
-.cm-screen .f1b7a42{color:#1b7a42}
 .cm-screen .f1d4ed8{color:#1d4ed8}
 .cm-screen .f243b5e{color:#243b5e}
 .cm-screen .f2563eb{color:#2563eb}
@@ -47,7 +46,6 @@
 .cm-screen .f50b3f9{color:#50b3f9}
 .cm-screen .f53b2f9{color:#53b2f9}
 .cm-screen .f55b1f9{color:#55b1f9}
-.cm-screen .f55c98c{color:#55c98c}
 .cm-screen .f565d6b{color:#565d6b}
 .cm-screen .f56b4e9{color:#56b4e9}
 .cm-screen .f57b0f9{color:#57b0f9}
@@ -333,6 +331,7 @@
 .cm-screen .k008700{background-color:#008700}
 .cm-screen .k00afff{background-color:#00afff}
 .cm-screen .k0369a1{background-color:#0369a1}
+.cm-screen .k0c0c0c{background-color:#0c0c0c}
 .cm-screen .k13a10e{background-color:#13a10e}
 .cm-screen .k15803d{background-color:#15803d}
 .cm-screen .k16c60c{background-color:#16c60c}
@@ -534,6 +533,7 @@
 .cm-screen .kfbfcfe{background-color:#fbfcfe}
 .cm-screen .kfcfcfc{background-color:#fcfcfc}
 .cm-screen .kfefefe{background-color:#fefefe}
+.cm-screen .kff5a8f{background-color:#ff5a8f}
 .cm-screen .kff5f5f{background-color:#ff5f5f}
 .cm-screen .kffaf00{background-color:#ffaf00}
 .cm-screen .kffffff{background-color:#ffffff}
@@ -767,7 +767,6 @@
 .cm-screen .g285e{background-image:radial-gradient(circle at 28% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g285f{background-image:radial-gradient(circle at 28% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2860{background-image:radial-gradient(circle at 72% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
-.cm-screen .g2861{background-image:radial-gradient(circle at 28% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2864{background-image:radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2867{background-image:radial-gradient(circle at 28% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2870{background-image:radial-gradient(circle at 72% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
@@ -782,7 +781,6 @@
 .cm-screen .g2881{background-image:radial-gradient(circle at 28% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2882{background-image:radial-gradient(circle at 28% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2884{background-image:radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
-.cm-screen .g2885{background-image:radial-gradient(circle at 28% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2886{background-image:radial-gradient(circle at 28% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g2887{background-image:radial-gradient(circle at 28% 12.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 37.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 28% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}
 .cm-screen .g28a0{background-image:radial-gradient(circle at 72% 62.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px)),radial-gradient(circle at 72% 87.5%,currentColor var(--cm-dot),transparent calc(var(--cm-dot) + .6px))}

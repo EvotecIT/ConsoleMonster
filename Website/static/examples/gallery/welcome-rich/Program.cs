@@ -16,9 +16,9 @@ var hostData = new HostDataRow[]
     new("Workspace", "comet-notes")
 };
 ViewFacts git = new ViewFacts()
-    .Add("main", role: ThemeToken.Accent)
+    .Add("main", default, ThemeToken.Accent)
     .Add(2, "modified", ThemeToken.Warn)
-        .Add(1, "staged", ThemeToken.Pass)
+    .Add(1, "staged", ThemeToken.Pass)
     .Add("0 ahead / 0 behind");
 
 // Layout: compose the screen from the data above.

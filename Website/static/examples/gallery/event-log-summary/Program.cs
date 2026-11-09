@@ -6,10 +6,14 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: fictional counts already grouped from the System and Application logs of six servers.
-double[] errorsPerHour = { 4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4,
-    6, 5 };
-double[] warningsPerHour = { 12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24,
-    19, 16, 14, 13, 15, 14 };
+double[] errorsPerHour =
+{
+    4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4, 6, 5
+};
+double[] warningsPerHour =
+{
+    12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16, 14, 13, 15, 14
+};
 var sources = new SourceCount[]
 {
     new("Service Control Manager", 74),
@@ -42,16 +46,27 @@ int peak = Array.IndexOf(errorsPerHour, errorsPerHour.Max());
 var topIds = eventIds.OrderByDescending(row => row.Count).ToArray();
 
 // Layout: headline, the 24-hour trend, the noisiest sources beside the top IDs, then criticals.
-var errors = new Sparkline { Title = "errors", Height = 3, Role = ThemeToken.Fail };
+var errors = new Sparkline
+{
+    Title = "errors",
+    Height = 3,
+    Role = ThemeToken.Fail
+};
 errors.AddRange(errorsPerHour);
-foreach (int hour in Enumerable.Range(0, 24)) errors.Labels.Add($"{hour:00}:00");
-var warnings = new Sparkline { Title = "warnings", Height = 3, Role = ThemeToken.Warn };
+foreach (int hour in Enumerable.Range(0, 24))
+    errors.Labels.Add($"{hour:00}:00");
+var warnings = new Sparkline
+{
+    Title = "warnings",
+    Height = 3,
+    Role = ThemeToken.Warn
+};
 warnings.AddRange(warningsPerHour);
-foreach (int hour in Enumerable.Range(0, 24)) warnings.Labels.Add($"{hour:00}:00");
+foreach (int hour in Enumerable.Range(0, 24))
+    warnings.Labels.Add($"{hour:00}:00");
 var noisiest = new BarChart();
 foreach (var source in sources)
     noisiest.Add(source.Source, source.Errors);
-
 var idTable = Table.For(topIds)
     .Column(row => row.Id, column => column.Presenter = CellPresenters.Identifier)
     .Column(row => row.Count)
@@ -66,12 +81,13 @@ var criticalTable = Table.For(critical)
     .Column(row => row.Message);
 criticalTable.Border = TableBorder.None;
 criticalTable.Expand = true;
-
 var report = new Rows(
     new Rule("[accent bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]"),
-    new ViewFacts().Add(critical.Length, "critical", ThemeToken.Critical)
-        .Add(errorTotal, "errors", ThemeToken.Fail).Add(warningTotal, "warnings", ThemeToken.Warn)
-        .Add(new ViewFact($"{peak:00}:00", caption: "busiest hour")),
+    new ViewFacts()
+        .Add(critical.Length, "critical", ThemeToken.Critical)
+        .Add(errorTotal, "errors", ThemeToken.Fail)
+        .Add(warningTotal, "warnings", ThemeToken.Warn)
+        .Add(new ViewFact($"{peak:00}:00", default, "busiest hour")),
     new Columns(new Panel(errors, "Errors per hour"), new Panel(warnings, "Warnings per hour")),
     new Columns(new Panel(noisiest, "Noisiest sources"), new Panel(idTable, "Top event IDs")),
     new Panel(criticalTable, "Critical events"))

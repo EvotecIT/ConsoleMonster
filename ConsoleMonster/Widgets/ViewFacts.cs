@@ -109,7 +109,8 @@ public sealed class ViewFacts : IWidget {
         string visual = Visual(value, context, (fact.Role ?? ThemeToken.Muted).ToString().ToLowerInvariant());
         if (visual.Length > 0) {
             if (value.Line.Width > 0 && value.Visual != CellVisualKind.Sparkline) { spans.Add(new TextSpan(" ", Style.Plain)); }
-            spans.AddRange(context.Markup(visual).Lines[0]);
+            if (value.Visual == CellVisualKind.Sparkline) spans.Add(new TextSpan(visual, tone));
+            else spans.AddRange(context.Markup(visual).Lines[0]);
         }
         if (!string.IsNullOrEmpty(fact.Label)) { spans.Add(new TextSpan(" " + fact.Label, tone)); }
         return new StyledLine(spans);

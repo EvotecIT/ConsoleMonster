@@ -32,7 +32,7 @@ namespace SiteFrames.Tests {
             var ordered = backupRows.Select(row => row!["powershell"]!.GetValue<string>()).ToArray();
             Assert.True(Array.IndexOf(ordered, "New-ConsoleRows") < Array.IndexOf(ordered, "New-ConsoleRows -Content { … }"));
             Assert.True(Array.IndexOf(ordered, "New-ConsoleTable -Expand") < Array.IndexOf(ordered, "New-ConsoleRows -Content { … }"));
-            Assert.True(Array.IndexOf(ordered, "New-ConsoleRows -Content { … }") < Array.IndexOf(ordered, "New-ConsoleText -Markup $text"));
+            Assert.True(Array.IndexOf(ordered, "New-ConsoleFacts") < Array.IndexOf(ordered, "New-ConsoleRows"));
             var process = GalleryPage.Read(site).Single(demo => demo.Slug == "process-monitor");
             var chart = Assert.Single(ApiMappingNotes.ForPair(site, process.CSharp, process.CSharpFluent, process.PowerShell),
                 row => row!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.Chart")!;

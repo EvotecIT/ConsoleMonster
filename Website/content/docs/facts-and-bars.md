@@ -1,5 +1,5 @@
 ---
-title: Facts, bars and report hierarchy
+title: Facts, bars and hierarchy
 description: Give counts, quotas, comparisons and composition consistent meaning in terminal reports.
 slug: facts-and-bars
 order: 16
