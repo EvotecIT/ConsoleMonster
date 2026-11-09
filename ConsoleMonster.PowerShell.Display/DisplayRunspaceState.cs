@@ -108,16 +108,24 @@ internal sealed class DisplayRunspaceState {
         Type? runtimeType = target?.GetType();
         string? typeName = runtimeType?.FullName;
         if (typeName == null) { return null; }
+        DefaultDisplayRegistration? best = Best(typeName, runtimeType!, derived: false);
+        // Then the nearest base type whose view opted in to derived types, so subclasses share one registration and one batch.
+        for (Type? baseType = runtimeType!.BaseType; best == null && baseType != null && baseType != typeof(object); baseType = baseType.BaseType) {
+            if (baseType.FullName != null) { best = Best(baseType.FullName, baseType, derived: true); }
+        }
+        if (best?.Lease.Source != DefaultDisplaySource.User && _leases.Any(lease => lease.IsCompatible && Mode(lease) != DefaultDisplayMode.Off && lease.NativeOverride?.Invoke(value) == true)) { return null; }
+        return best;
+    }
+    private DefaultDisplayRegistration? Best(string typeName, Type runtimeType, bool derived) {
         DefaultDisplayRegistration? best = null;
         foreach (DefaultDisplayRegistration view in _views) {
-            if (!view.Lease.IsCompatible || view.TypeName != typeName || view.RuntimeType != null && view.RuntimeType != runtimeType
-                || Mode(view.Lease) == DefaultDisplayMode.Off) { continue; }
+            if (!view.Lease.IsCompatible || view.TypeName != typeName || Mode(view.Lease) == DefaultDisplayMode.Off) { continue; }
+            if (derived ? !view.IncludeDerivedTypes || view.RuntimeType != runtimeType : view.RuntimeType != null && view.RuntimeType != runtimeType) { continue; }
             if (best == null || view.Lease.Source > best.Lease.Source
                 || (view.Lease.Source == best.Lease.Source && view.ViewId == best.ViewId && view.Version.Major == best.Version.Major && view.Version > best.Version)) {
                 best = view;
             }
         }
-        if (best?.Lease.Source != DefaultDisplaySource.User && _leases.Any(lease => lease.IsCompatible && Mode(lease) != DefaultDisplayMode.Off && lease.NativeOverride?.Invoke(value) == true)) { return null; }
         return best;
     }
     internal IDefaultDisplayNativeSink CreateNativeSink(PSCmdlet owner, bool topLevel, bool transcript) {
