@@ -892,58 +892,6 @@
       ]
     },
     {
-      "Command": "ConvertTo-ConsoleView",
-      "Job": "ConvertTo-ConsoleView",
-      "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
-      "Bindings": [
-        {
-          "Parameter": "AsDataFile",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "DraftSerialization",
-          "Reason": "Serializes the sampled columns as a data-only PowerShell view file instead of a registration script."
-        },
-        {
-          "Parameter": "InputObject",
-          "ParameterType": "System.Management.Automation.PSObject[]",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": 0,
-              "Mandatory": true
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "SampledViewDefinition",
-          "Reason": "Samples at most fifty input objects to draft up to six columns, reusing default-table presenter inference."
-        },
-        {
-          "Parameter": "Register",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "SessionRegistration",
-          "Reason": "Also installs the drafted ConsoleViewRegistration through ConsoleHostViews.Register in the current session."
-        }
-      ]
-    },
-    {
       "Command": "Disable-ConsoleFormatting",
       "Job": "Disable-ConsoleFormatting",
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostFormatting",
@@ -2791,6 +2739,26 @@
           "Member": "FullScreen",
           "MemberKind": "Property",
           "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "NoJobSummary",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpType": "ConsoleMonster.PowerShell.Pester.ConsolePesterOptions",
+          "Member": "NoJobSummary",
           "CSharpTypeName": "System.Boolean",
           "Nullable": "NotNull",
           "Writable": true,
@@ -24990,6 +24958,217 @@
       ]
     },
     {
+      "Command": "Add-ConsoleJobSummary",
+      "Job": "Add-ConsoleJobSummary",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "AddSummary",
+          "Argument": "widget",
+          "MemberKind": "Method",
+          "Conversion": "WidgetAdaptation",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Reason": "Uses the existing automatic view and semantic Markdown exporter before the shared summary transport."
+        }
+      ]
+    },
+    {
+      "Command": "Use-ConsoleGroup",
+      "Job": "Use-ConsoleGroup",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "ScriptBlock",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ScriptBlockCallback",
+          "Reason": "Runs the script on its owning pipeline thread inside the C# group scope, which closes in finally."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Group",
+          "Argument": "title",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
+      "Command": "Write-ConsoleAnnotation",
+      "Job": "Write-ConsoleAnnotation",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "Column",
+          "ParameterType": "System.Nullable`1[System.Int32]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "column",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int32]"
+        },
+        {
+          "Parameter": "File",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "file",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "Level",
+          "ParameterType": "ConsoleMonster.AnnotationLevel",
+          "Default": "Error",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "level",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.AnnotationLevel"
+        },
+        {
+          "Parameter": "Line",
+          "ParameterType": "System.Nullable`1[System.Int32]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "line",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int32]"
+        },
+        {
+          "Parameter": "Message",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "message",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "title",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
       "Command": "Import-ConsoleTheme",
       "Job": "Import-ConsoleTheme",
       "CSharpType": "ConsoleMonster.Styling.TerminalScheme",
@@ -25064,6 +25243,58 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineInputPolicy",
           "Reason": "Rejects unsupported pipeline input at the PowerShell boundary."
+        }
+      ]
+    },
+    {
+      "Command": "ConvertTo-ConsoleView",
+      "Job": "ConvertTo-ConsoleView",
+      "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
+      "Bindings": [
+        {
+          "Parameter": "AsDataFile",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "DraftSerialization",
+          "Reason": "Serializes the sampled columns as a data-only PowerShell view file instead of a registration script."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SampledViewDefinition",
+          "Reason": "Samples at most fifty input objects to draft up to six columns, reusing default-table presenter inference."
+        },
+        {
+          "Parameter": "Register",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SessionRegistration",
+          "Reason": "Also installs the drafted ConsoleViewRegistration through ConsoleHostViews.Register in the current session."
         }
       ]
     }
@@ -29378,7 +29609,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 114,
+  "ExpectedCount": 117,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29593,6 +29824,7 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.ContinuousIntegration",
     "ConsoleMonster.Styling.TerminalScheme"
   ],
   "ConfigurableTypes": [
@@ -29974,6 +30206,9 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider",
+    "ConsoleMonster.Export.IFrameExportProvider",
     "ConsoleMonster.Styling.TerminalScheme"
   ],
   "RelatedBindings": [

@@ -15,6 +15,7 @@ namespace ConsoleMonster.TestRuns {
     /// </summary>
     public sealed class TestRunSummary : IWidget {
         private readonly TestRunSnapshot _snapshot;
+        internal TestRunSnapshot Snapshot => _snapshot;
 
         /// <summary>Creates the summary of a snapshot.</summary>
         /// <param name="snapshot">The snapshot (usually taken after the run finished).</param>
@@ -46,7 +47,7 @@ namespace ConsoleMonster.TestRuns {
             return rows;
         }
 
-        private Table FileTable() {
+        internal Table FileTable() {
             Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
             Table table = new Table { Title = Text.Markup.Escape(labels.TestsResultsByFile) };
             table.AddColumn(Text.Markup.Escape(labels.TestsFile));

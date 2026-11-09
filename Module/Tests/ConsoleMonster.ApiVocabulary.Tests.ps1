@@ -250,14 +250,17 @@
     }
 
     It 'keeps addressed runs live by default and maps NoLive to append-only output' {
-        $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(60, 24, 'None', 'Ascii').WithMode('Interactive')
-        $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
-        Use-ConsoleTarget -Target $target {
-            $run = Start-ConsoleRun -InputObject @('build') -ProgressIntervalSeconds 0
-            try { $run.IsLive | Should -BeTrue } finally { Complete-ConsoleRun $run }
-            $run = Start-ConsoleRun -InputObject @('build') -NoLive -ProgressIntervalSeconds 0
-            try { $run.IsLive | Should -BeFalse } finally { Complete-ConsoleRun $run }
-        }
+        $provider = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.ContinuousIntegration'))::UseProvider('None')
+        try {
+            $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(60, 24, 'None', 'Ascii').WithMode('Interactive')
+            $target = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Output.RecordingTarget'))::new($profile)
+            Use-ConsoleTarget -Target $target {
+                $run = Start-ConsoleRun -InputObject @('build') -ProgressIntervalSeconds 0
+                try { $run.IsLive | Should -BeTrue } finally { Complete-ConsoleRun $run }
+                $run = Start-ConsoleRun -InputObject @('build') -NoLive -ProgressIntervalSeconds 0
+                try { $run.IsLive | Should -BeFalse } finally { Complete-ConsoleRun $run }
+            }
+        } finally { $provider.Dispose() }
     }
 
     It 'uses ParameterName on fields and builds dashboard footer hints from dictionaries or typed hints' {

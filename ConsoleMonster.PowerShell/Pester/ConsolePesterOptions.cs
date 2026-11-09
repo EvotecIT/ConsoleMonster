@@ -40,5 +40,7 @@ namespace ConsoleMonster.PowerShell.Pester {
         public string Title { get; set; } = "Pester";
         /// <summary>Enables the adapter when supported; false preserves Pester output and adds the summary.</summary>
         public bool Live { get; set; } = true;
+        /// <summary>Skips the automatic CI job summary without suppressing annotations.</summary>
+        public bool NoJobSummary { get; set; }
     }
 }
