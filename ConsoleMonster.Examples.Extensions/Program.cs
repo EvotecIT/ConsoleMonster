@@ -8,10 +8,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ConsoleMonster.Examples.Extensions {
-    /// <summary>Examples for logging, hosting and command-line tools: <c>logging</c>, <c>hosting [seconds]</c>, <c>cli [--servers N]</c> or <c>topology [--live [seconds]]</c>.</summary>
+    /// <summary>Examples for logging, hosting and command-line tools: <c>logging</c>, <c>serilog</c>, <c>nlog</c>, <c>hosting [seconds]</c>, <c>cli [--servers N]</c> or <c>topology [--live [seconds]]</c>.</summary>
     public static class Program {
         /// <summary>Runs an example.</summary>
-        /// <param name="args"><c>logging</c>, <c>hosting [seconds]</c>, <c>cli [--servers N]</c> or <c>topology [--live [seconds]]</c>.</param>
+        /// <param name="args"><c>logging</c>, <c>serilog</c>, <c>nlog</c>, <c>hosting [seconds]</c>, <c>cli [--servers N]</c> or <c>topology [--live [seconds]]</c>.</param>
         /// <returns>The exit code.</returns>
         public static async Task<int> Main(string[] args) {
             string name = args.Length > 0 ? args[0].ToLowerInvariant() : "logging";
@@ -20,6 +20,12 @@ namespace ConsoleMonster.Examples.Extensions {
                     return DiagramLadderExample.Run(args);
                 case "logging":
                     Logging();
+                    return 0;
+                case "serilog":
+                    NativeLoggingExamples.Serilog();
+                    return 0;
+                case "nlog":
+                    NativeLoggingExamples.NLog();
                     return 0;
                 case "hosting":
                     int seconds = args.Length > 1 && int.TryParse(args[1], out int value) ? value : 12;
@@ -34,7 +40,7 @@ namespace ConsoleMonster.Examples.Extensions {
                     Array.Copy(args, 1, rest, 0, rest.Length);
                     return CommandLineExample.Run(rest);
                 default:
-                    Console.Error.WriteLine("Use: logging | hosting [seconds] | cli [--servers N] | topology [--live [seconds]]");
+                    Console.Error.WriteLine("Use: logging | serilog | nlog | hosting [seconds] | cli [--servers N] | topology [--live [seconds]]");
                     return 1;
             }
         }
