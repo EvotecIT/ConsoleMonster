@@ -8,23 +8,23 @@ schema: 2.0.0
 ## SYNOPSIS
 Checks a theme's text contrast, status colours, markers and critical fill.
 
-Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. Palette indexes, terminal-default text and terminal-dependent dimming have unknown RGB; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a readable default view. Dark and Light are not colour-blind-safe presets.
+Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.
 
 ## SYNTAX
 ### Name (Default)
 ```powershell
-Test-ConsoleTheme [-Theme <string>] [-Background <string>] [-Strict] [<CommonParameters>]
+Test-ConsoleTheme [-Theme <string>] [-Background <string>] [-Strict] [-Detailed] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Test-ConsoleTheme [-Path] <string> [-Background <string>] [-Strict] [<CommonParameters>]
+Test-ConsoleTheme [-Path] <string> [-Background <string>] [-Strict] [-Detailed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Checks a theme's text contrast, status colours, markers and critical fill.
 
-Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. Palette indexes, terminal-default text and terminal-dependent dimming have unknown RGB; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a readable default view. Dark and Light are not colour-blind-safe presets.
+Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.
 
 ## EXAMPLES
 
@@ -49,6 +49,13 @@ Check a team theme in CI; any failure stops the script.
 
 Inspect individual measurements as objects.
 
+### EXAMPLE 4
+```powershell
+Test-ConsoleTheme -Theme Dark -Detailed
+```
+
+Show every measurement.
+
 ## PARAMETERS
 
 ### -Background
@@ -56,6 +63,22 @@ The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and
 
 ```yaml
 Type: String
+Parameter Sets: Name, Path
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Detailed
+Shows every measurement instead of only problems and unknowns. The Results property always contains every check.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: Name, Path
 Aliases: None
 Possible values:
