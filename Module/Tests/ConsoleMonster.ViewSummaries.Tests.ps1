@@ -4,11 +4,13 @@
         $script:ModulePath = Join-Path $PSScriptRoot '..\ConsoleMonster.psd1'
         $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
 
-        # A child with plain redirected output and en-US culture, where `od` sends objects through the console view.
+        # A redirected ASCII/Words child with en-US culture; `od` sends objects through the console view.
         function Invoke-SummaryChild {
             param([Parameter(Mandatory)][string] $Script)
             $lines = @(
                 "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_LANGUAGE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'COLUMNS') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
+                "[Environment]::SetEnvironmentVariable('CONSOLEMONSTER_GLYPHS', 'Ascii')"
+                "[Environment]::SetEnvironmentVariable('CONSOLEMONSTER_STATUS_MARKERS', 'Words')"
                 "[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')"
                 "Import-Module '$($script:ModulePath)' -Force"
                 'Enable-ConsoleFormatting'
