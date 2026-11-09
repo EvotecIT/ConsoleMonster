@@ -83,8 +83,8 @@ namespace ConsoleMonster.Widgets {
                 default:
                     var sparkline = new Sparkline(id) { Unit = o.Unit, Title = o.Title, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest, Capacity = o.Capacity ?? 1024 };
                     if (o.Role.HasValue) { sparkline.Role = o.Role.Value; }
-                    sparkline.AddRange(o.Values ?? Array.Empty<double>());
                     foreach (string label in o.Labels) sparkline.Labels.Add(label);
+                    sparkline.AddRange(o.Values ?? Array.Empty<double>());
                     return sparkline;
             }
         }

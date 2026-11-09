@@ -59,7 +59,9 @@ namespace ConsoleMonster.Widgets {
             _values.Add(value);
             int capacity = Math.Max(1, Capacity);
             if (_values.Count > capacity) {
-                _values.RemoveRange(0, _values.Count - capacity);
+                int removed = _values.Count - capacity;
+                _values.RemoveRange(0, removed);
+                for (int i = 0; i < removed && Labels.Count > 0; i++) Labels.RemoveAt(0);
             }
             return this;
         }
@@ -157,7 +159,7 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             if (Labels.Count > 0 && rows < region.Height && _values.Count > start) {
-                ChartAxis.Draw(region, rows, x, width, Labels, Math.Min(Labels.Count, _values.Count), context);
+                ChartAxis.Draw(region, rows, x, width, Labels, _values.Count, context);
             }
             if (latestWidth > 0) {
                 region.Write(region.Width - latestWidth, rows - 1, latest, context.Style(ThemeToken.Highlight));

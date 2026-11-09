@@ -25,7 +25,7 @@ public sealed class ViewFact {
     public string? Label { get; }
     /// <summary>The presenter, or null for automatic.</summary>
     public ICellPresenter? Presenter { get; }
-    /// <summary>The value's colour, or null for the text colour.</summary>
+    /// <summary>The value's colour, or null for a neutral muted fact.</summary>
     public ThemeToken? Role { get; }
 }
 
@@ -104,7 +104,7 @@ public sealed class ViewFacts : IWidget {
         Style tone = context.Style(fact.Role ?? ThemeToken.Muted);
         // A sparkline fact is its shape: the caption and label say what it is, so its last value is not repeated.
         foreach (TextSpan span in value.Visual == CellVisualKind.Sparkline ? StyledLine.Empty : value.Line) {
-            spans.Add(new TextSpan(span.Text, value.Number.HasValue || fact.Label != null ? tone.With(TextDecoration.Bold) : tone));
+            spans.Add(new TextSpan(span.Text, span.Style.Combine(value.Number.HasValue || fact.Label != null ? tone.With(TextDecoration.Bold) : tone)));
         }
         string visual = Visual(value, context, (fact.Role ?? ThemeToken.Muted).ToString().ToLowerInvariant());
         if (visual.Length > 0) {
@@ -115,7 +115,7 @@ public sealed class ViewFacts : IWidget {
         return new StyledLine(spans);
     }
 
-    // The cell visuals as text: a sparkline in the tier's vertical ramp, a bar in eighth blocks over a light shade.
+    // Inline cell visuals use the same comparison and part-of-whole bar language as their full widgets.
     private static string Visual(PresentedValue value, RenderContext context, string role) {
         switch (value.Visual) {
             case CellVisualKind.Sparkline:

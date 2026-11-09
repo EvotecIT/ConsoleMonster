@@ -78,6 +78,35 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void PartialHistogramLabelsKeepNumericFallbackAtTheActualEdges() {
+            var histogram = new Histogram(new[] { 0.0, 10, 20 }) { Height = 3 };
+            histogram.Labels.Add("zero");
+            histogram.Labels.Add("ten");
+            string axis = TestTerminal.RenderText(histogram, 60).TrimEnd().Split('\n').Last().TrimEnd();
+            Assert.Contains("zero", axis);
+            Assert.Contains("ten", axis);
+            Assert.EndsWith("20", axis);
+            Assert.InRange(axis.IndexOf("ten", StringComparison.Ordinal), 25, 35);
+        }
+
+        [Fact]
+        public void SparklineCapacityKeepsLabelsWithRetainedSamples() {
+            var options = new ChartOptions {
+                Type = ChartType.Sparkline, Capacity = 3, Values = new[] { 1.0, 2, 3, 4 }
+            };
+            foreach (string label in new[] { "t0", "t1", "t2", "t3" }) options.Labels.Add(label);
+            var chart = Assert.IsType<Sparkline>(Chart.Create(options));
+            Assert.Equal(new[] { 2.0, 3, 4 }, chart.Values);
+            Assert.Equal(new[] { "t1", "t2", "t3" }, chart.Labels);
+            chart.Add(5);
+            string axis = TestTerminal.RenderText(chart, 60).TrimEnd().Split('\n').Last().TrimEnd();
+            Assert.DoesNotContain("t1", axis);
+            Assert.Contains("t2", axis);
+            // No label was supplied for the newest sample: t3 stays at the middle sample, not the right edge.
+            Assert.InRange(axis.IndexOf("t3", StringComparison.Ordinal), 20, 30);
+        }
+
+        [Fact]
         public void HistogramCountsEveryBoundaryIncludingMaximum() {
             var histogram = Assert.IsType<Histogram>(Chart.Create(new ChartOptions {
                 Type = ChartType.Histogram, Edges = new[] { -2.0, -1, 0, 1, 2 }, Values = new[] { -2.0, -1, 0, 1, 2 }

@@ -37,7 +37,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Bucket counts.</summary>
         public IReadOnlyList<int> Counts => _counts;
 
-        /// <summary>Optional bucket-edge labels, in edge order; numeric edge labels remain the default.</summary>
+        /// <summary>Optional bucket-edge labels, in edge order; omitted edges retain their numeric labels.</summary>
         public IList<string> Labels { get; } = new List<string>();
 
         /// <summary>Rows for the bars (default 6).</summary>
@@ -146,7 +146,9 @@ namespace ConsoleMonster.Widgets {
         /// </summary>
         private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style, RenderContext context) {
             if (Labels.Count > 0) {
-                ChartAxis.Draw(region, row, plotX, plotWidth, Labels, _edges.Length, context);
+                string[] edgeLabels = new string[_edges.Length];
+                for (int i = 0; i < edgeLabels.Length; i++) edgeLabels[i] = i < Labels.Count ? Labels[i] : EdgeLabel(_edges[i]);
+                ChartAxis.Draw(region, row, plotX, plotWidth, edgeLabels, _edges.Length, context);
                 return;
             }
             int buckets = _counts.Length;
@@ -154,11 +156,11 @@ namespace ConsoleMonster.Widgets {
             int[] starts = new int[buckets];
             int[] widths = new int[buckets];
             for (int b = 0; b < buckets; b++) {
-                labels[b] = b < Labels.Count ? Labels[b] : EdgeLabel(_edges[b]);
+                labels[b] = EdgeLabel(_edges[b]);
                 starts[b] = plotX + (int)((long)b * plotWidth / buckets);
                 widths[b] = DisplayWidth.Measure(labels[b]);
             }
-            string last = buckets < Labels.Count ? Labels[buckets] : EdgeLabel(_edges[buckets]);
+            string last = EdgeLabel(_edges[buckets]);
             int lastStart = Math.Max(plotX, region.Width - DisplayWidth.Measure(last));
             int step = LabelStep(starts, widths);
             int labelEnd = 0;

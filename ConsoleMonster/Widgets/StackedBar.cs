@@ -10,8 +10,8 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
-    /// One bar split into proportional segments with a legend (label, value, share). Segments labelled with a status word
-    /// (Passed, Failed, Warnings, Skipped...) take that status colour unless a role is given. Without colour, segments use distinct
+    /// One bar split into proportional segments with a legend (label, value, share). Problem segments take their status colour; healthy and unclassified segments stay neutral.
+    /// An explicit role selects another colour. Without colour, segments use distinct
     /// fill glyphs so the split stays readable. Live operations (Key = segment): <c>set</c> (Value), <c>add</c> (Value).
     /// </summary>
     public sealed class StackedBar : LiveWidget {

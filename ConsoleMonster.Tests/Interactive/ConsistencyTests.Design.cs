@@ -49,6 +49,13 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.DoesNotContain(track, comparison.GetRowText(0));
             Assert.Contains(tier == GlyphTier.Full ? "▆" : tier == GlyphTier.Basic ? "▄" : "#", comparison.GetRowText(0));
             Assert.DoesNotContain("72/100", Render(new ProgressBar { Value = 72 }).GetRowText(0));
+            var composition = new StackedBar { ShowLegend = false };
+            composition.Add("Passed", 8).Add("Failed", 2);
+            CellBuffer segments = Render(composition);
+            Assert.Equal(context.Style(ThemeToken.Muted), segments[0, 0].Style);
+            Assert.Contains(Enumerable.Range(0, 90), x => segments[x, 0].Style.Equals(context.Style(ThemeToken.Fail)));
+            Assert.EndsWith("10", segments.GetRowText(0).TrimEnd());
+
 
             var facts = Ui.Facts().Add(3, "passed", ThemeToken.Pass).Add(1, "warning", ThemeToken.Warn).Add(5, "checks");
             CellBuffer counts = Render(facts);
@@ -68,6 +75,22 @@ namespace ConsoleMonster.Tests.Interactive {
             CellBuffer keys = Render(new KeyValueList().Add("Servers", "48"));
             Assert.Equal(context.Style(ThemeToken.Muted), keys[0, 0].Style);
             Assert.Equal(context.Style(ThemeToken.Text), keys[9, 0].Style);
+        }
+
+        [Fact]
+        public void FactsKeepPresenterLinksAndDecorationsWhenApplyingTheirSemanticTone() {
+            var facts = Ui.Facts().Add(new ViewFact("https://example.test/report", "report",
+                presenter: ConsoleMonster.Presenters.CellPresenters.Link, role: ThemeToken.Warn));
+            RenderContext context = Terminal.CreateContext(TerminalProfile.Fixed(80, 1).WithHyperlinks(true), Theme.Dark);
+            CellBuffer cells = new CellBuffer(80, 1);
+            facts.Render(new Region(cells), context);
+            var linked = Enumerable.Range(0, 80).Select(x => cells[x, 0]).Where(c => c.Style.Link != null).ToArray();
+            Assert.NotEmpty(linked);
+            Assert.All(linked, cell => {
+                Assert.Equal("https://example.test/report", cell.Style.Link);
+                Assert.Equal(context.Style(ThemeToken.Warn).Color, cell.Style.Color);
+                Assert.True((cell.Style.Decoration & (TextDecoration.Underline | TextDecoration.Bold)) == (TextDecoration.Underline | TextDecoration.Bold));
+            });
         }
 
         [Fact]
