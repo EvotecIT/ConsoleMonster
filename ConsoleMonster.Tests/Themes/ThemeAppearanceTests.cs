@@ -27,10 +27,10 @@ namespace ConsoleMonster.Tests.Themes {
         public void ThemeFile_ReadsStyleFromVersion2_InheritsTheRest_AndKeepsVersion1ForDefaultStyle() {
             Hashtable data = new Hashtable {
                 ["SchemaVersion"] = 2, ["Name"] = "Team", ["BaseTheme"] = "Light", ["Tokens"] = new Hashtable(),
-                ["Style"] = new Hashtable { ["border"] = "single", ["StatusMarkers"] = "Words" }
+                ["Style"] = new Hashtable { ["border"] = "single", ["StatusMarkers"] = "Words", ["Density"] = "compact" }
             };
             Theme team = ThemeFile.Import(data).ToTheme();
-            Assert.Equal(new ThemeAppearance(BoxStyle.Single, StatusMarkerStyle.Words, ThemeBackground.Light), team.Appearance);
+            Assert.Equal(new ThemeAppearance(ThemeDensity.Compact, BoxStyle.Single, StatusMarkerStyle.Words, ThemeBackground.Light), team.Appearance);
             Assert.Equal(team.Appearance, ThemeFile.Parse(ThemeFile.FromTheme(team).ToJson()).ToTheme().Appearance);
 
             data["SchemaVersion"] = 1;
@@ -42,6 +42,39 @@ namespace ConsoleMonster.Tests.Themes {
             string dark = ThemeFile.FromTheme(Theme.Dark).ToJson();
             Assert.Contains("\"SchemaVersion\": 1", dark);
             Assert.DoesNotContain("\"Style\"", dark);
+        }
+
+        [Fact]
+        public void DensityFromTheProfileBeatsTheThemeAndSurvivesProfileAndClockCopies() {
+            Theme compact = Theme.Dark.WithAppearance(new ThemeAppearance(ThemeDensity.Compact));
+            Panel panel = new Panel(new TextBlock("x")) { Expand = false };
+            Assert.Contains("│x", Text(panel, compact));
+            TerminalProfile profile = TestTerminal.Profile(40).WithDensity(ThemeDensity.Comfortable)
+                .WithSize(30, 20).WithColorDepth(ColorDepth.None).WithLanguage(CultureInfo.GetCultureInfo("en-US"));
+            Assert.Contains("│ x", Text(panel, compact, profile));
+            RenderContext context = Terminal.CreateContext(profile, compact).WithClock(1, TimeSpan.FromSeconds(1));
+            Assert.Contains("│ x", FrameComposer.RenderBlock(panel, 30, context).ToPlainText());
+            Assert.Contains("│x", Text(panel, compact, profile.WithDensity(null)));
+            Theme restored = ThemeFile.Parse(ThemeFile.FromTheme(compact).ToJson()).ToTheme();
+            Assert.Equal(ThemeDensity.Compact, restored.Appearance.Density);
+            Assert.Contains("│x", Text(panel, restored));
+            Assert.Throws<FormatException>(() => ThemeFile.Parse("{\"SchemaVersion\":2,\"Style\":{\"Density\":\"Dense\"},\"Tokens\":{}}"));
+        }
+
+        [Fact]
+        public void SettingsPreviewDrawsTheHighlightedDensity() {
+            Theme theme = Theme.Dark;
+            var values = new System.Collections.Generic.Dictionary<string, string> { ["Density"] = "Compact" };
+            string Preview() => FrameComposer.RenderBlock(global::ConsoleMonster.Interactive.SettingsPicker.Preview(values), 80,
+                Terminal.CreateContext(TestTerminal.Profile(80), theme)).ToPlainText();
+            Assert.Contains("│Check", Preview());
+            values["Density"] = "Comfortable";
+            Assert.Contains("│ Check", Preview());
+            values["Density"] = "cOmPaCt";
+            Assert.Contains("│Check", Preview());
+            theme = Theme.Dark.WithAppearance(new ThemeAppearance(ThemeDensity.Compact));
+            values["Density"] = "bogus";
+            Assert.Contains("│Check", Preview());
         }
 
         [Fact]

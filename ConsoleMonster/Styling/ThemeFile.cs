@@ -13,7 +13,7 @@ namespace ConsoleMonster.Styling {
     /// </summary>
     /// <remarks>
     /// Documents contain SchemaVersion (1 or 2), Name, optional BaseTheme, Tokens and, from version 2, an optional Style
-    /// (Border, StatusMarkers and Background; omitted fields inherit from BaseTheme). Keys and token names are
+    /// (Border, Density, StatusMarkers and Background; omitted fields inherit from BaseTheme). Keys and token names are
     /// case-insensitive. BaseTheme must name a built-in preset; omitted tokens and style fields inherit from it.
     /// Without BaseTheme, omitted values use terminal defaults. An explicit null foreground/background clears inheritance.
     /// Exports contain every token, both colours, all fallback indices and decorations, without an inheritance dependency.
@@ -86,11 +86,12 @@ namespace ConsoleMonster.Styling {
 
         private static ThemeAppearance ReadAppearance(object? value, ThemeAppearance basis) {
             if (value == null) { return basis; }
-            Dictionary<string, object?> style = Map(value, "Style", "Border", "StatusMarkers", "Background");
+            Dictionary<string, object?> style = Map(value, "Style", "Border", "StatusMarkers", "Background", "Density");
             Glyphs.BoxStyle border = style.TryGetValue("Border", out object? b) ? Named(b, "Style.Border", Glyphs.BoxStyle.Rounded, Glyphs.BoxStyle.Single, Glyphs.BoxStyle.Double, Glyphs.BoxStyle.Heavy, Glyphs.BoxStyle.Ascii) : basis.Border;
             StatusMarkerStyle markers = style.TryGetValue("StatusMarkers", out object? m) ? Named(m, "Style.StatusMarkers", StatusMarkerStyle.Symbols, StatusMarkerStyle.Words) : basis.StatusMarkers;
             ThemeBackground background = style.TryGetValue("Background", out object? g) ? Named(g, "Style.Background", ThemeBackground.Dark, ThemeBackground.Light) : basis.Background;
-            return new ThemeAppearance(border, markers, background);
+            ThemeDensity density = style.TryGetValue("Density", out object? d) ? Named(d, "Style.Density", ThemeDensity.Comfortable, ThemeDensity.Compact) : basis.Density;
+            return new ThemeAppearance(density, border, markers, background);
         }
 
         private static T Named<T>(object? value, string path, params T[] allowed) where T : struct, Enum {
@@ -130,6 +131,7 @@ namespace ConsoleMonster.Styling {
                 data["SchemaVersion"] = 2;
                 data["Style"] = new Dictionary<string, object?> {
                     ["Border"] = theme.Appearance.Border.ToString(),
+                    ["Density"] = theme.Appearance.Density.ToString(),
                     ["StatusMarkers"] = theme.Appearance.StatusMarkers.ToString(),
                     ["Background"] = theme.Appearance.Background.ToString()
                 };

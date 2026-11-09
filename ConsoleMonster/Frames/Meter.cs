@@ -178,26 +178,28 @@ internal sealed class MeterRow : IWidget {
     private IList<Meter> _meters;
     internal MeterRow(IList<Meter> meters, FrameScale scale) { _all = meters; _scale = scale; _meters = meters; }
 
-    private int PerLine(int width) {
-        int fit = Math.Max(1, (width + 2) / (Meter.TileWidth + 2));
-        int per = _scale.Stacked ? Math.Min(2, fit) : Math.Min(_scale.MeterTiles, fit);
+    private int PerLine(int width, int gap) {
+        int fit = Math.Max(1, (width + gap) / (Meter.TileWidth + gap));
+        int per = _scale.Stacked ? Math.Min(2, fit) : Math.Min(_scale.MeterTiles(gap), fit);
         int visible = _scale.Stacked ? Math.Min(_all.Count, 2 * per) : per;
         _meters = _all.Count <= visible ? _all : new List<Meter>(System.Linq.Enumerable.Take(_all, visible));
         return per;
     }
 
     public Size Measure(Constraints constraints, RenderContext context) {
-        int per = PerLine(constraints.MaxWidth);
+        int gap = LayoutSpacing.Gap(2, context);
+        int per = PerLine(constraints.MaxWidth, gap);
         if (_meters.Count == 0) return new Size(0, 0);
         int lines = (_meters.Count + per - 1) / per * 2;
         int tiles = Math.Min(per, _meters.Count);
-        return new Size(Math.Min(constraints.MaxWidth, tiles * (Meter.TileWidth + 2) - 2), Math.Min(lines, constraints.MaxHeight));
+        return new Size(Math.Min(constraints.MaxWidth, tiles * (Meter.TileWidth + gap) - gap), Math.Min(lines, constraints.MaxHeight));
     }
 
     public void Render(Region region, RenderContext context) {
-        int per = PerLine(region.Width);
+        int gap = LayoutSpacing.Gap(2, context);
+        int per = PerLine(region.Width, gap);
         for (int i = 0; i < _meters.Count; i++) {
-            int x = (i % per) * (Meter.TileWidth + 2);
+            int x = (i % per) * (Meter.TileWidth + gap);
             int y = (i / per) * 2;
             int width = Math.Min(Meter.TileWidth, region.Width - x);
             if (width <= 0 || y + 1 >= region.Height) continue;

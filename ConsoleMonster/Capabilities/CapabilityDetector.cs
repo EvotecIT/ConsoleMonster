@@ -170,11 +170,22 @@ namespace ConsoleMonster.Capabilities {
             CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
             Glyphs.BoxStyle? border = ParseBorder(Get("CONSOLEMONSTER_BORDER"), decisions);
             Styling.StatusMarkerStyle? markers = ParseMarkers(Get("CONSOLEMONSTER_STATUS_MARKERS"), decisions);
+            Styling.ThemeDensity? density = ParseDensity(Get("CONSOLEMONSTER_DENSITY"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
                 env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
                 WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource
-            }.WithAccessibility(accessible, reducedMotion).WithBorder(border).WithStatusMarkers(markers);
+            }.WithAccessibility(accessible, reducedMotion).WithBorder(border).WithStatusMarkers(markers).WithDensity(density);
+        }
+
+        private static Styling.ThemeDensity? ParseDensity(string value, List<string> decisions) {
+            switch (value.ToLowerInvariant()) {
+                case "": return null;
+                case "comfortable": return Styling.ThemeDensity.Comfortable;
+                case "compact": return Styling.ThemeDensity.Compact;
+            }
+            decisions.Add("CONSOLEMONSTER_DENSITY: ignored invalid value '" + value + "'");
+            return null;
         }
 
         // CONSOLEMONSTER_BORDER: the frame for default frames (rounded, single, double, heavy, ascii), or auto for the theme's.
@@ -272,7 +283,8 @@ namespace ConsoleMonster.Capabilities {
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
                 profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) { ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource }.WithLanguage(profile.Language)
-                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride);
+                .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride)
+                .WithBorder(profile.Border).WithStatusMarkers(profile.StatusMarkers).WithDensity(profile.Density);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {

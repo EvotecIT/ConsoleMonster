@@ -153,10 +153,10 @@ namespace ConsoleMonster.Widgets {
             starts = new int[widths.Length];
             int x = IsBoxed ? 1 : 0;
             for (int v = 0; v < widths.Length; v++) {
-                if (IsBoxed) { x++; }
+                if (IsBoxed) { x += layout.CellPadding; }
                 starts[v] = x;
                 x += widths[v];
-                if (IsBoxed) { x += 2; }
+                if (IsBoxed) { x += layout.CellPadding + 1; }
                 else if (v < widths.Length - 1) { x += layout.Gaps[v + 1]; }
             }
             return true;
@@ -268,7 +268,7 @@ namespace ConsoleMonster.Widgets {
                 region.Put(x++, y, left, style);
             }
             for (int v = 0; v < layout.Widths.Length; v++) {
-                int span = layout.Widths[v] + (IsBoxed ? 2 : 0);
+                int span = layout.Widths[v] + (IsBoxed ? 2 * layout.CellPadding : 0);
                 TableColumn column = _columns[layout.Visible[v]];
                 if (!(Border == TableBorder.Rule || skipBlankHeaders) || ((!skipBlankHeaders || column.HeaderSeparator) && !string.IsNullOrWhiteSpace(Markup.Strip(column.Header)))) { region.HorizontalLine(x, y, span, line, style); }
                 x += span;
@@ -299,7 +299,7 @@ namespace ConsoleMonster.Widgets {
                     region.Put(0, y, box.Vertical, border);
                     region.Put(layout.TotalWidth - 1, y, box.Vertical, border);
                 }
-                int inset = IsBoxed ? 2 : 0;
+                int inset = IsBoxed ? 1 + layout.CellPadding : 0;
                 region.Write(inset, y, TextWrapper.Truncate(text, Math.Max(0, layout.TotalWidth - 2 * inset), context.Ellipsis));
                 return y + 1;
             }
@@ -341,7 +341,7 @@ namespace ConsoleMonster.Widgets {
                 for (int v = 0; v < layout.Widths.Length; v++) {
                     int width = layout.Widths[v];
                     if (IsBoxed) {
-                        x++;
+                        x += layout.CellPadding;
                     }
                     int visual = visuals != null ? visuals[v] : 0;
                     if (visual > 0 && line == 0 && cells != null) {
@@ -363,7 +363,7 @@ namespace ConsoleMonster.Widgets {
                     }
                     x += width;
                     if (IsBoxed) {
-                        x++;
+                        x += layout.CellPadding;
                         region.Put(x++, y, box.Vertical, border);
                     } else if (v < layout.Widths.Length - 1) {
                         x += layout.Gaps[v + 1];

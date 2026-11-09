@@ -1,13 +1,13 @@
 # Proposal: one settings model and themes that cover style
 
 Status: the settings core (section 1, without `Get-ConsoleCapability -Explain`), the settings picker (section 2),
-the theme style (section 3: `Border`, `StatusMarkers` and `Background`) and exports of the theme in use
-(section 5, through `ExportTheme.Current` and `Export-ConsoleFrame`'s default) are built. `Density` and
-`HeaderDecoration` and the terminal palette and import are still proposals. The checker (section 4), including the
-picker summary, is implemented through `ThemeCheck.Run` and `Test-ConsoleTheme`: compact
-spacing needs each widget's layout to change, so it gets its own pass. The document describes how a user would set
-up ConsoleMonster once, see the result while choosing, and keep it in every session and every tool built on
-ConsoleMonster.
+the theme style (section 3: `Border`, `Density`, `StatusMarkers` and `Background`) and exports of the theme in use
+(section 5, through `ExportTheme.Current` and `Export-ConsoleFrame`'s default) are built. Compact density covers
+default table padding, panel padding, list gaps and layout tile gaps; explicit spacing stays as authored.
+The checker (section 4), including the picker summary, is implemented through `ThemeCheck.Run` and
+`Test-ConsoleTheme`. `HeaderDecoration` and the terminal palette and import are still proposals. The document
+describes how a user would set up ConsoleMonster once, see the result while choosing, and keep it in every session
+and every tool built on ConsoleMonster.
 
 ## Why
 
@@ -161,8 +161,9 @@ Schema version 2 adds an optional `Style` section to theme files. Version 1 file
 
 - `Border`: the default `BoxStyle` for panels, tables and rules. A widget's own `-Border` still wins. `Ascii` is still
   forced by the ASCII glyph tier.
-- `Density`: `Comfortable` (today) or `Compact` (no blank lines between sections, tighter table padding, single-line
-  panel headers).
+- `Density`: `Comfortable` (today) or `Compact` (no boxed table cell padding, smaller default gaps in unboxed tables and lists, no default
+  horizontal panel padding or gap between framed layout tiles. Unframed children keep one-cell separation,
+  and larger default gaps shrink by one; explicit spacing stays as authored).
 - `StatusMarkers`: `Symbols` (✓ ✗ ▲, today), `Words` (`[PASS]`, `[FAIL]`, the ASCII forms at any glyph tier) or `Both`.
   Words help screen-reader users and people who find small symbols hard to tell apart.
 - `HeaderDecoration`: how table and section headers are emphasised when the token's decoration is not enough.

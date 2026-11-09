@@ -106,7 +106,7 @@ namespace ConsoleMonster.Widgets {
             foreach (StatusItem item in _items) {
                 int w = DisplayWidth.Measure(context.Glyphs.StatusMarker(item.Status)) + 1 + context.Markup(item.Label).Width;
                 if (!string.IsNullOrEmpty(item.Detail)) {
-                    w += 2 + DisplayWidth.Measure(item.Detail);
+                    w += context.DefaultSpacing(2, 1) + DisplayWidth.Measure(item.Detail);
                 }
                 width = Math.Max(width, w);
             }
@@ -137,7 +137,7 @@ namespace ConsoleMonster.Widgets {
             }
             if (detailColumn > 0) {
                 // Details get the room the longest label leaves, and at least half the line when both are long.
-                int room = Math.Max(0, region.Width - markerWidth - 1 - 2);
+                int room = Math.Max(0, region.Width - markerWidth - 1 - context.DefaultSpacing(2, 1));
                 detailColumn = Math.Min(_detailColumn.Resolve(detailColumn), Math.Max(room - labelColumn, room / 2));
             }
             Style muted = context.Style(ThemeToken.Muted);
@@ -148,7 +148,7 @@ namespace ConsoleMonster.Widgets {
                     : context.Glyphs.StatusMarker(item.Status);
                 region.Write(0, i, marker, context.Style(item.Status));
                 int labelX = markerWidth + 1;
-                int labelWidth = Math.Max(0, region.Width - labelX - (detailColumn > 0 ? detailColumn + 2 : 0));
+                int labelWidth = Math.Max(0, region.Width - labelX - (detailColumn > 0 ? detailColumn + context.DefaultSpacing(2, 1) : 0));
                 StyledLine label = TextWrapper.Truncate(context.Markup(item.Label).Lines[0], labelWidth, context.Ellipsis);
                 region.Write(labelX, i, label);
                 if (detailColumn > 0 && !string.IsNullOrEmpty(item.Detail)) {

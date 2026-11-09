@@ -1,0 +1,20 @@
+╭──────┬─────╮
+│Check │State│
+├──────┼─────┤
+│DNS   │Ready│
+│Backup│Warn │
+╰──────┴─────╯
+Check  State
+────── ─────
+DNS    Ready
+Backup Warn
+╭─ Default ────────────────────────────╮
+│No padding                            │
+╰──────────────────────────────────────╯
+╭─ Explicit ───────────────────────────╮
+│ Authored padding                     │
+╰──────────────────────────────────────╯
+✓ Build                            ready
+▴ Deploy                            held
+Host  web01
+State ready

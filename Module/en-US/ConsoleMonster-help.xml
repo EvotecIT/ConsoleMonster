@@ -4383,12 +4383,12 @@
       <command:noun>ConsoleSetting</command:noun>
       <maml:description>
         <maml:para>Shows ConsoleMonster's settings: the value of each and where it came from.</maml:para>
-        <maml:para>Lists the theme, colour, glyphs, frames (Border), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</maml:para>
+        <maml:para>Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their configured value or built-in fallback and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. This describes preference overrides, not the final themed appearance: without a Density override, Comfortable with source Default can still render with Compact spacing from the theme. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Invalid Density environment values and unusable file entries are ignored and reported as warnings.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Shows ConsoleMonster's settings: the value of each and where it came from.</maml:para>
-      <maml:para>Lists the theme, colour, glyphs, frames (Border), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</maml:para>
+      <maml:para>Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their configured value or built-in fallback and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. This describes preference overrides, not the final themed appearance: without a Density override, Comfortable with source Default can still render with Compact spacing from the theme. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Invalid Density environment values and unusable file entries are ignored and reported as warnings.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -29377,12 +29377,12 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:noun>ConsoleSetting</command:noun>
       <maml:description>
         <maml:para>Changes a ConsoleMonster setting for this session, and with -Save for every session.</maml:para>
-        <maml:para>Sets Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</maml:para>
+        <maml:para>Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Changes a ConsoleMonster setting for this session, and with -Save for every session.</maml:para>
-      <maml:para>Sets Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</maml:para>
+      <maml:para>Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -29390,7 +29390,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Name</maml:name>
           <maml:description>
-            <maml:para>The setting: Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</maml:para>
+            <maml:para>The setting: Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -29429,7 +29429,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Name</maml:name>
         <maml:description>
-          <maml:para>The setting: Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</maml:para>
+          <maml:para>The setting: Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>

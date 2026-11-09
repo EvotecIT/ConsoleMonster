@@ -25,7 +25,10 @@ namespace ConsoleMonster.Widgets {
         public IReadOnlyList<KeyValueItem> Items => _items;
 
         /// <summary>Cells between the key column and the values (default 2).</summary>
-        public int Gap { get; set; } = 2;
+        public int Gap { get => _gap ?? 2; set => _gap = value; }
+        private int? _gap;
+
+        private int EffectiveGap(RenderContext context) => _gap ?? context.DefaultSpacing(2, 1);
 
         /// <summary>Preferred number of pairs per row; narrow layouts reduce the count automatically.</summary>
         public int Columns { get; set; } = 1;
@@ -38,7 +41,7 @@ namespace ConsoleMonster.Widgets {
             if (count <= 1) return null;
             var children = new List<IWidget>();
             foreach (KeyValueItem item in _items) {
-                children.Add(new KeyValueList { Gap = Gap, MaxKeyFraction = MaxKeyFraction, KeyRole = KeyRole, Presentation = Presentation, NumberColumn = NumberColumn }.Add(item));
+                children.Add(new KeyValueList { _gap = _gap, MaxKeyFraction = MaxKeyFraction, KeyRole = KeyRole, Presentation = Presentation, NumberColumn = NumberColumn }.Add(item));
             }
             return new LayoutGrid(count, children.ToArray());
         }
@@ -139,7 +142,7 @@ namespace ConsoleMonster.Widgets {
             IWidget? multi = MultiColumn(constraints.MaxWidth);
             if (multi != null) return multi.Measure(constraints, context);
             int keyWidth = KeyWidth(constraints.MaxWidth, context);
-            int valueWidth = Math.Max(1, constraints.MaxWidth - keyWidth - Gap);
+            int valueWidth = Math.Max(1, constraints.MaxWidth - keyWidth - EffectiveGap(context));
             int height = 0;
             int width = 0;
             int numberWidth = NumberWidth(context, constraints.MaxWidth);
@@ -147,7 +150,7 @@ namespace ConsoleMonster.Widgets {
                 IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, numberWidth, context);
                 height += Math.Max(1, lines.Count);
                 foreach (StyledLine line in lines) {
-                    width = Math.Max(width, keyWidth + Gap + line.Width);
+                    width = Math.Max(width, keyWidth + EffectiveGap(context) + line.Width);
                 }
             }
             return new Size(Math.Min(width, constraints.MaxWidth), constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -158,7 +161,7 @@ namespace ConsoleMonster.Widgets {
             IWidget? multi = MultiColumn(region.Width);
             if (multi != null) { multi.Render(region, context); return; }
             int keyWidth = KeyWidth(region.Width, context);
-            int valueWidth = Math.Max(1, region.Width - keyWidth - Gap);
+            int valueWidth = Math.Max(1, region.Width - keyWidth - EffectiveGap(context));
             Style keyStyle = context.Style(KeyRole);
             int numberWidth = NumberWidth(context, region.Width);
             int y = 0;
@@ -169,7 +172,7 @@ namespace ConsoleMonster.Widgets {
                 region.Write(0, y, TextWrapper.Truncate(item.Key, keyWidth, context.Ellipsis), keyStyle);
                 IReadOnlyList<StyledLine> lines = ValueLines(item, valueWidth, numberWidth, context);
                 for (int i = 0; i < lines.Count && y < region.Height; i++) {
-                    region.Write(keyWidth + Gap, y, lines[i]);
+                    region.Write(keyWidth + EffectiveGap(context), y, lines[i]);
                     y++;
                 }
                 if (lines.Count == 0) {
@@ -190,7 +193,7 @@ namespace ConsoleMonster.Widgets {
                     values = Math.Max(values, line.Width);
                 }
             }
-            int available = Math.Max(0, width - Math.Max(0, Gap));
+            int available = Math.Max(0, width - Math.Max(0, EffectiveGap(context)));
             if (longest + values <= available) { return longest; }
             // Keep values on one line if possible, then spend the remaining cells on labels.
             int preferred = Math.Min(longest, Math.Max(4, (int)(width * MaxKeyFraction)));
@@ -222,7 +225,7 @@ namespace ConsoleMonster.Widgets {
                 foreach (StyledLine line in ValueLines(item, int.MaxValue / 2, resolved, context)) { valueWidth = Math.Max(valueWidth, line.Width); }
             }
             // Numeric alignment is optional when it would force otherwise fitting labels or values to wrap.
-            return keyWidth + Gap + valueWidth <= width ? resolved : 0;
+            return keyWidth + EffectiveGap(context) + valueWidth <= width ? resolved : 0;
         }
 
         // The leading number of a value with an optional sign or "~" and an optional unit ("8.4", "~12s", "77%", "6 064 519"):

@@ -57,7 +57,10 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Column grids rendered separately so streaming never buffers the whole band container.</summary>
         internal IReadOnlyList<Table>? Bands { get; set; }
 
+        /// <summary>Default column gap, or cell padding when the table is boxed.</summary>
         internal int Gap { get; set; }
+
+        internal int CellPadding { get; set; }
 
         internal int[] Gaps { get; set; } = new int[0];
 
