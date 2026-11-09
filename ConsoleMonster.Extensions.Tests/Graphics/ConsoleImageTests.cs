@@ -20,6 +20,55 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
         private const string DotPng = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGElEQVR4nGP4z8Dwn6GB4T8DA8N/EGAAAELVCHmF7Ec3AAAAAElFTkSuQmCC";
         private const string Esc = "\u001b";
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void FromStream_ReadsFromCurrentPositionAndRendersLikeBytesWithoutClosing(bool nonSeekable) {
+            byte[] png = Convert.FromBase64String(DotPng);
+            using (MemoryStream input = new MemoryStream()) {
+                input.WriteByte(42);
+                input.Write(png, 0, png.Length);
+                input.Position = 1;
+                using (Stream source = nonSeekable ? new NonSeekableStream(input, 7) : input) {
+                    ConsoleImage actual = ConsoleImage.FromStream(source, "dot.png");
+                    ConsoleImage expected = new ConsoleImage(png, "dot.png");
+                    Assert.True(source.CanRead);
+                    Assert.Equal(input.Length, input.Position);
+                    Assert.Equal(expected.Placeholder, actual.Placeholder);
+                    Assert.Equal(Write(expected, ImageProtocol.HalfBlock), Write(actual, ImageProtocol.HalfBlock));
+                    Assert.Equal(Write(expected, ImageProtocol.Sixel), Write(actual, ImageProtocol.Sixel));
+                    Assert.Equal(Write(expected, ImageProtocol.Kitty), Write(actual, ImageProtocol.Kitty));
+                    string inline = Write(actual, ImageProtocol.ITerm2);
+                    int start = inline.IndexOf(";inline=1:", StringComparison.Ordinal) + ";inline=1:".Length;
+                    RgbaImage sent = RasterImageDecoder.Decode(Convert.FromBase64String(inline.Substring(start, inline.IndexOf('\u0007', start) - start)));
+                    RgbaImage pixels = RasterImageDecoder.Decode(png);
+                    Assert.Equal(pixels.Width, sent.Width);
+                    Assert.Equal(pixels.Height, sent.Height);
+                    Assert.Equal(pixels.Pixels, sent.Pixels);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void FromStream_RejectsInputPastDecoderLimitWithoutClosing(bool nonSeekable) {
+            string path = Path.GetTempFileName();
+            try {
+                using (FileStream file = File.OpenWrite(path)) {
+                    file.SetLength(new RasterDecodeOptions().MaximumEncodedBytes + 1L);
+                }
+                using (FileStream file = File.OpenRead(path))
+                using (Stream source = nonSeekable ? new NonSeekableStream(file) : file) {
+                    InvalidDataException error = Assert.Throws<InvalidDataException>(() => ConsoleImage.FromStream(source));
+                    Assert.Contains("byte limit", error.Message);
+                    Assert.True(source.CanRead);
+                }
+            } finally {
+                File.Delete(path);
+            }
+        }
+
         [Fact]
         public void FromFile_RejectsOversizedInputBeforeAllocatingItsContents() {
             string path = Path.GetTempFileName();
@@ -217,6 +266,27 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             StringTerminalWriter writer = new StringTerminalWriter();
             image.Write(TerminalProfile.Fixed(80, 24, ColorDepth.TrueColor).WithImageProtocol(protocol), writer);
             return writer.ToString();
+        }
+
+        // Length and Position must never be used for a non-seekable source; short reads are valid before EOF.
+        private sealed class NonSeekableStream : Stream {
+            private readonly Stream _source;
+            private readonly int _maximumRead;
+            public NonSeekableStream(Stream source, int maximumRead = int.MaxValue) { _source = source; _maximumRead = maximumRead; }
+            public override bool CanRead => _source.CanRead;
+            public override bool CanSeek => false;
+            public override bool CanWrite => false;
+            public override long Length => throw new NotSupportedException();
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+            public override int Read(byte[] buffer, int offset, int count) => _source.Read(buffer, offset, Math.Min(count, _maximumRead));
+            protected override void Dispose(bool disposing) {
+                if (disposing) { _source.Dispose(); }
+                base.Dispose(disposing);
+            }
+            public override void Flush() => throw new NotSupportedException();
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
         }
 
         private static CellBuffer Render(ConsoleImage image, ColorDepth depth, GlyphTier glyphs) =>

@@ -18,7 +18,7 @@ Show-ConsoleImage [[-Path] <string>] [-Protocol <ImageProtocol>] [-Label <string
 
 ### Bytes
 ```powershell
-Show-ConsoleImage -Bytes <byte[]> [-Protocol <ImageProtocol>] [-Label <string>] [-Width <int>] [-Height <int>] [<CommonParameters>]
+Show-ConsoleImage -Bytes <Object> [-Protocol <ImageProtocol>] [-Label <string>] [-Width <int>] [-Height <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -56,13 +56,20 @@ Show-ConsoleImage -Path ./diagram.png -Protocol Kitty
 
 Use Kitty graphics in a terminal that supports it but isn't detected
 
+### EXAMPLE 5
+```powershell
+Show-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40
+```
+
+Show an image from an open stream, leaving it open for the caller
+
 ## PARAMETERS
 
 ### -Bytes
-Encoded image bytes, for example a chart rendered to PNG in memory.
+Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.
 
 ```yaml
-Type: Byte[]
+Type: Object
 Parameter Sets: Bytes
 Aliases: None
 Possible values:
@@ -159,7 +166,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

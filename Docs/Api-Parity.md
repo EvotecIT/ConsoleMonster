@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **113 commands**, **1241 parameters** and **377 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **113 commands**, **1241 parameters** and **378 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -193,6 +193,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.SecretPrompt.AllowReveal` | CSharpOnly: Changing whether a secret can be revealed is a C# embedding-host policy; the PowerShell secret question retains its secure default. | Read-ConsoleText -AsSecret keeps the masked secret entry policy. |
 | `ConsoleMonster.Interactive.TypedConfirmPrompt.CaseSensitive` | CSharpOnly: A custom case-sensitive confirmation belongs to a C# host; the shell uses the conventional case-insensitive name comparison. | Read-ConsoleConfirm -TypedConfirmation uses the default case-insensitive comparison. |
 | `ConsoleMonster.Layout.Responsive.Fallback` | CSharpOnly: Breakpoint layouts are composed by C# views that hold several alternative widgets; a script draws once for the width it already knows. | Build the layout for $Host.UI.RawUI.WindowSize.Width in the script, or register a C# view that uses Responsive. |
+| `ConsoleMonster.Frames.AttentionList.Groups` | CSharpOnly: Counted groups come from an AttentionTally that a C# default view keeps while rows stream; PowerShell records reach New-ConsoleDashboardFrame whole. | Pass every record to New-ConsoleDashboardFrame, which groups identical reasons itself, or register a C# view that uses AttentionTally. |
 | `ConsoleMonster.Layout.Steady.Content` | CSharpOnly: Holding a live region's size needs the same widget instance across frames, which C# live views keep. | Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady. |
 | `ConsoleMonster.Layout.Steady.MinHeight` | CSharpOnly: Holding a live region's size needs the same widget instance across frames, which C# live views keep. | Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady. |
 | `ConsoleMonster.Live.LiveEvent.Payload` | CSharpOnly: Payload carries an in-process object for custom ILiveTarget handling and is absent from the recording wire protocol. Update-Console exposes validated update fields rather than a raw payload parameter. | Use Update-Console for validated updates, or construct a ConsoleMonster.Live.LiveEvent and call LiveSession.Post for the explicit raw protocol; Payload is not serialized. |

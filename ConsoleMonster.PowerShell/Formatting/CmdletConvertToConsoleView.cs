@@ -28,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Keep a process draft in your profile. Plain columns remain names; the Id presenter and count summary are named variables. Remove the Summary entry to leave the count line out.</para>
-    /// <code>$id = @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
+    /// <code>
+    /// $id = @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
     /// $summary = {
     ///     param($items)
     ///     @{ Value = @($items).Count; Label = 'processes' }
@@ -39,7 +40,8 @@ namespace ConsoleMonster.PowerShell {
     ///     Summary = $summary
     /// }
     /// Register-ConsoleView @view
-    /// Get-Process</code>
+    /// Get-Process
+    /// </code>
     /// </example>
     [Cmdlet(VerbsData.ConvertTo, "ConsoleView")]
     [OutputType(typeof(string))]

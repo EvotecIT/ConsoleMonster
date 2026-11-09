@@ -7830,7 +7830,7 @@
       "Bindings": [
         {
           "Parameter": "Bytes",
-          "ParameterType": "System.Byte[]",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -7842,9 +7842,10 @@
           "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
           "Member": ".ctor",
           "MemberKind": "Constructor",
-          "Conversion": "Identity",
+          "Conversion": "BytesOrStream",
           "CSharpTypeName": "System.Byte[]",
-          "Argument": "encoded"
+          "Argument": "encoded",
+          "Reason": "Byte arrays construct ConsoleImage directly; a Stream uses ConsoleImage.FromStream(stream, name), reading from the current position without closing it, within the decoder limit."
         },
         {
           "Parameter": "Height",
@@ -18389,7 +18390,7 @@
       "Bindings": [
         {
           "Parameter": "Bytes",
-          "ParameterType": "System.Byte[]",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -18401,9 +18402,10 @@
           "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
           "Member": ".ctor",
           "MemberKind": "Constructor",
-          "Conversion": "Identity",
+          "Conversion": "BytesOrStream",
           "CSharpTypeName": "System.Byte[]",
-          "Argument": "encoded"
+          "Argument": "encoded",
+          "Reason": "Byte arrays construct ConsoleImage directly; a Stream uses ConsoleImage.FromStream(stream, name), reading from the current position without closing it, within the decoder limit."
         },
         {
           "Parameter": "Height",
@@ -25669,6 +25671,14 @@
       "Disposition": "CSharpOnly"
     },
     {
+      "CSharpType": "ConsoleMonster.Frames.AttentionList",
+      "Member": "Groups",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.AttentionGroup]",
+      "Reason": "Counted groups come from an AttentionTally that a C# default view keeps while rows stream; PowerShell records reach New-ConsoleDashboardFrame whole.",
+      "Alternative": "Pass every record to New-ConsoleDashboardFrame, which groups identical reasons itself, or register a C# view that uses AttentionTally.",
+      "Disposition": "CSharpOnly"
+    },
+    {
       "CSharpType": "ConsoleMonster.Layout.Steady",
       "Member": "Content",
       "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
@@ -29527,6 +29537,7 @@
     "ConsoleMonster.Export.RecordingMarker",
     "ConsoleMonster.Export.RecordingPace",
     "ConsoleMonster.Export.WindowChromeStyle",
+    "ConsoleMonster.Frames.AttentionGroup",
     "ConsoleMonster.Frames.AttentionItem",
     "ConsoleMonster.Frames.AttentionList",
     "ConsoleMonster.Frames.DashboardFrame",
