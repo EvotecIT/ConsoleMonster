@@ -227,6 +227,17 @@ namespace ConsoleMonster.Graphics {
                     string glyph = ascii ? SymbolFallback.GetGlyph(cell.Glyph, GlyphTier.Ascii, context.Profile.WidthProfile)
                         : basic ? BasicGlyph(cell.Glyph) : cell.Glyph;
                     Style style = CellStyle(cell, context);
+                    // A failing or warning link is coloured along its whole length, and a failing node's box in its
+                    // status, so the problem reads from across the screen, not only from one glyph on the label.
+                    if (cell.ElementId != null && cell.Emphasis != TopologyCellEmphasis.Dimmed && cell.Emphasis != TopologyCellEmphasis.Focused) {
+                        if ((cell.Role == TopologyCellRole.Edge || cell.Role == TopologyCellRole.EdgeArrow || cell.Role == TopologyCellRole.EdgeLabel)
+                            && _linkStatusKinds.TryGetValue(cell.ElementId, out StatusKind edgeStatus) && (edgeStatus == StatusKind.Fail || edgeStatus == StatusKind.Warn)) {
+                            style = context.Style(edgeStatus);
+                        } else if (cell.Role == TopologyCellRole.NodeBorder && _statusKinds.TryGetValue(cell.ElementId, out StatusKind nodeStatus)
+                            && (nodeStatus == StatusKind.Fail || nodeStatus == StatusKind.Warn)) {
+                            style = context.Style(nodeStatus);
+                        }
+                    }
                     if (cell.Role == TopologyCellRole.EdgeLabel && cell.ElementId != null && cell.Glyph != " " &&
                         _linkStatusKinds.TryGetValue(cell.ElementId, out StatusKind linkStatus) && markedLinks.Add(cell.ElementId)) {
                         glyph = context.Glyphs.StatusSymbol(linkStatus);

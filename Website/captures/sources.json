@@ -320,6 +320,7 @@
   "powershell/markup.rich.ps5.ansi": "ad2e242cffa4f489",
   "powershell/markup.rich.ps7.ansi": "6ec042f6d90272a4",
   "powershell/relative-dates.rich.ps7.ansi": "ce33a2d82af32cd3",
+  "powershell/restyle-commands.rich.ps7.ansi": "66c1a61f3ed1760c",
   "powershell/streams.light.ps5.ansi": "cba1eb14c6853ff7",
   "powershell/streams.light.ps7.ansi": "4a2ede96740757d8",
   "powershell/streams.rich.ps5.ansi": "3e46a2a434fe8d1f",

@@ -132,6 +132,7 @@ namespace SiteFrames.Pages {
             ThemedHostFigures(site, powershell, "streams", "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Include Streams in ");
             ThemedHostFigures(site, powershell, "everyday-commands", "Select-String, Get-Acl, certificates, Group-Object, Measure-Object and a TimeSpan typed at the prompt with Enable-ConsoleFormatting in ");
             Copy(site, powershell, "everyday-summaries", "rich", "ps7", "everyday-summaries", "PowerShell 7");
+            Copy(site, powershell, "restyle-commands", "rich", "ps7", "restyle-commands", "PowerShell 7");
             Copy(site, powershell, "compare-object", "rich", "ps5", "compare-object-ps5", "PowerShell 5.1");
             Copy(site, powershell, "compare-object", "rich", "ps7", "compare-object-ps7", "PowerShell 7");
             Copy(site, powershell, "job", "rich", "ps5", "job-ps5", "PowerShell 5.1");

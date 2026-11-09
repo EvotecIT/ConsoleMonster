@@ -52,9 +52,11 @@
         <TypeName>ConsoleMonster.Layout.Padding</TypeName>
         <TypeName>ConsoleMonster.Layout.Panel</TypeName>
         <TypeName>ConsoleMonster.Layout.Prioritized</TypeName>
+        <TypeName>ConsoleMonster.Layout.Responsive</TypeName>
         <TypeName>ConsoleMonster.Layout.Rows</TypeName>
         <TypeName>ConsoleMonster.Layout.Sized</TypeName>
         <TypeName>ConsoleMonster.Layout.Stack</TypeName>
+        <TypeName>ConsoleMonster.Layout.Steady</TypeName>
         <TypeName>ConsoleMonster.Live.Tails.LogTailView</TypeName>
         <TypeName>ConsoleMonster.Live.WatchFrame</TypeName>
         <TypeName>ConsoleMonster.Overview.OverviewWidget</TypeName>

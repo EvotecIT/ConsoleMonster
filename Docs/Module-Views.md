@@ -1,5 +1,7 @@
 # Module-owned console views
 
+To restyle a command you do not maintain, register a view in your own session instead; the [guide](https://consolemonster.dev/guides/restyle-commands/) walks through it.
+
 A module can ship ConsoleMonster views with **no required module or package dependency**. Put `<ModuleName>.consoleviews.psd1` beside its manifest. ConsoleMonster discovers files for already loaded modules when formatting is enabled or a ConsoleMonster view is built, including modules imported after ConsoleMonster.
 
 ```powershell
