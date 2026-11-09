@@ -13,6 +13,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.Live {
     /// <summary>Options for <c>ConsoleRun.ForEachAsync</c> and <see cref="RunMonitor"/>.</summary>
     public sealed class RunOptions {
+        // Sequential PowerShell runs already enclose the body and completion in one scope.
+        internal bool GroupCompletions { get; set; } = true;
         private int _throttleLimit = Math.Max(1, Environment.ProcessorCount);
 
         /// <summary>How many items run at the same time (default the processor count).</summary>
@@ -113,7 +115,7 @@ namespace ConsoleMonster.Live {
         public RunMonitor(int total, RunOptions? options = null) {
             _options = options ?? new RunOptions();
             Tracker = new RunTracker(total);
-            IsLive = _options.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive;
+            IsLive = ContinuousIntegration.Provider == ContinuousIntegrationProvider.None && (_options.Live ?? Terminal.GetCurrentProfile().Mode == OutputMode.Interactive);
             if (IsLive) {
                 Rows view = new Rows().Add(new RunView(Tracker) { Title = _options.Title, RetryCount = _options.RetryCount }, LayoutSize.Fraction(1, 1))
                     .Add(new ActivityList()).Add(new LogRegion { PreferredHeight = 5 });
@@ -182,7 +184,10 @@ namespace ConsoleMonster.Live {
             if (!IsLive) {
                 string line = _glyphs!.StatusSymbol(outcome) + " " + label + " (" + NumberFormat.Duration(duration) + ")"
                     + (string.IsNullOrEmpty(message) ? string.Empty : ": " + message!.Replace("\r\n", " ").Replace('\n', ' '));
-                Print(line);
+                lock (_printGate) {
+                    using (ContinuousIntegration.Provider != ContinuousIntegrationProvider.None && _options.GroupCompletions
+                        ? ContinuousIntegration.Group(label, _options.Print) : null) { Print(line); }
+                }
             }
         }
 
@@ -222,7 +227,10 @@ namespace ConsoleMonster.Live {
         private void Print(string line) {
             lock (_printGate) {
                 if (_options.Print != null) {
-                    _options.Print(line);
+                    ContinuousIntegration.WriteLog(line, _options.Print);
+                } else if (ContinuousIntegration.Provider != ContinuousIntegrationProvider.None) {
+                    // Markers and content must reach the same synchronous stdout sink, even inside another live session.
+                    ContinuousIntegration.WriteLog(line);
                 } else {
                     Terminal.Write(new TextBlock(Text.Markup.Escape(line)));
                 }

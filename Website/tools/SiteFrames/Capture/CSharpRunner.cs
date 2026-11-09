@@ -198,6 +198,7 @@ namespace SiteFrames.Capture {
                 Console.SetOut(stray);
                 Console.SetError(stray);
                 Console.SetIn(TextReader.Null);
+                using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None))
                 using (Terminal.Use(target)) {
                     // A program with top-level await still has a synchronous entry point that waits for it.
                     entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { arguments ?? Array.Empty<string>() });

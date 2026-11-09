@@ -83,6 +83,8 @@ $Bridge.Begin($pester.Version.ToString(), $adapter, $reason, ($verbosity -eq 'No
 
 $override = & $newConfiguration
 $override.Run.PassThru = $true
+# ConsoleMonster owns provider detection, source positions and the annotation budget, including native-output fallback.
+if ($override.Output.PSObject.Properties['CIFormat']) { $override.Output.CIFormat = 'None' }
 if ($override.Run.PSObject.Properties['Exit']) { $override.Run.Exit = $false }
 if ($override.Run.PSObject.Properties['Throw']) { $override.Run.Throw = $false }
 if ($adapter) { $override.Output.Verbosity = 'Normal' }

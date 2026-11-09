@@ -1,6 +1,7 @@
 ### Unreleased
 
 #### What's new
+- `Use-ConsoleGroup`, `Write-ConsoleAnnotation` and `Add-ConsoleJobSummary` make GitHub Actions, Azure Pipelines and GitLab CI logs native to their provider. C# uses `ContinuousIntegration.Group`, `Annotate` and `AddSummary`; `CONSOLEMONSTER_CI` or `UseProvider` forces a provider or turns commands off. Runs fold by step, Pester annotates failures and adds a Markdown results summary, and the Errors formatting feature annotates script positions. Automatic annotations stop at ten per run/output pipeline with one overflow count; ordinary terminals keep headings, status lines and Markdown output. Annotation paths are relative to the provider workspace, and terminal source labels show the path and line once, relative to the current directory.
 - `New-ConsoleFacts`, `Ui.Facts()` and public `ViewFacts` share report facts with default-view summaries: bold counts, semantic colours, muted neutral facts and separators that follow the glyph tier.
 - Quota bars (`BarChart` with `Maximum`), progress and score gauges use Line bars with a Subtle track; comparisons use Block without a track. A whole of 100 shows a percentage once. Healthy composition shares are neutral, and stacked bars show their total on the right.
 - Warning markers use `▲` on Full and Basic (`!` on ASCII). Labels, values and headings follow one hierarchy; labelled sparklines show their axis and peak. Numeric text columns align right by default. Dashboard sections fill spare live height while printed reports and app layouts retain their natural sizing.

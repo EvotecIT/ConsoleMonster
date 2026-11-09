@@ -198,6 +198,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void OutputFailureCannotEraseLaterWorkerOutcomesFromTheStructuredSnapshot() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             var writer = new FailingWriter();
             var profile = TerminalProfile.Fixed(80, 24, ColorDepth.None);
             var run = new LiveRun(new[] { new RunItem("last worker"), new RunItem("queued") }, new LiveRunOptions {

@@ -68,6 +68,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void InlineHeightLimitTracksTerminalResize() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             StringTerminalWriter writer = new StringTerminalWriter();
             int height = 50;
             LiveRunOptions options = Options(writer, true, 120, height);
@@ -83,6 +84,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void WarningDetailsAndGroupsSurvivePauseAndCompletion() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             StringTerminalWriter writer = new StringTerminalWriter();
             using (LiveRun run = new LiveRun(new[] { new RunItem("one [literal]", "host-1", "Network"), new RunItem("two", "host-2", "Network") }, Options(writer, true))) {
                 Assert.True(run.HandleKey('p')); Assert.True(run.HandleKey('g')); Assert.True(run.HandleKey('?'));

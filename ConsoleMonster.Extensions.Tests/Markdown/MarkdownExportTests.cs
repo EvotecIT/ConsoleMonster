@@ -16,6 +16,15 @@ using Xunit;
 namespace ConsoleMonster.Extensions.Tests.Markdown {
     public sealed class MarkdownExportTests {
         [Fact]
+        public void JobSummaryUsesTheOptionalSemanticExporterWithoutCroppingTheTable() {
+            using IDisposable scope = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
+            var table = new Table().AddColumn("Check").AddColumn("Result").AddRow("Build | tests", "Passed");
+            string markdown = ContinuousIntegration.AddSummary(table, new ExportOptions { Width = 10 }, new MarkdownFrameExportProvider());
+            Assert.Contains("| Check | Result |\n| :--- | :--- |", markdown);
+            Assert.Contains("| Build \\| tests | Passed |", markdown);
+            Assert.DoesNotContain("```", markdown);
+        }
+        [Fact]
         public void NullOrDefaultWidgetOptionsResolveWithoutSelectingTheRecordingOverload() {
             var table = new Table().AddColumn("Host").AddRow("web-01");
             Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null));

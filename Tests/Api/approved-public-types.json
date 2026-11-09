@@ -649,6 +649,9 @@
     "ConsoleMonster.Styling.ThemeCheckReport",
     "ConsoleMonster.Styling.ThemeCheckResult",
     "ConsoleMonster.Styling.StylingFluent",
+    "ConsoleMonster.AnnotationLevel",
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider",
     "ConsoleMonster.Styling.TerminalScheme",
     "ConsoleMonster.Widgets.ViewFact",
     "ConsoleMonster.Widgets.ViewFacts"
@@ -663,7 +666,6 @@
     "ConsoleMonster.PowerShell.CmdletCompareConsoleObject",
     "ConsoleMonster.PowerShell.CmdletCompareConsoleText",
     "ConsoleMonster.PowerShell.CmdletCompleteConsoleRun",
-    "ConsoleMonster.PowerShell.CmdletConvertToConsoleView",
     "ConsoleMonster.PowerShell.CmdletDisableConsoleFormatting",
     "ConsoleMonster.PowerShell.CmdletEnableConsoleFormatting",
     "ConsoleMonster.PowerShell.CmdletExportConsoleFrame",
@@ -807,7 +809,11 @@
     "ConsoleMonster.PowerShell.TableConfigurationCmdlet",
     "OnModuleImportAndRemove",
     "ConsoleMonster.PowerShell.CmdletTestConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletAddConsoleJobSummary",
+    "ConsoleMonster.PowerShell.CmdletUseConsoleGroup",
+    "ConsoleMonster.PowerShell.CmdletWriteConsoleAnnotation",
     "ConsoleMonster.PowerShell.CmdletImportConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletConvertToConsoleView",
     "ConsoleMonster.PowerShell.CmdletNewConsoleFacts"
   ],
   "ConsoleMonster.PowerShell.Display": [

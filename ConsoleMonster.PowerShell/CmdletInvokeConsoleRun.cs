@@ -17,6 +17,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
+    /// <para type="description">In GitHub Actions, Azure Pipelines and GitLab CI, sequential items enclose their work and result in a collapsible log group. Parallel items group each completed result atomically; independently emitted worker output keeps its existing routing. CONSOLEMONSTER_CI=none disables provider groups.</para>
     /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
     /// </summary>
     /// <example>
@@ -113,7 +114,7 @@ namespace ConsoleMonster.PowerShell {
                 WriteWarning("-TimeoutSeconds applies to -Parallel runs only; the items run without a time limit.");
             }
             Capabilities.TerminalProfile profile = Terminal.GetCurrentProfile();
-            bool live = !NoLive.IsPresent && !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
+            bool live = ContinuousIntegration.Provider == ContinuousIntegrationProvider.None && !NoLive.IsPresent && !HostOutput.UseHost(this, profile) && profile.Mode == Capabilities.OutputMode.Interactive;
             // Built before the view starts, so an unsupported $using: fails without drawing a run first.
             Hashtable usings = new Hashtable(StringComparer.OrdinalIgnoreCase);
             string? parallelScript = Parallel.IsPresent ? ParallelScript(usings) : null;
@@ -121,6 +122,7 @@ namespace ConsoleMonster.PowerShell {
             // waits until it ends, so nothing prints inside the view.
             bool hold = live;
             RunOptions options = new RunOptions {
+                GroupCompletions = Parallel.IsPresent,
                 Title = Title != null ? PSText.Markup(Title) : null,
                 Live = live,
                 RetryCount = RetryCount,
@@ -178,6 +180,8 @@ namespace ConsoleMonster.PowerShell {
                 if (_stopping) {
                     break;
                 }
+                using IDisposable? group = ContinuousIntegration.Provider != ContinuousIntegrationProvider.None
+                    ? ContinuousIntegration.Group(labels[i], line => HostOutput.WriteHostLine(this, line)) : null;
                 monitor.Started(i, labels[i]);
                 Stopwatch watch = Stopwatch.StartNew();
                 Collection<PSObject> merged;
@@ -224,9 +228,8 @@ namespace ConsoleMonster.PowerShell {
             // Items waiting to run again, with the time they may start; an item keeps its index and cell across attempts.
             List<KeyValuePair<int, DateTime>> retries = new List<KeyValuePair<int, DateTime>>();
             int[] attempts = new int[_items.Count];
-            using (RunspacePool pool = monitor.Session == null
-                ? RunspaceFactory.CreateRunspacePool(1, ThrottleLimit, InitialSessionState.CreateDefault(), Host)
-                : RunspaceFactory.CreateRunspacePool(InitialSessionState.CreateDefault2())) {
+            // Workers must not share the caller's ConsoleHost/CLIXML writer. Merged records are replayed on the pipeline thread.
+            using (RunspacePool pool = RunspaceFactory.CreateRunspacePool(InitialSessionState.CreateDefault2())) {
                 pool.SetMaxRunspaces(ThrottleLimit);
                 pool.SetMinRunspaces(1);
                 pool.Open();
