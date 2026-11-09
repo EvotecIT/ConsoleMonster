@@ -8,7 +8,7 @@ Describe 'Settings saved for every session' {
         function Invoke-SettingsChild {
             param([Parameter(Mandatory)][string] $File, [Parameter(Mandatory)][string] $Script, [hashtable] $Environment = @{})
             $lines = @(
-                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_THEME', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MOTION', 'CONSOLEMONSTER_NOMOUSE', 'CONSOLEMONSTER_LANGUAGE', 'CONSOLEMONSTER_CULTURE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
+                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_THEME', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_DENSITY', 'CONSOLEMONSTER_MOTION', 'CONSOLEMONSTER_NOMOUSE', 'CONSOLEMONSTER_LANGUAGE', 'CONSOLEMONSTER_CULTURE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
                 "`$env:CONSOLEMONSTER_SETTINGS = '$File'"
                 foreach ($name in $Environment.Keys) { "`$env:$name = '$($Environment[$name])'" }
                 "Import-Module '$($script:ModulePath)' -Force"
@@ -70,12 +70,36 @@ $explicit = New-ConsoleText 'ok' -Role Pass | Export-ConsoleFrame -Format Html -
         $text | Should -Match 'explicit=True'
     }
 
+    It 'keeps authored spacing while Compact changes unbound PowerShell defaults and current exports' {
+        $text = Invoke-SettingsChild -File $script:File -Script @'
+Set-ConsoleSetting Density Compact -Save
+"density=$((Get-ConsoleSetting Density).Value)/$((Get-ConsoleSetting Density).Source)/$([ConsoleMonster.Terminal]::Profile.Density)"
+$default = New-ConsolePanel -NoExpand -Content { New-ConsoleText 'x' } | Export-ConsoleFrame -Format Text -Width 5 -Theme Current
+$explicit = New-ConsolePanel -NoExpand -PaddingLeft 1 -PaddingRight 1 -Content { New-ConsoleText 'x' } | Export-ConsoleFrame -Format Text -Width 5 -Theme Current
+"panels=$($default -match '│x')/$($explicit -match '│ x │')"
+$default = New-ConsoleKeyValue -InputObject @{ Key = 'value' } | Export-ConsoleFrame -Format Text -Width 20 -Theme Current
+$explicit = New-ConsoleKeyValue -InputObject @{ Key = 'value' } -Gap 2 | Export-ConsoleFrame -Format Text -Width 20 -Theme Current
+"lists=$($default.Trim() -eq 'Key value')/$($explicit.Trim() -eq 'Key  value')"
+$default = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 2 -Theme Current
+$explicit = New-ConsoleLayoutGrid -Columns 2 -MinColumnWidth 1 -ColumnGap 1 -Content { New-ConsoleText 'a'; New-ConsoleText 'b' } | Export-ConsoleFrame -Format Text -Width 3 -Theme Current
+"grids=$($default.Trim() -eq 'ab')/$($explicit.Trim() -eq 'a b')"
+Reset-ConsoleSetting Density
+"restored=$((Get-ConsoleSetting Density).Value)/$((Get-ConsoleSetting Density).Source)"
+'@
+        $text | Should -Match 'density=Compact/File/Compact'
+        $text | Should -Match 'panels=True/True'
+        $text | Should -Match 'lists=True/True'
+        $text | Should -Match 'grids=True/True'
+        $text | Should -Match 'restored=Compact/File'
+        (Get-Content -LiteralPath $script:File -Raw | ConvertFrom-Json).Density | Should -Be 'Compact'
+    }
+
     It 'saves what is chosen in the settings picker, and Escape changes nothing' {
         $text = Invoke-SettingsChild -File $script:File -Script @'
 $null = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Escape' { Show-ConsoleSettings }
 "cancelled=$(Test-Path $env:CONSOLEMONSTER_SETTINGS)/$((Get-ConsoleSetting Theme).Value)"
-# Theme list: Auto, Dark, Light. Eleven settings, then Save.
-$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
+# Theme list: Auto, Dark, Light. Twelve settings, then Save.
+$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
 "saved=$((Get-ConsoleSetting Theme).Value)/$((Get-ConsoleSetting Theme).Source)"
 '@
         $text | Should -Match 'cancelled=False/Auto'

@@ -8,6 +8,19 @@ using Xunit;
 namespace ConsoleMonster.Tests.Capabilities {
     public sealed class CapabilityDetectorTests {
         [Theory]
+        [InlineData("", null, false)]
+        [InlineData("comfortable", Styling.ThemeDensity.Comfortable, false)]
+        [InlineData("COMPACT", Styling.ThemeDensity.Compact, false)]
+        [InlineData("dense", null, true)]
+        public void DensityEnvironmentUsesTheChoiceOrLeavesItToTheTheme(string value, Styling.ThemeDensity? expected, bool invalid) {
+            TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["CONSOLEMONSTER_DENSITY"] = value
+            })).Detect();
+            Assert.Equal(expected, profile.Density);
+            Assert.Equal(invalid, profile.Decisions.Any(decision => decision.Contains("CONSOLEMONSTER_DENSITY: ignored invalid value")));
+        }
+
+        [Theory]
         [InlineData("light", ThemePreference.Light, false)]
         [InlineData("DARK", ThemePreference.Dark, false)]
         [InlineData("auto", ThemePreference.Auto, false)]
