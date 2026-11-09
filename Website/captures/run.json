@@ -1,53 +1,21 @@
 {
   "version": 1,
-  "producer": "windows",
+  "producer": "macos",
   "complete": true,
   "scope": "produced-only",
   "requestedSet": "demos",
   "filters": {
-    "SITEFRAMES_DEMOS": "hosting,logging,template"
+    "SITEFRAMES_DEMOS": "logging"
   },
   "allSetsCompleted": false,
   "files": {
-    "demos/hosting.cast": {
-      "platform": "windows",
-      "category": "neutral",
-      "comparison": {
-        "class": "live-measured",
-        "reason": "Actual hosted-service startup and shutdown durations, background work and log ordering.",
-        "minFrames": 3,
-        "maxFrames": 2000,
-        "minDurationSeconds": 0.1,
-        "maxDurationSeconds": 120
-      },
-      "sha256": "d2ebf0838f52ee2a24f547c6294cde64304be4bb9e89a9a2702e14792f727a3f",
-      "screen": "dark",
-      "width": 110,
-      "height": 30
-    },
     "demos/logging.cast": {
-      "platform": "windows",
+      "platform": "macos",
       "category": "neutral",
-      "sha256": "60929e5426f1f9f2ded275339434185cc30e055c050642dc49b9fa39e80dae9c",
+      "sha256": "c187f85280fa645732e4591621394d6a8175a7c9136d1374bfcae3f9c77624a9",
       "screen": "dark",
       "width": 110,
       "height": 30
-    },
-    "demos/template.cast": {
-      "platform": "windows",
-      "category": "neutral",
-      "comparison": {
-        "class": "live-measured",
-        "reason": "Actual service startup and shutdown durations and background batches in the runnable application template.",
-        "minFrames": 5,
-        "maxFrames": 4000,
-        "minDurationSeconds": 0.2,
-        "maxDurationSeconds": 180
-      },
-      "sha256": "2f541545979960e5d912f3cac066348b4160a70dcfb0237a461d6bb98d77597c",
-      "screen": "dark",
-      "width": 100,
-      "height": 26
     }
   }
 }
