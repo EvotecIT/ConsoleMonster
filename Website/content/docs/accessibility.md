@@ -41,7 +41,7 @@ In code, `Theme.HighContrast`, `Theme.ColorBlindSafe` and `Theme.ColorBlindSafeL
 
 ## Accessible output
 
-`CONSOLEMONSTER_ACCESSIBLE=1` is meant for the whole session. `Set-ConsoleSetting Accessible On -Save` keeps it for every session without a profile line, and `Set-ConsoleTheme ColorBlindSafe -Save`, `Set-ConsoleSetting Motion Reduced -Save` and `Set-ConsoleSetting Mouse Off -Save` do the same for the palette, motion and the mouse; `Show-ConsoleSettings` previews them first. A single prompt can ask for it with `-Mode Accessible`, and in C# `InteractiveOptions.Default.Mode = InteractionMode.Accessible` applies it everywhere. Explicit requests for rich or live output don't override it.
+`CONSOLEMONSTER_ACCESSIBLE=1` is meant for the whole session. `Set-ConsoleSetting Accessible On -Save` keeps it for every session without a profile line, and `Set-ConsoleTheme ColorBlindSafe -Save`, `Set-ConsoleSetting Motion Reduced -Save` and `Set-ConsoleSetting Mouse Off -Save` do the same for the palette, motion and the mouse, and `Set-ConsoleSetting StatusMarkers Words -Save` writes statuses as `[OK]`, `[FAIL]` and `[WARN]` instead of symbols; `Show-ConsoleSettings` previews them first. A single prompt can ask for it with `-Mode Accessible`, and in C# `InteractiveOptions.Default.Mode = InteractionMode.Accessible` applies it everywhere. Explicit requests for rich or live output don't override it.
 
 Live sessions in accessible mode write one line per change, the same narration they use in CI logs and redirected output:
 

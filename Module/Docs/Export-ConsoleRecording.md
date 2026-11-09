@@ -487,7 +487,7 @@ Dark (default), Light or HighContrast.
 Type: ExportTheme
 Parameter Sets: Session, Dashboard
 Aliases: None
-Possible values: Auto, Dark, Light, HighContrast
+Possible values: Auto, Dark, Light, HighContrast, Current
 
 Required: False
 Position: named

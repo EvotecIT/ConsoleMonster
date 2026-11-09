@@ -128,8 +128,19 @@ The same partial theme in `team-dark.psd1`:
 }
 ```
 
-`Name` and `Tokens` are required. `SchemaVersion` is optional and defaults to `1`;
-version `1` is the supported version. `BaseTheme` can be `Dark`, `Light`,
+`Name` and `Tokens` are required. `SchemaVersion` is optional and defaults to `1`.
+Version `2` adds an optional `Style` section beside the colours:
+
+```json
+"Style": { "Border": "Single", "StatusMarkers": "Words", "Background": "Dark" }
+```
+
+`Border` is the frame for panels, tables and inputs that use the default frame (`Rounded`, `Single`, `Double`,
+`Heavy` or `Ascii`); a widget that names its own frame keeps it, and the ASCII glyph tier still draws ASCII.
+`StatusMarkers` is `Symbols` (✓ ✗ ▴) or `Words` (`[OK]` `[FAIL]` `[WARN]` at every glyph tier). `Background` is the
+background the theme is made for, which `Export-ConsoleFrame` uses for the page. Omitted fields inherit from
+`BaseTheme`; the `Light` presets are made for a light background. Exports write version `2` only when the style
+differs from the default, so existing version `1` files stay as they are. `BaseTheme` can be `Dark`, `Light`,
 `HighContrast`, `ColorBlindSafe`, `ColorBlindSafeDark` or `ColorBlindSafeLight`. Without it, unspecified styles use terminal
 defaults. A base names a built-in preset, not another file, and does not detect the background: `ColorBlindSafe`
 is always the dark variant, so a file for light terminals uses `ColorBlindSafeLight`.

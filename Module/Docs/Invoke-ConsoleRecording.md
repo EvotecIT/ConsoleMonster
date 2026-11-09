@@ -306,7 +306,7 @@ Export colours.
 Type: ExportTheme
 Parameter Sets: Script, Headless
 Aliases: None
-Possible values: Auto, Dark, Light, HighContrast
+Possible values: Auto, Dark, Light, HighContrast, Current
 
 Required: False
 Position: named

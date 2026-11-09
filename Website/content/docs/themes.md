@@ -63,6 +63,25 @@ The strongest choice wins: a theme passed to one call, then `Set-ConsoleSetting`
 
 The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background that could not be detected, because titles, headers and highlights use the terminal's own foreground in bold.
 
+## Frames and status words
+
+A theme is more than colours. Its style picks the frame drawn around panels, tables and inputs, and whether statuses
+show as symbols (✓ ✗ ▴) or as words (`[OK]` `[FAIL]` `[WARN]`). Words help screen readers and anyone who finds small
+symbols hard to tell apart, and they look the same in every terminal font. Keep your own style whatever the theme:
+
+```powershell
+Set-ConsoleSetting Border Single -Save
+Set-ConsoleSetting StatusMarkers Words -Save
+```
+
+`Show-ConsoleSettings` previews both. A widget that asks for its own frame (`New-ConsolePanel -Border Double`) keeps
+it, and the ASCII glyph tier still draws ASCII. `CONSOLEMONSTER_BORDER` and `CONSOLEMONSTER_STATUS_MARKERS` set them
+for one run; in C#, `Theme.WithAppearance` gives a theme its style and `TerminalProfile.WithBorder` and
+`WithStatusMarkers` override it.
+
+Exports follow your choice too: once you pick a theme, `Export-ConsoleFrame` draws in it on the background it is made
+for. `-Theme Auto` still gives both the dark and the light rendering, and `-Theme Current` asks for the theme in use.
+
 ## Markup and roles
 
 Theme roles are markup tags (`[pass]`, `[fail]`, `[warn]`, `[muted]`, `[accent]` and the others), also as backgrounds (`[white on fail]`). In PowerShell, `-Role` on `New-ConsoleText` and `Write-ConsoleText` does the same. Without colour, a status role adds its symbol, so status is never shown by colour alone.
@@ -118,7 +137,8 @@ A partial JSON file can inherit from a built-in palette. Save this as
 }
 ```
 
-`Name` and `Tokens` are required; `SchemaVersion` defaults to `1`. Missing tokens
+`Name` and `Tokens` are required; `SchemaVersion` defaults to `1`. With `"SchemaVersion": 2` a file can also set its
+[style](#frames-and-status-words): `"Style": { "Border": "Single", "StatusMarkers": "Words", "Background": "Dark" }`. Missing tokens
 and style fields inherit from `BaseTheme`. Styles accept `Foreground`,
 `Background` and `Decoration`. Explicit `null` colours use terminal defaults;
 `"Decoration": "None"` clears inherited decoration. Fallback indices use ANSI
