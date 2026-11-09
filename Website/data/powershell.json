@@ -938,6 +938,17 @@
       ]
     },
     {
+      "verb": "ConvertTo",
+      "count": 1,
+      "commands": [
+        {
+          "name": "ConvertTo-ConsoleView",
+          "synopsis": "Drafts a reusable console view from sample objects.",
+          "url": "/powershell/commands/convertto-consoleview/"
+        }
+      ]
+    },
+    {
       "verb": "Disable",
       "count": 1,
       "commands": [

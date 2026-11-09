@@ -25245,6 +25245,58 @@
           "Reason": "Rejects unsupported pipeline input at the PowerShell boundary."
         }
       ]
+    },
+    {
+      "Command": "ConvertTo-ConsoleView",
+      "Job": "ConvertTo-ConsoleView",
+      "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
+      "Bindings": [
+        {
+          "Parameter": "AsDataFile",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "DraftSerialization",
+          "Reason": "Serializes the sampled columns as a data-only PowerShell view file instead of a registration script."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SampledViewDefinition",
+          "Reason": "Samples at most fifty input objects to draft up to six columns, reusing default-table presenter inference."
+        },
+        {
+          "Parameter": "Register",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SessionRegistration",
+          "Reason": "Also installs the drafted ConsoleViewRegistration through ConsoleHostViews.Register in the current session."
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -29557,7 +29609,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 116,
+  "ExpectedCount": 117,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -32821,6 +32873,34 @@
         "Profile",
         "Writer"
       ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions",
+      "Package": "ConsoleMonster.Extensions.Serilog",
+      "Reason": "Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters.",
+      "Members": [
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "IncludeCategory",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget",
+      "Package": "ConsoleMonster.Extensions.NLog",
+      "Reason": "NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters.",
+      "Members": [
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "IncludeCategory",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
     }
   ],
   "IntegrationOperations": [
@@ -32833,6 +32913,11 @@
       "CSharpType": "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggingExtensions",
       "Member": "AddConsoleMonster",
       "Reason": "The .NET logging provider is configured through its logging builder; PowerShell launches the same project with dotnet."
+    },
+    {
+      "CSharpType": "Serilog.ConsoleMonsterLoggerConfigurationExtensions",
+      "Member": "ConsoleMonster",
+      "Reason": "Serilog registers the native sink through LoggerSinkConfiguration; PowerShell launches the same .NET project with dotnet."
     }
   ],
   "FluentExceptions": [

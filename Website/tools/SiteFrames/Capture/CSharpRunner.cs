@@ -55,6 +55,10 @@ namespace SiteFrames.Capture {
                     _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Markdown.MarkdownConsole).Assembly.Location));
                     _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Graphics.ConsoleGraphicsExtensions).Assembly.Location));
                     _references.Add(MetadataReference.CreateFromFile(typeof(ChartForgeX.Raster.RgbaImage).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Extensions.Serilog.ConsoleMonsterSink).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(Serilog.LoggerConfiguration).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(NLog.LogFactory).Assembly.Location));
                 }
                 return _references;
             }
