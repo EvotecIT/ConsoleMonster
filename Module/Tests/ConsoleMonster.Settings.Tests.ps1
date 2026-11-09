@@ -36,7 +36,7 @@
         @{ Command = "Set-ConsoleTheme 'Tokyo Night' -Accessible -Save"; Stored = 'Tokyo Night · accessible'; Scheme = 'Tokyo Night Dark'; Accessible = 'True' }
     ) {
         $null = Invoke-SettingsChild -File $script:File -Script $Command
-        (Get-Content -LiteralPath $script:File -Raw | ConvertFrom-Json).Theme | Should -BeExactly $Stored
+        (Get-Content -LiteralPath $script:File -Raw -Encoding UTF8 | ConvertFrom-Json).Theme | Should -BeExactly $Stored
         $next = Invoke-SettingsChild -File $script:File -Script '"value=$((Get-ConsoleSetting Theme).Value);source=$((Get-ConsoleSetting Theme).Source);scheme=$([ConsoleMonster.Terminal]::Theme.Scheme.Name);accessible=$([ConsoleMonster.Terminal]::Theme.IsAccessible)"'
         $next | Should -Match ([regex]::Escape("value=$Stored;source=File;scheme=$Scheme;accessible=$Accessible"))
         $overridden = Invoke-SettingsChild -File $script:File -Environment @{ CONSOLEMONSTER_THEME = 'nord' } -Script '"scheme=$([ConsoleMonster.Terminal]::Theme.Scheme.Name);source=$((Get-ConsoleSetting Theme).Source)"'
