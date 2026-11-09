@@ -14,8 +14,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.13" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.14" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ConsoleMonster.Extensions.Logging\ConsoleMonster.Extensions.Logging.csproj" />
