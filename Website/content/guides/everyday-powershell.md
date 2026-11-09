@@ -249,6 +249,8 @@ A module can describe how its objects look without depending on ConsoleMonster: 
 
 {{< cm-demo id="module-views" heading="h3" >}}
 
+For a command without a view, yours, another module's or a built-in one, [Restyle any command's output](/guides/restyle-commands/) walks through registering one: the type name, the columns and presenters, a summary line and keeping it.
+
 ## Reports and the clipboard
 
 `Export-ConsoleFrame -Format Markdown`, `Html` or `FencedText` creates a document from ordinary objects or widgets, including inside scripts and on Windows PowerShell 5.1. `Export-ConsoleFrame -Format Markdown | Set-Clipboard` puts the document on the clipboard:
