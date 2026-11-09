@@ -144,5 +144,32 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal("aaaaaaaaaB", Render(stack, 10)[0]);
             Assert.Equal(2, stack.Children.Count);
         }
+
+        [Theory]
+        [InlineData(80, "wide layout")]
+        [InlineData(25, "narrow")]
+        public void Responsive_InAutoColumn_KeepsTheLayoutItMeasured(int width, string expected) {
+            // The wide layout is far narrower than its breakpoint; an auto column must still give it the breakpoint's width.
+            Responsive responsive = new Responsive(new TextBlock("narrow")).When(30, new TextBlock("wide layout"));
+            string text = string.Join("\n", Render(new Columns().Add(responsive, LayoutSize.Auto).Add(new TextBlock("|")), width));
+            Assert.Contains(expected, text);
+            Assert.Equal(2, responsive.Children.Count);
+        }
+
+        [Fact]
+        public void Steady_ContentLosesRows_KeepsTheHeightUntilReset() {
+            Steady steady = new Steady(new TextBlock("worker 1\nworker 2\nworker 3")) { MinHeight = 2 };
+            // Measuring alone (layout probes at other widths) must not latch a size the region never showed.
+            Assert.Equal(3, steady.Measure(new Constraints(20), Context(20)).Height);
+            steady.Content = new TextBlock("worker 1");
+            Assert.Equal(2, steady.Measure(new Constraints(20), Context(20)).Height);
+            steady.Content = new TextBlock("worker 1\nworker 2\nworker 3");
+            Assert.Equal(3, Render(new Rows(steady, new TextBlock("below")), 20).ToList().IndexOf("below"));
+            // The last worker finishes: the region keeps three rows, so the line below does not move up.
+            steady.Content = new TextBlock("worker 1");
+            Assert.Equal(3, Render(new Rows(steady, new TextBlock("below")), 20).ToList().IndexOf("below"));
+            steady.Reset();
+            Assert.Equal(2, Render(new Rows(steady, new TextBlock("below")), 20).ToList().IndexOf("below"));
+        }
     }
 }

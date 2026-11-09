@@ -19,7 +19,12 @@
 - `Get-Job` and `Get-PSDrive` get everyday views: jobs with their state, when they started, how long they ran with a bar, unreceived output and the command; drives with used and free space and a usage bar that turns to a warning at 80% and a failure at 95%.
 - Process memory and history durations draw a data bar against the largest in the list, and services show their start type, marked when an automatic service is not running. The `BytesBar` and `DurationBar` presenters do the same for any column.
 
+- `Matrix.Overflow = MatrixOverflow.Dense` keeps a large matrix visual instead of switching to the attention list. Each column becomes one cell under its band: 104 domain controllers grouped by site fit on one line per check. When the width is too small for that, each band gets one cell showing its worst status, and the list comes only after that. Healthy cells are a solid ■ and queued ones a faint ·, while failures, warnings and running cells keep their own symbols, so problems stand out without colour. ASCII output keeps the status symbols.
+- `Responsive` shows a different layout by the width it is actually given, not the terminal width: `new Responsive(narrow).When(100, wide)`. All layouts stay children, so live updates reach the hidden ones.
+- `Steady` keeps a live region at the largest size it has needed, so a table that loses rows when workers finish no longer moves everything below it. `MinHeight` reserves the rows from the first frame, and `Reset()` releases them. Keep the same `Steady` instance across frames.
+
 #### Fixed
+- A matrix inside a `DashboardFrame` section no longer collapses to "0 non-healthy cells" when everything is healthy. The frame gave the section its measured width and the matrix switched to its list at that width; a matrix now reports the width it needs to keep the layout it measured, at every width.
 - `ColorBlindSafe` keeps fail and warning apart under deuteranopia and protanopia: fail is now an underlined rose instead of orange, which looked like the yellow warning. Critical, low and gap tokens no longer fall back to red-green Dark colours.
 ### 2.3.0 - 2026-11-06
 
