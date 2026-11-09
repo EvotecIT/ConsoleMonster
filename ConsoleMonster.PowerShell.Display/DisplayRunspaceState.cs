@@ -109,18 +109,25 @@ internal sealed class DisplayRunspaceState {
         string? typeName = runtimeType?.FullName;
         if (typeName == null) { return null; }
         DefaultDisplayRegistration? best = Best(typeName, runtimeType!, derived: false);
-        // Then the nearest base type whose view opted in to derived types, so subclasses share one registration and one batch.
-        for (Type? baseType = runtimeType!.BaseType; best == null && baseType != null && baseType != typeof(object); baseType = baseType.BaseType) {
+        // Then the nearest base type whose view covers derived types, so subclasses share one registration and one batch.
+        // Skipped entirely while no registration could match a base type.
+        bool walk = best == null && _views.Exists(view => view.IncludeDerivedTypes || IsUserNameView(view));
+        for (Type? baseType = runtimeType!.BaseType; walk && best == null && baseType != null && baseType != typeof(object); baseType = baseType.BaseType) {
             if (baseType.FullName != null) { best = Best(baseType.FullName, baseType, derived: true); }
         }
         if (best?.Lease.Source != DefaultDisplaySource.User && _leases.Any(lease => lease.IsCompatible && Mode(lease) != DefaultDisplayMode.Off && lease.NativeOverride?.Invoke(value) == true)) { return null; }
         return best;
     }
+    private static bool IsUserNameView(DefaultDisplayRegistration view) => view.Lease.Source == DefaultDisplaySource.User && view.RuntimeType == null;
+
     private DefaultDisplayRegistration? Best(string typeName, Type runtimeType, bool derived) {
         DefaultDisplayRegistration? best = null;
         foreach (DefaultDisplayRegistration view in _views) {
             if (!view.Lease.IsCompatible || view.TypeName != typeName || Mode(view.Lease) == DefaultDisplayMode.Off) { continue; }
-            if (derived ? !view.IncludeDerivedTypes || view.RuntimeType != runtimeType : view.RuntimeType != null && view.RuntimeType != runtimeType) { continue; }
+            // A user's name-only view for a base type covers its subclasses, as PowerShell's own formatting does, and so keeps
+            // precedence over a product view that opted in to derived types.
+            bool family = view.IncludeDerivedTypes && view.RuntimeType == runtimeType || IsUserNameView(view);
+            if (derived ? !family : view.RuntimeType != null && view.RuntimeType != runtimeType) { continue; }
             if (best == null || view.Lease.Source > best.Lease.Source
                 || (view.Lease.Source == best.Lease.Source && view.ViewId == best.ViewId && view.Version.Major == best.Version.Major && view.Version > best.Version)) {
                 best = view;

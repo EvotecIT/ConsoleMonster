@@ -119,6 +119,10 @@ try {
         Assert-Display ([object]::ReferenceEquals($exact, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingB]::new()))) 'An exact view for a derived type did not take precedence.'
         $byName = $lease.Register('DisplayContract.FindingBase', 'contract.finding.name', [version]'1.0.0', 'Collect', $null, $script:DisplayBuilder, $null)
         Assert-Throws { $byName.IncludeDerivedTypes = $true }
+        $user = New-DisplayLease 'FamilyUser' -Types @('DisplayContract.FindingBase') -Source User
+        $userView = $user.Register('DisplayContract.FindingBase', 'user.finding', [version]'1.0.0', 'Collect', $null, $script:DisplayBuilder, $null)
+        Assert-Display ([object]::ReferenceEquals($userView, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingA]::new()))) 'A user view for the base type lost to the product family view.'
+        $user.Dispose()
         $lease.Dispose()
         Assert-Display ($null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingA]::new())) 'A released family view still matched.'
     }
