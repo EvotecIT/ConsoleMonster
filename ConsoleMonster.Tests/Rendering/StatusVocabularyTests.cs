@@ -31,6 +31,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData("Warning", "warn")]
         [InlineData("Error", "err")]
         [InlineData("err", "err")]
+        [InlineData("Critical", "critical")]
+        [InlineData("crit", "critical")]
+        [InlineData("Fatal", "critical")]
         [InlineData("Failed", "err")]
         [InlineData("Verbose", "verbose")]
         [InlineData("Debug", "debug")]
@@ -57,6 +60,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void LogLevels_MarkErrorsWarningsPassesAndSkipsOnly() {
             Assert.Equal(StatusKind.Fail, LogLevels.ToStatus("Error"));
+            Assert.Equal(StatusKind.Fail, LogLevels.ToStatus("Critical"));
             Assert.Equal(StatusKind.Warn, LogLevels.ToStatus("warn"));
             Assert.Equal(StatusKind.Pass, LogLevels.ToStatus("Success"));
             Assert.Equal(StatusKind.Skip, LogLevels.ToStatus("Skipped"));

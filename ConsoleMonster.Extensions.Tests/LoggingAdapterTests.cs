@@ -79,13 +79,15 @@ namespace ConsoleMonster.Extensions.Tests {
             Assert.Equal("     Orders  " + Message + " Host=node-1", rows[2]);
             Assert.Equal("WARN Orders  " + Message + " Host=node-1", rows[3]);
             Assert.Equal("ERR  Orders  " + Message + " Host=node-1", rows[4]);
-            Assert.Equal("ERR  Orders  critical: " + Message + " Host=node-1", rows[5]);
+            Assert.Equal("CRIT Orders  " + Message + " Host=node-1", rows[5]);
             Assert.Contains(rows, row => row.StartsWith("    ", StringComparison.Ordinal) && row.Contains("InvalidOperationException"));
             Assert.Contains(rows, row => row.Contains("TimeoutException"));
             Assert.Contains(rows, row => row.Contains("retry later"));
             if (mode == OutputMode.Interactive) {
                 var cells = screen.Snapshot();
                 var context = Terminal.CreateContext(profile);
+                Assert.Equal(context.Style(ThemeToken.Critical).Color, cells[0, 5].Style.Color);
+                Assert.Equal(context.Style(ThemeToken.Critical).Decoration, cells[0, 5].Style.Decoration);
                 Assert.Equal(context.Style(ThemeToken.Highlight).Color, cells[rows[3].IndexOf("042", StringComparison.Ordinal), 3].Style.Color);
                 Assert.Equal(context.Style(ThemeToken.Pass).Color, cells[rows[3].IndexOf("A-17", StringComparison.Ordinal), 3].Style.Color);
                 Assert.Equal(context.Style(ThemeToken.Accent2).Color, cells[rows[3].IndexOf("2026-10-21", StringComparison.Ordinal), 3].Style.Color);
@@ -244,10 +246,13 @@ namespace ConsoleMonster.Extensions.Tests {
         }
 
         [Theory]
-        [InlineData("Microsoft")]
-        [InlineData("Serilog")]
-        [InlineData("NLog")]
-        public void NativeAdapters_PostTypedLiteralValuesAndMutedPropertiesToTheLiveLog(string adapter) {
+        [InlineData("Microsoft", 3)]
+        [InlineData("Microsoft", 5)]
+        [InlineData("Serilog", 3)]
+        [InlineData("Serilog", 5)]
+        [InlineData("NLog", 3)]
+        [InlineData("NLog", 5)]
+        public void NativeAdapters_PostTypedLiteralValuesAndMutedPropertiesToTheLiveLog(string adapter, int level) {
             TerminalProfile profile = Profile(OutputMode.Stream).WithColorDepth(ColorDepth.TrueColor);
             StringTerminalWriter printed = new StringTerminalWriter();
             StringTerminalWriter screen = new StringTerminalWriter();
@@ -261,7 +266,7 @@ namespace ConsoleMonster.Extensions.Tests {
                     using var provider = new ConsoleMonsterLoggerProvider(new ConsoleMonsterLoggerOptions {
                         Writer = printed, Profile = profile, TimestampFormat = null
                     });
-                    provider.CreateLogger("Shop.Orders").Log(MelLevel.Warning, default, new[] {
+                    provider.CreateLogger("Shop.Orders").Log((MelLevel)level, default, new[] {
                         new KeyValuePair<string, object?>("Host", "node-1"),
                         new KeyValuePair<string, object?>("Count", 42),
                         new KeyValuePair<string, object?>("Customer", "A[fail]da[/]"),
@@ -272,20 +277,27 @@ namespace ConsoleMonster.Extensions.Tests {
                         options.Writer = printed; options.Profile = profile; options.TimestampFormat = null;
                     }).CreateLogger();
                     logger.ForContext("SourceContext", "Shop.Orders").ForContext("Host", "node-1")
-                        .Warning("Paid {Count} by {Customer}", 42, "A[fail]da[/]");
+                        .Write((LogEventLevel)level, "Paid {Count} by {Customer}", 42, "A[fail]da[/]");
                 } else {
                     using var factory = NLogFactory(printed, profile, "$log");
                     factory.GetLogger("Shop.Orders").WithProperty("Host", "node-1")
-                        .Warn("Paid {Count} by {Customer}", 42, "A[fail]da[/]");
+                        .Log(global::NLog.LogLevel.FromOrdinal(level), "Paid {Count} by {Customer}", 42, "A[fail]da[/]");
                 }
                 session.Stop();
             }
             Assert.Empty(printed.ToString());
             LogEntry entry = Assert.Single(region.Entries);
-            Assert.Equal("warn", entry.Level);
+            Assert.Equal(level == 5 ? "critical" : "warn", entry.Level);
             RichText text = Assert.IsType<RichText>(entry.RichText);
             Assert.Equal("Orders Paid 42 by A[fail]da[/] Host=node-1", text.PlainText);
             var context = Terminal.CreateContext(profile);
+            if (level == 5) {
+                Assert.True(new LogFilter(level: "err").Matches(entry));
+                var frame = FrameComposer.RenderBlock(region, profile.Width, context);
+                int row = Assert.Single(Enumerable.Range(0, frame.Height), y => Row(frame, y).Contains("CRIT"));
+                int column = Row(frame, row).IndexOf("CRIT", StringComparison.Ordinal);
+                Assert.Equal(context.Style(ThemeToken.Critical).Color, frame[column, row].Style.Color);
+            }
             StyledLine line = Assert.Single(text.ToStyledText(context).Lines);
             Assert.Contains(line, span => span.Text == "42" && span.Style.Color.Equals(context.Style(ThemeToken.Highlight).Color));
             Assert.Contains(line, span => span.Text == "A[fail]da[/]" && span.Style.Color.Equals(context.Style(ThemeToken.Pass).Color));

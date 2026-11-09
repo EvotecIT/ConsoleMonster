@@ -16,6 +16,13 @@ using var logger = new LoggerConfiguration()
 var log = logger.ForContext("SourceContext", "Shop.Orders").ForContext("Region", "eu-west");
 
 log.Information("Order {OrderId} for {Customer} totals {Total}", 1042, "Ada", 42.50m);
+log.Fatal("Queue {Queue} is not draining", "orders-eu");
+```
+
+Fatal entries use the Critical style and retain the original message:
+
+```text
+14:05:12 ◆ CRIT Orders  Queue orders-eu is not draining Region=eu-west
 ```
 
 `SourceContext` appears as the shortened category `Orders`. String values in the template print without quotes;

@@ -19,8 +19,8 @@ namespace ConsoleMonster.Logging {
                 case 0: return "verbose";
                 case 1: return "debug";
                 case 3: return "warn";
-                case 4:
-                case 5: return "err";
+                case 4: return "err";
+                case 5: return "critical";
                 default: return "info";
             }
         }
@@ -28,9 +28,6 @@ namespace ConsoleMonster.Logging {
         internal void Write(LogEntryOptions options, string category, int level, int eventId, LogMessage message, Exception? exception, string? scopes = null, DateTimeOffset? timestamp = null) {
             string levelName = LevelName(level);
             string? shortCategory = CategoryText(category, options);
-            if (level == 5) {
-                message.Parts.Insert(0, new LogMessage.Part("critical: "));
-            }
             // An entry with an exception prints above a live view (with its details kept in the scrollback) instead of
             // going into the log region, which keeps only its newest lines.
             if (options.LogRegion != null && exception == null && TryPost(options, levelName, shortCategory, scopes, eventId, message)) {

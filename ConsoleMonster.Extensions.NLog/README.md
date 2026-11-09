@@ -19,6 +19,13 @@ configuration.AddRule(LogLevel.Trace, LogLevel.Fatal, target);
 using var factory = new LogFactory { Configuration = configuration };
 var log = factory.GetLogger("Shop.Orders");
 log.Info("Order {OrderId} for {Customer} totals {Total}", 1042, "Ada", 42.50m);
+log.Fatal("Queue {Queue} is not draining", "orders-eu");
+```
+
+Fatal entries use the Critical style and retain the original message:
+
+```text
+14:05:12 ◆ CRIT Orders  Queue orders-eu is not draining
 ```
 
 The logger name appears as the shortened category `Orders`. String values in the template print without quotes;

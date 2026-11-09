@@ -23,6 +23,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             log.Write("cache warm", "verbose", tag: "web");
             log.Write("slow query 2.1 s", "warn", tag: "sql-index");
             log.Write("upload failed", "err", tag: "backup");
+            log.Write("worker terminated", "critical", tag: "worker");
 
             log.Filter = new LogFilter(tag: "SQL-INDEX");
             Assert.Equal(new[] { "index build 40%", "slow query 2.1 s" }, Messages(log));
@@ -30,15 +31,20 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.StartsWith("index build 40%", Rows(log)[0].Trim());
 
             log.Filter = new LogFilter(level: "warn");
-            Assert.Equal(new[] { "slow query 2.1 s", "upload failed" }, Messages(log));
+            Assert.Equal(new[] { "slow query 2.1 s", "upload failed", "worker terminated" }, Messages(log));
             Assert.Contains("sql-index", Rows(log)[0]);
+
+            log.Filter = new LogFilter(level: "err");
+            Assert.Equal(new[] { "upload failed", "worker terminated" }, Messages(log));
+            log.Filter = new LogFilter(level: "critical");
+            Assert.Equal(new[] { "worker terminated" }, Messages(log));
 
             log.Filter = new LogFilter(text: "CACHE");
             Assert.Equal(new[] { "cache warm" }, Messages(log));
             Assert.Contains("Filtered: \"CACHE\"", Rows(log).Last(row => row.Length > 0));
 
             log.Filter = null;
-            Assert.Equal(4, Messages(log).Length);
+            Assert.Equal(5, Messages(log).Length);
         }
 
         [Fact]
@@ -121,7 +127,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             Assert.Contains("ready", capture.LastFrame!.ToPlainText());
         }
 
-        private static readonly string[] Written = { "index build 40%", "cache warm", "slow query 2.1 s", "upload failed" };
+        private static readonly string[] Written = { "index build 40%", "cache warm", "slow query 2.1 s", "upload failed", "worker terminated" };
 
         private static string[] Messages(LogViewport log) {
             string screen = string.Join("\n", Rows(log));

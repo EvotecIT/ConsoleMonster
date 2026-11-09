@@ -92,7 +92,7 @@ namespace ConsoleMonster.Interactive {
 
         /// <summary>Appends bounded literal text from any thread. Markup is never interpreted.</summary>
         /// <param name="text">The message; line breaks create several entries.</param>
-        /// <param name="level">The level: info, warn, err, verbose, debug, pass, skip or a PowerShell stream word.</param>
+        /// <param name="level">The level: info, warn, err, critical, verbose, debug, pass, skip or a PowerShell stream word.</param>
         /// <param name="time">Session time shown when <see cref="ShowElapsed"/> is on.</param>
         /// <param name="tag">The source (a job, component or item name), or null.</param>
         public void Write(string text, string level = "info", TimeSpan time = default, string? tag = null) => ChangeLog(() => {

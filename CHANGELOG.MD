@@ -1,6 +1,7 @@
 ### Unreleased
 
 #### What's new
+- Critical and Fatal log entries use the `CRIT` label and Critical style across Microsoft.Extensions.Logging, Serilog, NLog and live log regions, keeping the message as written.
 - `ConsoleImage.FromStream(stream, name)` and `Show-ConsoleImage` / `New-ConsoleImage -Bytes $stream` read an encoded image from the current position without closing the stream. Non-seekable streams are supported, with the decoder's 64 MiB encoded-input limit.
 - Native Serilog and NLog output: `ConsoleMonster.Extensions.Serilog` adds `WriteTo.ConsoleMonster`, and `ConsoleMonster.Extensions.NLog` adds `ConsoleMonsterTarget` for code and XML configuration. Both keep native structured events, highlight template values, show unused properties as muted fields and render exceptions through `ExceptionView`. Entries print above a live view or post to its configured log region; redirected output stays plain and append-only. Neither package requires `Microsoft.Extensions.Logging`.
 - `Test-ConsoleTheme` and C# `ThemeCheck.Run` report text contrast, status separation in normal and simulated colour vision, non-colour markers and Critical's fill. A verdict-first summary shows problems and unknowns, with every measurement available through `-Detailed` or `Results`. The settings preview shows the verdict; `-Strict` stops CI on failures. Palette-dependent contrast and colour-vision measurements report Unknown. Marker results and proven fill failures still appear.
