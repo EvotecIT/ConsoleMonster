@@ -214,3 +214,118 @@
         }
     }
 }
+
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 3) { return }
+        [decimal] $size = 0
+        [decimal] $free = 0
+        $unhealthy = 0
+        foreach ($item in $items) {
+            $size += $item.Size
+            $free += $item.SizeRemaining
+            if ([string] $item.HealthStatus -ne 'Healthy') { $unhealthy++ }
+        }
+        @{ Value = $items.Count; Label = 'volumes' }
+        @{ Value = $size; Presenter = 'Bytes'; Label = 'total' }
+        @{ Value = $free; Presenter = 'Bytes'; Label = 'free' }
+        if ($unhealthy) { @{ Value = $unhealthy; Label = 'not healthy'; Role = 'Warn' } }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Disk'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_Disk'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 2) { return }
+        [decimal] $size = 0
+        $check = 0
+        foreach ($item in $items) {
+            $size += $item.Size
+            if (($item.OperationalStatus -join ', ') -ne 'Online' -or [string] $item.HealthStatus -ne 'Healthy') { $check++ }
+        }
+        @{ Value = $items.Count; Label = 'disks' }
+        @{ Value = $size; Presenter = 'Bytes'; Label = 'total' }
+        if ($check) { @{ Value = $check; Label = 'need attention'; Role = 'Warn' } }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#ROOT/StandardCimv2/MSFT_NetTCPConnection'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_NetTCPConnection'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 5) { return }
+        $states = [ordered] @{}
+        $listeners = [Collections.Generic.HashSet[uint16]]::new()
+        foreach ($item in $items) {
+            $state = [string] $item.State
+            if (!$state) { $state = 'Unknown' }
+            $states[$state]++
+            if ($state -eq 'Listen') { $null = $listeners.Add($item.LocalPort) }
+        }
+        @{ Value = $items.Count; Label = 'connections' }
+        foreach ($state in $states.Keys) { @{ Value = $states[$state]; Label = $state } }
+        if ($listeners.Count) { @{ Value = $listeners.Count; Label = $(if ($listeners.Count -eq 1) { 'listening port' } else { 'listening ports' }) } }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#Root/Microsoft/Windows/TaskScheduler/MSFT_ScheduledTask'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_ScheduledTask'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 5) { return }
+        $states = [ordered] @{}
+        foreach ($item in $items) {
+            $state = [string] $item.State
+            if (!$state) { $state = 'Unknown' }
+            $states[$state]++
+        }
+        @{ Value = $items.Count; Label = 'tasks' }
+        foreach ($state in $states.Keys) { @{ Value = $states[$state]; Label = $state } }
+    }
+}
+@{
+    TypeName = 'Microsoft.PowerShell.Commands.LocalUser'
+    Summary = {
+        param($items)
+        if ($items.Count -lt 3) { return }
+        $enabled = 0
+        $never = 0
+        foreach ($item in $items) {
+            if ($item.Enabled) { $enabled++ }
+            if (!$item.LastLogon) { $never++ }
+        }
+        @{ Value = $enabled; Label = 'enabled' }
+        @{ Value = ($items.Count - $enabled); Label = 'disabled' }
+        @{ Value = $never; Label = 'never logged on' }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.PowerShell.PSResourceGet.UtilClasses.PSResourceInfo'
+        'Microsoft.PowerShell.Commands.PSRepositoryItemInfo'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 5) { return }
+        $repositories = [ordered] @{}
+        foreach ($item in $items) {
+            $repository = [string] $item.Repository
+            if (!$repository) { $repository = 'unknown repository' }
+            $repositories[$repository]++
+        }
+        @{ Value = $items.Count; Label = 'modules' }
+        foreach ($repository in $repositories.Keys) { @{ Value = $repositories[$repository]; Label = $repository } }
+    }
+}
