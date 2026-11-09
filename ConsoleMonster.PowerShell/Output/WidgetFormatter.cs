@@ -24,6 +24,8 @@ namespace ConsoleMonster.PowerShell {
             switch (raw) {
                 case ConsoleRendering rendering:
                     return Render(rendering.Widget, host, rendering.DisplayOnly && string.IsNullOrEmpty(outputRendering) ? "Host" : outputRendering, rendering.Width, rendering.Culture);
+                case Styling.ThemeCheckReport report:
+                    return Render(ThemeCheckView.Build(report), host, outputRendering, 0, null);
                 case IWidget widget:
                     // PowerShell's custom format view wraps before the last terminal cell. Reserve its content margin
                     // only for an interactive host; redirected output and explicit ConsoleRendering widths keep their size.

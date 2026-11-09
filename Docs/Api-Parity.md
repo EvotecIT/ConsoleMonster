@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **112 commands**, **1235 parameters** and **375 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **113 commands**, **1241 parameters** and **377 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -640,6 +640,8 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.PromptLabels.LinkUnavailable` | CSharpOnly: Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Headless.HeadlessTerminal.Theme` | CSharpOnly: Invoke-ConsoleHeadless draws with the default dark theme so test screens are the same on every machine; a C# test that checks another theme sets it on its terminal. | Compare text and cells from the dark run, or drive the app from C# with HeadlessTerminal.Theme set. |
 | `ConsoleMonster.ConsoleSettings.FilePath` | CSharpOnly: An application or test pins or ignores the settings file for its own process before it first draws. | Set CONSOLEMONSTER_SETTINGS to a file path, or to none, before importing the module. |
+| `ConsoleMonster.Styling.ThemeCheckOptions.GlyphTier` | Host policy: The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly. | Use Set-ConsoleSetting Glyphs before Test-ConsoleTheme. |
+| `ConsoleMonster.Styling.ThemeCheckOptions.StatusMarkers` | Host policy: The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly. | Use Set-ConsoleSetting StatusMarkers before Test-ConsoleTheme. |
 
 ## .NET host integrations
 

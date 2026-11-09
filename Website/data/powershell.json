@@ -1041,6 +1041,17 @@
       ]
     },
     {
+      "verb": "Test",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Test-ConsoleTheme",
+          "synopsis": "Checks a theme's text contrast, status colours, markers and critical fill.",
+          "url": "/powershell/commands/test-consoletheme/"
+        }
+      ]
+    },
+    {
       "verb": "Unregister",
       "count": 1,
       "commands": [
