@@ -190,3 +190,22 @@ to `LiveSessionOptions.Theme` for one session.
 
 [PowerShell rich text](/powershell/) shows role-based text, and the [widget gallery](/widgets/) shows the roles at each
 colour tier.
+
+## Check a theme
+
+`Test-ConsoleTheme` checks the active theme without changing it. Use `-Theme` for a preset or `-Path` for a JSON or PSD1 team theme:
+
+```powershell
+Test-ConsoleTheme -Theme ColorBlindSafeLight -Background White
+Test-ConsoleTheme -Theme Dark -Detailed
+Test-ConsoleTheme -Path ./team-theme.json -Strict
+(Test-ConsoleTheme -Theme Dark).Results | Where-Object Outcome -EQ Fail
+```
+
+The default view names the theme and gives a calm verdict, lists only problems and unknowns, and ends with the number of other checks that pass. A pair that fails under several vision conditions appears once, with its lowest distance. `-Detailed` shows every measurement; the `Results` property always retains all 28 checks, also for `Format-List` or `Show-ConsoleTable`.
+
+The checks cover text contrast (at least 4.5:1 against each token's fill or the page), pass/warning/fail separation (CIELAB distance 25 in normal vision and simulated protanopia, deuteranopia and tritanopia), markers without colour, and Critical's distinct fill. The page defaults to `#0c0c0c` for dark themes and `#ffffff` for light themes. `-Background` overrides it; `Surface` is chrome, not the page.
+
+Dark and Light correctly fail colour-vision checks; both colour-blind presets pass. Palette indexes, terminal-default foregrounds and dim text have unknown RGB (terminals choose their own dimming) and report **Unknown**, while marker checks still run. `Passed` requires every check to pass. `-Strict` makes any **Fail** terminating, with the report in the error's `TargetObject`; Unknown alone does not throw. The settings picker shows a short verdict below its preview.
+
+In C#, call `ThemeCheck.Run(theme, new ThemeCheckOptions { Background = Color.FromHex("#ffffff") })` and inspect `Passed` and `Results`. The checker measures the theme's true-colour styles; it does not infer the live terminal palette or certify a terminal's rendering.
