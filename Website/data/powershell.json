@@ -733,7 +733,7 @@
     },
     {
       "verb": "Show",
-      "count": 14,
+      "count": 15,
       "commands": [
         {
           "name": "Show-Console",
@@ -794,6 +794,11 @@
           "name": "Show-ConsoleReplay",
           "synopsis": "Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.",
           "url": "/powershell/commands/show-consolereplay/"
+        },
+        {
+          "name": "Show-ConsoleSettings",
+          "synopsis": "Chooses ConsoleMonster's settings in the terminal with a live preview.",
+          "url": "/powershell/commands/show-consolesettings/"
         },
         {
           "name": "Show-ConsoleStatusLine",
@@ -932,7 +937,7 @@
     },
     {
       "verb": "Get",
-      "count": 3,
+      "count": 4,
       "commands": [
         {
           "name": "Get-ConsoleCapability",
@@ -948,6 +953,11 @@
           "name": "Get-ConsoleFormatting",
           "synopsis": "Shows the formatting features enabled in this runspace.",
           "url": "/powershell/commands/get-consoleformatting/"
+        },
+        {
+          "name": "Get-ConsoleSetting",
+          "synopsis": "Shows ConsoleMonster's settings: the value of each and where it came from.",
+          "url": "/powershell/commands/get-consolesetting/"
         }
       ]
     },
@@ -963,13 +973,29 @@
       ]
     },
     {
+      "verb": "Reset",
+      "count": 1,
+      "commands": [
+        {
+          "name": "Reset-ConsoleSetting",
+          "synopsis": "Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.",
+          "url": "/powershell/commands/reset-consolesetting/"
+        }
+      ]
+    },
+    {
       "verb": "Set",
-      "count": 2,
+      "count": 3,
       "commands": [
         {
           "name": "Set-ConsoleFormValue",
           "synopsis": "Sets field values of a form, whether or not it is shown.",
           "url": "/powershell/commands/set-consoleformvalue/"
+        },
+        {
+          "name": "Set-ConsoleSetting",
+          "synopsis": "Changes a ConsoleMonster setting for this session, and with -Save for every session.",
+          "url": "/powershell/commands/set-consolesetting/"
         },
         {
           "name": "Set-ConsoleTheme",

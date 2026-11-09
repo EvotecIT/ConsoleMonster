@@ -17,7 +17,7 @@ Files, processes, services, structured records, commands, modules, history, IP a
 ## SYNTAX
 ### Default (Default)
 ```powershell
-Enable-ConsoleFormatting [-Include <ConsoleFormattingFeature[]>] [-Exclude <ConsoleFormattingFeature[]>] [-ErrorLayout <string>] [-Force] [-NoBuiltIn] [-ProfileSnippet] [-WhatIf] [-Confirm] [<CommonParameters>]
+Enable-ConsoleFormatting [-Include <ConsoleFormattingFeature[]>] [-Exclude <ConsoleFormattingFeature[]>] [-ErrorLayout <string>] [-Force] [-NoBuiltIn] [-ProfileSnippet] [-Save] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -68,19 +68,26 @@ The lines to keep it on in every session with a colour-blind-safe theme (printed
 
 ### EXAMPLE 6
 ```powershell
+Enable-ConsoleFormatting -Include Help, Progress -Save
+```
+
+Keep these features for every session: afterwards the profile needs only Enable-ConsoleFormatting
+
+### EXAMPLE 7
+```powershell
 Enable-ConsoleFormatting -Exclude FormatCommands
 ```
 
 Exclude native format command styling from the default set
 
-### EXAMPLE 7
+### EXAMPLE 8
 ```powershell
 Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose
 ```
 
 Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour
 
-### EXAMPLE 8
+### EXAMPLE 9
 ```powershell
 Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed
 ```
@@ -171,6 +178,22 @@ Accept wildcard characters: False
 
 ### -ProfileSnippet
 Prints the lines to add to your PowerShell profile so every session starts with ConsoleMonster's formatting, with the options you passed, and changes nothing: the profile is never edited and formatting is not enabled. Pipe them to Add-Content $PROFILE yourself if you want them.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Default
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Save
+Also writes the Include, Exclude, ErrorLayout and NoBuiltIn choices to the settings file. Later, Enable-ConsoleFormatting without any of them uses the saved choices, so the profile line stays short. Enable-ConsoleFormatting -Save without them saves the default set.
 
 ```yaml
 Type: SwitchParameter

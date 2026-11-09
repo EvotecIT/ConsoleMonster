@@ -8,7 +8,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Selects the theme used by every ConsoleMonster widget.</para>
-    /// <para type="description">Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
+    /// <para type="description">Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
     /// </summary>
     /// <example>
     /// <para>Use the light theme for this session</para>
@@ -17,6 +17,10 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Use status colours that stay distinct with red-green colour blindness</para>
     /// <code>Set-ConsoleTheme -Theme ColorBlindSafe</code>
+    /// </example>
+    /// <example>
+    /// <para>Keep the colour-blind-safe theme in every new session</para>
+    /// <code>Set-ConsoleTheme -Theme ColorBlindSafe -Save</code>
     /// </example>
     /// <example>
     /// <para>Load an existing theme exported by Export-ConsoleTheme</para>
@@ -35,21 +39,39 @@ namespace ConsoleMonster.PowerShell {
         [ValidateNotNullOrEmpty]
         public string Path { get; set; } = string.Empty;
 
+        /// <summary><para type="description">Also writes the theme to the settings file, so every new session uses it.</para></summary>
+        [Parameter]
+        public SwitchParameter Save { get; set; }
+
         /// <inheritdoc />
         protected override void ProcessWithoutPipelineInput() {
             if (ParameterSetName == "Name") {
                 Theme selected = string.Equals(Theme, "ColorBlindSafe", StringComparison.OrdinalIgnoreCase)
                     ? (Styling.Theme)Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind))
                     : Styling.Theme.FromName(Theme);
+                Remember(Theme);
                 Apply(selected, "Set-ConsoleTheme -Theme " + Theme);
                 return;
             }
+            Theme candidate;
+            string path;
             try {
-                string path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-                Theme candidate = ConsoleThemeDataFile.Load(path).ToTheme();
-                Apply(candidate, "Set-ConsoleTheme -Path '" + QuotePattern.Replace(path, "$0$0") + "'");
+                path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
+                candidate = ConsoleThemeDataFile.Load(path).ToTheme();
             } catch (Exception ex) when (ex is FormatException || ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException) {
                 ThrowTerminatingError(new ErrorRecord(ex, "InvalidConsoleThemeFile", ErrorCategory.InvalidData, Path));
+                return;
+            }
+            Remember(path);
+            Apply(candidate, "Set-ConsoleTheme -Path '" + QuotePattern.Replace(path, "$0$0") + "'");
+        }
+
+        // The Theme setting follows the choice, so Get-ConsoleSetting reports it; -Save also writes it to the file.
+        private void Remember(string value) {
+            try {
+                ConsoleSettings.Set("Theme", value, Save.IsPresent);
+            } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidOperationException) {
+                ThrowTerminatingError(new ErrorRecord(ex, "ConsoleSettingNotSaved", ErrorCategory.WriteError, ConsoleSettings.FilePath));
             }
         }
 

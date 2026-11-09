@@ -15,6 +15,7 @@ Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Acc
 
 ## Choosing the theme
 
+- `Show-ConsoleSettings`, or `Set-ConsoleSetting Theme ... -Save`, for every session (below).
 - `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code.
 - `auto` reads the console background colour in conhost. In Windows Terminal, which does not report its scheme to console programs, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light` for a light scheme.
 - `Set-ConsoleTheme` in PowerShell, `LiveSessionOptions.Theme` for one session.
@@ -46,12 +47,19 @@ Terminal.Write(new Rule("[bold]High contrast[/]"));
 
 </div>
 
-For every new PowerShell session, set the variable before ConsoleMonster first draws, since detection reads it once. Your profile (`$PROFILE`) is the easy place:
+## Keep a theme for every session
+
+`Show-ConsoleSettings` opens a picker with a preview that redraws as you move through the themes, glyph sets, colour depths and the other settings, so you can compare them before choosing. Save keeps the choices for every session; Escape leaves everything as it was. Without the picker, `-Save` does the same:
 
 ```powershell
-$env:CONSOLEMONSTER_THEME = 'light'
-Import-Module ConsoleMonster
+Set-ConsoleTheme ColorBlindSafe -Save       # or: Set-ConsoleSetting Theme ColorBlindSafe -Save
+Set-ConsoleSetting Glyphs Basic -Save
+Get-ConsoleSetting                           # each setting, its value and where it came from
 ```
+
+Saved settings go to `settings.json` in `%APPDATA%\ConsoleMonster` on Windows and `~/.config/ConsoleMonster` on macOS and Linux. Every PowerShell session and every program built on ConsoleMonster reads it, so nothing needs to go in your profile. A theme can also be the path of a [team theme file](#share-a-team-theme-file).
+
+The strongest choice wins: a theme passed to one call, then `Set-ConsoleSetting` or `Set-ConsoleTheme` in this session, then a `CONSOLEMONSTER_*` [environment variable](/docs/environment/), then the settings file, then detection. Variables beat the file, so CI and one-off runs keep working without touching it, and `CONSOLEMONSTER_SETTINGS=none` ignores the file. In C#, `ConsoleSettings.Current` lists the effective values with their sources, and `ConsoleSettings.FilePath = null` keeps a program's output fixed whatever the user saved.
 
 The light theme meets WCAG contrast on white, and the dark theme keeps titles readable on a light background that could not be detected, because titles, headers and highlights use the terminal's own foreground in bold.
 
@@ -81,9 +89,9 @@ Choose `Dark`, `Light`, `HighContrast` or `ColorBlindSafe` with `-Theme`.
 `ColorBlindSafe` keeps pass, warning and fail distinct with red-green colour
 blindness (blue, yellow and underlined rose) and switches to its light variant when it
 detects a light background (otherwise it stays dark); `ColorBlindSafeLight` and `ColorBlindSafeDark` pick one
-explicitly. Status widgets retain their symbols and words. To keep the theme in
-every session, set `CONSOLEMONSTER_THEME=colorblind` or add the
-`Set-ConsoleTheme` line to your profile. Export any preset
+explicitly. Status widgets retain their symbols and words. To keep the theme, or
+the team file, in every session, add `-Save` (`Set-ConsoleTheme -Path ./team-theme.json -Save`).
+Export any preset
 as a starting file. Changing the widget theme does not change the terminal
 application's background.
 

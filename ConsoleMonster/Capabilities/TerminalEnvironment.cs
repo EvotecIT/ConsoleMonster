@@ -100,6 +100,8 @@ namespace ConsoleMonster.Capabilities {
                     variables[key] = value;
                 }
             }
+            // The user's settings file and this process's settings stand in for the variables they correspond to.
+            ConsoleSettings.Overlay(variables);
             bool redirected = true;
             bool inputRedirected = true;
             try {

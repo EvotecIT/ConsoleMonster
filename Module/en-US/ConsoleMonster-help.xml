@@ -1939,6 +1939,18 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Save</maml:name>
+          <maml:description>
+            <maml:para>Also writes the Include, Exclude, ErrorLayout and NoBuiltIn choices to the settings file. Later, Enable-ConsoleFormatting without any of them uses the saved choices, so the profile line stays short. Enable-ConsoleFormatting -Save without them saves the default set.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -2043,6 +2055,18 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Save</maml:name>
+        <maml:description>
+          <maml:para>Also writes the Include, Exclude, ErrorLayout and NoBuiltIn choices to the settings file. Later, Enable-ConsoleFormatting without any of them uses the saved choices, so the profile line stays short. Enable-ConsoleFormatting -Save without them saves the default set.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
     </command:parameters>
     <command:inputTypes />
     <command:returnValues />
@@ -2089,20 +2113,27 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 6</maml:title>
+        <dev:code>Enable-ConsoleFormatting -Include Help, Progress -Save</dev:code>
+        <dev:remarks>
+          <maml:para>Keep these features for every session: afterwards the profile needs only Enable-ConsoleFormatting</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 7</maml:title>
         <dev:code>Enable-ConsoleFormatting -Exclude FormatCommands</dev:code>
         <dev:remarks>
           <maml:para>Exclude native format command styling from the default set</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
-        <maml:title>EXAMPLE 7</maml:title>
+        <maml:title>EXAMPLE 8</maml:title>
         <dev:code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</dev:code>
         <dev:remarks>
           <maml:para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
-        <maml:title>EXAMPLE 8</maml:title>
+        <maml:title>EXAMPLE 9</maml:title>
         <dev:code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</dev:code>
         <dev:remarks>
           <maml:para>Theme the already loaded editor and native progress without replacing commands</maml:para>
@@ -4335,6 +4366,82 @@
         <dev:code>Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting</dev:code>
         <dev:remarks>
           <maml:para>Inspect the current session's formatting</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Get-ConsoleSetting</command:name>
+      <command:verb>Get</command:verb>
+      <command:noun>ConsoleSetting</command:noun>
+      <maml:description>
+        <maml:para>Shows ConsoleMonster's settings: the value of each and where it came from.</maml:para>
+        <maml:para>Lists the theme, colour, glyphs, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Shows ConsoleMonster's settings: the value of each and where it came from.</maml:para>
+      <maml:para>Lists the theme, colour, glyphs, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Get-ConsoleSetting</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The settings to show; all of them when omitted.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The settings to show; all of them when omitted.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.ConsoleSetting</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Get-ConsoleSetting</dev:code>
+        <dev:remarks>
+          <maml:para>Every setting and its source</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Get-ConsoleSetting Theme</dev:code>
+        <dev:remarks>
+          <maml:para>One setting</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -29053,6 +29160,100 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Reset-ConsoleSetting</command:name>
+      <command:verb>Reset</command:verb>
+      <command:noun>ConsoleSetting</command:noun>
+      <maml:description>
+        <maml:para>Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.</maml:para>
+        <maml:para>Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.</maml:para>
+      <maml:para>Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Reset-ConsoleSetting</maml:name>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The settings to reset; all of them when omitted.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Save</maml:name>
+          <maml:description>
+            <maml:para>Also removes the values from the settings file.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The settings to reset; all of them when omitted.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Save</maml:name>
+        <maml:description>
+          <maml:para>Also removes the values from the settings file.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Reset-ConsoleSetting Theme</dev:code>
+        <dev:remarks>
+          <maml:para>Go back to the saved theme</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Reset-ConsoleSetting -Save</dev:code>
+        <dev:remarks>
+          <maml:para>Remove every saved setting</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Set-ConsoleFormValue</command:name>
       <command:verb>Set</command:verb>
       <command:noun>ConsoleFormValue</command:noun>
@@ -29163,21 +29364,159 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Set-ConsoleSetting</command:name>
+      <command:verb>Set</command:verb>
+      <command:noun>ConsoleSetting</command:noun>
+      <maml:description>
+        <maml:para>Changes a ConsoleMonster setting for this session, and with -Save for every session.</maml:para>
+        <maml:para>Sets Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Changes a ConsoleMonster setting for this session, and with -Save for every session.</maml:para>
+      <maml:para>Sets Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Set-ConsoleSetting</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>The setting: Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Save</maml:name>
+          <maml:description>
+            <maml:para>Also writes the value to the settings file, for every new session.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+          <maml:name>Value</maml:name>
+          <maml:description>
+            <maml:para>The value. Get-ConsoleSetting lists the values each setting takes; Theme also takes a theme file path, Language and Culture a culture name such as pl or de-DE.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>The setting: Theme, Color, Glyphs, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Save</maml:name>
+        <maml:description>
+          <maml:para>Also writes the value to the settings file, for every new session.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="none">
+        <maml:name>Value</maml:name>
+        <maml:description>
+          <maml:para>The value. Get-ConsoleSetting lists the values each setting takes; Theme also takes a theme file path, Language and Culture a culture name such as pl or de-DE.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Set-ConsoleSetting Theme ColorBlindSafe -Save</dev:code>
+        <dev:remarks>
+          <maml:para>Use the colour-blind-safe theme from now on</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Set-ConsoleSetting Motion Reduced; Set-ConsoleSetting Mouse Off</dev:code>
+        <dev:remarks>
+          <maml:para>Keep animations still and leave the mouse to the terminal, for this session only</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code># Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
+            Set-ConsoleSetting Theme ./team-theme.json -Save</dev:code>
+        <dev:remarks>
+          <maml:para>Use a team theme file in every session</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Set-ConsoleTheme</command:name>
       <command:verb>Set</command:verb>
       <command:noun>ConsoleTheme</command:noun>
       <maml:description>
         <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-        <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
+        <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-      <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add the Set-ConsoleTheme line to your profile (Enable-ConsoleFormatting -ProfileSnippet includes it) or set CONSOLEMONSTER_THEME, for example to colorblind. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
+      <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Name">
         <maml:name>Set-ConsoleTheme</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Save</maml:name>
+          <maml:description>
+            <maml:para>Also writes the theme to the settings file, so every new session uses it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Theme</maml:name>
           <maml:description>
@@ -29213,6 +29552,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Save</maml:name>
+          <maml:description>
+            <maml:para>Also writes the theme to the settings file, so every new session uses it.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -29224,6 +29575,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Save</maml:name>
+        <maml:description>
+          <maml:para>Also writes the theme to the settings file, so every new session uses it.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -29273,7 +29636,14 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code># Requires an existing team-theme.psd1 file. Changes the active session theme.&#xD;
+        <dev:code>Set-ConsoleTheme -Theme ColorBlindSafe -Save</dev:code>
+        <dev:remarks>
+          <maml:para>Keep the colour-blind-safe theme in every new session</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code># Requires an existing team-theme.psd1 file. Changes the active session theme.
             Set-ConsoleTheme -Path ./team-theme.psd1</dev:code>
         <dev:remarks>
           <maml:para>Load an existing theme exported by Export-ConsoleTheme</maml:para>
@@ -34956,6 +35326,50 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -Paused</dev:code>
         <dev:remarks>
           <maml:para>Start an existing recording inline and paused</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Show-ConsoleSettings</command:name>
+      <command:verb>Show</command:verb>
+      <command:noun>ConsoleSettings</command:noun>
+      <maml:description>
+        <maml:para>Chooses ConsoleMonster's settings in the terminal with a live preview.</maml:para>
+        <maml:para>A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use now" applies them to this session only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Chooses ConsoleMonster's settings in the terminal with a live preview.</maml:para>
+      <maml:para>A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use now" applies them to this session only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Show-ConsoleSettings</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes />
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.ConsoleSetting</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Show-ConsoleSettings; Get-ConsoleSetting</dev:code>
+        <dev:remarks>
+          <maml:para>Choose with the preview, then list what applies now and where each value came from</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

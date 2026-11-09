@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **107 commands**, **1220 parameters** and **367 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **111 commands**, **1232 parameters** and **370 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -635,6 +635,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.PromptLabels.KeyBackForward` | CSharpOnly: Native prompt hosts can replace the 'back/forward' caption (Key hint: go back and forward through the places a document's links led to.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.KeyBackForward catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Interactive.PromptLabels.LinkUnavailable` | CSharpOnly: Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Headless.HeadlessTerminal.Theme` | CSharpOnly: Invoke-ConsoleHeadless draws with the default dark theme so test screens are the same on every machine; a C# test that checks another theme sets it on its terminal. | Compare text and cells from the dark run, or drive the app from C# with HeadlessTerminal.Theme set. |
+| `ConsoleMonster.ConsoleSettings.FilePath` | CSharpOnly: An application or test pins or ignores the settings file for its own process before it first draws. | Set CONSOLEMONSTER_SETTINGS to a file path, or to none, before importing the module. |
 
 ## .NET host integrations
 

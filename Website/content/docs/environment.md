@@ -9,7 +9,7 @@ apis: [NO_COLOR, CONSOLEMONSTER_*]
 summary: "NO_COLOR and the CONSOLEMONSTER_* variables."
 ---
 
-Variables are read when the profile is detected. An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect. `CONSOLEMONSTER_NOW` is the exception: it is read each time a date is shown, and an invalid value falls back to the clock without a note.
+Variables are read when the profile is detected. They take precedence over the [settings file](/docs/themes/#keep-a-theme-for-every-session) that `Show-ConsoleSettings` and `Set-ConsoleSetting -Save` write, and `Get-ConsoleSetting` shows which one each value came from. An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect. `CONSOLEMONSTER_NOW` is the exception: it is read each time a date is shown, and an invalid value falls back to the clock without a note.
 
 | Variable | Values | Effect |
 |---|---|---|
@@ -28,6 +28,7 @@ Variables are read when the profile is detected. An invalid value is ignored and
 | `CONSOLEMONSTER_NOMOUSE` | `1` | Prompts, menus, pagers, the object explorer and apps leave the mouse to the terminal, for its own selection and scrollback. Every action keeps its key. |
 | `CONSOLEMONSTER_HYPERLINKS` | `on`, `off`, `auto` (also `true`/`1`, `false`/`0`) | Clickable OSC 8 links for URLs and file paths. Detection turns them on in Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole; redirected, CI, stream and plain output never get them and print the target after the text instead, as `text (url)`. |
 | `CONSOLEMONSTER_NOW` | an ISO 8601 time with `Z` or an offset, such as `2026-10-21T12:00:00Z` | The "now" that relative dates (`3 h ago`) are counted from, for recordings and tests. Read each time a value is shown; unset or invalid uses the clock. |
+| `CONSOLEMONSTER_SETTINGS` | a file path, or `none` | The settings file to read and save instead of `settings.json` in `%APPDATA%\ConsoleMonster` or `~/.config/ConsoleMonster`; `none` ignores it, for tests and recordings that need fixed output. |
 | `CONSOLEMONSTER_UPDATE_GOLDEN` | `1` | `GoldenFile` rewrites golden files instead of comparing. |
 
 Detection also reads `CI` and the variables of common CI systems (GitHub Actions, Azure Pipelines, Jenkins, GitLab, TeamCity), `TERM` (`dumb` selects plain mode), `COLORTERM` and `WT_SESSION`.

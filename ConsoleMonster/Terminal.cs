@@ -123,6 +123,12 @@ namespace ConsoleMonster {
                 ITheme detected;
                 lock (Gate) {
                     if (_theme != null) return _theme;
+                }
+                // A theme file named in the settings; loaded outside Gate because the loader reads a file.
+                ITheme? fromSettings = ConsoleSettings.ThemeFromPath();
+                if (fromSettings != null) return fromSettings;
+                lock (Gate) {
+                    if (_theme != null) return _theme;
                     profile = Profile;
                     detected = _detectedTheme ?? (_detectedTheme = ResolveTheme(profile.WithThemePreference(ThemePreference.Auto)));
                 }
@@ -151,6 +157,18 @@ namespace ConsoleMonster {
                 _profile = null;
                 _explicitProfile = false;
                 _detectedTheme = null;
+            }
+        }
+
+        // After a setting changes: detect again with it, and let a changed Theme setting replace an assigned theme. An
+        // assigned profile is an explicit choice and stays.
+        internal static void ResetSettings(bool theme = false) {
+            lock (Gate) {
+                if (theme) { _theme = null; }
+                _detectedTheme = null;
+                if (_explicitProfile) { return; }
+                if (_defaultProvider) { _provider = new CapabilityDetector(); }
+                _profile = null;
             }
         }
 
