@@ -79,10 +79,11 @@ public sealed partial class Matrix {
             int position = 0, cursor = 0;
             List<TextSpan> guide = new List<TextSpan> { new TextSpan(lead) };
             string even = GuideMark(context, true), odd = GuideMark(context, false);
-            int shared = SharedBandPrefix(bands);
+            string shared = SharedBandPrefix(bands);
             for (int b = 0; b < bands.Count; b++) {
                 int span = perBand ? 1 : bands[b].Count;
-                string name = (bands[b].Band ?? string.Empty).Substring(Math.Min(shared, (bands[b].Band ?? string.Empty).Length));
+                string name = bands[b].Band ?? string.Empty;
+                if (shared.Length > 0 && name.Length > shared.Length && name.StartsWith(shared, StringComparison.OrdinalIgnoreCase)) name = name.Substring(shared.Length);
                 // A name starts at its band's first cell when the previous name has ended, and never runs past the field.
                 int room = Math.Min(Math.Max(span, 3), cells - position);
                 if (position >= cursor && room > 0 && name.Length > 0) {
@@ -163,24 +164,31 @@ public sealed partial class Matrix {
     }
 
     /// <summary>
-    /// The length of a prefix every band name shares, ending at a separator ("Site-", "dc-eu-"), so short headers show
-    /// what tells bands apart instead of the same three letters; zero when the names differ from the start.
+    /// A prefix, ending at a separator, that at least half of the band names share ("Site-", "dc-eu-"). Dropping it from
+    /// the names that have it lets short headers show what tells bands apart instead of the same three letters; an
+    /// empty string when no such prefix exists.
     /// </summary>
-    private static int SharedBandPrefix(List<(string? Band, int Start, int Count)> bands) {
-        List<string> names = new List<string>();
-        foreach (var band in bands) if (!string.IsNullOrEmpty(band.Band)) names.Add(band.Band!);
-        if (names.Count < 2) return 0;
-        int common = names[0].Length;
-        foreach (string name in names) {
-            int i = 0;
-            while (i < common && i < name.Length && char.ToUpperInvariant(name[i]) == char.ToUpperInvariant(names[0][i])) i++;
-            common = i;
+    private static string SharedBandPrefix(List<(string? Band, int Start, int Count)> bands) {
+        Dictionary<string, int> counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        int named = 0;
+        foreach (var band in bands) {
+            if (string.IsNullOrEmpty(band.Band)) continue;
+            named++;
+            string name = band.Band!;
+            HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < name.Length - 1; i++) {
+                if ("-_. /\\".IndexOf(name[i]) < 0) continue;
+                string prefix = name.Substring(0, i + 1);
+                if (seen.Add(prefix)) counts[prefix] = counts.TryGetValue(prefix, out int n) ? n + 1 : 1;
+            }
         }
-        while (common > 0 && "-_. /\\".IndexOf(names[0][common - 1]) < 0) common--;
-        foreach (string name in names) if (name.Length <= common) return 0;
-        return common;
+        string best = string.Empty;
+        foreach (KeyValuePair<string, int> entry in counts) {
+            if (named < 2 || entry.Value * 2 < named || entry.Value < 2) continue;
+            if (entry.Key.Length > best.Length) best = entry.Key;
+        }
+        return best;
     }
-
     private static string OneCell(string glyph, string fallback) => DisplayWidth.Measure(glyph) == 1 ? glyph : fallback;
 
     /// <summary>The band guide mark: blocks where the font has them (full tier), box drawing otherwise, always one cell.</summary>
