@@ -10,7 +10,7 @@ $wizard = [pscustomobject] @{ Page = 0 }
 # Layout: construct the widgets shown on screen.
 $content = {
     New-ConsoleRows -Gap 1 -Content {
-        '[accent bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]'
+        '[accent bold]Install Toolbox Agent[/]'
         New-ConsoleTextInput -Key Folder -Label 'Install folder' -Value $installFolder
         New-ConsoleSelect -Key Component -Label Component -Choices $components -Value Core
         New-ConsoleColumns -FixedWidth 12, 24 -Height 1 -Content {

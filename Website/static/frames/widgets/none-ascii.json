@@ -110,8 +110,8 @@
   "stacked": {
     "w": 60,
     "h": 3,
-    "dark": "#############################################======++--  500\n# + Passed   412  82%   = ! Warnings  51  10%\n+ x Failed    23   5%   - - Skipped   14   3%",
-    "light": "#############################################======++--  500\n# + Passed   412  82%   = ! Warnings  51  10%\n+ x Failed    23   5%   - - Skipped   14   3%"
+    "dark": "#############################################======++--  500\n# + Passed 412  82%   = ! Warnings  51  10%\n+ x Failed  23   5%   - - Skipped   14   3%",
+    "light": "#############################################======++--  500\n# + Passed 412  82%   = ! Warnings  51  10%\n+ x Failed  23   5%   - - Skipped   14   3%"
   },
   "sparkline": {
     "w": 60,
@@ -158,8 +158,8 @@
   "flow": {
     "w": 72,
     "h": 22,
-    "dark": "+-----------------+\n| [OK] Client     |\n+-|---------------+\n  | :443\n  |\n+-v---------------+\n| [OK] Proxy      |\n+-|---------------+\n  | HTTP\n  |\n+-v---------------+\n| [WARN] API      |\n+-|---------------+\n  | [FAIL] timeout\n  x\n  |\n+-v---------------+\n| [FAIL] Database |\n+-|---------------+\n  +-&gt; [FAIL]\n      listener\n      stopped",
-    "light": "+-----------------+\n| [OK] Client     |\n+-|---------------+\n  | :443\n  |\n+-v---------------+\n| [OK] Proxy      |\n+-|---------------+\n  | HTTP\n  |\n+-v---------------+\n| [WARN] API      |\n+-|---------------+\n  | [FAIL] timeout\n  x\n  |\n+-v---------------+\n| [FAIL] Database |\n+-|---------------+\n  +-&gt; [FAIL]\n      listener\n      stopped"
+    "dark": "+-----------------+\n| [OK] Client     |\n+-|---------------+\n  | :443\n  |\n+-v---------------+\n| [OK] Proxy      |\n+-|---------------+\n  | HTTP\n  |\n+-v---------------+\n| [WARN] API      |\n+-|---------------+\n  | timeout\n  x\n  |\n+-v---------------+\n| [FAIL] Database |\n+-|---------------+\n  +-&gt; [FAIL]\n      listener\n      stopped",
+    "light": "+-----------------+\n| [OK] Client     |\n+-|---------------+\n  | :443\n  |\n+-v---------------+\n| [OK] Proxy      |\n+-|---------------+\n  | HTTP\n  |\n+-v---------------+\n| [WARN] API      |\n+-|---------------+\n  | timeout\n  x\n  |\n+-v---------------+\n| [FAIL] Database |\n+-|---------------+\n  +-&gt; [FAIL]\n      listener\n      stopped"
   },
   "lanes": {
     "w": 72,
