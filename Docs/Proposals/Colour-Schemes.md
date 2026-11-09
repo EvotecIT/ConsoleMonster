@@ -1,6 +1,7 @@
 # Proposal: colour schemes as the source of themes
 
-Status: proposal. It replaces "A theme that follows the terminal", "Importing colour schemes" and the scheme parts of
+Status: PR 1 implements the theme checker (section 4), `Test-ConsoleTheme` and the picker summary. Scheme derivation,
+terminal palettes, import and the catalogue remain proposals. This design replaces "A theme that follows the terminal", "Importing colour schemes" and the scheme parts of
 "Checking a theme" in [Settings-And-Themes.md](Settings-And-Themes.md) with one design, and adds a curated catalogue.
 
 ## Why

@@ -3,7 +3,8 @@
 Status: the settings core (section 1, without `Get-ConsoleCapability -Explain`), the settings picker (section 2),
 the theme style (section 3: `Border`, `StatusMarkers` and `Background`) and exports of the theme in use
 (section 5, through `ExportTheme.Current` and `Export-ConsoleFrame`'s default) are built. `Density` and
-`HeaderDecoration`, the checker (section 4) and the terminal palette and import are still proposals: compact
+`HeaderDecoration` and the terminal palette and import are still proposals. The checker (section 4), including the
+picker summary, is implemented through `ThemeCheck.Run` and `Test-ConsoleTheme`: compact
 spacing needs each widget's layout to change, so it gets its own pass. The document describes how a user would set
 up ConsoleMonster once, see the result while choosing, and keep it in every session and every tool built on
 ConsoleMonster.

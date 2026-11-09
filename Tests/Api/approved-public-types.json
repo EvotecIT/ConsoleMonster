@@ -634,7 +634,14 @@
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Widgets.WidgetsFluent"
+    "ConsoleMonster.Widgets.WidgetsFluent",
+    "ConsoleMonster.Styling.ThemeCheck",
+    "ConsoleMonster.Styling.ThemeCheckKind",
+    "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.Styling.ThemeCheckOutcome",
+    "ConsoleMonster.Styling.ThemeCheckReport",
+    "ConsoleMonster.Styling.ThemeCheckResult",
+    "ConsoleMonster.Styling.StylingFluent"
   ],
   "ConsoleMonster.PowerShell": [
     "ConsoleMonster.PowerShell.AppChoiceCmdlet",
@@ -787,7 +794,8 @@
     "ConsoleMonster.PowerShell.PromptCmdlet",
     "ConsoleMonster.PowerShell.SelectionCmdlet",
     "ConsoleMonster.PowerShell.TableConfigurationCmdlet",
-    "OnModuleImportAndRemove"
+    "OnModuleImportAndRemove",
+    "ConsoleMonster.PowerShell.CmdletTestConsoleTheme"
   ],
   "ConsoleMonster.PowerShell.Display": [
     "ConsoleMonster.PowerShell.Display.ConsoleViewDocument",

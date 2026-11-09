@@ -24804,6 +24804,102 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         }
       ]
+    },
+    {
+      "Command": "Test-ConsoleTheme",
+      "Job": "Test-ConsoleTheme",
+      "CSharpType": "ConsoleMonster.Styling.ThemeCheck",
+      "Bindings": [
+        {
+          "Parameter": "Background",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Writable": true,
+          "Reason": "Parses an explicit page colour; tokens with their own fill use that background instead.",
+          "Conversion": "ColourText",
+          "CSharpType": "ConsoleMonster.Styling.ThemeCheckOptions",
+          "Member": "Background",
+          "Static": false,
+          "Nullable": "Nullable",
+          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.Color]",
+          "MemberKind": "Property"
+        },
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "Member": "Load",
+          "Reason": "Loads JSON or adapts restricted PSD1 data through ThemeFile before checking it.",
+          "CSharpTypeName": "System.String",
+          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+          "Argument": "path",
+          "MemberKind": "Method",
+          "Conversion": "ThemeFilePath"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Reason": "Rejects unsupported pipeline input at the PowerShell boundary.",
+          "Conversion": "PipelineInputPolicy"
+        },
+        {
+          "Parameter": "Strict",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Reason": "Any Fail becomes a terminating PowerShell error carrying the shared report. Unknown alone does not throw.",
+          "Conversion": "TerminatingCheckFailure"
+        },
+        {
+          "Parameter": "Theme",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Name",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "Member": "FromName",
+          "Reason": "Selects a preset without changing the active theme; omission checks Terminal.Theme.",
+          "CSharpTypeName": "System.String",
+          "CSharpType": "ConsoleMonster.Styling.Theme",
+          "Argument": "name",
+          "MemberKind": "Method",
+          "Conversion": "ThemePresetSelector"
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -29048,11 +29144,27 @@
       "Reason": "An application or test pins or ignores the settings file for its own process before it first draws.",
       "Alternative": "Set CONSOLEMONSTER_SETTINGS to a file path, or to none, before importing the module.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Styling.ThemeCheckOptions",
+      "Member": "GlyphTier",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Capabilities.GlyphTier]",
+      "Disposition": "Host policy",
+      "Reason": "The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly.",
+      "Alternative": "Use Set-ConsoleSetting Glyphs before Test-ConsoleTheme."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Styling.ThemeCheckOptions",
+      "Member": "StatusMarkers",
+      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.StatusMarkerStyle]",
+      "Disposition": "Host policy",
+      "Reason": "The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly.",
+      "Alternative": "Use Set-ConsoleSetting StatusMarkers before Test-ConsoleTheme."
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 111,
+  "ExpectedCount": 112,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29262,7 +29374,9 @@
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Headless.HeadlessTerminal"
+    "ConsoleMonster.Headless.HeadlessTerminal",
+    "ConsoleMonster.Styling.ThemeCheck",
+    "ConsoleMonster.Styling.ThemeCheckOptions"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -29635,7 +29749,9 @@
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Headless.HeadlessTerminal"
+    "ConsoleMonster.Headless.HeadlessTerminal",
+    "ConsoleMonster.Styling.ThemeCheck",
+    "ConsoleMonster.Styling.ThemeCheckOptions"
   ],
   "RelatedBindings": [
     {
