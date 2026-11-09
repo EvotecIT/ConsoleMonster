@@ -43,6 +43,9 @@
             <_Parameter1>ConsoleMonster.Tests</_Parameter1>
         </AssemblyAttribute>
         <InternalsVisibleTo Include="ConsoleMonster.Extensions.Tests" />
+        <InternalsVisibleTo Include="ConsoleMonster.Extensions.Logging" />
+        <InternalsVisibleTo Include="ConsoleMonster.Extensions.Serilog" />
+        <InternalsVisibleTo Include="ConsoleMonster.Extensions.NLog" />
         <InternalsVisibleTo Include="ConsoleMonster.TestHost" />
         <InternalsVisibleTo Include="ConsoleMonster.Benchmarks" />
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

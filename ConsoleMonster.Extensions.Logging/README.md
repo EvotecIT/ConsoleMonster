@@ -3,6 +3,9 @@
 A `Microsoft.Extensions.Logging` provider that writes log entries the ConsoleMonster way. It depends only on
 `Microsoft.Extensions.Logging.Abstractions` and ConsoleMonster.
 
+For native structured logging, use [ConsoleMonster.Extensions.Serilog](https://github.com/EvotecIT/ConsoleMonster/tree/master/ConsoleMonster.Extensions.Serilog)
+or [ConsoleMonster.Extensions.NLog](https://github.com/EvotecIT/ConsoleMonster/tree/master/ConsoleMonster.Extensions.NLog).
+
 ```bash
 dotnet add package ConsoleMonster.Extensions.Logging
 ```
