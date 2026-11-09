@@ -93,7 +93,7 @@ namespace ConsoleMonster.Widgets {
                     return this;
                 }
             }
-            ThemeToken automatic = StatusKinds.TryParse(label, out StatusKind status) ? (status == StatusKind.Pass ? ThemeToken.Muted : status.ToToken()) : ThemeToken.Muted;
+            ThemeToken automatic = StatusKinds.TryParse(label, out StatusKind status) ? status.ToToken() : ThemeToken.Muted;
             _segments.Add(new ChartItem(label, value, role ?? automatic, key));
             return this;
         }
