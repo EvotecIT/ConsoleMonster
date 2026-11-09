@@ -59,7 +59,8 @@ foreach (var failure in failures)
 
 var report = Ui.Rows().Gap(1).Content(c =>
 {
-    c.Rule("[bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 09:05[/]");
+    c.Rule(("[accent bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 "
+        + "09:05[/]"));
     c.Add(table);
     c.Add(traces);
 });

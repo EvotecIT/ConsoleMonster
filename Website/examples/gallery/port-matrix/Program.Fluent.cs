@@ -38,7 +38,7 @@ StatusList exceptions = Ui.StatusList()
     .Add("api-01 → Cache 6379", StatusKind.Warn, "180 ms · expected under 50 ms");
 Rows report = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Rule("[bold]Application connectivity[/] [muted]· core services[/]");
+    c2.Rule("[accent bold]Application connectivity[/] [muted]· core services[/]");
     c2.Panel(p => p.Title(string.Join("   |   ", ports)).Content(c =>
     {
         c.Add(map);

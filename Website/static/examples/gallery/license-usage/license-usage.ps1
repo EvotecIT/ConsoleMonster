@@ -29,7 +29,7 @@ $monthlyWaste = ($usage | Measure-Object -Property 'Waste $' -Sum).Sum
 
 # Layout: utilisation bars beside the biggest savings, then the full ledger.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]'
+    New-ConsoleRule -Title '[accent bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]'
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Assigned of purchased' -Content {
             $usage |

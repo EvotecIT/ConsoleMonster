@@ -15,8 +15,12 @@ $certificates = @(
 
 # Layout: put urgent renewals beside the inventory, with thresholds visible.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]'
-    '[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]'
+    New-ConsoleRule -Title '[accent bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]'
+    New-ConsoleFacts -Content {
+        @{ Value = 1; Label = 'urgent'; Role = 'Fail' }
+        @{ Value = 1; Label = 'due soon'; Role = 'Warn' }
+        @{ Value = 2; Label = 'healthy'; Role = 'Pass' }
+    }
     New-ConsoleTable -InputObject $certificates -Property Name, Expires, Days, Owner, Status -Expand
     New-ConsolePanel -Title 'Renewal policy' -Content {
         New-ConsoleStatusList -Content {

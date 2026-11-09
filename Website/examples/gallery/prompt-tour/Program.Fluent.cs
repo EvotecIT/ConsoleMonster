@@ -100,15 +100,15 @@ SelectQuestionOptions TaskPrompt()
 }
 
 // Behaviour: each native prompt returns an answer; the tour performs no external action.
-Ui.Rule().Title("[bold]1 / 9 · Typed selection[/]").Show();
+Ui.Rule().Title("[accent bold]1 / 9 · Typed selection[/]").Show();
 Server server = ServerPrompt().Show<Server>();
 Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(server.Name + " (Server)"));
-Ui.Rule().Title("[bold]2 / 9 · Multiple selection[/]").Show();
+Ui.Rule().Title("[accent bold]2 / 9 · Multiple selection[/]").Show();
 IReadOnlyList<Job> selected = TaskPrompt().ShowMany<Job>();
 Terminal.WriteMarkupLine("[muted]returned:[/] " + string.Join(", ", selected.Select(t => t.Id)));
-Ui.Rule().Title("[bold]3 / 9 · Confirmation[/]").Show();
+Ui.Rule().Title("[accent bold]3 / 9 · Confirmation[/]").Show();
 Ui.ConfirmPrompt().Title("Restart the report agent on FS01?").Default(true).Show();
-Ui.Rule().Title("[bold]4 / 9 · Text[/]").Show();
+Ui.Rule().Title("[accent bold]4 / 9 · Text[/]").Show();
 Ui.TextQuestion()
     .Title("Share name")
     .Default("Reports")
@@ -116,25 +116,25 @@ Ui.TextQuestion()
     .PatternMessage("Start with a letter; letters, digits, - and _ only")
     .Description("Shown to users when they browse the server.")
     .Show();
-Ui.Rule().Title("[bold]5 / 9 · Secret[/]").Show();
+Ui.Rule().Title("[accent bold]5 / 9 · Secret[/]").Show();
 Ui.TextQuestion()
     .AsSecret()
     .Title("Password for svc-backup")
     .MinLength(8)
     .Description("Try example-passphrase; at least 8 characters.")
     .Show();
-Ui.Rule().Title("[bold]6 / 9 · Number[/]").Show();
+Ui.Rule().Title("[accent bold]6 / 9 · Number[/]").Show();
 Ui.NumberPrompt().Title("Port").Integer().Minimum(1).Maximum(65535).Default(443).Show();
-Ui.Rule().Title("[bold]7 / 9 · Path[/]").Show();
+Ui.Rule().Title("[accent bold]7 / 9 · Path[/]").Show();
 Ui.PathPrompt().Title("Report folder").Kind(PathKind.Folder).Default(reportFolder).Show();
-Ui.Rule().Title("[bold]8 / 9 · Typed confirmation[/]").Show();
+Ui.Rule().Title("[accent bold]8 / 9 · Typed confirmation[/]").Show();
 Ui.TypedConfirmPrompt()
     .Title("Remove FS01 from the inventory?")
     .Expected("FS01")
     .Default(false)
     .Warning("Its history and reports would be removed too. Type FS01 to confirm.")
     .Show();
-Ui.Rule().Title("[bold]9 / 9 · Dashboard pause[/]").Show();
+Ui.Rule().Title("[accent bold]9 / 9 · Dashboard pause[/]").Show();
 Lanes lanes = Ui.Lanes();
 foreach (Server host in servers.Take(5))
     lanes.Add(host.Name, host.Name, 6);

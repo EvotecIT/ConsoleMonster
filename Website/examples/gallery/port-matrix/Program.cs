@@ -41,7 +41,7 @@ StatusList exceptions = new StatusList()
         "Connection refused · check listener and access policy")
     .Add("api-01 → Cache 6379", StatusKind.Warn, "180 ms · expected under 50 ms");
 Rows report = new Rows(
-    new Rule("[bold]Application connectivity[/] [muted]· core services[/]"),
+    new Rule("[accent bold]Application connectivity[/] [muted]· core services[/]"),
     new Panel() { Title = string.Join("   |   ", ports), Content = map },
     new Panel() { Title = "Exceptions to investigate", Content = exceptions },
     new TextBlock("[muted]Skipped cells are ports that host does not need.[/]"))

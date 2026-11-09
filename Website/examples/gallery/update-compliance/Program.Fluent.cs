@@ -51,7 +51,8 @@ var table = Ui.Table(attention)
     .Expand();
 var report = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Rule("[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]");
+    c2.Rule(("[accent bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of "
+        + "2026-10-20[/]"));
     c2.Panel(p => p.Content(content =>
     {
         content.Add(byState);

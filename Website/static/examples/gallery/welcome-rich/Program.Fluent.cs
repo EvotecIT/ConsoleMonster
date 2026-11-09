@@ -3,6 +3,7 @@
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Styling;
 
 // Data: fictional inputs kept in memory.
 // Fictional host and git values keep the greeting independent of local probes.
@@ -14,7 +15,11 @@ var hostData = new HostDataRow[]
     new("Runtime", "PowerShell 7.4+ / .NET 8+"),
     new("Workspace", "comet-notes")
 };
-string git = "[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]";
+ViewFacts git = Ui.Facts()
+    .Add("main", default, ThemeToken.Accent)
+    .Add(2, "modified", ThemeToken.Warn)
+    .Add(1, "staged", ThemeToken.Pass)
+    .Add("0 ahead / 0 behind");
 
 // Layout: compose the screen from the data above.
 KeyValueList hostSummary = Ui.KeyValue();
@@ -30,7 +35,7 @@ Rows layout = Ui.Rows().Gap(1).Content(c2 =>
     }).HeaderRight("local workspace"));
     c2.Panel(p => p.Title("Git | comet-notes").Content(c =>
     {
-        c.Markup(git);
+        c.Add(git);
     }));
     c2.Markup("[bold]Tip[/] Get-Help New-ConsoleTable -Examples");
     c2.Markup("[muted]Ready when you are.[/]");

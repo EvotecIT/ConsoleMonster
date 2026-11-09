@@ -16,7 +16,7 @@ $baseline = ($tasks | ForEach-Object -Process {
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'
+    New-ConsoleRule -Title '[accent bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'
     New-ConsoleText -Markup '[bold]Before[/] [muted]| plain text[/]'
     New-ConsoleText -Text $baseline
     New-ConsoleText -Markup '[bold]After[/] [muted]| ConsoleMonster table[/]'

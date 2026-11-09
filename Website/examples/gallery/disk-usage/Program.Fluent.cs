@@ -38,7 +38,7 @@ foreach (var folder in folders)
 
 Rows report = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Rule("[bold]Storage review[/] [muted]· capacity planning[/]");
+    c3.Rule("[accent bold]Storage review[/] [muted]· capacity planning[/]");
     c3.Columns(columns => columns.Content(c2 =>
     {
         c2.Panel(p => p.Title("Used / 100 GiB").Content(c =>

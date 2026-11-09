@@ -88,7 +88,7 @@ $taskBadge = {
 }
 
 # Behaviour: each native prompt returns an answer; the tour performs no external action.
-New-ConsoleRule -Title '[bold]1 / 9 · Typed selection[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]1 / 9 · Typed selection[/]'  | Show-Console
 $serverPrompt = @{
     Title = 'Target server'
     Choices = $servers
@@ -103,7 +103,7 @@ $serverPrompt = @{
 $server = Read-ConsoleSelect @serverPrompt
 Write-ConsoleText -Text "returned: $($server.Name) (Server)"
 
-New-ConsoleRule -Title '[bold]2 / 9 · Multiple selection[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]2 / 9 · Multiple selection[/]'  | Show-Console
 $taskPrompt = @{
     Title = 'Tasks'
     Choices = $tasks
@@ -118,10 +118,10 @@ $taskPrompt = @{
 $selected = @(Read-ConsoleSelect @taskPrompt -Multiple)
 Write-ConsoleText -Text "returned: $($selected.Id -join ', ')"
 
-New-ConsoleRule -Title '[bold]3 / 9 · Confirmation[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]3 / 9 · Confirmation[/]'  | Show-Console
 $null = Read-ConsoleConfirm -Title 'Restart the report agent on FS01?' -Default $true
 
-New-ConsoleRule -Title '[bold]4 / 9 · Text[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]4 / 9 · Text[/]'  | Show-Console
 $textPrompt = @{
     Title = 'Share name'
     Default = 'Reports'
@@ -131,7 +131,7 @@ $textPrompt = @{
 }
 $null = Read-ConsoleText @textPrompt
 
-New-ConsoleRule -Title '[bold]5 / 9 · Secret[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]5 / 9 · Secret[/]'  | Show-Console
 $secretPrompt = @{
     Title = 'Password for svc-backup'
     MinLength = 8
@@ -139,13 +139,13 @@ $secretPrompt = @{
 }
 $null = Read-ConsoleText @secretPrompt -AsSecret
 
-New-ConsoleRule -Title '[bold]6 / 9 · Number[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]6 / 9 · Number[/]'  | Show-Console
 $null = Read-ConsoleNumber -Title Port -Integer -Minimum 1 -Maximum 65535 -Default 443
 
-New-ConsoleRule -Title '[bold]7 / 9 · Path[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]7 / 9 · Path[/]'  | Show-Console
 $null = Read-ConsolePath -Title 'Report folder' -Kind Folder -Default $reportFolder
 
-New-ConsoleRule -Title '[bold]8 / 9 · Typed confirmation[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]8 / 9 · Typed confirmation[/]'  | Show-Console
 $confirmPrompt = @{
     Title = 'Remove FS01 from the inventory?'
     TypedConfirmation = 'FS01'
@@ -154,7 +154,7 @@ $confirmPrompt = @{
 }
 $null = Read-ConsoleConfirm @confirmPrompt
 
-New-ConsoleRule -Title '[bold]9 / 9 · Dashboard pause[/]'  | Show-Console
+New-ConsoleRule -Title '[accent bold]9 / 9 · Dashboard pause[/]'  | Show-Console
 $hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
 $dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' -Content {
     New-ConsolePanel -Title Servers -Content { New-ConsoleLanes -Content {

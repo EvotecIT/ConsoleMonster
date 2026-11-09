@@ -32,7 +32,7 @@ foreach (var task in tasks)
 }
 
 Rows layout = new Rows(
-    new Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]"),
+    new Rule("[accent bold]Everyday formatting[/] [muted]| same objects, clearer output[/]"),
     new TextBlock("[bold]Before[/] [muted]| plain text[/]"),
     new TextBlock(baseline),
     new TextBlock("[bold]After[/] [muted]| ConsoleMonster table[/]"),

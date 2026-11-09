@@ -45,7 +45,7 @@ $overdue = @($servers | Where-Object -Property Days -GT -Value 30)
 
 # Layout: the fleet split first, then the hosts to fix, then the overdue call-out.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]'
+    New-ConsoleRule -Title '[accent bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]'
     New-ConsolePanel -Title "Fleet · $($servers.Count) servers" -Content {
         $byState | New-ConsoleChart -Type Stacked
     }

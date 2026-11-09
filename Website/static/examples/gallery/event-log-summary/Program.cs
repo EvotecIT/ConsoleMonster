@@ -44,8 +44,10 @@ var topIds = eventIds.OrderByDescending(row => row.Count).ToArray();
 // Layout: headline, the 24-hour trend, the noisiest sources beside the top IDs, then criticals.
 var errors = new Sparkline { Title = "errors", Height = 3, Role = ThemeToken.Fail };
 errors.AddRange(errorsPerHour);
+foreach (int hour in Enumerable.Range(0, 24)) errors.Labels.Add($"{hour:00}:00");
 var warnings = new Sparkline { Title = "warnings", Height = 3, Role = ThemeToken.Warn };
 warnings.AddRange(warningsPerHour);
+foreach (int hour in Enumerable.Range(0, 24)) warnings.Labels.Add($"{hour:00}:00");
 var noisiest = new BarChart();
 foreach (var source in sources)
     noisiest.Add(source.Source, source.Errors);
@@ -66,10 +68,10 @@ criticalTable.Border = TableBorder.None;
 criticalTable.Expand = true;
 
 var report = new Rows(
-    new Rule("[bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]"),
-    new TextBlock(
-        ($"[fail]{critical.Length} critical[/]   [warn]{errorTotal} errors[/]   [muted]"
-            + $"{warningTotal} warnings · busiest hour {peak:00}:00[/]")),
+    new Rule("[accent bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]"),
+    new ViewFacts().Add(critical.Length, "critical", ThemeToken.Critical)
+        .Add(errorTotal, "errors", ThemeToken.Fail).Add(warningTotal, "warnings", ThemeToken.Warn)
+        .Add(new ViewFact($"{peak:00}:00", caption: "busiest hour")),
     new Columns(new Panel(errors, "Errors per hour"), new Panel(warnings, "Warnings per hour")),
     new Columns(new Panel(noisiest, "Noisiest sources"), new Panel(idTable, "Top event IDs")),
     new Panel(criticalTable, "Critical events"))

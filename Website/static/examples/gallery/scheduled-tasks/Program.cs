@@ -53,7 +53,8 @@ foreach (var failure in failures)
 }
 
 var report = new Rows(
-    new Rule("[bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 09:05[/]"),
+    new Rule(("[accent bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 "
+        + "09:05[/]")),
     table,
     traces)
 {

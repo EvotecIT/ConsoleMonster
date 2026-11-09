@@ -74,7 +74,7 @@ foreach (var(label, value)in resolvers)
     latency.Add(label, value);
 IWidget report = Ui.Rows().Gap(1).Content(c4 =>
 {
-    c4.Rule("[bold]DNS query results[/] [muted]· example.test[/]");
+    c4.Rule("[accent bold]DNS query results[/] [muted]· example.test[/]");
     c4.Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
     {
         c.Add(summary);

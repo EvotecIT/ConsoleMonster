@@ -21,8 +21,12 @@ function New-ProcessFrame {
             'CPU %' = $process.Cpu + $Tick * 3; 'Memory MiB' = $process.Memory + $Tick * 16 }
     }
     New-ConsoleRows -Gap 1 -Content {
-        New-ConsoleRule -Title '[bold]Process monitor[/] [muted]· refresh 1s[/]'
-        New-ConsoleText -Markup "[accent]CPU $((56 + $Tick * 5))%[/]   Memory $((1640 + $Tick * 64)) MiB   [muted]4 processes[/]"
+        New-ConsoleRule -Title '[accent bold]Process monitor[/] [muted]· refresh 1s[/]'
+        New-ConsoleFacts -Content {
+            @{ Value = "$((56 + $Tick * 5))%"; Caption = 'CPU'; Role = 'Accent' }
+            @{ Value = "$((1640 + $Tick * 64)) MiB"; Caption = 'Memory' }
+            @{ Value = 4; Label = 'processes' }
+        }
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
         New-ConsolePanel -Title 'CPU history' -Content {
             $chartParameters = @{

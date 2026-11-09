@@ -25,8 +25,13 @@ $scores = [ordered]@{
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Readiness assessment[/] [muted]| workspace[/]'
-    New-ConsoleText -Markup '[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]'
+    New-ConsoleRule -Title '[accent bold]Readiness assessment[/] [muted]| workspace[/]'
+    New-ConsoleFacts -Content {
+        @{ Value = 3; Label = 'passed'; Role = 'Pass' }
+        @{ Value = 1; Label = 'warning'; Role = 'Warn' }
+        @{ Value = 1; Label = 'failed'; Role = 'Fail' }
+        @{ Value = 5; Label = 'checks total' }
+    }
     New-ConsolePanel -Title 'Checks' -Content {
         New-ConsoleStatusList -Content {
             foreach ($check in $checks) {

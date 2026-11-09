@@ -106,8 +106,9 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
         ? new TextBlock("[muted]No failures recorded[/]")
         : failures;
     return new Rows(
-        new Rule("[bold]Patching the web farm[/]"),
-        new TextBlock("40 hosts · throttle 8 · per-host timeout 4s"),
+        new Rule("[accent bold]Patching the web farm[/]"),
+        new ViewFacts().Add(40, "hosts").Add(new ViewFact(8, caption: "throttle"))
+            .Add(new ViewFact("4s", caption: "per-host timeout")),
         summary,
         new Panel() { Title = "Host outcomes", Content = map },
         new Panel() { Title = finished ? "Last eight hosts" : "Worker lanes", Content = lanes },

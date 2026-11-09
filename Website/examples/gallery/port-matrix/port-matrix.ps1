@@ -14,7 +14,7 @@ $states = @(
 
 # Layout: a compact map provides the overview; a table explains exceptions.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Application connectivity[/] [muted]· core services[/]'
+    New-ConsoleRule -Title '[accent bold]Application connectivity[/] [muted]· core services[/]'
     New-ConsolePanel -Title ($ports -join '   |   ') -Content {
         New-ConsoleCellMap -InputObject $states -Columns 3 -RowLabels $hosts -LegendLines 2
     }

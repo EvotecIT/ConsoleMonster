@@ -12,7 +12,12 @@ $hostSummary = [ordered]@{
     Runtime = 'PowerShell 7.4+ / .NET 8+'
     Workspace = 'comet-notes'
 }
-$git = '[accent]main[/]   [warn]2 modified[/]   [pass]1 staged[/]   [muted]0 ahead / 0 behind[/]'
+$git = New-ConsoleFacts -Content {
+    @{ Value = 'main'; Role = 'Accent' }
+    @{ Value = 2; Label = 'modified'; Role = 'Warn' }
+    @{ Value = 1; Label = 'staged'; Role = 'Pass' }
+    '0 ahead / 0 behind'
+}
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
@@ -21,7 +26,7 @@ $screen = New-ConsoleRows -Gap 1 -Content {
         New-ConsoleKeyValue -InputObject $hostSummary
     }
     New-ConsolePanel -Title 'Git | comet-notes' -Content {
-        New-ConsoleText -Markup $git
+        $git
     }
     New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'
     New-ConsoleText -Markup '[muted]Ready when you are.[/]'

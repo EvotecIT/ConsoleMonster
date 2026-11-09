@@ -25,6 +25,14 @@ namespace SiteFrames.Tests {
             return new Site(Path.Combine(root!.FullName, "Website"));
         }
 
+        // Authoring gate: this catches later changes to complete static demo cells/styles in each supported theme;
+        // component tests cannot observe whole-program composition, and references run the real public programs.
+        [Theory]
+        [InlineData("Dark")]
+        [InlineData("Light")]
+        [InlineData("ColorBlindSafe")]
+        public void StaticGalleryMatchesReviewedCellsAndStyles(string theme) => GalleryReferences.Verify(Repository(), theme);
+
         [Theory]
         [InlineData("assessment")]
         [InlineData("stress")]

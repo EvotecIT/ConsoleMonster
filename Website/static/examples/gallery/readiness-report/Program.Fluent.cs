@@ -40,9 +40,11 @@ foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Rule("[bold]Readiness assessment[/] [muted]| workspace[/]");
-    c2.Markup(
-        "[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]");
+    c2.Rule("[accent bold]Readiness assessment[/] [muted]| workspace[/]");
+    c2.Facts(facts => facts.Add(3, "passed", ThemeToken.Pass)
+        .Add(1, "warning", ThemeToken.Warn)
+        .Add(1, "failed", ThemeToken.Fail)
+        .Add(5, "checks total"));
     c2.Panel(p => p.Title("Checks").Content(c =>
     {
         c.Add(statuses);

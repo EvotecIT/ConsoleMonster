@@ -26,7 +26,7 @@ $folders = [ordered] @{
 
 # Layout: bars answer where pressure is; the tree explains what occupies the space.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Storage review[/] [muted]· capacity planning[/]'
+    New-ConsoleRule -Title '[accent bold]Storage review[/] [muted]· capacity planning[/]'
     New-ConsoleColumns -Content {
         New-ConsolePanel -Title 'Used / 100 GiB' -Content {
             $chartParameters = @{

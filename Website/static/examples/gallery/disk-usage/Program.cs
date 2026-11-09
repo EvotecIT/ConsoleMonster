@@ -37,7 +37,7 @@ foreach (var folder in folders)
 }
 
 Rows report = new Rows(
-    new Rule("[bold]Storage review[/] [muted]· capacity planning[/]"),
+    new Rule("[accent bold]Storage review[/] [muted]· capacity planning[/]"),
     new Columns(
         new Panel() { Title = "Used / 100 GiB", Content = chart },
         new Panel() { Title = "Largest folders", Content = tree }),

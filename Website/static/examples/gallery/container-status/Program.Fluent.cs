@@ -125,11 +125,13 @@ IWidget Frame(int tick)
 
     return Ui.Rows().Gap(1).Content(c3 =>
     {
-        c3.Rule(($"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
-            + $"{clock}[/]"));
-        c3.Markup(($"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} "
-            + $"restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB "
-            + $"reserved[/]"));
+        c3.Rule(
+            ($"[accent bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
+                + $"{clock}[/]"));
+        c3.Facts(facts => facts.Add(rows.Count - restarting, "running", ThemeToken.Pass)
+            .Add(restarting, "restarting", ThemeToken.Warn)
+            .Add(new ViewFact($"{memoryTotal:N0} of {limitTotal:N0} MiB reserved", default,
+                "memory")));
         c3.Add(table);
         c3.Columns(columns => columns.Content(c2 =>
         {

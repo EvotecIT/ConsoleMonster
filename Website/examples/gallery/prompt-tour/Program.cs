@@ -106,15 +106,15 @@ MultiSelectPrompt<Job> TaskPrompt()
 }
 
 // Behaviour: each native prompt returns an answer; the tour performs no external action.
-Terminal.Write(new Rule("[bold]1 / 9 · Typed selection[/]"));
+Terminal.Write(new Rule("[accent bold]1 / 9 · Typed selection[/]"));
 Server server = ServerPrompt().Show();
 Terminal.WriteMarkupLine("[muted]returned:[/] " + Markup.Escape(server.Name + " (Server)"));
-Terminal.Write(new Rule("[bold]2 / 9 · Multiple selection[/]"));
+Terminal.Write(new Rule("[accent bold]2 / 9 · Multiple selection[/]"));
 IReadOnlyList<Job> selected = TaskPrompt().Show();
 Terminal.WriteMarkupLine("[muted]returned:[/] " + string.Join(", ", selected.Select(t => t.Id)));
-Terminal.Write(new Rule("[bold]3 / 9 · Confirmation[/]"));
+Terminal.Write(new Rule("[accent bold]3 / 9 · Confirmation[/]"));
 new ConfirmPrompt("Restart the report agent on FS01?", true).Show();
-Terminal.Write(new Rule("[bold]4 / 9 · Text[/]"));
+Terminal.Write(new Rule("[accent bold]4 / 9 · Text[/]"));
 new TextPrompt("Share name")
 {
     Default = "Reports",
@@ -122,13 +122,13 @@ new TextPrompt("Share name")
     PatternMessage = "Start with a letter; letters, digits, - and _ only",
     Description = "Shown to users when they browse the server."
 }.Show();
-Terminal.Write(new Rule("[bold]5 / 9 · Secret[/]"));
+Terminal.Write(new Rule("[accent bold]5 / 9 · Secret[/]"));
 new SecretPrompt("Password for svc-backup")
 {
     MinLength = 8,
     Description = "Try example-passphrase; at least 8 characters."
 }.Show();
-Terminal.Write(new Rule("[bold]6 / 9 · Number[/]"));
+Terminal.Write(new Rule("[accent bold]6 / 9 · Number[/]"));
 new NumberPrompt("Port")
 {
     Integer = true,
@@ -136,19 +136,19 @@ new NumberPrompt("Port")
     Maximum = 65535,
     Default = 443
 }.Show();
-Terminal.Write(new Rule("[bold]7 / 9 · Path[/]"));
+Terminal.Write(new Rule("[accent bold]7 / 9 · Path[/]"));
 new PathPrompt("Report folder")
 {
     Kind = PathKind.Folder,
     Default = reportFolder
 }.Show();
-Terminal.Write(new Rule("[bold]8 / 9 · Typed confirmation[/]"));
+Terminal.Write(new Rule("[accent bold]8 / 9 · Typed confirmation[/]"));
 new TypedConfirmPrompt("Remove FS01 from the inventory?", "FS01")
 {
     Default = false,
     Warning = "Its history and reports would be removed too. Type FS01 to confirm."
 }.Show();
-Terminal.Write(new Rule("[bold]9 / 9 · Dashboard pause[/]"));
+Terminal.Write(new Rule("[accent bold]9 / 9 · Dashboard pause[/]"));
 Lanes lanes = new Lanes();
 foreach (Server host in servers.Take(5))
     lanes.Add(host.Name, host.Name, 6);

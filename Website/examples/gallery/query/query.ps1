@@ -39,7 +39,7 @@ $resolvers = [ordered] @{
 # Layout: keep the dense report readable through wrapping and two balanced panels.
 $recordColumns = @('Name', 'Type', 'TTL', @{ Name = 'Data'; Flexible = $true })
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]DNS query results[/] [muted]· example.test[/]'
+    New-ConsoleRule -Title '[accent bold]DNS query results[/] [muted]· example.test[/]'
     New-ConsoleRegion -Padding 1, 0 -Content {
         New-ConsoleKeyValue -Content {
             [pscustomobject]@{ Key = 'Domain'; Value = '[bold]example.test[/]'; Markup = $true }

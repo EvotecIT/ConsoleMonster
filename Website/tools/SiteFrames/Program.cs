@@ -102,6 +102,13 @@ namespace SiteFrames {
                     foreach (string entry in refreshed.Unmatched) { Console.Error.WriteLine("Unmatched: " + entry); }
                     foreach (string entry in refreshed.Ambiguous) { Console.Error.WriteLine("Ambiguous: " + entry); }
                     return refreshed.Ambiguous.Count == 0 && refreshed.Unmatched.Count == 0 ? 0 : 1;
+                case "gallery-reference-update":
+                case "gallery-reference-verify":
+                    foreach (string name in GalleryReferences.Themes) GalleryReferences.Verify(new Site(website), name, command == "gallery-reference-update");
+                    return 0;
+                case "gallery-contact-sheet":
+                    Console.WriteLine(GalleryReferences.ContactSheet(new Site(website), only ?? throw new ArgumentException("Pass an output directory.")));
+                    return 0;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);
                     return 0;

@@ -30,7 +30,7 @@ $failures = @(
 
 # Layout: the task table first, then one trigger → task → action trace per failure, side by side.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 09:05[/]'
+    New-ConsoleRule -Title '[accent bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 09:05[/]'
     New-ConsoleTable -InputObject $tasks -Property Task, Trigger, LastRun, Result, NextRun,
         Status -Expand
     New-ConsoleColumns -Content {

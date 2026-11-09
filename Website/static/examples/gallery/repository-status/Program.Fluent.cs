@@ -29,7 +29,7 @@ StatusList next = Ui.StatusList()
     .Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
 Rows report = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Rule("[bold]Repository workspace[/] [muted]· ./work[/]");
+    c2.Rule("[accent bold]Repository workspace[/] [muted]· ./work[/]");
     c2.Add(table);
     c2.Panel(p => p.Title("Suggested next steps").Content(c =>
     {

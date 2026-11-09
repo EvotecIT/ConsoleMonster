@@ -3,6 +3,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Styling;
 using ConsoleMonster;
 
 // Data: synthetic counters, not the machine's real process list.
@@ -31,9 +32,11 @@ IWidget Frame(int tick)
     history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Rule("[bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Markup(($"[accent]CPU {56 + tick * 5}%[/]   Memory {1640 + tick * 64} MiB   [muted]4 "
-            + $"processes[/]"));
+        c2.Rule("[accent bold]Process monitor[/] [muted]· refresh 1s[/]");
+        c2.Facts(facts => facts.Add(new ViewFact($"{56 + tick * 5}%", default, "CPU", default,
+            ThemeToken.Accent))
+            .Add(new ViewFact($"{1640 + tick * 64} MiB", default, "Memory"))
+            .Add(4, "processes"));
         c2.Add(table);
         c2.Panel(p => p.Title("CPU history").Content(c =>
         {

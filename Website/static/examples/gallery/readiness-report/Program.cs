@@ -39,9 +39,9 @@ BarChart scores = new BarChart
 foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
 Rows layout = new Rows(
-    new Rule("[bold]Readiness assessment[/] [muted]| workspace[/]"),
-    new TextBlock(
-        "[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]"),
+    new Rule("[accent bold]Readiness assessment[/] [muted]| workspace[/]"),
+    new ViewFacts().Add(3, "passed", ThemeToken.Pass).Add(1, "warning", ThemeToken.Warn)
+        .Add(1, "failed", ThemeToken.Fail).Add(5, "checks total"),
     new Panel() { Title = "Checks", Content = statuses },
     new Panel() { Title = "Readiness by area", Content = scores, HeaderRight = "score / 100" },
     new TextBlock("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),

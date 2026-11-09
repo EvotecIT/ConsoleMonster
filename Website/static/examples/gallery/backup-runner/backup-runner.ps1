@@ -23,17 +23,28 @@ function New-BackupSummary {
         [pscustomobject] @{ Job = $job.Name; Size = $job.Size; Attempts = $count; Status = $status }
     }
     New-ConsoleRows -Gap 1 -Content {
-        New-ConsoleRule -Title '[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]'
+        New-ConsoleRule -Title '[accent bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]'
         New-ConsoleTable -InputObject $rows -Property Job, Size, Attempts, Status -Expand
         $recovered = @($completed.Keys | Where-Object -FilterScript { $attempts[$_] -gt 1 }).Count
         if ($attempts.Count -eq 0) {
-            '[muted]4 jobs queued · destination ./backups/nightly[/]'
+            New-ConsoleFacts -Content {
+                @{ Value = 4; Label = 'jobs queued' }
+                'destination ./backups/nightly'
+            }
         }
         elseif ($completed.Count -lt $jobs.Count) {
-            "[pass]$($completed.Count) passed[/]   [warn]$($jobs.Count - $completed.Count) queued for retry[/]"
+            New-ConsoleFacts -Content {
+                @{ Value = $completed.Count; Label = 'passed'; Role = 'Pass' }
+                @{ Value = ($jobs.Count - $completed.Count); Label = 'queued for retry'
+                    Role = 'Warn' }
+            }
         }
         else {
-            "[pass]$($completed.Count) passed[/]   [accent]$recovered recovered on retry[/]   [muted]retention: 14 days[/]"
+            New-ConsoleFacts -Content {
+                @{ Value = $completed.Count; Label = 'passed'; Role = 'Pass' }
+                @{ Value = $recovered; Label = 'recovered on retry'; Role = 'Accent' }
+                'retention: 14 days'
+            }
         }
     }
 }

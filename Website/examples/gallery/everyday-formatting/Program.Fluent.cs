@@ -33,7 +33,7 @@ foreach (var task in tasks)
 
 Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
-    c.Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
+    c.Rule("[accent bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
     c.Markup("[bold]Before[/] [muted]| plain text[/]");
     c.Markup(baseline);
     c.Markup("[bold]After[/] [muted]| ConsoleMonster table[/]");
