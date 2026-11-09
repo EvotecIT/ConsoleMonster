@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Views;
 
@@ -29,6 +30,10 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)</para>
     ///   <code>Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet</code>
+    /// </example>
+    /// <example>
+    ///   <para>Keep these features for every session: afterwards the profile needs only Enable-ConsoleFormatting</para>
+    ///   <code>Enable-ConsoleFormatting -Include Help, Progress -Save</code>
     /// </example>
     /// <example>
     ///   <para>Exclude native format command styling from the default set</para>
@@ -68,8 +73,16 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public SwitchParameter ProfileSnippet { get; set; }
 
+        /// <summary><para type="description">Also writes the Include, Exclude, ErrorLayout and NoBuiltIn choices to the settings file. Later, Enable-ConsoleFormatting without any of them uses the saved choices, so the profile line stays short. Enable-ConsoleFormatting -Save without them saves the default set.</para></summary>
+        [Parameter]
+        public SwitchParameter Save { get; set; }
+
+        private static readonly string[] Choices = { nameof(Include), nameof(Exclude), nameof(ErrorLayout), nameof(NoBuiltIn) };
+
         /// <inheritdoc />
         protected override void EndProcessing() {
+            bool chosen = Array.Exists(Choices, name => MyInvocation.BoundParameters.ContainsKey(name));
+            if (!chosen && !Save.IsPresent) { UseSaved(); }
             var options = new ConsoleFormattingOptions {
                 Include = Include, Exclude = Exclude, Force = Force.IsPresent, BuiltIn = !NoBuiltIn.IsPresent,
                 ErrorLayout = ErrorLayout, ProfileSnippet = ProfileSnippet.IsPresent
@@ -78,6 +91,49 @@ namespace ConsoleMonster.PowerShell {
             ConsoleFormattingFeature selected = ConsoleHostFormatting.Selected(options);
             if (!ShouldProcess("ConsoleMonster formatting: " + ConsoleFormatting.FeatureList(selected), "Enable")) { return; }
             ConsoleHostFormatting.Enable(this, options);
+            if (Save.IsPresent) { Remember(); }
+        }
+
+        // The choices saved with -Save; entries this version does not know are skipped with a warning.
+        private void UseSaved() {
+            if (!(ConsoleSettings.Section("Formatting") is IDictionary<string, object?> saved)) { return; }
+            Include = Features(saved, nameof(Include));
+            Exclude = Features(saved, nameof(Exclude));
+            if (saved.TryGetValue(nameof(ErrorLayout), out object? layout) && layout is string text) {
+                if (text == "Compact" || text == "Standard" || text == "Detailed") { ErrorLayout = text; }
+                else { WriteWarning("Settings file: Formatting.ErrorLayout: ignored invalid value '" + text + "'"); }
+            }
+            if (saved.TryGetValue("BuiltIn", out object? builtIn) && builtIn is bool flag) { NoBuiltIn = !flag; }
+            WriteVerbose("Using the formatting saved in " + ConsoleSettings.FilePath + ".");
+        }
+
+        private ConsoleFormattingFeature[]? Features(IDictionary<string, object?> saved, string key) {
+            if (!saved.TryGetValue(key, out object? value) || !(value is IList<object?> names)) { return null; }
+            List<ConsoleFormattingFeature> features = new List<ConsoleFormattingFeature>();
+            foreach (object? name in names) {
+                if (name is string text && Enum.TryParse(text, true, out ConsoleFormattingFeature feature) && feature != ConsoleFormattingFeature.None) { features.Add(feature); }
+                else { WriteWarning("Settings file: Formatting." + key + ": ignored unknown feature '" + name + "'"); }
+            }
+            return features.ToArray();
+        }
+
+        private void Remember() {
+            var saved = new Dictionary<string, object?>(StringComparer.Ordinal);
+            if (Include != null) { saved[nameof(Include)] = Names(Include); }
+            if (Exclude != null) { saved[nameof(Exclude)] = Names(Exclude); }
+            saved[nameof(ErrorLayout)] = ErrorLayout;
+            saved["BuiltIn"] = !NoBuiltIn.IsPresent;
+            try {
+                ConsoleSettings.SaveSection("Formatting", saved);
+            } catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException || ex is InvalidOperationException) {
+                WriteError(new ErrorRecord(ex, "ConsoleSettingNotSaved", ErrorCategory.WriteError, ConsoleSettings.FilePath));
+            }
+        }
+
+        private static List<object?> Names(ConsoleFormattingFeature[] features) {
+            List<object?> names = new List<object?>();
+            foreach (ConsoleFormattingFeature feature in features) { names.Add(feature.ToString()); }
+            return names;
         }
 
 

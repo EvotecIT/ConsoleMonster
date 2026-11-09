@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 107,
+  "ExpectedCount": 111,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -15,6 +15,7 @@
     "Get-ConsoleCapability",
     "Get-ConsoleDemo",
     "Get-ConsoleFormatting",
+    "Get-ConsoleSetting",
     "Invoke-ConsoleDashboard",
     "Invoke-ConsoleHeadless",
     "Invoke-ConsolePester",
@@ -82,7 +83,9 @@
     "Read-ConsoleSelect",
     "Read-ConsoleText",
     "Register-ConsoleView",
+    "Reset-ConsoleSetting",
     "Set-ConsoleFormValue",
+    "Set-ConsoleSetting",
     "Set-ConsoleTheme",
     "Show-Console",
     "Show-ConsoleApp",
@@ -96,6 +99,7 @@
     "Show-ConsoleOverview",
     "Show-ConsolePresentation",
     "Show-ConsoleReplay",
+    "Show-ConsoleSettings",
     "Show-ConsoleStatusLine",
     "Show-ConsoleTable",
     "Start-ConsoleRun",

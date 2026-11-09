@@ -74,7 +74,7 @@ namespace ConsoleMonster.Localization {
         /// </summary>
         public static CultureInfo Default {
             get {
-                string? name = Environment.GetEnvironmentVariable("CONSOLEMONSTER_LANGUAGE");
+                string? name = ConsoleSettings.Variable("CONSOLEMONSTER_LANGUAGE");
                 if (!string.IsNullOrWhiteSpace(name)) {
                     try {
                         return CultureInfo.GetCultureInfo(name!.Trim());

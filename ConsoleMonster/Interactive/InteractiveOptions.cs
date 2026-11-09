@@ -203,7 +203,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private static bool IsSet(string name) {
-            string? value = Environment.GetEnvironmentVariable(name);
+            string? value = ConsoleSettings.Variable(name);
             return value == "1" || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase);
         }
     }

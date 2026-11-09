@@ -1070,6 +1070,21 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Save",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SettingsFile",
+          "Reason": "Writes the Include, Exclude, ErrorLayout and BuiltIn choices to the Formatting section of the settings file; a later call without them reads that section."
         }
       ]
     },
@@ -16217,6 +16232,25 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
+          "Parameter": "Save",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Set",
+          "MemberKind": "Method",
+          "Argument": "save",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity",
+          "Reason": "The chosen preset or file path is stored as the Theme setting; -Save writes it to the settings file."
+        },
+        {
           "Parameter": "Theme",
           "ParameterType": "System.String",
           "Default": "Dark",
@@ -24571,6 +24605,205 @@
           "Reason": "Zero uses the terminal width, falling back to 100; an explicit width creates the headless terminal at that width."
         }
       ]
+    },
+    {
+      "Command": "Get-ConsoleSetting",
+      "Job": "Get-ConsoleSetting",
+      "CSharpType": "ConsoleMonster.ConsoleSettings",
+      "Bindings": [
+        {
+          "Parameter": "Name",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Get",
+          "MemberKind": "Method",
+          "Argument": "name",
+          "CSharpTypeName": "System.String",
+          "Conversion": "EachValue",
+          "Reason": "Each name is read with ConsoleSettings.Get; without names the command lists ConsoleSettings.Current."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
+    },
+    {
+      "Command": "Set-ConsoleSetting",
+      "Job": "Set-ConsoleSetting",
+      "CSharpType": "ConsoleMonster.ConsoleSettings",
+      "Bindings": [
+        {
+          "Parameter": "Name",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Set",
+          "MemberKind": "Method",
+          "Argument": "name",
+          "CSharpTypeName": "System.String",
+          "Conversion": "Identity"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Save",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Set",
+          "MemberKind": "Method",
+          "Argument": "save",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity"
+        },
+        {
+          "Parameter": "Value",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Set",
+          "MemberKind": "Method",
+          "Argument": "value",
+          "CSharpTypeName": "System.String",
+          "Conversion": "ProviderPath",
+          "Reason": "A Theme file path is resolved against the PowerShell location and loaded once before ConsoleSettings.Set stores it; other values pass through."
+        }
+      ]
+    },
+    {
+      "Command": "Reset-ConsoleSetting",
+      "Job": "Reset-ConsoleSetting",
+      "CSharpType": "ConsoleMonster.ConsoleSettings",
+      "Bindings": [
+        {
+          "Parameter": "Name",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Reset",
+          "MemberKind": "Method",
+          "Argument": "name",
+          "CSharpTypeName": "System.String",
+          "Conversion": "EachValue",
+          "Reason": "Each name is reset with ConsoleSettings.Reset; without names every setting is reset (a null name)."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Save",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ConsoleSettings",
+          "Member": "Reset",
+          "MemberKind": "Method",
+          "Argument": "save",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity"
+        }
+      ]
+    },
+    {
+      "Command": "Show-ConsoleSettings",
+      "Job": "Show-ConsoleSettings",
+      "CSharpType": "ConsoleMonster.ConsoleSettings",
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -28807,11 +29040,19 @@
       "Reason": "Invoke-ConsoleHeadless draws with the default dark theme so test screens are the same on every machine; a C# test that checks another theme sets it on its terminal.",
       "Alternative": "Compare text and cells from the dark run, or drive the app from C# with HeadlessTerminal.Theme set.",
       "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.ConsoleSettings",
+      "Member": "FilePath",
+      "CSharpTypeName": "System.String",
+      "Reason": "An application or test pins or ignores the settings file for its own process before it first draws.",
+      "Alternative": "Set CONSOLEMONSTER_SETTINGS to a file path, or to none, before importing the module.",
+      "Disposition": "CSharpOnly"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 107,
+  "ExpectedCount": 111,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -28822,6 +29063,7 @@
     "ConsoleMonster.Changes.TextDiff",
     "ConsoleMonster.Changes.TextDiffOptions",
     "ConsoleMonster.Changes.TextDiffView",
+    "ConsoleMonster.ConsoleSettings",
     "ConsoleMonster.Data.InspectorOptions",
     "ConsoleMonster.Demos.ConsolePresentation",
     "ConsoleMonster.Demos.DemoOptions",
@@ -29052,6 +29294,9 @@
     "ConsoleMonster.Changes.TextDiffOptions",
     "ConsoleMonster.Changes.TextDiffResult",
     "ConsoleMonster.Changes.TextDiffView",
+    "ConsoleMonster.ConsoleSetting",
+    "ConsoleMonster.ConsoleSettingSource",
+    "ConsoleMonster.ConsoleSettings",
     "ConsoleMonster.Data.IMemberSource",
     "ConsoleMonster.Data.InspectNode",
     "ConsoleMonster.Data.InspectNodeKind",

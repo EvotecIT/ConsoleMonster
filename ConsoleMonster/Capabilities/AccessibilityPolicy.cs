@@ -9,10 +9,10 @@ namespace ConsoleMonster.Capabilities {
             || string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase);
 
         internal static TerminalProfile Resolve(TerminalProfile profile, bool? reducedMotion = null) {
-            bool accessible = profile.IsAccessible || Interactive.InteractiveOptions.Default.Mode == Interactive.InteractionMode.Accessible || Enabled(Environment.GetEnvironmentVariable("CONSOLEMONSTER_ACCESSIBLE"));
+            bool accessible = profile.IsAccessible || Interactive.InteractiveOptions.Default.Mode == Interactive.InteractionMode.Accessible || Enabled(ConsoleSettings.Variable("CONSOLEMONSTER_ACCESSIBLE"));
             bool? requested = reducedMotion ?? profile.MotionOverride;
             bool reduced = accessible || (requested ?? (profile.ReducedMotion
-                || string.Equals(Environment.GetEnvironmentVariable("CONSOLEMONSTER_MOTION"), "reduced", StringComparison.OrdinalIgnoreCase)));
+                || string.Equals(ConsoleSettings.Variable("CONSOLEMONSTER_MOTION"), "reduced", StringComparison.OrdinalIgnoreCase)));
             return profile.IsAccessible == accessible && profile.ReducedMotion == reduced && profile.MotionOverride == requested
                 ? profile : profile.WithAccessibility(accessible, reduced, requested);
         }

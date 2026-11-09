@@ -13,7 +13,12 @@ public class OnModuleImportAndRemove : IModuleAssemblyInitializer, IModuleAssemb
         if (IsNetFramework()) {
             AppDomain.CurrentDomain.AssemblyResolve += Resolve;
         }
+        UseSettings();
     }
+
+    // Separate so ConsoleMonster.dll is first needed after the resolver above is in place.
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private static void UseSettings() => ConsoleMonster.PowerShell.ConsoleSettingOutput.UseThemeFileLoader();
 
     /// <inheritdoc />
     public void OnRemove(PSModuleInfo module) {

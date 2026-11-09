@@ -111,10 +111,10 @@
         (New-ConsoleMenuItem 'Tasks' -MultiSelect 'One', 'Two' -Minimum 1).Kind.ToString() | Should -Be MultiSelect
     }
 
-    It 'uses Name for help entries or explicit baseline headings and Target for output destinations' {
+    It 'uses Name for help entries, explicit baseline headings and setting names, and Target for output destinations' {
         foreach ($command in $script:Commands) {
             if ($command.Parameters.ContainsKey('Name')) {
-                $command.Name | Should -BeIn @('Show-ConsoleHelp', 'Compare-ConsoleObject')
+                $command.Name | Should -BeIn @('Show-ConsoleHelp', 'Compare-ConsoleObject', 'Get-ConsoleSetting', 'Set-ConsoleSetting', 'Reset-ConsoleSetting')
             }
             if ($command.Parameters.ContainsKey('Target')) {
                 $command.Name | Should -BeIn @('Use-ConsoleTarget', 'Start-ConsoleRun')

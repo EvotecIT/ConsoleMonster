@@ -91,7 +91,7 @@ namespace ConsoleMonster.Styling {
             if (profile.Mode == OutputMode.Plain) {
                 return true;
             }
-            string setting = (Environment.GetEnvironmentVariable("CONSOLEMONSTER_COLOR") ?? string.Empty).Trim().ToLowerInvariant();
+            string setting = (ConsoleSettings.Variable("CONSOLEMONSTER_COLOR") ?? string.Empty).Trim().ToLowerInvariant();
             if (setting == "none") {
                 return true;
             }

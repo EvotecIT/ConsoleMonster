@@ -49,6 +49,12 @@ namespace ConsoleMonster.Interactive {
         public bool Dropdown { get; set; }
 
         /// <summary>
+        /// The frame around the control and its label. <see cref="Glyphs.BoxStyle.None"/> draws the choices alone (a dropdown
+        /// takes one row), so a surrounding layout can label and frame it.
+        /// </summary>
+        internal Glyphs.BoxStyle Border { get => Read(() => FrameBorder); set => Change(() => FrameBorder = value); }
+
+        /// <summary>
         /// The app-state key shared with linked controls (see <see cref="ILinkedSelection"/>): moving through the list writes
         /// the highlighted choice's position there, in declaration order, and a new value there highlights that choice.
         /// Highlighting does not change the committed value.
