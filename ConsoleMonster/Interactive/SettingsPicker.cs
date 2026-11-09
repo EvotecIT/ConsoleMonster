@@ -46,12 +46,15 @@ namespace ConsoleMonster.Interactive {
             foreach (ConsoleSetting setting in settings) {
                 List<Choice> list = new List<Choice>();
                 foreach (string value in Values(setting)) {
-                    string choiceLabel = Label(setting, value);
-                    list.Add(new Choice(value, choiceLabel));
+                    Choice choice = new Choice(value, Label(setting, value));
+                    if (setting.Name == "Theme") { ThemeGroup(choice, value); }
+                    list.Add(choice);
                 }
                 // One row per setting: its name, then a dropdown without a frame of its own.
                 Select select = new Select(setting.Name, list) { Label = setting.Name, Dropdown = true, Border = Glyphs.BoxStyle.None, LinkKey = "settings.link." + setting.Name };
                 select.Value = setting.Value;
+                // The open Theme list is wider than the closed control, so scheme names and their groups read in full.
+                if (setting.Name == "Theme") { select.ListWidth = list.Max(choice => DisplayWidth.Measure(choice.RichTitle?.PlainText ?? choice.Label)) + 10; }
                 bool locked = setting.Source == ConsoleSettingSource.Environment;
                 if (locked) { select.Disabled = true; }
                 selects[setting.Name] = select;
@@ -130,7 +133,7 @@ namespace ConsoleMonster.Interactive {
 
         private static IEnumerable<string> Values(ConsoleSetting setting) {
             bool listed = false;
-            foreach (string value in setting.Values) {
+            foreach (string value in setting.Name == "Theme" ? ThemeOrder(setting.Values) : setting.Values) {
                 if (string.Equals(value, setting.Value, StringComparison.OrdinalIgnoreCase)) { listed = true; }
                 yield return value;
             }
@@ -138,9 +141,44 @@ namespace ConsoleMonster.Interactive {
             if (!listed) { yield return setting.Value; }
         }
 
+        private const string BuiltInGroup = "Built in";
+        private const string TerminalGroup = "Follow my terminal";
+        private const string SchemesGroup = "Schemes";
+        private const string FilesGroup = "Your files";
+
+        // The built-in themes, Terminal, then each scheme family followed by its variants, each with its accessible form
+        // beside it, so the list reads in the groups ThemeGroup gives it.
+        private static IEnumerable<string> ThemeOrder(IReadOnlyList<string> values) {
+            List<string> order = values.Where(value => !Theme.TrySchemeName(value, out _, out _, out _)).ToList();
+            foreach (IGrouping<string, ThemeScheme> family in Theme.Schemes.GroupBy(entry => entry.Family)) {
+                IEnumerable<string> names = family.Count() > 1 ? new[] { family.Key }.Concat(family.Select(entry => entry.Name)) : family.Select(entry => entry.Name);
+                foreach (string name in names) { order.Add(name); order.Add(name + ConsoleSettings.AccessibleThemeSuffix); }
+            }
+            return order.Where(value => values.Contains(value, StringComparer.OrdinalIgnoreCase));
+        }
+
+        // Every theme choice sits under a heading; a family's variants are indented under it and each accessible form is
+        // quieter than the palette it derives from. The plain label stays what the closed list shows and the filter matches.
+        private static void ThemeGroup(Choice choice, string value) {
+            // The heading already says it follows the terminal.
+            if (value == "Terminal") { choice.Group = TerminalGroup; choice.RichTitle = RichText.Plain(value); return; }
+            if (Theme.TrySchemeName(value, out string name, out bool accessible, out bool family)) {
+                choice.Group = SchemesGroup;
+                bool variant = !family && Theme.Schemes.Any(entry => entry.Name == name && entry.Name != entry.Family);
+                string title = (variant ? "  " : string.Empty) + Markup.Escape(name);
+                if (family) { choice.Description = "Picks the " + name + " variant for the terminal's background."; }
+                if (accessible) { title += " [muted]" + Markup.Escape(ConsoleSettings.AccessibleThemeSuffix.Trim()) + "[/]"; }
+                choice.RichTitle = RichText.FromMarkup(title);
+                return;
+            }
+            choice.Group = IsFile(value) ? FilesGroup : BuiltInGroup;
+        }
+
+        private static bool IsFile(string value) => value.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || value.EndsWith(".psd1", StringComparison.OrdinalIgnoreCase);
+
         private static string Label(ConsoleSetting setting, string value) {
             if (setting.Name == "Theme" && value == "Terminal") { return "Terminal (follow my terminal)"; }
-            if (setting.Name == "Theme" && (value.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || value.EndsWith(".psd1", StringComparison.OrdinalIgnoreCase))) {
+            if (setting.Name == "Theme" && IsFile(value)) {
                 return System.IO.Path.GetFileName(value) + " (file)";
             }
             if (string.Equals(value, setting.DefaultValue, StringComparison.OrdinalIgnoreCase)) { return value + " (default)"; }
