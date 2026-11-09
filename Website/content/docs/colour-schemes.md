@@ -8,6 +8,7 @@ card: scheme-dracula
 apis: [Set-ConsoleTheme, Theme.FromScheme, Test-ConsoleTheme]
 chips: [Themes, Schemes, Accessibility]
 summary: "Ten terminal colour schemes, faithful and accessible, side by side."
+toc: false
 ---
 
 A colour scheme is what every terminal already stores: sixteen ANSI colours, a foreground and a background.
@@ -31,8 +32,9 @@ Test-ConsoleTheme -Detailed                     # every measurement of the activ
 ```
 
 `Show-ConsoleSettings` lists each scheme with its accessible variant beside it and redraws its preview as you move
-through them. A family with a light and a dark variant (`Solarized`, `Gruvbox`, `Catppuccin`, `Tokyo Night`) picks the
-one for your terminal's background. Status words (`Set-ConsoleSetting StatusMarkers Words -Save`) work with any scheme.
+through them. A family with a light and a dark variant ([Solarized](#solarized), [Gruvbox](#gruvbox),
+[Catppuccin](#catppuccin), [Tokyo Night](#tokyo-night)) picks the one for your terminal's background; [Dracula](#dracula)
+and [Nord](#nord) are dark only. Status words (`Set-ConsoleSetting StatusMarkers Words -Save`) work with any scheme.
 
 Every figure below is the same program, the settings picker's preview, drawn on the scheme's own background. Under each
 window is the checker's verdict; open it for the full report.
