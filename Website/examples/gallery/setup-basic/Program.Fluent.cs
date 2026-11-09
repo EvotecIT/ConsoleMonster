@@ -31,9 +31,9 @@ Rows layout = Ui.Rows().Gap(1).Content(c2 =>
     c2.Markup("[accent bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]");
     c2.Add(folder);
     c2.Add(component);
-    c2.Add(Ui.Columns()
+    c2.Rows(rows => rows.Add(Ui.Columns()
         .Add(back, LayoutSize.Fixed(12))
-        .Add(next, LayoutSize.Fixed(24)), LayoutSize.Fixed(1));
+        .Add(next, LayoutSize.Fixed(24)), LayoutSize.Fixed(1)));
     c2.Binding(binding => binding.Configure(o => o.Content = state =>
     {
         string title = new[] { "1 / 3 · Location", "2 / 3 · Components", "3 / 3 · Review" }[page];
