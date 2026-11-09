@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-      <PackageVersion>2.3.0</PackageVersion>
+      <PackageVersion>2.4.0</PackageVersion>
         <Title>ConsoleMonster.Extensions.NLog</Title>
         <Description>NLog output through ConsoleMonster: structured log lines, exceptions and coordinated live output.</Description>
         <AssemblyName>ConsoleMonster.Extensions.NLog</AssemblyName>
         <AssemblyTitle>ConsoleMonster.Extensions.NLog</AssemblyTitle>
         <RootNamespace>ConsoleMonster.Extensions.NLog</RootNamespace>
-        <VersionPrefix>2.3.0</VersionPrefix>
-        <AssemblyVersion>2.3.0</AssemblyVersion>
-        <FileVersion>2.3.0</FileVersion>
+        <VersionPrefix>2.4.0</VersionPrefix>
+        <AssemblyVersion>2.4.0</AssemblyVersion>
+        <FileVersion>2.4.0</FileVersion>
         <TargetFrameworks>netstandard2.0;net472;net8.0;net10.0</TargetFrameworks>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageId>ConsoleMonster.Extensions.NLog</PackageId>

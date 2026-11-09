@@ -661,6 +661,7 @@
     "ConsoleMonster.PowerShell.CmdletCompareConsoleObject",
     "ConsoleMonster.PowerShell.CmdletCompareConsoleText",
     "ConsoleMonster.PowerShell.CmdletCompleteConsoleRun",
+    "ConsoleMonster.PowerShell.CmdletConvertToConsoleView",
     "ConsoleMonster.PowerShell.CmdletDisableConsoleFormatting",
     "ConsoleMonster.PowerShell.CmdletEnableConsoleFormatting",
     "ConsoleMonster.PowerShell.CmdletExportConsoleFrame",

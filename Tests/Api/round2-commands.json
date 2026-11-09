@@ -1,12 +1,13 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 113,
+  "ExpectedCount": 114,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
     "Compare-ConsoleObject",
     "Compare-ConsoleText",
     "Complete-ConsoleRun",
+    "ConvertTo-ConsoleView",
     "Disable-ConsoleFormatting",
     "Enable-ConsoleFormatting",
     "Export-ConsoleFrame",
