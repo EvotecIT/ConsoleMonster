@@ -25515,14 +25515,6 @@
     },
     {
       "CSharpType": "ConsoleMonster.Layout.Steady",
-      "Member": "HoldWidth",
-      "CSharpTypeName": "System.Boolean",
-      "Reason": "Holding a live region's size needs the same widget instance across frames, which C# live views keep.",
-      "Alternative": "Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady.",
-      "Disposition": "CSharpOnly"
-    },
-    {
-      "CSharpType": "ConsoleMonster.Layout.Steady",
       "Member": "MinHeight",
       "CSharpTypeName": "System.Int32",
       "Reason": "Holding a live region's size needs the same widget instance across frames, which C# live views keep.",

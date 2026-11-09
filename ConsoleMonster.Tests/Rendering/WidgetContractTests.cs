@@ -170,6 +170,11 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal(3, Render(new Rows(steady, new TextBlock("below")), 20).ToList().IndexOf("below"));
             steady.Reset();
             Assert.Equal(2, Render(new Rows(steady, new TextBlock("below")), 20).ToList().IndexOf("below"));
+            // A held size belongs to its width: a narrow, wrapped form must not keep a wide terminal tall after a resize.
+            steady.MinHeight = 0;
+            steady.Content = new TextBlock("one two three four five six");
+            Assert.Equal(6, Render(new Rows(steady, new TextBlock("end")), 5).ToList().IndexOf("end"));
+            Assert.Equal(1, Render(new Rows(steady, new TextBlock("end")), 40).ToList().IndexOf("end"));
         }
     }
 }

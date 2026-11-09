@@ -21,7 +21,7 @@
 
 - `Matrix.Overflow = MatrixOverflow.Dense` keeps a large matrix visual instead of switching to the attention list. Each column becomes one cell under its band: 104 domain controllers grouped by site fit on one line per check. When the width is too small for that, each band gets one cell showing its worst status, and the list comes only after that. Healthy cells are a solid ■ and queued ones a faint ·, while failures, warnings and running cells keep their own symbols, so problems stand out without colour. ASCII output keeps the status symbols.
 - `Responsive` shows a different layout by the width it is actually given, not the terminal width: `new Responsive(narrow).When(100, wide)`. All layouts stay children, so live updates reach the hidden ones.
-- `Steady` keeps a live region at the largest size it has needed, so a table that loses rows when workers finish no longer moves everything below it. `MinHeight` reserves the rows from the first frame, and `Reset()` releases them. Keep the same `Steady` instance across frames.
+- `Steady` keeps a live region at the largest size it has needed, so a table that loses rows when workers finish no longer moves everything below it. `MinHeight` reserves the rows from the first frame, and `Reset()` releases them. The size is held for the width it was rendered at, so a resize starts fresh instead of keeping a narrow, wrapped height. Keep the same `Steady` instance across frames.
 
 #### Fixed
 - A matrix inside a `DashboardFrame` section no longer collapses to "0 non-healthy cells" when everything is healthy. The frame gave the section its measured width and the matrix switched to its list at that width; a matrix now reports the width it needs to keep the layout it measured, at every width.
