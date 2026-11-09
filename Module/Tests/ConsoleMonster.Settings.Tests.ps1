@@ -107,7 +107,7 @@ $screen = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { S
         $text | Should -Match 'picker=True/False'
     }
 
-    It 'fits complete choice labels at 110 columns and still renders below their natural width' {
+    It 'fits choice labels and theme verdicts at 110 columns and still renders below their natural width' {
         $text = Invoke-SettingsChild -File $script:File -Script @'
 Set-ConsoleTheme Dark
 Set-ConsoleSetting Glyphs Full
@@ -115,9 +115,15 @@ Set-ConsoleSetting Density Comfortable
 $wide = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
 $narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
 "wide=$($wide.Text -match 'Density.*Comfortable \(default\)')"
+"dark=$($wide.Text -match '(Statuses apart.*|Colour-blind: )no')/$($wide.Text -match 'deuteranopia')/$($wide.Text -match 'Pending text too faint: 4.0:1')"
+Set-ConsoleTheme ColorBlindSafeDark
+$safe = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+"safe=$($safe.Text -match '(Statuses apart.*|Colour-blind: )yes')/$($safe.Text -match 'too faint')"
 "narrow=$($narrow.Text -match 'Density')/$($narrow.Text -match 'Comfortable \(default\)')"
 '@
         $text | Should -Match 'wide=True'
+        $text | Should -Match 'dark=True/True/True'
+        $text | Should -Match 'safe=True/False'
         $text | Should -Match 'narrow=True/False'
     }
 

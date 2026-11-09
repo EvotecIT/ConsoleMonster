@@ -213,7 +213,7 @@ namespace ConsoleMonster.Interactive {
                 ThemeCheckResult? failed = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
                 bool unknown = report.Results.Any(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Unknown);
                 string verdict = failed == null ? (unknown ? "unknown" : "yes") : "no";
-                string prefix = width >= 43 ? "Statuses apart for colour-blind users: " : "Colour-blind statuses: ";
+                string prefix = width >= 60 ? "Statuses apart for colour-blind users: " : "Colour-blind: ";
                 string summary = prefix + verdict;
                 string detail = string.Empty;
                 if (failed != null) {
@@ -223,6 +223,7 @@ namespace ConsoleMonster.Interactive {
                     string reason = "look alike " + ThemeCheckText.Conditions(pair.Select(result => result.Vision));
                     string full = summary + ": " + words + " " + reason;
                     if (full.Length <= width) { summary = full; }
+                    else if ((summary + ": " + words + " look alike").Length <= width) { summary += ": " + words + " look alike"; detail = ThemeCheckText.Conditions(pair.Select(result => result.Vision)); }
                     else if ((summary + ": " + words).Length <= width) { summary += ": " + words; detail = reason; }
                     else { detail = words + " " + reason; }
                 }
@@ -233,7 +234,8 @@ namespace ConsoleMonster.Interactive {
                 }
                 Rows notes = new Rows(new TextBlock(summary) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis });
                 if (detail.Length > 0) { notes.Add(new TextBlock(detail) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }); }
-                return new Rows(_child, notes) { Gap = 1 };
+                // Reserve the verdict before the sample uses the available height in a narrow pane.
+                return new Rows { Gap = 1 }.Add(_child).Add(notes, LayoutSize.Fixed(detail.Length > 0 ? 2 : 1));
             }
 
             private RenderContext Scoped(RenderContext context) {
