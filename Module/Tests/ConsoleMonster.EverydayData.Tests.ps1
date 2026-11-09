@@ -39,7 +39,6 @@ Describe 'Everyday structured data and discovery views' {
         try {
             $script:SavedProfile = [ConsoleMonster.Terminal]::Profile
             $script:SavedCulture = [Threading.Thread]::CurrentThread.CurrentCulture
-            $script:SavedTheme = [ConsoleMonster.Terminal]::Theme
             $english = [cultureinfo]'en-US'
             [Threading.Thread]::CurrentThread.CurrentCulture = $english
             [ConsoleMonster.Terminal]::Profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed(96, 200).WithCulture($english).WithLanguage($english)
@@ -53,7 +52,8 @@ Describe 'Everyday structured data and discovery views' {
         Disable-ConsoleFormatting
         if ($null -ne $script:SavedProfile) {
             [ConsoleMonster.Terminal]::Profile = $script:SavedProfile
-            [ConsoleMonster.Terminal]::Theme = $script:SavedTheme
+            # Back to the detected theme: assigning the old one would leave it chosen, and exports follow a chosen theme.
+            Reset-ConsoleSetting Theme
             [Threading.Thread]::CurrentThread.CurrentCulture = $script:SavedCulture
         }
     }
