@@ -228,9 +228,8 @@ namespace ConsoleMonster.PowerShell {
             // Items waiting to run again, with the time they may start; an item keeps its index and cell across attempts.
             List<KeyValuePair<int, DateTime>> retries = new List<KeyValuePair<int, DateTime>>();
             int[] attempts = new int[_items.Count];
-            using (RunspacePool pool = monitor.Session == null
-                ? RunspaceFactory.CreateRunspacePool(1, ThrottleLimit, InitialSessionState.CreateDefault(), Host)
-                : RunspaceFactory.CreateRunspacePool(InitialSessionState.CreateDefault2())) {
+            // Workers must not share the caller's ConsoleHost/CLIXML writer. Merged records are replayed on the pipeline thread.
+            using (RunspacePool pool = RunspaceFactory.CreateRunspacePool(InitialSessionState.CreateDefault2())) {
                 pool.SetMaxRunspaces(ThrottleLimit);
                 pool.SetMinRunspaces(1);
                 pool.Open();

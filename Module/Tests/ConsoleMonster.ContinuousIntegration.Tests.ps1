@@ -117,10 +117,13 @@ Disable-ConsoleFormatting -Feature Errors
         @($disabled | Where-Object { $_ -match '^::error' }).Count | Should -Be 0
     }
 
-    It 'keeps parallel CI groups, host messages and result records intact' {
-        $text = Invoke-CiChild @'
-$env:CONSOLEMONSTER_CI = 'github'
-$results = @(1..4 | Invoke-ConsoleRun -Parallel -ThrottleLimit 4 {
+    It 'keeps parallel <Provider> groups, host messages and result records intact' -ForEach @(
+        @{ Provider = 'github'; Mode = ''; Groups = 4 }
+        @{ Provider = 'none'; Mode = '-NoLive'; Groups = 0 }
+    ) {
+        $text = Invoke-CiChild (@'
+$env:CONSOLEMONSTER_CI = '__PROVIDER__'
+$results = @(1..4 | Invoke-ConsoleRun -Parallel __MODE__ -ThrottleLimit 4 {
     Write-Host "working $_"
     Write-Warning "warning $_"
     Write-Progress -Activity "progress $_" -PercentComplete 50
@@ -128,11 +131,11 @@ $results = @(1..4 | Invoke-ConsoleRun -Parallel -ThrottleLimit 4 {
 } -WarningAction SilentlyContinue -WarningVariable warnings)
 "RESULTS=$($results -join ',')"
 "WARNINGS=$(@($warnings).Count)"
-'@
+'@.Replace('__PROVIDER__', $Provider).Replace('__MODE__', $Mode))
         $text | Should -Contain 'RESULTS=result 1,result 2,result 3,result 4'
         $text | Should -Contain 'WARNINGS=4'
         @($text | Where-Object { $_ -match '^working [1-4]$' }).Count | Should -Be 4
-        @($text | Where-Object { $_ -eq '::endgroup::' }).Count | Should -Be 4
+        @($text | Where-Object { $_ -eq '::endgroup::' }).Count | Should -Be $Groups
         ($text -join "`n") | Should -Not -Match 'Writer is closed|Process terminated'
     }
 
