@@ -22,9 +22,13 @@ to it. ConsoleMonster gets one function that **derives a theme from a scheme**, 
 | An imported scheme | RGB values | `Import-ConsoleTheme` from a terminal's scheme file |
 | The catalogue | RGB values, with provenance | data files shipped with ConsoleMonster |
 
-Accessibility is a **modifier on any scheme**, not a separate theme: "Dracula, colour-blind safe" is Dracula's own
-colours rearranged so pass, warning and fail stay apart, and status words (`StatusMarkers = Words`) already work with
-any theme. A Dracula fan with deuteranopia should not have to choose between the two.
+A scheme is **faithful by default**: `Set-ConsoleTheme Dracula` looks exactly like Dracula, and the checker says
+honestly where it falls short. Every scheme also has an **accessible variant**, built from the same colours, that is
+guaranteed to pass: "Dracula · accessible". Status words (`StatusMarkers = Words`) already work with any theme. A
+Dracula fan with deuteranopia should not have to choose between the two.
+
+Decision (Przemysław, 2026-11-09): faithful by default, with the accessible variant beside it. Making the accessible
+variant the default was the alternative; it would surprise people who chose a scheme for how it looks.
 
 ## 1. Deriving a theme
 
@@ -33,7 +37,7 @@ One mapping, the same for every source, so a scheme looks like itself everywhere
 | Tokens | From |
 |---|---|
 | `Text`, `Title` (bold), `Header` (bold), `Strong` (bold) | foreground |
-| `Muted`, `Border`, `Skip`, `Pending`, `Low` | bright black |
+| `Muted`, `Border`, `Skip`, `Pending`, `Low` | bright black, or white when bright black has under 3:1 (see below) |
 | `Subtle` | bright black, dim |
 | `Pass` | green |
 | `Warn` | yellow |
@@ -48,14 +52,29 @@ One mapping, the same for every source, so a scheme looks like itself everywhere
 | `Critical` | the background colour on a red fill |
 | `Gap` | the background |
 
-Bright variants are used where the normal one is too dark against the background (contrast below 3:1), which is
-common for blue on dark schemes. A catalogue entry may name a **signature accent** (Dracula's purple, Nord's frost
+Each role takes the first of its candidates that has at least 3:1 against the background: the normal colour, then the
+bright one (or the reverse on light schemes), and for the muted roles bright black, then white, then the foreground
+blended halfway to the background. Upstream palettes need this: Solarized's bright black *is* its background, so a
+literal mapping draws muted text invisibly. The faithful theme never changes a colour, it only chooses among them. A catalogue entry may name a **signature accent** (Dracula's purple, Nord's frost
 blue) to replace `Accent`, because that colour is what makes the scheme recognisable; nothing else is hand-tuned.
 
-**Colour-blind modifier.** `Pass` takes the scheme's blue, `Warn` its yellow, `Fail` its red, underlined, and
-`Critical` the red fill. The checker (section 4) confirms those three stay apart under protanopia, deuteranopia and
-tritanopia; where a scheme's own colours cannot do it, the entry says so instead of shipping a variant that only
-looks safe.
+**The accessible variant.** Two steps, and the second only when the first is not enough:
+
+1. **Choose, don't change.** From the scheme's own 16 colours, pick the pass, warning and fail trio (pass from the
+   blues and cyans, warning from the yellows, fail from the reds and magentas) that stays furthest apart under
+   protanopia, deuteranopia and tritanopia while keeping 3:1 contrast. Fail is underlined and `Critical` keeps its
+   fill, so status never depends on hue alone.
+2. **Adjust lightness, never hue.** Where the best trio is still under the colour-vision bar (CIELAB distance 25), or a
+   text role is under 4.5:1, move only that colour's lightness (in OKLCH, keeping hue and chroma as far as the gamut
+   allows) until it passes. The variant records which colours it adjusted, and `Test-ConsoleTheme` lists them.
+
+Measured on the catalogue below (minimum CIELAB distance between pass, warning and fail under the three simulations,
+with 3:1 contrast): step 1 alone reaches the bar for Dracula (32.9), Nord (32.7), Tokyo Night Day (29.1), Catppuccin
+Mocha (28.9), Gruvbox Dark (28.5), Tokyo Night (28.3) and Solarized Dark (27.0). Solarized Light (23.1) and Gruvbox
+Light (23.8) need step 2, and Catppuccin Latte has no trio at 3:1, so its variant is adjusted. The literal mapping
+(green, yellow, red) reaches 2 to 13 on every one of them, which is why accessibility is a variant and not a hope.
+Contrast is the larger gap: most of these schemes, and all four light ones, have status colours under 4.5:1 as
+published.
 
 ## 2. Following the terminal
 
@@ -84,7 +103,7 @@ A theme file can start from a scheme instead of a preset, and override only what
   "SchemaVersion": 3,
   "Name": "Dracula (team)",
   "BaseScheme": "Dracula",
-  "Modifier": "ColorBlindSafe",
+  "Variant": "Accessible",
   "Style": { "StatusMarkers": "Words" },
   "Tokens": { "Accent": { "Foreground": { "TrueColor": "#ff79c6" } } }
 }
@@ -93,7 +112,7 @@ A theme file can start from a scheme instead of a preset, and override only what
 `BaseScheme` names a catalogue scheme or embeds one (`"Scheme": { "Foreground": ..., "Background": ...,
 "Palette": [16 colours] }`); `BaseTheme` keeps working for the built-in presets. `Import-ConsoleTheme` writes this
 form, so an imported scheme stays a scheme: its derivation improves when ConsoleMonster's does, and it can take the
-colour-blind modifier like any other.
+accessible variant like any other.
 
 ## 4. Checking
 
@@ -101,7 +120,7 @@ colour-blind modifier like any other.
 the same way as on hand-made ones: contrast against the background, pass, warning and fail apart in normal vision and
 under the three simulations, statuses distinguishable without colour. Its results decide:
 
-- whether a catalogue scheme ships as a preset, and with which modifier variants;
+- that every catalogue scheme's accessible variant passes everything, and what its faithful form falls short on;
 - what `Import-ConsoleTheme` reports about a user's scheme (it imports anyway and lists what fails);
 - what `Show-ConsoleSettings` shows next to a scheme while it is highlighted.
 
@@ -110,23 +129,35 @@ under the three simulations, statuses distinguishable without colour. Its result
 A small, curated set, shipped as data (one JSON file per scheme family, embedded in the library), each with its
 source URL, version and licence:
 
-- Dracula (and its official light variant, if its published colours pass the checker)
-- Nord
-- Solarized Dark and Solarized Light
-- Gruvbox Dark and Gruvbox Light
-- Catppuccin Mocha and Catppuccin Latte
-- Tokyo Night
-- One Dark
+| Scheme | Variant | Source | Licence |
+|---|---|---|---|
+| Dracula | Dark | [dracula/windows-terminal](https://github.com/dracula/windows-terminal) | MIT |
+| Nord | Dark | [nordtheme/nord](https://github.com/nordtheme/nord) (nord0–15 and its terminal mapping) | MIT |
+| Solarized Dark, Solarized Light | Dark, Light | [altercation/solarized](https://github.com/altercation/solarized) (the documented ANSI mapping) | MIT |
+| Gruvbox Dark, Gruvbox Light | Dark, Light | [morhetz/gruvbox](https://github.com/morhetz/gruvbox) | MIT |
+| Catppuccin Mocha, Catppuccin Latte | Dark, Light | [catppuccin/windows-terminal](https://github.com/catppuccin/windows-terminal) | MIT |
+| Tokyo Night, Tokyo Night Day | Dark, Light | [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim) `extras/windows_terminal` | Apache-2.0 |
+
+The palettes, read from those sources on 2026-11-09, are in
+[Colour-Schemes.catalogue.json](Colour-Schemes.catalogue.json) until the catalogue PR moves them into the library.
+One Dark is left out for now: its terminal palettes are community ports with no single upstream to cite. Dracula's
+light counterpart is part of Dracula Pro, not the free scheme, so there is no free Dracula light variant to pair.
+
+Values come from each scheme's own repository, never from aggregate collections: the widely copied
+iTerm2-Color-Schemes set has different Catppuccin bright colours and selection (and Latte's black and white swapped),
+and lightens Solarized's and Nord's bright black. A small script reads the sources again, so updates are a diff, not
+retyping.
 
 Rules for entry, so the list stays useful rather than long:
 
 - the scheme is widely used and published under a licence that allows redistribution (all of the above are MIT, to be
   confirmed per scheme), with the notice kept beside the data;
-- the derived theme passes the checker's contrast checks; schemes whose statuses are too close for colour-blind users
-  ship without a `ColorBlindSafe` variant rather than with a broken one;
+- its accessible variant passes every check; the faithful form ships whatever the checker says about it, and the
+  picker and the gallery show that result;
 - light and dark variants of one family are paired, so `Set-ConsoleTheme Solarized` picks the variant for the
   detected background, as `ColorBlindSafe` does today;
-- colours are the upstream values, never adjusted; the only per-scheme choice is the signature accent.
+- the faithful form uses the upstream values unchanged; the only per-scheme choice is the signature accent, and only
+  the accessible variant may adjust lightness.
 
 A test walks the catalogue: every entry derives, round-trips through a theme file and passes the checker, so adding a
 scheme is adding data and a review, not code.
@@ -134,13 +165,14 @@ scheme is adding data and a review, not code.
 ## 6. Where people meet it
 
 - **Theme setting and `Set-ConsoleTheme`:** values become the built-in presets, `Terminal`, and the catalogue names,
-  with `-ColorBlindSafe` as a switch (`Set-ConsoleTheme Dracula -ColorBlindSafe -Save`) and a matching `Modifier`
-  setting.
+  with `-Accessible` as a switch (`Set-ConsoleTheme Dracula -Accessible -Save`); the Theme setting stores
+  `Dracula · accessible`.
 - **`Show-ConsoleSettings`:** the Theme list groups Built in, Follow my terminal, Schemes and Your files; the preview
-  already redraws per highlight and gains the checker line ("statuses apart for colour-blind users: yes / no").
-- **The site:** a scheme gallery page, every catalogue scheme rendering the same summary in its dark and light
-  variants, built by SiteFrames like the theme frames today.
-- **C#:** `Theme.FromScheme(TerminalScheme, ThemeModifier)`, `TerminalScheme.Parse...` for the import formats,
+  already redraws per highlight, lists each scheme with its accessible variant beside it, and gains the checker line
+("statuses apart for colour-blind users: yes / no", "status text below 4.5:1").
+- **The site:** a scheme gallery page, every catalogue scheme rendering the same summary faithfully and accessibly,
+  side by side with its checker result, built by SiteFrames like the theme frames today.
+- **C#:** `Theme.FromScheme(TerminalScheme, accessible: bool)`, `TerminalScheme.Parse...` for the import formats,
   `Theme.Schemes` for the catalogue and `Terminal.Palette` for the probed colours.
 
 ## Delivery
@@ -150,8 +182,8 @@ Three PRs, each useful on its own:
 1. **The checker.** `Test-ConsoleTheme` with the contrast, colour-vision and marker checks, a C# report, and the
    checker line in the picker. It works on any `ITheme`, so it needs nothing from the other two and comes first: it is
    the gate the catalogue is held to.
-2. **Schemes and the terminal.** `TerminalScheme`, the derivation with the colour-blind modifier, palette-index
-   colours, the `Terminal` preset, the OSC 4 probe, version 3 theme files with `BaseScheme` and `Modifier`, and
+2. **Schemes and the terminal.** `TerminalScheme`, the derivation with the accessible variant, palette-index
+   colours, the `Terminal` preset, the OSC 4 probe, version 3 theme files with `BaseScheme` and `Variant`, and
    `Import-ConsoleTheme` for Windows Terminal, iTerm2 and base16. It changes theme files, so it follows compact
    density, which also adds to them.
 3. **The catalogue.** The schemes above as data with their notices, pairing, the catalogue test, the picker groups
