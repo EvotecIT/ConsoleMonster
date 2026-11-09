@@ -10,7 +10,7 @@ namespace ConsoleMonster.Widgets {
     /// or the marker alone with Words markers, its style, and which levels are quiet (verbose and debug text is muted).
     /// </summary>
     public static class LogTags {
-        /// <summary>The level as one of <see cref="LogLevels.Names"/> (info, warn, err, verbose, debug, pass, skip); unknown words are info.</summary>
+        /// <summary>The level as one of <see cref="LogLevels.Names"/> (info, warn, err, critical, verbose, debug, pass, skip); unknown words are info.</summary>
         /// <param name="level">A level name or one of PowerShell's words.</param>
         /// <returns>The normalized level.</returns>
         public static string Normalize(string? level) {
@@ -31,6 +31,12 @@ namespace ConsoleMonster.Widgets {
             string word;
             StatusKind? status = null;
             switch (level) {
+                case "critical":
+                    word = "CRIT";
+                    if (context != null && context.Glyphs.Tier != Capabilities.GlyphTier.Ascii) {
+                        return StatusScale.Marker(Severity.Critical, context.Glyphs.Tier) + " " + word;
+                    }
+                    break;
                 case "err":
                     word = "ERR";
                     status = StatusKind.Fail;
@@ -63,7 +69,7 @@ namespace ConsoleMonster.Widgets {
             return context.Glyphs.MarkersAreWords() ? marker : marker + " " + word;
         }
 
-        /// <summary>The tag's style: failure, warning or pass colours; muted for the rest.</summary>
+        /// <summary>The tag's style: critical, failure, warning or pass colours; muted for the rest.</summary>
         /// <param name="level">A normalized level.</param>
         /// <param name="context">The render context.</param>
         /// <returns>The style.</returns>
@@ -72,6 +78,8 @@ namespace ConsoleMonster.Widgets {
                 throw new ArgumentNullException(nameof(context));
             }
             switch (level) {
+                case "critical":
+                    return context.Style(ThemeToken.Critical);
                 case "err":
                     return context.Style(ThemeToken.Fail);
                 case "warn":

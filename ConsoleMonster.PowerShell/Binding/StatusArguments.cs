@@ -58,8 +58,8 @@ namespace ConsoleMonster.PowerShell.Binding {
     }
 
     /// <summary>
-    /// Accepts PowerShell's words for a log level (Information, Warning, Error, Verbose, Debug, Success, Skipped) as well as
-    /// info, warn, err, verbose, debug, pass and skip, and passes on the canonical name (<see cref="LogLevels.TryNormalize"/>).
+    /// Accepts PowerShell's words for a log level (Information, Warning, Error, Critical, Fatal, Verbose, Debug, Success, Skipped) as well as
+    /// info, warn, err, critical, verbose, debug, pass and skip, and passes on the canonical name (<see cref="LogLevels.TryNormalize"/>).
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class LogLevelTransformationAttribute : ArgumentTransformationAttribute {

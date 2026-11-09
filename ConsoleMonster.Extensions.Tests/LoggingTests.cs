@@ -94,7 +94,7 @@ namespace ConsoleMonster.Extensions.Tests {
                 }
             }
             string text = writer.ToString();
-            Assert.Contains("critical: Backup failed", text);
+            Assert.StartsWith("CRIT Jobs  Backup failed" + Environment.NewLine, text);
             // ConsoleMonster's error view, indented under the entry: the type, the message and the inner exception.
             string[] lines = text.Replace("\r", string.Empty).Split('\n');
             Assert.Contains(lines, line => line.StartsWith("    ", StringComparison.Ordinal) && line.Contains("InvalidOperationException"));
@@ -158,7 +158,7 @@ namespace ConsoleMonster.Extensions.Tests {
         [InlineData(LogLevel.Information, "info")]
         [InlineData(LogLevel.Warning, "warn")]
         [InlineData(LogLevel.Error, "err")]
-        [InlineData(LogLevel.Critical, "err")]
+        [InlineData(LogLevel.Critical, "critical")]
         public void LevelName_MapsToConsoleMonsterLevels(LogLevel level, string expected) {
             Assert.Equal(expected, ConsoleMonsterLoggerProvider.LevelName(level));
         }
