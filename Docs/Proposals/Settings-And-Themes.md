@@ -173,6 +173,9 @@ density.
 
 ### A theme that follows the terminal
 
+Superseded by [Colour-Schemes.md](Colour-Schemes.md), which builds this, importing and a curated catalogue on one
+scheme model.
+
 A new `Terminal` preset maps every token to one of the terminal's 16 palette colours (green for pass, red for fail,
 yellow for warning, blue for info and so on) and emits palette indexes at every colour-enabled depth, never RGB. With no colour (`NO_COLOR`,
 `CONSOLEMONSTER_COLOR=none`, plain mode) it emits no colour at all, like every other theme. The terminal's
