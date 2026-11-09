@@ -71,6 +71,8 @@ namespace SiteFrames.Pages {
             yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
             // Summary lines under default views and a recursive listing as one tree, typed at the prompt.
             yield return new Run("everyday-summaries", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true };
+            // Another module's command before and after registering a view with a summary.
+            yield return new Run("restyle-commands", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true };
         }
 
         private static string Path_(Site site, Run run, PowerShellHost host) => CapturePath(site, run.Id, run.Variant, host);

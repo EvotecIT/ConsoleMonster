@@ -23,10 +23,11 @@
       show_toc = toc_count >= 4 && text_size > 5000
       if page.meta.toc == true; show_toc = toc != ""; end
       if page.meta.toc == false; show_toc = false; end ~}}
-  {{~ ## Previous and next follow the documentation order, then the guides: the order of the sidebar. ## ~}}
+  {{~ ## Previous and next follow the documentation order, then the guides: the order of the sidebar. Items are appended
+       in place: array.add copies the list each time, which reached the engine's iteration limit at about 45 pages. ## ~}}
   {{~ seq = []; for m in ["docs", "guides"]; mt = pf.menu m; for it in mt.items
-        if it.url != "/docs/" && it.url != "/guides/"; seq = seq | array.add it; end
-        for ch in it.items; seq = seq | array.add ch; end
+        if it.url != "/docs/" && it.url != "/guides/"; seq[seq.size] = it; end
+        for ch in it.items; seq[seq.size] = ch; end
       end; end
       at = -1; for it in seq; if it.is_active; at = for.index; end; end
       prev = null; next = null

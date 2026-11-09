@@ -4,7 +4,7 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell.Display;
 
-/// <summary>Exact-type view registration with immutable identity and an optional streaming summary.</summary>
+/// <summary>Exact-type view registration, optionally covering derived types, with immutable identity and an optional streaming summary.</summary>
 public sealed class DefaultDisplayRegistration {
     internal DefaultDisplayRegistration(ModuleLease lease, string typeName, string viewId, Version version,
         DefaultDisplayBatch batch, IEnumerable<string>? scopeKey,
@@ -38,6 +38,19 @@ public sealed class DefaultDisplayRegistration {
     public Func<object, string>? ScopeSelector { get; }
     /// <summary>Per-view collection and layout limits.</summary>
     public DefaultDisplayBudget Budget { get; }
+    /// <summary>
+    /// Also renders objects whose runtime type derives from <see cref="RuntimeType"/>, so a family of result types (for example
+    /// one subclass per finding kind) shares one view and one batch. Requires <see cref="RuntimeType"/>. A registration for the
+    /// exact derived type still takes precedence. Configure before output starts.
+    /// </summary>
+    public bool IncludeDerivedTypes {
+        get => _includeDerivedTypes;
+        set {
+            if (value && RuntimeType == null) { throw new InvalidOperationException("A view for derived types needs its exact RuntimeType."); }
+            _includeDerivedTypes = value;
+        }
+    }
+    private bool _includeDerivedTypes;
     /// <summary>Optional product aggregate for streamed groups; null prints the group row count.</summary>
     public DefaultDisplayStreaming? Streaming { get; set; }
     /// <summary>Optional Stream-only presentation for a scope that closes with one original record. Configure before the scope starts.</summary>
