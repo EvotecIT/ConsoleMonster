@@ -14,6 +14,30 @@ using Xunit;
 namespace ConsoleMonster.Extensions.Tests.Graphics {
     public sealed class GraphicsTests {
         [Fact]
+        public void SessionPngUsesItsRecordedPaletteUnlessAnExplicitThemeOverridesIt() {
+            string[] colors = Enumerable.Repeat("#445566", 16).ToArray();
+            colors[2] = "#12ab34";
+            string cast = "{\"version\":2,\"width\":4,\"height\":3,\"theme\":{\"fg\":\"#ffffff\",\"bg\":\"#112233\",\"palette\":\"" + string.Join(":", colors) + "\"}}\n[0,\"o\",\"\\u001b[32m██\"]\n";
+            SessionRecording recording = SessionRecording.Read(new StringReader(cast));
+            string path = Path.Combine(Path.GetTempPath(), "cm-palette-" + Guid.NewGuid().ToString("N") + ".png");
+            try {
+                var options = new GraphicsExportOptions();
+                Assert.Equal(ExportTheme.Auto, options.Frame.Theme);
+                options.Frame = new RecordingExportOptions { Width = 4, Height = 3 }.ToFrameOptions();
+                Assert.Equal(ExportTheme.Auto, options.Frame.Theme);
+                options.Frame.FontSize = 10; options.Frame.LineHeight = 1; options.Frame.Padding = 0;
+                recording.SavePng(path, options);
+                RgbaImage image = RasterImageDecoder.Decode(File.ReadAllBytes(path));
+                Assert.Equal((18, 171, 52), (image.Pixels[(3 * image.Width + 3) * 4], image.Pixels[(3 * image.Width + 3) * 4 + 1], image.Pixels[(3 * image.Width + 3) * 4 + 2]));
+                Assert.Equal(ExportTheme.Auto, options.Frame.Theme);
+                options.Frame.Theme = ExportTheme.Dark;
+                recording.SavePng(path, options);
+                image = RasterImageDecoder.Decode(File.ReadAllBytes(path));
+                Assert.Equal((19, 161, 14), (image.Pixels[(3 * image.Width + 3) * 4], image.Pixels[(3 * image.Width + 3) * 4 + 1], image.Pixels[(3 * image.Width + 3) * 4 + 2]));
+            } finally { File.Delete(path); }
+        }
+
+        [Fact]
         public void DashboardRecordingKeepsLongVtRepaintsInEveryChapterAndAnimation() {
             string folder = Path.Combine(Path.GetTempPath(), "cm-dashboard-recording-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(folder);

@@ -83,8 +83,8 @@ namespace ConsoleMonster {
 
         private static readonly Definition[] Definitions = {
             new Definition("Theme", "CONSOLEMONSTER_THEME", "Auto",
-                "The colours: a built-in theme or a .json or .psd1 theme file. Auto follows the terminal background.",
-                new[] { "Auto", "Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark" },
+                "The colours: a built-in theme, Terminal (follow my terminal), or a .json or .psd1 theme file. Auto follows the terminal background.",
+                new[] { "Auto", "Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark", "Terminal" },
                 value => {
                     switch (value.ToLowerInvariant()) {
                         case "auto": return null;
@@ -99,7 +99,7 @@ namespace ConsoleMonster {
                         case "colorblind": case "colorblindsafe": case "color-blind-safe": return "ColorBlindSafe";
                         case "colorblind-light": case "colorblindsafe-light": case "color-blind-safe-light": return "ColorBlindSafeLight";
                         case "colorblind-dark": case "colorblindsafe-dark": case "color-blind-safe-dark": return "ColorBlindSafeDark";
-                        default: return Canonical(new[] { "Auto", "Dark", "Light", "HighContrast" }, value) ?? value;
+                        default: return Canonical(new[] { "Auto", "Dark", "Light", "HighContrast", "Terminal" }, value) ?? value;
                     }
                 }),
             new Definition("Color", "CONSOLEMONSTER_COLOR", "Auto",
@@ -339,7 +339,9 @@ namespace ConsoleMonster {
             ITheme? loaded = null;
             string? problem = null;
             try {
-                loaded = ThemeFileLoader(path);
+                bool accessible = path.EndsWith(AccessibleThemeSuffix, StringComparison.OrdinalIgnoreCase);
+                loaded = ThemeFileLoader(ThemePath(path));
+                if (accessible && loaded is Theme source) { loaded = ThemeFile.FromTheme(source).ToTheme(true); }
             } catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException)) {
                 // Any loader failure (a bad file, or a .psd1 read where no PowerShell runspace is available) leaves the
                 // theme to the other sources: a saved setting never stops a program.
@@ -457,7 +459,7 @@ namespace ConsoleMonster {
             if (named != null) { return named; }
             switch (definition.Name) {
                 case "Theme":
-                    return IsPath(trimmed) ? Path.GetFullPath(trimmed) : null;
+                    return IsPath(trimmed) ? Path.GetFullPath(ThemePath(trimmed)) + (trimmed.EndsWith(AccessibleThemeSuffix, StringComparison.OrdinalIgnoreCase) ? AccessibleThemeSuffix : "") : null;
                 case "Language":
                 case "Culture":
                     if (definition.Name == "Culture" && string.Equals(trimmed, "Invariant", StringComparison.OrdinalIgnoreCase)) { return "Invariant"; }
@@ -476,8 +478,12 @@ namespace ConsoleMonster {
             return null;
         }
 
+        internal const string AccessibleThemeSuffix = " · accessible";
+
+        internal static string ThemePath(string value) => value.EndsWith(AccessibleThemeSuffix, StringComparison.OrdinalIgnoreCase) ? value.Substring(0, value.Length - AccessibleThemeSuffix.Length) : value;
+
         private static bool IsPath(string value) =>
-            value.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || value.EndsWith(".psd1", StringComparison.OrdinalIgnoreCase);
+            ThemePath(value).EndsWith(".json", StringComparison.OrdinalIgnoreCase) || ThemePath(value).EndsWith(".psd1", StringComparison.OrdinalIgnoreCase);
 
         private static bool IsTrue(string value) => value == "1" || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase);
 

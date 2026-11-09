@@ -13,7 +13,7 @@ namespace ConsoleMonster.Input {
         private bool _inPaste;
         private bool _droppingCsi;
 
-        /// <summary>Unix startup queries may leave a late OSC 11 reply; ordinary decoders keep Alt+] as a key.</summary>
+        /// <summary>Unix startup queries may leave late OSC 4/10/11 replies; ordinary decoders keep Alt+] as a key.</summary>
         internal bool IgnoreBackgroundReplies { get; set; }
 
         /// <summary>Creates an empty VT input decoder.</summary>
@@ -65,8 +65,7 @@ namespace ConsoleMonster.Input {
                     }
                     char next = combined[i + 1];
                     // A delayed startup colour reply is protocol data, never editable text.
-                    if (IgnoreBackgroundReplies && next == ']' && (combined.Substring(i).StartsWith("\u001b]11;", StringComparison.Ordinal)
-                        || "\u001b]11;".StartsWith(combined.Substring(i), StringComparison.Ordinal))) {
+                    if (IgnoreBackgroundReplies && next == ']' && IsStartupColourReply(combined.Substring(i))) {
                         if (!ReadBackgroundReply(combined, i, out int consumed)) { break; }
                         i += consumed;
                         continue;
@@ -191,8 +190,7 @@ namespace ConsoleMonster.Input {
                 return;
             }
             string pending = _pending.ToString();
-            if (IgnoreBackgroundReplies && (pending.StartsWith("\u001b]11;", StringComparison.Ordinal)
-                || (pending.Length > 1 && "\u001b]11;".StartsWith(pending, StringComparison.Ordinal)))) {
+            if (IgnoreBackgroundReplies && IsStartupColourReply(pending)) {
                 ExpireBackgroundReply();
                 return;
             }

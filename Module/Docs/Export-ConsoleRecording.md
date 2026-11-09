@@ -481,7 +481,7 @@ Accept wildcard characters: False
 ```
 
 ### -Theme
-Dark (default), Light or HighContrast.
+Auto (default) uses a terminal recording's captured palette, otherwise Dark. Dark, Light and HighContrast override it; Current uses the session's active theme.
 
 ```yaml
 Type: ExportTheme
@@ -597,7 +597,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

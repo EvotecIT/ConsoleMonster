@@ -84,6 +84,11 @@ Shows ConsoleMonster's settings: the value of each and where it came from.
 
 Lists the theme, colour, glyphs, frames (Border), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.
 
+### [Import-ConsoleTheme](Import-ConsoleTheme.md)
+Imports a terminal colour scheme as a version 3 ConsoleMonster theme.
+
+Reads a single Windows Terminal scheme object (or a settings.json with one schemes entry), an XML iTerm2 .itermcolors file, or a flat base16 YAML scheme. The generated JSON embeds the scheme so its roles are derived when loaded. Accessible first chooses status colours from the palette, then adjusts OKLCH lightness where needed. The command writes the file and returns Test-ConsoleTheme's report and verdict lines, including adjusted tokens; failing checks never prevent import. It does not change the active theme or settings.
+
 ### [Invoke-ConsoleDashboard](Invoke-ConsoleDashboard.md)
 Runs a console dashboard live while a script does the work.
 

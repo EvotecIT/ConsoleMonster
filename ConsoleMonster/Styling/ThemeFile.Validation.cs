@@ -19,7 +19,11 @@ namespace ConsoleMonster.Styling {
                 Color color = ReadTerminalColor(shorthand, path);
                 return new ThemeColor(color, color.IsDefault ? -1 : color.Downsample(Capabilities.ColorDepth.Ansi16).Index);
             }
-            Dictionary<string, object?> data = Map(value, path, "TrueColor", "Ansi16", "Ansi256");
+            Dictionary<string, object?> data = Map(value, path, "TrueColor", "Ansi16", "Ansi256", "PaletteIndex");
+            if (data.TryGetValue("PaletteIndex", out object? palette)) {
+                if (data.Count != 1) { throw Error(path, "PaletteIndex cannot be combined with RGB fallbacks"); }
+                return ThemeColor.PaletteIndex(Integer(palette, path + ".PaletteIndex", 0, 15));
+            }
             Color rgb = ReadTerminalColor(RequiredString(Get(data, "TrueColor"), path + ".TrueColor"), path + ".TrueColor");
             int ansi16 = data.TryGetValue("Ansi16", out object? low) ? Integer(low, path + ".Ansi16", -1, 15)
                 : rgb.IsDefault ? -1 : rgb.Downsample(Capabilities.ColorDepth.Ansi16).Index;
@@ -54,6 +58,7 @@ namespace ConsoleMonster.Styling {
 
         private static Theme Preset(string name) {
             switch (name.Trim().ToLowerInvariant()) {
+                case "terminal": return Theme.Terminal;
                 case "dark": return Theme.Dark;
                 case "light": return Theme.Light;
                 case "highcontrast":

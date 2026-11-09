@@ -55,13 +55,15 @@ namespace ConsoleMonster.Tests.Input {
             } finally { Directory.Delete(directory, true); }
         }
 
-        [UnixFact]
-        public async Task StartupBackgroundProbePreservesKeysFallbackAndTerminalMode() {
+        [UnixTheory]
+        [InlineData("background_pty.py")]
+        [InlineData("palette_pty.py")]
+        public async Task StartupColourProbesPreserveKeysFallbackAndTerminalMode(string fixture) {
             string directory = Path.Combine(Path.GetTempPath(), "ConsoleMonster-Background-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(directory);
             try {
-                string script = Path.Combine(directory, "background_pty.py");
-                using (Stream resource = typeof(UnixInputProcessTests).Assembly.GetManifestResourceStream("ConsoleMonster.Tests.Input.Fixtures.background_pty.py")!)
+                string script = Path.Combine(directory, fixture);
+                using (Stream resource = typeof(UnixInputProcessTests).Assembly.GetManifestResourceStream("ConsoleMonster.Tests.Input.Fixtures." + fixture)!)
                 using (FileStream target = File.Create(script)) { resource.CopyTo(target); }
                 string host = typeof(TestHost.Program).Assembly.Location;
                 string runtime = Path.ChangeExtension(typeof(UnixInputProcessTests).Assembly.Location, ".runtimeconfig.json");
@@ -78,6 +80,12 @@ namespace ConsoleMonster.Tests.Input {
         }
 
         private static string Quote(string text) => CommandLine.Quote(text, CommandStyle.Windows);
+
+        private sealed class UnixTheoryAttribute : TheoryAttribute {
+            public UnixTheoryAttribute() {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) { Skip = "A Unix PTY is required."; }
+            }
+        }
 
         private sealed class UnixFactAttribute : FactAttribute {
             public UnixFactAttribute() {
