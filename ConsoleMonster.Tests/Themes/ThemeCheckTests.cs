@@ -18,11 +18,11 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.Equal(lineCount, summary.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Length);
             Assert.Contains(name == "Dark" ? ": no" : ": yes", summary);
             if (name == "Dark") {
-                Assert.Contains("Pass/Fail", summary);
+                Assert.Contains("pass and fail", summary);
                 Assert.Contains("deuteranopia", summary);
-                Assert.Contains("Text contrast: 4.0:1", summary);
+                Assert.Contains("Pending text too faint: 4.0:1", summary);
             } else {
-                Assert.DoesNotContain("Text contrast", summary);
+                Assert.DoesNotContain("too faint", summary);
             }
         }
 

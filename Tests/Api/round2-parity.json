@@ -24832,6 +24832,21 @@
           "MemberKind": "Property"
         },
         {
+          "Parameter": "Detailed",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ThemeCheckDisplay",
+          "Reason": "Selects every measurement in the report view; the shared report always retains every result."
+        },
+        {
           "Parameter": "Path",
           "ParameterType": "System.String",
           "Default": "",

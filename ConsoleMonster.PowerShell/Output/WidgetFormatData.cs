@@ -47,18 +47,20 @@ namespace ConsoleMonster.PowerShell {
             List<string> renderings = new List<string>();
             List<string> widgets = new List<string>();
             foreach (string name in TypeNames()) {
+                if (name == typeof(Styling.ThemeCheckReport).FullName) { continue; }
                 (name == typeof(ConsoleRendering).FullName || name == DeserializedRendering ? renderings : widgets).Add(name);
             }
             // Renderings are out of band: drawn on their own also in the middle of another table (an error view between
             // table rows), as PowerShell draws error records. Widgets are not, so Format-List * still lists their properties.
             AppendView(xml, RenderingViewName, renderings, true);
             AppendView(xml, ViewName, widgets, false);
+            AppendView(xml, "ConsoleMonster.ThemeCheck", new List<string> { typeof(Styling.ThemeCheckReport).FullName! }, false, "ThemeCheckView");
             AppendDemoView(xml);
             xml.Append("  </ViewDefinitions>\n</Configuration>\n");
             return xml.ToString();
         }
 
-        private static void AppendView(StringBuilder xml, string name, List<string> types, bool outOfBand) {
+        private static void AppendView(StringBuilder xml, string name, List<string> types, bool outOfBand, string formatter = "WidgetFormatter") {
             xml.Append("    <View>\n      <Name>").Append(name).Append("</Name>\n");
             if (outOfBand) {
                 xml.Append("      <OutOfBand />\n");
@@ -69,7 +71,7 @@ namespace ConsoleMonster.PowerShell {
             }
             xml.Append("      </ViewSelectedBy>\n");
             xml.Append("      <CustomControl>\n        <CustomEntries>\n          <CustomEntry>\n            <CustomItem>\n              <ExpressionBinding>\n");
-            xml.Append("                <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatter'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>\n");
+            xml.Append("                <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell." + formatter + "'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>\n");
             xml.Append("              </ExpressionBinding>\n            </CustomItem>\n          </CustomEntry>\n        </CustomEntries>\n      </CustomControl>\n");
             xml.Append("    </View>\n");
         }

@@ -58,7 +58,6 @@
         <TypeName>ConsoleMonster.Live.Tails.LogTailView</TypeName>
         <TypeName>ConsoleMonster.Live.WatchFrame</TypeName>
         <TypeName>ConsoleMonster.Overview.OverviewWidget</TypeName>
-        <TypeName>ConsoleMonster.Styling.ThemeCheckReport</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunSummary</TypeName>
         <TypeName>ConsoleMonster.TestRuns.TestRunView</TypeName>
         <TypeName>ConsoleMonster.Text.RichText</TypeName>
@@ -125,6 +124,23 @@
             <CustomItem>
               <ExpressionBinding>
                 <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatter'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </View>
+    <View>
+      <Name>ConsoleMonster.ThemeCheck</Name>
+      <ViewSelectedBy>
+        <TypeName>ConsoleMonster.Styling.ThemeCheckReport</TypeName>
+      </ViewSelectedBy>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ThemeCheckView'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
           </CustomEntry>

@@ -8,11 +8,12 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Checks a theme's text contrast, status colours, markers and critical fill.</para>
-    /// <para type="description">Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. Palette indexes, terminal-default text and terminal-dependent dimming have unknown RGB; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a readable default view. Dark and Light are not colour-blind-safe presets.</para>
+    /// <para type="description">Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</para>
     /// </summary>
     /// <example><para>Check the active theme.</para><code>Test-ConsoleTheme</code></example>
     /// <example><para>Check a team theme in CI; any failure stops the script.</para><code>Test-ConsoleTheme -Path ./team-theme.json -Strict</code></example>
     /// <example><para>Inspect individual measurements as objects.</para><code>(Test-ConsoleTheme -Theme Light -Background '#ffffff').Results | Where-Object Outcome -EQ Fail</code></example>
+    /// <example><para>Show every measurement.</para><code>Test-ConsoleTheme -Theme Dark -Detailed</code></example>
     [Cmdlet(VerbsDiagnostic.Test, "ConsoleTheme", DefaultParameterSetName = "Name")]
     [OutputType(typeof(ThemeCheckReport))]
     public sealed class CmdletTestConsoleTheme : NoPipelineInputCmdlet {
@@ -34,6 +35,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</para></summary>
         [Parameter]
         public SwitchParameter Strict { get; set; }
+
+        /// <summary><para type="description">Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</para></summary>
+        [Parameter]
+        public SwitchParameter Detailed { get; set; }
 
         private static Color ParseBackground(string text) {
             if (!Color.TryParse(text, out Color colour)) { throw new FormatException("Invalid background colour '" + text + "'."); }
@@ -68,7 +73,9 @@ namespace ConsoleMonster.PowerShell {
                     "ConsoleThemeCheckFailed", ErrorCategory.InvalidData, report));
                 return;
             }
-            WriteObject(report);
+            PSObject output = new PSObject(report);
+            if (Detailed) { output.TypeNames.Insert(0, ThemeCheckView.DetailedTypeName); }
+            WriteObject(output);
         }
     }
 }

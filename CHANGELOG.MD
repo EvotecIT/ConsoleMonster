@@ -1,7 +1,7 @@
 ### Unreleased
 
 #### What's new
-- `Test-ConsoleTheme` and C# `ThemeCheck.Run` report text contrast, status separation in normal and simulated colour vision, non-colour markers and Critical's fill. The settings preview shows the verdict; `-Strict` stops CI on failures and palette colours report Unknown.
+- `Test-ConsoleTheme` and C# `ThemeCheck.Run` report text contrast, status separation in normal and simulated colour vision, non-colour markers and Critical's fill. A verdict-first summary shows problems and unknowns, with every measurement available through `-Detailed` or `Results`. The settings preview shows the verdict; `-Strict` stops CI on failures and palette colours report Unknown.
 - `New-ConsoleDashboardFrame` builds a dashboard frame from records: facts and states on the title line, meters (composition, ratio, count, fact or missing, chosen by the fields given), a needs-attention list, summary and detail sections, a legend and footer counts. C# gets `Ui.DashboardFrame()` with fluent builders (`Fact`, `State`, `Meter`, `Attention`, `AttentionOf`, `Section`, `Legend`, `FooterCount`, `FooterHint`). Modules that own summary objects still declare frames in C# and register them as default displays.
 - `Invoke-ConsoleHeadless` runs a script, usually an app, on a headless terminal with scripted keys, text and mouse input, and returns the final screen's text and cells, every distinct screen and the script's output, so Pester tests can assert on what the user would see.
 - Inside `Show-ConsoleApp` content, `New-ConsoleLogRegion` makes a retained, scrollable log with the find bar (`/` or Ctrl+F, Enter, `n` and `N`), the `LogViewport` C# apps use; `Ui.LogViewport()` covers fluent C#.

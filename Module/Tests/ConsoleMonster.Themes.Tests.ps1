@@ -184,22 +184,63 @@
         (Test-ConsoleTheme -Theme ColorBlindSafeLight -Background White -Strict).Passed | Should -BeTrue
     }
 
-    It 'renders every measurement and verdict at 80 columns without hiding a column' {
+    It 'leads with the verdict and shows only problems and unknowns at 80 columns' {
         $oldColumns = $env:COLUMNS
         try {
             $env:COLUMNS = '80'
-            $text = Test-ConsoleTheme -Theme Dark | Out-String -Width 80
+            $report = Test-ConsoleTheme -Theme Dark
+            $text = $report | Out-String -Width 80
         } finally {
             $env:COLUMNS = $oldColumns
         }
-        $text | Should -Match 'Contrast Pass'
-        $text | Should -Match 'Too close under deuteranopia'
-        $text | Should -Match 'Unknown'
-        $text | Should -Match '4.5:1'
-        $text | Should -Match 'Fill Critical'
-        @($text -split '\r?\n' | Where-Object Length -GT 80).Count | Should -Be 0
-        $text | Should -Not -Match 'columns \('
+        $report.ThemeName | Should -BeExactly Dark
+        $report.Results.Count | Should -Be 28
+        $lines = @($text -split '\r?\n' | Where-Object { $_.Trim().Length -gt 0 })
+        $lines[0] | Should -BeExactly 'Dark: 2 problems, 1 unknown'
+        $text | Should -Match 'Pass and fail look alike with deuteranopia \(9.2, needs 25\)'
+        $text | Should -Match 'Pending text is too faint: 4.0:1, needs 4.5:1'
+        $text | Should -Match "Text uses the terminal's own colour, so its contrast can't be measured"
+        $lines[-1] | Should -BeExactly '25 other checks pass'
+        $lines.Count | Should -Be 5
+        @($lines | Where-Object Length -GT 80).Count | Should -Be 0
+        (Test-ConsoleTheme -Theme ColorBlindSafeDark | Out-String).Trim() | Should -BeExactly 'ColorBlindSafe: passes every check'
+    }
+
+    It 'keeps every measurement and uses one decimal and structural words in Detailed mode' {
+        $report = Test-ConsoleTheme -Theme Dark -Detailed
+        $report.Results.Count | Should -Be 28
+        $text = $report | Out-String -Width 100
+        $text | Should -Match '80.6, needs 25'
+        $text | Should -Match '112.5, needs 25'
+        $text | Should -Match '69.0, needs 25'
+        $text | Should -Match 'Pass and warning markers are different'
+        $text | Should -Match 'Critical is not filled'
+        $text | Should -Not -Match '1.0 / 1|RGB|other checks pass'
+        ((Test-ConsoleTheme -Theme ColorBlindSafeDark -Detailed) | Out-String -Width 100) | Should -Match 'Critical is filled'
         (Get-Help Test-ConsoleTheme).Synopsis | Should -Match 'contrast'
+    }
+
+    It 'groups a failing pair across vision conditions without dropping measurements' {
+        $path = Join-Path $TestDrive 'same-statuses.json'
+        @{
+            Name = 'Same statuses'
+            BaseTheme = 'ColorBlindSafe'
+            Tokens = @{
+                Fail = @{
+                    Foreground = @{
+                        TrueColor = '#6cb6ff'
+                        Ansi16 = 14
+                    }
+                }
+            }
+        } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $path -Encoding UTF8
+        $report = Test-ConsoleTheme -Path $path
+        @($report.Results | Where-Object Outcome -EQ Fail).Count | Should -Be 4
+        $text = $report | Out-String -Width 120
+        $text | Should -Match 'Same statuses: 1 problem'
+        ([regex]::Matches($text, 'Pass and fail look alike')).Count | Should -Be 1
+        ($text -replace '\s+', ' ') | Should -Match 'in normal vision and with protanopia, deuteranopia and tritanopia'
+        $text | Should -Match '0.0, needs 25'
     }
 
 }

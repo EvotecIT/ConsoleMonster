@@ -33,7 +33,7 @@ namespace ConsoleMonster.Styling {
                 Color background = FillColour(style, page);
                 double? ratio = IsRgb(foreground) && IsRgb(background) ? Contrast(foreground, background) : (double?)null;
                 results.Add(Result(ThemeCheckKind.Contrast, new[] { token }, ratio, 4.5,
-                    "Readable text.", "Text contrast is too low.", (style.Decoration & TextDecoration.Dim) != 0 ? "Terminal dimming is unknown." : "Text RGB is unknown."));
+                    token + " text is readable.", token + " text is too faint", UnknownContrast(token, style, foreground, background)));
             }
             for (int vision = 0; vision < Simulations.Length; vision++) {
                 for (int i = 0; i < Statuses.Length; i++) {
@@ -42,13 +42,15 @@ namespace ConsoleMonster.Styling {
                         Color b = TextColour(theme.Resolve(Statuses[j], ColorDepth.TrueColor), page);
                         double? distance = IsRgb(a) && IsRgb(b) ? Distance(Lab(a, Simulations[vision]), Lab(b, Simulations[vision])) : (double?)null;
                         results.Add(Result(ThemeCheckKind.ColourVision, new[] { Statuses[i], Statuses[j] }, distance, 25,
-                            "Apart under " + VisionNames[vision] + ".", "Too close under " + VisionNames[vision] + ".", "RGB unknown: " + VisionNames[vision] + "."));
+                            ThemeCheckText.Pair(new[] { Statuses[i], Statuses[j] }) + " are apart " + ThemeCheckText.Conditions(new[] { VisionNames[vision] }),
+                            ThemeCheckText.Pair(new[] { Statuses[i], Statuses[j] }) + " look alike " + ThemeCheckText.Conditions(new[] { VisionNames[vision] }),
+                            ThemeCheckText.Pair(new[] { Statuses[i], Statuses[j] }) + " colours can't be compared " + ThemeCheckText.Conditions(new[] { VisionNames[vision] }), VisionNames[vision]));
                     }
                 }
             }
             CheckMarkers(theme, options, results);
             CheckFill(theme, page, results);
-            return new ThemeCheckReport(results);
+            return new ThemeCheckReport(theme.Name, results);
         }
 
         // Terminals choose their own faint intensity. An undimmed RGB value cannot establish the displayed contrast
@@ -59,11 +61,18 @@ namespace ConsoleMonster.Styling {
         private static Color FillColour(Style style, Color page) => (style.Decoration & TextDecoration.Reverse) != 0
             ? style.Color : style.BackgroundColor.IsDefault ? page : style.BackgroundColor;
 
+        private static string UnknownContrast(ThemeToken token, Style style, Color foreground, Color background) {
+            if ((style.Decoration & TextDecoration.Dim) != 0) { return token + " is dimmed by the terminal, so its contrast can't be measured"; }
+            if (foreground.IsDefault) { return token + " uses the terminal's own colour, so its contrast can't be measured"; }
+            if (background.IsDefault) { return token + " has an unknown background, so its contrast can't be measured"; }
+            return token + " uses the terminal palette, so its contrast can't be measured";
+        }
+
         private static bool IsRgb(Color colour) => colour.Kind == ColorKind.Rgb;
 
-        private static ThemeCheckResult Result(ThemeCheckKind check, ThemeToken[] tokens, double? value, double required, string pass, string fail, string unknown) =>
+        private static ThemeCheckResult Result(ThemeCheckKind check, ThemeToken[] tokens, double? value, double required, string pass, string fail, string unknown, string? vision = null) =>
             new ThemeCheckResult(check, tokens, !value.HasValue ? ThemeCheckOutcome.Unknown : value.Value >= required ? ThemeCheckOutcome.Pass : ThemeCheckOutcome.Fail,
-                value, required, !value.HasValue ? unknown : value.Value >= required ? pass : fail);
+                value, required, !value.HasValue ? unknown : value.Value >= required ? pass : fail, vision);
 
         private static void CheckMarkers(ITheme theme, ThemeCheckOptions options, List<ThemeCheckResult> results) {
             IGlyphSet? glyphs = options.GlyphTier.HasValue && Enum.IsDefined(typeof(GlyphTier), options.GlyphTier.Value)
@@ -79,7 +88,8 @@ namespace ConsoleMonster.Styling {
                     bool decoration = theme.Resolve(Statuses[i], ColorDepth.TrueColor).Decoration != theme.Resolve(Statuses[j], ColorDepth.TrueColor).Decoration;
                     bool distinct = known && glyphs != null && (decoration || (a != b && glyphs!.StatusSymbol(StatusKinds[i]) != glyphs.StatusSymbol(StatusKinds[j])));
                     results.Add(Result(ThemeCheckKind.Markers, new[] { Statuses[i], Statuses[j] }, known ? (distinct ? 1 : 0) : (double?)null, 1,
-                        "Different without colour.", "Same markers and decoration.", "Renderable markers are unknown."));
+                        ThemeCheckText.Pair(new[] { Statuses[i], Statuses[j] }) + " markers are different",
+                        ThemeCheckText.Pair(new[] { Statuses[i], Statuses[j] }) + " markers and decoration are the same", "The rendered markers can't be checked"));
                 }
             }
         }
@@ -89,7 +99,7 @@ namespace ConsoleMonster.Styling {
             Color fill = FillColour(critical, page);
             if (critical.BackgroundColor.IsDefault && (critical.Decoration & TextDecoration.Reverse) == 0) {
                 results.Add(Result(ThemeCheckKind.Fill, new[] { ThemeToken.Critical }, 1, 1,
-                    "Critical is unfilled.", "", ""));
+                    "Critical is not filled", "", ""));
                 return;
             }
             bool known = IsRgb(fill) && IsRgb(page);
@@ -104,7 +114,7 @@ namespace ConsoleMonster.Styling {
             // Equality is already a proven failure (also for identical palette indexes); another unknown comparison
             // cannot hide it from Strict callers.
             results.Add(Result(ThemeCheckKind.Fill, new[] { ThemeToken.Critical }, matches ? 0 : known ? 1 : (double?)null, 1,
-                "Critical has a distinct fill.", "Fill matches ordinary text.", "Fill RGB is unknown."));
+                "Critical is filled, unlike ordinary text", "Critical is filled, but its fill matches ordinary text", "Critical's fill can't be checked without known background colours"));
         }
     }
 }

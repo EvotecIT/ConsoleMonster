@@ -209,12 +209,23 @@ namespace ConsoleMonster.Interactive {
                 ThemeCheckResult? failed = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
                 bool unknown = report.Results.Any(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Unknown);
                 string verdict = failed == null ? (unknown ? "unknown" : "yes") : "no";
-                string summary = (width >= 40 ? "Statuses apart for colour-blind users: " : "Colour-blind statuses: ") + verdict;
-                string detail = failed == null ? string.Empty : string.Join("/", failed.Tokens) + " " + failed.Detail.ToLowerInvariant().Replace("too close under ", "too close: ");
+                string prefix = width >= 43 ? "Statuses apart for colour-blind users: " : "Colour-blind statuses: ";
+                string summary = prefix + verdict;
+                string detail = string.Empty;
+                if (failed != null) {
+                    var pair = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail
+                        && result.Tokens.SequenceEqual(failed.Tokens)).OrderBy(result => result.Value);
+                    string words = ThemeCheckText.Pair(failed.Tokens, false);
+                    string reason = "look alike " + ThemeCheckText.Conditions(pair.Select(result => result.Vision));
+                    string full = summary + ": " + words + " " + reason;
+                    if (full.Length <= width) { summary = full; }
+                    else if ((summary + ": " + words).Length <= width) { summary += ": " + words; detail = reason; }
+                    else { detail = words + " " + reason; }
+                }
                 ThemeCheckResult? contrast = report.Results.Where(result => result.Check == ThemeCheckKind.Contrast && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
                 if (contrast != null) {
-                    string ratio = "Text contrast: " + contrast.Value!.Value.ToString("0.0", CultureInfo.InvariantCulture) + ":1";
-                    detail += (detail.Length > 0 ? " " : string.Empty) + ratio;
+                    string ratio = contrast.Tokens[0] + " text too faint: " + contrast.Value!.Value.ToString("0.0", CultureInfo.InvariantCulture) + ":1";
+                    detail += (detail.Length > 0 ? ". " : string.Empty) + ratio;
                 }
                 Rows notes = new Rows(new TextBlock(summary) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis });
                 if (detail.Length > 0) { notes.Add(new TextBlock(detail) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }); }
