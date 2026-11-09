@@ -7,6 +7,7 @@ using ConsoleMonster.Graphics;
 namespace ConsoleMonster.PowerShell {
     /// <summary>The image source and cell size shared by Show-ConsoleImage and New-ConsoleImage.</summary>
     public abstract class ConsoleImageCommand : PSCmdlet {
+        private object? _bytes;
         /// <summary><para type="description">A PNG, JPEG, GIF, BMP, TIFF or PPM file. Files from Get-ChildItem and path strings can also be piped in.</para></summary>
         [Parameter(Position = 0, ParameterSetName = "Path")]
         public string Path { get; set; } = string.Empty;
@@ -15,9 +16,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true, ParameterSetName = "Path", DontShow = true)]
         public PSObject? InputObject { get; set; }
 
-        /// <summary><para type="description">Encoded image bytes, for example a chart rendered to PNG in memory.</para></summary>
+        /// <summary><para type="description">Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Bytes")]
-        public byte[]? Bytes { get; set; }
+        public object? Bytes {
+            get => _bytes;
+            set {
+                object? source = value is PSObject wrapped ? wrapped.BaseObject : value;
+                _bytes = source is Stream ? source : LanguagePrimitives.ConvertTo<byte[]>(source);
+            }
+        }
 
         /// <summary><para type="description">The text in the placeholder that redirected and CI output get, [image: label WxH]. Defaults to the file name.</para></summary>
         [Parameter]
@@ -35,7 +42,7 @@ namespace ConsoleMonster.PowerShell {
         /// <returns>The image, or null.</returns>
         protected ConsoleImage? CreateImage() {
             if (ParameterSetName == "Bytes") {
-                return Decode(Bytes ?? Array.Empty<byte>(), "bytes", Label);
+                return Decode(Bytes ?? Array.Empty<byte>(), Bytes is Stream ? "stream" : "bytes", Label);
             }
             string path = Path;
             if (InputObject != null) {
@@ -58,9 +65,10 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // The failures ChartForgeX reports for damaged or truncated images: one bad file is an error, not the end of a pipeline.
-        private ConsoleImage? Decode(byte[]? data, string source, string? name) {
+        private ConsoleImage? Decode(object? data, string source, string? name) {
             try {
-                ConsoleImage image = data == null ? new ConsoleImage(RasterImageDecoder.Read(source), name) : new ConsoleImage(data, name);
+                ConsoleImage image = data is Stream stream ? ConsoleImage.FromStream(stream, name)
+                    : data == null ? new ConsoleImage(RasterImageDecoder.Read(source), name) : new ConsoleImage((byte[])data, name);
                 image.Width = Width;
                 image.Height = Height;
                 return image;

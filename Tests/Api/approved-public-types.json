@@ -86,8 +86,10 @@
     "ConsoleMonster.Export.RecordingMarker",
     "ConsoleMonster.Export.RecordingPace",
     "ConsoleMonster.Export.WindowChromeStyle",
+    "ConsoleMonster.Frames.AttentionGroup",
     "ConsoleMonster.Frames.AttentionItem",
     "ConsoleMonster.Frames.AttentionList",
+    "ConsoleMonster.Frames.AttentionTally",
     "ConsoleMonster.Frames.DashboardFrame",
     "ConsoleMonster.Frames.Distribution",
     "ConsoleMonster.Frames.FrameBars",
@@ -646,6 +648,7 @@
     "ConsoleMonster.Styling.ThemeCheckReport",
     "ConsoleMonster.Styling.ThemeCheckResult",
     "ConsoleMonster.Styling.StylingFluent",
+    "ConsoleMonster.Styling.TerminalScheme",
     "ConsoleMonster.Widgets.ViewFact",
     "ConsoleMonster.Widgets.ViewFacts"
   ],
@@ -802,6 +805,7 @@
     "ConsoleMonster.PowerShell.TableConfigurationCmdlet",
     "OnModuleImportAndRemove",
     "ConsoleMonster.PowerShell.CmdletTestConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletImportConsoleTheme",
     "ConsoleMonster.PowerShell.CmdletNewConsoleFacts"
   ],
   "ConsoleMonster.PowerShell.Display": [

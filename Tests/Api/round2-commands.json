@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 113,
+  "ExpectedCount": 114,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -16,6 +16,7 @@
     "Get-ConsoleDemo",
     "Get-ConsoleFormatting",
     "Get-ConsoleSetting",
+    "Import-ConsoleTheme",
     "Invoke-ConsoleDashboard",
     "Invoke-ConsoleHeadless",
     "Invoke-ConsolePester",
@@ -51,8 +52,8 @@
     "New-ConsoleKeyValue",
     "New-ConsoleLanes",
     "New-ConsoleLayoutGrid",
-    "New-ConsoleLogo",
     "New-ConsoleLogRegion",
+    "New-ConsoleLogo",
     "New-ConsoleMenu",
     "New-ConsoleMenuItem",
     "New-ConsoleOutline",

@@ -8,7 +8,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Checks a theme's text contrast, status colours, markers and critical fill.</para>
-    /// <para type="description">Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</para>
+    /// <para type="description">Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The Terminal preset is measured against the startup palette when the terminal answers OSC 4/10/11. Otherwise the actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</para>
     /// </summary>
     /// <example><para>Check the active theme.</para><code>Test-ConsoleTheme</code></example>
     /// <example><para>Check a team theme in CI; any failure stops the script.</para><code>Test-ConsoleTheme -Path ./team-theme.json -Strict</code></example>
@@ -19,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
     public sealed class CmdletTestConsoleTheme : NoPipelineInputCmdlet {
         /// <summary><para type="description">A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.</para></summary>
         [Parameter(ParameterSetName = "Name")]
-        [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark")]
+        [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark", "Terminal")]
         public string? Theme { get; set; }
 
         /// <summary><para type="description">A literal .json or restricted .psd1 theme file. Relative paths use the current PowerShell location.</para></summary>

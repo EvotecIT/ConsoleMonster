@@ -3115,7 +3115,7 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>Dark (default), Light or HighContrast.</maml:para>
+            <maml:para>Auto (default) uses a terminal recording's captured palette, otherwise Dark. Dark, Light and HighContrast override it; Current uses the session's active theme.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
           <command:parameterValueGroup>
@@ -3524,7 +3524,7 @@
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>Dark (default), Light or HighContrast.</maml:para>
+            <maml:para>Auto (default) uses a terminal recording's captured palette, otherwise Dark. Dark, Light and HighContrast override it; Current uses the session's active theme.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
           <command:parameterValueGroup>
@@ -3981,7 +3981,7 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Theme</maml:name>
         <maml:description>
-          <maml:para>Dark (default), Light or HighContrast.</maml:para>
+          <maml:para>Auto (default) uses a terminal recording's captured palette, otherwise Dark. Dark, Light and HighContrast override it; Current uses the session's active theme.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ExportTheme</command:parameterValue>
         <command:parameterValueGroup>
@@ -4513,6 +4513,139 @@
         <dev:code>Get-ConsoleSetting Theme</dev:code>
         <dev:remarks>
           <maml:para>One setting</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Import-ConsoleTheme</command:name>
+      <command:verb>Import</command:verb>
+      <command:noun>ConsoleTheme</command:noun>
+      <maml:description>
+        <maml:para>Imports a terminal colour scheme as a version 3 ConsoleMonster theme.</maml:para>
+        <maml:para>Reads a single Windows Terminal scheme object (or a settings.json with one schemes entry), an XML iTerm2 .itermcolors file, or a flat base16 YAML scheme. The generated JSON embeds the scheme so its roles are derived when loaded. Accessible first chooses status colours from the palette, then adjusts OKLCH lightness where needed. The command writes the file and returns Test-ConsoleTheme's report and verdict lines, including adjusted tokens; failing checks never prevent import. It does not change the active theme or settings.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Imports a terminal colour scheme as a version 3 ConsoleMonster theme.</maml:para>
+      <maml:para>Reads a single Windows Terminal scheme object (or a settings.json with one schemes entry), an XML iTerm2 .itermcolors file, or a flat base16 YAML scheme. The generated JSON embeds the scheme so its roles are derived when loaded. Accessible first chooses status colours from the palette, then adjusts OKLCH lightness where needed. The command writes the file and returns Test-ConsoleTheme's report and verdict lines, including adjusted tokens; failing checks never prevent import. It does not change the active theme or settings.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Import-ConsoleTheme</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Accessible</maml:name>
+          <maml:description>
+            <maml:para>Chooses the accessible variant and records tokens adjusted for contrast or colour-vision separation.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>OutFile</maml:name>
+          <maml:description>
+            <maml:para>The destination JSON theme file. Defaults to the source directory and base name with .theme.json. The source file cannot be overwritten.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>A literal .json, .itermcolors, .yaml or .yml scheme file. Relative paths use the current PowerShell location.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Accessible</maml:name>
+        <maml:description>
+          <maml:para>Chooses the accessible variant and records tokens adjusted for contrast or colour-vision separation.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>OutFile</maml:name>
+        <maml:description>
+          <maml:para>The destination JSON theme file. Defaults to the source directory and base name with .theme.json. The source file cannot be overwritten.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>A literal .json, .itermcolors, .yaml or .yml scheme file. Relative paths use the current PowerShell location.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Styling.ThemeCheckReport</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code># Requires an existing Windows Terminal scheme JSON file.
+            Import-ConsoleTheme -Path ./my-scheme.json -OutFile ./my-theme.json</dev:code>
+        <dev:remarks>
+          <maml:para>Import a Windows Terminal scheme and inspect its verdict.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code># Requires an existing sRGB iTerm2 .itermcolors file.
+            Import-ConsoleTheme -Path ./my-scheme.itermcolors -Accessible -OutFile ./my-theme.json
+            Set-ConsoleTheme -Path ./my-theme.json</dev:code>
+        <dev:remarks>
+          <maml:para>Import an accessible variant, then use it.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -15270,14 +15403,14 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Bytes">
         <maml:name>New-ConsoleImage</maml:name>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Bytes</maml:name>
           <maml:description>
-            <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+            <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
           <dev:type>
-            <maml:name>Byte[]</maml:name>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -15321,14 +15454,14 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Bytes</maml:name>
         <maml:description>
-          <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+          <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
         <dev:type>
-          <maml:name>Byte[]</maml:name>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -15407,6 +15540,13 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <dev:code>New-ConsoleColumns -Content { New-ConsolePanel -Title 'Latency' -Content { New-ConsoleImage -Path ./latency.png -Width 40 }; New-ConsolePanel -Title 'Summary' -Content { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) } } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A chart next to its numbers</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>New-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</dev:code>
+        <dev:remarks>
+          <maml:para>Create a widget from an open stream, leaving it open for the caller</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -29885,12 +30025,12 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:noun>ConsoleTheme</command:noun>
       <maml:description>
         <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-        <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
+        <maml:para>Select a built-in preset, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Selects the theme used by every ConsoleMonster widget.</maml:para>
-      <maml:para>Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
+      <maml:para>Select a built-in preset, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Name">
@@ -29910,7 +30050,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Theme</maml:name>
           <maml:description>
-            <maml:para>The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark.</maml:para>
+            <maml:para>The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark, or Terminal (the terminal's own palette).</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <command:parameterValueGroup>
@@ -29920,6 +30060,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -29930,6 +30071,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Path">
         <maml:name>Set-ConsoleTheme</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Accessible</maml:name>
+          <maml:description>
+            <maml:para>Uses the embedded scheme's accessible variant, preserving explicit token overrides. Requires a version 3 BaseScheme file.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Path</maml:name>
           <maml:description>
@@ -29957,6 +30110,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Accessible</maml:name>
+        <maml:description>
+          <maml:para>Uses the embedded scheme's accessible variant, preserving explicit token overrides. Requires a version 3 BaseScheme file.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Path</maml:name>
         <maml:description>
@@ -29984,7 +30149,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Theme</maml:name>
         <maml:description>
-          <maml:para>The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark.</maml:para>
+          <maml:para>The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark, or Terminal (the terminal's own palette).</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <command:parameterValueGroup>
@@ -29994,6 +30159,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>
@@ -34194,14 +34360,14 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Bytes">
         <maml:name>Show-ConsoleImage</maml:name>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Bytes</maml:name>
           <maml:description>
-            <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+            <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
           </maml:description>
-          <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
           <dev:type>
-            <maml:name>Byte[]</maml:name>
+            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -34264,14 +34430,14 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Bytes</maml:name>
         <maml:description>
-          <maml:para>Encoded image bytes, for example a chart rendered to PNG in memory.</maml:para>
+          <maml:para>Encoded image bytes or a readable Stream, for example a chart rendered to PNG in memory. A stream is read from its current position to the end and stays open; seeking is not required. The encoded-input limit is 64 MiB.</maml:para>
         </maml:description>
-        <command:parameterValue required="true" variableLength="false">Byte[]</command:parameterValue>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
         <dev:type>
-          <maml:name>Byte[]</maml:name>
+          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -34384,6 +34550,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:code>Show-ConsoleImage -Path ./diagram.png -Protocol Kitty</dev:code>
         <dev:remarks>
           <maml:para>Use Kitty graphics in a terminal that supports it but isn't detected</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 5</maml:title>
+        <dev:code>Show-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</dev:code>
+        <dev:remarks>
+          <maml:para>Show an image from an open stream, leaving it open for the caller</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -37482,12 +37655,12 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:noun>ConsoleTheme</command:noun>
       <maml:description>
         <maml:para>Checks a theme's text contrast, status colours, markers and critical fill.</maml:para>
-        <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
+        <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The Terminal preset is measured against the startup palette when the terminal answers OSC 4/10/11. Otherwise the actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Checks a theme's text contrast, status colours, markers and critical fill.</maml:para>
-      <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
+      <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The Terminal preset is measured against the startup palette when the terminal answers OSC 4/10/11. Otherwise the actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Name">
@@ -37541,6 +37714,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
             <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
           </command:parameterValueGroup>
           <dev:type>
             <maml:name>String</maml:name>
@@ -37663,6 +37837,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
           <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Terminal</command:parameterValue>
         </command:parameterValueGroup>
         <dev:type>
           <maml:name>String</maml:name>

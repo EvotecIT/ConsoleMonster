@@ -12,6 +12,7 @@ namespace ConsoleMonster.Styling {
         /// <param name="ansi16">The 16-colour index (0-15) to use on 16-colour terminals.</param>
         /// <param name="ansi256">The 256-colour index, or -1 to downsample <paramref name="trueColor"/> automatically.</param>
         public ThemeColor(Color trueColor, int ansi16, int ansi256 = -1) {
+            IsPaletteIndex = false;
             TrueColor = trueColor;
             Ansi16 = ansi16;
             Ansi256 = ansi256;
@@ -19,6 +20,17 @@ namespace ConsoleMonster.Styling {
 
         /// <summary>The 24-bit colour.</summary>
         public Color TrueColor { get; }
+
+        /// <summary>True when this colour keeps its terminal palette index at every colour depth.</summary>
+        public bool IsPaletteIndex { get; }
+
+        private ThemeColor(int index) { TrueColor = Color.FromAnsi16(index); Ansi16 = index; Ansi256 = index; IsPaletteIndex = true; }
+
+        /// <summary>Creates a terminal palette reference (0-15) that remains an index at true colour depth.</summary>
+        public static ThemeColor PaletteIndex(int index) {
+            if (index < 0 || index > 15) { throw new System.ArgumentOutOfRangeException(nameof(index)); }
+            return new ThemeColor(index);
+        }
 
         /// <summary>The 16-colour index; -1 means the terminal default.</summary>
         public int Ansi16 { get; }
@@ -37,6 +49,7 @@ namespace ConsoleMonster.Styling {
         /// <param name="depth">The depth.</param>
         /// <returns>The colour to emit.</returns>
         public Color Resolve(ColorDepth depth) {
+            if (IsPaletteIndex) { return depth == ColorDepth.None ? Color.Default : Color.FromAnsi16(Ansi16); }
             switch (depth) {
                 case ColorDepth.TrueColor:
                     return TrueColor;

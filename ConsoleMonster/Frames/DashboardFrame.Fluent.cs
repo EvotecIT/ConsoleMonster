@@ -42,6 +42,12 @@ namespace ConsoleMonster.Frames {
             return frame;
         }
 
+        /// <summary>Adds the findings an <see cref="AttentionTally"/> counted.</summary><param name="frame">The frame.</param><param name="tally">The counted findings.</param><returns>The frame.</returns>
+        public static DashboardFrame Attention(this DashboardFrame frame, AttentionTally tally) {
+            (tally ?? throw new ArgumentNullException(nameof(tally))).AddTo(Require(frame).Attention);
+            return frame;
+        }
+
         /// <summary>Names what the attention list counts, as in <c>3 of 48 servers</c>.</summary><param name="frame">The frame.</param><param name="noun">The singular noun.</param><param name="outOf">The total, or null to leave it out.</param><returns>The frame.</returns>
         public static DashboardFrame AttentionOf(this DashboardFrame frame, string noun, long? outOf = null) {
             Require(frame).Attention.Noun = noun ?? throw new ArgumentNullException(nameof(noun));

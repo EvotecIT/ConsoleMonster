@@ -24,7 +24,8 @@ namespace ConsoleMonster.Styling {
         public static ThemeCheckReport Run(ITheme theme, ThemeCheckOptions? options = null) {
             if (theme == null) { throw new ArgumentNullException(nameof(theme)); }
             options = options ?? new ThemeCheckOptions();
-            Color page = options.Background ?? (theme is Theme concrete
+            if (theme is Theme following && following.FollowsTerminal && Terminal.Palette is TerminalScheme palette) { theme = following.ResolvePalette(palette); }
+            Color page = options.Background ?? (theme as Theme)?.Scheme?.Background ?? (theme is Theme concrete
                 ? Color.FromHex(concrete.Appearance.Background == ThemeBackground.Light ? "#ffffff" : "#0c0c0c") : Color.Default);
             List<ThemeCheckResult> results = new List<ThemeCheckResult>();
             foreach (ThemeToken token in TextTokens) {
@@ -50,7 +51,7 @@ namespace ConsoleMonster.Styling {
             }
             CheckMarkers(theme, options, results);
             CheckFill(theme, page, results);
-            return new ThemeCheckReport(theme.Name, results);
+            return new ThemeCheckReport(theme.Name, results, (theme as Theme)?.AdjustedTokens);
         }
 
         // Terminals choose their own faint intensity. An undimmed RGB value cannot establish the displayed contrast

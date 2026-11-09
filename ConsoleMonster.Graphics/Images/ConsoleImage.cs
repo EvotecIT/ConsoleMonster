@@ -59,6 +59,16 @@ namespace ConsoleMonster.Graphics {
             return new ConsoleImage(RasterImageDecoder.Read(path), Path.GetFileName(path));
         }
 
+        /// <summary>Reads an encoded image from the stream's current position to the end, leaving the stream open.</summary>
+        /// <param name="stream">A readable PNG, JPEG, GIF, BMP, TIFF or PPM stream. Seeking is not required.</param>
+        /// <param name="name">The name shown by the text placeholder; defaults to <c>image</c>.</param>
+        /// <returns>The image.</returns>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="InvalidDataException">The image is damaged, truncated or exceeds the decoder's 64 MiB encoded-input limit.</exception>
+        /// <exception cref="NotSupportedException">The stream is unreadable or its image format is unsupported.</exception>
+        public static ConsoleImage FromStream(Stream stream, string? name = null) =>
+            new ConsoleImage(RasterImageDecoder.Read(stream), name);
+
         /// <summary>The name shown by the text placeholder, <c>[image: name WxH]</c>.</summary>
         public string Name { get; }
 

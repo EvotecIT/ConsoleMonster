@@ -1991,7 +1991,7 @@
         {
           "Parameter": "Theme",
           "ParameterType": "ConsoleMonster.Export.ExportTheme",
-          "Default": "Dark",
+          "Default": "Auto",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -7798,7 +7798,7 @@
       "Bindings": [
         {
           "Parameter": "Bytes",
-          "ParameterType": "System.Byte[]",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -7810,9 +7810,10 @@
           "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
           "Member": ".ctor",
           "MemberKind": "Constructor",
-          "Conversion": "Identity",
+          "Conversion": "BytesOrStream",
           "CSharpTypeName": "System.Byte[]",
-          "Argument": "encoded"
+          "Argument": "encoded",
+          "Reason": "Byte arrays construct ConsoleImage directly; a Stream uses ConsoleImage.FromStream(stream, name), reading from the current position without closing it, within the decoder limit."
         },
         {
           "Parameter": "Height",
@@ -16218,6 +16219,25 @@
       "CSharpType": "ConsoleMonster.Terminal",
       "Bindings": [
         {
+          "Parameter": "Accessible",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Path",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+          "Member": "ToTheme",
+          "MemberKind": "Method",
+          "Argument": "accessible",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity",
+          "Reason": "Re-derives an embedded scheme accessibly while preserving explicit file overrides."
+        },
+        {
           "CSharpType": "ConsoleMonster.Styling.ThemeFile",
           "Member": "Load",
           "Argument": "path",
@@ -18357,7 +18377,7 @@
       "Bindings": [
         {
           "Parameter": "Bytes",
-          "ParameterType": "System.Byte[]",
+          "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
             {
@@ -18369,9 +18389,10 @@
           "CSharpType": "ConsoleMonster.Graphics.ConsoleImage",
           "Member": ".ctor",
           "MemberKind": "Constructor",
-          "Conversion": "Identity",
+          "Conversion": "BytesOrStream",
           "CSharpTypeName": "System.Byte[]",
-          "Argument": "encoded"
+          "Argument": "encoded",
+          "Reason": "Byte arrays construct ConsoleImage directly; a Stream uses ConsoleImage.FromStream(stream, name), reading from the current position without closing it, within the decoder limit."
         },
         {
           "Parameter": "Height",
@@ -24937,6 +24958,84 @@
       ]
     },
     {
+      "Command": "Import-ConsoleTheme",
+      "Job": "Import-ConsoleTheme",
+      "CSharpType": "ConsoleMonster.Styling.TerminalScheme",
+      "Bindings": [
+        {
+          "Parameter": "Accessible",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.Theme",
+          "Member": "FromScheme",
+          "MemberKind": "Method",
+          "Argument": "accessible",
+          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity"
+        },
+        {
+          "Parameter": "OutFile",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
+          "Member": "Save",
+          "MemberKind": "Method",
+          "Argument": "path",
+          "CSharpTypeName": "System.String",
+          "Conversion": "DestinationPath",
+          "Reason": "Defaults the destination beside the source and writes a version 3 scheme theme before returning its check report."
+        },
+        {
+          "Parameter": "Path",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Styling.TerminalScheme",
+          "Member": "Load",
+          "MemberKind": "Method",
+          "Argument": "path",
+          "CSharpTypeName": "System.String",
+          "Conversion": "SchemeFilePath",
+          "Reason": "Loads Windows Terminal JSON, iTerm2 XML or flat base16 YAML in the shared scheme parser."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline input at the PowerShell boundary."
+        }
+      ]
+    },
+    {
       "Command": "New-ConsoleFacts",
       "Job": "New-ConsoleFacts",
       "CSharpType": "ConsoleMonster.Widgets.ViewFacts",
@@ -25671,6 +25770,14 @@
       "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
       "Reason": "Breakpoint layouts are composed by C# views that hold several alternative widgets; a script draws once for the width it already knows.",
       "Alternative": "Build the layout for $Host.UI.RawUI.WindowSize.Width in the script, or register a C# view that uses Responsive.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Frames.AttentionList",
+      "Member": "Groups",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Frames.AttentionGroup]",
+      "Reason": "Counted groups come from an AttentionTally that a C# default view keeps while rows stream; PowerShell records reach New-ConsoleDashboardFrame whole.",
+      "Alternative": "Pass every record to New-ConsoleDashboardFrame, which groups identical reasons itself, or register a C# view that uses AttentionTally.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -29264,11 +29371,19 @@
       "Disposition": "Host policy",
       "Reason": "The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly.",
       "Alternative": "Use Set-ConsoleSetting StatusMarkers before Test-ConsoleTheme."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Styling.Theme",
+      "Member": "Terminal",
+      "CSharpTypeName": "ConsoleMonster.Styling.Theme",
+      "Reason": "The terminal-palette preset is selected by Set-ConsoleTheme Terminal.",
+      "Alternative": "Use Set-ConsoleTheme Terminal or Set-ConsoleSetting Theme Terminal.",
+      "Disposition": "Preset"
     }
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 113,
+  "ExpectedCount": 114,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29483,6 +29598,7 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.Styling.TerminalScheme",
     "ConsoleMonster.Widgets.ViewFacts"
   ],
   "ConfigurableTypes": [
@@ -29533,6 +29649,7 @@
     "ConsoleMonster.Export.RecordingMarker",
     "ConsoleMonster.Export.RecordingPace",
     "ConsoleMonster.Export.WindowChromeStyle",
+    "ConsoleMonster.Frames.AttentionGroup",
     "ConsoleMonster.Frames.AttentionItem",
     "ConsoleMonster.Frames.AttentionList",
     "ConsoleMonster.Frames.DashboardFrame",
@@ -29863,6 +29980,7 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.Styling.TerminalScheme",
     "ConsoleMonster.Widgets.ViewFact",
     "ConsoleMonster.Widgets.ViewFacts"
   ],

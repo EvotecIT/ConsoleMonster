@@ -8,6 +8,7 @@ using System.Text.Json;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Graphics;
+using ConsoleMonster.Export;
 using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using SiteFrames.Pages;
@@ -42,7 +43,7 @@ namespace SiteFrames.Capture {
             var frames = new List<(string Name, CellBuffer Frame)>();
             foreach (GalleryPage.Demo demo in GalleryPage.Read(site).Where(d => d.Metadata["mode"]!.GetValue<string>() == "static")) {
                 CellBuffer frame = GalleryFrames.Run(demo, 0, theme: Theme.Dark, width: 120, height: 42);
-                frame.SavePng(Path.Combine(directory, demo.Slug + ".png"), new GraphicsExportOptions());
+                frame.SavePng(Path.Combine(directory, demo.Slug + ".png"), new GraphicsExportOptions { Frame = new ExportOptions { Theme = ExportTheme.Dark } });
                 frames.Add((demo.Slug, frame));
             }
             int rows = 0;
@@ -61,7 +62,7 @@ namespace SiteFrames.Capture {
                 y += height + 3;
             }
             string path = Path.Combine(directory, "gallery-dark-120-contact-sheet.png");
-            sheet.SavePng(path, new GraphicsExportOptions());
+            sheet.SavePng(path, new GraphicsExportOptions { Frame = new ExportOptions { Theme = ExportTheme.Dark } });
             return path;
         }
 

@@ -8,7 +8,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Selects the theme used by every ConsoleMonster widget.</para>
-    /// <para type="description">Select a built-in preset or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
+    /// <para type="description">Select a built-in preset, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
     /// </summary>
     /// <example>
     /// <para>Use the light theme for this session</para>
@@ -29,9 +29,9 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleTheme", DefaultParameterSetName = "Name")]
     public sealed class CmdletSetConsoleTheme : NoPipelineInputCmdlet {
-        /// <summary><para type="description">The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark.</para></summary>
+        /// <summary><para type="description">The built-in theme: Dark, Light, HighContrast, ColorBlindSafe (light or dark variant from the detected background), ColorBlindSafeLight or ColorBlindSafeDark, or Terminal (the terminal's own palette).</para></summary>
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Name")]
-        [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark")]
+        [ValidateSet("Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark", "Terminal")]
         public string Theme { get; set; } = "Dark";
 
         /// <summary><para type="description">A literal .json or .psd1 theme file path. Relative paths use the current PowerShell location. All values are validated before applying the theme.</para></summary>
@@ -42,6 +42,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Also writes the theme to the settings file, so every new session uses it.</para></summary>
         [Parameter]
         public SwitchParameter Save { get; set; }
+
+        /// <summary><para type="description">Uses the embedded scheme's accessible variant, preserving explicit token overrides. Requires a version 3 BaseScheme file.</para></summary>
+        [Parameter(ParameterSetName = "Path")]
+        public SwitchParameter Accessible { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessWithoutPipelineInput() {
@@ -57,13 +61,13 @@ namespace ConsoleMonster.PowerShell {
             string path;
             try {
                 path = SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path);
-                candidate = ConsoleThemeDataFile.Load(path).ToTheme();
+                candidate = ConsoleThemeDataFile.Load(path).ToTheme(Accessible.IsPresent);
             } catch (Exception ex) when (ex is FormatException || ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException) {
                 ThrowTerminatingError(new ErrorRecord(ex, "InvalidConsoleThemeFile", ErrorCategory.InvalidData, Path));
                 return;
             }
-            Remember(path);
-            Apply(candidate, "Set-ConsoleTheme -Path '" + QuotePattern.Replace(path, "$0$0") + "'");
+            Remember(path + (Accessible ? ConsoleSettings.AccessibleThemeSuffix : ""));
+            Apply(candidate, "Set-ConsoleTheme -Path '" + QuotePattern.Replace(path, "$0$0") + "'" + (Accessible ? " -Accessible" : ""));
         }
 
         // The Theme setting follows the choice, so Get-ConsoleSetting reports it; -Save also writes it to the file.
