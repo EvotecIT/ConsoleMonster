@@ -139,6 +139,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private static string Label(ConsoleSetting setting, string value) {
+            if (setting.Name == "Theme" && value == "Terminal") { return "Terminal (follow my terminal)"; }
             if (setting.Name == "Theme" && (value.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || value.EndsWith(".psd1", StringComparison.OrdinalIgnoreCase))) {
                 return System.IO.Path.GetFileName(value) + " (file)";
             }
@@ -303,6 +304,7 @@ namespace ConsoleMonster.Interactive {
                 switch (name) {
                     case "Auto": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.Auto));
                     case "ColorBlindSafe": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind));
+                    case "Terminal":
                     case "Dark": case "Light": case "HighContrast": case "ColorBlindSafeLight": case "ColorBlindSafeDark":
                         return Theme.FromName(name);
                     default:

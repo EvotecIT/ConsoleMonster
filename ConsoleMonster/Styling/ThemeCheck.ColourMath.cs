@@ -19,9 +19,15 @@ namespace ConsoleMonster.Styling {
 
         private static double Luminance(Color c) => 0.2126 * Linear(c.R) + 0.7152 * Linear(c.G) + 0.0722 * Linear(c.B);
 
-        private static double Contrast(Color a, Color b) {
+        internal static double Contrast(Color a, Color b) {
             double la = Luminance(a), lb = Luminance(b);
             return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
+        }
+
+        internal static double MinimumStatusDistance(Color a, Color b) {
+            double minimum = double.MaxValue;
+            foreach (double[,] simulation in Simulations) { minimum = Math.Min(minimum, Distance(Lab(a, simulation), Lab(b, simulation))); }
+            return minimum;
         }
 
         private static double[] Lab(Color c, double[,] matrix) {

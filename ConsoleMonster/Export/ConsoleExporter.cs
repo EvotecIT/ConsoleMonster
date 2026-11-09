@@ -257,19 +257,19 @@ namespace ConsoleMonster.Export {
             List<ExportLayer> layers = new List<ExportLayer>();
             switch (options.Theme) {
                 case ExportTheme.HighContrast:
-                    layers.Add(new ExportLayer(Render(widget, options, options.DarkTheme ?? Theme.HighContrast), ExportPalette.HighContrast, null));
+                    layers.Add(new ExportLayer(Render(widget, options, options.DarkTheme ?? Theme.HighContrast), ExportPalette.ForTheme(options.DarkTheme, ExportPalette.HighContrast), null));
                     break;
                 case ExportTheme.Dark:
-                    layers.Add(new ExportLayer(Render(widget, options, options.DarkTheme ?? Theme.Dark), ExportPalette.Dark, null));
+                    layers.Add(new ExportLayer(Render(widget, options, options.DarkTheme ?? Theme.Dark), ExportPalette.ForTheme(options.DarkTheme, ExportPalette.Dark), null));
                     break;
                 case ExportTheme.Light:
-                    layers.Add(new ExportLayer(Render(widget, options, options.LightTheme ?? Theme.Light), ExportPalette.Light, null));
+                    layers.Add(new ExportLayer(Render(widget, options, options.LightTheme ?? Theme.Light), ExportPalette.ForTheme(options.LightTheme, ExportPalette.Light), null));
                     break;
                 default:
                     CellBuffer dark = Render(widget, options, options.DarkTheme ?? Theme.Dark);
                     CellBuffer light = Render(widget, options, options.LightTheme ?? Theme.Light);
-                    layers.Add(new ExportLayer(dark, ExportPalette.Dark, "dark"));
-                    layers.Add(new ExportLayer(Fit(light, dark.Width, dark.Height), ExportPalette.Light, "light"));
+                    layers.Add(new ExportLayer(dark, ExportPalette.ForTheme(options.DarkTheme, ExportPalette.Dark), "dark"));
+                    layers.Add(new ExportLayer(Fit(light, dark.Width, dark.Height), ExportPalette.ForTheme(options.LightTheme, ExportPalette.Light), "light"));
                     break;
             }
             return layers;
@@ -280,6 +280,7 @@ namespace ConsoleMonster.Export {
                 throw new ArgumentNullException(nameof(frame));
             }
             ExportPalette palette = options.Theme == ExportTheme.HighContrast ? ExportPalette.HighContrast : options.Theme == ExportTheme.Dark ? ExportPalette.Dark : options.Theme == ExportTheme.Light ? ExportPalette.Light : ExportPalette.Adaptive;
+            palette = ExportPalette.ForTheme(options.Theme == ExportTheme.Light ? options.LightTheme : options.DarkTheme, palette);
             return new List<ExportLayer> { new ExportLayer(frame, palette, null) };
         }
 

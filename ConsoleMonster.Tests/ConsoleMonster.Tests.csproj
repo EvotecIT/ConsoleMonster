@@ -17,8 +17,10 @@
     </ItemGroup>
     <ItemGroup>
         <None Update="Golden/flow-*.txt" CopyToOutputDirectory="PreserveNewest" />
+        <EmbeddedResource Include="../Docs/Proposals/Colour-Schemes.catalogue.json" LogicalName="Colour-Schemes.catalogue.json" />
         <EmbeddedResource Include="Input/Fixtures/unix_input_pty.py" />
         <EmbeddedResource Include="Input/Fixtures/background_pty.py" />
+        <EmbeddedResource Include="Input/Fixtures/palette_pty.py" />
         <EmbeddedResource Include="Input/Fixtures/terminal_handoff_pty.py" />
         <EmbeddedResource Include="Text/Fixtures/Wgl4.codepoints.txt" />
         <EmbeddedResource Include="Recording/Fixtures/help-repeat/**/*.ansi" />

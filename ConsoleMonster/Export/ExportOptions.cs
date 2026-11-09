@@ -85,6 +85,7 @@ namespace ConsoleMonster.Export {
         // The theme in use and the export theme that matches its background, for ExportTheme.Current.
         internal static (ExportTheme Theme, ITheme Colors) Current() {
             ITheme theme = Terminal.Theme;
+            if (theme is Styling.Theme following && following.FollowsTerminal) { theme = following.ForExport(); }
             if (ReferenceEquals(theme, Styling.Theme.HighContrast)) { return (ExportTheme.HighContrast, theme); }
             bool light = theme is Styling.Theme concrete && concrete.Appearance.Background == Styling.ThemeBackground.Light;
             return (light ? ExportTheme.Light : ExportTheme.Dark, theme);

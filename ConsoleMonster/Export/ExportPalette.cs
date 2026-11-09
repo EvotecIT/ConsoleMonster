@@ -10,7 +10,10 @@ namespace ConsoleMonster.Export {
     /// dark preference (used for frames that were rendered once, with fixed colours).
     /// </summary>
     internal sealed class ExportPalette {
-        private ExportPalette(string name, string foreground, string background, bool variables) {
+        private readonly TerminalScheme? _scheme;
+
+        private ExportPalette(string name, string foreground, string background, bool variables, TerminalScheme? scheme = null) {
+            _scheme = scheme;
             Name = name;
             Foreground = foreground;
             Background = background;
@@ -24,6 +27,21 @@ namespace ConsoleMonster.Export {
 
         /// <summary>Defaults as CSS variables (<c>--cm-fg</c>, <c>--cm-bg</c>) that switch with prefers-color-scheme.</summary>
         public static ExportPalette Adaptive { get; } = new ExportPalette("auto", "var(--cm-fg)", "var(--cm-bg)", true);
+
+        internal static ExportPalette ForTheme(ITheme? theme, ExportPalette fallback) {
+            if (theme is Theme following && following.FollowsTerminal) { theme = following.ForExport(); }
+            TerminalScheme? scheme = (theme as Theme)?.Scheme;
+            return scheme == null ? fallback : new ExportPalette(fallback.Name, scheme.Foreground.ToString(), scheme.Background.ToString(), false, scheme);
+        }
+
+        internal string? Css(Color color) {
+            if (_scheme != null && (color.Kind == ColorKind.Ansi16 || color.Kind == ColorKind.Ansi256) && color.Index < 16) { return _scheme.Palette[color.Index].ToString(); }
+            return ToCss(color);
+        }
+
+        internal string[] PaletteHex() => _scheme == null ? Ansi16Hex() : System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(_scheme.Palette, color => color.ToString()));
+
+        internal bool IsLight => Name == "light";
 
         public string Name { get; }
 
@@ -47,8 +65,8 @@ namespace ConsoleMonster.Export {
 
         /// <summary>The resolved foreground and background of a cell style (reverse applied), as CSS colours.</summary>
         public void Resolve(Style style, out string foreground, out string background, out bool defaultBackground) {
-            string? fg = ToCss(style.Color);
-            string? bg = ToCss(style.BackgroundColor);
+            string? fg = Css(style.Color);
+            string? bg = Css(style.BackgroundColor);
             if ((style.Decoration & TextDecoration.Reverse) != 0) {
                 string? swap = fg;
                 fg = bg ?? Background;
