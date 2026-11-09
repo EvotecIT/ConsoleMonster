@@ -61,7 +61,8 @@ function New-ContainerFrame {
         New-ConsoleRule -Title "[accent bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · $clock[/]"
         New-ConsoleFacts -Content {
             @{ Value = ($rows.Count - $restarting); Label = 'running'; Role = 'Pass' }
-            @{ Value = $restarting; Label = 'restarting'; Role = 'Warn' }
+            @{ Value = $restarting; Label = 'restarting'
+                Role = if ($restarting -eq 0) { 'Muted' } else { 'Warn' } }
             @{ Value = ("{0:N0} of {1:N0} MiB reserved" -f $memoryTotal, $limitTotal)
                 Caption = 'memory' }
         }

@@ -77,7 +77,7 @@ function Format-PipelineDuration {
 
 # Layout: preserve the complete checklist, phase strip, module facts, progress, compiler lanes and log.
 $dashboardParameters = @{
-    Title = '[bold]Module build[/]'
+    Title = '[accent bold]Module build[/]'
     Subtitle = 'Build-Module ConsoleMonster'
     Footer = '[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C stop[/]'
 }

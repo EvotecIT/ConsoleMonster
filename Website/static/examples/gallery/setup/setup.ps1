@@ -233,7 +233,7 @@ if (-not $answers) {
     return
 }
 $dashboardParameters = @{
-    Title = 'Installing Toolbox Agent'
+    Title = '[accent bold]Installing Toolbox Agent[/]'
     Subtitle = $answers.Path
 }
 $dashboard = New-ConsoleDashboard @dashboardParameters -Content {

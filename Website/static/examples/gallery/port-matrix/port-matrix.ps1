@@ -15,8 +15,21 @@ $states = @(
 # Layout: a compact map provides the overview; a table explains exceptions.
 $report = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleRule -Title '[accent bold]Application connectivity[/] [muted]· core services[/]'
-    New-ConsolePanel -Title ($ports -join '   |   ') -Content {
-        New-ConsoleCellMap -InputObject $states -Columns 3 -RowLabels $hosts -LegendLines 2
+    $rows = for ($row = 0; $row -lt $hosts.Count; $row++) {
+        $values = [ordered]@{ ' ' = $hosts[$row] }
+        for ($column = 0; $column -lt $ports.Count; $column++) {
+            $state = $states[$row * 3 + $column]
+            $values[$ports[$column]] = $state
+        }
+        [pscustomobject]$values
+    }
+    $columns = @(' ') + @($ports | ForEach-Object { @{ Name = $_; Presenter = 'Status' } })
+    New-ConsoleTable -InputObject $rows -Property $columns -Border None
+    New-ConsoleFacts -Content {
+        @{ Value = @($states | Where-Object { $_ -eq 'Pass' }).Count; Label = 'passed'; Role = 'Pass' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Fail' }).Count; Label = 'failed'; Role = 'Fail' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Warn' }).Count; Label = 'warning'; Role = 'Warn' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Skip' }).Count; Label = 'skipped'; Role = 'Skip' }
     }
     New-ConsolePanel -Title 'Exceptions to investigate' -Content {
         New-ConsoleStatusList -Content {

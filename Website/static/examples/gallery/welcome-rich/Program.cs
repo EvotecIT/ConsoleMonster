@@ -21,6 +21,9 @@ ViewFacts git = new ViewFacts()
     .Add(1, "staged", ThemeToken.Pass)
     .Add("0 ahead / 0 behind");
 
+string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+    ? "|" : "·";
+
 // Layout: compose the screen from the data above.
 KeyValueList hostSummary = new KeyValueList();
 foreach (var item in hostData)
@@ -28,7 +31,7 @@ foreach (var item in hostData)
 Rows layout = new Rows(
     new Logo("HELLO", "[muted]A little context before your next command.[/]"),
     new Panel() { Title = "Host summary", Content = hostSummary, HeaderRight = "local workspace" },
-    new Panel() { Title = "Git | comet-notes", Content = git },
+    new Panel() { Title = $"Git {separator} comet-notes", Content = git },
     new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
     new TextBlock("[muted]Ready when you are.[/]"))
 {

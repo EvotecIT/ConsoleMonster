@@ -21,6 +21,9 @@ ViewFacts git = Ui.Facts()
     .Add(1, "staged", ThemeToken.Pass)
     .Add("0 ahead / 0 behind");
 
+string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+    ? "|" : "·";
+
 // Layout: compose the screen from the data above.
 KeyValueList hostSummary = Ui.KeyValue();
 foreach (var item in hostData)
@@ -33,7 +36,7 @@ Rows layout = Ui.Rows().Gap(1).Content(c2 =>
     {
         c.Add(hostSummary);
     }).HeaderRight("local workspace"));
-    c2.Panel(p => p.Title("Git | comet-notes").Content(c =>
+    c2.Panel(p => p.Title($"Git {separator} comet-notes").Content(c =>
     {
         c.Add(git);
     }));

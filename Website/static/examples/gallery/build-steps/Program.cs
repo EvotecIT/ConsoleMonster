@@ -20,7 +20,7 @@ IWidget Frame(int tick)
     }
 
     return new Rows(
-        new TextBlock("[bold]Build pipeline[/] [muted]· Orbit.Tools[/]"),
+        new TextBlock("[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]"),
         new Panel() { Title = "Release checklist", Content = checklist },
         new ProgressBar("Overall") { Value = tick, Total = 4 },
         new KeyValueList()

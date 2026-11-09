@@ -30,7 +30,7 @@ $servers = @(
 )
 $states = @(
     [pscustomobject] @{ Label = 'Compliant'; Role = 'Pass' }
-    [pscustomobject] @{ Label = 'Pending reboot'; Role = 'Info' }
+    [pscustomobject] @{ Label = 'Pending reboot'; Role = 'Warn' }
     [pscustomobject] @{ Label = 'Missing updates'; Role = 'Warn' }
     [pscustomobject] @{ Label = 'Failed'; Role = 'Fail' }
 )

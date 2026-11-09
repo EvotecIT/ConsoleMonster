@@ -22,6 +22,9 @@ var areaScores = new AreaScoreRow[]
     new("Recovery", 35)
 };
 
+string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+    ? "|" : "·";
+
 // Layout: compose the screen from the data above.
 StatusList statuses = new StatusList();
 foreach (var check in checks)
@@ -39,13 +42,13 @@ BarChart scores = new BarChart
 foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
 Rows layout = new Rows(
-    new Rule("[accent bold]Readiness assessment[/] [muted]| workspace[/]"),
+    new Rule($"[accent bold]Readiness assessment[/] [muted]{separator} workspace[/]"),
     new ViewFacts().Add(3, "passed", ThemeToken.Pass).Add(1, "warning", ThemeToken.Warn)
         .Add(1, "failed", ThemeToken.Fail).Add(5, "checks total"),
     new Panel() { Title = "Checks", Content = statuses },
     new Panel() { Title = "Readiness by area", Content = scores, HeaderRight = "score / 100" },
     new TextBlock("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),
-    new TextBlock("[muted]Review owner: Platform team · next review: Friday[/]"))
+    new TextBlock($"[muted]Review owner: Platform team {separator} next review: Friday[/]"))
 {
     Gap = 1
 };

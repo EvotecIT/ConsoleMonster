@@ -19,13 +19,15 @@ $git = New-ConsoleFacts -Content {
     '0 ahead / 0 behind'
 }
 
+$separator = if ((Get-ConsoleCapability).Glyphs -eq 'Ascii') { '|' } else { '·' }
+
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
     New-ConsoleLogo -Text 'HELLO' -Subtitle '[muted]A little context before your next command.[/]'
     New-ConsolePanel -Title 'Host summary' -HeaderRight 'local workspace' -Content {
         New-ConsoleKeyValue -InputObject $hostSummary
     }
-    New-ConsolePanel -Title 'Git | comet-notes' -Content {
+    New-ConsolePanel -Title "Git $separator comet-notes" -Content {
         $git
     }
     New-ConsoleText -Markup '[bold]Tip[/] Get-Help New-ConsoleTable -Examples'

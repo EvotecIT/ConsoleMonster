@@ -69,35 +69,44 @@ function New-StressFrame {
         'Dropped / errors' = '0 / 0'
     }
     $dashboardParameters = @{
-        Title = '[bold]Stress test[/]'
+        Title = '[accent bold]Stress test[/]'
         Subtitle = '32 workers · captured tool output · 6s'
-        Footer = '[muted]32 workers    15 frames/s    Ctrl+C stop[/]'
     }
     $dashboard = New-ConsoleDashboard @dashboardParameters -Content {
-        New-ConsoleColumns -Content {
+        New-ConsoleColumns -Fill -Content {
             New-ConsolePanel -Title Workers -Weight 2.2 -Content { $lanes }
-            New-ConsolePanel -Title Session -Content {
-                New-ConsoleKeyValue -WidgetId stats -InputObject $stats
-                New-ConsoleRule -Title 'updates/s'
-                $values = @($sampleRates | Select-Object -First $samples)
-                New-ConsoleChart -WidgetId rate -Height 3 -Unit '/s' -Type Sparkline -Values $values
-                New-ConsoleRule -Title 'CPU % (100% = one core)'
-                New-ConsoleChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
-                    [pscustomobject]@{ Key = 'cpu'; Role = 'Accent2'
-                        Values = @($sampleCpu | Select-Object -First $samples) }
-                } -Type Line
-            }
-        }
-        New-ConsolePanel -Title 'Captured output' -Fill -Content {
-            New-ConsoleLogRegion -Height 6 -NoElapsed -Content {
-                for ($i = 0; $i -lt $tick * 4; $i++) {
-                    $level = if ($i % 7 -eq 0) { 'err' } else { 'info' }
-                    [pscustomobject]@{ Message = ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5])
-                        Level = $level }
+            New-ConsoleRows -Content {
+                New-ConsolePanel -Title Session -Content {
+                    New-ConsoleKeyValue -WidgetId stats -InputObject $stats
+                    New-ConsoleRule -Title 'updates/s'
+                    $values = @($sampleRates | Select-Object -First $samples)
+                    New-ConsoleChart -WidgetId rate -Height 3 -Unit '/s' -Type Sparkline -Values $values
+                    New-ConsoleRule -Title 'CPU % (100% = one core)'
+                    New-ConsoleChart -WidgetId cpu -Height 6 -Minimum 0 -Unit '%' -Content {
+                        [pscustomobject]@{ Key = 'cpu'; Role = 'Accent2'
+                            Values = @($sampleCpu | Select-Object -First $samples) }
+                    } -Type Line
+                }
+                New-ConsolePanel -Title 'Captured output' -Fill -Content {
+                    New-ConsoleLogRegion -Height 12 -NoElapsed -Wrap -Content {
+                        for ($i = 0; $i -lt $tick * 4; $i++) {
+                            $level = if ($i % 7 -eq 0) { 'err' } else { 'info' }
+                            [pscustomobject]@{
+                                Message = ('stray-' + ($i % 4) + "-${i}: FakeLib: " + $messages[$i % 5])
+                                Level = $level
+                            }
+                        }
+                    }
                 }
             }
         }
+        New-ConsoleFacts -Content {
+            @{ Value = 32; Label = 'workers' }
+            @{ Value = 15; Label = 'frames/s' }
+            @{ Value = 'Ctrl+C stop' }
+        }
     }
+    $dashboard.FooterHints.Clear()
     $dashboard.ShowElapsed = $false
     $dashboard
 }

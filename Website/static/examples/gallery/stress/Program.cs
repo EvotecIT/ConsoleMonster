@@ -1,5 +1,6 @@
 // Stress test: thirty-two workers, fast handles, session telemetry and captured tool output.
 using System.Globalization;
+using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -80,15 +81,16 @@ IWidget Frame(int tick)
         cpu.Add("cpu", value);
     LogRegion output = new LogRegion
     {
-        PreferredHeight = 6,
-        ShowElapsed = false
+        PreferredHeight = 12,
+        ShowElapsed = false,
+        Wrap = true
     };
     for (int i = 0; i < tick * 4; i++)
         output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5],
             i % 7 == 0 ? "err" : "info");
-    Rows body = new Rows(new Columns()
+    Columns body = new Columns()
         .Add(new Panel() { Title = "Workers", Content = lanes }, LayoutSize.Fraction(2.2))
-        .Add(new Panel()
+        .Add(new Rows(new Panel()
         {
             Title = "Session",
             Content = new Rows(
@@ -97,16 +99,18 @@ IWidget Frame(int tick)
                 rate,
                 new Rule("CPU % (100% = one core)"),
                 cpu)
-        }))
-        .Add(new Panel() { Title = "Captured output", Content = output }, LayoutSize.Fraction());
-    return new Dashboard()
+        }).Add(new Panel() { Title = "Captured output", Content = output }, LayoutSize.Fraction()));
+    Dashboard dashboard = new Dashboard()
     {
-        Content = body,
-        Title = "[bold]Stress test[/]",
+        Content = new Rows()
+            .Add(body, LayoutSize.Fraction())
+            .Add(Ui.Facts().Add(32, "workers").Add(15, "frames/s").Add("Ctrl+C stop")),
+        Title = "[accent bold]Stress test[/]",
         Subtitle = "32 workers · captured tool output · 6s",
-        ShowElapsed = false,
-        Footer = "[muted]32 workers    15 frames/s    Ctrl+C stop[/]"
+        ShowElapsed = false
     };
+    dashboard.FooterHints.Clear();
+    return dashboard;
 }
 
 // Behaviour: show seven samples through the ordinary live session.

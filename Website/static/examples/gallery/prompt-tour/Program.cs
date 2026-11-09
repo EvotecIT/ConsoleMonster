@@ -156,7 +156,7 @@ LogRegion log = new LogRegion
 {
     PreferredHeight = 6
 };
-Dashboard dashboard = Ui.Dashboard().Title("[bold]Patching[/]")
+Dashboard dashboard = Ui.Dashboard().Title("[accent bold]Patching[/]")
     .Subtitle("5 servers")
     .Content(body => body
         .Panel(new Panel(lanes, "Servers"))

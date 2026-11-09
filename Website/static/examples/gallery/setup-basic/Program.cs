@@ -24,11 +24,12 @@ Button next = new Button("Next", "Next / preview");
 back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
 Rows layout = new Rows(
-    new TextBlock("[bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]"),
+    new TextBlock("[accent bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]"),
     folder,
     component,
-    back,
-    next,
+    new Sized(new Columns()
+        .Add(back, LayoutSize.Fixed(12))
+        .Add(next, LayoutSize.Fixed(24)), LayoutSize.Fixed(1)),
     new AppBinding(state =>
     {
         string title = new[] { "1 / 3 · Location", "2 / 3 · Components", "3 / 3 · Review" }[page];
