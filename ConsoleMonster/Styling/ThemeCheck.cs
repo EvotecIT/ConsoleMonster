@@ -25,8 +25,7 @@ namespace ConsoleMonster.Styling {
             if (theme == null) { throw new ArgumentNullException(nameof(theme)); }
             options = options ?? new ThemeCheckOptions();
             if (theme is Theme following && following.FollowsTerminal && Terminal.Palette is TerminalScheme palette) { theme = following.ResolvePalette(palette); }
-            Color page = options.Background ?? (theme as Theme)?.Scheme?.Background ?? (theme is Theme concrete
-                ? Color.FromHex(concrete.Appearance.Background == ThemeBackground.Light ? "#ffffff" : "#0c0c0c") : Color.Default);
+            Color page = options.Background ?? Theme.Page(theme).Background;
             List<ThemeCheckResult> results = new List<ThemeCheckResult>();
             foreach (ThemeToken token in TextTokens) {
                 Style style = theme.Resolve(token, ColorDepth.TrueColor);

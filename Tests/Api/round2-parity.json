@@ -16204,18 +16204,18 @@
           "Default": false,
           "Sets": [
             {
-              "Name": "Path",
+              "Name": "__AllParameterSets",
               "Position": -2147483648,
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Styling.ThemeFile",
-          "Member": "ToTheme",
+          "CSharpType": "ConsoleMonster.Styling.Theme",
+          "Member": "FromScheme",
           "MemberKind": "Method",
           "Argument": "accessible",
           "CSharpTypeName": "System.Boolean",
           "Conversion": "Identity",
-          "Reason": "Re-derives an embedded scheme accessibly while preserving explicit file overrides."
+          "Reason": "Catalogue names resolve through Theme.FromName; files use ThemeFile.ToTheme. Both select the shared accessible derivation, preserving file overrides."
         },
         {
           "CSharpType": "ConsoleMonster.Styling.ThemeFile",
@@ -16268,7 +16268,7 @@
           "Argument": "save",
           "CSharpTypeName": "System.Boolean",
           "Conversion": "Identity",
-          "Reason": "The chosen preset or file path is stored as the Theme setting; -Save writes it to the settings file."
+          "Reason": "The chosen preset, catalogue name or file path is stored as the Theme setting; accessible choices keep the · accessible suffix and -Save writes settings.json."
         },
         {
           "Parameter": "Theme",
@@ -16287,7 +16287,7 @@
           "Conversion": "ThemePresetSelector",
           "CSharpTypeName": "System.String",
           "Argument": "name",
-          "Reason": "The Theme parameter selects a built-in preset through Theme.FromName before assigning Terminal.Theme."
+          "Reason": "Theme.FromName resolves built-in presets, catalogue schemes and paired family names, including the stored accessible suffix."
         }
       ]
     },

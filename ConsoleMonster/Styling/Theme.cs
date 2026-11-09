@@ -100,10 +100,12 @@ namespace ConsoleMonster.Styling {
             return TokenNames.TryGetValue(name.Trim(), out token);
         }
 
-        /// <summary>Returns a built-in theme by name (Dark, Light, HighContrast, ColorBlindSafe, ColorBlindSafeLight or Terminal), or <see cref="Dark"/>.</summary>
+        /// <summary>Returns a built-in theme, catalogue scheme or paired family by name, or <see cref="Dark"/> for an unknown name.</summary>
+        /// <remarks>Catalogue names accept the suffix " · accessible". Family names choose the detected background, falling back to dark.</remarks>
         /// <param name="name">The name.</param>
         /// <returns>The theme.</returns>
         public static Theme FromName(string? name) {
+            if (TrySchemeName(name, out string scheme, out bool accessible, out _)) { return CatalogueTheme(scheme, accessible); }
             switch ((name ?? string.Empty).Trim().ToLowerInvariant()) {
                 case "terminal":
                     return Terminal;

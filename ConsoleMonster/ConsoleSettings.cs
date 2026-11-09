@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Serialization;
@@ -83,8 +84,10 @@ namespace ConsoleMonster {
 
         private static readonly Definition[] Definitions = {
             new Definition("Theme", "CONSOLEMONSTER_THEME", "Auto",
-                "The colours: a built-in theme, Terminal (follow my terminal), or a .json or .psd1 theme file. Auto follows the terminal background.",
-                new[] { "Auto", "Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark", "Terminal" },
+                "The colours: a built-in theme, Terminal, a catalogue scheme or family (optionally followed by · accessible), or a .json or .psd1 file. Auto follows the terminal background.",
+                new[] { "Auto", "Dark", "Light", "HighContrast", "ColorBlindSafe", "ColorBlindSafeLight", "ColorBlindSafeDark", "Terminal" }
+                    .Concat(Theme.Schemes.SelectMany(entry => new[] { entry.Name, entry.Family }).Distinct(StringComparer.OrdinalIgnoreCase)
+                        .SelectMany(name => new[] { name, name + AccessibleThemeSuffix })).ToArray(),
                 value => {
                     switch (value.ToLowerInvariant()) {
                         case "auto": return null;
@@ -99,7 +102,9 @@ namespace ConsoleMonster {
                         case "colorblind": case "colorblindsafe": case "color-blind-safe": return "ColorBlindSafe";
                         case "colorblind-light": case "colorblindsafe-light": case "color-blind-safe-light": return "ColorBlindSafeLight";
                         case "colorblind-dark": case "colorblindsafe-dark": case "color-blind-safe-dark": return "ColorBlindSafeDark";
-                        default: return Canonical(new[] { "Auto", "Dark", "Light", "HighContrast", "Terminal" }, value) ?? value;
+                        default:
+                            if (Theme.TrySchemeName(value, out string scheme, out bool accessible, out _)) { return scheme + (accessible ? AccessibleThemeSuffix : ""); }
+                            return Canonical(new[] { "Auto", "Dark", "Light", "HighContrast", "Terminal" }, value) ?? value;
                     }
                 }),
             new Definition("Color", "CONSOLEMONSTER_COLOR", "Auto",
@@ -326,30 +331,35 @@ namespace ConsoleMonster {
             }
         }
 
-        // The theme from a theme file path in the Theme setting, when that path is what applies; null otherwise.
-        internal static ITheme? ThemeFromPath() {
+        // A catalogue choice or file in the Theme setting; presets remain profile preferences.
+        internal static ITheme? ThemeFromSetting() {
             string? path;
+            bool catalogue;
             lock (Gate) {
                 EnsureLoaded();
                 ConsoleSetting theme = Effective(Definitions[0]);
-                path = theme.Source != ConsoleSettingSource.Environment && IsPath(theme.Value) ? theme.Value : null;
+                catalogue = Theme.TrySchemeName(theme.Value, out _, out _, out _);
+                path = catalogue || theme.Source != ConsoleSettingSource.Environment && IsPath(theme.Value) ? theme.Value : null;
                 if (path == null) { return null; }
-                if (string.Equals(path, _themePath, StringComparison.Ordinal)) { return _themeFromPath; }
+                if (!catalogue && string.Equals(path, _themePath, StringComparison.Ordinal)) { return _themeFromPath; }
             }
             ITheme? loaded = null;
             string? problem = null;
             try {
-                bool accessible = path.EndsWith(AccessibleThemeSuffix, StringComparison.OrdinalIgnoreCase);
-                loaded = ThemeFileLoader(ThemePath(path));
-                if (accessible && loaded is Theme source) { loaded = ThemeFile.FromTheme(source).ToTheme(true); }
+                if (catalogue) { loaded = Theme.FromName(path); }
+                else {
+                    bool accessible = path.EndsWith(AccessibleThemeSuffix, StringComparison.OrdinalIgnoreCase);
+                    loaded = ThemeFileLoader(ThemePath(path));
+                    if (accessible && loaded is Theme source) { loaded = ThemeFile.FromTheme(source).ToTheme(true); }
+                }
             } catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException)) {
                 // Any loader failure (a bad file, or a .psd1 read where no PowerShell runspace is available) leaves the
                 // theme to the other sources: a saved setting never stops a program.
-                problem = "Theme: ignored theme file '" + path + "': " + ex.Message;
+                problem = "Theme: ignored theme choice '" + path + "': " + ex.Message;
             }
             lock (Gate) {
-                _themePath = path;
-                _themeFromPath = loaded;
+                // Family choices follow late OSC background detection; only file loads retain the path cache.
+                if (!catalogue) { _themePath = path; _themeFromPath = loaded; }
                 if (problem != null && !_problems.Contains(problem)) { _problems.Add(problem); }
                 return loaded;
             }

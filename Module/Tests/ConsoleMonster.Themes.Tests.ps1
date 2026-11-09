@@ -13,6 +13,67 @@
         Reset-ConsoleSetting Theme
     }
 
+    It 'selects named schemes and their accessible variants through the Name parameter set' {
+        Set-ConsoleTheme Dracula
+        [ConsoleMonster.Terminal]::Theme.Scheme.Name | Should -BeExactly 'Dracula'
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeFalse
+        (Get-ConsoleSetting Theme).Value | Should -BeExactly 'Dracula'
+        Set-ConsoleTheme Dracula -Accessible
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+        (Get-ConsoleSetting Theme).Value | Should -BeExactly 'Dracula · accessible'
+        (Test-ConsoleTheme -Theme 'Dracula · accessible').Passed | Should -BeTrue
+        $file = Join-Path $TestDrive 'named.psd1'
+        Export-ConsoleTheme -Path $file
+        Set-ConsoleTheme Dark
+        Set-ConsoleTheme -Path $file
+        [ConsoleMonster.Terminal]::Theme.Scheme.Name | Should -BeExactly 'Dracula'
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+        $before = [ConsoleMonster.Terminal]::Theme
+        { Set-ConsoleTheme Dark -Accessible -ErrorAction Stop } | Should -Throw '*requires a catalogue scheme*'
+        { Set-ConsoleTheme 'Not a scheme' -ErrorAction Stop } | Should -Throw
+        [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
+    }
+
+    It 'quotes multiword catalogue choices in completion and profile snippets' {
+        $line = 'Set-ConsoleTheme -Theme "Tokyo Night D'
+        $completion = TabExpansion2 -inputScript $line -cursorColumn $line.Length
+        $completion.CompletionMatches.CompletionText | Should -Contain "'Tokyo Night Dark'"
+        Set-ConsoleTheme 'Tokyo Night Dark' -Accessible
+        $snippet = @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Theme *' }
+        $snippet | Should -Contain "Set-ConsoleTheme -Theme 'Tokyo Night Dark · accessible'"
+        Invoke-Expression ($snippet -join "`n")
+        [ConsoleMonster.Terminal]::Theme.Scheme.Name | Should -BeExactly 'Tokyo Night Dark'
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+    }
+
+    It 'keeps a selected family automatic when the background becomes known later' {
+        $profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile')
+        $previous = $env:COLORFGBG
+        try {
+            $env:COLORFGBG = '0;15'
+            foreach ($family in 'Solarized', 'Gruvbox', 'Catppuccin', 'Tokyo Night') {
+                foreach ($accessible in $false, $true) {
+                    [ConsoleMonster.Terminal]::Profile = $profileType::Fixed(80, 20).WithMode('Plain')
+                    Set-ConsoleTheme $family -Accessible:$accessible
+                    [ConsoleMonster.Terminal]::Theme.Appearance.Background | Should -Be 'Dark'
+                    [ConsoleMonster.Terminal]::Profile = $profileType::Fixed(80, 20)
+                    $expected = [ConsoleMonster.Styling.Theme]::FromName($family).Appearance.Background
+                    [ConsoleMonster.Terminal]::Theme.Appearance.Background | Should -Be $expected
+                    [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -Be $accessible
+                    $snippet = @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Theme *' }
+                    $snippet | Should -HaveCount 1
+                    Invoke-Expression ($snippet -join "`n")
+                    [ConsoleMonster.Terminal]::Theme.Appearance.Background | Should -Be $expected
+                    [ConsoleMonster.Terminal]::Theme = [ConsoleMonster.Styling.Theme]::Dark
+                    @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Theme *' } | Should -BeNullOrEmpty
+                }
+            }
+        } finally {
+            $env:COLORFGBG = $previous
+            [ConsoleMonster.Terminal]::Refresh()
+        }
+    }
+
     It 'imports a failing scheme, reports the verdict and leaves the active theme alone' {
         $source = Join-Path $TestDrive 'scheme.json'
         $output = Join-Path $TestDrive 'theme.json'
@@ -31,9 +92,9 @@
 
     It 'preserves embedded schemes and accessible choices through JSON and PSD1' {
         $source = Join-Path $TestDrive 'accessible-source.json'
-        $catalogue = Get-Content (Join-Path $PSScriptRoot '../../Docs/Proposals/Colour-Schemes.catalogue.json') -Raw | ConvertFrom-Json
-        $palette = $catalogue.Dracula
-        $palette | Add-Member NoteProperty name 'Synthetic accessible'
+        $catalogue = Get-Content (Join-Path $PSScriptRoot '../../ConsoleMonster/Styling/Schemes/Dracula.json') -Raw | ConvertFrom-Json
+        $palette = $catalogue.schemes[0]
+        $palette.name = 'Synthetic accessible'
         $palette | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
         $report = Import-ConsoleTheme -Path $source -Accessible
         $report.Passed | Should -BeTrue

@@ -17,7 +17,7 @@
     </ItemGroup>
     <ItemGroup>
         <None Update="Golden/flow-*.txt" CopyToOutputDirectory="PreserveNewest" />
-        <EmbeddedResource Include="../Docs/Proposals/Colour-Schemes.catalogue.json" LogicalName="Colour-Schemes.catalogue.json" />
+        <EmbeddedResource Include="Themes/Catalogue.faithful.txt" LogicalName="Catalogue.faithful.txt" />
         <EmbeddedResource Include="Input/Fixtures/unix_input_pty.py" />
         <EmbeddedResource Include="Input/Fixtures/background_pty.py" />
         <EmbeddedResource Include="Input/Fixtures/palette_pty.py" />

@@ -48,7 +48,7 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>
     /// <para type="synopsis">Changes a ConsoleMonster setting for this session, and with -Save for every session.</para>
-    /// <para type="description">Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</para>
+    /// <para type="description">Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.</para>
     /// </summary>
     /// <example>
     ///   <para>Use the colour-blind-safe theme from now on</para>
@@ -74,7 +74,7 @@ namespace ConsoleMonster.PowerShell {
         [ArgumentCompleter(typeof(ConsoleSettingNameCompleter))]
         public string Name { get; set; } = string.Empty;
 
-        /// <summary><para type="description">The value. Get-ConsoleSetting lists the values each setting takes; Theme also takes a theme file path, Language and Culture a culture name such as pl or de-DE.</para></summary>
+        /// <summary><para type="description">The value. Get-ConsoleSetting lists the values each setting takes; Theme also takes a theme file path; catalogue choices can end in · accessible. Language and Culture take a culture name such as pl or de-DE.</para></summary>
         [Parameter(Position = 1, Mandatory = true)]
         [ArgumentCompleter(typeof(ConsoleSettingValueCompleter))]
         public string Value { get; set; } = string.Empty;
@@ -236,6 +236,7 @@ namespace ConsoleMonster.PowerShell {
     internal sealed class ConsoleSettingValueCompleter : IArgumentCompleter {
         public IEnumerable<CompletionResult> CompleteArgument(string commandName, string parameterName, string wordToComplete, CommandAst commandAst, IDictionary fakeBoundParameters) {
             if (!(fakeBoundParameters["Name"] is string name)) { return Array.Empty<CompletionResult>(); }
+            if (string.Equals(name, "Theme", StringComparison.OrdinalIgnoreCase)) { return Binding.ThemeNameCompleter.Complete(wordToComplete, includeAuto: true); }
             try {
                 return WordCompletion.Complete(ConsoleSettings.Get(name).Values, wordToComplete);
             } catch (ArgumentException) {
