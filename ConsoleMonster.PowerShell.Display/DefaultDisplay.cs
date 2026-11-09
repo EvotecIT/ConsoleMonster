@@ -11,8 +11,8 @@ public static class DefaultDisplay {
     private static readonly ConditionalWeakTable<Runspace, DisplayRunspaceState> Sessions = new ConditionalWeakTable<Runspace, DisplayRunspaceState>();
     /// <summary>Stable assembly ABI epoch, independent of package versions.</summary>
     public const int AbiEpoch = 1;
-    /// <summary>Implemented adapter feature level.</summary>
-    public const int FeatureLevel = 3;
+    /// <summary>Implemented adapter feature level. Level 4 adds views that cover derived types (<see cref="DefaultDisplayRegistration.IncludeDerivedTypes"/>).</summary>
+    public const int FeatureLevel = 4;
     internal static DisplayRunspaceState Current => Sessions.GetValue(Runspace.DefaultRunspace
         ?? throw new InvalidOperationException("Default display registration requires an owning PowerShell runspace."), owner => new DisplayRunspaceState(owner));
     /// <summary>Acquires one module import lease. Call from the owning runspace and dispose on removal.</summary>
