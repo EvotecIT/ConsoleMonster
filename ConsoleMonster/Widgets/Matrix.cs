@@ -133,22 +133,50 @@ namespace ConsoleMonster.Widgets {
         }
 
         /// <inheritdoc />
+        /// <remarks>
+        /// The reported width is the narrowest width at which <see cref="Render"/> chooses the same kind of layout (grid,
+        /// dense cells per column or per band, or the attention list) as at the offered width, so a parent that allocates
+        /// exactly the measured width never sees a grid turn into a list. Label wording may still shorten at that width.
+        /// </remarks>
         public Size Measure(Constraints constraints, RenderContext context) {
-            return WidgetLines.Measure(Lines(constraints.MaxWidth, context), constraints);
+            int offered = constraints.MaxWidth;
+            LayoutKind kind = Decide(offered, context);
+            Size size = WidgetLines.Measure(Lines(offered, kind, context), constraints);
+            if (offered == Constraints.Unbounded || size.Width >= offered || Decide(size.Width, context) == kind) return size;
+            int low = size.Width + 1, high = offered;
+            while (low < high) {
+                int middle = low + (high - low) / 2;
+                if (Decide(middle, context) == kind) high = middle; else low = middle + 1;
+            }
+            Size stable = WidgetLines.Measure(Lines(low, kind, context), new Constraints(low, constraints.MaxHeight));
+            return new Size(Math.Max(stable.Width, low), stable.Height);
         }
 
         /// <inheritdoc />
-        public void Render(Region region, RenderContext context) => WidgetLines.Render(Lines(region.Width, context), region);
+        public void Render(Region region, RenderContext context) => WidgetLines.Render(Lines(region.Width, Decide(region.Width, context), context), region);
 
-        private List<StyledLine> Lines(int width, RenderContext context) {
-            if (InlineAxes) { return InlineLines(width, context); }
-            List<StyledLine> lines = new List<StyledLine>();
-            if (!string.IsNullOrEmpty(Title)) WidgetLines.Wrap(lines, context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Accent).With(TextDecoration.Bold)), width);
-            if (!string.IsNullOrEmpty(RowAxisCaption) || !string.IsNullOrEmpty(ColumnAxisCaption)) {
-                string row = string.IsNullOrEmpty(RowAxisCaption) ? string.Empty : RowAxisCaption + " " + context.Glyphs.Get(Glyph.ArrowDown);
-                string column = string.IsNullOrEmpty(ColumnAxisCaption) ? string.Empty : ColumnAxisCaption + " " + context.Glyphs.Get(Glyph.ArrowRight);
-                WidgetLines.Wrap(lines, StyledLine.From(row + (row.Length > 0 && column.Length > 0 ? "  " : string.Empty) + column, context.Style(ThemeToken.Muted)), width);
+        /// <summary>The kind of layout chosen at a width.</summary>
+        private enum LayoutKind { Grid, List, DensePerColumn, DensePerBand }
+
+        private LayoutKind Decide(int width, RenderContext context) {
+            if (NonHealthyOnly) return LayoutKind.List;
+            bool gridPossible = _rows.Count <= MaxGridSize && _columns.Count <= MaxGridSize;
+            if (gridPossible) {
+                bool list = InlineAxes ? InlineList(PlanInline(width, context), width) : PlanClassic(width, context).List;
+                if (!list) return LayoutKind.Grid;
             }
+            return DenseFit(width, context);
+        }
+
+        private readonly struct ClassicPlan {
+            internal ClassicPlan(bool numbered, int labelWidth, int[] widths, bool list) { Numbered = numbered; LabelWidth = labelWidth; Widths = widths; List = list; }
+            internal bool Numbered { get; }
+            internal int LabelWidth { get; }
+            internal int[] Widths { get; }
+            internal bool List { get; }
+        }
+
+        private ClassicPlan PlanClassic(int width, RenderContext context) {
             int cellWidth = 1;
             foreach (MatrixCell cell in _cells.Values) cellWidth = Math.Max(cellWidth, CellLine(cell, context).Width);
             bool numbered = width < 80;
@@ -160,8 +188,22 @@ namespace ConsoleMonster.Widgets {
                 widths = ColumnWidths(cellWidth, width, true);
             }
             bool list = NonHealthyOnly || width < 60 || _rows.Count > MaxGridSize || _columns.Count > MaxGridSize || RequiredWidth(labelWidth, widths) > width;
-            if (list) Attention(lines, width, context);
-            else Grid(lines, width, labelWidth, widths, numbered, context);
+            return new ClassicPlan(numbered, labelWidth, widths, list);
+        }
+
+        private List<StyledLine> Lines(int width, LayoutKind kind, RenderContext context) {
+            if (kind == LayoutKind.DensePerColumn || kind == LayoutKind.DensePerBand) return DenseLines(width, kind == LayoutKind.DensePerBand, context);
+            if (InlineAxes) { return InlineLines(width, context); }
+            List<StyledLine> lines = new List<StyledLine>();
+            if (!string.IsNullOrEmpty(Title)) WidgetLines.Wrap(lines, context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Accent).With(TextDecoration.Bold)), width);
+            if (!string.IsNullOrEmpty(RowAxisCaption) || !string.IsNullOrEmpty(ColumnAxisCaption)) {
+                string row = string.IsNullOrEmpty(RowAxisCaption) ? string.Empty : RowAxisCaption + " " + context.Glyphs.Get(Glyph.ArrowDown);
+                string column = string.IsNullOrEmpty(ColumnAxisCaption) ? string.Empty : ColumnAxisCaption + " " + context.Glyphs.Get(Glyph.ArrowRight);
+                WidgetLines.Wrap(lines, StyledLine.From(row + (row.Length > 0 && column.Length > 0 ? "  " : string.Empty) + column, context.Style(ThemeToken.Muted)), width);
+            }
+            ClassicPlan plan = PlanClassic(width, context);
+            if (plan.List) Attention(lines, width, context);
+            else Grid(lines, width, plan.LabelWidth, plan.Widths, plan.Numbered, context);
             if (ShowLegend) Legend(lines, width, context);
             return lines;
         }
