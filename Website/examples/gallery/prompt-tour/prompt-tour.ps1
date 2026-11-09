@@ -156,7 +156,7 @@ $null = Read-ConsoleConfirm @confirmPrompt
 
 New-ConsoleRule -Title '[accent bold]9 / 9 · Dashboard pause[/]'  | Show-Console
 $hosts = @($servers | Select-Object -First 5 -ExpandProperty Name)
-$dashboard = New-ConsoleDashboard -Title '[bold]Patching[/]' -Subtitle '5 servers' -Content {
+$dashboard = New-ConsoleDashboard -Title '[accent bold]Patching[/]' -Subtitle '5 servers' -Content {
     New-ConsolePanel -Title Servers -Content { New-ConsoleLanes -Content {
         foreach ($hostName in $hosts) { @{ Key = $hostName; Total = 6 } }
     } }

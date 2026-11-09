@@ -185,7 +185,7 @@ Strong figures; `KeyValueList` separates its Muted keys from Text values.
 
 `ViewFacts`, `Ui.Facts()` and `New-ConsoleFacts` draw report counts in one format: a bold count and its word in the
 same semantic role, separated by ` · ` (` | ` in ASCII). Neutral facts are Muted. Values use table presenters, and
-facts wrap between items. Default-view summaries use this same widget.
+facts wrap between items. Default-view summaries use this same widget. Other fact flows and frame legends share these separators; a literal middle-dot legend marker is shown as `(·)` so it cannot be mistaken for the separator.
 
 ## Bars
 
@@ -195,7 +195,8 @@ facts wrap between items. Default-view summaries use this same widget.
 | Comparison | BarChart without Maximum, table data bars, histograms | Block, scaled to the largest, without a track | Right-aligned value column |
 | Composition | StackedBar, composition meters | Proportional segments; healthy share neutral, problem shares coloured | Total beside the bar |
 
-Line uses `━╾─` on Full, `═─` on Basic and `#-` on ASCII. Comparison rows use `▆`, `▄` and `#` respectively.
+Line uses `━╸─` on Full, `═─` on Basic and `#-` on ASCII. Comparison rows use `▆`, `▄` and `#` respectively. Existing rounding stays in place: Full Line bars round to half cells with midpoint-to-even and use `╸` for the half cell; ASCII keeps its eighth-cell calculation with unsupported partial cells omitted.
+Bars and legend swatches use the semantic foreground and background colours without text decorations. Coloured composition problems use opaque blocks so a late Fail segment is not diluted by a shade pattern; monochrome and ASCII retain distinct fill patterns. A Fail underline remains on text, never on the bar geometry.
 `BarDrawer` owns horizontal bar geometry, including inline frame bars and exported output. An explicitly signed
 BarChart retains its zero baseline and comparison semantics. A non-finite Maximum falls back to comparison scaling.
 Progress columns remain configurable; an explicit set of columns determines its own count and percentage fields.
@@ -220,3 +221,5 @@ column alignment or presenter wins. Mixed text/number columns remain left-aligne
 `▲` is one cell in the standard terminal width model and the site's JetBrains Mono grid. It is East Asian Ambiguous;
 a terminal configured for double-width ambiguous characters measures it as two cells. Marker placement uses measured
 widths and leaves that terminal preference intact.
+
+Review contact sheets include all 41 gallery demos at 120 columns. `SiteFrames gallery-contact-sheet Website <directory> <variant>` accepts `Dark`, `Light`, `ColorBlindSafe` and `CompactWords`; the last uses the Dark theme, Compact density and Words markers on the actual terminal profile.

@@ -45,6 +45,6 @@
 ✗ Directory replication 137    node-09     Endpoin…     1.2s
 ────────────────────────────────────────────────────────────
 Fleet checks · 137/214 · 64%
-125 pass · 4 fail · 3 warn · 5 skip
+ 125 pass · 4 fail · 3 warn · 5 skip
 8 running · 69 queued · ETA 1m 37s
 ✗ Directory replication 137 · node-09: Endpoint did not ans…

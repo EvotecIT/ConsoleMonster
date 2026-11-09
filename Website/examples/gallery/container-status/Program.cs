@@ -127,7 +127,7 @@ IWidget Frame(int tick)
                 + $"{clock}[/]")),
         new ViewFacts()
             .Add(rows.Count - restarting, "running", ThemeToken.Pass)
-            .Add(restarting, "restarting", ThemeToken.Warn)
+            .Add(restarting, "restarting", restarting == 0 ? ThemeToken.Muted : ThemeToken.Warn)
             .Add(new ViewFact($"{memoryTotal:N0} of {limitTotal:N0} MiB reserved", default,
                 "memory")),
         table,

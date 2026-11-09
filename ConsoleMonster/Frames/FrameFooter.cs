@@ -24,7 +24,7 @@ public sealed class FrameLegend {
     public void Add(HealthState state, string word) => _states.Add((state, word ?? string.Empty));
     /// <summary>Adds an entry for a symbol that is not a state, such as <c>· no partnership</c>.</summary>
     /// <param name="symbol">The literal symbol.</param><param name="word">The literal word.</param>
-    public void Add(string symbol, string word) => _entries.Add("[subtle]" + Markup.Escape(symbol ?? string.Empty) + "[/] [muted]" + Markup.Escape(word ?? string.Empty) + "[/]");
+    public void Add(string symbol, string word) => _entries.Add("[subtle]" + Markup.Escape(symbol == "·" ? "(·)" : symbol ?? string.Empty) + "[/] [muted]" + Markup.Escape(word ?? string.Empty) + "[/]");
     /// <summary>Whether the legend has entries.</summary>
     internal bool IsEmpty => _entries.Count == 0 && _states.Count == 0;
 

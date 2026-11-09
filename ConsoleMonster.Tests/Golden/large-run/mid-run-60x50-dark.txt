@@ -31,7 +31,7 @@
 ────────────────────────────────────────────────────────────
 Fleet checks  ━━━━━━━━━━━━━━━━━━━━────────────  64%  137/214
 Elapsed 1m 40s · ETA 1m 37s · 47.2/min  ▂▂▂▂▂▃▃▅▆▇▇▁
-✓ 125 pass · ✗ 4 fail · ▲ 3 warn · – 5 skip
+ ✓ 125 pass · ✗ 4 fail · ▲ 3 warn · – 5 skip
 Running now · 8 workers
   ⠼ DNS records 138 · node-10 · collecting             4.0s
   ⠼ Free disk space 139 · node-11 · evaluating         3.8s

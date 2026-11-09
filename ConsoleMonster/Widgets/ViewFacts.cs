@@ -34,7 +34,7 @@ public sealed class ViewFact {
 /// cells (sizes, durations, dates), a sparkline or bar value draws inline, and lines break only between facts.
 /// </summary>
 public sealed class ViewFacts : IWidget {
-    private const int Indent = 1;
+    internal int Indent { get; set; } = 1;
     private const int MaxSparkline = 40;
 
     /// <summary>Creates an empty facts line.</summary>
@@ -70,7 +70,7 @@ public sealed class ViewFacts : IWidget {
         List<StyledLine> lines = new List<StyledLine>();
         int room = Math.Max(1, width - Indent);
         Style muted = context.Style(ThemeToken.Muted);
-        TextSpan separator = new TextSpan(context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " | " : " · ", muted);
+        TextSpan separator = new TextSpan(FactFlow.DefaultSeparator(context), muted);
         List<TextSpan> current = new List<TextSpan>();
         int used = 0;
         PresenterContext presenter = new PresenterContext(context);

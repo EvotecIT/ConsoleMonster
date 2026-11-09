@@ -38,7 +38,7 @@ IWidget Results(string query)
 }
 
 Rows layout = new Rows(
-    new TextBlock("[bold]Live filter[/] [muted]· host inventory[/]"),
+    new TextBlock("[accent bold]Live filter[/] [muted]· host inventory[/]"),
     new TextInput("Query", string.Empty)
     {
         Label = "Filter",

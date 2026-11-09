@@ -13,7 +13,7 @@ namespace ConsoleMonster.Frames;
 /// width tiers, the length preference, the ordering and the footer hint, so every product frame follows the same rules.
 /// </summary>
 public sealed class DashboardFrame : IWidget {
-    private const int SectionGap = 2;
+    private const int SectionGap = 4;
 
     /// <summary>Creates a frame.</summary>
     /// <param name="title">The literal title, usually the view name.</param>
@@ -111,18 +111,22 @@ public sealed class DashboardFrame : IWidget {
 
         List<IWidget> blocks = new List<IWidget>();
         List<FrameSection> summary = new List<FrameSection>();
-        if (Attention.Count > 0) summary.Add(Attention.ToSection(scale, context));
+        FrameSection? attention = Attention.Count > 0 ? Attention.ToSection(scale, context) : null;
+        if (attention != null) summary.Add(attention);
         foreach (FrameSection section in Sections) { if (section.Placement == FramePlacement.Summary) summary.Add(section); }
-        blocks.AddRange(Summary(summary, content, scale, context));
-        if (!Legend.IsEmpty) blocks.Add(Legend.Build(context, Footer.Counts));
+        IWidget? legend = Legend.IsEmpty ? null : Legend.Build(context, Footer.Counts);
+        blocks.AddRange(Summary(summary, content, scale, context, attention, legend));
+        if (legend != null && attention == null) {
+            if (blocks.Count == 0) blocks.Add(legend);
+            else blocks[blocks.Count - 1] = new Rows(blocks[blocks.Count - 1], legend);
+        }
         if (scale.DetailCap != 0) {
             foreach (FrameSection section in Sections) {
                 if (section.Placement == FramePlacement.Detail) blocks.Add(section.Build(content, scale, context));
             }
         }
-        Rows tail = new Rows();
-        tail.Add(Footer.Build(context, includeCounts: Legend.IsEmpty));
-        blocks.Add(tail);
+        IWidget footer = Footer.Build(context, includeCounts: Legend.IsEmpty);
+        if (footer.Measure(new Constraints(content), context).Height > 0) blocks.Add(footer);
 
         MeterRow meters = new MeterRow(Meters, scale);
         int width = Math.Min(content, Math.Max(meters.Measure(new Constraints(content), context).Width, header.NaturalWidth(context)));
@@ -154,7 +158,7 @@ public sealed class DashboardFrame : IWidget {
     /// order. Later sections then drop into the shortest column of that row they fit, so no section waits below its
     /// tallest neighbour; a section that fits no column, or takes the full width, starts the next row.
     /// </summary>
-    private static List<IWidget> Summary(List<FrameSection> sections, int content, FrameScale scale, RenderContext context) {
+    private static List<IWidget> Summary(List<FrameSection> sections, int content, FrameScale scale, RenderContext context, FrameSection? attention, IWidget? legend) {
         List<IWidget> rows = new List<IWidget>();
         int gap = LayoutSpacing.Gap(SectionGap, context);
         int index = 0;
@@ -175,6 +179,7 @@ public sealed class DashboardFrame : IWidget {
             int[] heights = new int[row.Count];
             for (int i = 0; i < row.Count; i++) {
                 IWidget block = row[i].Build(widths[i], scale, context);
+                if (ReferenceEquals(row[i], attention) && legend != null) block = new Rows(block, legend);
                 columns[i] = new Rows(block) { Gap = 1 };
                 heights[i] = block.Measure(new Constraints(widths[i]), context).Height;
             }

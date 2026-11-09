@@ -47,4 +47,4 @@
 ✓ Volume permissions 135       node-07                  3.2s
 ✓ Time synchronisation 136     node-08                  4.2s
 ✗ Directory replication 137    node-09     Endpoin…     1.2s
-progress 137/214 · ✓125 ✗4 ▲3 –5 · ETA 1m 37s
+progress 137/214 · ✓ 125 · ✗ 4 · ▲ 3 · – 5 · ETA 1m 37s

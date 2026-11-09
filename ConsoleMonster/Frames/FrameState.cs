@@ -102,7 +102,7 @@ internal static class FrameText {
             default: return context.Glyphs.StatusSymbol(StatusKind.Pass);
         }
     }
-    internal static string Dot(RenderContext context) => context.Glyphs.Get(Glyphs.Glyph.Dot);
+    internal static string Dot(RenderContext context) => Widgets.FactFlow.DefaultSeparator(context).Trim();
 
     internal static string Arrow(RenderContext context) => context.Glyphs.Get(Glyphs.Glyph.ArrowLeft);
 

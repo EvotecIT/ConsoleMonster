@@ -49,7 +49,7 @@ $report = New-ConsoleRows -Gap 1 -Content {
                         [pscustomobject] @{ Kind = 'Edge'; Key = 'runs'; From = 'task'
                             To = 'action'; Label = $failure.Outcome; Status = 'Fail'; Cut = $true }
                     ) | New-ConsoleFlow
-                    New-ConsoleKeyValue -KeyRole Fail -Content {
+                    New-ConsoleKeyValue -KeyRole Muted -Content {
                         [pscustomobject] @{ Key = 'Cause'; Value = $failure.Cause }
                         [pscustomobject] @{ Key = 'Fix'; Value = $failure.Fix }
                     }

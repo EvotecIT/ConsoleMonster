@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Dates;
@@ -84,7 +85,7 @@ namespace ConsoleMonster.Widgets {
             int columns = Columns(constraints.MaxWidth);
             int rows = View == CalendarView.Year ? (12 + columns - 1) / columns : 1;
             int width = Math.Min(constraints.MaxWidth, columns * (MonthWidth + 2) - 2);
-            return new Size(width, Math.Min(constraints.MaxHeight, rows * HeightPerMonth(context) + (ShowLegend ? Legend(width, context).Count : 0)));
+            return new Size(width, Math.Min(constraints.MaxHeight, rows * HeightPerMonth(context) + (ShowLegend ? Legend(context).Measure(new Constraints(width), context).Height : 0)));
         }
 
         /// <inheritdoc />
@@ -101,7 +102,7 @@ namespace ConsoleMonster.Widgets {
             }
             if (ShowLegend) {
                 int y = ((count + columns - 1) / columns) * monthHeight;
-                foreach (string line in Legend(region.Width, context)) { region.Write(0, y++, line, context.Style(ThemeToken.Muted)); }
+                Legend(context).Render(region.Sub(0, y, region.Width, Math.Max(0, region.Height - y)), context);
             }
         }
 
@@ -157,22 +158,16 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private List<string> Legend(int width, RenderContext context) {
-            List<string> lines = new List<string>();
-            string current = string.Empty;
+        private ViewFacts Legend(RenderContext context) {
+            ViewFacts facts = new ViewFacts();
             foreach (StatusKind status in Statuses) {
-                if (!HasStatus(status)) { continue; }
-                string item = Symbol(status, context) + " " + status;
-                if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
-                current += (current.Length == 0 ? "" : "  ") + item;
+                if (HasStatus(status)) { facts.Add(Symbol(status, context) + " " + status, role: ThemeToken.Muted); }
             }
             if (Today.HasValue && Today.Value.Year == Year && (View == CalendarView.Year || Today.Value.Month == Month)) {
-                string item = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.Day.ToString("00", CultureInfo.InvariantCulture) + " " + CalendarNames.ShortMonth(Culture ?? context.Culture, GregorianDateFormat(Culture ?? context.Culture), Today.Value.Month);
-                if (current.Length > 0 && ConsoleMonster.Text.DisplayWidth.Measure(current) + 2 + ConsoleMonster.Text.DisplayWidth.Measure(item) > width) { lines.Add(current); current = string.Empty; }
-                current += (current.Length == 0 ? "" : "  ") + item;
+                string today = (context.HasColor && context.Glyphs.Tier != GlyphTier.Ascii ? "Today " : "@ Today ") + Today.Value.Day.ToString("00", CultureInfo.InvariantCulture) + " " + CalendarNames.ShortMonth(Culture ?? context.Culture, GregorianDateFormat(Culture ?? context.Culture), Today.Value.Month);
+                facts.Add(today, role: ThemeToken.Muted);
             }
-            if (current.Length > 0) { lines.Add(current); }
-            return lines;
+            return facts;
         }
 
         private bool HasStatus(StatusKind status) {
@@ -186,7 +181,7 @@ namespace ConsoleMonster.Widgets {
             return false;
         }
 
-        private static string Symbol(StatusKind status, RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? Symbols[Array.IndexOf(Statuses, status)] : context.Glyphs.StatusMarker(status);
+        private static string Symbol(StatusKind status, RenderContext context) => context.Glyphs.Tier == GlyphTier.Ascii ? Symbols[Array.IndexOf(Statuses, status)] : context.Glyphs.StatusSymbol(status);
 
         // The grid and Today legend stay Gregorian even when the culture's default calendar is not.
         private static DateTimeFormatInfo GregorianDateFormat(CultureInfo culture) {

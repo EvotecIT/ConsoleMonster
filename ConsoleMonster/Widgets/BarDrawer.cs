@@ -16,25 +16,29 @@ namespace ConsoleMonster.Widgets {
     internal static class BarDrawer {
         internal static string Markup(int width, double fraction, string role, RenderContext context, bool track, BarShape shape) {
             if (width <= 0) return string.Empty;
-            Style style = context.Markup("[" + role + "]x[/]").Lines[0][0].Style;
+            Style style = ColorStyle(context.Markup("[" + role + "]x[/]").Lines[0][0].Style);
             CellBuffer buffer = new CellBuffer(width, 1);
             Draw(new Region(buffer), 0, 0, width, fraction, style, context, track, shape);
             StringBuilder result = new StringBuilder();
             for (int x = 0; x < width; x++) {
                 Cell cell = buffer[x, 0];
-                result.Append('[').Append(cell.Style.Equals(style) ? role : "subtle").Append(']').Append(cell.Glyph).Append("[/]");
+                result.Append('[').Append(cell.Style.Color).Append(" on ").Append(cell.Style.BackgroundColor).Append(']').Append(cell.Glyph).Append("[/]");
             }
             return result.ToString();
         }
+
+        // Geometric fills retain theme colours, but text emphasis must not distort their shape.
+        internal static Style ColorStyle(Style style) => new Style(style.Color, style.BackgroundColor);
 
         /// <summary>Draws one bar.</summary>
         public static void Draw(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track = true, BarShape shape = BarShape.Block) {
             if (width <= 0) {
                 return;
             }
+            fill = ColorStyle(fill);
             fraction = double.IsNaN(fraction) ? 0 : Math.Max(0, Math.Min(1, fraction));
             IGlyphSet glyphs = context.Glyphs;
-            if (shape == BarShape.Line && glyphs.Tier != GlyphTier.Ascii) {
+            if (shape == BarShape.Line) {
                 DrawLine(region, x, y, width, fraction, fill, context, track);
                 return;
             }
@@ -46,12 +50,6 @@ namespace ConsoleMonster.Widgets {
                 DrawRowBlock(region, x, y, width, fraction, fill, context, track);
                 return;
             }
-            if (shape == BarShape.Line) {
-                int cells = WholeCells(fraction, width);
-                region.HorizontalLine(x, y, cells, "#", fill);
-                if (track) region.HorizontalLine(x + cells, y, width - cells, "-", context.Style(ThemeToken.Subtle));
-                return;
-            }
             int eighths = (int)Math.Round(fraction * width * 8);
             int full = eighths / 8;
             int remainder = eighths % 8;
@@ -61,7 +59,7 @@ namespace ConsoleMonster.Widgets {
             }
             int next = full;
             bool solidTrack = track && context.Depth >= ColorDepth.Ansi256;
-            Style trackStyle = context.Style(ThemeToken.Subtle);
+            Style trackStyle = ColorStyle(context.Style(ThemeToken.Subtle));
             if (remainder > 0 && next < width) {
                 string partial = glyphs.HorizontalFill(remainder);
                 if (partial.Length > 0) {
@@ -98,7 +96,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             string trackGlyph = context.HasColor ? block : context.Glyphs.Get(Glyph.BarTrack);
-            Style trackStyle = context.Style(ThemeToken.Subtle);
+            Style trackStyle = ColorStyle(context.Style(ThemeToken.Subtle));
             for (int i = full; i < width; i++) {
                 region.Put(x + i, y, trackGlyph, trackStyle);
             }
@@ -123,7 +121,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             string trackGlyph = context.HasColor ? lower : context.Glyphs.Get(Glyph.RuleLine);
-            Style trackStyle = context.Style(ThemeToken.Subtle);
+            Style trackStyle = ColorStyle(context.Style(ThemeToken.Subtle));
             for (int i = full; i < width; i++) {
                 region.Put(x + i, y, trackGlyph, trackStyle);
             }
@@ -131,27 +129,34 @@ namespace ConsoleMonster.Widgets {
 
         private static void DrawLine(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track) {
             // Heavy fill, light track: a finished bar, a running bar and a separator rule all read differently.
-            string Heavy = context.Glyphs.Tier == GlyphTier.Full ? "━" : "═";
+            if (context.Glyphs.Tier != GlyphTier.Full) {
+                int cells = context.Glyphs.Tier == GlyphTier.Ascii
+                    ? (int)Math.Round(fraction * width * 8) / 8
+                    : WholeCells(fraction, width);
+                string glyph = context.Glyphs.Tier == GlyphTier.Basic ? "═" : "#";
+                region.HorizontalLine(x, y, cells, glyph, fill);
+                if (track) region.HorizontalLine(x + cells, y, width - cells,
+                    context.Glyphs.Tier == GlyphTier.Basic ? "─" : "-", ColorStyle(context.Style(ThemeToken.Subtle)));
+                return;
+            }
+            const string Heavy = "━";
             const string HeavyLeftHalf = "╸";
-            const string HeavyLeftLightRight = "╾";
             const string Light = "─";
-            int halves = (int)Math.Round(fraction * width * 2, MidpointRounding.AwayFromZero);
-            if (halves == 0 && fraction > 0) halves = 1;
+            int halves = (int)Math.Round(fraction * width * 2);
             int full = halves / 2;
             bool half = halves % 2 == 1;
-            if (context.Glyphs.Tier == GlyphTier.Basic) { full = WholeCells(fraction, width); half = false; }
             for (int i = 0; i < full && i < width; i++) {
                 region.Put(x + i, y, Heavy, fill);
             }
             int next = full;
             if (half && next < width) {
-                region.Put(x + next, y, track ? HeavyLeftLightRight : HeavyLeftHalf, fill);
+                region.Put(x + next, y, HeavyLeftHalf, fill);
                 next++;
             }
             if (!track) {
                 return;
             }
-            Style trackStyle = context.Style(ThemeToken.Subtle);
+            Style trackStyle = ColorStyle(context.Style(ThemeToken.Subtle));
             for (int i = next; i < width; i++) {
                 region.Put(x + i, y, Light, trackStyle);
             }

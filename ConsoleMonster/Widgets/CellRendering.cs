@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
@@ -141,6 +142,12 @@ namespace ConsoleMonster.Widgets {
             }
             if (cell.Status.HasValue && lines.Count > 0) {
                 Style style = render.Style(cell.Status.Value);
+                // A word marker already names the status; retain any distinct caller-supplied text.
+                if (render.Glyphs.MarkersAreWords() && lines.Count == 1 &&
+                    (string.Equals(lines[0].PlainText, cell.Status.Value.ToWord(), StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(lines[0].PlainText, render.Labels.StatusWord(cell.Status.Value), StringComparison.OrdinalIgnoreCase))) {
+                    lines[0] = StyledLine.Empty;
+                }
                 lines[0] = WithMarker(render.Glyphs.StatusMarker(cell.Status.Value), lines[0], style,
                     cell.Status.Value == StatusKind.Pass && ConsoleViewStyle.IsApplied(render) ? render.Style(ThemeToken.Text) : (Style?)null);
             }

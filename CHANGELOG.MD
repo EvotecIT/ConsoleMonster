@@ -36,6 +36,8 @@
 - `Steady` keeps a live region at the largest size it has needed, so a table that loses rows when workers finish no longer moves everything below it. `MinHeight` reserves the rows from the first frame, and `Reset()` releases them. The size is held for the width it was rendered at, so a resize starts fresh instead of keeping a narrow, wrapped height. Keep the same `Steady` instance across frames.
 
 #### Fixed
+- Words markers no longer overwrite lane labels or adjacent calendar dates, and status cells omit a repeated status word. Running and Pending retain their own meanings in inferred status columns.
+- Comparison distributions keep block fills without tracks. Composition bars retain problem colours, and bars and legend swatches omit text decorations. Full Line bars keep the existing half-cell cap and rounding; ASCII keeps its previous fill calculation.
 - An invalid `CONSOLEMONSTER_DENSITY` value is ignored and reported in settings problems, so it no longer stops the settings picker or hides a saved Density preference.
 - A failing or warning diagram link is coloured along its whole length, and a failing node's box in its status, instead of only marking the label with a symbol.
 - A matrix inside a `DashboardFrame` section no longer collapses to "0 non-healthy cells" when everything is healthy. The frame gave the section its measured width and the matrix switched to its list at that width; a matrix now reports the width it needs to keep the layout it measured, at every width.

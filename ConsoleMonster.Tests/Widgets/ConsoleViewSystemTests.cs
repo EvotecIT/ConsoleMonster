@@ -52,7 +52,7 @@ public sealed class ConsoleViewSystemTests {
         TextBlock text = TextBlock.Plain("a · b more");
         text.WrapSeparator = " · "; text.Overflow = overflow;
         string rendered = TestTerminal.RenderText(text, width, height: 1, glyphs: GlyphTier.Ascii);
-        Assert.Contains("a -", rendered);
+        Assert.Contains("a |", rendered);
         Assert.DoesNotContain('·', rendered);
     }
     [Theory]
@@ -228,7 +228,9 @@ public sealed class ConsoleViewSystemTests {
         Assert.EndsWith("72%", text);
         string bar = text.Substring(0, cells);
         Assert.Contains(tier == GlyphTier.Ascii ? "-" : "─", bar);
-        Assert.Equal(capture.Context.Style(ThemeToken.Critical), capture.Raw[0, 0].Style);
+        Assert.Equal(capture.Context.Style(ThemeToken.Critical).Color, capture.Raw[0, 0].Style.Color);
+        Assert.Equal(capture.Context.Style(ThemeToken.Critical).BackgroundColor, capture.Raw[0, 0].Style.BackgroundColor);
+        Assert.Equal(TextDecoration.None, capture.Raw[0, 0].Style.Decoration);
     }
 
     [Fact]

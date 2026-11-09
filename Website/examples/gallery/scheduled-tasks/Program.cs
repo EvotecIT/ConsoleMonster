@@ -44,7 +44,7 @@ foreach (var failure in failures)
     flow.Add(new FlowNode("action", failure.Action, StatusKind.Fail));
     flow.Add(new FlowEdge("fires", "trigger", "task", "fired"));
     flow.Add(new FlowEdge("runs", "task", "action", failure.Outcome, StatusKind.Fail, true));
-    var details = new KeyValueList { KeyRole = ThemeToken.Fail }
+    var details = new KeyValueList { KeyRole = ThemeToken.Muted }
         .Add("Cause", failure.Cause)
         .Add("Fix", failure.Fix);
     traces.Add(new Panel(

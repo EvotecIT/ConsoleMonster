@@ -18,6 +18,8 @@ public static class FrameBars {
         if (context == null) throw new ArgumentNullException(nameof(context));
         if (width <= 0) return string.Empty;
         string fill = state.HasValue && state.Value != HealthState.Healthy ? FrameText.Tag(state.Value) : "muted";
+        // Inline Full-tier frame bars historically keep a half cap for a nonzero bucket.
+        if (context.Glyphs.Tier == GlyphTier.Full && fraction > 0) fraction = Math.Max(fraction, 0.5 / width);
         return Widgets.BarDrawer.Markup(width, fraction, fill, context, true, Widgets.BarShape.Line);
     }
 
@@ -46,7 +48,7 @@ public static class FrameBars {
             else if (x >= start && x < end) { glyph = segment; style = role; }
             else if (marker.HasValue && x == marker.Value) { glyph = mark; style = "subtle"; }
             else { glyph = track; style = "subtle"; }
-            if (open != style) { if (open != null) text.Append("[/]"); text.Append('[').Append(style).Append(']'); open = style; }
+            if (open != style) { if (open != null) text.Append("[/]"); Styling.Style colour = context.Markup("[" + style + "]x[/]").Lines[0][0].Style; text.Append('[').Append(colour.Color).Append(" on ").Append(colour.BackgroundColor).Append(']'); open = style; }
             text.Append(glyph);
         }
         if (open != null) text.Append("[/]");

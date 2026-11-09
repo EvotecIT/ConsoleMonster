@@ -5,18 +5,17 @@
  Needs attention  2 of 8 partnerships · worst first ─────────────────────────────────────────────────────────────── × 2
  × LON-DC01 ← NYC-DC01  2d 3h  41 fails  8524 DNS lookup failure
  × NYC-DC01 ← LON-DC01  2d 3h  38 fails  8524 DNS lookup failure
+ √ current · × failing · (·) no partnership · 40 naming-context links
 
- Matrix  worst naming context · age ─────────────────────────── inbound  Last success  all naming contexts ────── age
-           source →  LON-HQ               AMS-DC               NYC-BR    <15m       ═════════════════════════    26
- destination ↓       LON-DC01  LON-DC02   AMS-DC01  AMS-DC02   NYC-DC01  15m to 1h  ══════───────────────────     6
- LON-HQ    LON-DC01  —         √ 15m      √ 14m     ·          × 2d      1h to 1d   ─────────────────────────     0
-           LON-DC02  √ 9m      —          ·         ·          ·         >1d        ════════─────────────────     8
+ Matrix  worst naming context · age ─────────────────────────── inbound    Last success  all naming contexts ────── age
+           source →  LON-HQ               AMS-DC               NYC-BR      <15m       ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄    26
+ destination ↓       LON-DC01  LON-DC02   AMS-DC01  AMS-DC02   NYC-DC01    15m to 1h  ▄▄▄▄▄▄                        6
+ LON-HQ    LON-DC01  —         √ 15m      √ 14m     ·          × 2d        1h to 1d                                 0
+           LON-DC02  √ 9m      —          ·         ·          ·           >1d        ▄▄▄▄▄▄▄▄                      8
  AMS-DC    AMS-DC01  √ 52m     ·          —         √ 16m      ·
            AMS-DC02  ·         ·          √ 9m      —          ·
  NYC-BR    NYC-DC01  × 2d      ·          ·         ·          —
  cell: age of the oldest naming context
-
- √ current · × failing · · no partnership · 40 naming-context links
 
  Inbound by DC  5 DCs by site · last success · log axis ─────────────────────────────────────────────────── × 2 failing
  DC        In  Fail  1m        10m     1h             1d   4d  Worst

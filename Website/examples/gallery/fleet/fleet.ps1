@@ -384,7 +384,7 @@ function Invoke-Work {
     )
 
     $plan.CompletedWork = @($Work)
-    $dashboard = New-ConsoleDashboard -Title '[bold]Fleet health check[/]' -Subtitle $plan.Domain `
+    $dashboard = New-ConsoleDashboard -Title '[accent bold]Fleet health check[/]' -Subtitle $plan.Domain `
         -Footer 'Ctrl+C cancel · results keep the findings' -Content {
         New-ConsoleRegion -WidgetId body -Content { Get-RunBody -Work $Work -Done 0 -Phase 0 }
     }

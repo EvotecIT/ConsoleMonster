@@ -40,7 +40,7 @@ ad.evotec.xyz
 
 [WARN] DNS scavenging                                     7 days
 
-| SRV01  #########---------  50%  P0 F0 W0  copying Weekly.xlsx
+| SRV01  ########--------  50%  P 0 F 0 W 0  copying Weekly.xlsx
 
 ERR DC03 replication failed - no inbound replication for 4h from
     DC02

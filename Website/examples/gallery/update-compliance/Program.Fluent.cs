@@ -24,7 +24,7 @@ var servers = new Server[]
 var states = new State[]
 {
     new("Compliant", ThemeToken.Pass),
-    new("Pending reboot", ThemeToken.Info),
+    new("Pending reboot", ThemeToken.Warn),
     new("Missing updates", ThemeToken.Warn),
     new("Failed", ThemeToken.Fail)
 };

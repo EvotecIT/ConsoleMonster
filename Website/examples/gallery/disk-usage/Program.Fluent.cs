@@ -55,7 +55,7 @@ Rows report = Ui.Rows().Gap(1).Content(c3 =>
         c2.Rows(r => r.Content(c =>
         {
             c.Markup(
-                "[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.");
+                "[fail]Artifacts is at 94%.[/] Review the retention policy before the next build.");
             c.Markup("[muted]Keep the current release; archive history older than 30 days.[/]");
         }));
     }));

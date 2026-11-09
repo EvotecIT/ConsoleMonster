@@ -9,6 +9,7 @@
  × LON-DC01 ← SIN-DC01   6h 8m  18 fails  1722 RPC server unavailable
  ? BOM-DC03                  —            not reached (30 s timeout)
  ? TYO-DC04                  —            not reached (30 s timeout)
+ ✓ current · × failing · ? not reached · (·) no partnership · 1190 naming-context links
 
  Matrix  worst state · partnerships in that state ─────────────────────────────────────────────────────── inbound
      source →  LON  AMS  FRA  NYC  TOR  CHI  SIN  SYD  TYO  DUB  MEX  SAO  JNB  DXB  MUC  MAD  WAW  BOM  HKG  SEA
@@ -36,13 +37,11 @@
  cell: worst state · partnerships in that state
 
  Last success  all naming contexts ─────── age
- <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    1,046
- 15m to 1h  ━━╾──────────────────────      100
- 1h to 1d   ╾────────────────────────       20
- >1d        ╾────────────────────────        4
+ <15m       ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆    1,046
+ 15m to 1h  ▆▆                             100
+ 1h to 1d   ▆                               20
+ >1d        ▆                                4
  unread     ? DC not reached              ? 20
-
- ✓ current · × failing · ? not reached · · no partnership · 1190 naming-context links
 
  Inbound by DC  100 DCs by site · last success · log axis ─────────────────────────────── × 4 failing · ? 2 not reached
  DC        In  Fail  1m        10m     1h             1d   4d   Worst

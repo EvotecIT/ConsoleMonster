@@ -38,18 +38,30 @@ namespace SiteFrames.Capture {
             }
         }
 
-        internal static string ContactSheet(Site site, string directory) {
+        internal static string ContactSheet(Site site, string directory, string variant = "Dark") {
+            ITheme theme = variant switch {
+                "Dark" or "CompactWords" => Theme.Dark,
+                "Light" => Theme.Light,
+                "ColorBlindSafe" => Theme.ColorBlindSafe,
+                _ => throw new ArgumentException("Use Dark, Light, ColorBlindSafe or CompactWords.", nameof(variant))
+            };
+            ThemeDensity density = variant == "CompactWords" ? ThemeDensity.Compact : ThemeDensity.Comfortable;
+            StatusMarkerStyle markers = variant == "CompactWords" ? StatusMarkerStyle.Words : StatusMarkerStyle.Symbols;
+            ExportTheme exportTheme = variant == "Light" ? ExportTheme.Light : ExportTheme.Dark;
+            string name = variant == "CompactWords" ? "compact-words" : variant.ToLowerInvariant();
             Directory.CreateDirectory(directory);
             var frames = new List<(string Name, CellBuffer Frame)>();
-            foreach (GalleryPage.Demo demo in GalleryPage.Read(site).Where(d => d.Metadata["mode"]!.GetValue<string>() == "static")) {
-                CellBuffer frame = GalleryFrames.Run(demo, 0, theme: Theme.Dark, width: 120, height: 42);
-                frame.SavePng(Path.Combine(directory, demo.Slug + ".png"), new GraphicsExportOptions { Frame = new ExportOptions { Theme = ExportTheme.Dark } });
+            foreach (GalleryPage.Demo demo in GalleryPage.Read(site)) {
+                int step = demo.Metadata["capture"]!["states"]!.AsArray().Count - 1;
+                CellBuffer frame = GalleryFrames.Run(demo, step, theme: theme, width: 120, height: 42, density: density, markers: markers);
+                frame.SavePng(Path.Combine(directory, demo.Slug + ".png"), new GraphicsExportOptions { Frame = new ExportOptions { Theme = exportTheme } });
+                File.WriteAllText(Path.Combine(directory, demo.Slug + ".txt"), frame.ToPlainText(), new UTF8Encoding(false));
                 frames.Add((demo.Slug, frame));
             }
             int rows = 0;
             for (int i = 0; i < frames.Count; i += 2) rows += Math.Max(frames[i].Frame.Height, i + 1 < frames.Count ? frames[i + 1].Frame.Height : 0) + 3;
             CellBuffer sheet = new CellBuffer(244, rows);
-            RenderContext context = ConsoleMonster.Terminal.CreateContext(CSharpRunner.Profile(244, rows, ColorDepth.TrueColor, GlyphTier.Full), Theme.Dark);
+            RenderContext context = ConsoleMonster.Terminal.CreateContext(CSharpRunner.Profile(244, rows, ColorDepth.TrueColor, GlyphTier.Full), theme);
             int y = 0;
             for (int i = 0; i < frames.Count; i += 2) {
                 int height = 0;
@@ -61,8 +73,8 @@ namespace SiteFrames.Capture {
                 }
                 y += height + 3;
             }
-            string path = Path.Combine(directory, "gallery-dark-120-contact-sheet.png");
-            sheet.SavePng(path, new GraphicsExportOptions { Frame = new ExportOptions { Theme = ExportTheme.Dark } });
+            string path = Path.Combine(directory, "gallery-" + name + "-120-contact-sheet.png");
+            sheet.SavePng(path, new GraphicsExportOptions { Frame = new ExportOptions { Theme = exportTheme } });
             return path;
         }
 

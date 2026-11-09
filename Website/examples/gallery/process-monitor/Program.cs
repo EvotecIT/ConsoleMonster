@@ -27,19 +27,18 @@ IWidget Frame(int tick)
         .Column("CPU %", row => row.Cpu)
         .Column("Memory MiB", row => row.Memory);
     table.Expand = true;
-    Sparkline history = new Sparkline
-    {
-        Title = "CPU %"
-    };
-    history.AddRange(cpuHistory.Concat(new[] { 56.0 + tick * 5 }));
+    LineChart history = new LineChart { Height = 4, Unit = "%" };
+    history.AddSeries("CPU %", ThemeToken.Accent);
+    foreach (double value in cpuHistory.Concat(new[] { 56.0 + tick * 5 }))
+        history.Add("CPU %", value);
     return new Rows(
         new Rule("[accent bold]Process monitor[/] [muted]· refresh 1s[/]"),
         new ViewFacts()
             .Add(new ViewFact($"{56 + tick * 5}%", default, "CPU", default, ThemeToken.Accent))
-            .Add(new ViewFact($"{1640 + tick * 64} MiB", default, "Memory"))
+            .Add(new ViewFact($"{1640 + tick * 64:N0} MiB", default, "Memory"))
             .Add(4, "processes"),
         table,
-        new Panel() { Title = "CPU history", Content = history },
+        new Panel() { Title = "CPU history", Content = new Rows(new TextBlock("[muted]CPU %[/]"), history) },
         new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))
     {
         Gap = 1

@@ -44,7 +44,7 @@ foreach (var failure in failures)
     flow.Add(new FlowEdge("fires", "trigger", "task", "fired"));
     flow.Add(new FlowEdge("runs", "task", "action", failure.Outcome, StatusKind.Fail, true));
     var details = Ui.KeyValue()
-        .KeyRole(ThemeToken.Fail)
+        .KeyRole(ThemeToken.Muted)
         .Add("Cause", failure.Cause)
         .Add("Fix", failure.Fix);
     traces.Add(Ui.Panel().Content(content =>

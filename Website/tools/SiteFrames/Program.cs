@@ -107,7 +107,7 @@ namespace SiteFrames {
                     foreach (string name in GalleryReferences.Themes) GalleryReferences.Verify(new Site(website), name, command == "gallery-reference-update");
                     return 0;
                 case "gallery-contact-sheet":
-                    Console.WriteLine(GalleryReferences.ContactSheet(new Site(website), only ?? throw new ArgumentException("Pass an output directory.")));
+                    Console.WriteLine(GalleryReferences.ContactSheet(new Site(website), only ?? throw new ArgumentException("Pass an output directory."), args.Length > 3 ? args[3] : "Dark"));
                     return 0;
                 case "verify-gallery":
                     GalleryPage.Verify(new Site(website), only);

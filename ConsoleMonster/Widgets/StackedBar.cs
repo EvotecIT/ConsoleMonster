@@ -135,11 +135,11 @@ namespace ConsoleMonster.Widgets {
             int x = 0;
             for (int i = 0; i < _segments.Count; i++) {
                 string fill = GetFillMarker(i, context);
-                region.HorizontalLine(x, 0, widths[i], fill, context.Style(_segments[i].Role == ThemeToken.Pass ? ThemeToken.Muted : _segments[i].Role ?? ThemeToken.Muted));
+                region.HorizontalLine(x, 0, widths[i], fill, BarDrawer.ColorStyle(context.Style(SegmentRole(_segments[i]))));
                 x += widths[i];
             }
             if (x < barWidth) {
-                region.HorizontalLine(x, 0, barWidth - x, context.Glyphs.Get(Glyph.BarTrack), context.Style(ThemeToken.Subtle));
+                region.HorizontalLine(x, 0, barWidth - x, context.Glyphs.Get(Glyph.BarTrack), BarDrawer.ColorStyle(context.Style(ThemeToken.Subtle)));
             }
             region.Write(Math.Max(0, region.Width - DisplayWidth.Measure(totalText)), 0, totalText, context.Style(ThemeToken.Text));
             if (!ShowLegend && !context.Profile.IsAccessible) {
@@ -163,8 +163,12 @@ namespace ConsoleMonster.Widgets {
             if (segmentIndex < 0 || segmentIndex >= _segments.Count) throw new ArgumentOutOfRangeException(nameof(segmentIndex));
             if (context == null) throw new ArgumentNullException(nameof(context));
             IGlyphSet glyphs = context.Glyphs;
-            if (!ShowLegend && _segments[segmentIndex].Role.HasValue && StatusKinds.TryFromToken(_segments[segmentIndex].Role!.Value, out StatusKind hiddenStatus))
+            if (!ShowLegend && (StatusKinds.TryFromToken(_segments[segmentIndex].Status?.ToToken() ?? _segments[segmentIndex].Role ?? ThemeToken.Muted, out StatusKind hiddenStatus)
+                || StatusKinds.TryFromToken(SegmentRole(_segments[segmentIndex]), out hiddenStatus)))
                 return glyphs.StatusSymbol(hiddenStatus);
+            // Status colours must keep their full contrast; shaded glyphs would turn a later Fail segment into a faint tint.
+            if (context.HasColor && glyphs.Tier != GlyphTier.Ascii && StatusKinds.TryFromToken(SegmentRole(_segments[segmentIndex]), out _))
+                return glyphs.Get(Glyph.BlockFull);
             if (glyphs.Tier == GlyphTier.Ascii) {
                 return segmentIndex < AsciiFills.Length ? AsciiFills[segmentIndex] : AdditionalFills[(segmentIndex - AsciiFills.Length) % AdditionalFills.Length].ToString();
             }
@@ -219,10 +223,20 @@ namespace ConsoleMonster.Widgets {
             return widths;
         }
 
+        private static ThemeToken SegmentRole(ChartItem segment) {
+            ThemeToken role = segment.Role ?? ThemeToken.Muted;
+            if (role == ThemeToken.Muted || role == ThemeToken.Text || role == ThemeToken.Subtle) {
+                if (segment.Status.HasValue) role = segment.Status.Value.ToToken();
+                else if (StatusKinds.TryParse(segment.Label, out StatusKind inferred)) role = inferred.ToToken();
+            }
+            return role == ThemeToken.Pass ? ThemeToken.Muted : role;
+        }
+
         private static StyledLine SegmentLabel(ChartItem segment, RenderContext context) {
             var spans = new List<TextSpan>();
-            if (segment.Role.HasValue && StatusKinds.TryFromToken(segment.Role.Value, out StatusKind status))
-                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(status) + " ", context.Style(status == StatusKind.Pass ? ThemeToken.Muted : status.ToToken())));
+            StatusKind status = default;
+            if (segment.Status.HasValue || StatusKinds.TryFromToken(segment.Role ?? SegmentRole(segment), out status))
+                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(segment.Status ?? status) + " ", context.Style(SegmentRole(segment))));
             spans.AddRange(RichLines.Line(segment.LabelText, segment.Label, context.Style(ThemeToken.Text), context));
             return new StyledLine(spans);
         }
@@ -274,7 +288,7 @@ namespace ConsoleMonster.Widgets {
                 ChartItem segment = _segments[i];
                 Style textStyle = context.Style(ThemeToken.Text);
                 StyledLine label = TextWrapper.Truncate(SegmentLabel(segment, context), labelWidth, context.Ellipsis);
-                current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role == ThemeToken.Pass ? ThemeToken.Muted : segment.Role ?? ThemeToken.Muted)));
+                current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), BarDrawer.ColorStyle(context.Style(SegmentRole(segment)))));
                 // The label keeps its own colours; padding fills the column per its alignment.
                 int padding = Math.Max(0, labelWidth - label.Width);
                 int before = LabelColumn.Alignment == HorizontalAlignment.Right ? padding : LabelColumn.Alignment == HorizontalAlignment.Center ? padding / 2 : 0;

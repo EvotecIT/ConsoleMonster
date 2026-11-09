@@ -24,17 +24,16 @@ function New-ProcessFrame {
         New-ConsoleRule -Title '[accent bold]Process monitor[/] [muted]· refresh 1s[/]'
         New-ConsoleFacts -Content {
             @{ Value = "$((56 + $Tick * 5))%"; Caption = 'CPU'; Role = 'Accent' }
-            @{ Value = "$((1640 + $Tick * 64)) MiB"; Caption = 'Memory' }
+            @{ Value = ('{0:N0} MiB' -f (1640 + $Tick * 64)); Caption = 'Memory' }
             @{ Value = 4; Label = 'processes' }
         }
         New-ConsoleTable -InputObject $rows -Property Name, Pid, 'CPU %', 'Memory MiB' -Expand
         New-ConsolePanel -Title 'CPU history' -Content {
-            $chartParameters = @{
-                Title = 'CPU %'
-                Type = 'Sparkline'
-                Values = @($cpuHistory + (56 + $Tick * 5))
+            '[muted]CPU %[/]'
+            New-ConsoleChart -Type Line -Height 4 -Unit '%' -Content {
+                [pscustomobject]@{ Key = 'CPU %'; Role = 'Accent'
+                    Values = @($cpuHistory + (56 + $Tick * 5)) }
             }
-            New-ConsoleChart @chartParameters
         }
         '[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]'
     }

@@ -38,7 +38,7 @@ IWidget Frame(int tick)
             .PadRight(4) + "[/]  " + message));
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Markup("[bold]Application log[/] [muted]· worker events[/]");
+        c2.Markup("[accent bold]Application log[/] [muted]· worker events[/]");
         c2.Panel(p => p.Title("./logs/worker.log").Content(c =>
         {
             c.Add(lines);
@@ -78,6 +78,6 @@ foreach ((_, string level, string message) in events)
     log.Write(message, level);
 ConsoleApp.Run(Ui.Rows().Content(c =>
 {
-    c.Markup("[bold]Application log[/] [muted]· read the run back[/]");
+    c.Markup("[accent bold]Application log[/] [muted]· read the run back[/]");
     c.Add(log);
 }));

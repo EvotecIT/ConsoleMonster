@@ -129,7 +129,7 @@ IWidget Frame(int tick)
             ($"[accent bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
                 + $"{clock}[/]"));
         c3.Facts(facts => facts.Add(rows.Count - restarting, "running", ThemeToken.Pass)
-            .Add(restarting, "restarting", ThemeToken.Warn)
+            .Add(restarting, "restarting", restarting == 0 ? ThemeToken.Muted : ThemeToken.Warn)
             .Add(new ViewFact($"{memoryTotal:N0} of {limitTotal:N0} MiB reserved", default,
                 "memory")));
         c3.Add(table);

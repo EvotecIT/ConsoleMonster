@@ -12,7 +12,7 @@ Host inventory · synthetic data
 │ SQL01 │ Database │ North │ ✓ Pass    │
 │ SQL02 │ Database │ West  │ ✗ Fail    │
 │ FS01  │ Files    │ North │ ✓ Pass    │
-│ JOB01 │ Worker   │ West  │ ✓ Running │
+│ JOB01 │ Worker   │ West  │ ● Running │
 ╰───────┴──────────┴───────┴───────────╯
 
 

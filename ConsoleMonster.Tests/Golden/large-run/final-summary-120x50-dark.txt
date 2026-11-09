@@ -1,5 +1,5 @@
 Fleet checks · 214 / 214 finished · 2m 33s
-✓ 202 passed · ✗ 4 failed · ▲ 3 warnings · – 5 skipped
+ ✓ 202 passed · ✗ 4 failed · ▲ 3 warnings · – 5 skipped
 Groups
 ╭──────────┬───────┬────────┬────────┬──────────┬─────────╮
 │ Group    │ Done  │ Passed │ Failed │ Warnings │ Skipped │

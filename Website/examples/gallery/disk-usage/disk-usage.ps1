@@ -44,7 +44,7 @@ $report = New-ConsoleRows -Gap 1 -Content {
         }
     }
     New-ConsolePanel -Title 'Next action' -Content {
-        '[warn]Artifacts is at 94%.[/] Review the retention policy before the next build.'
+        '[fail]Artifacts is at 94%.[/] Review the retention policy before the next build.'
         '[muted]Keep the current release; archive history older than 30 days.[/]'
     }
 }

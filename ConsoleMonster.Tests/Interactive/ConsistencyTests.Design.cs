@@ -8,6 +8,7 @@ using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using ConsoleMonster.Tests.Rendering;
 using ConsoleMonster.Widgets;
 using Xunit;
 
@@ -53,7 +54,8 @@ namespace ConsoleMonster.Tests.Interactive {
             composition.Add("Passed", 8).Add("Failed", 2);
             CellBuffer segments = Render(composition);
             Assert.Equal(context.Style(ThemeToken.Muted), segments[0, 0].Style);
-            Assert.Contains(Enumerable.Range(0, 90), x => segments[x, 0].Style.Equals(context.Style(ThemeToken.Fail)));
+            Assert.Contains(Enumerable.Range(0, 90), x => segments[x, 0].Style.Color.Equals(context.Style(ThemeToken.Fail).Color)
+                && segments[x, 0].Style.Decoration == TextDecoration.None);
             Assert.EndsWith("10", segments.GetRowText(0).TrimEnd());
 
 
@@ -75,6 +77,11 @@ namespace ConsoleMonster.Tests.Interactive {
             CellBuffer keys = Render(new KeyValueList().Add("Servers", "48"));
             Assert.Equal(context.Style(ThemeToken.Muted), keys[0, 0].Style);
             Assert.Equal(context.Style(ThemeToken.Text), keys[9, 0].Style);
+            if (tier == GlyphTier.Full && density == ThemeDensity.Comfortable && markers == StatusMarkerStyle.Symbols) {
+                var statusScene = new Rows(new TextBlock("[fail]Failed[/] [critical]Critical[/]"), quota, composition, facts);
+                Golden.Match("design/status-colours." + themeName.ToLowerInvariant() + ".vt.txt",
+                    Terminal.RenderEncoded(statusScene, profile, theme).Replace("\u001b", "\\e"));
+            }
         }
 
         [Fact]
@@ -123,6 +130,8 @@ namespace ConsoleMonster.Tests.Interactive {
             body.Render(new Region(ordinary), context);
             Assert.Contains("╰", ordinary.GetRowText(body.Measure(new Constraints(90), context).Height - 1));
             Assert.DoesNotContain("╰", ordinary.GetRowText(23));
+            Golden.Match("design/dashboard-height.full.txt", "Printed\n" + Terminal.RenderText(dashboard, context.Profile, context.Theme).TrimEnd()
+                + "\n\nAllocated live region\n" + full.ToPlainText());
         }
         [Theory]
         [InlineData(false)]
@@ -144,6 +153,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Contains("12:00", text);
             Assert.Contains("23:00", text);
             Assert.Contains(histogram ? "44" : "peak 44", text);
+            Golden.Match("design/" + (histogram ? "histogram" : "sparkline") + "-axis.full.txt", text);
         }
 
         [Theory]

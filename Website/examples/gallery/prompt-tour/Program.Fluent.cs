@@ -140,7 +140,7 @@ foreach (Server host in servers.Take(5))
     lanes.Add(host.Name, host.Name, 6);
 LogRegion log = Ui.LogRegion().PreferredHeight(6);
 Dashboard dashboard = Ui.Dashboard()
-    .Title("[bold]Patching[/]")
+    .Title("[accent bold]Patching[/]")
     .Subtitle("5 servers")
     .Content(body => body.Panel(Ui.Panel().Title("Servers").Content(c =>
     {

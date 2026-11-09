@@ -34,8 +34,10 @@ namespace ConsoleMonster.Glyphs {
         }
 
         // Whether status markers are already words (the ASCII tier, or the Words style), so a status word after one repeats it.
-        internal static bool MarkersAreWords(this IGlyphSet glyphs) =>
-            glyphs.Tier == Capabilities.GlyphTier.Ascii || (glyphs is StyledGlyphSet styled && styled.Words);
+        internal static bool MarkersAreWords(this IGlyphSet glyphs) {
+            string marker = glyphs.StatusMarker(StatusKind.Fail);
+            return marker.Length > 1 && marker[0] == '[' && marker[marker.Length - 1] == ']';
+        }
 
         /// <summary>
         /// The text of a semantic icon in the glyph set's tier (see <see cref="GlyphIcon"/>). Custom glyph sets resolve by

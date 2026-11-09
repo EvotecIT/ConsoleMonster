@@ -43,12 +43,12 @@ namespace ConsoleMonster.Widgets {
                 Line(_name, ThemeToken.Muted).Render(region.Sub(0, 0, labelWidth, 1), context);
                 int barWidth = Math.Min(24, Math.Max(0, region.Width - labelWidth - 40));
                 Bar(region.Sub(labelWidth + 1, 0, barWidth, 1), context, done, _items.Length);
-                string states = " " + done + "/" + _items.Length;
+                ViewFacts facts = new ViewFacts().Add(done.ToString("N0", context.Culture) + "/" + _items.Length.ToString("N0", context.Culture), label: string.Empty);
                 foreach (StatusKind state in new[] { StatusKind.Pass, StatusKind.Fail, StatusKind.Warn }) {
                     int count = _items.Count(i => i.Status == state);
-                    states += "  " + CountMarkup(state, count, context.Glyphs.StatusSymbol(state) + count);
+                    facts.Add(new ViewFact(count.ToString("N0", context.Culture), label: string.Empty, caption: context.Glyphs.StatusSymbol(state), role: count == 0 ? ThemeToken.Muted : state.ToToken()));
                 }
-                new TextBlock(states).Render(region.Sub(labelWidth + barWidth + 2, 0, Math.Max(0, region.Width - labelWidth - barWidth - 2), 1), context);
+                facts.Render(region.Sub(labelWidth + barWidth + 2, 0, Math.Max(0, region.Width - labelWidth - barWidth - 2), 1), context);
             }
         }
         private sealed class ActiveRow : IWidget {

@@ -14,6 +14,9 @@ var tasks = new TaskItem[]
     new("Archive old drafts", "Waiting", 8)
 };
 
+string separator = Terminal.GetCurrentProfile().Glyphs == ConsoleMonster.Capabilities.GlyphTier.Ascii
+    ? "|" : "·";
+
 // Layout: compose the screen from the data above.
 string baseline = "";
 var table = Ui.Table(tasks)
@@ -33,10 +36,10 @@ foreach (var task in tasks)
 
 Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
-    c.Rule("[accent bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
-    c.Markup("[bold]Before[/] [muted]| plain text[/]");
+    c.Rule($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer output[/]");
+    c.Markup($"[bold]Before[/] [muted]{separator} plain text[/]");
     c.Markup(baseline);
-    c.Markup("[bold]After[/] [muted]| ConsoleMonster table[/]");
+    c.Markup($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]");
     c.Add(table);
     c.Markup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
 });

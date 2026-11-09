@@ -12,17 +12,26 @@ function New-PatchSummary {
     )
 
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Parallel patch run[/] [muted]· throttle 3[/]'
+        '[accent bold]Parallel patch run[/] [muted]· throttle 3[/]'
         $rows = foreach ($server in $servers) {
             $outcome = $Outcomes | Where-Object -Property Host -EQ -Value $server
             $stage = if ($outcome) { 'Finished' } else { 'Queued' }
             $result = if ($outcome) { $outcome.Result } else { '-' }
             [pscustomobject] @{ Host = $server; Stage = $stage; Result = $result }
         }
-        New-ConsoleTable -InputObject $rows -Property Host, Stage, Result
+        $resultColumn = @{ Name = 'Result'; Expression = {
+                if ($_.Result -eq 'Retry needed') {
+                    [ConsoleMonster.Widgets.TableCell]::ForStatus('Warn', $_.Result)
+                }
+                else { $_.Result }
+            }; Presenter = 'StatusWord' }
+        New-ConsoleTable -InputObject $rows -Property Host, Stage, $resultColumn
         if ($Outcomes.Count -gt 0) {
             $passed = @($Outcomes | Where-Object -Property Result -EQ -Value Pass).Count
-            "[pass]$passed passed[/]  [warn]$($Outcomes.Count - $passed) retry needed[/]"
+            New-ConsoleFacts -Content {
+                @{ Value = $passed; Label = 'passed'; Role = 'Pass' }
+                @{ Value = ($Outcomes.Count - $passed); Label = 'retry needed'; Role = 'Warn' }
+            }
         }
         else {
             '[muted]Ctrl+C cancels active work.[/]'

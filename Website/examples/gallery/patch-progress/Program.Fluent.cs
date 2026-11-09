@@ -5,6 +5,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Styling;
 
 // A parallel dry run: the delay and one failure are synthetic. No server is contacted.
 // Data: fictional inputs kept in memory.
@@ -24,16 +25,18 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
     var table = Ui.Table(rows)
         .Column(row => row.Host)
         .Column(row => row.Stage)
-        .Column(row => row.Result, column => column.Presenter(CellPresenters.StatusWord));
-    string summary = outcomes.Count > 0
-        ? ($"[pass]{outcomes.Count(result => result.Succeeded)} passed[/]  [warn]"
-            + $"{outcomes.Count(result => !result.Succeeded)} retry needed[/]")
-        : "[muted]Ctrl+C cancels active work.[/]";
+        .Column("Result", row => row.Result == "Retry needed"
+            ? TableCell.ForStatus(StatusKind.Warn, row.Result)
+            : TableCell.FromValue(row.Result), column => column.Presenter(CellPresenters.StatusWord));
+    IWidget summary = outcomes.Count > 0
+        ? Ui.Facts().Add(outcomes.Count(result => result.Succeeded), "passed", ThemeToken.Pass)
+            .Add(outcomes.Count(result => !result.Succeeded), "retry needed", ThemeToken.Warn)
+        : Ui.Markup("[muted]Ctrl+C cancels active work.[/]");
     return Ui.Rows().Gap(1).Content(c =>
     {
-        c.Markup("[bold]Parallel patch run[/] [muted]· throttle 3[/]");
+        c.Markup("[accent bold]Parallel patch run[/] [muted]· throttle 3[/]");
         c.Add(table);
-        c.Markup(summary);
+        c.Add(summary);
     });
 }
 

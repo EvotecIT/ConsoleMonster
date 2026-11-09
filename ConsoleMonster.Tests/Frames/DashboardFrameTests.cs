@@ -30,7 +30,7 @@ public sealed class DashboardFrameTests {
             var context = Terminal.CreateContext(TestTerminal.Profile(100).WithDensity(density), Styling.Theme.Dark);
             string text = global::ConsoleMonster.Rendering.FrameComposer.RenderBlock(frame, 100, context).ToPlainText();
             string row = Assert.Single(Lines(text), line => line.Contains("x") && line.Contains("y"));
-            Assert.Contains(density == Styling.ThemeDensity.Compact ? "x y" : "x  y", row);
+            Assert.Contains(density == Styling.ThemeDensity.Compact ? "x   y" : "x    y", row);
         }
     }
 
@@ -317,7 +317,7 @@ public sealed class DashboardFrameTests {
             Assert.Equal(20, context.Markup(FrameBars.Range(0.1, 0.7, 20, HealthState.Failing, 0.5, context)).Lines[0].Width);
         }
         Canvas.RenderContext full = Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.None, GlyphTier.Full));
-        Assert.Equal("╾─────────", Markup.Strip(FrameBars.Line(0.001, 10, null, full)));
+        Assert.Equal("╸─────────", Markup.Strip(FrameBars.Line(0.001, 10, null, full)));
     }
 
     [Fact]
@@ -473,6 +473,6 @@ public sealed class DashboardFrameTests {
         frame.Sections.Add(cappedFirst ? growing : capped);
         Render(frame, 120);
         Assert.Equal(30, cappedWidth);
-        Assert.Equal(86, growingWidth);
+        Assert.Equal(84, growingWidth);
     }
 }

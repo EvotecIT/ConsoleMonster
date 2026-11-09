@@ -58,7 +58,7 @@ public sealed class ConsoleViewRoundThreeTests {
     }
 
     [Theory]
-    [InlineData(GlyphTier.Full, "━━━━━━━━━━━━━━━━━╾──────")]
+    [InlineData(GlyphTier.Full, "━━━━━━━━━━━━━━━━━╸──────")]
     [InlineData(GlyphTier.Ascii, "#################-------")]
     public void ScoreGauge_FractionalScore_LineHeadJoinsSubtleTrack(GlyphTier tier, string expectedBar) {
         Review184Capture capture = new Review184Capture(new ScoreGauge(72), 120, tier, ColorDepth.TrueColor);
