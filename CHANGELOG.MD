@@ -36,6 +36,7 @@
 - `Steady` keeps a live region at the largest size it has needed, so a table that loses rows when workers finish no longer moves everything below it. `MinHeight` reserves the rows from the first frame, and `Reset()` releases them. The size is held for the width it was rendered at, so a resize starts fresh instead of keeping a narrow, wrapped height. Keep the same `Steady` instance across frames.
 
 #### Fixed
+- Words log markers omit the repeated level word. Adjacent identical composition fills have a one-cell gap, legends fit each column's labels, and cut flow edges show their failure indicator once.
 - Words markers no longer overwrite lane labels or adjacent calendar dates, and status cells omit a repeated status word. Running and Pending retain their own meanings in inferred status columns.
 - Comparison distributions keep block fills without tracks. Composition bars retain problem colours, and bars and legend swatches omit text decorations. Full Line bars keep the existing half-cell cap and rounding; ASCII keeps its previous fill calculation.
 - An invalid `CONSOLEMONSTER_DENSITY` value is ignored and reported in settings problems, so it no longer stops the settings picker or hides a saved Density preference.

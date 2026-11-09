@@ -28,7 +28,7 @@ back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Markup("[accent bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]");
+    c2.Markup("[accent bold]Install Toolbox Agent[/]");
     c2.Add(folder);
     c2.Add(component);
     c2.Rows(rows => rows.Add(Ui.Columns()

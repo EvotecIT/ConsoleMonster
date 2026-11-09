@@ -1,3 +1,4 @@
+using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Frames;
@@ -11,6 +12,34 @@ using Xunit;
 namespace ConsoleMonster.Tests.Widgets;
 
 public sealed class BarCorrectionTests {
+    [Fact]
+    public void StackedBar_AdjacentEqualStatusFillsHaveOneCellBetweenThem() {
+        foreach (ITheme theme in new[] { Theme.Dark, Theme.Light, Theme.ColorBlindSafe }) {
+            RenderContext context = Terminal.CreateContext(TerminalProfile.Fixed(60, 10), theme);
+            var bar = new StackedBar().Add("Ready", 7).Add("Awaiting reboot", 2, ThemeToken.Warn)
+                .Add("Updates queued", 2, ThemeToken.Warn).Add("Failed", 1, ThemeToken.Fail);
+            CellBuffer frame = FrameComposer.RenderBlock(bar, 60, context);
+            bool Warning(int x) => frame[x, 0].Glyph == "█" && frame[x, 0].Style.Color.Equals(context.Style(ThemeToken.Warn).Color);
+            int gap = Assert.Single(Enumerable.Range(1, 55), x => frame[x, 0].Glyph == " " && Warning(x - 1) && Warning(x + 1));
+            Assert.Equal(TextDecoration.None, frame[gap, 0].Style.Decoration);
+            Assert.Equal(context.Style(ThemeToken.Fail).Color, frame[55, 0].Style.Color);
+        }
+    }
+
+    [Theory]
+    [InlineData(105, 0, 2)]
+    [InlineData(60, 0, 3)]
+    [InlineData(105, 2, 3)]
+    public void StackedBar_LegendFitsItsActualColumnWidths(int width, int limit, int height) {
+        var bar = new StackedBar { MaxLegendColumns = limit };
+        bar.Add("Ready", 7).Add("Awaiting reboot", 2, ThemeToken.Warn)
+            .Add("Updates queued", 2, ThemeToken.Warn).Add("Failed", 1, ThemeToken.Fail);
+        CellBuffer frame = FrameComposer.RenderBlock(bar, width, Context());
+        Assert.Equal(height, frame.Height);
+        foreach (string label in new[] { "Ready", "Awaiting reboot", "Updates queued", "Failed" })
+            Assert.Contains(label, frame.ToPlainText());
+    }
+
     private static RenderContext Context(GlyphTier tier = GlyphTier.Full) =>
         Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.TrueColor, tier), Theme.ColorBlindSafe);
 

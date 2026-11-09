@@ -197,6 +197,7 @@ facts wrap between items. Default-view summaries use this same widget. Other fac
 
 Line uses `━╸─` on Full, `═─` on Basic and `#-` on ASCII. Comparison rows use `▆`, `▄` and `#` respectively. Existing rounding stays in place: Full Line bars round to half cells with midpoint-to-even and use `╸` for the half cell; ASCII keeps its eighth-cell calculation with unsupported partial cells omitted.
 Bars and legend swatches use the semantic foreground and background colours without text decorations. Coloured composition problems use opaque blocks so a late Fail segment is not diluted by a shade pattern; monochrome and ASCII retain distinct fill patterns. A Fail underline remains on text, never on the bar geometry.
+Adjacent composition segments with the same colour and fill have a one-cell gap when there is room to retain every positive segment. Segment proportions use the remaining fill width. Legends fit each column to its own labels while keeping counts and percentages aligned across rows.
 `BarDrawer` owns horizontal bar geometry, including inline frame bars and exported output. An explicitly signed
 BarChart retains its zero baseline and comparison semantics. A non-finite Maximum falls back to comparison scaling.
 Progress columns remain configurable; an explicit set of columns determines its own count and percentage fields.

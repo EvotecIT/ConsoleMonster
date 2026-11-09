@@ -24,7 +24,7 @@ Button next = new Button("Next", "Next / preview");
 back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
 Rows layout = new Rows(
-    new TextBlock("[accent bold]Install Toolbox Agent[/] [muted]· Toolbox Agent[/]"),
+    new TextBlock("[accent bold]Install Toolbox Agent[/]"),
     folder,
     component,
     new Sized(new Columns()

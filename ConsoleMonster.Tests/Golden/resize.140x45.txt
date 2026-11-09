@@ -4,8 +4,8 @@
 
 ╭─ Targets ─────────────────────────────────────────────────────────────── 6 workers ─╮ ╭─ Results ────────────────────────────────────────╮
 │ ⠸ ad.adatum.com (domain)     ━━━━━━━───────  50%  ✓  7 ✗  0 ▲  1  Service account … │ │ ███████████████████████████████████▓▓▓▓▓▒▒░  123 │
-│ ✗ eu.ad.adatum.com (domain)  ━━━━━━━━━━━━━━ 100%  ✓ 13 ✗  1 ▲  1  done in 16s       │ │ █ ✓ Passed   101  82%   ▓ ▲ Warnings  14  12%    │
-│ ⠴ DC01.ad.adatum.com         ━━━━━━━━━━━━━╸  96%  ✓ 25 ✗  0 ▲  3  PowerShell loggi… │ │ ▒ ✗ Failed     4   3%   ░ – Skipped    4   3%    │
+│ ✗ eu.ad.adatum.com (domain)  ━━━━━━━━━━━━━━ 100%  ✓ 13 ✗  1 ▲  1  done in 16s       │ │ █ ✓ Passed 101  82%   ▓ ▲ Warnings  14  12%      │
+│ ⠴ DC01.ad.adatum.com         ━━━━━━━━━━━━━╸  96%  ✓ 25 ✗  0 ▲  3  PowerShell loggi… │ │ ▒ ✗ Failed   4   3%   ░ – Skipped    4   3%      │
 │ ⠦ DC02.ad.adatum.com         ━━━━━━━━━━━━╸─  90%  ✓ 20 ✗  0 ▲  6  Firewall profile  │ │ ──────────────────────────────────────────────── │
 │ ⠧ DC03.ad.adatum.com         ━━━━━━━━━╸────  66%  ✓ 16 ✗  3 ▲  1  Clock skew        │ │ Evaluated         123 / 332                      │
 │ ⠇ DC04.ad.adatum.com         ━━━━━━━━━━╸───  76%  ✓ 20 ✗  0 ▲  2  Unconstrained de… │ │ Average rate      7.2 rules/s                    │

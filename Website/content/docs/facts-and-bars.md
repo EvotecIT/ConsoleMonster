@@ -32,6 +32,7 @@ Ui.Facts().Add(3, "passed", ThemeToken.Pass).Add(1, "warning", ThemeToken.Warn)
 A Bar chart with `-Maximum 100` shows a quota as a Line with a Subtle track and a percentage on the right. With a
 different whole it shows value/whole. Without Maximum, bars compare values using Block without a track. Progress
 and score gauges use the same quota language. Composition bars keep the healthy share neutral and colour problems.
+Adjacent identical fills are separated by one cell when there is room; the legend fits its columns to their labels before wrapping.
 
 Use `New-ConsoleChart -Type Sparkline -Values 4,3,8 -Labels '00:00','12:00','23:00'` for an axis and peak value.
 Without Labels, the compact trend keeps its existing appearance. A chart in a titled panel drops a repeated caption.

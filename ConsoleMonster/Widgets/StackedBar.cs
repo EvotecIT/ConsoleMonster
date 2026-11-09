@@ -11,8 +11,9 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// One bar split into proportional segments with a legend (label, value, share). Problem segments take their status colour; healthy and unclassified segments stay neutral.
-    /// An explicit role selects another colour. Without colour, segments use distinct
-    /// fill glyphs so the split stays readable. Live operations (Key = segment): <c>set</c> (Value), <c>add</c> (Value).
+    /// Adjacent indistinguishable fills have a one-cell gap when space allows. An explicit role selects another colour.
+    /// Without colour, segments use distinct fill glyphs so the split stays readable.
+    /// Live operations (Key = segment): <c>set</c> (Value), <c>add</c> (Value).
     /// </summary>
     public sealed class StackedBar : LiveWidget {
         private static readonly string[] AsciiFills = { "#", "=", "+", "-", ".", ":" };
@@ -32,14 +33,14 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>
         /// The most legend columns per row, or 0 (default) to fit as many as the width allows. Entries fill rows left to
-        /// right and every row shares one grid, so labels, counts and percentages line up.
+        /// right and every row shares one grid fitted to each column, so labels, counts and percentages line up.
         /// </summary>
         public int MaxLegendColumns { get; set; }
 
         /// <summary>Layout of the legend label column (default left-aligned).</summary>
         public ColumnFormat LabelColumn {
-            get => _labelColumn.Format;
-            set => _labelColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
+            get => _labelFormat;
+            set => _labelFormat = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>Layout of the legend count column (default right-aligned; reserves the digits of the overall total).</summary>
@@ -54,7 +55,8 @@ namespace ConsoleMonster.Widgets {
             set => _percentColumn.Format = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private readonly StatColumn _labelColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Left));
+        private ColumnFormat _labelFormat = new ColumnFormat(HorizontalAlignment.Left);
+        private readonly List<StatColumn> _labelColumns = new List<StatColumn>();
         private readonly StatColumn _countColumn = new StatColumn(new ColumnFormat());
         private readonly StatColumn _percentColumn = new StatColumn(new ColumnFormat(HorizontalAlignment.Right, 4));
 
@@ -131,11 +133,29 @@ namespace ConsoleMonster.Widgets {
             foreach (ChartItem segment in _segments) total += NumberFormat.PositiveOrZero(segment.Value);
             string totalText = NumberFormat.Compact(total);
             int barWidth = Math.Max(0, region.Width - DisplayWidth.Measure(totalText) - 2);
-            int[] widths = SegmentWidths(barWidth);
+            string[] fills = new string[_segments.Count];
+            Style[] styles = new Style[_segments.Count];
+            bool[] gaps = new bool[_segments.Count];
+            int previous = -1, positive = 0, gapCount = 0;
+            for (int i = 0; i < _segments.Count; i++) {
+                fills[i] = GetFillMarker(i, context);
+                styles[i] = BarDrawer.ColorStyle(context.Style(SegmentRole(_segments[i])));
+                if (NumberFormat.PositiveOrZero(_segments[i].Value) <= 0) continue;
+                positive++;
+                if (previous >= 0 && fills[previous] == fills[i] && styles[previous] == styles[i]) {
+                    gaps[i] = true;
+                    gapCount++;
+                }
+                previous = i;
+            }
+            // Keep every positive segment visible before reserving cells for boundaries.
+            bool separate = barWidth >= positive + gapCount;
+            int[] widths = SegmentWidths(barWidth - (separate ? gapCount : 0));
             int x = 0;
             for (int i = 0; i < _segments.Count; i++) {
-                string fill = GetFillMarker(i, context);
-                region.HorizontalLine(x, 0, widths[i], fill, BarDrawer.ColorStyle(context.Style(SegmentRole(_segments[i]))));
+                if (widths[i] == 0) continue;
+                if (separate && gaps[i]) region.Put(x++, 0, " ", BarDrawer.ColorStyle(context.Style(ThemeToken.Text)));
+                region.HorizontalLine(x, 0, widths[i], fills[i], styles[i]);
                 x += widths[i];
             }
             if (x < barWidth) {
@@ -253,28 +273,25 @@ namespace ConsoleMonster.Widgets {
             // One grid for every entry: marker | label (left) | count (right) | percent (right). Counts reserve the digits
             // of the overall total, which no segment can exceed, so the grid holds still as the numbers grow.
             int markerWidth = 0;
-            int labelWidth = 0;
+            int[] labelWidths = new int[_segments.Count];
             int countWidth = 0;
-            foreach (ChartItem segment in _segments) {
-                labelWidth = Math.Max(labelWidth, SegmentLabel(segment, context).Width);
+            for (int i = 0; i < _segments.Count; i++) {
+                ChartItem segment = _segments[i];
+                if (_labelColumns.Count == i) _labelColumns.Add(new StatColumn(LabelColumn));
+                _labelColumns[i].Format = LabelColumn;
+                labelWidths[i] = _labelColumns[i].Resolve(SegmentLabel(segment, context).Width);
                 countWidth = Math.Max(countWidth, DisplayWidth.Measure(Count(segment.Value, context)));
             }
             for (int i = 0; i < _segments.Count; i++) {
                 markerWidth = Math.Max(markerWidth, DisplayWidth.Measure(GetFillMarker(i, context)));
             }
-            labelWidth = _labelColumn.Resolve(labelWidth);
             countWidth = _countColumn.Resolve(countWidth, 0, DisplayWidth.Measure(NumberFormat.Compact(total)));
             int percentWidth = total > 0 ? _percentColumn.Resolve(DisplayWidth.Measure(NumberFormat.Percent(1))) : 0;
-            int entryWidth = markerWidth + 1 + labelWidth + 1 + countWidth + (percentWidth > 0 ? 1 + percentWidth : 0);
-            const int Gap = 3;
-            int columns = Math.Max(1, Math.Min(_segments.Count, (width + Gap) / (entryWidth + Gap)));
-            if (MaxLegendColumns > 0) {
-                columns = Math.Min(columns, MaxLegendColumns);
-            }
-            if (entryWidth > width) {
-                // Too narrow for the grid: shrink the label column so counts and percents keep their columns.
-                labelWidth = Math.Max(1, labelWidth - (entryWidth - width));
-            }
+            int fixedWidth = markerWidth + 2 + countWidth + (percentWidth > 0 ? 1 + percentWidth : 0);
+            int[] entryWidths = new int[_segments.Count];
+            for (int i = 0; i < entryWidths.Length; i++) entryWidths[i] = labelWidths[i] + fixedWidth;
+            int[] columnWidths = Legend.FitColumns(entryWidths, width, MaxLegendColumns);
+            int columns = columnWidths.Length;
             int[] percents = WholePercents(total);
             List<TextSpan> current = new List<TextSpan>();
             for (int i = 0; i < _segments.Count; i++) {
@@ -283,10 +300,11 @@ namespace ConsoleMonster.Widgets {
                     current = new List<TextSpan>();
                 }
                 if (i % columns != 0) {
-                    current.Add(new TextSpan(new string(' ', Gap)));
+                    current.Add(new TextSpan(new string(' ', Legend.ColumnGap)));
                 }
                 ChartItem segment = _segments[i];
                 Style textStyle = context.Style(ThemeToken.Text);
+                int labelWidth = Math.Max(1, Math.Min(columnWidths[i % columns], width) - fixedWidth);
                 StyledLine label = TextWrapper.Truncate(SegmentLabel(segment, context), labelWidth, context.Ellipsis);
                 current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), BarDrawer.ColorStyle(context.Style(SegmentRole(segment)))));
                 // The label keeps its own colours; padding fills the column per its alignment.
