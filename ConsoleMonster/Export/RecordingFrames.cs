@@ -100,6 +100,7 @@ namespace ConsoleMonster.Export {
             if (Theme == ExportTheme.Current) {
                 o.Border = Terminal.Profile.Border;
                 o.StatusMarkers = Terminal.Profile.StatusMarkers;
+                o.Density = Terminal.Profile.Density;
             }
             o.Validate();
             if (Height < 1) {

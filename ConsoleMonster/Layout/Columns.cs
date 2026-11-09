@@ -24,7 +24,10 @@ namespace ConsoleMonster.Layout {
         }
 
         /// <summary>Blank columns between children (default 1).</summary>
-        public int Gap { get; set; } = 1;
+        public int Gap { get => _gap ?? 1; set => _gap = value; }
+        private int? _gap;
+
+        private int EffectiveGap(RenderContext context) => _gap ?? context.DefaultSpacing(1, 0);
 
         /// <summary>
         /// Width below which the columns stack vertically. -1 (default) uses the sum of the children's minimum widths
@@ -52,7 +55,7 @@ namespace ConsoleMonster.Layout {
 
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
-            if (IsCollapsed(constraints.MaxWidth)) {
+            if (IsCollapsed(constraints.MaxWidth, context)) {
                 int stackedHeight = 0;
                 foreach (IWidget child in _children) {
                     stackedHeight += child.Measure(new Constraints(constraints.MaxWidth, constraints.MaxHeight), context).Height;
@@ -69,13 +72,13 @@ namespace ConsoleMonster.Layout {
                 }
                 height = Math.Max(height, _children[i].Measure(new Constraints(widths[i], constraints.MaxHeight), context).Height);
             }
-            int width = hasFraction ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, TrackAllocator.Sum(widths) + (Gap * Math.Max(0, _children.Count - 1)));
+            int width = hasFraction ? constraints.MaxWidth : Math.Min(constraints.MaxWidth, TrackAllocator.Sum(widths) + (EffectiveGap(context) * Math.Max(0, _children.Count - 1)));
             return new Size(width, height);
         }
 
         /// <inheritdoc />
         public void Render(Region region, RenderContext context) {
-            if (IsCollapsed(region.Width)) {
+            if (IsCollapsed(region.Width, context)) {
                 int y = 0;
                 foreach (IWidget child in _children) {
                     int h = child.Measure(new Constraints(region.Width, Math.Max(0, region.Height - y)), context).Height;
@@ -87,7 +90,7 @@ namespace ConsoleMonster.Layout {
             int[] widths = ComputeWidths(region.Width, region.Height, context);
             if (LayoutNotes.IsRecording) {
                 // The allocator offers fixed columns first, then each auto column what is left; fill columns take the rest.
-                int offered = Math.Max(0, region.Width - Gap * (_children.Count - 1));
+                int offered = Math.Max(0, region.Width - EffectiveGap(context) * (_children.Count - 1));
                 for (int i = 0; i < _children.Count; i++) { if (_sizes[i].Kind == LayoutSizeKind.Fixed) { offered -= widths[i]; } }
                 for (int i = 0; i < _children.Count; i++) {
                     int offer = _sizes[i].Kind == LayoutSizeKind.Auto ? Math.Max(0, offered) : widths[i];
@@ -100,17 +103,17 @@ namespace ConsoleMonster.Layout {
                 if (widths[i] > 0) {
                     _children[i].Render(region.Sub(x, 0, widths[i], region.Height), context);
                 }
-                x += widths[i] + Gap;
+                x += widths[i] + EffectiveGap(context);
             }
         }
 
-        private bool IsCollapsed(int width) {
+        private bool IsCollapsed(int width, RenderContext context) {
             if (_children.Count < 2) {
                 return false;
             }
             int threshold = CollapseBelow;
             if (threshold < 0) {
-                threshold = Gap * (_children.Count - 1);
+                threshold = EffectiveGap(context) * (_children.Count - 1);
                 foreach (LayoutSize spec in _sizes) {
                     threshold += spec.Kind == LayoutSizeKind.Fixed ? (int)spec.Value : (spec.Min > 0 ? spec.Min : (spec.Kind == LayoutSizeKind.Fraction ? DefaultFractionMin : 0));
                 }
@@ -120,7 +123,7 @@ namespace ConsoleMonster.Layout {
 
         private int[] ComputeWidths(int width, int maxHeight, RenderContext context) {
             Func<int, int, int> measure = (index, remaining) => _children[index].Measure(new Constraints(remaining, maxHeight), context).Width;
-            return TrackAllocator.Allocate(width, _sizes, Gap, measure, false);
+            return TrackAllocator.Allocate(width, _sizes, EffectiveGap(context), measure, false);
         }
     }
 }

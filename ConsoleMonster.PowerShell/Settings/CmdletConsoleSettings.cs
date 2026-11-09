@@ -11,7 +11,7 @@ using ConsoleMonster.PowerShell.Binding;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Shows ConsoleMonster's settings: the value of each and where it came from.</para>
-    /// <para type="description">Lists the theme, colour, glyphs, frames (Border), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</para>
+    /// <para type="description">Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their effective value and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Entries in the file that cannot be used are ignored and reported as warnings.</para>
     /// </summary>
     /// <example>
     ///   <para>Every setting and its source</para>
@@ -48,7 +48,7 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>
     /// <para type="synopsis">Changes a ConsoleMonster setting for this session, and with -Save for every session.</para>
-    /// <para type="description">Sets Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</para>
+    /// <para type="description">Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.</para>
     /// </summary>
     /// <example>
     ///   <para>Use the colour-blind-safe theme from now on</para>
@@ -69,7 +69,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleSetting", SupportsShouldProcess = true)]
     public sealed class CmdletSetConsoleSetting : NoPipelineInputCmdlet {
-        /// <summary><para type="description">The setting: Theme, Color, Glyphs, Border, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</para></summary>
+        /// <summary><para type="description">The setting: Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
         [ArgumentCompleter(typeof(ConsoleSettingNameCompleter))]
         public string Name { get; set; } = string.Empty;

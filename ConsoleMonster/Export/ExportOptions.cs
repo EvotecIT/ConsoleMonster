@@ -60,13 +60,14 @@ namespace ConsoleMonster.Export {
         /// <summary>Height in cells for widgets; 0 (default) uses the height the widget measures at <see cref="Width"/>.</summary>
         public int Height { get; set; }
 
-        // The frame and status markers chosen for the terminal (Border and StatusMarkers settings), which Current carries
+        // The frame, spacing and status markers chosen for the terminal, which Current carries
         // into the export so it draws like the terminal; null leaves them to the export theme.
         internal Glyphs.BoxStyle? Border { get; set; }
         internal Styling.StatusMarkerStyle? StatusMarkers { get; set; }
+        internal Styling.ThemeDensity? Density { get; set; }
 
         // A copy with Current replaced by the export theme that matches the theme in use, its colours and the terminal's
-        // frame and marker choices; any other theme returns this object unchanged.
+        // frame, spacing and marker choices; any other theme returns this object unchanged.
         internal ExportOptions ResolveCurrent() {
             if (Theme != ExportTheme.Current) { return this; }
             ExportOptions o = Clone();
@@ -77,6 +78,7 @@ namespace ConsoleMonster.Export {
             Capabilities.TerminalProfile profile = Terminal.Profile;
             o.Border ??= profile.Border;
             o.StatusMarkers ??= profile.StatusMarkers;
+            o.Density ??= profile.Density;
             return o;
         }
 

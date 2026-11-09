@@ -244,6 +244,18 @@ namespace ConsoleMonster.Capabilities {
         /// </summary>
         public Styling.StatusMarkerStyle? StatusMarkers { get; private set; }
 
+        /// <summary>Widget spacing chosen by CONSOLEMONSTER_DENSITY or the Density setting; null uses the theme.</summary>
+        public ThemeDensity? Density { get; private set; }
+
+        /// <summary>Returns a copy with a density override, or null to use the theme.</summary>
+        /// <param name="density">The spacing density.</param>
+        /// <returns>A new profile.</returns>
+        public TerminalProfile WithDensity(ThemeDensity? density) {
+            TerminalProfile copy = Copy();
+            copy.Density = density;
+            return copy;
+        }
+
         /// <summary>Returns a copy that draws default frames with this style, whatever the theme says.</summary>
         /// <param name="border">The frame, or null to follow the theme. <see cref="T:ConsoleMonster.Glyphs.BoxStyle"/> None is not a frame style.</param>
         /// <returns>The copy.</returns>
@@ -333,7 +345,7 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
                 IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
-                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers
+                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density
             };
         }
 
@@ -408,7 +420,7 @@ namespace ConsoleMonster.Capabilities {
                 themePreference ?? ThemePreference,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density
             };
         }
     }

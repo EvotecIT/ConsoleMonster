@@ -34,7 +34,9 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
-            return new LayoutGrid(Columns, children.ToArray()) { ColumnGap = ColumnGap, RowGap = RowGap, MinColumnWidth = MinColumnWidth, FillHeight = !NoFillHeight.IsPresent };
+            LayoutGrid grid = new LayoutGrid(Columns, children.ToArray()) { RowGap = RowGap, MinColumnWidth = MinColumnWidth, FillHeight = !NoFillHeight.IsPresent };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(ColumnGap))) { grid.ColumnGap = ColumnGap; }
+            return grid;
         }
     }
 }

@@ -86,7 +86,9 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override IWidget Build(List<IWidget> children) {
             IWidget content = ContentBuilder.Compose(children.ToArray());
-            Panel panel = new Panel(content, PSText.Markup(Title)) { Gap = Gap, HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, BorderRole = BorderRole, PaddingLeft = PaddingLeft, PaddingRight = PaddingRight, PaddingTop = PaddingTop, PaddingBottom = PaddingBottom, Expand = !NoExpand.IsPresent, Verdict = Verdict.IsPresent, Status = Status };
+            Panel panel = new Panel(content, PSText.Markup(Title)) { Gap = Gap, HeaderRight = PSText.Markup(HeaderRight), Caption = PSText.Markup(Caption), Border = Border, BorderRole = BorderRole, PaddingTop = PaddingTop, PaddingBottom = PaddingBottom, Expand = !NoExpand.IsPresent, Verdict = Verdict.IsPresent, Status = Status };
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(PaddingLeft))) { panel.PaddingLeft = PaddingLeft; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(PaddingRight))) { panel.PaddingRight = PaddingRight; }
             return PSWidgets.WithSize(panel, Weight, Height, Fill.IsPresent);
         }
     }

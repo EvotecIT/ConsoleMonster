@@ -215,6 +215,8 @@ namespace ConsoleMonster.Interactive {
                 profile = profile.WithBorder(border == "Auto" || border.Length == 0 ? (BoxStyle?)null : (BoxStyle)Enum.Parse(typeof(BoxStyle), border));
                 string markers = Value("StatusMarkers");
                 profile = profile.WithStatusMarkers(markers == "Auto" || markers.Length == 0 ? (StatusMarkerStyle?)null : (StatusMarkerStyle)Enum.Parse(typeof(StatusMarkerStyle), markers));
+                string density = Value("Density");
+                profile = profile.WithDensity(density.Length == 0 ? (ThemeDensity?)null : (ThemeDensity)Enum.Parse(typeof(ThemeDensity), density));
                 string culture = Value("Culture");
                 if (culture == "Invariant") { profile = profile.WithCulture(CultureInfo.InvariantCulture); }
                 else if (culture != "Current" && culture.Length > 0) { profile = profile.WithCulture(Culture(culture) ?? profile.Culture); }
