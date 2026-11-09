@@ -306,7 +306,7 @@
         $text | Should -Match 'Same statuses: 1 problem'
         ([regex]::Matches($text, 'Pass and fail look alike')).Count | Should -Be 1
         ($text -replace '\s+', ' ') | Should -Match 'in normal vision and with protanopia, deuteranopia and tritanopia'
-        $text | Should -Match '0.0, needs 25'
+        $text | Should -Match '0\.0,\s+needs 25'
     }
 
 }
