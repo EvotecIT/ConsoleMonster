@@ -12,6 +12,34 @@ order: 1
 
 The script stands in for someone else's module with `Get-ContosoBackup`, a function that returns typed objects. Before the registration they show as the generic table of every property, with sizes in raw bytes; after it, the same command shows the chosen columns, sizes as a bar against the largest, and a line that sums them up.
 
+## Start from a draft
+
+Pipe a few results into `ConvertTo-ConsoleView` to get a working registration script:
+
+```powershell
+Get-ContosoBackup | ConvertTo-ConsoleView
+```
+
+Paste the script into your profile and adjust the columns. It samples the first 50 objects,
+chooses up to six nonempty columns and reuses the default table's presenters, with status
+words, bars for widely varying sizes and relative dates for recent values. A commented
+`-Summary` block suggests a total count and counts by status. Add `-Register` to try the
+draft in this session; `Enable-ConsoleFormatting` makes registered views show on the console.
+
+To keep a data-only file instead:
+
+```powershell
+Get-ContosoBackup | ConvertTo-ConsoleView -AsDataFile |
+    Set-Content ContosoBackup.consoleviews.psd1
+Register-ConsoleView -Path ./ContosoBackup.consoleviews.psd1
+```
+
+Ship it as `ModuleName.consoleviews.psd1` beside that module's manifest for automatic
+discovery. The file uses property names for expressions and contains no script blocks.
+Sample one object shape at a time. Deserialized input warns and drafts for the base type;
+that view does not apply to job or remote output. `Select-Object` input keeps its
+`Selected.` type name and warns that the view targets that selected shape.
+
 ## 1. Find the type name
 
 A view is registered for a type name, and every object carries a list of them. The first is the most specific and the one to use:
