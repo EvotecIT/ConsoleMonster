@@ -4,8 +4,8 @@
 
  Needs attention  3 of 118 partnerships · worst first ─────────────── × 2 · ? 1  Matrix  worst state · partnerships in that state ─────────────────────────────────── inbound  Last success  all naming contexts ───── age
  × SIN-DC01 ← LON-DC01  6h 12m  19 fails  1722 RPC server unavailable                source →  LON-HQ  AMS-DC  FRA-DC  NYC-BR  TOR-BR  CHI-BR  SIN-BR  SYD-BR  TYO-BR  DUB-BR  <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    522
- × LON-DC01 ← SIN-DC01   6h 8m  18 fails  1722 RPC server unavailable            destination ↓                                                                                 15m to 1h  ━━╸──────────────────────     48
- ? TYO-DC04                  —            not reached (30 s timeout)             LON-HQ        ✓       ✓       ✓       ✓       ✓       ✓       × 1     ✓       ✓       ✓       1h to 1d   ╸────────────────────────     10
+ × LON-DC01 ← SIN-DC01   6h 8m  18 fails  1722 RPC server unavailable            destination ↓                                                                                 15m to 1h  ━━╾──────────────────────     48
+ ? TYO-DC04                  —            not reached (30 s timeout)             LON-HQ        ✓       ✓       ✓       ✓       ✓       ✓       × 1     ✓       ✓       ✓       1h to 1d   ╾────────────────────────     10
                                                                                  AMS-DC        ✓       ✓       ·       ·       ·       ·       ·       ·       ·       ·       >1d        ─────────────────────────      0
                                                                                  FRA-DC        ✓       ·       ✓       ·       ·       ·       ·       ·       ·       ·       unread     ? DC not reached            ? 10
                                                                                  NYC-BR        ✓       ·       ·       ✓       ·       ·       ·       ·       ·       ·
@@ -16,6 +16,8 @@
                                                                                  TYO-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ? 2     ·
                                                                                  DUB-BR        ✓       ·       ·       ·       ·       ·       ·       ·       ·       ✓
                                                                                  cell: worst state · partnerships in that state
+
+ ✓ current · × failing · ? not reached · · no partnership · 590 naming-context links
 
  Inbound by DC  50 DCs by site · last success · log axis ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── × 2 failing · ? 1 not reached
  DC        In  Fail  1m        10m     1h             1d   4d   Worst    DC        In  Fail  1m        10m     1h             1d   4d   Worst    DC        In  Fail  1m        10m     1h             1d   4d   Worst
@@ -44,5 +46,4 @@
                                                                                                                                                  DUB-DC03   2     0  ──━━━━━━━━━━●───────────────────────────     14m
                                                                                                                                                  DUB-DC04   2     0  ───━━━━━━━━●────────────────────────────     10m
 
- ✓ current   × failing   ? not reached   · no partnership
- 590 naming-context links · pipe to Format-Table for every row
+ pipe to Format-Table for every row

@@ -37,7 +37,7 @@ public sealed class GroupedColumn<T> {
 public sealed class GroupHeading {
     /// <summary>Literal Muted facts after the group key (<c>6 DCs</c>).</summary>
     public IList<string> Facts { get; } = new List<string>();
-    /// <summary>The group's states (<c>▴ 1 not current</c>).</summary>
+    /// <summary>The group's states (<c>▲ 1 not current</c>).</summary>
     public IList<FrameState> States { get; } = new List<FrameState>();
 }
 

@@ -21,6 +21,10 @@ namespace ConsoleMonster {
         /// <returns>The empty CellMap widget; the optional primary input is its live identity.</returns>
         public static CellMap CellMap(string widgetId = "cells") => new CellMap(widgetId);
 
+        /// <summary>Empty facts line; add counts, labels and semantic roles.</summary>
+        /// <returns>The facts line.</returns>
+        public static ViewFacts Facts() => new ViewFacts();
+
         /// <summary>Empty KeyValue widget; the optional primary input is its live identity.</summary>
         /// <param name="widgetId">The primary input.</param>
         /// <returns>The empty KeyValue widget; the optional primary input is its live identity.</returns>

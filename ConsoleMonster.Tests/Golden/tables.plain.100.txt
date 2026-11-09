@@ -21,7 +21,7 @@
 
  evotec.xyz * mail security checks
 +---------+--------+---------------------------------------------------------------+--------+------+
-| Check   | Status | Detail                                                        |   Took | RFC  |
+| Check   | Status | Detail                                                        |   Took |  RFC |
 +---------+--------+---------------------------------------------------------------+--------+------+
 | SPF     | [OK]   | 9 DNS lookups (limit 10); ends with -all                      |  84 ms | 7208 |
 | DMARC   | [OK]   | p=reject, aggregate and forensic reports configured           |  41 ms | 7489 |
@@ -31,7 +31,7 @@
 |         |        | https://mta-sts.evotec.xyz/.well-known/mta-sts.txt            |        |      |
 | TLS-RPT | [SKIP] | not published                                                 |  22 ms | 8460 |
 | DNSSEC  | [WARN] | zone is not signed                                            |  95 ms | 4033 |
-| BIMI    | [INFO] | no record; optional                                           |  19 ms | -    |
+| BIMI    | [INFO] | no record; optional                                           |  19 ms |    - |
 +---------+--------+---------------------------------------------------------------+--------+------+
 
 mail.evotec.xyz  -  TLS certificate * ECDSA P-256 * Let's Encrypt

@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The shared count column format.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
         public Layout.ColumnFormat? CountColumn { get; set; }
-        /// <summary><para type="description">Hides the default-on count in the classic bar layout.</para></summary>
+        /// <summary><para type="description">Shows a percentage instead of value/total for totals other than 100. A total of 100 always shows only its percentage.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
         public SwitchParameter NoCount { get; set; }
         /// <summary><para type="description">The fixed label width.</para></summary>

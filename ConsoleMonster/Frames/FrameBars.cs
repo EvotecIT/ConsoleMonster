@@ -17,22 +17,8 @@ public static class FrameBars {
     internal static string Line(double fraction, int width, HealthState? state, RenderContext context) {
         if (context == null) throw new ArgumentNullException(nameof(context));
         if (width <= 0) return string.Empty;
-        fraction = double.IsNaN(fraction) ? 0 : Math.Max(0, Math.Min(1, fraction));
         string fill = state.HasValue && state.Value != HealthState.Healthy ? FrameText.Tag(state.Value) : "muted";
-        GlyphTier tier = context.Glyphs.Tier;
-        if (tier == GlyphTier.Full) {
-            int halves = (int)Math.Round(fraction * width * 2, MidpointRounding.AwayFromZero);
-            if (halves == 0 && fraction > 0) halves = 1;
-            int full = halves / 2;
-            bool half = halves % 2 == 1;
-            int rest = width - full - (half ? 1 : 0);
-            return Run(fill, "━", full) + (half ? "[" + fill + "]╸[/]" : string.Empty) + Run("subtle", "─", rest);
-        }
-        int cells = (int)Math.Round(fraction * width, MidpointRounding.AwayFromZero);
-        if (cells == 0 && fraction > 0) cells = 1;
-        // Basic uses lower half blocks (WGL4): full blocks or shades merge into one slab across stacked rows.
-        if (tier == GlyphTier.Basic) return Run(fill, "▄", cells) + (context.HasColor ? Run("subtle", "▄", width - cells) : Run("subtle", "─", width - cells));
-        return Run(fill, "#", cells) + Run("subtle", ".", width - cells);
+        return Widgets.BarDrawer.Markup(width, fraction, fill, context, true, Widgets.BarShape.Line);
     }
 
     /// <summary>A range on a shared axis: a track, a segment from <paramref name="from"/> to <paramref name="to"/> and a dot at <paramref name="to"/>.</summary>
@@ -73,7 +59,7 @@ public static class FrameBars {
     public static string Note(string text, HealthState state, int width, RenderContext context) {
         if (context == null) throw new ArgumentNullException(nameof(context));
         string glyph = FrameText.Glyph(state, context);
-        string note = Text.TextWrapper.Truncate(FrameText.Fold(text ?? string.Empty, context), Math.Max(0, width - glyph.Length - 1), context.Ellipsis);
+        string note = Text.TextWrapper.Truncate(FrameText.Fold(text ?? string.Empty, context), Math.Max(0, width - Text.DisplayWidth.Measure(glyph) - 1), context.Ellipsis);
         return "[" + FrameText.Tag(state) + "]" + glyph + (note.Length > 0 ? " " + FrameText.Escape(note) : string.Empty) + "[/]";
     }
 

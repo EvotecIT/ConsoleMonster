@@ -114,14 +114,14 @@ public sealed class DashboardFrame : IWidget {
         if (Attention.Count > 0) summary.Add(Attention.ToSection(scale, context));
         foreach (FrameSection section in Sections) { if (section.Placement == FramePlacement.Summary) summary.Add(section); }
         blocks.AddRange(Summary(summary, content, scale, context));
+        if (!Legend.IsEmpty) blocks.Add(Legend.Build(context, Footer.Counts));
         if (scale.DetailCap != 0) {
             foreach (FrameSection section in Sections) {
                 if (section.Placement == FramePlacement.Detail) blocks.Add(section.Build(content, scale, context));
             }
         }
         Rows tail = new Rows();
-        if (!Legend.IsEmpty) tail.Add(Legend.Build(context));
-        tail.Add(Footer.Build(context));
+        tail.Add(Footer.Build(context, includeCounts: Legend.IsEmpty));
         blocks.Add(tail);
 
         MeterRow meters = new MeterRow(Meters, scale);

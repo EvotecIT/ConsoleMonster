@@ -28,11 +28,12 @@ public sealed class FrameLegend {
     /// <summary>Whether the legend has entries.</summary>
     internal bool IsEmpty => _entries.Count == 0 && _states.Count == 0;
 
-    internal Legend Build(RenderContext context) {
+    internal FactFlow Build(RenderContext context, IEnumerable<string>? counts = null) {
         List<string> entries = new List<string>();
-        foreach ((HealthState state, string word) in _states) entries.Add("[" + FrameText.Tag(state) + "]" + FrameText.Glyph(state, context) + "[/] [muted]" + Markup.Escape(FrameText.Fold(word, context)) + "[/]");
+        foreach ((HealthState state, string word) in _states) entries.Add("[muted]" + FrameText.Glyph(state, context) + "[/] [muted]" + Markup.Escape(FrameText.Fold(word, context)) + "[/]");
         foreach (string entry in _entries) entries.Add(FrameText.Fold(entry, context));
-        return new Legend(entries.ToArray());
+        if (counts != null) foreach (string count in counts) if (!string.IsNullOrWhiteSpace(count)) entries.Add(Markup.Escape(FrameText.Fold(count, context)));
+        return new FactFlow(entries) { Role = Styling.ThemeToken.Muted };
     }
 }
 
@@ -43,9 +44,9 @@ public sealed class FrameFooter {
     /// <summary>The hint; every row by default.</summary>
     public FrameHint Hint { get; set; } = FrameHint.EveryRow;
 
-    internal FactFlow Build(RenderContext context) {
+    internal FactFlow Build(RenderContext context, bool includeCounts = true) {
         List<string> parts = new List<string>();
-        foreach (string count in Counts) { if (!string.IsNullOrWhiteSpace(count)) parts.Add(Markup.Escape(FrameText.Fold(count, context))); }
+        if (includeCounts) foreach (string count in Counts) { if (!string.IsNullOrWhiteSpace(count)) parts.Add(Markup.Escape(FrameText.Fold(count, context))); }
         if (Hint == FrameHint.EveryRow) parts.Add("pipe to Format-Table for every row");
         else if (Hint == FrameHint.EveryProperty) parts.Add("pipe to Format-List for every property");
         return new FactFlow(parts) { Role = Styling.ThemeToken.Muted };

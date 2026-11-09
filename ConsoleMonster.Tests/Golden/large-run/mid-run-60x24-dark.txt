@@ -9,14 +9,14 @@
 ✓ Free disk space 131          node-03                  3.2s
 ✓ Service health 132           node-04                  4.2s
 ✓ Certificate expiry 133       node-05                  1.2s
-▴ Route reachability 134       node-06     A parti…     2.2s
+▲ Route reachability 134       node-06     A parti…     2.2s
 ✓ Volume permissions 135       node-07                  3.2s
 ✓ Time synchronisation 136     node-08                  4.2s
 ✗ Directory replication 137    node-09     Endpoin…     1.2s
 ────────────────────────────────────────────────────────────
 Fleet checks  ━━━━━━━━━━━━━━━━━━━━────────────  64%  137/214
 Elapsed 1m 40s · ETA 1m 37s · 47.2/min  ▂▂▂▂▂▃▃▅▆▇▇▁
-✓ 125 pass · ✗ 4 fail · ▴ 3 warn · – 5 skip
+✓ 125 pass · ✗ 4 fail · ▲ 3 warn · – 5 skip
 Running now · 8 workers
 Up next · 69 queued
 Problems so far · 7 · + 6 more

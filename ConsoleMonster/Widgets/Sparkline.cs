@@ -27,6 +27,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>A caption shown on the left (markup), or <c>null</c>.</summary>
         public string? Title { get; set; }
 
+        /// <summary>Optional point labels in value order; labelled trends show an axis and their peak.</summary>
+        public IList<string> Labels { get; } = new List<string>();
+
         /// <summary>Rows (default 1).</summary>
         public int Height { get; set; } = 1;
 
@@ -85,28 +88,33 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int height = Math.Max(1, Height);
+            int height = Math.Max(1, Height) + (Labels.Count > 0 ? 1 : 0);
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         /// <inheritdoc />
-        public override void Render(Region region, RenderContext context) {
+        public override void Render(Region region, RenderContext context) => Render(region, context, true);
+
+        internal void Render(Region region, RenderContext context, bool showTitle) {
             if (region.Width <= 0 || region.Height <= 0) {
                 return;
             }
-            int rows = Math.Min(Math.Max(1, Height), region.Height);
+            int rows = Math.Min(Math.Max(1, Height), Math.Max(1, region.Height - (Labels.Count > 0 ? 1 : 0)));
             int x = 0;
-            if (!string.IsNullOrEmpty(Title)) {
+            if (showTitle && !string.IsNullOrEmpty(Title)) {
                 StyledLine label = context.Markup(Title!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
                 x = region.Write(0, rows - 1, label) + 1;
             }
-            string latest = ShowLatest && _values.Count > 0 ? NumberFormat.Compact(_values[_values.Count - 1]) + (Unit ?? string.Empty) : string.Empty;
+            double peak = _values.Count > 0 ? _values[0] : 0;
+            foreach (double value in _values) peak = Math.Max(peak, value);
+            string latest = Labels.Count > 0 && _values.Count > 0 ? "peak " + NumberFormat.Compact(peak) + (Unit ?? string.Empty)
+                : ShowLatest && _values.Count > 0 ? NumberFormat.Compact(_values[_values.Count - 1]) + (Unit ?? string.Empty) : string.Empty;
             int latestWidth = DisplayWidth.Measure(latest);
             int width = region.Width - x - (latestWidth > 0 ? latestWidth + 1 : 0);
             if (width <= 0) {
                 return;
             }
-            int start = Math.Max(0, _values.Count - width);
+            int start = Labels.Count > 0 ? 0 : Math.Max(0, _values.Count - width);
             // A non-finite fixed maximum would make every fraction NaN; use the data maximum instead.
             bool fixedMax = Maximum.HasValue && NumberFormat.IsFinite(Maximum.Value);
             double max = fixedMax ? Maximum!.Value : 0;
@@ -117,9 +125,11 @@ namespace ConsoleMonster.Widgets {
             }
             Style style = context.Style(Role);
             IGlyphSet glyphs = context.Glyphs;
-            int offset = width - (_values.Count - start);
-            for (int i = start; i < _values.Count; i++) {
-                int column = x + offset + (i - start);
+            int offset = Labels.Count > 0 ? 0 : width - (_values.Count - start);
+            int points = Labels.Count > 0 && _values.Count > 0 ? width : _values.Count - start;
+            for (int at = 0; at < points; at++) {
+                int i = Labels.Count > 0 ? (int)((long)at * (_values.Count - 1) / Math.Max(1, width - 1)) : start + at;
+                int column = x + offset + at;
                 double fraction = max <= 0 ? 0 : Math.Max(0, Math.Min(1, _values[i] / max));
                 if (rows == 1) {
                     IReadOnlyList<string> ramp = glyphs.VerticalRamp;
@@ -145,6 +155,9 @@ namespace ConsoleMonster.Widgets {
                         }
                     }
                 }
+            }
+            if (Labels.Count > 0 && rows < region.Height && _values.Count > start) {
+                ChartAxis.Draw(region, rows, x, width, Labels, Math.Min(Labels.Count, _values.Count), context);
             }
             if (latestWidth > 0) {
                 region.Write(region.Width - latestWidth, rows - 1, latest, context.Style(ThemeToken.Highlight));

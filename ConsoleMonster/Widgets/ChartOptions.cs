@@ -63,6 +63,8 @@ namespace ConsoleMonster.Widgets {
         private double[]? _edges;
         /// <summary>Strictly ascending histogram bucket edges.</summary>
         public double[]? Edges { get => _edges; set { _edges = value; _bound.Add(nameof(Edges)); } }
+        /// <summary>Point labels for Sparkline, or bucket-edge labels for Histogram.</summary>
+        public IList<string> Labels { get; } = new List<string>();
         private double[]? _values;
         /// <summary>Initial numeric samples.</summary>
         public double[]? Values { get => _values; set { _values = value; _bound.Add(nameof(Values)); } }

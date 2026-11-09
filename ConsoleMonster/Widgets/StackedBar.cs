@@ -93,7 +93,7 @@ namespace ConsoleMonster.Widgets {
                     return this;
                 }
             }
-            ThemeToken automatic = StatusKinds.TryParse(label, out StatusKind status) ? status.ToToken() : (ThemeToken)((int)ThemeToken.Series1 + (_segments.Count % 6));
+            ThemeToken automatic = StatusKinds.TryParse(label, out StatusKind status) ? (status == StatusKind.Pass ? ThemeToken.Muted : status.ToToken()) : ThemeToken.Muted;
             _segments.Add(new ChartItem(label, value, role ?? automatic, key));
             return this;
         }
@@ -127,16 +127,21 @@ namespace ConsoleMonster.Widgets {
             if (region.Height <= 0 || region.Width <= 0) {
                 return;
             }
-            int[] widths = SegmentWidths(region.Width);
+            double total = 0;
+            foreach (ChartItem segment in _segments) total += NumberFormat.PositiveOrZero(segment.Value);
+            string totalText = NumberFormat.Compact(total);
+            int barWidth = Math.Max(0, region.Width - DisplayWidth.Measure(totalText) - 2);
+            int[] widths = SegmentWidths(barWidth);
             int x = 0;
             for (int i = 0; i < _segments.Count; i++) {
                 string fill = GetFillMarker(i, context);
-                region.HorizontalLine(x, 0, widths[i], fill, context.Style(_segments[i].Role ?? ThemeToken.Series1));
+                region.HorizontalLine(x, 0, widths[i], fill, context.Style(_segments[i].Role == ThemeToken.Pass ? ThemeToken.Muted : _segments[i].Role ?? ThemeToken.Muted));
                 x += widths[i];
             }
-            if (x < region.Width) {
-                region.HorizontalLine(x, 0, region.Width - x, context.Glyphs.Get(Glyph.BarTrack), context.Style(ThemeToken.Subtle));
+            if (x < barWidth) {
+                region.HorizontalLine(x, 0, barWidth - x, context.Glyphs.Get(Glyph.BarTrack), context.Style(ThemeToken.Subtle));
             }
+            region.Write(Math.Max(0, region.Width - DisplayWidth.Measure(totalText)), 0, totalText, context.Style(ThemeToken.Text));
             if (!ShowLegend && !context.Profile.IsAccessible) {
                 return;
             }
@@ -217,7 +222,7 @@ namespace ConsoleMonster.Widgets {
         private static StyledLine SegmentLabel(ChartItem segment, RenderContext context) {
             var spans = new List<TextSpan>();
             if (segment.Role.HasValue && StatusKinds.TryFromToken(segment.Role.Value, out StatusKind status))
-                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(status) + " ", context.Style(status)));
+                spans.Add(new TextSpan(context.Glyphs.StatusSymbol(status) + " ", context.Style(status == StatusKind.Pass ? ThemeToken.Muted : status.ToToken())));
             spans.AddRange(RichLines.Line(segment.LabelText, segment.Label, context.Style(ThemeToken.Text), context));
             return new StyledLine(spans);
         }
@@ -269,7 +274,7 @@ namespace ConsoleMonster.Widgets {
                 ChartItem segment = _segments[i];
                 Style textStyle = context.Style(ThemeToken.Text);
                 StyledLine label = TextWrapper.Truncate(SegmentLabel(segment, context), labelWidth, context.Ellipsis);
-                current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role ?? ThemeToken.Series1)));
+                current.Add(new TextSpan(StatColumn.Pad(GetFillMarker(i, context), markerWidth, HorizontalAlignment.Left), context.Style(segment.Role == ThemeToken.Pass ? ThemeToken.Muted : segment.Role ?? ThemeToken.Muted)));
                 // The label keeps its own colours; padding fills the column per its alignment.
                 int padding = Math.Max(0, labelWidth - label.Width);
                 int before = LabelColumn.Alignment == HorizontalAlignment.Right ? padding : LabelColumn.Alignment == HorizontalAlignment.Center ? padding / 2 : 0;

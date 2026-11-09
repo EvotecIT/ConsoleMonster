@@ -2,7 +2,7 @@
 ✓ Compile
 ○ Test
 00:00        restoring packages
-00:00 ▴ WARN disk almost full
+00:00 ▲ WARN disk almost full
 
 
 

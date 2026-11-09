@@ -24,10 +24,12 @@
 
  Last success  all naming contexts ────── age
  <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    522
- 15m to 1h  ━━╸──────────────────────     48
- 1h to 1d   ╸────────────────────────     10
+ 15m to 1h  ━━╾──────────────────────     48
+ 1h to 1d   ╾────────────────────────     10
  >1d        ─────────────────────────      0
  unread     ? DC not reached            ? 10
+
+ ✓ current · × failing · ? not reached · · no partnership · 590 naming-context links
 
  Inbound by DC  50 DCs by site · last success · log axis ──────────────────────────────── × 2 failing · ? 1 not reached
  DC        In  Fail  1m        10m     1h             1d   4d   Worst
@@ -93,5 +95,4 @@
  DUB-DC03   2     0  ──━━━━━━━━━━●───────────────────────────     14m
  DUB-DC04   2     0  ───━━━━━━━━●────────────────────────────     10m
 
- ✓ current   × failing   ? not reached   · no partnership
- 590 naming-context links · pipe to Format-Table for every row
+ pipe to Format-Table for every row

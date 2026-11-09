@@ -37,6 +37,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Bucket counts.</summary>
         public IReadOnlyList<int> Counts => _counts;
 
+        /// <summary>Optional bucket-edge labels, in edge order; numeric edge labels remain the default.</summary>
+        public IList<string> Labels { get; } = new List<string>();
+
         /// <summary>Rows for the bars (default 6).</summary>
         public int Height { get; set; } = 6;
 
@@ -132,7 +135,7 @@ namespace ConsoleMonster.Widgets {
                     region.HorizontalLine(x, barRows - 1 - r, barWidth, glyph, bar);
                 }
             }
-            DrawEdgeLabels(region, plotX, plotWidth, barRows, muted);
+            DrawEdgeLabels(region, plotX, plotWidth, barRows, muted, context);
         }
 
         /// <summary>
@@ -141,17 +144,21 @@ namespace ConsoleMonster.Widgets {
         /// narrow for every label, every Nth inner edge is labelled, with the smallest N that keeps a space between labels,
         /// so the labels thin out evenly; an inner label that would touch the last one is left out.
         /// </summary>
-        private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style) {
+        private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style, RenderContext context) {
+            if (Labels.Count > 0) {
+                ChartAxis.Draw(region, row, plotX, plotWidth, Labels, _edges.Length, context);
+                return;
+            }
             int buckets = _counts.Length;
             string[] labels = new string[buckets];
             int[] starts = new int[buckets];
             int[] widths = new int[buckets];
             for (int b = 0; b < buckets; b++) {
-                labels[b] = EdgeLabel(_edges[b]);
+                labels[b] = b < Labels.Count ? Labels[b] : EdgeLabel(_edges[b]);
                 starts[b] = plotX + (int)((long)b * plotWidth / buckets);
                 widths[b] = DisplayWidth.Measure(labels[b]);
             }
-            string last = EdgeLabel(_edges[buckets]);
+            string last = buckets < Labels.Count ? Labels[buckets] : EdgeLabel(_edges[buckets]);
             int lastStart = Math.Max(plotX, region.Width - DisplayWidth.Measure(last));
             int step = LabelStep(starts, widths);
             int labelEnd = 0;

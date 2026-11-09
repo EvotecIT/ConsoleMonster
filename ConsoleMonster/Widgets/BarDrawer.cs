@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
@@ -13,6 +14,19 @@ namespace ConsoleMonster.Widgets {
     /// empty track has the same height as the bar: a groove in the subtle colour, or the tier's track glyph without colour.
     /// </summary>
     internal static class BarDrawer {
+        internal static string Markup(int width, double fraction, string role, RenderContext context, bool track, BarShape shape) {
+            if (width <= 0) return string.Empty;
+            Style style = context.Markup("[" + role + "]x[/]").Lines[0][0].Style;
+            CellBuffer buffer = new CellBuffer(width, 1);
+            Draw(new Region(buffer), 0, 0, width, fraction, style, context, track, shape);
+            StringBuilder result = new StringBuilder();
+            for (int x = 0; x < width; x++) {
+                Cell cell = buffer[x, 0];
+                result.Append('[').Append(cell.Style.Equals(style) ? role : "subtle").Append(']').Append(cell.Glyph).Append("[/]");
+            }
+            return result.ToString();
+        }
+
         /// <summary>Draws one bar.</summary>
         public static void Draw(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track = true, BarShape shape = BarShape.Block) {
             if (width <= 0) {
@@ -20,7 +34,7 @@ namespace ConsoleMonster.Widgets {
             }
             fraction = double.IsNaN(fraction) ? 0 : Math.Max(0, Math.Min(1, fraction));
             IGlyphSet glyphs = context.Glyphs;
-            if (shape == BarShape.Line && glyphs.Tier == GlyphTier.Full) {
+            if (shape == BarShape.Line && glyphs.Tier != GlyphTier.Ascii) {
                 DrawLine(region, x, y, width, fraction, fill, context, track);
                 return;
             }
@@ -30,6 +44,12 @@ namespace ConsoleMonster.Widgets {
             }
             if (glyphs.Tier == GlyphTier.Full) {
                 DrawRowBlock(region, x, y, width, fraction, fill, context, track);
+                return;
+            }
+            if (shape == BarShape.Line) {
+                int cells = WholeCells(fraction, width);
+                region.HorizontalLine(x, y, cells, "#", fill);
+                if (track) region.HorizontalLine(x + cells, y, width - cells, "-", context.Style(ThemeToken.Subtle));
                 return;
             }
             int eighths = (int)Math.Round(fraction * width * 8);
@@ -111,13 +131,15 @@ namespace ConsoleMonster.Widgets {
 
         private static void DrawLine(Region region, int x, int y, int width, double fraction, Style fill, RenderContext context, bool track) {
             // Heavy fill, light track: a finished bar, a running bar and a separator rule all read differently.
-            const string Heavy = "━";
+            string Heavy = context.Glyphs.Tier == GlyphTier.Full ? "━" : "═";
             const string HeavyLeftHalf = "╸";
             const string HeavyLeftLightRight = "╾";
             const string Light = "─";
-            int halves = (int)Math.Round(fraction * width * 2);
+            int halves = (int)Math.Round(fraction * width * 2, MidpointRounding.AwayFromZero);
+            if (halves == 0 && fraction > 0) halves = 1;
             int full = halves / 2;
             bool half = halves % 2 == 1;
+            if (context.Glyphs.Tier == GlyphTier.Basic) { full = WholeCells(fraction, width); half = false; }
             for (int i = 0; i < full && i < width; i++) {
                 region.Put(x + i, y, Heavy, fill);
             }

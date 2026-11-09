@@ -5042,6 +5042,26 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Labels",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "Labels",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
         }
       ]
     },
@@ -24915,6 +24935,43 @@
           "Conversion": "ThemePresetSelector"
         }
       ]
+    },
+    {
+      "Command": "New-ConsoleFacts",
+      "Job": "New-ConsoleFacts",
+      "CSharpType": "ConsoleMonster.Widgets.ViewFacts",
+      "Bindings": [
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ContentBuilder",
+          "Reason": "Evaluates a PowerShell content block, then supplies the collected widget/items to the same container or definition."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineCollection",
+          "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -29211,7 +29268,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 112,
+  "ExpectedCount": 113,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29425,7 +29482,8 @@
     "ConsoleMonster.Widgets.WatchView",
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
-    "ConsoleMonster.Styling.ThemeCheckOptions"
+    "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.Widgets.ViewFacts"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -29804,7 +29862,9 @@
     "ConsoleMonster.Widgets.WatchView",
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
-    "ConsoleMonster.Styling.ThemeCheckOptions"
+    "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.Widgets.ViewFact",
+    "ConsoleMonster.Widgets.ViewFacts"
   ],
   "RelatedBindings": [
     {
@@ -32394,6 +32454,33 @@
       "Command": "New-ConsoleLogRegion",
       "Parameter": "Filter",
       "Reason": "Inside Show-ConsoleApp content -Tag, -Level and -Filter become the LogViewport filter."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Sparkline",
+      "Member": "Labels",
+      "MemberId": "ConsoleMonster.Widgets.Sparkline.Labels",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleChart",
+      "Parameter": "Labels",
+      "Reason": "Point or bucket-edge labels are copied into the selected chart renderer."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Histogram",
+      "Member": "Labels",
+      "MemberId": "ConsoleMonster.Widgets.Histogram.Labels",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleChart",
+      "Parameter": "Labels",
+      "Reason": "Point or bucket-edge labels are copied into the selected chart renderer."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewFacts",
+      "Member": "Facts",
+      "MemberId": "ConsoleMonster.Widgets.ViewFacts.Facts",
+      "CSharpTypeName": "System.Collections.Generic.List`1[ConsoleMonster.Widgets.ViewFact]",
+      "Command": "New-ConsoleFacts",
+      "Parameter": "InputObject",
+      "Reason": "Fact records supply values, labels, captions, presenters, roles and line breaks to the shared widget."
     }
   ],
   "Endings": [
@@ -33121,6 +33208,16 @@
           "InitializerTypes": [
             "ConsoleMonster.Frames.DashboardFrame"
           ]
+        },
+        {
+          "Command": "New-ConsoleFacts",
+          "Noun": "Facts",
+          "ReturnType": "ConsoleMonster.Widgets.ViewFacts",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Facts()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.ViewFacts"
+          ]
         }
       ],
       "NonWidgetCommands": [
@@ -33444,6 +33541,10 @@
         {
           "CSharpType": "ConsoleMonster.Frames.FrameSection",
           "Reason": "A dashboard frame's attention item or section, the same record New-ConsoleDashboardFrame takes; the frame lays it out."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Widgets.ViewFact",
+          "Reason": "Immutable fact data supplies the value, caption, presenter and semantic role to Ui.Facts().Add; the widget itself starts from Ui.Facts()."
         }
       ]
     },

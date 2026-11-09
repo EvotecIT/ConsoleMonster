@@ -5,7 +5,7 @@ namespace ConsoleMonster.Glyphs {
     /// <summary>Status symbols and the running spinner, shared by every widget (see Docs/Design-System.md).</summary>
     public static class GlyphSetExtensions {
         /// <summary>
-        /// The one-cell symbol of a status in the glyph set's tier: ✓ ✗ ▴ – ● ○ ◆ (Full), the same in Basic, + x ! - * . i
+        /// The one-cell symbol of a status in the glyph set's tier: ✓ ✗ ▲ – ● ○ ◆ (Full), the same in Basic, + x ! - * . i
         /// (ASCII). <see cref="IGlyphSet.StatusMarker"/> is the wider marker for status columns (bracketed words in ASCII).
         /// </summary>
         /// <param name="glyphs">The glyph set.</param>

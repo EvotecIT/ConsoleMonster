@@ -3,13 +3,13 @@
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate › ○ Report
 
 ╭─ Targets ───────────────────────── 6 workers ─╮ ╭─ Results ──────────────────╮
-│ ⠸ ad.adatum.com …  ━━━━────  50%  ✓ 7 ✗ 0 ▴ 1 │ │ █████████████████████▓▓▓▒░ │
-│ ✗ eu.ad.adatum.c…  ━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1 │ │ █ ✓ Passed   101  82%      │
-│ ⠴ DC01.ad.adatum…  ━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3 │ │ ▓ ▴ Warnings  14  12%      │
-│ ⠦ DC02.ad.adatum…  ━━━━━━━─  90%  ✓20 ✗ 0 ▴ 6 │ │ ▒ ✗ Failed     4   3%      │
-│ ⠧ DC03.ad.adatum…  ━━━━━╾──  66%  ✓16 ✗ 3 ▴ 1 │ │ ░ – Skipped    4   3%      │
-│ ⠇ DC04.ad.adatum…  ━━━━━━──  76%  ✓20 ✗ 0 ▴ 2 │ │ ────────────────────────── │
-│ ⠏ DC05.ad.adatum…  ────────   0%  ✓ 0 ✗ 0 ▴ 0 │ │ Evaluated   123 / 332      │
+│ ⠸ ad.adatum.com …  ━━━━────  50%  ✓ 7 ✗ 0 ▲ 1 │ │ █████████████████▓▓▒░  123 │
+│ ✗ eu.ad.adatum.c…  ━━━━━━━━ 100%  ✓13 ✗ 1 ▲ 1 │ │ █ ✓ Passed   101  82%      │
+│ ⠴ DC01.ad.adatum…  ━━━━━━━╾  96%  ✓25 ✗ 0 ▲ 3 │ │ ▓ ▲ Warnings  14  12%      │
+│ ⠦ DC02.ad.adatum…  ━━━━━━━─  90%  ✓20 ✗ 0 ▲ 6 │ │ ▒ ✗ Failed     4   3%      │
+│ ⠧ DC03.ad.adatum…  ━━━━━╾──  66%  ✓16 ✗ 3 ▲ 1 │ │ ░ – Skipped    4   3%      │
+│ ⠇ DC04.ad.adatum…  ━━━━━━──  76%  ✓20 ✗ 0 ▲ 2 │ │ ────────────────────────── │
+│ ⠏ DC05.ad.adatum…  ────────   0%  ✓ 0 ✗ 0 ▲ 0 │ │ Evaluated   123 / 332      │
 │ ○ DC06.ad.adatum…  ────────                   │ │ Average r…  7.2 rules/s    │
 │ ○ DC07.eu.ad.ada…  ────────                   │ │ Remaining   ~29s           │
 │ ○ DC08.eu.ad.ada…  ────────                   │ │ Targets d…  1 / 12         │
@@ -28,9 +28,9 @@
 ╰───────────────────────────╯ ╰──────────────────────╯ ╰───────────────────────╯
 ╭─ Log ────────────────────────────────────────────────────────────────────────╮
 │ 00:21 ✗ ERR  DC03.ad.adatum.com: Lingering objects failed - 3 lingering obj… │
-│ 00:22 ▴ WARN eu.ad.adatum.com (domain): Site link costs - 2 site links use … │
+│ 00:22 ▲ WARN eu.ad.adatum.com (domain): Site link costs - 2 site links use … │
 │ 00:23        DC05.ad.adatum.com: evaluating 30 rules                         │
 │ 00:23 ✗ ERR  DC03.ad.adatum.com: DC locator SRV records failed - _ldap._tcp… │
-│ 00:23 ▴ WARN DC02.ad.adatum.com: Local administrators - nested group in BUI… │
+│ 00:23 ▲ WARN DC02.ad.adatum.com: Local administrators - nested group in BUI… │
 ╰──────────────────────────────────────────────────────────────────────────────╯
  ctrl+c stop

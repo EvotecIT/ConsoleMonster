@@ -317,7 +317,7 @@ public sealed class DashboardFrameTests {
             Assert.Equal(20, context.Markup(FrameBars.Range(0.1, 0.7, 20, HealthState.Failing, 0.5, context)).Lines[0].Width);
         }
         Canvas.RenderContext full = Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.None, GlyphTier.Full));
-        Assert.Equal("╸─────────", Markup.Strip(FrameBars.Line(0.001, 10, null, full)));
+        Assert.Equal("╾─────────", Markup.Strip(FrameBars.Line(0.001, 10, null, full)));
     }
 
     [Fact]
@@ -367,7 +367,7 @@ public sealed class DashboardFrameTests {
         DashboardFrame frame = new DashboardFrame("Targets");
         frame.Meters.Add(Meter.Composition("Targets", 1, warning: 1, failing: 1, unknown: 1, notEvaluated: 1));
         string bar = Lines(Render(frame, 120))[2];
-        Assert.Contains("×", bar); Assert.Contains("▴", bar); Assert.Contains("?", bar);
+        Assert.Contains("×", bar); Assert.Contains("▲", bar); Assert.Contains("?", bar);
         Assert.DoesNotContain("…", bar);
     }
 
@@ -376,7 +376,7 @@ public sealed class DashboardFrameTests {
         Canvas.RenderContext context = ConsoleViewStyle.Apply(Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.None, GlyphTier.Full)));
         Assert.Contains("×", Markup.Strip(FrameBars.Range(0.1, 0.8, 20, HealthState.Failing, null, context)));
         string text = TestTerminal.RenderText(new Distribution().Add("<1h", 10).Add(">1d", 3, HealthState.Warning), 60, 0, GlyphTier.Full, CultureInfo.InvariantCulture);
-        Assert.Contains("▴ 3", text);
+        Assert.Contains("▲ 3", text);
     }
 
     [Fact]
@@ -450,8 +450,8 @@ public sealed class DashboardFrameTests {
             return heading;
         };
         string text = TestTerminal.RenderText(rows, 118, 0, GlyphTier.Full, CultureInfo.InvariantCulture);
-        Assert.Contains("LON-HQ  ▴ 1 pending", text);
-        Assert.Contains("LON-DR  ▴ 1 pending", text);
+        Assert.Contains("LON-HQ  ▲ 1 pending", text);
+        Assert.Contains("LON-DR  ▲ 1 pending", text);
         if (collapsed) Assert.Contains("60 healthy rows not listed", text);
     }
 

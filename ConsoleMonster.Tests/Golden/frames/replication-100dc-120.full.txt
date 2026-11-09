@@ -37,10 +37,12 @@
 
  Last success  all naming contexts ─────── age
  <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    1,046
- 15m to 1h  ━━╸──────────────────────      100
- 1h to 1d   ╸────────────────────────       20
- >1d        ╸────────────────────────        4
+ 15m to 1h  ━━╾──────────────────────      100
+ 1h to 1d   ╾────────────────────────       20
+ >1d        ╾────────────────────────        4
  unread     ? DC not reached              ? 20
+
+ ✓ current · × failing · ? not reached · · no partnership · 1190 naming-context links
 
  Inbound by DC  100 DCs by site · last success · log axis ─────────────────────────────── × 4 failing · ? 2 not reached
  DC        In  Fail  1m        10m     1h             1d   4d   Worst
@@ -72,5 +74,4 @@
  SEA-BR  5 DCs · ✓ all current
  94 current DCs not listed · $ConsoleViewLengthPreference = 'Full' lists every row
 
- ✓ current   × failing   ? not reached   · no partnership
- 1190 naming-context links · pipe to Format-Table for every row
+ pipe to Format-Table for every row

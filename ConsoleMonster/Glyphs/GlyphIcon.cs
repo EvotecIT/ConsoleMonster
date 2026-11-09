@@ -33,7 +33,7 @@ namespace ConsoleMonster.Glyphs {
         /// <summary>Help (? / ? / ?).</summary>
         Help,
 
-        /// <summary>Something that needs attention (▴ / ! / !), the warn status symbol.</summary>
+        /// <summary>Something that needs attention (▲ / ! / !), the warn status symbol.</summary>
         Warning,
 
         /// <summary>Done or verified (✓ / √ / +), the pass status symbol.</summary>

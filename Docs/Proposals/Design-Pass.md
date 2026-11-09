@@ -1,10 +1,8 @@
 # Proposal: a design pass for data, hierarchy and layout
 
-Status: proposal. [Design-System.md](../Design-System.md) covers chrome, status markers, focus and spacing for apps.
-It has no rules for the data on screen: bars, charts, key figures, the hierarchy of reports, or how dashboards use
-their space. Read across the gallery, each part is good on its own, but they do not yet look like one system. This
-pass adds those rules, changes the library defaults that break them, and fixes the demos. The rules move into
-Design-System.md once built.
+Status: implemented; visual review pending. Sections 1–7 are implemented in the library and gallery. Their current
+rules live in [Design-System.md](../Design-System.md), under Hierarchy, Bars, Charts and Layout. This proposal records
+the agreed scope. The contact sheet and running gallery await Przemek's review before merge.
 
 ## Principles
 

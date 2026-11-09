@@ -7,7 +7,7 @@ namespace ConsoleMonster.Glyphs {
         public static GlyphSet Full { get; } = new GlyphSet(
             GlyphTier.Full,
             new[] {
-                "✓", "✗", "▴", "◆", "–", "●", "○", "•", "→", "↑", "↓", "…", "·", "│", "›",
+                "✓", "✗", "▲", "◆", "–", "●", "○", "•", "→", "↑", "↓", "…", "·", "│", "›",
                 "█", "░", "▒", "▓", "▀", "▄", "├── ", "└── ", "│   ", "    ", "─", "░", "↺", "↪", "▸", "↔", "▶", "■", "←", "−", "≈", "—", "·", "├─→", "└─→"
             },
             new Dictionary<BoxStyle, BoxGlyphs> {
@@ -18,7 +18,7 @@ namespace ConsoleMonster.Glyphs {
                 [BoxStyle.Ascii] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
                 [BoxStyle.None] = new BoxGlyphs(BoxStyle.None, "           ")
             },
-            new[] { "○", "●", "✓", "✗", "▴", "–", "◆", "◌", "·" },
+            new[] { "○", "●", "✓", "✗", "▲", "–", "◆", "◌", "·" },
             new[] { "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█" },
             new[] { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" },
             new[] { " ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" },
@@ -28,7 +28,7 @@ namespace ConsoleMonster.Glyphs {
         public static GlyphSet Basic { get; } = new GlyphSet(
             GlyphTier.Basic,
             new[] {
-                "√", "×", "!", "♦", "–", "►", "○", "•", "→", "↑", "↓", "…", "·", "│", "›",
+                "√", "×", "▲", "♦", "–", "►", "○", "•", "→", "↑", "↓", "…", "·", "│", "›",
                 "█", "░", "▒", "▓", "▀", "▄", "├── ", "└── ", "│   ", "    ", "─", "░", "@", "@", ">", "↔", "►", "■", "←", "-", "≈", "—", "·", "├─→", "└─→"
             },
             new Dictionary<BoxStyle, BoxGlyphs> {
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Glyphs {
                 [BoxStyle.Ascii] = new BoxGlyphs(BoxStyle.Ascii, "+-+|+++++++"),
                 [BoxStyle.None] = new BoxGlyphs(BoxStyle.None, "           ")
             },
-            new[] { "○", "►", "√", "×", "!", "–", "♦", "○", "·" },
+            new[] { "○", "►", "√", "×", "▲", "–", "♦", "○", "·" },
             new[] { "", "", "", "▌", "▌", "▌", "▌", "█" },
             new[] { "", "", "", "▄", "▄", "▄", "▄", "█" },
             new[] { " ", "░", "▒", "▓", "█" },

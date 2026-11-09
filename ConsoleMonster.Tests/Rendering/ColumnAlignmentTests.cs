@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Lanes_CountsOfDifferentWidths_ShareColumnsAcrossRows() {
             string[] rows = Render(ThreeLanes(40), 70);
             int[] crosses = rows.Take(3).Select(r => r.IndexOf('✗')).ToArray();
-            int[] warnings = rows.Take(3).Select(r => r.IndexOf('▴')).ToArray();
+            int[] warnings = rows.Take(3).Select(r => r.IndexOf('▲')).ToArray();
             Assert.All(crosses, c => Assert.Equal(crosses[0], c));
             Assert.All(warnings, c => Assert.Equal(warnings[0], c));
             // Numbers are right-aligned inside their column: "✓ 9" under "✓13".
@@ -58,7 +58,7 @@ namespace ConsoleMonster.Tests.Rendering {
             Step(lanes, "a", "pass", 1);
             string after = Render(lanes, 70)[0];
             Assert.Equal(before.IndexOf('✗'), after.IndexOf('✗'));
-            Assert.Equal(before.IndexOf('▴'), after.IndexOf('▴'));
+            Assert.Equal(before.IndexOf('▲'), after.IndexOf('▲'));
             Assert.Contains("✓10", after);
         }
 
@@ -70,7 +70,7 @@ namespace ConsoleMonster.Tests.Rendering {
             Step(lanes, "c", "warn", 99);
             string after = Render(lanes, 70)[2];
             Assert.Equal(before.IndexOf('✗'), after.IndexOf('✗'));
-            Assert.Contains("▴100", after);
+            Assert.Contains("▲100", after);
         }
 
         [Fact]
