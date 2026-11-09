@@ -241,7 +241,12 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             IWidget widget;
-            switch (_batchView.View) {
+            // A recursive file listing is one tree; a single folder keeps its table.
+            IWidget? files = _batchView.IsBuiltIn && _batchView.View == ConsoleViewKind.Table && string.Equals(_batchView.Group, "FileSystem", StringComparison.Ordinal)
+                ? FileTreeView.Build(_batch) : null;
+            if (files != null) {
+                widget = files;
+            } else switch (_batchView.View) {
                 case ConsoleViewKind.Table:
                 case ConsoleViewKind.Cards:
                     bool cards = _batchView.View == ConsoleViewKind.Cards;
@@ -261,6 +266,9 @@ namespace ConsoleMonster.PowerShell {
                     options.Sources.Add(new Binding.PSObjectMemberSource());
                     widget = ConsoleView.Auto(new List<object?>(_batch), options);
                     break;
+            }
+            if (_batchView.Summary != null && ViewSummary.Build(_batchView.Summary, _batch) is ViewFacts facts) {
+                widget = new Rows(widget, facts);
             }
             PSFormatting.Write(_host, widget, 0);
             _batch.Clear();

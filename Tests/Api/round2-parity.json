@@ -16056,6 +16056,26 @@
           "CSharpTypeName": "System.Management.Automation.ScriptBlock"
         },
         {
+          "Parameter": "Summary",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Register",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleViewRegistration",
+          "Member": "Summary",
+          "MemberKind": "Property",
+          "Conversion": "ScriptBlockCallback",
+          "CSharpTypeName": "System.Management.Automation.ScriptBlock",
+          "Writable": true,
+          "Nullable": "Nullable",
+          "Static": false
+        },
+        {
           "Parameter": "Title",
           "ParameterType": "System.Management.Automation.ScriptBlock",
           "Default": null,

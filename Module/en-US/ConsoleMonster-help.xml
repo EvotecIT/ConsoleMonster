@@ -28804,6 +28804,21 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Summary</maml:name>
+          <maml:description>
+            <maml:para>A script block that sums up the objects shown together, under the view on the console ($_ and the first argument&#xD;
+are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before&#xD;
+it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing&#xD;
+when there is nothing worth saying, for example for one or two objects.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>A script block for each object's title ($_ is the object): a shared title heads the view, different titles group the rows.</maml:para>
@@ -28938,6 +28953,21 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Summary</maml:name>
+        <maml:description>
+          <maml:para>A script block that sums up the objects shown together, under the view on the console ($_ and the first argument&#xD;
+are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before&#xD;
+it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing&#xD;
+when there is nothing worth saying, for example for one or two objects.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>A script block for each object's title ($_ is the object): a shared title heads the view, different titles group the rows.</maml:para>
@@ -29004,6 +29034,18 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <dev:code>Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime</dev:code>
         <dev:remarks>
           <maml:para>Show a module's result objects as a table</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Register-ConsoleView -TypeName 'Contoso.Server' -Property Name, State -Summary {
+    param($servers)
+    @{ Value = $servers.Count; Label = 'servers' }
+    $stopped = @($servers | Where-Object State -ne 'Running').Count
+    if ($stopped) { @{ Value = $stopped; Label = 'stopped'; Role = 'Warn' } }
+}</dev:code>
+        <dev:remarks>
+          <maml:para>Sum up the servers under the table: 3 servers · 1 stopped</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

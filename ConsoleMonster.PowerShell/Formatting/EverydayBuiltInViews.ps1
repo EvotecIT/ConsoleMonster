@@ -68,10 +68,43 @@
     Property = @(
         @{ Label = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
         @{ Label = 'Started'; Expression = { $_.StartExecutionTime.ToString('HH:mm:ss') }; Alignment = 'Right' }
-        @{ Label = 'Duration'; Expression = { $_.EndExecutionTime - $_.StartExecutionTime }; Presenter = 'Duration' }
+        @{ Label = 'Duration'; Expression = { $_.EndExecutionTime - $_.StartExecutionTime }; Presenter = 'DurationBar'; MinWidth = 16 }
         @{ Label = 'Status'; Expression = { ([string] $_.ExecutionStatus) -replace 'NotStarted', 'Not started' -replace 'AtBreakpoint', 'At breakpoint' }; Presenter = 'StatusWord' }
         @{ Label = 'CommandLine'; Expression = { $_.CommandLine -replace '[\r\n]+', ' ' }; Highlight = 'PowerShell'; MaxLines = 1; Overflow = 'Truncate'; Priority = 10 }
     )
+}
+
+@{
+    TypeName = 'System.Management.Automation.Job'
+    Group = 'Job'
+    Property = @(
+        @{ Label = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
+        @{ Label = 'Name'; Expression = 'Name'; Priority = 9 }
+        @{ Label = 'State'; Expression = { [string] $_.State }; Presenter = 'StatusWord'; Priority = 10 }
+        @{ Label = 'Started'; Expression = { if ($_.PSBeginTime) { $_.PSBeginTime } }; Presenter = 'DateRelative'; Priority = 6 }
+        @{ Label = 'Duration'; Expression = {
+            if ($_.PSBeginTime) { $(if ($_.PSEndTime) { $_.PSEndTime } else { [datetime]::Now }) - $_.PSBeginTime }
+        }; Presenter = 'DurationBar'; Priority = 7 }
+        @{ Label = 'Output'; Expression = { if ($_.HasMoreData) { 'to receive' } }; Priority = 5 }
+        @{ Label = 'Command'; Expression = { (([string] $_.Command) -replace '\s+', ' ').Trim() }; Highlight = 'PowerShell'; MaxLines = 1; Overflow = 'Truncate'; Priority = 8 }
+    )
+    HideEmptyColumns = $true
+}
+@{
+    TypeName = 'System.Management.Automation.PSDriveInfo'
+    Group = 'PSDrive'
+    Property = @(
+        @{ Label = 'Name'; Expression = 'Name'; Priority = 10 }
+        @{ Label = 'Provider'; Expression = { [string] $_.Provider.Name }; Presenter = 'Chip'; Priority = 7 }
+        @{ Label = 'Used'; Expression = { $_.Used }; Presenter = 'Bytes'; Priority = 8 }
+        @{ Label = 'Free'; Expression = { $_.Free }; Presenter = 'Bytes'; Priority = 9 }
+        @{ Label = 'Usage'; Expression = {
+            $used = $_.Used; $free = $_.Free
+            if ($null -ne $used -and $null -ne $free -and ($used + $free) -gt 0) { [double] $used / ($used + $free) }
+        }; Presenter = 'Progress'; WarnAbove = 0.8; FailAbove = 0.95; Priority = 9 }
+        @{ Label = 'Root'; Expression = { [string] $_.Root }; Overflow = 'TruncateMiddle'; Priority = 6 }
+    )
+    HideEmptyColumns = $true
 }
 
 # JSON, REST and CSV all arrive as PSCustomObject; keep the originals and infer only their displayed alignment.

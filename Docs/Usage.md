@@ -195,6 +195,7 @@ Cell presenters turn values into text and are shared by tables, cards, key/value
 | Date | absolute, relative (`12 m ago`) or both, in a chosen time zone |
 | Boolean | `√ yes` / `— no`, either value can be marked as the problem |
 | Bar, Sparkline, Progress | a data bar, sparkline or progress bar inside the cell |
+| BytesBar, DurationBar | a size or duration with a data bar scaled to the column's largest |
 | Link | an OSC 8 hyperlink in Windows Terminal and VS Code, plain text elsewhere |
 
 Role rules (`RoleRule.Above(1, ThemeToken.Warn)` and similar) colour a value by threshold. Without colour (16-colour
