@@ -30,7 +30,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         # ID used to uniquely identify this module
         GUID                 = '7ef2133c-55a5-47e6-809e-6010f6e65e09'
         # Version number of this module.
-        ModuleVersion        = '2.3.0'
+        ModuleVersion        = '2.4.0'
         # Author of this module
         Author               = 'Przemyslaw Klys'
         # Company or vendor of this module
@@ -96,7 +96,7 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
     New-ConfigurationDocumentation -Enable -PathReadme 'Docs/Readme.md' -Path 'Docs' -SyncExternalHelpToProjectRoot
 
     # The manifest loads the generated format view, so it must ship beside the entry script.
-    New-ConfigurationInformation -IncludeRoot '*.psm1', '*.psd1', '*.Libraries.ps1', '*.ps1xml', 'License*'
+    New-ConfigurationInformation -IncludeRoot '*.psm1', '*.psd1', '*.Libraries.ps1', '*.ps1xml', 'License*' -IncludeAll 'Images', 'Resources', 'Templates', 'Bin', 'Lib', 'en-US', 'Notices'
 
     New-ConfigurationImportModule -ImportSelf
 

@@ -307,6 +307,7 @@ namespace SiteFrames {
             MarkdownFigures.Render(site);
             ImageFigures.Render(site);
             ThemeFilesPage.Render(site);
+            ColourSchemeFigures.Render(site);
             MigrationFigures.Render(site);
             AppPage.Render(site, hosts);
             WidgetsPage.Render(site, hosts);

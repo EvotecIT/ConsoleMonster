@@ -2,7 +2,7 @@
 Module Name: ConsoleMonster
 Module Guid: 7ef2133c-55a5-47e6-809e-6010f6e65e09
 Download Help Link: https://consolemonster.dev/
-Help Version: 2.3.0
+Help Version: 2.4.0
 Locale: en-US
 ---
 # ConsoleMonster Module
@@ -34,6 +34,13 @@ Shows the reference and difference side by side at 120 columns or more, and inli
 Finishes a run dashboard and prints its full summary into scrollback.
 
 Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
+
+### [ConvertTo-ConsoleView](ConvertTo-ConsoleView.md)
+Drafts a reusable console view from sample objects.
+
+Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.
+
+Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.
 
 ### [Disable-ConsoleFormatting](Disable-ConsoleFormatting.md)
 Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.
@@ -432,12 +439,12 @@ Each named field takes its value and shows it at once, text and number boxes inc
 ### [Set-ConsoleSetting](Set-ConsoleSetting.md)
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
 
-Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.
 
 ### [Set-ConsoleTheme](Set-ConsoleTheme.md)
 Selects the theme used by every ConsoleMonster widget.
 
-Select a built-in preset, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
+Select a built-in preset or catalogue scheme, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Catalogue schemes use upstream colours faithfully by default; -Accessible chooses colours that pass ThemeCheck. The saved accessible name is Dracula · accessible, for example. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ### [Show-Console](Show-Console.md)
 Shows objects, text and widgets in a readable view that fits the terminal.

@@ -1,0 +1,39 @@
+{
+  "family": "Dracula",
+  "source": "https://github.com/dracula/windows-terminal",
+  "revision": "06f63714a0477a7b5c12cf0aa94ecf92d78f32ca",
+  "readDate": "2026-11-09",
+  "licence": "MIT",
+  "sources": [
+    "https://raw.githubusercontent.com/dracula/windows-terminal/06f63714a0477a7b5c12cf0aa94ecf92d78f32ca/dracula.json",
+    "https://raw.githubusercontent.com/dracula/windows-terminal/06f63714a0477a7b5c12cf0aa94ecf92d78f32ca/LICENSE"
+  ],
+  "schemes": [
+    {
+      "name": "Dracula",
+      "displayName": "Dracula",
+      "variant": "Dark",
+      "black": "#21222c",
+      "red": "#ff5555",
+      "green": "#50fa7b",
+      "yellow": "#f1fa8c",
+      "blue": "#bd93f9",
+      "purple": "#ff79c6",
+      "cyan": "#8be9fd",
+      "white": "#f8f8f2",
+      "brightBlack": "#6272a4",
+      "brightRed": "#ff6e6e",
+      "brightGreen": "#69ff94",
+      "brightYellow": "#ffffa5",
+      "brightBlue": "#d6acff",
+      "brightPurple": "#ff92df",
+      "brightCyan": "#a4ffff",
+      "brightWhite": "#ffffff",
+      "foreground": "#f8f8f2",
+      "background": "#282a36",
+      "selectionBackground": "#44475a",
+      "cursorColor": "#f8f8f2",
+      "signatureAccent": "#bd93f9"
+    }
+  ]
+}
