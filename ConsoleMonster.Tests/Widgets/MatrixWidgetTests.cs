@@ -125,6 +125,22 @@ namespace ConsoleMonster.Tests.Widgets {
         }
 
         [Fact]
+        public void Render_DenseOverflow_KeepsItsFormWhenFailuresArrive() {
+            // A live check map: all passing at first, then failures land. The dense form chosen for a width must not flip.
+            MatrixLabel[] dcs = new MatrixLabel[40];
+            for (int i = 0; i < dcs.Length; i++) dcs[i] = new MatrixLabel("DC" + i, "site-" + (char)('A' + i / 10));
+            Matrix matrix = new Matrix(new[] { new MatrixLabel("Replication") }, dcs) { Overflow = MatrixOverflow.Dense, ShowLegend = false };
+            for (int c = 0; c < dcs.Length; c++) matrix.SetCell(0, c, StatusKind.Pass);
+            int width = 58; // label 11 + gap + 40 cells + gap fits "x10 !10" only if the summary was reserved up front
+            string before = TestTerminal.RenderText(matrix, width, glyphs: GlyphTier.Ascii);
+            for (int c = 0; c < 20; c++) matrix.SetCell(0, c * 2, c % 2 == 0 ? StatusKind.Fail : StatusKind.Warn);
+            string after = TestTerminal.RenderText(matrix, width, glyphs: GlyphTier.Ascii);
+            string Form(string text) => Array.Find(text.Split('\n'), line => line.StartsWith("one cell per", StringComparison.Ordinal)) ?? string.Empty;
+            Assert.NotEqual(string.Empty, Form(before));
+            Assert.Equal(Form(before), Form(after));
+        }
+
+        [Fact]
         public void SetCell_RectangularAxes_DoesNotInferADiagonalFromMatchingIndexes() {
             Matrix matrix = new Matrix(new[] { new MatrixLabel("row[[literal]]") }, new[] { new MatrixLabel("column") });
             matrix.SetCell(0, 0, StatusKind.Warn, "late");

@@ -42,8 +42,13 @@ public sealed partial class Matrix {
         return Math.Min(raw, Math.Max(8, width / 4));
     }
 
+    /// <summary>
+    /// The row summary's widest form: room for failure and warning counts as large as the column count, so the dense form
+    /// chosen for a width does not flip as a live run's counts grow.
+    /// </summary>
     private int DenseSummaryWidth(RenderContext context) {
-        int widest = 0;
+        int digits = _columns.Count.ToString(CultureInfo.InvariantCulture).Length;
+        int widest = 2 * (1 + digits) + 1;
         for (int r = 0; r < _rows.Count; r++) widest = Math.Max(widest, DenseSummary(r, context).Width);
         return widest;
     }
