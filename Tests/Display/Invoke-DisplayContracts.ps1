@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string] $AssemblyDirectory,
     [Parameter(Mandatory = $true)] [string] $ResultsPath
@@ -40,6 +40,9 @@ namespace DisplayContract {
         public System.DateTime When = new System.DateTime(2026, 10, 27);
         public ScalarRow[] Children;
     }
+    public class FindingBase { public string Name { get; set; } }
+    public sealed class FindingA : FindingBase { }
+    public sealed class FindingB : FindingBase { }
     public sealed class ThrowingTranscriptState { internal bool IsTranscribing { get { throw new System.InvalidOperationException(); } } }
 }
 '@
@@ -103,6 +106,25 @@ try {
         $row.PSObject.TypeNames.Insert(0, 'Deserialized.DisplayContract.Row')
         Assert-Display ($null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve($row)) 'Deserialized data selected a rich view.'
         $lease.Dispose()
+    }
+    Test-DisplayContract 'Resolve_DerivedTypes_ShareTheBaseViewOnlyWhenItOptsIn' {
+        $lease = New-DisplayLease 'Family' -Types @('DisplayContract.FindingBase', 'DisplayContract.FindingB')
+        $family = $lease.Register('DisplayContract.FindingBase', 'contract.finding', [version]'1.0.0', 'Collect', $null, $script:DisplayBuilder, $null, $null, [DisplayContract.FindingBase])
+        Assert-Display ($null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingA]::new())) 'A base view matched a derived type without opting in.'
+        $family.IncludeDerivedTypes = $true
+        Assert-Display ([object]::ReferenceEquals($family, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingA]::new()))) 'A derived type did not use the base view.'
+        Assert-Display ([object]::ReferenceEquals($family, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingB]::new()))) 'Sibling types did not share one registration, so they would split into separate batches.'
+        Assert-Display ([object]::ReferenceEquals($family, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingBase]::new()))) 'The base type lost its own view.'
+        $exact = $lease.Register('DisplayContract.FindingB', 'contract.finding.b', [version]'1.0.0', 'Single', $null, $script:DisplayBuilder, $null, $null, [DisplayContract.FindingB])
+        Assert-Display ([object]::ReferenceEquals($exact, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingB]::new()))) 'An exact view for a derived type did not take precedence.'
+        $byName = $lease.Register('DisplayContract.FindingBase', 'contract.finding.name', [version]'1.0.0', 'Collect', $null, $script:DisplayBuilder, $null)
+        Assert-Throws { $byName.IncludeDerivedTypes = $true }
+        $user = New-DisplayLease 'FamilyUser' -Types @('DisplayContract.FindingBase') -Source User
+        $userView = $user.Register('DisplayContract.FindingBase', 'user.finding', [version]'1.0.0', 'Collect', $null, $script:DisplayBuilder, $null)
+        Assert-Display ([object]::ReferenceEquals($userView, [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingA]::new()))) 'A user view for the base type lost to the product family view.'
+        $user.Dispose()
+        $lease.Dispose()
+        Assert-Display ($null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([DisplayContract.FindingA]::new())) 'A released family view still matched.'
     }
     Test-DisplayContract 'Resolve_CompatibleVersionsAndLeaseRelease_RestoresEarlierView' {
         $first = New-DisplayLease 'First'
