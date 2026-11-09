@@ -230,39 +230,7 @@ namespace ConsoleMonster.Interactive {
 
             private IWidget WithCheck(RenderContext context, int width) {
                 ThemeCheckReport report = ThemeCheck.Run(context.Theme, new ThemeCheckOptions { GlyphTier = context.Profile.Glyphs, StatusMarkers = context.Profile.StatusMarkers });
-                ThemeCheckResult? failed = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
-                bool unknown = report.Results.Any(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Unknown);
-                string verdict = failed == null ? (unknown ? "unknown" : "yes") : "no";
-                string prefix = width >= 60 ? "Statuses apart for colour-blind users: " : "Colour-blind: ";
-                string summary = prefix + verdict;
-                string detail = string.Empty;
-                if (unknown && context.Theme is Theme following && following.FollowsTerminal && Terminal.Palette == null) {
-                    const string reason = "the terminal did not report its colours";
-                    if ((summary + ", " + reason).Length <= width) { summary += ", " + reason; }
-                    else { summary += ","; detail = reason; }
-                }
-                if (failed != null) {
-                    var pair = report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail
-                        && result.Tokens.SequenceEqual(failed.Tokens)).OrderBy(result => result.Value);
-                    string words = ThemeCheckText.Pair(failed.Tokens, false);
-                    string reason = "look alike " + ThemeCheckText.Conditions(pair.Select(result => result.Vision));
-                    string full = summary + ": " + words + " " + reason;
-                    if (full.Length <= width) { summary = full; }
-                    else if ((summary + ": " + words + " look alike").Length <= width) { summary += ": " + words + " look alike"; detail = ThemeCheckText.Conditions(pair.Select(result => result.Vision)); }
-                    else if ((summary + ": " + words).Length <= width) { summary += ": " + words; detail = reason; }
-                    else { detail = words + " " + reason; }
-                }
-                ThemeCheckResult? contrast = report.Results.Where(result => result.Check == ThemeCheckKind.Contrast && result.Outcome == ThemeCheckOutcome.Fail).OrderBy(result => result.Value).FirstOrDefault();
-                if (contrast != null) {
-                    string ratio = contrast.Tokens[0] + " text too faint: " + contrast.Value!.Value.ToString("0.0", CultureInfo.InvariantCulture) + ":1";
-                    detail += (detail.Length > 0 ? ". " : string.Empty) + ratio;
-                    if (failed != null && detail.Length > width) {
-                        summary = ThemeCheckText.Pair(failed.Tokens, true) + " look alike " + ThemeCheckText.Conditions(report.Results
-                            .Where(result => result.Check == ThemeCheckKind.ColourVision && result.Outcome == ThemeCheckOutcome.Fail && result.Tokens.SequenceEqual(failed.Tokens))
-                            .Select(result => result.Vision));
-                        detail = ratio;
-                    }
-                }
+                (string summary, string detail) = ThemeCheckVerdict.Preview(report, context.Theme, width);
                 Rows notes = new Rows(new TextBlock(summary) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis });
                 if (detail.Length > 0) { notes.Add(new TextBlock(detail) { IsMarkup = false, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis }); }
                 // Reserve the verdict before the sample uses the available height in a narrow pane.
