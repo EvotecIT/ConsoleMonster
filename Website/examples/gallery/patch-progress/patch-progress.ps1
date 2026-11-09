@@ -21,7 +21,9 @@ function New-PatchSummary {
         }
         $resultColumn = @{ Name = 'Result'; Expression = {
                 if ($_.Result -eq 'Retry needed') {
-                    [ConsoleMonster.Widgets.TableCell]::ForStatus('Warn', $_.Result)
+                    New-ConsoleStatusList -Content {
+                        @{ Label = (New-ConsoleText 'Retry needed' -Role Warn); Status = 'Warn' }
+                    }
                 }
                 else { $_.Result }
             }; Presenter = 'StatusWord' }

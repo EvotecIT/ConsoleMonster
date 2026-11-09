@@ -321,15 +321,15 @@ $p = Get-Process -Id $PID
 
     It 'marks status fields in Show-Console -View List records too' {
         $text = Invoke-FormatChild -Script "[pscustomobject] @{ Name = 'a'; Status = 'Failed'; Health = 'Healthy' } | Show-Console -View List -Width 60"
-        $text | Should -Match 'Status\s+\[FAIL\] Failed'
-        $text | Should -Match 'Health\s+\[OK\] Healthy'
+        $text | Should -Match '(?m)Status\s+\[FAIL\]\s*$'
+        $text | Should -Match '(?m)Health\s+\[OK\]\s*$'
     }
 
     It 'marks status columns with PowerShell''s own words in Show-ConsoleTable' {
         $text = Invoke-FormatChild -Script "@([pscustomobject] @{ Name = 'a'; Status = 'Success' }, [pscustomobject] @{ Name = 'b'; Status = 'Warning' }, [pscustomobject] @{ Name = 'c'; Status = 'Error' }) | Show-ConsoleTable -Width 60"
-        $text | Should -Match '\[OK\] Success'
-        $text | Should -Match '\[WARN\] Warning'
-        $text | Should -Match '\[FAIL\] Error'
+        $text | Should -Match '\| a\s+\| \[OK\]\s+\|'
+        $text | Should -Match '\| b\s+\| \[WARN\]\s+\|'
+        $text | Should -Match '\| c\s+\| \[FAIL\]\s+\|'
     }
 
     It 'uses a table or record command explicitly and puts object content in a panel' {

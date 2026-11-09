@@ -18,12 +18,13 @@ $report = New-ConsoleRows -Gap 1 -Content {
     $rows = for ($row = 0; $row -lt $hosts.Count; $row++) {
         $values = [ordered]@{ ' ' = $hosts[$row] }
         for ($column = 0; $column -lt $ports.Count; $column++) {
-            $state = [ConsoleMonster.Styling.StatusKind]$states[$row * 3 + $column]
-            $values[$ports[$column]] = [ConsoleMonster.Widgets.TableCell]::ForStatus($state, '')
+            $state = $states[$row * 3 + $column]
+            $values[$ports[$column]] = $state
         }
         [pscustomobject]$values
     }
-    New-ConsoleTable -InputObject $rows -Border None
+    $columns = @(' ') + @($ports | ForEach-Object { @{ Name = $_; Presenter = 'Status' } })
+    New-ConsoleTable -InputObject $rows -Property $columns -Border None
     New-ConsoleFacts -Content {
         @{ Value = @($states | Where-Object { $_ -eq 'Pass' }).Count; Label = 'passed'; Role = 'Pass' }
         @{ Value = @($states | Where-Object { $_ -eq 'Fail' }).Count; Label = 'failed'; Role = 'Fail' }

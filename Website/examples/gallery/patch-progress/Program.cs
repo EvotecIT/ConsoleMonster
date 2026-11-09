@@ -25,7 +25,7 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
         .Column(row => row.Host)
         .Column(row => row.Stage)
         .Column("Result", row => row.Result == "Retry needed"
-            ? TableCell.ForStatus(StatusKind.Warn, row.Result)
+            ? TableCell.FromValue(new StatusList().Add("[warn]Retry needed[/]", StatusKind.Warn))
             : TableCell.FromValue(row.Result), column => column.Presenter = CellPresenters.StatusWord);
 
     IWidget summary = outcomes.Count > 0

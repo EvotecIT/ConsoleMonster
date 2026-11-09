@@ -19,7 +19,7 @@ $git = New-ConsoleFacts -Content {
     '0 ahead / 0 behind'
 }
 
-$separator = if (([ConsoleMonster.Terminal]::GetCurrentProfile()).Glyphs -eq 'Ascii') { '|' } else { '·' }
+$separator = if ((Get-ConsoleCapability).Glyphs -eq 'Ascii') { '|' } else { '·' }
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {

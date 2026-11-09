@@ -259,7 +259,8 @@ namespace ConsoleMonster.Widgets {
                     else BarDrawer.Draw(region, barX, y, barWidth, fraction, context.Style(role), context, false, Shape);
                 }
                 if (ShowValues) {
-                    StatColumn.Write(region, region.Width - valueWidth, y, valueWidth, ValueText(item, context), reached.HasValue ? context.Style(reached.Value) : context.Style(ThemeToken.Text), ValueColumn.Alignment, context.Ellipsis);
+                    Style valueStyle = reached.HasValue ? CountStyle(item, reached.Value, context) : context.Style(ThemeToken.Text);
+                    StatColumn.Write(region, region.Width - valueWidth, y, valueWidth, ValueText(item, context), valueStyle, ValueColumn.Alignment, context.Ellipsis);
                 }
             }
             if (!string.IsNullOrEmpty(AxisLabel)) region.Write(0, _items.Count + rowOffset, TextWrapper.Truncate(AxisLabel!, region.Width, context.Ellipsis), muted);
@@ -275,10 +276,13 @@ namespace ConsoleMonster.Widgets {
             StyledLine label = RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Muted), context);
             StatusKind? status = StatusFor(item);
             if (ShowValues || !status.HasValue) return label;
-            var spans = new List<TextSpan> { new TextSpan(context.Glyphs.StatusSymbol(status.Value) + " ", context.Style(status.Value)) };
+            var spans = new List<TextSpan> { new TextSpan(context.Glyphs.StatusSymbol(status.Value) + " ", CountStyle(item, status.Value, context)) };
             spans.AddRange(label);
             return new StyledLine(spans);
         }
+
+        private static Style CountStyle(ChartItem item, StatusKind status, RenderContext context) =>
+            item.Value == 0 ? context.Style(ThemeToken.Muted) : context.Style(status);
 
         private string FormatValue(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
 

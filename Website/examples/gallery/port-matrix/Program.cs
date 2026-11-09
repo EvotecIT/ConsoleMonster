@@ -1,4 +1,5 @@
 // See which application ports are healthy across a group of hosts.
+using ConsoleMonster.Presenters;
 using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
@@ -30,12 +31,15 @@ StatusKind[] states =
 Table map = new Table() { Border = TableBorder.None };
 map.AddColumn(" ");
 foreach (string port in ports)
+{
     map.AddColumn(port);
+    map.Columns.Last().Presenter = CellPresenters.Status;
+}
 for (int row = 0; row < hosts.Length; row++)
     map.AddRow(hosts[row],
-        TableCell.ForStatus(states[row * ports.Length], ""),
-        TableCell.ForStatus(states[row * ports.Length + 1], ""),
-        TableCell.ForStatus(states[row * ports.Length + 2], ""));
+        TableCell.FromValue(states[row * ports.Length]),
+        TableCell.FromValue(states[row * ports.Length + 1]),
+        TableCell.FromValue(states[row * ports.Length + 2]));
 ViewFacts legend = new ViewFacts()
     .Add(states.Count(state => state == StatusKind.Pass), "passed", ThemeToken.Pass)
     .Add(states.Count(state => state == StatusKind.Fail), "failed", ThemeToken.Fail)

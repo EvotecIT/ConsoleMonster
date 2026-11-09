@@ -170,7 +170,7 @@ namespace ConsoleMonster.DevelopmentModuleLoadContext
                     )
 
                     $Mode = 'AllowList'
-                    $RequestedTypes = @('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Widgets.TableCell', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth')
+                    $RequestedTypes = @('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth')
                     $RequestedAssemblies = @()
 
                     if ($null -eq $ModuleAssembly) {
@@ -511,7 +511,7 @@ namespace ConsoleMonster.DevelopmentModuleLoadContext
                     param([Parameter(Mandatory = $true)][string] $LibraryDirectory)
 
                     $Mode = 'AllowList'
-                    $RequestedTypes = @('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Widgets.TableCell', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth')
+                    $RequestedTypes = @('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth')
                     $RequestedAssemblies = @()
                     $IgnoredLibraryFileNames = @()
 

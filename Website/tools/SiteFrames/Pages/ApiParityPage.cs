@@ -18,7 +18,6 @@ namespace SiteFrames.Pages {
             body.AppendLine("The contract covers **" + commands.Count + " commands**, **" + commands.Sum(command => command!["Bindings"]!.AsArray().Count) + " parameters** and **" + map["ConfigurableTypes"]!.AsArray().Count + " reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.\n");
             body.AppendLine("Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.\n");
             body.AppendLine("PowerShell exports use individual parameters, for example `Export-ConsoleFrame -Format Html -Width 100`. C# export calls accept typed ExportOptions configuration.\n");
-            body.AppendLine("PowerShell exposes `[ConsoleMonster.Widgets.TableCell]` through the module loader for typed table cells, including `TableCell.ForStatus(\"Retry needed\", StatusKind.Warn)`. This retains a caller's caption while using the shared status presentation.\n");
             foreach (JsonNode? rule in map["FluentExceptions"]!.AsArray()) {
                 body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
             }

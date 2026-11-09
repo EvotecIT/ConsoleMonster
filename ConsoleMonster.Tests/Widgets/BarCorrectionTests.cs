@@ -15,6 +15,20 @@ public sealed class BarCorrectionTests {
         Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.TrueColor, tier), Theme.ColorBlindSafe);
 
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void BarChart_ZeroStatusCountsAreMuted(bool showValues) {
+        RenderContext context = Context();
+        var chart = new BarChart { Role = ThemeToken.Fail, ShowValues = showValues }
+            .Add("empty", 0).Add("problem", 1);
+        var buffer = FrameComposer.RenderBlock(chart, 40, context);
+        int markerX = showValues ? 37 : 0;
+        Assert.Equal(context.Style(ThemeToken.Muted).Color, buffer[markerX, 0].Style.Color);
+        Assert.Equal(context.Style(ThemeToken.Fail).Color, buffer[markerX, 1].Style.Color);
+        if (showValues) Assert.Equal(context.Style(ThemeToken.Muted).Color, buffer[39, 0].Style.Color);
+    }
+
+    [Theory]
     [InlineData(GlyphTier.Full, "▆")]
     [InlineData(GlyphTier.Basic, "▄")]
     [InlineData(GlyphTier.Ascii, "#")]

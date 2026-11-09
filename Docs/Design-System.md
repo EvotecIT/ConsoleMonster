@@ -184,7 +184,7 @@ labels and captions use Muted. Values use Text, with Strong for the block's key 
 Strong figures; `KeyValueList` separates its Muted keys from Text values.
 
 `ViewFacts`, `Ui.Facts()` and `New-ConsoleFacts` draw report counts in one format: a bold count and its word in the
-same semantic role, separated by ` · ` (` | ` in ASCII). Neutral facts are Muted. Values use table presenters, and
+same semantic role, separated by ` · ` (` | ` in ASCII). Neutral facts and zero status counts are Muted, including chart values and markers. Values use table presenters, and
 facts wrap between items. Default-view summaries use this same widget. Other fact flows and frame legends share these separators; a literal middle-dot legend marker is shown as `(·)` so it cannot be mistaken for the separator.
 
 ## Bars

@@ -126,7 +126,6 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
             'ConsoleMonster.Styling.Theme'
             'ConsoleMonster.Styling.ThemeToken'
             'ConsoleMonster.Styling.StatusKind'
-            'ConsoleMonster.Widgets.TableCell'
             'ConsoleMonster.Text.RichText'
             'ConsoleMonster.Interactive.InteractionMode'
             'ConsoleMonster.Interactive.CommandLine'
