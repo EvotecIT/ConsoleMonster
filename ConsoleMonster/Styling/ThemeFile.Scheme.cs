@@ -6,7 +6,15 @@ using System.Linq;
 namespace ConsoleMonster.Styling {
     public sealed partial class ThemeFile {
         private static Theme ReadSchemeBasis(object? value, Dictionary<string, object?> root) {
-            if (value is string) { throw Error("BaseScheme", "named catalogue references are not available; embed a Scheme object"); }
+            bool accessible = false;
+            if (root.TryGetValue("Variant", out object? variant)) {
+                if (!string.Equals(RequiredString(variant, "Variant"), "Accessible", StringComparison.OrdinalIgnoreCase)) { throw Error("Variant", "must be Accessible"); }
+                accessible = true;
+            }
+            if (value is string name) {
+                if (!Theme.TrySchemeName(name, out string canonical, out bool suffix, out _) || suffix) { throw Error("BaseScheme", "must name a catalogue scheme or family; use Variant for Accessible"); }
+                return Theme.FromName(canonical + (accessible ? ConsoleSettings.AccessibleThemeSuffix : ""));
+            }
             Dictionary<string, object?> basis = Map(value, "BaseScheme", "Scheme");
             Dictionary<string, object?> data = Map(Get(basis, "Scheme"), "BaseScheme.Scheme", "Name", "Palette", "Foreground", "Background", "Selection", "Cursor", "SignatureAccent");
             if (!(Get(data, "Palette") is IList palette) || palette.Count != 16) { throw Error("BaseScheme.Scheme.Palette", "needs sixteen RGB colours"); }
@@ -21,11 +29,6 @@ namespace ConsoleMonster.Styling {
             TerminalScheme scheme = new TerminalScheme(RequiredString(Get(data, "Name"), "BaseScheme.Scheme.Name"), colors,
                 Read(Get(data, "Foreground"), "BaseScheme.Scheme.Foreground"), Read(Get(data, "Background"), "BaseScheme.Scheme.Background"),
                 Optional("Selection"), Optional("Cursor"), Optional("SignatureAccent"));
-            bool accessible = false;
-            if (root.TryGetValue("Variant", out object? variant)) {
-                if (!string.Equals(RequiredString(variant, "Variant"), "Accessible", StringComparison.OrdinalIgnoreCase)) { throw Error("Variant", "must be Accessible"); }
-                accessible = true;
-            }
             return Theme.FromScheme(scheme, accessible);
         }
 

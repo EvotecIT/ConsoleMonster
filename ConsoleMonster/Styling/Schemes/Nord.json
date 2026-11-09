@@ -1,0 +1,38 @@
+{
+  "family": "Nord",
+  "source": "https://github.com/nordtheme/nord",
+  "revision": "1cef71605416a222e57225b544540ce0fcec18d4",
+  "readDate": "2026-11-09",
+  "licence": "MIT",
+  "sources": [
+    "https://raw.githubusercontent.com/nordtheme/nord/1cef71605416a222e57225b544540ce0fcec18d4/src/nord.scss",
+    "https://raw.githubusercontent.com/nordtheme/nord/1cef71605416a222e57225b544540ce0fcec18d4/license"
+  ],
+  "schemes": [
+    {
+      "name": "Nord",
+      "displayName": "Nord",
+      "variant": "Dark",
+      "black": "#3b4252",
+      "red": "#bf616a",
+      "green": "#a3be8c",
+      "yellow": "#ebcb8b",
+      "blue": "#81a1c1",
+      "purple": "#b48ead",
+      "cyan": "#88c0d0",
+      "white": "#e5e9f0",
+      "brightBlack": "#4c566a",
+      "brightRed": "#bf616a",
+      "brightGreen": "#a3be8c",
+      "brightYellow": "#ebcb8b",
+      "brightBlue": "#81a1c1",
+      "brightPurple": "#b48ead",
+      "brightCyan": "#8fbcbb",
+      "brightWhite": "#eceff4",
+      "foreground": "#d8dee9",
+      "background": "#2e3440",
+      "selectionBackground": "#434c5e",
+      "signatureAccent": "#88c0d0"
+    }
+  ]
+}

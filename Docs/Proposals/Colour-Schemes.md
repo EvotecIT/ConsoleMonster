@@ -1,8 +1,7 @@
 # Proposal: colour schemes as the source of themes
 
-Status: PR 1 implements the theme checker (section 4). PR 2 implements scheme derivation, accessible variants, the
-Terminal preset and startup palette probe, version 3 files and import (sections 1–3 and the relevant parts of 6).
-The named catalogue, picker groups and site gallery (section 5) remain for PR 3. This design replaces "A theme that follows the terminal", "Importing colour schemes" and the scheme parts of
+Status: PRs 1 and 2 implement the checker, scheme derivation, accessible variants, terminal palette and version 3 imports.
+PR 3's library catalogue, named settings, pairing and named BaseScheme references are implemented; picker groups and the site gallery remain. This design replaces "A theme that follows the terminal", "Importing colour schemes" and the scheme parts of
 "Checking a theme" in [Settings-And-Themes.md](Settings-And-Themes.md) with one design, and adds a curated catalogue.
 
 ## Why
@@ -149,8 +148,14 @@ source URL, version and licence:
 | Catppuccin Mocha, Catppuccin Latte | Dark, Light | [catppuccin/windows-terminal](https://github.com/catppuccin/windows-terminal) | MIT |
 | Tokyo Night, Tokyo Night Day | Dark, Light | [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim) `extras/windows_terminal` | Apache-2.0 |
 
-The palettes, read from those sources on 2026-11-09, are in
-[Colour-Schemes.catalogue.json](Colour-Schemes.catalogue.json) until the catalogue PR moves them into the library.
+The palettes, read from those sources on 2026-11-09, are embedded from
+[Styling/Schemes](../../ConsoleMonster/Styling/Schemes), one JSON file per family, with immutable upstream revisions.
+[Build/refresh-schemes.py](../../Build/refresh-schemes.py) rereads the upstream sources and rewrites the data and
+[shipped notices](../../Module/Notices/Schemes). Review the diff and run the catalogue tests after refreshing.
+`Theme.Schemes` exposes `Name`, `Family`, `Variant`, `DisplayName` and `Scheme`. `Name` is an explicit stored choice;
+`DisplayName` retains the upstream label. `Tokyo Night` selects the family automatically; `Tokyo Night Dark` selects its dark variant explicitly.
+Settings store the accessible choice literally, for example `Dracula · accessible`. Exports embed the resolved palette,
+so a family choice does not change variant when its exported file is loaded elsewhere.
 One Dark is left out for now: its terminal palettes are community ports with no single upstream to cite. Dracula's
 light counterpart is part of Dracula Pro, not the free scheme, so there is no free Dracula light variant to pair.
 

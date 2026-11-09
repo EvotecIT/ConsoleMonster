@@ -1,0 +1,61 @@
+{
+  "family": "Solarized",
+  "source": "https://github.com/altercation/solarized",
+  "revision": "62f656a02f93c5190a8753159e34b385588d5ff3",
+  "readDate": "2026-11-09",
+  "licence": "MIT",
+  "sources": [
+    "https://raw.githubusercontent.com/altercation/solarized/62f656a02f93c5190a8753159e34b385588d5ff3/README.md",
+    "https://raw.githubusercontent.com/altercation/solarized/62f656a02f93c5190a8753159e34b385588d5ff3/LICENSE"
+  ],
+  "schemes": [
+    {
+      "name": "Solarized Dark",
+      "displayName": "Solarized Dark",
+      "variant": "Dark",
+      "black": "#073642",
+      "red": "#dc322f",
+      "green": "#859900",
+      "yellow": "#b58900",
+      "blue": "#268bd2",
+      "purple": "#d33682",
+      "cyan": "#2aa198",
+      "white": "#eee8d5",
+      "brightBlack": "#002b36",
+      "brightRed": "#cb4b16",
+      "brightGreen": "#586e75",
+      "brightYellow": "#657b83",
+      "brightBlue": "#839496",
+      "brightPurple": "#6c71c4",
+      "brightCyan": "#93a1a1",
+      "brightWhite": "#fdf6e3",
+      "foreground": "#839496",
+      "background": "#002b36",
+      "selectionBackground": "#073642"
+    },
+    {
+      "name": "Solarized Light",
+      "displayName": "Solarized Light",
+      "variant": "Light",
+      "black": "#073642",
+      "red": "#dc322f",
+      "green": "#859900",
+      "yellow": "#b58900",
+      "blue": "#268bd2",
+      "purple": "#d33682",
+      "cyan": "#2aa198",
+      "white": "#eee8d5",
+      "brightBlack": "#002b36",
+      "brightRed": "#cb4b16",
+      "brightGreen": "#586e75",
+      "brightYellow": "#657b83",
+      "brightBlue": "#839496",
+      "brightPurple": "#6c71c4",
+      "brightCyan": "#93a1a1",
+      "brightWhite": "#fdf6e3",
+      "foreground": "#657b83",
+      "background": "#fdf6e3",
+      "selectionBackground": "#eee8d5"
+    }
+  ]
+}

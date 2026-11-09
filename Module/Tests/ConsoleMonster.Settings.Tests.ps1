@@ -29,15 +29,29 @@
         Remove-Item -LiteralPath $script:Folder -Recurse -Force -ErrorAction SilentlyContinue
     }
 
+    It 'round-trips the named choice <Stored> through settings.json and a fresh session' -ForEach @(
+        @{ Command = 'Set-ConsoleTheme Dracula -Save'; Stored = 'Dracula'; Scheme = 'Dracula'; Accessible = 'False' }
+        @{ Command = 'Set-ConsoleTheme Dracula -Accessible -Save'; Stored = 'Dracula · accessible'; Scheme = 'Dracula'; Accessible = 'True' }
+        @{ Command = "Set-ConsoleSetting Theme 'cAtPpUcCiN lAtTe · AcCeSsIbLe' -Save"; Stored = 'Catppuccin Latte · accessible'; Scheme = 'Catppuccin Latte'; Accessible = 'True' }
+        @{ Command = "Set-ConsoleTheme 'Tokyo Night' -Accessible -Save"; Stored = 'Tokyo Night · accessible'; Scheme = 'Tokyo Night Dark'; Accessible = 'True' }
+    ) {
+        $null = Invoke-SettingsChild -File $script:File -Script $Command
+        (Get-Content -LiteralPath $script:File -Raw | ConvertFrom-Json).Theme | Should -BeExactly $Stored
+        $next = Invoke-SettingsChild -File $script:File -Script '"value=$((Get-ConsoleSetting Theme).Value);source=$((Get-ConsoleSetting Theme).Source);scheme=$([ConsoleMonster.Terminal]::Theme.Scheme.Name);accessible=$([ConsoleMonster.Terminal]::Theme.IsAccessible)"'
+        $next | Should -Match ([regex]::Escape("value=$Stored;source=File;scheme=$Scheme;accessible=$Accessible"))
+        $overridden = Invoke-SettingsChild -File $script:File -Environment @{ CONSOLEMONSTER_THEME = 'nord' } -Script '"scheme=$([ConsoleMonster.Terminal]::Theme.Scheme.Name);source=$((Get-ConsoleSetting Theme).Source)"'
+        $overridden | Should -Match 'scheme=Nord;source=Environment'
+    }
+
     It 'keeps Terminal and an accessible scheme choice across fresh sessions' {
         $null = Invoke-SettingsChild -File $script:File -Script 'Set-ConsoleTheme Terminal -Save'
         $next = Invoke-SettingsChild -File $script:File -Script '"theme=$((Get-ConsoleSetting Theme).Value);preference=$((Get-ConsoleCapability).ThemePreference)"'
         $next | Should -Match 'theme=Terminal;preference=Terminal'
         $source = Join-Path $script:Folder 'scheme.json'
         $theme = Join-Path $script:Folder 'scheme.theme.json'
-        $data = Get-Content (Join-Path $PSScriptRoot '../../Docs/Proposals/Colour-Schemes.catalogue.json') -Raw | ConvertFrom-Json
-        $data.Dracula | Add-Member NoteProperty name 'Session scheme'
-        $data.Dracula | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $data = Get-Content (Join-Path $PSScriptRoot '../../ConsoleMonster/Styling/Schemes/Dracula.json') -Raw | ConvertFrom-Json
+        $data.schemes[0].name = 'Session scheme'
+        $data.schemes[0] | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
         $null = Invoke-SettingsChild -File $script:File -Script "Import-ConsoleTheme -Path '$source' -OutFile '$theme'; Set-ConsoleTheme -Path '$theme' -Accessible -Save"
         $next = Invoke-SettingsChild -File $script:File -Script '"accessible=$([ConsoleMonster.Terminal]::Theme.IsAccessible);value=$((Get-ConsoleSetting Theme).Value)"'
         $next | Should -Match 'accessible=True'

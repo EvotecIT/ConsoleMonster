@@ -306,6 +306,7 @@ namespace ConsoleMonster.Interactive {
             }
 
             private static ITheme ThemeFor(string name, RenderContext context) {
+                if (Theme.TrySchemeName(name, out _, out _, out _)) { return Theme.FromName(name); }
                 switch (name) {
                     case "Auto": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.Auto));
                     case "ColorBlindSafe": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind));
@@ -314,7 +315,7 @@ namespace ConsoleMonster.Interactive {
                         return Theme.FromName(name);
                     default:
                         // A theme file: the one in effect when it is the current setting, otherwise the active theme.
-                        return ConsoleSettings.ThemeFromPath() ?? context.Theme;
+                        return ConsoleSettings.ThemeFromSetting() ?? context.Theme;
                 }
             }
         }
