@@ -29,6 +29,22 @@
         Remove-Item -LiteralPath $script:Folder -Recurse -Force -ErrorAction SilentlyContinue
     }
 
+    It 'keeps Terminal and an accessible scheme choice across fresh sessions' {
+        $null = Invoke-SettingsChild -File $script:File -Script 'Set-ConsoleTheme Terminal -Save'
+        $next = Invoke-SettingsChild -File $script:File -Script '"theme=$((Get-ConsoleSetting Theme).Value);preference=$((Get-ConsoleCapability).ThemePreference)"'
+        $next | Should -Match 'theme=Terminal;preference=Terminal'
+        $source = Join-Path $script:Folder 'scheme.json'
+        $theme = Join-Path $script:Folder 'scheme.theme.json'
+        $data = Get-Content (Join-Path $PSScriptRoot '../../Docs/Proposals/Colour-Schemes.catalogue.json') -Raw | ConvertFrom-Json
+        $data.Dracula | Add-Member NoteProperty name 'Session scheme'
+        $data.Dracula | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $null = Invoke-SettingsChild -File $script:File -Script "Import-ConsoleTheme -Path '$source' -OutFile '$theme'; Set-ConsoleTheme -Path '$theme' -Accessible -Save"
+        $next = Invoke-SettingsChild -File $script:File -Script '"accessible=$([ConsoleMonster.Terminal]::Theme.IsAccessible);value=$((Get-ConsoleSetting Theme).Value)"'
+        $next | Should -Match 'accessible=True'
+        $next | Should -Match 'value=.*scheme.theme.json · accessible'
+        (Get-Content -LiteralPath $theme -Raw | ConvertFrom-Json).Variant | Should -BeNullOrEmpty
+    }
+
     It 'keeps a saved theme and formatting for the next session, below environment variables' {
         $null = Invoke-SettingsChild -File $script:File -Script @'
 Set-ConsoleTheme ColorBlindSafe -Save

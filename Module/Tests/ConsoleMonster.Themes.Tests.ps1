@@ -13,6 +13,58 @@
         Reset-ConsoleSetting Theme
     }
 
+    It 'imports a failing scheme, reports the verdict and leaves the active theme alone' {
+        $source = Join-Path $TestDrive 'scheme.json'
+        $output = Join-Path $TestDrive 'theme.json'
+        $palette = @{ name = 'Synthetic'; foreground = '#eeeeee'; background = '#222222' }
+        foreach ($key in 'black', 'red', 'green', 'yellow', 'blue', 'purple', 'cyan', 'white', 'brightBlack', 'brightRed', 'brightGreen', 'brightYellow', 'brightBlue', 'brightPurple', 'brightCyan', 'brightWhite') { $palette[$key] = '#777777' }
+        $palette | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $before = [ConsoleMonster.Terminal]::Theme
+        $report = Import-ConsoleTheme -Path $source -OutFile $output
+        $report.Passed | Should -BeFalse
+        $report.Path | Should -BeExactly $output
+        (Get-Content -LiteralPath $output -Raw | ConvertFrom-Json).SchemaVersion | Should -Be 3
+        [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
+        ($report | Out-String) | Should -Match 'Synthetic:.*problem'
+        { Import-ConsoleTheme -Path $source -OutFile $source -ErrorAction Stop } | Should -Throw '*differ*'
+    }
+
+    It 'preserves embedded schemes and accessible choices through JSON and PSD1' {
+        $source = Join-Path $TestDrive 'accessible-source.json'
+        $catalogue = Get-Content (Join-Path $PSScriptRoot '../../Docs/Proposals/Colour-Schemes.catalogue.json') -Raw | ConvertFrom-Json
+        $palette = $catalogue.Dracula
+        $palette | Add-Member NoteProperty name 'Synthetic accessible'
+        $palette | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $report = Import-ConsoleTheme -Path $source -Accessible
+        $report.Passed | Should -BeTrue
+        ($report | Out-String) | Should -Match 'adjusted for contrast:'
+        Set-ConsoleTheme -Path $report.Path
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+        foreach ($extension in 'json', 'psd1') {
+            $file = Join-Path $TestDrive "scheme-roundtrip.$extension"
+            Export-ConsoleTheme -Path $file
+            Set-ConsoleTheme Dark
+            Set-ConsoleTheme -Path $file
+            [ConsoleMonster.Terminal]::Theme.Scheme.Palette.Count | Should -Be 16
+            (Test-ConsoleTheme).Passed | Should -BeTrue
+        }
+    }
+
+    It 'uses a recording palette and title through the default graphics and final SVG commands' {
+        $path = Join-Path $TestDrive 'palette.cast'
+        $colors = @('#445566') * 16
+        $colors[2] = '#12ab34'
+        $header = '{"version":2,"width":60,"height":3,"title":"Saved session","theme":{"fg":"#ffffff","bg":"#112233","palette":"' + ($colors -join ':') + '"}}'
+        [IO.File]::WriteAllText($path, $header + "`n" + '[0,"o","\u001b[32m\u2588\u2588"]' + "`n", [Text.UTF8Encoding]::new($false))
+        $svg = Export-ConsoleRecording -RecordingPath $path -Format Svg -FinalFrame
+        $svg | Should -Match '#12ab34'
+        $implicit = Join-Path $TestDrive 'implicit-title.png'
+        $explicit = Join-Path $TestDrive 'explicit-title.png'
+        $null = Export-ConsoleRecording -RecordingPath $path -Format Png -Path $implicit -ChromeStyle MacOS
+        $null = Export-ConsoleRecording -RecordingPath $path -Format Png -Path $explicit -ChromeStyle MacOS -Title 'Saved session'
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($implicit)) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($explicit)))
+    }
+
     It 'uses the same public C# writer and reader for <Extension> themes' -ForEach @(
         @{ Extension = 'json' }
         @{ Extension = 'psd1' }
@@ -30,7 +82,7 @@
     }
 
     It 'selects each built-in preset including both ColorBlindSafe variants' {
-        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeLight') {
+        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeLight', 'Terminal') {
             Set-ConsoleTheme -Theme $preset
             [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly $preset
         }
