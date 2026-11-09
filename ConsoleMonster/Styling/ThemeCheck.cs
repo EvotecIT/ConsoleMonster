@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 
@@ -28,10 +29,11 @@ namespace ConsoleMonster.Styling {
             List<ThemeCheckResult> results = new List<ThemeCheckResult>();
             foreach (ThemeToken token in TextTokens) {
                 Style style = theme.Resolve(token, ColorDepth.TrueColor);
-                Color background = style.BackgroundColor.IsDefault ? page : style.BackgroundColor;
-                double? ratio = IsRgb(style.Color) && IsRgb(background) ? Contrast(style.Color, background) : (double?)null;
+                Color foreground = TextColour(style, page);
+                Color background = FillColour(style, page);
+                double? ratio = IsRgb(foreground) && IsRgb(background) ? Contrast(foreground, background) : (double?)null;
                 results.Add(Result(ThemeCheckKind.Contrast, new[] { token }, ratio, 4.5,
-                    "Readable text.", "Text contrast is too low.", "Text RGB is unknown."));
+                    "Readable text.", "Text contrast is too low.", (style.Decoration & TextDecoration.Dim) != 0 ? "Terminal dimming is unknown." : "Text RGB is unknown."));
             }
             for (int vision = 0; vision < Simulations.Length; vision++) {
                 for (int i = 0; i < Statuses.Length; i++) {
@@ -49,8 +51,10 @@ namespace ConsoleMonster.Styling {
             return new ThemeCheckReport(results);
         }
 
-        private static Color TextColour(Style style, Color page) => (style.Decoration & TextDecoration.Reverse) == 0
-            ? style.Color : style.BackgroundColor.IsDefault ? page : style.BackgroundColor;
+        // Terminals choose their own faint intensity. An undimmed RGB value cannot establish the displayed contrast
+        // or separation, even though an export renderer has its own deterministic dim approximation.
+        private static Color TextColour(Style style, Color page) => (style.Decoration & TextDecoration.Dim) != 0 ? Color.Default
+            : (style.Decoration & TextDecoration.Reverse) == 0 ? style.Color : style.BackgroundColor.IsDefault ? page : style.BackgroundColor;
 
         private static Color FillColour(Style style, Color page) => (style.Decoration & TextDecoration.Reverse) != 0
             ? style.Color : style.BackgroundColor.IsDefault ? page : style.BackgroundColor;
@@ -89,14 +93,17 @@ namespace ConsoleMonster.Styling {
                 return;
             }
             bool known = IsRgb(fill) && IsRgb(page);
-            bool distinct = fill != page;
-            foreach (ThemeToken token in Statuses) {
+            bool matches = !fill.IsDefault && fill == page;
+            foreach (ThemeToken token in TextTokens.Concat(new[] { ThemeToken.Title, ThemeToken.Header, ThemeToken.Highlight, ThemeToken.Strong })) {
+                if (token == ThemeToken.Critical) { continue; }
                 Color background = FillColour(theme.Resolve(token, ColorDepth.TrueColor), page);
                 known &= IsRgb(background);
-                distinct &= fill != background;
+                matches |= !fill.IsDefault && fill == background;
             }
             // Critical may deliberately share Fail's hue: its distinguishing cue is a filled background.
-            results.Add(Result(ThemeCheckKind.Fill, new[] { ThemeToken.Critical }, known ? (distinct ? 1 : 0) : (double?)null, 1,
+            // Equality is already a proven failure (also for identical palette indexes); another unknown comparison
+            // cannot hide it from Strict callers.
+            results.Add(Result(ThemeCheckKind.Fill, new[] { ThemeToken.Critical }, matches ? 0 : known ? 1 : (double?)null, 1,
                 "Critical has a distinct fill.", "Fill matches ordinary text.", "Fill RGB is unknown."));
         }
     }

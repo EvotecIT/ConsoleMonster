@@ -80,6 +80,43 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.Equal(ThemeCheckOutcome.Fail, report.Results.Single(result => result.Check == ThemeCheckKind.Contrast && result.Tokens[0] == ThemeToken.Critical).Outcome);
         }
 
+        [Theory]
+        [InlineData(ThemeToken.Text)]
+        [InlineData(ThemeToken.Muted)]
+        [InlineData(ThemeToken.Title)]
+        [InlineData(ThemeToken.Header)]
+        [InlineData(ThemeToken.Highlight)]
+        [InlineData(ThemeToken.Strong)]
+        public void CriticalFillMustDifferFromOrdinaryText(ThemeToken token) {
+            Theme theme = Theme.ColorBlindSafe.With(token, Theme.ColorBlindSafe.Get(ThemeToken.Critical));
+            Assert.Equal(ThemeCheckOutcome.Fail, ThemeCheck.Run(theme).Results.Single(result => result.Check == ThemeCheckKind.Fill).Outcome);
+        }
+
+        [Fact]
+        public void KnownFillFailureIsNotMaskedByAnotherUnknownBackground() {
+            Theme theme = Theme.ColorBlindSafe
+                .With(ThemeToken.Pass, new ThemeStyle(Theme.ColorBlindSafe.Get(ThemeToken.Pass).Color, new ThemeColor(Color.FromAnsi16(0), 0)))
+                .With(ThemeToken.Critical, new ThemeStyle(ThemeColor.Hex("#ffffff", 15), ThemeColor.Hex("#0c0c0c", 0)));
+            ThemeCheckReport report = ThemeCheck.Run(theme);
+            Assert.Contains(report.Results, result => result.Check == ThemeCheckKind.Contrast && result.Outcome == ThemeCheckOutcome.Unknown);
+            Assert.Equal(ThemeCheckOutcome.Fail, report.Results.Single(result => result.Check == ThemeCheckKind.Fill).Outcome);
+            Assert.DoesNotContain(report.Results, result => result.Check != ThemeCheckKind.Fill && result.Outcome == ThemeCheckOutcome.Fail);
+        }
+
+        [Fact]
+        public void DimTextCannotClaimUndimmedContrastOrStatusDistances() {
+            Theme theme = Theme.ColorBlindSafe
+                .With(ThemeToken.Text, new ThemeStyle(ThemeColor.Hex("#aaaaaa", 7), null, TextDecoration.Dim))
+                .With(ThemeToken.Pass, new ThemeStyle(Theme.ColorBlindSafe.Get(ThemeToken.Pass).Color, null, TextDecoration.Dim));
+            ThemeCheckReport report = ThemeCheck.Run(theme);
+            Assert.All(report.Results.Where(result => result.Check == ThemeCheckKind.Contrast && (result.Tokens[0] == ThemeToken.Text || result.Tokens[0] == ThemeToken.Pass)), result => {
+                Assert.Equal(ThemeCheckOutcome.Unknown, result.Outcome);
+                Assert.Null(result.Value);
+            });
+            Assert.All(report.Results.Where(result => result.Check == ThemeCheckKind.ColourVision && result.Tokens.Contains(ThemeToken.Pass)), result => Assert.Equal(ThemeCheckOutcome.Unknown, result.Outcome));
+            Assert.All(report.Results.Where(result => result.Check == ThemeCheckKind.Markers), result => Assert.Equal(ThemeCheckOutcome.Pass, result.Outcome));
+        }
+
         [Fact]
         public void ReversedStatusesUseTheDisplayedTextAndFill() {
             Theme theme = Theme.ColorBlindSafe;
