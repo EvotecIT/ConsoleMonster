@@ -892,6 +892,58 @@
       ]
     },
     {
+      "Command": "ConvertTo-ConsoleView",
+      "Job": "ConvertTo-ConsoleView",
+      "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
+      "Bindings": [
+        {
+          "Parameter": "AsDataFile",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "DraftSerialization",
+          "Reason": "Serializes the sampled columns as a data-only PowerShell view file instead of a registration script."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SampledViewDefinition",
+          "Reason": "Samples at most fifty input objects to draft up to six columns, reusing default-table presenter inference."
+        },
+        {
+          "Parameter": "Register",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SessionRegistration",
+          "Reason": "Also installs the drafted ConsoleViewRegistration through ConsoleHostViews.Register in the current session."
+        }
+      ]
+    },
+    {
       "Command": "Disable-ConsoleFormatting",
       "Job": "Disable-ConsoleFormatting",
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostFormatting",
@@ -29326,7 +29378,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 113,
+  "ExpectedCount": 114,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
