@@ -2745,6 +2745,26 @@
           "Static": false
         },
         {
+          "Parameter": "NoJobSummary",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpType": "ConsoleMonster.PowerShell.Pester.ConsolePesterOptions",
+          "Member": "NoJobSummary",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "NoLive",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -24917,6 +24937,217 @@
           "Conversion": "ThemePresetSelector"
         }
       ]
+    },
+    {
+      "Command": "Add-ConsoleJobSummary",
+      "Job": "Add-ConsoleJobSummary",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "AddSummary",
+          "Argument": "widget",
+          "MemberKind": "Method",
+          "Conversion": "WidgetAdaptation",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Reason": "Uses the existing automatic view and semantic Markdown exporter before the shared summary transport."
+        }
+      ]
+    },
+    {
+      "Command": "Use-ConsoleGroup",
+      "Job": "Use-ConsoleGroup",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "ScriptBlock",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ScriptBlockCallback",
+          "Reason": "Runs the script on its owning pipeline thread inside the C# group scope, which closes in finally."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Group",
+          "Argument": "title",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
+      "Command": "Write-ConsoleAnnotation",
+      "Job": "Write-ConsoleAnnotation",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "Column",
+          "ParameterType": "System.Nullable`1[System.Int32]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "column",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int32]"
+        },
+        {
+          "Parameter": "File",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "file",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "Level",
+          "ParameterType": "ConsoleMonster.AnnotationLevel",
+          "Default": "Error",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "level",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.AnnotationLevel"
+        },
+        {
+          "Parameter": "Line",
+          "ParameterType": "System.Nullable`1[System.Int32]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "line",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int32]"
+        },
+        {
+          "Parameter": "Message",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "message",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "title",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        }
+      ]
     }
   ],
   "CSharpOnly": [
@@ -29221,7 +29452,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 112,
+  "ExpectedCount": 115,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29435,7 +29666,8 @@
     "ConsoleMonster.Widgets.WatchView",
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
-    "ConsoleMonster.Styling.ThemeCheckOptions"
+    "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.ContinuousIntegration"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -29815,7 +30047,10 @@
     "ConsoleMonster.Widgets.WatchView",
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
-    "ConsoleMonster.Styling.ThemeCheckOptions"
+    "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider",
+    "ConsoleMonster.Export.IFrameExportProvider"
   ],
   "RelatedBindings": [
     {

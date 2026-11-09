@@ -22,7 +22,7 @@ Describe 'Math' {
         function Invoke-PesterChild {
             param([Parameter(Mandatory)][string] $Script, [switch] $WithoutPester)
             $lines = @(
-                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
+                "foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_GLYPHS', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_CI', 'GITLAB_CI', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'TERM', 'WT_SESSION', 'COLUMNS', 'LINES') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
                 if ($WithoutPester) {
                     "`$env:PSModulePath = Join-Path `$PSHOME 'Modules'"
                 } else {
@@ -50,6 +50,47 @@ $r = Invoke-ConsolePester -Path $fixtures -PassThru
         $text | Should -Match 'TYPE=True'
         $text | Should -Match 'COUNTS=Failed;2;1;1'
         $text | Should -Match 'PLAIN=Failed;2;1;1'
+    }
+
+    It 'annotates real Pester failures with source positions and appends a semantic summary before exit policy' {
+        $text = Invoke-PesterChild @'
+$env:GITHUB_ACTIONS = 'true'
+$env:GITHUB_STEP_SUMMARY = Join-Path $fixtures 'summary.md'
+$null = Invoke-ConsolePester -Path $fixtures -PassThru
+'SUMMARY-BEGIN'
+Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+'SUMMARY-END'
+Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY
+'@
+        $text | Should -Match '::error file=.*Sample\.Tests\.ps1,line=3,title=fails number::Expected 4, but got 3\.'
+        $text | Should -Match '\| File \| Tests \| Passed \| Failed \| Skipped \| Time \|'
+        $text | Should -Match '\|.*Sample.Tests.ps1.*\|.*4.*\|.*2.*\|.*1.*\|.*1.*\|'
+        $text | Should -Match '\| Math / fails number \| Expected 4, but got 3\.'
+    }
+
+    It 'limits automatic annotations to ten and keeps the complete summary, while NoJobSummary only suppresses the file' {
+        $text = Invoke-PesterChild @'
+$many = Join-Path $fixtures 'Many.Tests.ps1'
+Set-Content -LiteralPath $many -Value "Describe 'Many' { It 'failure <_>' -ForEach (1..13) { 1 | Should -Be 2 } }"
+$env:CONSOLEMONSTER_CI = 'github'
+$env:GITHUB_ACTIONS = 'true'
+$env:GITHUB_STEP_SUMMARY = Join-Path $fixtures 'many-summary.md'
+$null = Invoke-ConsolePester -Path $many -NoLive -Output Normal -PassThru
+"SUMMARY-FAILURES=$(@(Select-String -LiteralPath $env:GITHUB_STEP_SUMMARY -Pattern '^\| Many / failure ').Count)"
+Remove-Item -LiteralPath $env:GITHUB_STEP_SUMMARY
+Invoke-ConsolePester -Path $many -NoJobSummary -Output None
+"SUMMARY-EXISTS=$(Test-Path -LiteralPath $env:GITHUB_STEP_SUMMARY)"
+'OFF-BEGIN'
+$env:CONSOLEMONSTER_CI = 'none'
+Invoke-ConsolePester -Path $many -NoLive -NoJobSummary -Output Normal
+'OFF-END'
+Remove-Item -LiteralPath $many
+'@
+        @([regex]::Matches($text, '(?m)^::error(?: |::)')).Count | Should -Be 20
+        @([regex]::Matches($text, '(?m)^3 additional errors omitted from CI annotations\.')).Count | Should -Be 2
+        $text | Should -Match 'SUMMARY-FAILURES=13'
+        $text | Should -Match 'SUMMARY-EXISTS=False'
+        [regex]::Match($text, '(?s)OFF-BEGIN(.*?)OFF-END').Groups[1].Value | Should -Not -Match '::error|##vso'
     }
 
     It 'writes one line per failure and a summary line in redirected output' {

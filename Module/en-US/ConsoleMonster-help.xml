@@ -1,5 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <helpItems schema="maml" xmlns="http://msh">
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Add-ConsoleJobSummary</command:name>
+      <command:verb>Add</command:verb>
+      <command:noun>ConsoleJobSummary</command:noun>
+      <maml:description>
+        <maml:para>Adds widgets or objects as Markdown to the CI job summary.</maml:para>
+        <maml:para>Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Adds widgets or objects as Markdown to the CI job summary.</maml:para>
+      <maml:para>Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Add-ConsoleJobSummary</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>Widgets or objects to export as Markdown. Objects use the automatic view; multiple widgets are stacked.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>Widgets or objects to export as Markdown. Objects use the automatic view; multiple widgets are stacked.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.String</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>@([pscustomobject]@{ Check = 'Build'; Result = 'Passed' }) | Add-ConsoleJobSummary</dev:code>
+        <dev:remarks>
+          <maml:para>Add a result table to the job summary</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
       <command:name>Add-ConsoleRecordingMarker</command:name>
@@ -1824,21 +1899,21 @@
       <command:noun>ConsoleFormatting</command:noun>
       <maml:description>
         <maml:para>Enables the everyday console views, native format commands and theme colours.</maml:para>
-        <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
-        <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
+        <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting.</maml:para>
+        <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Prompt, Help, Progress and GridView require Include. ErrorLayout Compact opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session. In supported CI providers, the Errors feature also annotates displayed errors with a script position, including terminating errors; each output pipeline emits at most ten annotations and one overflow count.</maml:para>
         <maml:para>Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Enables the everyday console views, native format commands and theme colours.</maml:para>
-      <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting. The -Feature parameter requires ConsoleMonster 2.1.0 or later.</maml:para>
-      <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Feature replaces the default set with exactly the selected features. Prompt, Help, Progress and GridView require Include or Feature. CompactErrors opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session.</maml:para>
+      <maml:para>Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting.</maml:para>
+      <maml:para>By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Prompt, Help, Progress and GridView require Include. ErrorLayout Compact opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session. In supported CI providers, the Errors feature also annotates displayed errors with a script position, including terminating errors; each output pipeline emits at most ten annotations and one overflow count.</maml:para>
       <maml:para>Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Default">
         <maml:name>Enable-ConsoleFormatting</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ErrorLayout</maml:name>
           <maml:description>
             <maml:para>Error detail: Compact, Standard or Detailed. Errors must be enabled.</maml:para>
@@ -1855,7 +1930,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Exclude</maml:name>
           <maml:description>
             <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
@@ -1879,7 +1954,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Force</maml:name>
           <maml:description>
             <maml:para>Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept. Prompt requires Force to replace oh-my-posh or Starship.</maml:para>
@@ -1891,7 +1966,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Include</maml:name>
           <maml:description>
             <maml:para>Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</maml:para>
@@ -1915,7 +1990,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoBuiltIn</maml:name>
           <maml:description>
             <maml:para>Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries, Compare-Object results). The built-in views still pick the columns of Show-ConsoleTable and the other commands.</maml:para>
@@ -1927,7 +2002,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ProfileSnippet</maml:name>
           <maml:description>
             <maml:para>Prints the lines to add to your PowerShell profile so every session starts with ConsoleMonster's formatting, with the options you passed, and changes nothing: the profile is never edited and formatting is not enabled. Pipe them to Add-Content $PROFILE yourself if you want them.</maml:para>
@@ -1939,7 +2014,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Save</maml:name>
           <maml:description>
             <maml:para>Also writes the Include, Exclude, ErrorLayout and NoBuiltIn choices to the settings file. Later, Enable-ConsoleFormatting without any of them uses the saved choices, so the profile line stays short. Enable-ConsoleFormatting -Save without them saves the default set.</maml:para>
@@ -1954,7 +2029,7 @@
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ErrorLayout</maml:name>
         <maml:description>
           <maml:para>Error detail: Compact, Standard or Detailed. Errors must be enabled.</maml:para>
@@ -1971,7 +2046,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Exclude</maml:name>
         <maml:description>
           <maml:para>Turns on the default set except these features, and disables any excluded feature already enabled. Cannot be combined with Feature.</maml:para>
@@ -1995,7 +2070,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Force</maml:name>
         <maml:description>
           <maml:para>Replaces an existing Out-Default function, Write-Progress alias, or an Out-GridView function/alias when the native grid is unavailable (Disable-ConsoleFormatting puts it back). A working native Out-GridView is always kept. Prompt requires Force to replace oh-my-posh or Starship.</maml:para>
@@ -2007,7 +2082,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Include</maml:name>
         <maml:description>
           <maml:para>Adds these opt-in features to the default set. Can be combined with Exclude, but not Feature.</maml:para>
@@ -2031,7 +2106,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>NoBuiltIn</maml:name>
         <maml:description>
           <maml:para>Only takes over the types registered with Register-ConsoleView, not the built-in ones (files, processes, services, dictionaries, Compare-Object results). The built-in views still pick the columns of Show-ConsoleTable and the other commands.</maml:para>
@@ -2043,7 +2118,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ProfileSnippet</maml:name>
         <maml:description>
           <maml:para>Prints the lines to add to your PowerShell profile so every session starts with ConsoleMonster's formatting, with the options you passed, and changes nothing: the profile is never edited and formatting is not enabled. Pipe them to Add-Content $PROFILE yourself if you want them.</maml:para>
@@ -2055,7 +2130,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Save</maml:name>
         <maml:description>
           <maml:para>Also writes the Include, Exclude, ErrorLayout and NoBuiltIn choices to the settings file. Later, Enable-ConsoleFormatting without any of them uses the saved choices, so the profile line stays short. Enable-ConsoleFormatting -Save without them saves the default set.</maml:para>
@@ -2068,7 +2143,13 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues />
     <maml:alertSet>
       <maml:alert>
@@ -5114,17 +5195,19 @@
       <command:noun>ConsolePester</command:noun>
       <maml:description>
         <maml:para>Runs Pester tests with a live ConsoleMonster dashboard and a summary table.</maml:para>
+        <maml:para>In GitHub Actions, Azure Pipelines and GitLab CI, failures produce source-position annotations where supported, capped at ten per invocation with an overflow count. The results table and failures are added to the GitHub or Azure job summary unless NoJobSummary is set. GitLab has no annotation or job-summary API, so failures remain ordinary log lines. Native Pester result, throw and exit policies are applied after the summary.</maml:para>
         <maml:para>Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagFilter, FullNameFilter, Container, Output, CI, PassThru) or a -Configuration (a PesterConfiguration or a hashtable), and runs Pester 5 or 6, imported when first needed. While the tests run, an inline area (or the full screen with -FullScreen) shows the run totals and the clock, the test files as lanes with passed, failed and skipped counts, the running test, and with -FullScreen the failures (expected against actual, the file and line as a link), the slowest tests and a histogram of durations. When the run ends a table of results by file, the failures and the totals are written to the scrollback, and -ReportPath saves the final dashboard. In redirected output, jobs and CI logs the output is one line per failure and a summary line. Pester's result object is returned with -PassThru (or Run.PassThru), Run.Throw and Run.Exit (-CI) are applied after the summary, and Write-Host output from tests appears above the inline area. Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter; when the internals are not what it expects (or with Run.Parallel or Output None) Pester runs unchanged with its own output and the summary table follows. Works on Windows PowerShell 5.1 and PowerShell 7.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs Pester tests with a live ConsoleMonster dashboard and a summary table.</maml:para>
+      <maml:para>In GitHub Actions, Azure Pipelines and GitLab CI, failures produce source-position annotations where supported, capped at ten per invocation with an overflow count. The results table and failures are added to the GitHub or Azure job summary unless NoJobSummary is set. GitLab has no annotation or job-summary API, so failures remain ordinary log lines. Native Pester result, throw and exit policies are applied after the summary.</maml:para>
       <maml:para>Takes the parameters of Invoke-Pester (Path, ExcludePath, TagFilter, ExcludeTagFilter, FullNameFilter, Container, Output, CI, PassThru) or a -Configuration (a PesterConfiguration or a hashtable), and runs Pester 5 or 6, imported when first needed. While the tests run, an inline area (or the full screen with -FullScreen) shows the run totals and the clock, the test files as lanes with passed, failed and skipped counts, the running test, and with -FullScreen the failures (expected against actual, the file and line as a link), the slowest tests and a histogram of durations. When the run ends a table of results by file, the failures and the totals are written to the scrollback, and -ReportPath saves the final dashboard. In redirected output, jobs and CI logs the output is one line per failure and a summary line. Pester's result object is returned with -PassThru (or Run.PassThru), Run.Throw and Run.Exit (-CI) are applied after the summary, and Write-Host output from tests appears above the inline area. Pester has no public reporter API, so the live view uses Pester's internal plugin steps through a guarded adapter; when the internals are not what it expects (or with Run.Parallel or Output None) Pester runs unchanged with its own output and the summary table follows. Works on Windows PowerShell 5.1 and PowerShell 7.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Simple">
         <maml:name>Invoke-ConsolePester</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>CI</maml:name>
           <maml:description>
             <maml:para>CI mode as in Invoke-Pester: test results are written and the process exits with the failure count.</maml:para>
@@ -5136,7 +5219,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Container</maml:name>
           <maml:description>
             <maml:para>Containers from New-PesterContainer (Run.Container).</maml:para>
@@ -5148,7 +5231,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ExcludePath</maml:name>
           <maml:description>
             <maml:para>Files or folders to leave out (Run.ExcludePath).</maml:para>
@@ -5160,7 +5243,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ExcludeTagFilter</maml:name>
           <maml:description>
             <maml:para>Leave out tests with these tags (Filter.ExcludeTag).</maml:para>
@@ -5172,7 +5255,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FullNameFilter</maml:name>
           <maml:description>
             <maml:para>Run only tests whose full name matches (Filter.FullName).</maml:para>
@@ -5184,7 +5267,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FullScreen</maml:name>
           <maml:description>
             <maml:para>Shows the dashboard on the full screen (alternate screen) instead of inline.</maml:para>
@@ -5196,7 +5279,19 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoJobSummary</maml:name>
+          <maml:description>
+            <maml:para>Skips the automatic Markdown CI job summary. Failure annotations remain enabled, capped at ten per invocation.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoLive</maml:name>
           <maml:description>
             <maml:para>Runs Pester unchanged with its own output, followed by the summary table (no adapter).</maml:para>
@@ -5208,7 +5303,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Output</maml:name>
           <maml:description>
             <maml:para>Pester's output verbosity (Output.Verbosity). None runs quietly: no dashboard and no summary.</maml:para>
@@ -5227,7 +5322,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>PassThru</maml:name>
           <maml:description>
             <maml:para>Returns Pester's result object.</maml:para>
@@ -5239,7 +5334,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Path</maml:name>
           <maml:description>
             <maml:para>Test files or folders; omitted uses Pester's current-folder default.</maml:para>
@@ -5251,7 +5346,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReportPath</maml:name>
           <maml:description>
             <maml:para>Saves the final dashboard as an HTML page.</maml:para>
@@ -5263,7 +5358,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TagFilter</maml:name>
           <maml:description>
             <maml:para>Run only tests with these tags (Filter.Tag).</maml:para>
@@ -5275,7 +5370,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The dashboard title (default Pester).</maml:para>
@@ -5290,7 +5385,7 @@
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Advanced">
         <maml:name>Invoke-ConsolePester</maml:name>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Configuration</maml:name>
           <maml:description>
             <maml:para>A PesterConfiguration (New-PesterConfiguration) or a hashtable with the same sections.</maml:para>
@@ -5302,7 +5397,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>FullScreen</maml:name>
           <maml:description>
             <maml:para>Shows the dashboard on the full screen (alternate screen) instead of inline.</maml:para>
@@ -5314,7 +5409,19 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>NoJobSummary</maml:name>
+          <maml:description>
+            <maml:para>Skips the automatic Markdown CI job summary. Failure annotations remain enabled, capped at ten per invocation.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoLive</maml:name>
           <maml:description>
             <maml:para>Runs Pester unchanged with its own output, followed by the summary table (no adapter).</maml:para>
@@ -5326,7 +5433,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReportPath</maml:name>
           <maml:description>
             <maml:para>Saves the final dashboard as an HTML page.</maml:para>
@@ -5338,7 +5445,7 @@
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The dashboard title (default Pester).</maml:para>
@@ -5353,7 +5460,7 @@
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>CI</maml:name>
         <maml:description>
           <maml:para>CI mode as in Invoke-Pester: test results are written and the process exits with the failure count.</maml:para>
@@ -5365,7 +5472,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Configuration</maml:name>
         <maml:description>
           <maml:para>A PesterConfiguration (New-PesterConfiguration) or a hashtable with the same sections.</maml:para>
@@ -5377,7 +5484,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Container</maml:name>
         <maml:description>
           <maml:para>Containers from New-PesterContainer (Run.Container).</maml:para>
@@ -5389,7 +5496,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ExcludePath</maml:name>
         <maml:description>
           <maml:para>Files or folders to leave out (Run.ExcludePath).</maml:para>
@@ -5401,7 +5508,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ExcludeTagFilter</maml:name>
         <maml:description>
           <maml:para>Leave out tests with these tags (Filter.ExcludeTag).</maml:para>
@@ -5413,7 +5520,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>FullNameFilter</maml:name>
         <maml:description>
           <maml:para>Run only tests whose full name matches (Filter.FullName).</maml:para>
@@ -5425,7 +5532,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>FullScreen</maml:name>
         <maml:description>
           <maml:para>Shows the dashboard on the full screen (alternate screen) instead of inline.</maml:para>
@@ -5437,7 +5544,19 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>NoJobSummary</maml:name>
+        <maml:description>
+          <maml:para>Skips the automatic Markdown CI job summary. Failure annotations remain enabled, capped at ten per invocation.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>NoLive</maml:name>
         <maml:description>
           <maml:para>Runs Pester unchanged with its own output, followed by the summary table (no adapter).</maml:para>
@@ -5449,7 +5568,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Output</maml:name>
         <maml:description>
           <maml:para>Pester's output verbosity (Output.Verbosity). None runs quietly: no dashboard and no summary.</maml:para>
@@ -5468,7 +5587,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>PassThru</maml:name>
         <maml:description>
           <maml:para>Returns Pester's result object.</maml:para>
@@ -5480,7 +5599,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Path</maml:name>
         <maml:description>
           <maml:para>Test files or folders; omitted uses Pester's current-folder default.</maml:para>
@@ -5492,7 +5611,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ReportPath</maml:name>
         <maml:description>
           <maml:para>Saves the final dashboard as an HTML page.</maml:para>
@@ -5504,7 +5623,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>TagFilter</maml:name>
         <maml:description>
           <maml:para>Run only tests with these tags (Filter.Tag).</maml:para>
@@ -5516,7 +5635,7 @@
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The dashboard title (default Pester).</maml:para>
@@ -5529,7 +5648,13 @@
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues>
       <command:returnValue>
         <dev:type>
@@ -5552,10 +5677,10 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$configuration = @{&#xD;
-    Run = @{ Path = './Tests'; PassThru = $true }&#xD;
-    Filter = @{ Tag = 'Unit' }&#xD;
-}&#xD;
+        <dev:code>$configuration = @{
+    Run = @{ Path = './Tests'; PassThru = $true }
+    Filter = @{ Tag = 'Unit' }
+}
 Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pester.html -WhatIf</dev:code>
         <dev:remarks>
           <maml:para>Preview running a configured suite and exporting its report</maml:para>
@@ -6458,17 +6583,19 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       <command:noun>ConsoleRun</command:noun>
       <maml:description>
         <maml:para>Runs a script block for every input item, optionally in parallel, with a live view of the run.</maml:para>
+        <maml:para>In GitHub Actions, Azure Pipelines and GitLab CI, sequential items enclose their work and result in a collapsible log group. Parallel items group each completed result atomically; independently emitted worker output keeps its existing routing. CONSOLEMONSTER_CI=none disables provider groups.</maml:para>
         <maml:para>$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Runs a script block for every input item, optionally in parallel, with a live view of the run.</maml:para>
+      <maml:para>In GitHub Actions, Azure Pipelines and GitLab CI, sequential items enclose their work and result in a collapsible log group. Parallel items group each completed result atomically; independently emitted worker output keeps its existing routing. CONSOLEMONSTER_CI=none disables provider groups.</maml:para>
       <maml:para>$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Invoke-ConsoleRun</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
           <maml:name>InputObject</maml:name>
           <maml:description>
             <maml:para>The items (pipeline input).</maml:para>
@@ -6480,7 +6607,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>Each item's label in the view: a property name or a script block ($_ is the item). Default a name-like property, or the item's text.</maml:para>
@@ -6492,7 +6619,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoLive</maml:name>
           <maml:description>
             <maml:para>Disables live redraws and uses append-only output.</maml:para>
@@ -6504,7 +6631,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Parallel</maml:name>
           <maml:description>
             <maml:para>Runs items at the same time, each in its own runspace (pass caller variables with $using:name).</maml:para>
@@ -6516,7 +6643,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReducedMotion</maml:name>
           <maml:description>
             <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
@@ -6528,7 +6655,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>RetryCount</maml:name>
           <maml:description>
             <maml:para>How many more times a failed or timed-out item runs before it counts as failed (default 0).</maml:para>
@@ -6540,7 +6667,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>RetryDelaySeconds</maml:name>
           <maml:description>
             <maml:para>Seconds to wait before each retry (default 0).</maml:para>
@@ -6552,7 +6679,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>ScriptBlock</maml:name>
           <maml:description>
             <maml:para>The script block run for each item ($_ is the item).</maml:para>
@@ -6564,7 +6691,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ThrottleLimit</maml:name>
           <maml:description>
             <maml:para>How many items run at the same time with -Parallel (default 5).</maml:para>
@@ -6576,7 +6703,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>TimeoutSeconds</maml:name>
           <maml:description>
             <maml:para>Seconds an item may run with -Parallel before it is stopped and counted as failed (default no limit; ignored with a warning without -Parallel).</maml:para>
@@ -6588,7 +6715,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>A title above the live view (markup).</maml:para>
@@ -6600,7 +6727,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Unordered</maml:name>
           <maml:description>
             <maml:para>Writes each item's output as soon as it finishes instead of in input order (when the live view is not showing).</maml:para>
@@ -6615,7 +6742,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="None">
         <maml:name>InputObject</maml:name>
         <maml:description>
           <maml:para>The items (pipeline input).</maml:para>
@@ -6627,7 +6754,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>Each item's label in the view: a property name or a script block ($_ is the item). Default a name-like property, or the item's text.</maml:para>
@@ -6639,7 +6766,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>NoLive</maml:name>
         <maml:description>
           <maml:para>Disables live redraws and uses append-only output.</maml:para>
@@ -6651,7 +6778,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Parallel</maml:name>
         <maml:description>
           <maml:para>Runs items at the same time, each in its own runspace (pass caller variables with $using:name).</maml:para>
@@ -6663,7 +6790,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ReducedMotion</maml:name>
         <maml:description>
           <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
@@ -6675,7 +6802,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>RetryCount</maml:name>
         <maml:description>
           <maml:para>How many more times a failed or timed-out item runs before it counts as failed (default 0).</maml:para>
@@ -6687,7 +6814,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>RetryDelaySeconds</maml:name>
         <maml:description>
           <maml:para>Seconds to wait before each retry (default 0).</maml:para>
@@ -6699,7 +6826,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>ScriptBlock</maml:name>
         <maml:description>
           <maml:para>The script block run for each item ($_ is the item).</maml:para>
@@ -6711,7 +6838,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ThrottleLimit</maml:name>
         <maml:description>
           <maml:para>How many items run at the same time with -Parallel (default 5).</maml:para>
@@ -6723,7 +6850,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>TimeoutSeconds</maml:name>
         <maml:description>
           <maml:para>Seconds an item may run with -Parallel before it is stopped and counted as failed (default no limit; ignored with a warning without -Parallel).</maml:para>
@@ -6735,7 +6862,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>A title above the live view (markup).</maml:para>
@@ -6747,7 +6874,7 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Unordered</maml:name>
         <maml:description>
           <maml:para>Writes each item's output as soon as it finishes instead of in input order (when the live view is not showing).</maml:para>
@@ -6790,9 +6917,9 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ReportPath ./pes
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {&#xD;
-    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)&#xD;
-    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }&#xD;
+        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {
+    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
+    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
 }</dev:code>
         <dev:remarks>
           <maml:para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</maml:para>
@@ -36630,17 +36757,19 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:noun>ConsoleRun</command:noun>
       <maml:description>
         <maml:para>Starts a bounded run dashboard for work scheduled by your script.</maml:para>
+        <maml:para>In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.</maml:para>
         <maml:para>Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
       <maml:para>Starts a bounded run dashboard for work scheduled by your script.</maml:para>
+      <maml:para>In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.</maml:para>
       <maml:para>Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Start-ConsoleRun</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Group</maml:name>
           <maml:description>
             <maml:para>An optional group property or script block.</maml:para>
@@ -36652,7 +36781,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>HeightPercent</maml:name>
           <maml:description>
             <maml:para>Maximum terminal height percentage used by the live dashboard (default 40).</maml:para>
@@ -36664,7 +36793,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InputObject</maml:name>
           <maml:description>
             <maml:para>The complete input list. Updates identify each item by zero-based position.</maml:para>
@@ -36676,7 +36805,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>InteractiveKeys</maml:name>
           <maml:description>
             <maml:para>Enable optional p/f/g/? keys when keyboard input is available.</maml:para>
@@ -36688,7 +36817,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
             <maml:para>A name property or script block ($_ is the item). Default the item's display title.</maml:para>
@@ -36700,7 +36829,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoGroups</maml:name>
           <maml:description>
             <maml:para>Hides default-on category progress.</maml:para>
@@ -36712,7 +36841,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoLive</maml:name>
           <maml:description>
             <maml:para>Force append-only output without cursor movement.</maml:para>
@@ -36724,7 +36853,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ProgressEvery</maml:name>
           <maml:description>
             <maml:para>Print CI progress after this many items (default 25). Zero disables the count trigger.</maml:para>
@@ -36736,7 +36865,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ProgressIntervalSeconds</maml:name>
           <maml:description>
             <maml:para>Print CI progress at this interval in seconds (default 10). Zero disables the timer.</maml:para>
@@ -36748,7 +36877,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReducedMotion</maml:name>
           <maml:description>
             <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
@@ -36760,7 +36889,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReportPath</maml:name>
           <maml:description>
             <maml:para>Optional report location shown in the final summary.</maml:para>
@@ -36772,7 +36901,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ShowTrend</maml:name>
           <maml:description>
             <maml:para>Show the throughput trend next to its rate.</maml:para>
@@ -36784,7 +36913,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Target</maml:name>
           <maml:description>
             <maml:para>An optional target property or script block.</maml:para>
@@ -36796,7 +36925,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The literal run title.</maml:para>
@@ -36811,7 +36940,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Group</maml:name>
         <maml:description>
           <maml:para>An optional group property or script block.</maml:para>
@@ -36823,7 +36952,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>HeightPercent</maml:name>
         <maml:description>
           <maml:para>Maximum terminal height percentage used by the live dashboard (default 40).</maml:para>
@@ -36835,7 +36964,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>InputObject</maml:name>
         <maml:description>
           <maml:para>The complete input list. Updates identify each item by zero-based position.</maml:para>
@@ -36847,7 +36976,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>InteractiveKeys</maml:name>
         <maml:description>
           <maml:para>Enable optional p/f/g/? keys when keyboard input is available.</maml:para>
@@ -36859,7 +36988,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
           <maml:para>A name property or script block ($_ is the item). Default the item's display title.</maml:para>
@@ -36871,7 +37000,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>NoGroups</maml:name>
         <maml:description>
           <maml:para>Hides default-on category progress.</maml:para>
@@ -36883,7 +37012,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>NoLive</maml:name>
         <maml:description>
           <maml:para>Force append-only output without cursor movement.</maml:para>
@@ -36895,7 +37024,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ProgressEvery</maml:name>
         <maml:description>
           <maml:para>Print CI progress after this many items (default 25). Zero disables the count trigger.</maml:para>
@@ -36907,7 +37036,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ProgressIntervalSeconds</maml:name>
         <maml:description>
           <maml:para>Print CI progress at this interval in seconds (default 10). Zero disables the timer.</maml:para>
@@ -36919,7 +37048,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ReducedMotion</maml:name>
         <maml:description>
           <maml:para>Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</maml:para>
@@ -36931,7 +37060,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ReportPath</maml:name>
         <maml:description>
           <maml:para>Optional report location shown in the final summary.</maml:para>
@@ -36943,7 +37072,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ShowTrend</maml:name>
         <maml:description>
           <maml:para>Show the throughput trend next to its rate.</maml:para>
@@ -36955,7 +37084,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Target</maml:name>
         <maml:description>
           <maml:para>An optional target property or script block.</maml:para>
@@ -36967,7 +37096,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The literal run title.</maml:para>
@@ -36980,7 +37109,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
     </command:parameters>
-    <command:inputTypes />
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
     <command:returnValues>
       <command:returnValue>
         <dev:type>
@@ -36996,13 +37131,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$files = @(Get-ChildItem -File | Select-Object -First 5)&#xD;
-            $run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName&#xD;
-            try {&#xD;
-                for ($i = 0; $i -lt $files.Count; $i++) {&#xD;
-                    Update-Console -Run $run -Index $i -Status Running&#xD;
-                    Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"&#xD;
-                }&#xD;
+        <dev:code>$files = @(Get-ChildItem -File | Select-Object -First 5)
+            $run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName
+            try {
+                for ($i = 0; $i -lt $files.Count; $i++) {
+                    Update-Console -Run $run -Index $i -Status Running
+                    Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"
+                }
             } finally { Complete-ConsoleRun $run }</dev:code>
         <dev:remarks>
           <maml:para>Track file inspections without modifying the files</maml:para>
@@ -37010,9 +37145,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })&#xD;
-            $run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20&#xD;
-            Update-Console -Run $run -Index 0 -Status Pass&#xD;
+        <dev:code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
+            $run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
+            Update-Console -Run $run -Index 0 -Status Pass
             Complete-ConsoleRun $run</dev:code>
         <dev:remarks>
           <maml:para>Use append-only progress output in CI</maml:para>
@@ -37055,6 +37190,253 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             Stop-ConsoleRecording</dev:code>
         <dev:remarks>
           <maml:para>Finish from inside the recorded child shell</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Test-ConsoleTheme</command:name>
+      <command:verb>Test</command:verb>
+      <command:noun>ConsoleTheme</command:noun>
+      <maml:description>
+        <maml:para>Checks a theme's text contrast, status colours, markers and critical fill.</maml:para>
+        <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Checks a theme's text contrast, status colours, markers and critical fill.</maml:para>
+      <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="Name">
+        <maml:name>Test-ConsoleTheme</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and #ffffff for a light preset. A token's own background takes precedence. Palette-index backgrounds remain unknown.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Detailed</maml:name>
+          <maml:description>
+            <maml:para>Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Strict</maml:name>
+          <maml:description>
+            <maml:para>Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Theme</maml:name>
+          <maml:description>
+            <maml:para>A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem parameterSetName="Path">
+        <maml:name>Test-ConsoleTheme</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Background</maml:name>
+          <maml:description>
+            <maml:para>The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and #ffffff for a light preset. A token's own background takes precedence. Palette-index backgrounds remain unknown.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Detailed</maml:name>
+          <maml:description>
+            <maml:para>Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>A literal .json or restricted .psd1 theme file. Relative paths use the current PowerShell location.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Strict</maml:name>
+          <maml:description>
+            <maml:para>Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Background</maml:name>
+        <maml:description>
+          <maml:para>The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and #ffffff for a light preset. A token's own background takes precedence. Palette-index backgrounds remain unknown.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Detailed</maml:name>
+        <maml:description>
+          <maml:para>Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>A literal .json or restricted .psd1 theme file. Relative paths use the current PowerShell location.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Strict</maml:name>
+        <maml:description>
+          <maml:para>Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Theme</maml:name>
+        <maml:description>
+          <maml:para>A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Styling.ThemeCheckReport</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Test-ConsoleTheme</dev:code>
+        <dev:remarks>
+          <maml:para>Check the active theme.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 2</maml:title>
+        <dev:code>Test-ConsoleTheme -Path ./team-theme.json -Strict</dev:code>
+        <dev:remarks>
+          <maml:para>Check a team theme in CI; any failure stops the script.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>(Test-ConsoleTheme -Theme Light -Background '#ffffff').Results | Where-Object Outcome -EQ Fail</dev:code>
+        <dev:remarks>
+          <maml:para>Inspect individual measurements as objects.</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
+        <dev:code>Test-ConsoleTheme -Theme Dark -Detailed</dev:code>
+        <dev:remarks>
+          <maml:para>Show every measurement.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -38413,6 +38795,105 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             Complete-ConsoleRun $run</dev:code>
         <dev:remarks>
           <maml:para>Finish one caller-managed run item</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>Use-ConsoleGroup</command:name>
+      <command:verb>Use</command:verb>
+      <command:noun>ConsoleGroup</command:noun>
+      <maml:description>
+        <maml:para>Runs a script inside a collapsible CI log group or beneath a muted terminal heading.</maml:para>
+        <maml:para>Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Runs a script inside a collapsible CI log group or beneath a muted terminal heading.</maml:para>
+      <maml:para>Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Use-ConsoleGroup</maml:name>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>ScriptBlock</maml:name>
+          <maml:description>
+            <maml:para>The work to run inside the group.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>The literal log heading.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>ScriptBlock</maml:name>
+        <maml:description>
+          <maml:para>The work to run inside the group.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
+        <maml:name>Title</maml:name>
+        <maml:description>
+          <maml:para>The literal log heading.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Object</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Use-ConsoleGroup 'Build' { dotnet build }</dev:code>
+        <dev:remarks>
+          <maml:para>Group a build log</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -39838,6 +40319,211 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
   </command:command>
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
+      <command:name>Write-ConsoleAnnotation</command:name>
+      <command:verb>Write</command:verb>
+      <command:noun>ConsoleAnnotation</command:noun>
+      <maml:description>
+        <maml:para>Writes a CI error, warning or notice, or a styled terminal status line.</maml:para>
+        <maml:para>GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Writes a CI error, warning or notice, or a styled terminal status line.</maml:para>
+      <maml:para>GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>Write-ConsoleAnnotation</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Column</maml:name>
+          <maml:description>
+            <maml:para>The one-based source column.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>The optional source file; relative paths resolve from the current PowerShell location.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Level</maml:name>
+          <maml:description>
+            <maml:para>Error, Warning or Notice.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">AnnotationLevel</command:parameterValue>
+          <command:parameterValueGroup>
+            <command:parameterValue required="false" variableLength="false">Error</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
+            <command:parameterValue required="false" variableLength="false">Notice</command:parameterValue>
+          </command:parameterValueGroup>
+          <dev:type>
+            <maml:name>AnnotationLevel</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Line</maml:name>
+          <maml:description>
+            <maml:para>The one-based source line.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Message</maml:name>
+          <maml:description>
+            <maml:para>The literal annotation text.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Title</maml:name>
+          <maml:description>
+            <maml:para>An optional title; Azure and plain lines prepend it to the message.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Column</maml:name>
+        <maml:description>
+          <maml:para>The one-based source column.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>File</maml:name>
+        <maml:description>
+          <maml:para>The optional source file; relative paths resolve from the current PowerShell location.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Level</maml:name>
+        <maml:description>
+          <maml:para>Error, Warning or Notice.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">AnnotationLevel</command:parameterValue>
+        <command:parameterValueGroup>
+          <command:parameterValue required="false" variableLength="false">Error</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Notice</command:parameterValue>
+        </command:parameterValueGroup>
+        <dev:type>
+          <maml:name>AnnotationLevel</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Line</maml:name>
+        <maml:description>
+          <maml:para>The one-based source line.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Message</maml:name>
+        <maml:description>
+          <maml:para>The literal annotation text.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Title</maml:name>
+        <maml:description>
+          <maml:para>An optional title; Azure and plain lines prepend it to the message.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>System.Void</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>Write-ConsoleAnnotation -Level Error -Message 'Missing configuration' -File ./build.ps1 -Line 12 -Column 5</dev:code>
+        <dev:remarks>
+          <maml:para>Point to a build error</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
       <command:name>Write-ConsoleLogEntry</command:name>
       <command:verb>Write</command:verb>
       <command:noun>ConsoleLogEntry</command:noun>
@@ -40621,253 +41307,6 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
         <dev:code>Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTimestamp -SplitLines "`n"</dev:code>
         <dev:remarks>
           <maml:para>A multi-line message aligned under the time stamp</maml:para>
-        </dev:remarks>
-      </command:example>
-    </command:examples>
-    <command:relatedLinks />
-  </command:command>
-  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
-    <command:details>
-      <command:name>Test-ConsoleTheme</command:name>
-      <command:verb>Test</command:verb>
-      <command:noun>ConsoleTheme</command:noun>
-      <maml:description>
-        <maml:para>Checks a theme's text contrast, status colours, markers and critical fill.</maml:para>
-        <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
-      </maml:description>
-    </command:details>
-    <maml:description>
-      <maml:para>Checks a theme's text contrast, status colours, markers and critical fill.</maml:para>
-      <maml:para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</maml:para>
-    </maml:description>
-    <command:syntax>
-      <command:syntaxItem parameterSetName="Name">
-        <maml:name>Test-ConsoleTheme</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Background</maml:name>
-          <maml:description>
-            <maml:para>The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and #ffffff for a light preset. A token's own background takes precedence. Palette-index backgrounds remain unknown.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Detailed</maml:name>
-          <maml:description>
-            <maml:para>Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Strict</maml:name>
-          <maml:description>
-            <maml:para>Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Theme</maml:name>
-          <maml:description>
-            <maml:para>A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-      </command:syntaxItem>
-      <command:syntaxItem parameterSetName="Path">
-        <maml:name>Test-ConsoleTheme</maml:name>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Background</maml:name>
-          <maml:description>
-            <maml:para>The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and #ffffff for a light preset. A token's own background takes precedence. Palette-index backgrounds remain unknown.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Detailed</maml:name>
-          <maml:description>
-            <maml:para>Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
-          <maml:name>Path</maml:name>
-          <maml:description>
-            <maml:para>A literal .json or restricted .psd1 theme file. Relative paths use the current PowerShell location.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-          <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>Strict</maml:name>
-          <maml:description>
-            <maml:para>Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-      </command:syntaxItem>
-    </command:syntax>
-    <command:parameters>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Background</maml:name>
-        <maml:description>
-          <maml:para>The page colour, as a name or #rrggbb. Defaults to #0c0c0c for a dark preset and #ffffff for a light preset. A token's own background takes precedence. Palette-index backgrounds remain unknown.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Detailed</maml:name>
-        <maml:description>
-          <maml:para>Shows every measurement instead of only problems and unknowns. The Results property always contains every check.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-        <dev:type>
-          <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
-        <maml:name>Path</maml:name>
-        <maml:description>
-          <maml:para>A literal .json or restricted .psd1 theme file. Relative paths use the current PowerShell location.</maml:para>
-        </maml:description>
-        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-        <dev:type>
-          <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Strict</maml:name>
-        <maml:description>
-          <maml:para>Makes any Fail a terminating ConsoleThemeCheckFailed error with the report as its target. Unknown alone does not throw.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-        <dev:type>
-          <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>Theme</maml:name>
-        <maml:description>
-          <maml:para>A built-in preset. Omit both Theme and Path to check the active theme. ColorBlindSafe selects the variant for the detected background; the Light and Dark suffixes choose explicitly.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-        <command:parameterValueGroup>
-          <command:parameterValue required="false" variableLength="false">Dark</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Light</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">HighContrast</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">ColorBlindSafe</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">ColorBlindSafeLight</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">ColorBlindSafeDark</command:parameterValue>
-        </command:parameterValueGroup>
-        <dev:type>
-          <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-    </command:parameters>
-    <command:inputTypes>
-      <command:inputType>
-        <dev:type>
-          <maml:name>System.Management.Automation.PSObject</maml:name>
-        </dev:type>
-      </command:inputType>
-    </command:inputTypes>
-    <command:returnValues>
-      <command:returnValue>
-        <dev:type>
-          <maml:name>ConsoleMonster.Styling.ThemeCheckReport</maml:name>
-        </dev:type>
-      </command:returnValue>
-    </command:returnValues>
-    <maml:alertSet>
-      <maml:alert>
-        <maml:para></maml:para>
-      </maml:alert>
-    </maml:alertSet>
-    <command:examples>
-      <command:example>
-        <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Test-ConsoleTheme</dev:code>
-        <dev:remarks>
-          <maml:para>Check the active theme.</maml:para>
-        </dev:remarks>
-      </command:example>
-      <command:example>
-        <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Test-ConsoleTheme -Path ./team-theme.json -Strict</dev:code>
-        <dev:remarks>
-          <maml:para>Check a team theme in CI; any failure stops the script.</maml:para>
-        </dev:remarks>
-      </command:example>
-      <command:example>
-        <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>(Test-ConsoleTheme -Theme Light -Background '#ffffff').Results | Where-Object Outcome -EQ Fail</dev:code>
-        <dev:remarks>
-          <maml:para>Inspect individual measurements as objects.</maml:para>
-        </dev:remarks>
-      </command:example>
-      <command:example>
-        <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>Test-ConsoleTheme -Theme Dark -Detailed</dev:code>
-        <dev:remarks>
-          <maml:para>Show every measurement.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

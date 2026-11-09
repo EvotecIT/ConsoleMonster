@@ -647,7 +647,10 @@
     "ConsoleMonster.Styling.ThemeCheckOutcome",
     "ConsoleMonster.Styling.ThemeCheckReport",
     "ConsoleMonster.Styling.ThemeCheckResult",
-    "ConsoleMonster.Styling.StylingFluent"
+    "ConsoleMonster.Styling.StylingFluent",
+    "ConsoleMonster.AnnotationLevel",
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider"
   ],
   "ConsoleMonster.PowerShell": [
     "ConsoleMonster.PowerShell.AppChoiceCmdlet",
@@ -801,7 +804,10 @@
     "ConsoleMonster.PowerShell.SelectionCmdlet",
     "ConsoleMonster.PowerShell.TableConfigurationCmdlet",
     "OnModuleImportAndRemove",
-    "ConsoleMonster.PowerShell.CmdletTestConsoleTheme"
+    "ConsoleMonster.PowerShell.CmdletTestConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletAddConsoleJobSummary",
+    "ConsoleMonster.PowerShell.CmdletUseConsoleGroup",
+    "ConsoleMonster.PowerShell.CmdletWriteConsoleAnnotation"
   ],
   "ConsoleMonster.PowerShell.Display": [
     "ConsoleMonster.PowerShell.Display.ConsoleViewDocument",

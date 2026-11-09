@@ -48,6 +48,72 @@ To use it in a pipeline:
 
 Text that reaches stream and plain output is sanitised: escape sequences and control characters in log messages, captured lines or data are removed, so plain mode never emits an escape sequence.
 
+## Native CI logs and job summaries
+
+Groups, annotations and job summaries use the provider's own protocol when `GITHUB_ACTIONS=true`, `TF_BUILD=true` or `GITLAB_CI=true`. Other CI systems keep ordinary output. `CONSOLEMONSTER_CI=github`, `azure` or `gitlab` forces that provider; `none` disables provider commands. This choice is independent of colour, glyphs and stream mode. GitLab's section markers deliberately contain the control sequences required by its log viewer, including in plain mode.
+
+In a PowerShell terminal:
+
+```terminal
+Import-Module ConsoleMonster
+
+Use-ConsoleGroup 'Build' {
+    dotnet build
+    if ($LASTEXITCODE -ne 0) {
+        Write-ConsoleAnnotation -Level Error -Title 'Build' -Message 'The build failed'
+    }
+}
+
+Write-ConsoleAnnotation -Level Warning -Message 'Configuration is missing a timeout' -File ./build.ps1 -Line 12 -Column 5
+
+@(
+    [pscustomobject]@{ Check = 'Build'; Result = 'Passed' }
+    [pscustomobject]@{ Check = 'Tests'; Result = 'Passed' }
+) | Add-ConsoleJobSummary
+```
+
+| Provider | Groups | Annotations | Summary |
+| --- | --- | --- | --- |
+| GitHub Actions | Collapsible log groups | Error, Warning and Notice, with optional title and source position | Appends Markdown to `GITHUB_STEP_SUMMARY` |
+| Azure Pipelines | Collapsible log groups | Error and Warning with source position; Notice is an ordinary line | Uploads a UTF-8 Markdown file to the run's Extensions tab |
+| GitLab CI | Sections collapsed by default | Styled log lines | Returns Markdown for the script to save |
+| Terminal or other CI | Muted heading | Styled status line; source links where supported | Returns Markdown without writing a file |
+
+Groups nest and close when an exception unwinds the script. Sequential `Invoke-ConsoleRun` puts each item's work and result inside a group. Parallel runs and `Start-ConsoleRun` group each completed item's result atomically, so groups cannot cross when workers finish out of order. Output emitted independently by parallel workers keeps its existing routing; use `Use-ConsoleGroup` for a serial block whose entire log should fold together.
+
+`Invoke-ConsolePester` automatically annotates failing tests, with the assertion's file and line, and adds its results-by-file table and failures to the GitHub or Azure summary. `-NoJobSummary` turns off that summary. Pester's result object, throw policy, XML result file and exit code keep their native behavior. Each invocation emits at most ten automatic annotations, followed by one line counting the remainder; all failures remain in the summary. With `Enable-ConsoleFormatting`, the Errors feature also annotates displayed script errors, including terminating errors with a script position, capped at ten per output pipeline. Explicit `Write-ConsoleAnnotation` calls have no ConsoleMonster limit. An annotation alone does not set an exit code.
+
+GitHub summary writes append. Azure retains a separate `consolemonster-summary-*.md` file for each call in `SYSTEM_DEFAULTWORKINGDIRECTORY` (or the temporary directory when forced outside an agent). Keep those files available until the agent uploads them; the job workspace owns their cleanup. GitLab and terminal callers can save the returned Markdown themselves:
+
+```powershell
+$env:CONSOLEMONSTER_CI = 'none'
+Get-Process | Select-Object -First 5 Name, Id | Add-ConsoleJobSummary | Set-Content ./summary.md
+```
+
+The C# API shares those transports. `AddSummary(string)` accepts Markdown; the widget overload uses the existing optional Markdown exporter, without adding a dependency to the core package:
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Markdown;
+using ConsoleMonster.Widgets;
+
+using (ContinuousIntegration.Group("Build")) {
+    ContinuousIntegration.Annotate(AnnotationLevel.Warning, "Review this setting", file: "build.cs", line: 12);
+}
+var table = new Table();
+table.AddColumn("Check");
+table.AddColumn("Result");
+table.AddRow("Build", "Passed");
+string markdown = ContinuousIntegration.AddSummary(table, provider: new MarkdownFrameExportProvider());
+
+// A host can override detection for one async flow, then restore the previous choice.
+using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None)) {
+    ContinuousIntegration.Annotate(AnnotationLevel.Notice, "Local run");
+}
+```
+
+The wire formats follow [GitHub workflow commands](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands), [Azure logging commands](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops) and [GitLab custom collapsible sections](https://docs.gitlab.com/ci/jobs/job_logs/#create-custom-collapsible-sections). GitHub and Azure escape their own property and message delimiters. Azure command-shaped text in headings, notices and rendered log data is neutralized before writing. ConsoleMonster owns Pester's CI annotations even when its live adapter is disabled, so the provider override and annotation limit apply to fallback runs too.
+
 ## Prompts when nobody can answer
 
 | Situation | What prompts do |

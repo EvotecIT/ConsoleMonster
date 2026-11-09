@@ -265,6 +265,7 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
+          Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
           Write-Host "Pester $((Get-Module Pester).Version)"
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = @(./.github/scripts/Get-PesterShard.ps1 -Shard $env:PESTER_SHARD -Count 4)
@@ -272,7 +273,7 @@ jobs:
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-results.xml'
-          Invoke-Pester -Configuration $configuration
+          Invoke-ConsolePester -Configuration $configuration
         timeout-minutes: 35
 
       - name: Upload Pester results
@@ -476,13 +477,14 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
+          Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = @(./.github/scripts/Get-PesterShard.ps1 -Shard $env:PESTER_SHARD -Count 4)
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-results.xml'
-          Invoke-Pester -Configuration $configuration
+          Invoke-ConsolePester -Configuration $configuration
         timeout-minutes: 20
       - uses: actions/upload-artifact@v7
         if: always()
@@ -540,13 +542,14 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
+          Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = @(Get-ChildItem Module/Tests -Filter *.Tests.ps1 | Where-Object Name -NE 'ConsoleMonster.Examples.Tests.ps1').FullName
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-results.xml'
-          Invoke-Pester -Configuration $configuration
+          Invoke-ConsolePester -Configuration $configuration
         timeout-minutes: 20
       - name: Run Pester examples
         if: ${{ !cancelled() }}
@@ -554,13 +557,14 @@ jobs:
           $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
           $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
+          Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
           $configuration = New-PesterConfiguration
           $configuration.Run.Path = 'Module/Tests/ConsoleMonster.Examples.Tests.ps1'
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-examples-results.xml'
-          Invoke-Pester -Configuration $configuration
+          Invoke-ConsolePester -Configuration $configuration
         timeout-minutes: 20
       - uses: actions/upload-artifact@v7
         if: always()

@@ -392,8 +392,13 @@
   "families": [
     {
       "verb": "Write",
-      "count": 2,
+      "count": 3,
       "commands": [
+        {
+          "name": "Write-ConsoleAnnotation",
+          "synopsis": "Writes a CI error, warning or notice, or a styled terminal status line.",
+          "url": "/powershell/commands/write-consoleannotation/"
+        },
         {
           "name": "Write-ConsoleLogEntry",
           "synopsis": "Writes a line to the log region of a running dashboard.",
@@ -880,8 +885,13 @@
     },
     {
       "verb": "Add",
-      "count": 1,
+      "count": 2,
       "commands": [
+        {
+          "name": "Add-ConsoleJobSummary",
+          "synopsis": "Adds widgets or objects as Markdown to the CI job summary.",
+          "url": "/powershell/commands/add-consolejobsummary/"
+        },
         {
           "name": "Add-ConsoleRecordingMarker",
           "synopsis": "Adds a chapter or an export hold to a recorded terminal session.",
@@ -1053,8 +1063,13 @@
     },
     {
       "verb": "Use",
-      "count": 2,
+      "count": 3,
       "commands": [
+        {
+          "name": "Use-ConsoleGroup",
+          "synopsis": "Runs a script inside a collapsible CI log group or beneath a muted terminal heading.",
+          "url": "/powershell/commands/use-consolegroup/"
+        },
         {
           "name": "Use-ConsoleProgress",
           "synopsis": "Runs a script and shows its Write-Progress calls as an inline progress area.",
