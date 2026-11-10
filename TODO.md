@@ -28,7 +28,7 @@ The review's high findings and M1-M4, M6 and M7 were fixed. Recheck these histor
 - L10: a custom glyph set with empty spinner frames divides by zero; `CellBuffer` width times height is unchecked;
   tabs in cell text are dropped.
 - L11: calculated-property errors (`BoundColumn.LastError`) are never shown; warn once per failing column.
-- Rows measures auto-sized children without a height limit but lays them out with the remaining height, so a log region with fewer entries than `PreferredHeight` takes extra blank rows in print-once layouts (live dashboards rely on the stable height).
+- A log region with fewer entries than `PreferredHeight` still takes `PreferredHeight` rows in bounded layouts unless `FitToEntries` is set; decide whether print-once layouts should fit by default (live dashboards rely on the stable height).
 - L13: brace-less bodies in `Binding/PSObjectMemberSource.cs` and `Binding/PropertyBinder.cs`; three-part
   `COLORFGBG` values are rejected.
 

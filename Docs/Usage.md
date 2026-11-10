@@ -161,7 +161,8 @@ Generated methods configure the same objects; no runtime reflection or analyzer 
 Tables negotiate their width instead of overflowing it:
 
 - Each column can set a `Priority`, `MinWidth`/`MaxWidth` and an `Overflow`: `Wrap` (with `MaxLines`), `Truncate`,
-  `TruncateMiddle` (paths, DNS names) or `Never`.
+  `TruncateMiddle` (paths, DNS names) or `Never`. A wrapped value uses at most three lines unless its column sets `MaxLines`
+  (`TableColumn.Unlimited` for every line) or the table sets `WrapLines` (0 = no limit).
 - An expanded table (`-Expand`) shares its spare width among the text columns in proportion to their widths; numbers,
   dates and status words keep their natural width. A column's `Weight` (or `Flexible`) takes the share instead, and
   `Width` or `MaxWidth` holds.
@@ -565,13 +566,19 @@ session.WriteOutside(() => cmdlet.WriteWarning("The certificate expires in 5 day
 
 For a list of build steps, use `Phases` with `StepCounter = true`: one numbered row per step with its status. A
 running step spins and shows its latest detail (`PhasesHandle.Detail`) with the time it has been running; a finished
-step keeps the time it took (taken from its `state` events, so it stays fixed). Child rows of a group step are its
-items (`PhasesHandle.Item(phase, key, status, detail)`), listed under it.
+step keeps the time it took (taken from its `state` events, so it stays fixed) after its detail. Child rows of a group
+step are its items (`PhasesHandle.Item(phase, key, status, detail)`), listed under it, and an item can have sub-items
+(`SetSubItem(phase, item, key, ...)`, or an `item` event keyed phase, item and sub-item joined by U+001F) for a step,
+its stages and their packages. Items have their own clock in the same way. A step planned after the run started goes in
+at its place with `Insert(index, key, ...)` (the `insert` operation, Value = position), and re-adding a step that exists
+changes only its label, so a running step can be retitled. The separator before a time is a middle dot, or a hyphen on
+the ASCII tier.
 
 When the ledger is taller than its space, for example in an inline area:
 
 - Finished steps fold their items into their own row (`149/149 · 40s`), and running steps keep only their running,
-  failed and warning items, so finished rows cannot push the running step off the screen.
+  failed and warning items, so finished rows cannot push the running step off the screen. A finished item with
+  sub-items folds the same way into one row under its running step.
 - If it still does not fit, it shows whole steps around the furthest step that has started, with the next step below
   it and `+N earlier` / `+N more` rows for the rest. Every running step above that window stays pinned under
   `+N earlier`. The window only moves forward: while step 7 is about to start, step 6 stays in view.
@@ -586,6 +593,15 @@ using (LiveSession session = new LiveSession(steps, new LiveSessionOptions { Mod
     ledger.Start("Restore");
     ledger.Complete("Restore");   // shows the time it took, such as "2.1s"
 }
+```
+
+To put a current-work line and a message log under the ledger in one inline area, add the ledger to `Rows` as a fraction
+row and the rest as auto rows: fraction rows are measured after the others, so the ledger takes only the rows left.
+Set `LogRegion.FitToEntries` on the log so it takes no rows while empty and then only the rows its messages need, up to
+`PreferredHeight`.
+
+```csharp
+Rows view = new Rows().Add(steps, LayoutSize.Fraction()).Add(currentLine).Add(new LogRegion("messages") { FitToEntries = true, PreferredHeight = 6 });
 ```
 
 `LiveTable.MaxRows` is a different tool: it keeps only the most recent rows and removes older ones.
