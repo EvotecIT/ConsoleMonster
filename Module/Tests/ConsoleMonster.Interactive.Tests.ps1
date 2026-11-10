@@ -154,7 +154,7 @@ $two = Read-ConsoleText -Title 'Name' -Default 'worker'
         It 'renders one explorer for multiple piped objects' {
             $text = Invoke-PromptChild -NonInteractive -Script @'
 $values = @([pscustomobject]@{Name='alpha'}, [pscustomobject]@{Name='beta'})
-$result = @($values | Show-Console -View Tree -MaxDepth 2 -AsWidget | Export-ConsoleFrame -Format Text)
+$result = @($values | Show-Console -View Tree -Depth 2 -AsWidget | Export-ConsoleFrame -Format Text)
 "COUNT=$($result.Count)"
 $result
 '@
@@ -370,7 +370,7 @@ $rows = 1..12 | ForEach-Object { [pscustomobject] @{ Name = 'SRV{0:00}' -f $_; R
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"sql" Space Down Space Ctrl+Enter')
 $picked = @($rows | Show-ConsoleGrid -Title 'Servers')
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+Home Ctrl+Enter')
-$top = @($rows | Show-ConsoleGrid -Property Name, Cpu -SortColumn Cpu -SortDescending -OutputMode Single)
+$top = @($rows | Show-ConsoleGrid -Property Name, Cpu -SortColumn Cpu -Descending -OutputMode Single)
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Ctrl+Enter')
 $none = @($rows | Show-ConsoleGrid -OutputMode None)
 "picked=$($picked.Name -join '+') type=$($picked[0].GetType().Name) top=$($top.Name) none=$($none.Count)"

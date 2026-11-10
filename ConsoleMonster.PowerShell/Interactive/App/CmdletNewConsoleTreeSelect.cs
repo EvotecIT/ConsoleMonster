@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Compose an inventory tree select</para>
     /// <code>$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
-    /// New-ConsoleTreeSelect -Key inventory -InputObject $inventory -MaxDepth 3 | Show-Console
+    /// New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console
     /// </code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTreeSelect", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletreeselect/")]
@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Mandatory = true), AllowNull] public PSObject? InputObject { get; set; }
         /// <summary><para type="description">Maximum expansion depth.</para></summary>
         [Parameter, ValidateRange(0, 64)] [PSDefaultValue(Help = "8")]
-        public int MaxDepth { get; set; } = 8;
+        public int Depth { get; set; } = 8;
         /// <summary><para type="description">Maximum items per collection.</para></summary>
         [Parameter, ValidateRange(1, 10000)] [PSDefaultValue(Help = "100")]
         public int MaxItems { get; set; } = 100;
@@ -38,7 +38,7 @@ namespace ConsoleMonster.PowerShell {
         public int Height { get; set; } = 20;
         /// <inheritdoc />
         protected override void EndProcessing() {
-            var options = PSFormatting.InspectorOptions(MaxDepth, MaxItems, null, null, MaxNodes, InputObject);
+            var options = PSFormatting.InspectorOptions(Depth, MaxItems, null, null, MaxNodes, InputObject);
             Emit(new TreeSelect(Key, new ObjectExplorer(InputObject, options, RootPath)) { Height = Height });
         }
     }

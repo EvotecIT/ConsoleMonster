@@ -12577,7 +12577,7 @@
           "Static": false
         },
         {
-          "Parameter": "SortDescending",
+          "Parameter": "Descending",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
           "Sets": [
@@ -12594,7 +12594,8 @@
           "CSharpTypeName": "System.Boolean",
           "Nullable": "NotNull",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "Reason": "PowerShell uses Descending for reverse sorting, as in Sort-Object; the C# options retain SortDescending."
         },
         {
           "Parameter": "StatusProperty",
@@ -13715,7 +13716,7 @@
           "Static": false
         },
         {
-          "Parameter": "MaxDepth",
+          "Parameter": "Depth",
           "ParameterType": "System.Int32",
           "Default": 5,
           "Sets": [
@@ -13732,7 +13733,8 @@
           "CSharpTypeName": "System.Int32",
           "Nullable": "NotNull",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
         },
         {
           "Parameter": "MaxItems",
@@ -13985,7 +13987,7 @@
           "Static": false
         },
         {
-          "Parameter": "MaxDepth",
+          "Parameter": "Depth",
           "ParameterType": "System.Int32",
           "Default": 8,
           "Sets": [
@@ -14002,7 +14004,8 @@
           "CSharpTypeName": "System.Int32",
           "Nullable": "NotNull",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
         },
         {
           "Parameter": "MaxItems",
@@ -16648,7 +16651,7 @@
           "Static": false
         },
         {
-          "Parameter": "MaxDepth",
+          "Parameter": "Depth",
           "ParameterType": "System.Int32",
           "Default": 3,
           "Sets": [
@@ -16665,7 +16668,8 @@
           "CSharpTypeName": "System.Int32",
           "Nullable": "NotNull",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
         },
         {
           "Parameter": "MaxFrames",
@@ -18062,7 +18066,7 @@
           "Static": false
         },
         {
-          "Parameter": "HiddenColumns",
+          "Parameter": "Exclude",
           "ParameterType": "System.String[]",
           "Default": null,
           "Sets": [
@@ -18077,7 +18081,7 @@
           "MemberKind": "Property",
           "Conversion": "NestedConfiguration",
           "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Reason": "PowerShell uses Exclude for omitted names, as in Get-ChildItem and the Select-Object ExcludeProperty family; the C# grid stores HiddenColumns.",
           "Nullable": "Unknown",
           "Writable": false,
           "Static": false,
@@ -18202,7 +18206,7 @@
           "Static": false
         },
         {
-          "Parameter": "SortDescending",
+          "Parameter": "Descending",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
           "Sets": [
@@ -18217,7 +18221,7 @@
           "MemberKind": "Property",
           "Conversion": "NestedConfiguration",
           "CSharpTypeName": "System.Boolean",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Reason": "PowerShell uses Descending for reverse sorting, as in Sort-Object; the C# options retain SortDescending.",
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
@@ -18719,7 +18723,7 @@
           "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
         },
         {
-          "Parameter": "MaxDepth",
+          "Parameter": "Depth",
           "ParameterType": "System.Int32",
           "Default": 8,
           "Sets": [
@@ -18734,7 +18738,7 @@
           "MemberKind": "Property",
           "Conversion": "NestedConfiguration",
           "CSharpTypeName": "System.Int32",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth.",
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
@@ -22390,7 +22394,7 @@
           "CSharpTypeName": "System.String"
         },
         {
-          "Parameter": "Text",
+          "Parameter": "Message",
           "ParameterType": "System.Object",
           "Default": "",
           "Sets": [
@@ -22405,7 +22409,7 @@
           "MemberKind": "Property",
           "Conversion": "NestedConfiguration",
           "CSharpTypeName": "System.String",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Reason": "PowerShell uses Message for diagnostic text, as in Write-Error, Write-Warning and Write-Verbose; the C# log record stores Text.",
           "Nullable": "Unknown",
           "Writable": false,
           "Static": false
@@ -30862,8 +30866,8 @@
       "MemberId": "ConsoleMonster.Widgets.TreeHierarchyOptions.Depth",
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleTree",
-      "Parameter": "MaxDepth",
-      "Reason": "The shared factory/view adapter applies this option to the resulting TreeHierarchyOptions."
+      "Parameter": "Depth",
+      "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
@@ -30898,8 +30902,8 @@
       "MemberId": "ConsoleMonster.PowerShell.ConsoleTreeOptions.Depth",
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleTree",
-      "Parameter": "MaxDepth",
-      "Reason": "The shared factory/view adapter applies this option to the resulting ConsoleTreeOptions."
+      "Parameter": "Depth",
+      "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
     },
     {
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleTreeOptions",
@@ -31403,8 +31407,8 @@
       "MemberId": "ConsoleMonster.Views.ConsoleViewOptions.MaxDepth",
       "CSharpTypeName": "System.Int32",
       "Command": "Show-Console",
-      "Parameter": "MaxDepth",
-      "Reason": "The view request receives the selected tree/JSON depth."
+      "Parameter": "Depth",
+      "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
     },
     {
       "CSharpType": "ConsoleMonster.Graphics.GraphicsExportOptions",

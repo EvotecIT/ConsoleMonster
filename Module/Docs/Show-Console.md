@@ -11,17 +11,17 @@ Shows objects, text and widgets in a readable view that fits the terminal.
 ## SYNTAX
 ### Objects (Default)
 ```powershell
-Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
+Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
+Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ### Content
 ```powershell
-Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
+Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,7 +45,7 @@ Read selected fields as a list
 
 ### EXAMPLE 3
 ```powershell
-Get-Item . | Show-Console -View Tree -MaxDepth 1 -Property Name, FullName, LastWriteTime
+Get-Item . | Show-Console -View Tree -Depth 1 -Property Name, FullName, LastWriteTime
 ```
 
 Inspect a file object's members with a bounded tree
@@ -180,6 +180,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Depth
+Maximum nesting depth; default three.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects, Path, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 3
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -ErrorLayout
 Error detail: Compact, Standard or Detailed.
 
@@ -288,22 +304,6 @@ Possible values:
 Required: False
 Position: named
 Default value: $false
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -MaxDepth
-Maximum nesting depth; default three.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: 3
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

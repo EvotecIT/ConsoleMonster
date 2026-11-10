@@ -169,17 +169,17 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ArgumentList (, $hosts) -ScriptBl
             $status = if ($hostName -eq 'WEB01' -and $tick -eq 3) { 'Fail' } else { 'Pass' }
             Update-Console -Key $hostName -Result $status -Detail "step $tick" -WidgetId 'lanes'
         }
-        Write-ConsoleLogEntry -Text "step $tick done"
+        Write-ConsoleLogEntry -Message "step $tick done"
         Wait-ConsoleDashboard -Seconds 0.35
         if ($tick -eq 3) {
-            Write-ConsoleLogEntry -Text 'WEB01: update verification failed' -Level Error
+            Write-ConsoleLogEntry -Message 'WEB01: update verification failed' -Level Error
             $pausePrompt = @{
                 Title = 'WEB01 failed. Continue with the other servers?'
                 Default = $true
                 Description = 'The patch dashboard pauses for your answer, then resumes.'
             }
             $go = Read-ConsoleConfirm @pausePrompt
-            Write-ConsoleLogEntry -Text $(if ($go) { 'continuing' }
+            Write-ConsoleLogEntry -Message $(if ($go) { 'continuing' }
             else { 'stopping after this step' })
             if (-not $go) {
                 break

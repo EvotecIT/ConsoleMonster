@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         [ValidateRange(0, 64)]
         [PSDefaultValue(Help = "8")]
-        public int MaxDepth { get; set; } = 8;
+        public int Depth { get; set; } = 8;
 
         /// <summary><para type="description">Maximum items read from each collection (default 100).</para></summary>
         [Parameter]
@@ -85,7 +85,7 @@ namespace ConsoleMonster.PowerShell {
             if (_items.Count == 0) { return; }
             object? rootValue = _items.Count == 1 ? _items[0] : _items.ToArray();
             PSOutputExport.Validate(this);
-            InspectorOptions options = PSFormatting.InspectorOptions(MaxDepth, MaxItems, Include, Exclude, MaxNodes, rootValue);
+            InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, Include, Exclude, MaxNodes, rootValue);
             InteractiveOptions interactive = PSInteractive.Options(this, null);
             string rootLabel = RootPath;
             if (!MyInvocation.BoundParameters.ContainsKey(nameof(RootPath))) {

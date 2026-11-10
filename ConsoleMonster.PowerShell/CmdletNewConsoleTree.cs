@@ -7,7 +7,7 @@ using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.</summary>
-    /// <remarks><para>Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -MaxDepth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para></remarks>
+    /// <remarks><para>Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para></remarks>
     /// <example>
     ///   <para>A mail domain with records and their state</para>
     ///   <code>
@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Folders and files from the pipeline, three levels deep</para>
-    ///   <code>Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -MaxDepth 3 | Show-Console</code>
+    ///   <code>Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>Hierarchical objects with a status per node</para>
@@ -81,10 +81,10 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = ObjectsSet)]
         public string? DetailProperty { get; set; }
 
-        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when MaxDepth is omitted.</para></summary>
+        /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
         [PSDefaultValue(Help = "5")]
-        public int MaxDepth { get; set; } = 5;
+        public int Depth { get; set; } = 5;
 
         /// <summary><para type="description">The most children listed per node, and objects listed at the top, before "+N more" (default 25; 0 lists all).</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
@@ -125,7 +125,7 @@ namespace ConsoleMonster.PowerShell {
             }
             Tree tree = ConsoleHostViews.Tree(_objects, new ConsoleTreeOptions {
                 Title = Title, ChildrenProperty = ChildrenProperty, Children = Children, LabelProperty = LabelProperty,
-                StatusProperty = StatusProperty, DetailProperty = DetailProperty, Depth = MaxDepth, MaxItems = MaxItems, MaxNodes = MaxNodes
+                StatusProperty = StatusProperty, DetailProperty = DetailProperty, Depth = Depth, MaxItems = MaxItems, MaxNodes = MaxNodes
             });
             Emit(tree);
         }

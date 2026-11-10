@@ -11,7 +11,7 @@ Creates an embeddable, lazy object tree for Show-ConsoleApp.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTreeSelect [-Key] <string> [[-Label] <string>] -InputObject <psobject> [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-RootPath <string>] [-Height <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleTreeSelect [-Key] <string> [[-Label] <string>] -InputObject <psobject> [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-RootPath <string>] [-Height <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,12 +30,28 @@ Browse a nested configuration
 ### EXAMPLE 2
 ```powershell
 $inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
-New-ConsoleTreeSelect -Key inventory -InputObject $inventory -MaxDepth 3 | Show-Console
+New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console
 ```
 
 Compose an inventory tree select
 
 ## PARAMETERS
+
+### -Depth
+Maximum expansion depth.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Disabled
 Disables editing and removes the input from keyboard focus traversal.
@@ -113,22 +129,6 @@ Possible values:
 Required: False
 Position: 1
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -MaxDepth
-Maximum expansion depth.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: 8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -16,7 +16,7 @@ New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <Object[]>] [-GroupBy 
 
 ### Live
 ```powershell
-New-ConsoleTable [[-WidgetId] <string>] [[-InputObject] <psobject[]>] -Live [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-KeyProperty <string>] [-Table <Table>] [-MaxRows <int>] [-SortColumn <Object>] [-SortDescending] [<CommonParameters>]
+New-ConsoleTable [[-WidgetId] <string>] [[-InputObject] <psobject[]>] -Live [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-KeyProperty <string>] [-Table <Table>] [-MaxRows <int>] [-SortColumn <Object>] [-Descending] [<CommonParameters>]
 ```
 
 ### Bind
@@ -115,6 +115,22 @@ Possible values:
 Required: False
 Position: named
 Default value: 60
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Descending
+For Live, sorts larger values first.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Live
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -307,22 +323,6 @@ Possible values:
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SortDescending
-For Live, sorts larger values first.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Live
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

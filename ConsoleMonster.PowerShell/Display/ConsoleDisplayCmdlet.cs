@@ -60,7 +60,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Keeps empty fields in record views.</para></summary>
         public virtual SwitchParameter ShowEmpty { get; set; }
         /// <summary><para type="description">Maximum nesting depth; default three.</para></summary>
-        public virtual int MaxDepth { get; set; } = 3;
+        public virtual int Depth { get; set; } = 3;
         /// <summary><para type="description">Maximum inspected items per collection; default 100.</para></summary>
         public virtual int MaxItems { get; set; } = 100;
         /// <summary><para type="description">Maximum hierarchy nodes; default 1000.</para></summary>

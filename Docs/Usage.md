@@ -62,7 +62,7 @@ New-ConsoleColumns -Content {
 } | Show-Console
 
 # Hierarchical objects become a tree; -Depth, -MaxItems and -MaxNodes keep it bounded.
-Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -MaxDepth 2 | Show-Console
+Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Show-Console
 ```
 
 Where cmdlet output goes:
@@ -249,7 +249,7 @@ Get-ChildItem -File | Show-ConsoleTable -GroupBy Extension -ShowTotals -MaxRows 
     @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
     @{ Name = 'FullName'; Header = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1 }
 )
-Get-Item . | Show-Console -View Tree -MaxDepth 2
+Get-Item . | Show-Console -View Tree -Depth 2
 ```
 
 `Module/Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DNS records, mail-security

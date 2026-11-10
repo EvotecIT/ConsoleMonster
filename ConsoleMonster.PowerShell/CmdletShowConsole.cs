@@ -5,7 +5,7 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.</para></remarks>
     /// <example><para>Show a few running processes</para><code>Get-Process | Select-Object -First 5 | Show-Console</code></example>
     /// <example><para>Read selected fields as a list</para><code>Get-Process | Select-Object -First 3 | Show-Console -View List -Property ProcessName, Id, WorkingSet64</code></example>
-    /// <example><para>Inspect a file object's members with a bounded tree</para><code>Get-Item . | Show-Console -View Tree -MaxDepth 1 -Property Name, FullName, LastWriteTime</code></example>
+    /// <example><para>Inspect a file object's members with a bounded tree</para><code>Get-Item . | Show-Console -View Tree -Depth 1 -Property Name, FullName, LastWriteTime</code></example>
     /// <example><para>Show a PowerShell snippet with line numbers</para><code>Show-Console -View Code -Language PowerShell -LineNumbers -Content {
     ///     'Get-Process | Select-Object -First 5'
     /// }</code></example>

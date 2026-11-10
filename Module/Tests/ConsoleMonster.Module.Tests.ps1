@@ -207,7 +207,7 @@ $results = 1..60 | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
 `$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
     Update-Console -WidgetId lanes -Key one -Status Running
-    Write-ConsoleLogEntry -Text 'checking one' -Level Info
+    Write-ConsoleLogEntry -Message 'checking one' -Level Info
     Update-Console -WidgetId lanes -Key one -Result Pass
     Update-Console -WidgetId lanes -Key two -Result Fail
     Update-Console -WidgetId lanes -Key one -Complete

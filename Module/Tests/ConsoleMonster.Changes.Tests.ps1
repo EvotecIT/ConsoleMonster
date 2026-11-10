@@ -20,9 +20,9 @@ Describe 'ConsoleMonster changes, replay and engine fixes' {
         $text = Invoke-ChangesChild @"
 `$d = New-ConsoleDashboard -Title 'Redirected' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
-    Write-ConsoleLogEntry -Text 'first line' -Level info
+    Write-ConsoleLogEntry -Message 'first line' -Level info
     Start-Sleep -Milliseconds 400
-    Write-ConsoleLogEntry -Text 'second line' -Level warn
+    Write-ConsoleLogEntry -Message 'second line' -Level warn
     Start-Sleep -Milliseconds 400
 } | Out-Null
 "@
@@ -151,7 +151,7 @@ $decisions = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject 
 Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
     Update-Console -WidgetId lanes -Key one -Status Running
     `$ConsoleSession.Post(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('`$marker', 'mark', `$null, 'Wave 2 started'))
-    Write-ConsoleLogEntry -Text 'disk almost full' -Level warn
+    Write-ConsoleLogEntry -Message 'disk almost full' -Level warn
     Update-Console -WidgetId lanes -Key two -Result Fail
     Update-Console -WidgetId lanes -Key one -Complete
     Update-Console -WidgetId lanes -Key two -Complete

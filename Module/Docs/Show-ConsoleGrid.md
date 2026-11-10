@@ -11,7 +11,7 @@ Shows pipeline objects in an interactive grid and returns the rows you choose.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortColumn <string>] [-SortDescending] [-HiddenColumns <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
+Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortColumn <string>] [-Descending] [-Exclude <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,7 +32,7 @@ Inspect selected objects with an embedded command
 
 ### EXAMPLE 2
 ```powershell
-Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -SortDescending -OutputMode None
+Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -Descending -OutputMode None
 ```
 
 Browse processes sorted by memory
@@ -71,11 +71,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Filter
-The filter to start with.
+### -Descending
+Sorts descending at the start.
 
 ```yaml
-Type: String
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $false
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Exclude
+Columns hidden at the start (F2 shows them again).
+
+```yaml
+Type: String[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -87,11 +103,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -HiddenColumns
-Columns hidden at the start (F2 shows them again).
+### -Filter
+The filter to start with.
 
 ```yaml
-Type: String[]
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -195,22 +211,6 @@ Possible values:
 Required: False
 Position: named
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -SortDescending
-Sorts descending at the start.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

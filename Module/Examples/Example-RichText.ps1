@@ -57,7 +57,7 @@ if (Show 'Lanes') {
                 $result = if ($server -eq 'SRV03' -and $step -eq 4) { 'Fail' } elseif ($step -eq 5 -and $server -eq 'SRV02') { 'Warn' } else { 'Pass' }
                 Update-Console -Key $server -Result $result -Detail (New-ConsoleText 'installing ', "KB50$step$($server.Substring(3))" -Color DarkGray, Green) -WidgetId 'lanes'
             }
-            Write-ConsoleLogEntry -Text (New-ConsoleText "step $step ", 'done', ' on 4 servers' -Color White, Green, DarkGray)
+            Write-ConsoleLogEntry -Message (New-ConsoleText "step $step ", 'done', ' on 4 servers' -Color White, Green, DarkGray)
             Start-Sleep -Milliseconds 900
         }
         foreach ($server in $servers) { Update-Console -Key $server -Complete -WidgetId 'lanes' }

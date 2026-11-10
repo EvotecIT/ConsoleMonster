@@ -11,7 +11,7 @@ Writes a line to the log region of a running dashboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleLogEntry [-Text] <Object> [-Level <string>] [-WidgetId <string>] [-Tag <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
+Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>] [-Tag <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -74,6 +74,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Message
+Text appended to the dashboard log region or application log viewport named by WidgetId.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
 ### -Session
 The live session to update. Defaults to $ConsoleSession or the running dashboard.
 
@@ -103,22 +119,6 @@ Required: False
 Position: named
 Default value: None
 Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Text
-Text appended to the dashboard log region or application log viewport named by WidgetId.
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

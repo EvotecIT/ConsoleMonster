@@ -104,7 +104,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "Live")] public object? SortColumn { get; set; }
         /// <summary><para type="description">For Live, sorts larger values first.</para></summary>
         [Parameter(ParameterSetName = "Live")] [PSDefaultValue(Help = "$false")]
-        public SwitchParameter SortDescending { get; set; }
+        public SwitchParameter Descending { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -125,7 +125,7 @@ namespace ConsoleMonster.PowerShell {
             Table table = Table ?? BuildTable(_items, boundRows: boundRows);
             if (Live.IsPresent) {
                 if (table.Columns.Count == 0) { throw new PSArgumentException("Live tables require columns or input objects that define them."); }
-                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = SortDescending.IsPresent, KeyProperty = KeyProperty };
+                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = Descending.IsPresent, KeyProperty = KeyProperty };
                 if (SortColumn != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortColumn)); }
                 if (boundRows == null) { PSItems.AddAll(this, live, _items, KeyProperty); }
                 else {

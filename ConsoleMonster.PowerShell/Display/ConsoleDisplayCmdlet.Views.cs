@@ -16,12 +16,12 @@ namespace ConsoleMonster.PowerShell {
             const string common = "InputObject Content Title Width Culture AsWidget PassThru View";
             string specific;
             switch (view.ToLowerInvariant()) {
-                case "auto": specific = "Property MaxDepth"; break;
+                case "auto": specific = "Property Depth"; break;
                 case "table": specific = "Property GroupBy ShowTotals MaxRows Border Caption CardsBelow NoHeaderSeparator Expand StatusProperty ShowGroupColumn NoSort Wrap TitleIndent WrapHeaders KeepAllColumns GroupHeadersAsRows RecordViewRows ShowKeyField NoHiddenColumns NoStableWidths NoHeader RowTitles ShowSubtotals TotalLabel WrapLines TotalRowCount Presentation"; break;
-                case "list": specific = "Property GroupBy ShowEmpty MaxDepth"; break;
-                case "tree": specific = "Property MaxDepth MaxItems MaxNodes Exclude"; break;
+                case "list": specific = "Property GroupBy ShowEmpty Depth"; break;
+                case "tree": specific = "Property Depth MaxItems MaxNodes Exclude"; break;
                 case "code": specific = "Path Language LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
-                case "json": specific = "Path MaxDepth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
+                case "json": specific = "Path Depth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
                 case "error": specific = "ShowFrameworkFrames MaxFrames NoStack ErrorLayout MaxInner NoSource"; break;
                 case "markdown": specific = "Path NoPager"; break;
                 default: throw new PSArgumentException("Unknown View '" + view + "'.");
@@ -38,7 +38,7 @@ namespace ConsoleMonster.PowerShell {
         private IWidget? BuildView(string view, IReadOnlyList<PSObject> items) {
             switch (view.ToLowerInvariant()) {
                 case "table": return BuildTableView(items);
-                case "list": return ConsoleHostViews.List(items, Property, GroupBy, ShowEmpty.IsPresent, MaxDepth, PSText.Markup(Title), Culture, this);
+                case "list": return ConsoleHostViews.List(items, Property, GroupBy, ShowEmpty.IsPresent, Depth, PSText.Markup(Title), Culture, this);
                 case "tree": return BuildTreeView(items);
                 case "code": case "json": return BuildCodeView(items, view.Equals("Json", StringComparison.OrdinalIgnoreCase));
                 case "error": return BuildErrorView(items);
@@ -46,7 +46,7 @@ namespace ConsoleMonster.PowerShell {
                 default:
                     // `catch { $_ | Show-Console }` means the error, not the ErrorRecord's object graph.
                     if (items.Count > 0 && items.All(item => PSText.Unwrap(item) is ErrorRecord || PSText.Unwrap(item) is Exception)) { return BuildErrorView(items); }
-                    return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), MaxDepth);
+                    return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), Depth);
             }
         }
 
@@ -56,7 +56,7 @@ namespace ConsoleMonster.PowerShell {
                 View = json ? Views.ConsoleViewKind.Json : Views.ConsoleViewKind.Code,
                 Language = Language, Path = Path, LineNumbers = LineNumbers.IsPresent, FirstLine = FirstLine,
                 Wrap = Wrap.IsPresent, MaxLines = MaxLines, Title = PSText.Markup(Title), NoTitle = NoTitle.IsPresent,
-                Highlight = Highlight, MaxDepth = MaxDepth, Shape = Binding.PSShaping.Options()
+                Highlight = Highlight, MaxDepth = Depth, Shape = Binding.PSShaping.Options()
             });
 
         private IWidget BuildErrorView(IReadOnlyList<PSObject> items) => Views.ConsoleView.BuildErrors(

@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Text appended to the dashboard log region or application log viewport named by WidgetId.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
         [AllowEmptyString]
-        public object Text { get; set; } = string.Empty;
+        public object Message { get; set; } = string.Empty;
 
         /// <summary><para type="description">The level: info, warn, err, verbose, debug, pass or skip. PowerShell's words work too: Information, Warning, Error, Verbose, Debug, Success, Skipped (and the status words of Show-ConsoleStatusLine).</para></summary>
         [Parameter]
@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            string? text = PSText.EventText(Text, out bool isMarkup);
+            string? text = PSText.EventText(Message, out bool isMarkup);
             if (!string.IsNullOrEmpty(Highlight) && !isMarkup && text != null) {
                 Highlighting.ITextHighlighter highlighter = Highlighting.Highlighters.Get(Highlight) ?? throw new PSArgumentException("Unknown highlight language '" + Highlight + "'. Use Smart or one of: " + string.Join(", ", Highlighting.Highlighters.Names) + ".");
                 text = Highlighting.HighlightStyles.ToMarkup(text, highlighter);

@@ -24309,6 +24309,18 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <dev:defaultValue>60</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Descending</maml:name>
+          <maml:description>
+            <maml:para>For Live, sorts larger values first.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$false</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Expand</maml:name>
           <maml:description>
             <maml:para>Fill the available width. The text columns share the spare width in proportion to their widths, while number, date and status columns keep their natural width; a column hashtable's Weight (or Flexible) decides the share instead, and Width or MaxWidth holds.</maml:para>
@@ -24451,18 +24463,6 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>SortDescending</maml:name>
-          <maml:description>
-            <maml:para>For Live, sorts larger values first.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>$false</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>StatusProperty</maml:name>
@@ -24775,6 +24775,18 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
         <dev:defaultValue>60</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Descending</maml:name>
+        <maml:description>
+          <maml:para>For Live, sorts larger values first.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$false</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Expand</maml:name>
         <maml:description>
           <maml:para>Fill the available width. The text columns share the spare width in proportion to their widths, while number, date and status columns keep their natural width; a column hashtable's Weight (or Flexible) decides the share instead, and Width or MaxWidth holds.</maml:para>
@@ -24917,18 +24929,6 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>SortDescending</maml:name>
-        <maml:description>
-          <maml:para>For Live, sorts larger values first.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-        <dev:type>
-          <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>$false</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>StatusProperty</maml:name>
@@ -26499,7 +26499,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -MaxDepth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</maml:para>
+      <maml:para>Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Nodes">
@@ -26592,6 +26592,18 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>5</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>DetailProperty</maml:name>
           <maml:description>
             <maml:para>The property shown as a muted note after the label.</maml:para>
@@ -26626,18 +26638,6 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MaxDepth</maml:name>
-          <maml:description>
-            <maml:para>Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when MaxDepth is omitted.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>5</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxItems</maml:name>
@@ -26763,6 +26763,18 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Depth</maml:name>
+        <maml:description>
+          <maml:para>Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>5</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>DetailProperty</maml:name>
         <maml:description>
           <maml:para>The property shown as a muted note after the label.</maml:para>
@@ -26797,18 +26809,6 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>MaxDepth</maml:name>
-        <maml:description>
-          <maml:para>Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when MaxDepth is omitted.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-        <dev:type>
-          <maml:name>Int32</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>5</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxItems</maml:name>
@@ -26933,7 +26933,7 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -MaxDepth 3 | Show-Console</dev:code>
+        <dev:code>Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Folders and files from the pipeline, three levels deep</maml:para>
         </dev:remarks>
@@ -26981,6 +26981,18 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>New-ConsoleTreeSelect</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>Maximum expansion depth.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>8</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Disabled</maml:name>
           <maml:description>
@@ -27040,18 +27052,6 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MaxDepth</maml:name>
-          <maml:description>
-            <maml:para>Maximum expansion depth.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>8</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxItems</maml:name>
@@ -27129,6 +27129,18 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     </command:syntax>
     <command:parameters>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Depth</maml:name>
+        <maml:description>
+          <maml:para>Maximum expansion depth.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>8</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Disabled</maml:name>
         <maml:description>
           <maml:para>Disables editing and removes the input from keyboard focus traversal.</maml:para>
@@ -27187,18 +27199,6 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>MaxDepth</maml:name>
-        <maml:description>
-          <maml:para>Maximum expansion depth.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-        <dev:type>
-          <maml:name>Int32</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>8</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxItems</maml:name>
@@ -27304,7 +27304,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
         <dev:code>$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
-            New-ConsoleTreeSelect -Key inventory -InputObject $inventory -MaxDepth 3 | Show-Console</dev:code>
+            New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory tree select</maml:para>
         </dev:remarks>
@@ -31215,6 +31215,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>Maximum nesting depth; default three.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>3</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ErrorLayout</maml:name>
           <maml:description>
             <maml:para>Error detail: Compact, Standard or Detailed.</maml:para>
@@ -31302,18 +31314,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:uri />
           </dev:type>
           <dev:defaultValue>$false</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MaxDepth</maml:name>
-          <maml:description>
-            <maml:para>Maximum nesting depth; default three.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>3</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxInner</maml:name>
@@ -31601,6 +31601,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>Maximum nesting depth; default three.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>3</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ErrorLayout</maml:name>
           <maml:description>
             <maml:para>Error detail: Compact, Standard or Detailed.</maml:para>
@@ -31676,18 +31688,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:uri />
           </dev:type>
           <dev:defaultValue>$false</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MaxDepth</maml:name>
-          <maml:description>
-            <maml:para>Maximum nesting depth; default three.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>3</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxInner</maml:name>
@@ -31999,6 +31999,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>Maximum nesting depth; default three.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>3</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ErrorLayout</maml:name>
           <maml:description>
             <maml:para>Error detail: Compact, Standard or Detailed.</maml:para>
@@ -32074,18 +32086,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:uri />
           </dev:type>
           <dev:defaultValue>$false</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MaxDepth</maml:name>
-          <maml:description>
-            <maml:para>Maximum nesting depth; default three.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>3</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxInner</maml:name>
@@ -32385,6 +32385,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Depth</maml:name>
+        <maml:description>
+          <maml:para>Maximum nesting depth; default three.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>3</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ErrorLayout</maml:name>
         <maml:description>
           <maml:para>Error detail: Compact, Standard or Detailed.</maml:para>
@@ -32472,18 +32484,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:uri />
         </dev:type>
         <dev:defaultValue>$false</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>MaxDepth</maml:name>
-        <maml:description>
-          <maml:para>Maximum nesting depth; default three.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-        <dev:type>
-          <maml:name>Int32</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>3</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxInner</maml:name>
@@ -32742,7 +32742,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Get-Item . | Show-Console -View Tree -MaxDepth 1 -Property Name, FullName, LastWriteTime</dev:code>
+        <dev:code>Get-Item . | Show-Console -View Tree -Depth 1 -Property Name, FullName, LastWriteTime</dev:code>
         <dev:remarks>
           <maml:para>Inspect a file object's members with a bounded tree</maml:para>
         </dev:remarks>
@@ -34665,6 +34665,30 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Descending</maml:name>
+          <maml:description>
+            <maml:para>Sorts descending at the start.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$false</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Columns hidden at the start (F2 shows them again).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Filter</maml:name>
           <maml:description>
             <maml:para>The filter to start with.</maml:para>
@@ -34672,18 +34696,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>HiddenColumns</maml:name>
-          <maml:description>
-            <maml:para>Columns hidden at the start (F2 shows them again).</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
-          <dev:type>
-            <maml:name>String[]</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -34773,18 +34785,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>SortDescending</maml:name>
-          <maml:description>
-            <maml:para>Sorts descending at the start.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-          <dev:type>
-            <maml:name>SwitchParameter</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>$false</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
             <maml:para>The title in the header bar (default Grid).</maml:para>
@@ -34824,6 +34824,30 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Descending</maml:name>
+        <maml:description>
+          <maml:para>Sorts descending at the start.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$false</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Exclude</maml:name>
+        <maml:description>
+          <maml:para>Columns hidden at the start (F2 shows them again).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Filter</maml:name>
         <maml:description>
           <maml:para>The filter to start with.</maml:para>
@@ -34831,18 +34855,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>HiddenColumns</maml:name>
-        <maml:description>
-          <maml:para>Columns hidden at the start (F2 shows them again).</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
-        <dev:type>
-          <maml:name>String[]</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -34932,18 +34944,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>SortDescending</maml:name>
-        <maml:description>
-          <maml:para>Sorts descending at the start.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-        <dev:type>
-          <maml:name>SwitchParameter</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>$false</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
           <maml:para>The title in the header bar (default Grid).</maml:para>
@@ -34989,7 +34989,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -SortDescending -OutputMode None</dev:code>
+        <dev:code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -Descending -OutputMode None</dev:code>
         <dev:remarks>
           <maml:para>Browse processes sorted by memory</maml:para>
         </dev:remarks>
@@ -35771,6 +35771,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
         <maml:name>Show-ConsoleObject</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>Maximum member depth below the root; default 8.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+          <dev:type>
+            <maml:name>Int32</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>8</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Exclude</maml:name>
           <maml:description>
@@ -35806,18 +35818,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-          <maml:name>MaxDepth</maml:name>
-          <maml:description>
-            <maml:para>Maximum member depth below the root; default 8.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-          <dev:type>
-            <maml:name>Int32</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>8</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MaxItems</maml:name>
@@ -35898,6 +35898,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Depth</maml:name>
+        <maml:description>
+          <maml:para>Maximum member depth below the root; default 8.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
+        <dev:type>
+          <maml:name>Int32</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>8</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Exclude</maml:name>
         <maml:description>
@@ -35933,18 +35945,6 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
-        <maml:name>MaxDepth</maml:name>
-        <maml:description>
-          <maml:para>Maximum member depth below the root; default 8.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-        <dev:type>
-          <maml:name>Int32</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>8</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MaxItems</maml:name>
@@ -42116,6 +42116,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
           </dev:type>
           <dev:defaultValue>info</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+          <maml:name>Message</maml:name>
+          <maml:description>
+            <maml:para>Text appended to the dashboard log region or application log viewport named by WidgetId.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+          <dev:type>
+            <maml:name>Object</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Session</maml:name>
           <maml:description>
@@ -42136,18 +42148,6 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
-          <maml:name>Text</maml:name>
-          <maml:description>
-            <maml:para>Text appended to the dashboard log region or application log viewport named by WidgetId.</maml:para>
-          </maml:description>
-          <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
-          <dev:type>
-            <maml:name>Object</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -42191,6 +42191,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
         </dev:type>
         <dev:defaultValue>info</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+        <maml:name>Message</maml:name>
+        <maml:description>
+          <maml:para>Text appended to the dashboard log region or application log viewport named by WidgetId.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+        <dev:type>
+          <maml:name>Object</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Session</maml:name>
         <maml:description>
@@ -42211,18 +42223,6 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
-        <maml:name>Text</maml:name>
-        <maml:description>
-          <maml:para>Text appended to the dashboard log region or application log viewport named by WidgetId.</maml:para>
-        </maml:description>
-        <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
-        <dev:type>
-          <maml:name>Object</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

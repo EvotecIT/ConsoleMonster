@@ -110,7 +110,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum nesting depth; default three.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)]
         [PSDefaultValue(Help = "3")]
-        public override int MaxDepth { get; set; } = 3;
+        public override int Depth { get; set; } = 3;
 
         /// <summary><para type="description">Maximum inspected items per collection; default 100.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)]

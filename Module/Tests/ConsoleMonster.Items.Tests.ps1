@@ -71,7 +71,7 @@ Describe 'One grammar for every widget' {
             $a.Kids = @($b)
             ($a | New-ConsoleTree -Children { $_.Kids } | Get-WidgetText) | Should -Match 'A\s+\(cycle\)'
             $deep = [pscustomobject] @{ Name = 'L1'; Kids = @([pscustomobject] @{ Name = 'L2'; Kids = @([pscustomobject] @{ Name = 'L3' }) }) }
-            ($deep | New-ConsoleTree -ChildrenProperty Kids -MaxDepth 1 | Get-WidgetText) | Should -Match 'depth limit'
+            ($deep | New-ConsoleTree -ChildrenProperty Kids -Depth 1 | Get-WidgetText) | Should -Match 'depth limit'
             $wide = [pscustomobject] @{ Name = 'Share'; Files = 1..30 | ForEach-Object { [pscustomobject] @{ Name = "file$_" } } }
             ($wide | New-ConsoleTree -ChildrenProperty Files -MaxItems 5 | Get-WidgetText) | Should -Match '\+25'
         }

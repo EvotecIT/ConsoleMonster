@@ -11,7 +11,7 @@ Explores an object's members with the keyboard.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [<CommonParameters>]
+Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -41,6 +41,22 @@ $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $co
 Return its PowerShell path
 
 ## PARAMETERS
+
+### -Depth
+Maximum member depth below the root; default 8.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Exclude
 Member names to skip without invoking their getters, supporting wildcards.
@@ -87,22 +103,6 @@ Required: True
 Position: named
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -MaxDepth
-Maximum member depth below the root; default 8.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: 8
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

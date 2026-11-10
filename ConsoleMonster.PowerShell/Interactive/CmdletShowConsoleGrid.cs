@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Browse processes sorted by memory</para>
-    /// <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -SortDescending -OutputMode None</code>
+    /// <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -Descending -OutputMode None</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleGrid", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolegrid/")]
     [OutputType(typeof(object))]
@@ -58,11 +58,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Sorts descending at the start.</para></summary>
         [Parameter]
         [PSDefaultValue(Help = "$false")]
-        public SwitchParameter SortDescending { get; set; }
+        public SwitchParameter Descending { get; set; }
 
         /// <summary><para type="description">Columns hidden at the start (F2 shows them again).</para></summary>
         [Parameter]
-        public string[]? HiddenColumns { get; set; }
+        public string[]? Exclude { get; set; }
 
         /// <summary><para type="description">In-app commands or a hashtable of action keys and script blocks. Use New-ConsoleCommand for shortcuts, optional confirmation and explicit arguments/modules. Ctrl+K opens actions; F6 cancels work.</para></summary>
         [Parameter]
@@ -101,7 +101,7 @@ namespace ConsoleMonster.PowerShell {
             using Output.TerminalGuard outputMode = new Output.TerminalGuard(() => { }, false);
             Grid grid = new Grid(Title) { OutputMode = OutputMode };
             PSGridListing listing = PSGridListing.Build(_items, Property, Culture, this, grid, out _);
-            GridOptions options = new GridOptions { Filter = Filter, SortDescending = SortDescending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
+            GridOptions options = new GridOptions { Filter = Filter, SortDescending = Descending.IsPresent, Interactive = PSInteractive.Options(this, Mode) };
             foreach (AppCommand command in PSCommandActions.Collect(Command)) { options.Command.Add(command); }
             if (RefreshRow != null) {
                 options.RefreshRow = (command, row) => {
@@ -124,7 +124,7 @@ namespace ConsoleMonster.PowerShell {
                 if (SortColumn != null && (string.Equals(columns[c].Name, SortColumn, StringComparison.OrdinalIgnoreCase) || string.Equals(header, SortColumn, StringComparison.OrdinalIgnoreCase))) {
                     options.SortColumn = c;
                 }
-                if (HiddenColumns != null && Array.Exists(HiddenColumns, h => string.Equals(h, columns[c].Name, StringComparison.OrdinalIgnoreCase) || string.Equals(h, header, StringComparison.OrdinalIgnoreCase))) {
+                if (Exclude != null && Array.Exists(Exclude, h => string.Equals(h, columns[c].Name, StringComparison.OrdinalIgnoreCase) || string.Equals(h, header, StringComparison.OrdinalIgnoreCase))) {
                     options.HiddenColumns.Add(header);
                 }
             }
