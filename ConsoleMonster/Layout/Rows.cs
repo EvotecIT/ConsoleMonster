@@ -6,7 +6,8 @@ namespace ConsoleMonster.Layout {
     /// <summary>
     /// Stacks children vertically. In print-once output every child gets its measured height; in a live frame,
     /// <see cref="LayoutSize.Fraction(double, int)"/> rows share the height left after fixed and auto rows (for example a
-    /// log region that fills the bottom of the screen).
+    /// log region that fills the bottom of the screen). Fraction rows are measured after the fixed and auto rows, so under a
+    /// height limit an earlier fraction row (a long step list) takes only what the rows after it leave.
     /// </summary>
     public sealed class Rows : IContainer, IContentOwner {
         private readonly List<IWidget> _children = new List<IWidget>();
@@ -49,15 +50,16 @@ namespace ConsoleMonster.Layout {
         /// <inheritdoc />
         public Size Measure(Constraints constraints, RenderContext context) {
             int width = 0;
-            int height = 0;
-            for (int i = 0; i < _children.Count; i++) {
-                LayoutSize spec = _sizes[i];
-                int available = constraints.IsHeightUnbounded ? Constraints.Unbounded : Math.Max(0, constraints.MaxHeight - height);
-                Size size = _children[i].Measure(new Constraints(constraints.MaxWidth, spec.Kind == LayoutSizeKind.Fixed ? (int)spec.Value : available), context);
-                width = Math.Max(width, size.Width);
-                height += spec.Kind == LayoutSizeKind.Fixed ? (int)spec.Value : Math.Max(spec.Min, size.Height);
-                if (i > 0) {
-                    height += Gap;
+            int height = Gap * Math.Max(0, _children.Count - 1);
+            // Fixed and auto rows first, then fraction rows with the height left, as in Render.
+            for (int pass = 0; pass < 2; pass++) {
+                for (int i = 0; i < _children.Count; i++) {
+                    LayoutSize spec = _sizes[i];
+                    if ((spec.Kind == LayoutSizeKind.Fraction) != (pass == 1)) { continue; }
+                    int available = constraints.IsHeightUnbounded ? Constraints.Unbounded : Math.Max(0, constraints.MaxHeight - height);
+                    Size size = _children[i].Measure(new Constraints(constraints.MaxWidth, spec.Kind == LayoutSizeKind.Fixed ? (int)spec.Value : available), context);
+                    width = Math.Max(width, size.Width);
+                    height += spec.Kind == LayoutSizeKind.Fixed ? (int)spec.Value : Math.Max(spec.Min, size.Height);
                 }
             }
             if (!constraints.IsHeightUnbounded) {

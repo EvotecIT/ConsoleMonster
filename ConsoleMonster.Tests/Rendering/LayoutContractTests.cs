@@ -44,6 +44,33 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.StartsWith("╰", lines[19]);
         }
 
+        // An inline progress view: a long step list above a current line and a message log, in a short live area. The
+        // step list (a fraction row) takes only what the rows below it leave; the log takes no rows until it has messages
+        // and then only the rows they need.
+        [Fact]
+        public void ALongFractionRowLeavesRoomForTheAutoRowsBelowIt() {
+            Phases steps = new Phases { StepCounter = true };
+            for (int i = 1; i <= 20; i++) { steps.Set("s" + i, i < 5 ? StatusKind.Pass : StatusKind.Pending, "Step " + i); }
+            LogRegion log = new LogRegion { FitToEntries = true, PreferredHeight = 6, ShowElapsed = false };
+            Rows rows = new Rows().Add(steps, LayoutSize.Fraction()).Add(new TextBlock("Current: step 5")).Add(log);
+            RenderContext context = Context(40, GlyphTier.Ascii);
+            string[] Frame() {
+                Size size = rows.Measure(new Constraints(40, 10), context);
+                CellBuffer buffer = new CellBuffer(40, size.Height);
+                rows.Render(new Region(buffer), context);
+                return buffer.ToPlainText().Split('\n');
+            }
+            string[] empty = Frame();
+            Assert.Equal(10, empty.Length);
+            Assert.StartsWith("Current: step 5", empty[9]);
+            log.Write("first message", "warn");
+            log.Write("second message", "warn");
+            string[] messages = Frame();
+            Assert.Equal(10, messages.Length);
+            Assert.StartsWith("Current: step 5", messages[7]);
+            Assert.Contains("second message", messages[9]);
+        }
+
         [Fact]
         public void SizedWrapperSuppliesTheDefaultSize() {
             Columns columns = new Columns(new Sized(new TextBlock("a"), LayoutSize.Fixed(10)), new TextBlock("b"));

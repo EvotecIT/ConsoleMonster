@@ -31,6 +31,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Rows requested when measured without a height limit (default 8).</summary>
         public int PreferredHeight { get; set; } = 8;
 
+        /// <summary>
+        /// Takes only the rows its newest entries need, up to <see cref="PreferredHeight"/>, under a height limit too, and
+        /// no rows while it is empty, so a message area in an inline live view appears and grows as messages arrive. Off by
+        /// default: a dashboard keeps a stable <see cref="PreferredHeight"/> (and an empty log panel keeps a blank row).
+        /// </summary>
+        public bool FitToEntries { get; set; }
+
         /// <summary>Whether entries show their session time (default true).</summary>
         public bool ShowElapsed { get; set; } = true;
 
@@ -220,8 +227,13 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int height = constraints.IsHeightUnbounded ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : Math.Min(PreferredHeight, constraints.MaxHeight);
-            return new Size(constraints.MaxWidth, Math.Max(1, height));
+            // A log that fits its entries takes no rows while it has nothing to show, so an empty message area holds no blank line.
+            if (FitToEntries && VisibleEntries().Length == 0) {
+                return new Size(constraints.MaxWidth, 0);
+            }
+            int height = constraints.IsHeightUnbounded || FitToEntries ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : PreferredHeight;
+            height = Math.Max(1, height);
+            return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         // Rows the newest entries need without a height limit: one each, or their wrapped rows when Wrap is on.
