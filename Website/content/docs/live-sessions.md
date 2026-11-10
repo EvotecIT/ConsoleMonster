@@ -88,7 +88,7 @@ A recording keeps the text form of row values; region swaps carry in-process wid
 
 ## Step ledgers
 
-For a list of build steps, `Phases` with `StepCounter = true` draws one numbered row per step, with the time each finished step took. When the list is taller than an inline area, it shows whole steps around the furthest step that has started, with the next step below it and `+N earlier` and `+N more` rows for the rest. The window only moves forward, so an older step that is still running does not pull it back while the next step is about to start. `LiveTable.MaxRows` keeps only the newest rows and removes older ones, so it suits a recent-items list rather than a ledger.
+For a list of build steps, `Phases` with `StepCounter = true` draws one numbered row per step. A running step spins and shows its latest detail and how long it has been running; a finished step keeps the time it took. A group step lists its items under it. When the list is taller than an inline area, finished groups fold into their row (`149/149 · 40s`), so finished rows never push the running step off the screen. If it still does not fit, it shows whole steps around the furthest step that has started, with the next step below it, running steps above pinned under `+N earlier`, and `+N more` for the rest. The window only moves forward, and the final printed ledger lists every item. `LiveTable.MaxRows` keeps only the newest rows and removes older ones, so it suits a recent-items list rather than a ledger.
 
 ## Host output while a session runs
 

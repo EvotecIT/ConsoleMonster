@@ -563,11 +563,19 @@ session.WriteOutside(() => cmdlet.WriteWarning("The certificate expires in 5 day
 
 ### Step ledgers
 
-For a list of build steps, use `Phases` with `StepCounter = true`: one numbered row per step with its status and,
-once it finishes, the time it took (taken from its `state` events, so it stays fixed). When the ledger is taller than
-its space, for example in an inline area, it shows whole steps around the furthest step that has started, with the
-next step below it and `+N earlier` / `+N more` rows for the rest. The window only moves forward. While step 7 is
-about to start, step 6 stays in view, even if an older step 3 is still running.
+For a list of build steps, use `Phases` with `StepCounter = true`: one numbered row per step with its status. A
+running step spins and shows its latest detail (`PhasesHandle.Detail`) with the time it has been running; a finished
+step keeps the time it took (taken from its `state` events, so it stays fixed). Child rows of a group step are its
+items (`PhasesHandle.Item(phase, key, status, detail)`), listed under it.
+
+When the ledger is taller than its space, for example in an inline area:
+
+- Finished steps fold their items into their own row (`149/149 · 40s`), and running steps keep only their running,
+  failed and warning items, so finished rows cannot push the running step off the screen.
+- If it still does not fit, it shows whole steps around the furthest step that has started, with the next step below
+  it and `+N earlier` / `+N more` rows for the rest. Every running step above that window stays pinned under
+  `+N earlier`. The window only moves forward: while step 7 is about to start, step 6 stays in view.
+- The final printed state is rendered without a height limit, so it lists every step and every item.
 
 ```csharp
 Phases steps = new Phases("steps") { StepCounter = true };
