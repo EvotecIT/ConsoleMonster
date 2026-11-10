@@ -2,6 +2,7 @@
 title: Coming from Spectre.Console
 description: Compare C# markup, widgets, live sessions and prompts, with the behaviour and gaps to check before migrating.
 slug: spectre-console
+lang: csharp
 order: 2
 group: from
 toc: false

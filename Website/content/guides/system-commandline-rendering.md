@@ -2,6 +2,7 @@
 title: Coming from System.CommandLine.Rendering
 description: Replace the deprecated rendering package with widgets and live regions while keeping your command-line parser.
 slug: system-commandline-rendering
+lang: csharp
 order: 8
 group: from
 toc: false

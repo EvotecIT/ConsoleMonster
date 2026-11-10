@@ -205,7 +205,7 @@ to run.
   produced it).
 - A page that walks through a program has one **Try it** block (`cm-try` shortcode, `partials/try.html`): `ids` for
   one example or `scenarios="Label:id,id|Label:id"` for several (real scenarios only), `project` for the C# project
-  name. It shows the PowerShell | C# | C# fluent switch (PowerShell by default; the reader's choice is kept in `<html data-lang>` and guarded localStorage), the
+  name. It shows the PowerShell | C# | C# fluent switch (PowerShell by default, or the page's `lang: csharp` front matter for a C#-only page such as a Spectre.Console migration; once the reader picks a language, that choice wins, kept in `<html data-lang>` and guarded localStorage), the
   install line, the program with Copy and Download, a muted Run line and the output under the code. Pages follow
   lead, Try it, how it works (quote the 3 to 8 lines that matter, never the whole program again), variations, then `## Next` with 2 to 4 links in reading order.
   All three variants are present in the initial DOM: `<div class="cm-lang" data-lang="powershell">`, `csharp` and `csharp-fluent`, adjacent in that order, which

@@ -42,7 +42,8 @@
           <li>
             <a class="cm-card" href="{{ i.output_path }}">
               <span class="cm-card__thumb" aria-hidden="true">
-                {{~ thumb = t ~}}
+                {{~ ## Every catalogue card shows the dark miniature, so the grid reads as one set of terminals in either theme. ## ~}}
+                {{~ thumb = t; if t && !t.src && t.dark; thumb = { src: t.dark, w: t.w, h: t.h }; end ~}}
                 {{ include "thumb" }}
               </span>
               <strong class="cm-card__title">{{ i.title | html.escape }}</strong>
