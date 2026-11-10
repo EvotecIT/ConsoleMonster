@@ -49,7 +49,7 @@ namespace ConsoleMonster.Styling {
             string prefix = width >= 60 ? "Statuses apart for colour-blind users: " : "Colour-blind: ";
             string summary = prefix + verdict;
             string detail = string.Empty;
-            if (unknown && theme is Theme following && following.FollowsTerminal && Terminal.Palette == null) {
+            if (unknown && theme is Theme following && following.FollowsTerminal && global::ConsoleMonster.Output.TerminalPalette.Current == null) {
                 const string reason = "the terminal did not report its colours";
                 if ((summary + ", " + reason).Length <= width) { summary += ", " + reason; }
                 else { summary += ","; detail = reason; }

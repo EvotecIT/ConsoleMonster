@@ -24,7 +24,7 @@ namespace ConsoleMonster.Styling {
         public static ThemeCheckReport Run(ITheme theme, ThemeCheckOptions? options = null) {
             if (theme == null) { throw new ArgumentNullException(nameof(theme)); }
             options = options ?? new ThemeCheckOptions();
-            if (theme is Theme following && following.FollowsTerminal && Terminal.Palette is TerminalScheme palette) { theme = following.ResolvePalette(palette); }
+            if (theme is Theme following && following.FollowsTerminal && global::ConsoleMonster.Output.TerminalPalette.Current is TerminalScheme palette) { theme = following.ResolvePalette(palette); }
             Color page = options.Background ?? Theme.Page(theme).Background;
             List<ThemeCheckResult> results = new List<ThemeCheckResult>();
             foreach (ThemeToken token in TextTokens) {

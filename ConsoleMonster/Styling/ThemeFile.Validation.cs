@@ -69,7 +69,7 @@ namespace ConsoleMonster.Styling {
                 case "color-blind-safe-dark": return Theme.ColorBlindSafe;
                 case "colorblindsafelight":
                 case "color-blind-safe-light": return Theme.ColorBlindSafeLight;
-                default: throw Error("BaseTheme", "must be Dark, Light, HighContrast, ColorBlindSafe, ColorBlindSafeDark or ColorBlindSafeLight");
+                default: throw Error("BaseTheme", "must be Terminal, Dark, Light, HighContrast, ColorBlindSafe, ColorBlindSafeDark or ColorBlindSafeLight");
             }
         }
 

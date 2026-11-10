@@ -12,7 +12,7 @@ import termios
 import time
 
 host, runtime, root = sys.argv[1:]
-for scenario in ("complete", "incomplete", "timeout", "late", "light-timeout"):
+for scenario in ("check-only", "complete", "incomplete", "timeout", "late", "light-timeout"):
     receipt = Path(root) / scenario
     master, slave = pty.openpty()
     if sys.platform == "darwin":
@@ -31,7 +31,8 @@ for scenario in ("complete", "incomplete", "timeout", "late", "light-timeout"):
         os.environ.pop("CONSOLEMONSTER_THEME", None)
         for name in ("CI", "GITHUB_ACTIONS", "TF_BUILD"):
             os.environ.pop(name, None)
-        os.execvp("dotnet", ["dotnet", "exec", "--runtimeconfig", runtime, host, "palette", str(receipt)])
+        operation = "palette-check" if scenario == "check-only" else "palette"
+        os.execvp("dotnet", ["dotnet", "exec", "--runtimeconfig", runtime, host, operation, str(receipt)])
     data = bytearray()
     background = False
     palette = False
@@ -69,6 +70,14 @@ for scenario in ("complete", "incomplete", "timeout", "late", "light-timeout"):
                     fcntl.ioctl(slave, termios.FIONREAD, struct.pack("I", 0))
                 assert termios.tcgetattr(slave) == before, (scenario, before, termios.tcgetattr(slave))
                 value = receipt.with_suffix(".value").read_text()
+                if scenario == "check-only":
+                    assert b"\x1b]" not in data, ("theme checking/reporting initiated OSC queries", bytes(data))
+                    assert value == "unknown|Statuses apart for colour-blind users: unknown, the terminal did not report its colours", value
+                    receipt.with_suffix(".ack").write_text("yes")
+                    _, status = os.waitpid(pid, 0)
+                    assert os.waitstatus_to_exitcode(status) == 0
+                    done = True
+                    break
                 assert value.endswith("|abc"), (scenario, value)
                 assert data.count(b"\x1b]4;0;?\x07") == 1
                 if scenario == "complete":
