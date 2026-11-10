@@ -103,8 +103,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -160,8 +160,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -238,8 +238,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -315,8 +315,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -392,8 +392,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -469,8 +469,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -546,8 +546,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -572,8 +572,8 @@
       "frame": {
         "w": 60,
         "h": 5,
-        "dark": "<span class=\"f8b8f9a c6\">Module</span><span class=c6>      </span><span class=B>ConsoleMonster</span>\n<span class=\"f8b8f9a c7\">Version</span><span class=c11>     0.0.4 </span><i class=\"n f8b8f9a\">→</i><span class=c1> </span><span class=B>2.0.0</span>\n<span class=\"f8b8f9a c10\">Frameworks</span>  netstandard2.0, net472, net8.0\n<span class=\"f8b8f9a c7\">Signing</span><span class=c5>     </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span>skipped\n<span class=\"f8b8f9a c5\">Tests</span><span class=c7>       </span><span class=\"ffbbf24 c2\"><i class=n>▴</i> </span>1 skipped on PowerShell 7",
-        "light": "<span class=\"f6b7280 c6\">Module</span><span class=c6>      </span><span class=B>ConsoleMonster</span>\n<span class=\"f6b7280 c7\">Version</span><span class=c11>     0.0.4 </span><i class=\"n f6b7280\">→</i><span class=c1> </span><span class=B>2.0.0</span>\n<span class=\"f6b7280 c10\">Frameworks</span>  netstandard2.0, net472, net8.0\n<span class=\"f6b7280 c7\">Signing</span><span class=c5>     </span><span class=\"f71717a c2\"><i class=n>–</i> </span>skipped\n<span class=\"f6b7280 c5\">Tests</span><span class=c7>       </span><span class=\"fb45309 c2\"><i class=n>▴</i> </span>1 skipped on PowerShell 7"
+        "dark": "<span class=\"f8b8f9a c6\">Module</span><span class=c6>      </span><span class=B>ConsoleMonster</span>\n<span class=\"f8b8f9a c7\">Version</span><span class=c11>     0.0.4 </span><i class=\"n f8b8f9a\">→</i><span class=c1> </span><span class=B>2.0.0</span>\n<span class=\"f8b8f9a c10\">Frameworks</span>  netstandard2.0, net472, net8.0\n<span class=\"f8b8f9a c7\">Signing</span><span class=c5>     </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span>skipped\n<span class=\"f8b8f9a c5\">Tests</span><span class=c7>       </span><span class=\"ffbbf24 c2\"><i class=n>▲</i> </span>1 skipped on PowerShell 7",
+        "light": "<span class=\"f6b7280 c6\">Module</span><span class=c6>      </span><span class=B>ConsoleMonster</span>\n<span class=\"f6b7280 c7\">Version</span><span class=c11>     0.0.4 </span><i class=\"n f6b7280\">→</i><span class=c1> </span><span class=B>2.0.0</span>\n<span class=\"f6b7280 c10\">Frameworks</span>  netstandard2.0, net472, net8.0\n<span class=\"f6b7280 c7\">Signing</span><span class=c5>     </span><span class=\"f71717a c2\"><i class=n>–</i> </span>skipped\n<span class=\"f6b7280 c5\">Tests</span><span class=c7>       </span><span class=\"fb45309 c2\"><i class=n>▲</i> </span>1 skipped on PowerShell 7"
       },
       "csharpRepo": "Website/examples/widgets/keyvalue.cs",
       "csharpFluent": "Ui.KeyValue()\n    .Add(\"Module\", \"[bold]ConsoleMonster[/]\")\n    .Add(\"Version\", \"0.0.4 [muted]→[/] [bold]2.0.0[/]\")\n    .Add(\"Frameworks\", \"netstandard2.0, net472, net8.0\")\n    .Add(\"Signing\", \"skipped\", StatusKind.Skip)\n    .Add(\"Tests\", \"1 skipped on PowerShell 7\", StatusKind.Warn)\n    .Show();\n",
@@ -603,8 +603,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -629,8 +629,8 @@
       "frame": {
         "w": 60,
         "h": 6,
-        "dark": "<i class=\"n f4ade80\">✓</i><span class=c54> Restore NuGet packages                               </span><span class=f8b8f9a>1.6 s</span>\n<i class=\"n f4ade80\">✓</i><span class=c54> Compile ConsoleMonster                               </span><span class=f8b8f9a>4.7 s</span>\n<i class=\"n ffbbf24\">▴</i><span class=c50> Run Pester on PowerShell 7                       </span><span class=f8b8f9a>1 skipped</span>\n<i class=\"n fa1a1aa\">–</i><span class=c52> Sign module files                                  </span><span class=f8b8f9a>skipped</span>\n<i class=\"g280b f60a5fa\">⠋</i> Pack ConsoleMonster.2.0.0.nupkg\n<i class=\"n f71717a\">○</i> Publish to PowerShell Gallery",
-        "light": "<i class=\"n f15803d\">✓</i><span class=c54> Restore NuGet packages                               </span><span class=f6b7280>1.6 s</span>\n<i class=\"n f15803d\">✓</i><span class=c54> Compile ConsoleMonster                               </span><span class=f6b7280>4.7 s</span>\n<i class=\"n fb45309\">▴</i><span class=c50> Run Pester on PowerShell 7                       </span><span class=f6b7280>1 skipped</span>\n<i class=\"n f71717a\">–</i><span class=c52> Sign module files                                  </span><span class=f6b7280>skipped</span>\n<i class=\"g280b f2563eb\">⠋</i> Pack ConsoleMonster.2.0.0.nupkg\n<i class=\"n f858590\">○</i> Publish to PowerShell Gallery"
+        "dark": "<i class=\"n f4ade80\">✓</i><span class=c54> Restore NuGet packages                               </span><span class=f8b8f9a>1.6 s</span>\n<i class=\"n f4ade80\">✓</i><span class=c54> Compile ConsoleMonster                               </span><span class=f8b8f9a>4.7 s</span>\n<i class=\"n ffbbf24\">▲</i><span class=c50> Run Pester on PowerShell 7                       </span><span class=f8b8f9a>1 skipped</span>\n<i class=\"n fa1a1aa\">–</i><span class=c52> Sign module files                                  </span><span class=f8b8f9a>skipped</span>\n<i class=\"g280b f60a5fa\">⠋</i> Pack ConsoleMonster.2.0.0.nupkg\n<i class=\"n f71717a\">○</i> Publish to PowerShell Gallery",
+        "light": "<i class=\"n f15803d\">✓</i><span class=c54> Restore NuGet packages                               </span><span class=f6b7280>1.6 s</span>\n<i class=\"n f15803d\">✓</i><span class=c54> Compile ConsoleMonster                               </span><span class=f6b7280>4.7 s</span>\n<i class=\"n fb45309\">▲</i><span class=c50> Run Pester on PowerShell 7                       </span><span class=f6b7280>1 skipped</span>\n<i class=\"n f71717a\">–</i><span class=c52> Sign module files                                  </span><span class=f6b7280>skipped</span>\n<i class=\"g280b f2563eb\">⠋</i> Pack ConsoleMonster.2.0.0.nupkg\n<i class=\"n f858590\">○</i> Publish to PowerShell Gallery"
       },
       "csharpRepo": "Website/examples/widgets/statuslist.cs",
       "csharpFluent": "Ui.StatusList()\n    .Add(\"Restore NuGet packages\", StatusKind.Pass, \"1.6 s\")\n    .Add(\"Compile ConsoleMonster\", StatusKind.Pass, \"4.7 s\")\n    .Add(\"Run Pester on PowerShell 7\", StatusKind.Warn, \"1 skipped\")\n    .Add(\"Sign module files\", StatusKind.Skip, \"skipped\")\n    .Add(\"Pack ConsoleMonster.2.0.0.nupkg\", StatusKind.Running)\n    .Add(\"Publish to PowerShell Gallery\", StatusKind.Pending)\n    .Show();\n",
@@ -653,8 +653,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -679,8 +679,8 @@
       "frame": {
         "w": 60,
         "h": 8,
-        "dark": "<span class=B>evotec.xyz</span>\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f4ade80\">✓</i><span class=c5> MX  </span><span class=f8b8f9a>2 records</span>\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><span class=c40>evotec-xyz.mail.protection.outlook.com  </span><span class=f8b8f9a>priority 0</span>\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n ffbbf24\">▴</i><span class=c6> SPF  </span><span class=f8b8f9a>9 of 10 DNS lookups</span>\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span>include:spf.protection.outlook.com\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span>include:_spf.salesforce.com\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n ff87171\">✗</i><span class=c8> DMARC  </span><span class=f8b8f9a>p=none</span>\n<span class=\"f4b5060 c4\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f4ade80\">✓</i><span class=c7> DKIM  </span><span class=f8b8f9a>selector1, selector2</span>",
-        "light": "<span class=B>evotec.xyz</span>\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f15803d\">✓</i><span class=c5> MX  </span><span class=f6b7280>2 records</span>\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><span class=c40>evotec-xyz.mail.protection.outlook.com  </span><span class=f6b7280>priority 0</span>\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n fb45309\">▴</i><span class=c6> SPF  </span><span class=f6b7280>9 of 10 DNS lookups</span>\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span>include:spf.protection.outlook.com\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span>include:_spf.salesforce.com\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n fb91c1c\">✗</i><span class=c8> DMARC  </span><span class=f6b7280>p=none</span>\n<span class=\"f8a8a94 c4\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f15803d\">✓</i><span class=c7> DKIM  </span><span class=f6b7280>selector1, selector2</span>"
+        "dark": "<span class=B>evotec.xyz</span>\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f4ade80\">✓</i><span class=c5> MX  </span><span class=f8b8f9a>2 records</span>\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><span class=c40>evotec-xyz.mail.protection.outlook.com  </span><span class=f8b8f9a>priority 0</span>\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n ffbbf24\">▲</i><span class=c6> SPF  </span><span class=f8b8f9a>9 of 10 DNS lookups</span>\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span>include:spf.protection.outlook.com\n<span class=\"f4b5060 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span>include:_spf.salesforce.com\n<span class=\"f4b5060 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n ff87171\">✗</i><span class=c8> DMARC  </span><span class=f8b8f9a>p=none</span>\n<span class=\"f4b5060 c4\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f4ade80\">✓</i><span class=c7> DKIM  </span><span class=f8b8f9a>selector1, selector2</span>",
+        "light": "<span class=B>evotec.xyz</span>\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f15803d\">✓</i><span class=c5> MX  </span><span class=f6b7280>2 records</span>\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><span class=c40>evotec-xyz.mail.protection.outlook.com  </span><span class=f6b7280>priority 0</span>\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n fb45309\">▲</i><span class=c6> SPF  </span><span class=f6b7280>9 of 10 DNS lookups</span>\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span>include:spf.protection.outlook.com\n<span class=\"f8a8a94 c8\"><i class=g2502>│</i>   <i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span>include:_spf.salesforce.com\n<span class=\"f8a8a94 c4\"><i class=g251c>├</i><i class=\"g2500 c2\">──</i> </span><i class=\"n fb91c1c\">✗</i><span class=c8> DMARC  </span><span class=f6b7280>p=none</span>\n<span class=\"f8a8a94 c4\"><i class=g2514>└</i><i class=\"g2500 c2\">──</i> </span><i class=\"n f15803d\">✓</i><span class=c7> DKIM  </span><span class=f6b7280>selector1, selector2</span>"
       },
       "csharpRepo": "Website/examples/widgets/tree.cs",
       "csharpFluent": "Tree tree = Ui.Tree().Title(\"[bold]evotec.xyz[/]\");\nTreeNode mx = tree.Add(\"MX\", StatusKind.Pass, \"2 records\");\nmx.Add(\"evotec-xyz.mail.protection.outlook.com\", default, \"priority 0\");\nTreeNode spf = tree.Add(\"SPF\", StatusKind.Warn, \"9 of 10 DNS lookups\");\nspf.Add(\"include:spf.protection.outlook.com\");\nspf.Add(\"include:_spf.salesforce.com\");\ntree.Add(\"DMARC\", StatusKind.Fail, \"p=none\");\ntree.Add(\"DKIM\", StatusKind.Pass, \"selector1, selector2\");\ntree.Show();\n",
@@ -710,8 +710,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -736,8 +736,8 @@
       "frame": {
         "w": 60,
         "h": 4,
-        "dark": "<span class=c7>Build  </span><span class=\"f60a5fa c25\"><i class=\"g2501 c24\">━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c13 f3a3d45\">─────────────</i><span class=c2>  </span><span class=f8b8f9a> 64%   64/100</span>\n<span class=c7>Tests  </span><span class=\"f60a5fa c30\"><i class=\"g2501 c29\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c8 f3a3d45\">────────</i><span class=c2>  </span><span class=f8b8f9a> 77%  412/530</span>\n<span class=c6>Docs  </span><i class=\"g2501 c39 f4ade80\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><span class=c2>  </span><span class=f8b8f9a>100%  100/100</span>\n<span class=c8>Upload  </span><i class=\"g2586 c15 f60a5fa\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><i class=\"g2586 c26 f3a3d45\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c2>  </span><span class=f8b8f9a> 37%  3/8</span>",
-        "light": "<span class=c7>Build  </span><span class=\"f2563eb c25\"><i class=\"g2501 c24\">━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c13 fd4d4d8\">─────────────</i><span class=c2>  </span><span class=f6b7280> 64%   64/100</span>\n<span class=c7>Tests  </span><span class=\"f2563eb c30\"><i class=\"g2501 c29\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c8 fd4d4d8\">────────</i><span class=c2>  </span><span class=f6b7280> 77%  412/530</span>\n<span class=c6>Docs  </span><i class=\"g2501 c39 f15803d\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><span class=c2>  </span><span class=f6b7280>100%  100/100</span>\n<span class=c8>Upload  </span><i class=\"g2586 c15 f2563eb\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><i class=\"g2586 c26 fd4d4d8\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c2>  </span><span class=f6b7280> 37%  3/8</span>"
+        "dark": "<span class=\"f8b8f9a c5\">Build</span><span class=c2>  </span><i class=\"g2501 c30 f60a5fa\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=\"g2500 c17 f3a3d45\">─────────────────</i>   64%\n<span class=\"f8b8f9a c5\">Tests</span><span class=c2>  </span><i class=\"g2501 c34 f60a5fa\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=\"g2500 c10 f3a3d45\">──────────</i>  412/530\n<span class=\"f8b8f9a c4\">Docs</span><span class=c2>  </span><i class=\"g2501 c48 f4ade80\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i>  100%\n<span class=\"f8b8f9a c6\">Upload</span><span class=c2>  </span><i class=\"g2586 c18 f60a5fa\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><i class=\"g2586 c29 f3a3d45\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i>  3/8",
+        "light": "<span class=\"f6b7280 c5\">Build</span><span class=c2>  </span><i class=\"g2501 c30 f2563eb\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=\"g2500 c17 fd4d4d8\">─────────────────</i>   64%\n<span class=\"f6b7280 c5\">Tests</span><span class=c2>  </span><i class=\"g2501 c34 f2563eb\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i><i class=\"g2500 c10 fd4d4d8\">──────────</i>  412/530\n<span class=\"f6b7280 c4\">Docs</span><span class=c2>  </span><i class=\"g2501 c48 f15803d\">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</i>  100%\n<span class=\"f6b7280 c6\">Upload</span><span class=c2>  </span><i class=\"g2586 c18 f2563eb\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><i class=\"g2586 c29 fd4d4d8\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i>  3/8"
       },
       "csharpRepo": "Website/examples/widgets/progress.cs",
       "csharpFluent": "Ui.Rows()\n    .Add((ProgressBar)Ui.Progress().Label(\"Build\").Value(64).Total(100).Build())\n    .Add((ProgressBar)Ui.Progress().Label(\"Tests\").Value(412).Total(530).Build())\n    .Add((ProgressBar)Ui.Progress()\n        .Label(\"Docs\")\n        .Value(100)\n        .Total(100)\n        .Status(StatusKind.Pass)\n        .Build())\n    .Add((ProgressBar)Ui.Progress().Label(\"Upload\").Value(3).Total(8).Shape(BarShape.Block).Build())\n    .Show();\n",
@@ -789,8 +789,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -832,8 +832,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -875,8 +875,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -925,8 +925,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1004,8 +1004,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1030,8 +1030,8 @@
       "frame": {
         "w": 60,
         "h": 5,
-        "dark": "<span class=\"f8b8f9a c5\">00:02</span>        Discovered 4 domain controllers in 2 domains\n<span class=\"f8b8f9a c5\">00:31</span><span class=c1> </span><span class=\"ffbbf24 c6\"><i class=n>▴</i> WARN</span> DC02: replication partner DC05 last success 3h<i class=n>…</i>\n<span class=\"f8b8f9a c5\">00:44</span><span class=c1> </span><span class=\"ff87171 c5\"><i class=n>✗</i> ERR</span>  DC02: USN rollback check failed (event 2095)\n<span class=\"f8b8f9a c5\">00:52</span>        Collected 186 rule inputs from DC01\n<span class=\"f8b8f9a c5\">00:53</span><span class=c1> </span><span class=\"f8b8f9a c4\">VERB</span><span class=c3>   </span><span class=f8b8f9a>Using cached schema snapshot</span>",
-        "light": "<span class=\"f6b7280 c5\">00:02</span>        Discovered 4 domain controllers in 2 domains\n<span class=\"f6b7280 c5\">00:31</span><span class=c1> </span><span class=\"fb45309 c6\"><i class=n>▴</i> WARN</span> DC02: replication partner DC05 last success 3h<i class=n>…</i>\n<span class=\"f6b7280 c5\">00:44</span><span class=c1> </span><span class=\"fb91c1c c5\"><i class=n>✗</i> ERR</span>  DC02: USN rollback check failed (event 2095)\n<span class=\"f6b7280 c5\">00:52</span>        Collected 186 rule inputs from DC01\n<span class=\"f6b7280 c5\">00:53</span><span class=c1> </span><span class=\"f6b7280 c4\">VERB</span><span class=c3>   </span><span class=f6b7280>Using cached schema snapshot</span>"
+        "dark": "<span class=\"f8b8f9a c5\">00:02</span>        Discovered 4 domain controllers in 2 domains\n<span class=\"f8b8f9a c5\">00:31</span><span class=c1> </span><span class=\"ffbbf24 c6\"><i class=n>▲</i> WARN</span> DC02: replication partner DC05 last success 3h<i class=n>…</i>\n<span class=\"f8b8f9a c5\">00:44</span><span class=c1> </span><span class=\"ff87171 c5\"><i class=n>✗</i> ERR</span>  DC02: USN rollback check failed (event 2095)\n<span class=\"f8b8f9a c5\">00:52</span>        Collected 186 rule inputs from DC01\n<span class=\"f8b8f9a c5\">00:53</span><span class=c1> </span><span class=\"f8b8f9a c4\">VERB</span><span class=c3>   </span><span class=f8b8f9a>Using cached schema snapshot</span>",
+        "light": "<span class=\"f6b7280 c5\">00:02</span>        Discovered 4 domain controllers in 2 domains\n<span class=\"f6b7280 c5\">00:31</span><span class=c1> </span><span class=\"fb45309 c6\"><i class=n>▲</i> WARN</span> DC02: replication partner DC05 last success 3h<i class=n>…</i>\n<span class=\"f6b7280 c5\">00:44</span><span class=c1> </span><span class=\"fb91c1c c5\"><i class=n>✗</i> ERR</span>  DC02: USN rollback check failed (event 2095)\n<span class=\"f6b7280 c5\">00:52</span>        Collected 186 rule inputs from DC01\n<span class=\"f6b7280 c5\">00:53</span><span class=c1> </span><span class=\"f6b7280 c4\">VERB</span><span class=c3>   </span><span class=f6b7280>Using cached schema snapshot</span>"
       },
       "csharpRepo": "Website/examples/widgets/log.cs",
       "csharpFluent": "LogRegion log = Ui.LogRegion().PreferredHeight(5);\nlog.Write(\"Discovered 4 domain controllers in 2 domains\", \"info\", TimeSpan.FromSeconds(2));\nlog.Write(\"DC02: replication partner DC05 last success 3h ago\", \"warn\", TimeSpan.FromSeconds(31));\nlog.Write(\"DC02: USN rollback check failed (event 2095)\", \"err\", TimeSpan.FromSeconds(44));\nlog.Write(\"Collected 186 rule inputs from DC01\", \"info\", TimeSpan.FromSeconds(52));\nlog.Write(\"Using cached schema snapshot\", \"verbose\", TimeSpan.FromSeconds(53));\nlog.Show();\n",
@@ -1054,8 +1054,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1080,8 +1080,8 @@
       "frame": {
         "w": 72,
         "h": 3,
-        "dark": "<span class=\"ffbbf24 c6\"><i class=n>▴</i> WARN</span><span class=c1> </span><span class=\"f60a5fa c7\">migrate</span>         Mailbox for frank is over quota (51 GB)\n<span class=\"ff87171 c5\"><i class=n>✗</i> ERR</span><span class=c2>  </span><span class=\"f60a5fa c7\">migrate</span>         frank: access denied on the target database\n<span class=\"ffbbf24 c6\"><i class=n>▴</i> WARN</span><span class=c1> </span><span class=\"fc084fc c15\">exchange-online</span> Throttling: 3 requests delayed",
-        "light": "<span class=\"fb45309 c6\"><i class=n>▴</i> WARN</span><span class=c1> </span><span class=\"f2563eb c7\">migrate</span>         Mailbox for frank is over quota (51 GB)\n<span class=\"fb91c1c c5\"><i class=n>✗</i> ERR</span><span class=c2>  </span><span class=\"f2563eb c7\">migrate</span>         frank: access denied on the target database\n<span class=\"fb45309 c6\"><i class=n>▴</i> WARN</span><span class=c1> </span><span class=\"f7c3aed c15\">exchange-online</span> Throttling: 3 requests delayed"
+        "dark": "<span class=\"ffbbf24 c6\"><i class=n>▲</i> WARN</span><span class=c1> </span><span class=\"f60a5fa c7\">migrate</span>         Mailbox for frank is over quota (51 GB)\n<span class=\"ff87171 c5\"><i class=n>✗</i> ERR</span><span class=c2>  </span><span class=\"f60a5fa c7\">migrate</span>         frank: access denied on the target database\n<span class=\"ffbbf24 c6\"><i class=n>▲</i> WARN</span><span class=c1> </span><span class=\"fc084fc c15\">exchange-online</span> Throttling: 3 requests delayed",
+        "light": "<span class=\"fb45309 c6\"><i class=n>▲</i> WARN</span><span class=c1> </span><span class=\"f2563eb c7\">migrate</span>         Mailbox for frank is over quota (51 GB)\n<span class=\"fb91c1c c5\"><i class=n>✗</i> ERR</span><span class=c2>  </span><span class=\"f2563eb c7\">migrate</span>         frank: access denied on the target database\n<span class=\"fb45309 c6\"><i class=n>▲</i> WARN</span><span class=c1> </span><span class=\"f7c3aed c15\">exchange-online</span> Throttling: 3 requests delayed"
       },
       "csharpRepo": "Website/examples/widgets/logtags.cs",
       "csharpFluent": "// Each source keeps one colour; the filter shows warnings and worse, and hidden lines stay in the history.\nLogRegion log = Ui.LogRegion()\n    .PreferredHeight(5)\n    .ShowElapsed(false)\n    .Filter(new LogFilter(null, \"warn\"));\nlog.Write(new LogEntry(TimeSpan.Zero, \"info\", \"Snapshot of 12 mailboxes taken\", null, \"snapshot\"));\nlog.Write(new LogEntry(TimeSpan.Zero, \"warn\", \"Mailbox for frank is over quota (51 GB)\", null,\n    \"migrate\"));\nlog.Write(new LogEntry(TimeSpan.Zero, \"info\", \"alice moved in 1.1s\", null, \"migrate\"));\nlog.Write(new LogEntry(TimeSpan.Zero, \"err\", \"frank: access denied on the target database\", null,\n    \"migrate\"));\nlog.Write(new LogEntry(TimeSpan.Zero, \"warn\", \"Throttling: 3 requests delayed\", null,\n    \"exchange-online\"));\nlog.Show();\n",
@@ -1133,8 +1133,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1159,8 +1159,8 @@
       "frame": {
         "w": 60,
         "h": 5,
-        "dark": "<span class=c19>Domain controllers </span><i class=\"g2586 c36 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=ff87171><i class=n>✗</i> 14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c23 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c15>               </span><span class=ff87171><i class=n>✗</i> 9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c15 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c23>                       </span><span class=ff87171><i class=n>✗</i> 6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c10 ff87171\">▆▆▆▆▆▆▆▆▆▆</i><span class=c28>                            </span><span class=ff87171><i class=n>✗</i> 4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 ff87171\">▆▆▆▆▆</i><span class=c33>                                 </span><span class=ff87171><i class=n>✗</i> 2</span>",
-        "light": "<span class=c19>Domain controllers </span><i class=\"g2586 c36 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=fb91c1c><i class=n>✗</i> 14</span>\n<span class=c19>Group Policy       </span><i class=\"g2586 c23 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c15>               </span><span class=fb91c1c><i class=n>✗</i> 9</span>\n<span class=c19>Kerberos           </span><i class=\"g2586 c15 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c23>                       </span><span class=fb91c1c><i class=n>✗</i> 6</span>\n<span class=c19>DNS                </span><i class=\"g2586 c10 fb91c1c\">▆▆▆▆▆▆▆▆▆▆</i><span class=c28>                            </span><span class=fb91c1c><i class=n>✗</i> 4</span>\n<span class=c19>PKI                </span><i class=\"g2586 c5 fb91c1c\">▆▆▆▆▆</i><span class=c33>                                 </span><span class=fb91c1c><i class=n>✗</i> 2</span>"
+        "dark": "<span class=\"f8b8f9a c18\">Domain controllers</span><span class=c1> </span><i class=\"g2586 c36 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=ff87171><i class=n>✗</i> 14</span>\n<span class=\"f8b8f9a c12\">Group Policy</span><span class=c7>       </span><i class=\"g2586 c23 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c15>               </span><span class=ff87171><i class=n>✗</i> 9</span>\n<span class=\"f8b8f9a c8\">Kerberos</span><span class=c11>           </span><i class=\"g2586 c15 ff87171\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c23>                       </span><span class=ff87171><i class=n>✗</i> 6</span>\n<span class=\"f8b8f9a c3\">DNS</span><span class=c16>                </span><i class=\"g2586 c10 ff87171\">▆▆▆▆▆▆▆▆▆▆</i><span class=c28>                            </span><span class=ff87171><i class=n>✗</i> 4</span>\n<span class=\"f8b8f9a c3\">PKI</span><span class=c16>                </span><i class=\"g2586 c5 ff87171\">▆▆▆▆▆</i><span class=c33>                                 </span><span class=ff87171><i class=n>✗</i> 2</span>",
+        "light": "<span class=\"f6b7280 c18\">Domain controllers</span><span class=c1> </span><i class=\"g2586 c36 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c1> </span><span class=fb91c1c><i class=n>✗</i> 14</span>\n<span class=\"f6b7280 c12\">Group Policy</span><span class=c7>       </span><i class=\"g2586 c23 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c15>               </span><span class=fb91c1c><i class=n>✗</i> 9</span>\n<span class=\"f6b7280 c8\">Kerberos</span><span class=c11>           </span><i class=\"g2586 c15 fb91c1c\">▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆</i><span class=c23>                       </span><span class=fb91c1c><i class=n>✗</i> 6</span>\n<span class=\"f6b7280 c3\">DNS</span><span class=c16>                </span><i class=\"g2586 c10 fb91c1c\">▆▆▆▆▆▆▆▆▆▆</i><span class=c28>                            </span><span class=fb91c1c><i class=n>✗</i> 4</span>\n<span class=\"f6b7280 c3\">PKI</span><span class=c16>                </span><i class=\"g2586 c5 fb91c1c\">▆▆▆▆▆</i><span class=c33>                                 </span><span class=fb91c1c><i class=n>✗</i> 2</span>"
       },
       "csharpRepo": "Website/examples/widgets/bar.cs",
       "csharpFluent": "((BarChart)Ui.Chart()\n    .Type(ChartType.Bar)\n    .Role(ThemeToken.Fail)\n    .Build()).Add(\"Domain controllers\", 14)\n    .Add(\"Group Policy\", 9)\n    .Add(\"Kerberos\", 6)\n    .Add(\"DNS\", 4)\n    .Add(\"PKI\", 2)\n    .Show();\n",
@@ -1197,8 +1197,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1223,8 +1223,8 @@
       "frame": {
         "w": 60,
         "h": 3,
-        "dark": "<i class=\"g2588 c49 f4ade80\">█████████████████████████████████████████████████</i><i class=\"g2593 c6 ffbbf24\">▓▓▓▓▓▓</i><i class=\"g2592 c3 ff87171\">▒▒▒</i><i class=\"g2591 c2 fa1a1aa\">░░</i>\n<i class=\"g2588 f4ade80\">█</i><span class=c1> </span><span class=\"f4ade80 c2\"><i class=n>✓</i> </span><span class=c12>Passed   412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2593 ffbbf24\">▓</i><span class=c1> </span><span class=\"ffbbf24 c2\"><i class=n>▴</i> </span><span class=c12>Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2592 ff87171\">▒</i><span class=c1> </span><span class=\"ff87171 c2\"><i class=n>✗</i> </span><span class=c12>Failed    23</span><span class=\"f8b8f9a c5\">   5%</span><span class=c3>   </span><i class=\"g2591 fa1a1aa\">░</i><span class=c1> </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span><span class=c12>Skipped   14</span><span class=f8b8f9a>   3%</span>",
-        "light": "<i class=\"g2588 c49 f15803d\">█████████████████████████████████████████████████</i><i class=\"g2593 c6 fb45309\">▓▓▓▓▓▓</i><i class=\"g2592 c3 fb91c1c\">▒▒▒</i><i class=\"g2591 c2 f71717a\">░░</i>\n<i class=\"g2588 f15803d\">█</i><span class=c1> </span><span class=\"f15803d c2\"><i class=n>✓</i> </span><span class=c12>Passed   412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2593 fb45309\">▓</i><span class=c1> </span><span class=\"fb45309 c2\"><i class=n>▴</i> </span><span class=c12>Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2592 fb91c1c\">▒</i><span class=c1> </span><span class=\"fb91c1c c2\"><i class=n>✗</i> </span><span class=c12>Failed    23</span><span class=\"f6b7280 c5\">   5%</span><span class=c3>   </span><i class=\"g2591 f71717a\">░</i><span class=c1> </span><span class=\"f71717a c2\"><i class=n>–</i> </span><span class=c12>Skipped   14</span><span class=f6b7280>   3%</span>"
+        "dark": "<i class=\"g2588 c45 f8b8f9a\">█████████████████████████████████████████████</i><i class=\"g2588 c6 ffbbf24\">██████</i><i class=\"g2588 c2 ff87171\">██</i><i class=\"g2588 c2 fa1a1aa\">██</i>  500\n<i class=\"g2588 f8b8f9a\">█</i><span class=c1> </span><span class=\"f8b8f9a c2\"><i class=n>✓</i> </span><span class=c10>Passed 412</span><span class=\"f8b8f9a c5\">  82%</span><span class=c3>   </span><i class=\"g2588 ffbbf24\">█</i><span class=c1> </span><span class=\"ffbbf24 c2\"><i class=n>▲</i> </span><span class=c12>Warnings  51</span><span class=f8b8f9a>  10%</span>\n<i class=\"g2588 ff87171\">█</i><span class=c1> </span><span class=\"ff87171 c2\"><i class=n>✗</i> </span><span class=c10>Failed  23</span><span class=\"f8b8f9a c5\">   5%</span><span class=c3>   </span><i class=\"g2588 fa1a1aa\">█</i><span class=c1> </span><span class=\"fa1a1aa c2\"><i class=n>–</i> </span><span class=c12>Skipped   14</span><span class=f8b8f9a>   3%</span>",
+        "light": "<i class=\"g2588 c45 f6b7280\">█████████████████████████████████████████████</i><i class=\"g2588 c6 fb45309\">██████</i><i class=\"g2588 c2 fb91c1c\">██</i><i class=\"g2588 c2 f71717a\">██</i>  500\n<i class=\"g2588 f6b7280\">█</i><span class=c1> </span><span class=\"f6b7280 c2\"><i class=n>✓</i> </span><span class=c10>Passed 412</span><span class=\"f6b7280 c5\">  82%</span><span class=c3>   </span><i class=\"g2588 fb45309\">█</i><span class=c1> </span><span class=\"fb45309 c2\"><i class=n>▲</i> </span><span class=c12>Warnings  51</span><span class=f6b7280>  10%</span>\n<i class=\"g2588 fb91c1c\">█</i><span class=c1> </span><span class=\"fb91c1c c2\"><i class=n>✗</i> </span><span class=c10>Failed  23</span><span class=\"f6b7280 c5\">   5%</span><span class=c3>   </span><i class=\"g2588 f71717a\">█</i><span class=c1> </span><span class=\"f71717a c2\"><i class=n>–</i> </span><span class=c12>Skipped   14</span><span class=f6b7280>   3%</span>"
       },
       "csharpRepo": "Website/examples/widgets/stacked.cs",
       "csharpFluent": "((StackedBar)Ui.Chart().Type(ChartType.Stacked).Build()).Add(\"Passed\", 412, ThemeToken.Pass)\n    .Add(\"Warnings\", 51, ThemeToken.Warn)\n    .Add(\"Failed\", 23, ThemeToken.Fail)\n    .Add(\"Skipped\", 14, ThemeToken.Skip)\n    .Show();\n",
@@ -1247,8 +1247,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1326,8 +1326,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1405,8 +1405,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1469,8 +1469,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1540,8 +1540,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1604,8 +1604,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1630,8 +1630,8 @@
       "frame": {
         "w": 40,
         "h": 11,
-        "dark": "<span class=B>November 2026</span>\n\n<span class=\"f8b8f9a c4\">Week</span><span class=c4>    </span><span class=\"B c2\">Mo</span><span class=c2>  </span><span class=\"B c2\">Tu</span><span class=c2>  </span><span class=\"B c2\">We</span><span class=c2>  </span><span class=\"B c2\">Th</span><span class=c2>  </span><span class=\"B c2\">Fr</span><span class=c2>  </span><span class=\"B c2\">Sa</span><span class=c2>  </span><span class=B>Su</span>\n<span class=\"f8b8f9a c3\">W44</span><span class=c29>                             </span><span class=f8b8f9a>01</span>\n<span class=\"f8b8f9a c3\">W45</span><span class=c9>     02  </span><span class=\"f0c0c0c k4ade80 B c2\">03</span><i class=\"n f4ade80\">✓</i><span class=c13> 04  05  06  </span><span class=\"f8b8f9a c2\">07</span><span class=c2>  </span><span class=f8b8f9a>08</span>\n<span class=\"f8b8f9a c3\">W46</span><span class=c9>     09  </span><span class=\"f0c0c0c kf87171 B c2\">10</span><i class=\"n ff87171\">✗</i><span class=c13> 11  12  13  </span><span class=\"f8b8f9a c2\">14</span><span class=c2>  </span><span class=f8b8f9a>15</span>\n<span class=\"f8b8f9a c3\">W47</span><span class=c9>     16  </span><span class=\"f0c0c0c k4ade80 B c2\">17</span><i class=\"n f4ade80\">✓</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B U c2\">18</span><span class=c2>  </span><span class=\"f0c0c0c kfbbf24 B c2\">19</span><i class=\"n ffbbf24\">▴</i><span class=c5> 20  </span><span class=\"f8b8f9a c2\">21</span><span class=c2>  </span><span class=f8b8f9a>22</span>\n<span class=\"f8b8f9a c3\">W48</span><span class=c9>     23  </span><span class=\"f0c0c0c k38bdf8 B c2\">24</span><i class=\"n f38bdf8\">◆</i><span class=c9> 25  26  </span><span class=\"f0c0c0c k71717a B c2\">27</span><i class=\"n f71717a\">○</i><span class=c1> </span><span class=\"f8b8f9a c2\">28</span><span class=c2>  </span><span class=f8b8f9a>29</span>\n<span class=\"f8b8f9a c3\">W49</span>     30\n<span class=f8b8f9a><i class=n>✗</i> Fail  <i class=n>▴</i> Warn  <i class=n>○</i> Pending  <i class=n>✓</i> Pass</span>\n<span class=f8b8f9a><i class=n>◆</i> Info  Today 18 Nov</span>",
-        "light": "<span class=\"f111827 B\">November 2026</span>\n\n<span class=\"f6b7280 c4\">Week</span><span class=c4>    </span><span class=\"f374151 B c2\">Mo</span><span class=c2>  </span><span class=\"f374151 B c2\">Tu</span><span class=c2>  </span><span class=\"f374151 B c2\">We</span><span class=c2>  </span><span class=\"f374151 B c2\">Th</span><span class=c2>  </span><span class=\"f374151 B c2\">Fr</span><span class=c2>  </span><span class=\"f374151 B c2\">Sa</span><span class=c2>  </span><span class=\"f374151 B\">Su</span>\n<span class=\"f6b7280 c3\">W44</span><span class=c29>                             </span><span class=f6b7280>01</span>\n<span class=\"f6b7280 c3\">W45</span><span class=c9>     02  </span><span class=\"fffffff k15803d B c2\">03</span><i class=\"n f15803d\">✓</i><span class=c13> 04  05  06  </span><span class=\"f6b7280 c2\">07</span><span class=c2>  </span><span class=f6b7280>08</span>\n<span class=\"f6b7280 c3\">W46</span><span class=c9>     09  </span><span class=\"fffffff kb91c1c B c2\">10</span><i class=\"n fb91c1c\">✗</i><span class=c13> 11  12  13  </span><span class=\"f6b7280 c2\">14</span><span class=c2>  </span><span class=f6b7280>15</span>\n<span class=\"f6b7280 c3\">W47</span><span class=c9>     16  </span><span class=\"fffffff k15803d B c2\">17</span><i class=\"n f15803d\">✓</i><span class=c1> </span><span class=\"f0f172a kd6e4fa B U c2\">18</span><span class=c2>  </span><span class=\"fffffff kb45309 B c2\">19</span><i class=\"n fb45309\">▴</i><span class=c5> 20  </span><span class=\"f6b7280 c2\">21</span><span class=c2>  </span><span class=f6b7280>22</span>\n<span class=\"f6b7280 c3\">W48</span><span class=c9>     23  </span><span class=\"fffffff k0369a1 B c2\">24</span><i class=\"n f0369a1\">◆</i><span class=c9> 25  26  </span><span class=\"fffffff k858590 B c2\">27</span><i class=\"n f858590\">○</i><span class=c1> </span><span class=\"f6b7280 c2\">28</span><span class=c2>  </span><span class=f6b7280>29</span>\n<span class=\"f6b7280 c3\">W49</span>     30\n<span class=f6b7280><i class=n>✗</i> Fail  <i class=n>▴</i> Warn  <i class=n>○</i> Pending  <i class=n>✓</i> Pass</span>\n<span class=f6b7280><i class=n>◆</i> Info  Today 18 Nov</span>"
+        "dark": "<span class=B>November 2026</span>\n\n<span class=\"f8b8f9a c4\">Week</span><span class=c4>    </span><span class=\"B c2\">Mo</span><span class=c2>  </span><span class=\"B c2\">Tu</span><span class=c2>  </span><span class=\"B c2\">We</span><span class=c2>  </span><span class=\"B c2\">Th</span><span class=c2>  </span><span class=\"B c2\">Fr</span><span class=c2>  </span><span class=\"B c2\">Sa</span><span class=c2>  </span><span class=B>Su</span>\n<span class=\"f8b8f9a c3\">W44</span><span class=c29>                             </span><span class=f8b8f9a>01</span>\n<span class=\"f8b8f9a c3\">W45</span><span class=c9>     02  </span><span class=\"f0c0c0c k4ade80 B c2\">03</span><i class=\"n f4ade80\">✓</i><span class=c13> 04  05  06  </span><span class=\"f8b8f9a c2\">07</span><span class=c2>  </span><span class=f8b8f9a>08</span>\n<span class=\"f8b8f9a c3\">W46</span><span class=c9>     09  </span><span class=\"f0c0c0c kf87171 B c2\">10</span><i class=\"n ff87171\">✗</i><span class=c13> 11  12  13  </span><span class=\"f8b8f9a c2\">14</span><span class=c2>  </span><span class=f8b8f9a>15</span>\n<span class=\"f8b8f9a c3\">W47</span><span class=c9>     16  </span><span class=\"f0c0c0c k4ade80 B c2\">17</span><i class=\"n f4ade80\">✓</i><span class=c1> </span><span class=\"ff1f5f9 k243b5e B U c2\">18</span><span class=c2>  </span><span class=\"f0c0c0c kfbbf24 B c2\">19</span><i class=\"n ffbbf24\">▲</i><span class=c5> 20  </span><span class=\"f8b8f9a c2\">21</span><span class=c2>  </span><span class=f8b8f9a>22</span>\n<span class=\"f8b8f9a c3\">W48</span><span class=c9>     23  </span><span class=\"f0c0c0c k38bdf8 B c2\">24</span><i class=\"n f38bdf8\">◆</i><span class=c9> 25  26  </span><span class=\"f0c0c0c k71717a B c2\">27</span><i class=\"n f71717a\">○</i><span class=c1> </span><span class=\"f8b8f9a c2\">28</span><span class=c2>  </span><span class=f8b8f9a>29</span>\n<span class=\"f8b8f9a c3\">W49</span>     30\n<span class=c1> </span><span class=f8b8f9a><i class=n>✗</i> Fail <i class=n>·</i> <i class=n>▲</i> Warn <i class=n>·</i> <i class=n>○</i> Pending <i class=n>·</i> <i class=n>✓</i> Pass</span>\n<span class=c1> </span><span class=f8b8f9a><i class=n>◆</i> Info <i class=n>·</i> Today 18 Nov</span>",
+        "light": "<span class=\"f111827 B\">November 2026</span>\n\n<span class=\"f6b7280 c4\">Week</span><span class=c4>    </span><span class=\"f374151 B c2\">Mo</span><span class=c2>  </span><span class=\"f374151 B c2\">Tu</span><span class=c2>  </span><span class=\"f374151 B c2\">We</span><span class=c2>  </span><span class=\"f374151 B c2\">Th</span><span class=c2>  </span><span class=\"f374151 B c2\">Fr</span><span class=c2>  </span><span class=\"f374151 B c2\">Sa</span><span class=c2>  </span><span class=\"f374151 B\">Su</span>\n<span class=\"f6b7280 c3\">W44</span><span class=c29>                             </span><span class=f6b7280>01</span>\n<span class=\"f6b7280 c3\">W45</span><span class=c9>     02  </span><span class=\"fffffff k15803d B c2\">03</span><i class=\"n f15803d\">✓</i><span class=c13> 04  05  06  </span><span class=\"f6b7280 c2\">07</span><span class=c2>  </span><span class=f6b7280>08</span>\n<span class=\"f6b7280 c3\">W46</span><span class=c9>     09  </span><span class=\"fffffff kb91c1c B c2\">10</span><i class=\"n fb91c1c\">✗</i><span class=c13> 11  12  13  </span><span class=\"f6b7280 c2\">14</span><span class=c2>  </span><span class=f6b7280>15</span>\n<span class=\"f6b7280 c3\">W47</span><span class=c9>     16  </span><span class=\"fffffff k15803d B c2\">17</span><i class=\"n f15803d\">✓</i><span class=c1> </span><span class=\"f0f172a kd6e4fa B U c2\">18</span><span class=c2>  </span><span class=\"fffffff kb45309 B c2\">19</span><i class=\"n fb45309\">▲</i><span class=c5> 20  </span><span class=\"f6b7280 c2\">21</span><span class=c2>  </span><span class=f6b7280>22</span>\n<span class=\"f6b7280 c3\">W48</span><span class=c9>     23  </span><span class=\"fffffff k0369a1 B c2\">24</span><i class=\"n f0369a1\">◆</i><span class=c9> 25  26  </span><span class=\"fffffff k858590 B c2\">27</span><i class=\"n f858590\">○</i><span class=c1> </span><span class=\"f6b7280 c2\">28</span><span class=c2>  </span><span class=f6b7280>29</span>\n<span class=\"f6b7280 c3\">W49</span>     30\n<span class=c1> </span><span class=f6b7280><i class=n>✗</i> Fail <i class=n>·</i> <i class=n>▲</i> Warn <i class=n>·</i> <i class=n>○</i> Pending <i class=n>·</i> <i class=n>✓</i> Pass</span>\n<span class=c1> </span><span class=f6b7280><i class=n>◆</i> Info <i class=n>·</i> Today 18 Nov</span>"
       },
       "csharpRepo": "Website/examples/widgets/calendar.cs",
       "csharpFluent": "// Each date takes the most severe status of its events; today is outlined.\nvar calendar = Ui.Calendar()\n    .Year(2026)\n    .Month(11)\n    .Marks(new[]\n    {\n        new CalendarMark(new DateTime(2026, 11, 3), StatusKind.Pass, \"Backup verified\"),\n        new CalendarMark(new DateTime(2026, 11, 10), StatusKind.Fail, \"Backup failed\"),\n        new CalendarMark(new DateTime(2026, 11, 17), StatusKind.Pass, \"Backup verified\"),\n        new CalendarMark(new DateTime(2026, 11, 19), StatusKind.Warn, \"Certificate expires\"),\n        new CalendarMark(new DateTime(2026, 11, 24), StatusKind.Info, \"Change window\"),\n        new CalendarMark(new DateTime(2026, 11, 27), StatusKind.Pending, \"Restore drill\")\n    })\n    .FirstDayOfWeek(DayOfWeek.Monday)\n    .Today(new DateTime(2026, 11, 18));\ncalendar.Show();\n",
@@ -1682,8 +1682,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1708,8 +1708,8 @@
       "frame": {
         "w": 60,
         "h": 5,
-        "dark": "<span class=\"f8b8f9a c6\">web-01</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i>\n<span class=\"f8b8f9a c6\">web-02</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n ffbbf24\">▴</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i>\n<span class=\"f8b8f9a c6\">api-01</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c1> </span><i class=\"n f4ade80\">✓</i>\n<span class=\"f8b8f9a c5\">db-01</span><span class=c2>  </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i>\n<span class=\"f4ade80 c10\"><i class=n>✓</i> 8 passed</span><span class=c2>  </span><span class=\"ff87171 c10\"><i class=n>✗</i> 1 failed</span><span class=c2>  </span><span class=\"ffbbf24 c11\"><i class=n>▴</i> 1 warning</span><span class=c2>  </span><span class=fa1a1aa><i class=n>–</i> 6 skipped</span>",
-        "light": "<span class=\"f6b7280 c6\">web-01</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i>\n<span class=\"f6b7280 c6\">web-02</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n fb45309\">▴</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i>\n<span class=\"f6b7280 c6\">api-01</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c1> </span><i class=\"n f15803d\">✓</i>\n<span class=\"f6b7280 c5\">db-01</span><span class=c2>  </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i>\n<span class=\"f15803d c10\"><i class=n>✓</i> 8 passed</span><span class=c2>  </span><span class=\"fb91c1c c10\"><i class=n>✗</i> 1 failed</span><span class=c2>  </span><span class=\"fb45309 c11\"><i class=n>▴</i> 1 warning</span><span class=c2>  </span><span class=f71717a><i class=n>–</i> 6 skipped</span>"
+        "dark": "<span class=\"f8b8f9a c6\">web-01</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i>\n<span class=\"f8b8f9a c6\">web-02</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n ffbbf24\">▲</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i>\n<span class=\"f8b8f9a c6\">api-01</span><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c1> </span><i class=\"n f4ade80\">✓</i>\n<span class=\"f8b8f9a c5\">db-01</span><span class=c2>  </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n fa1a1aa\">–</i><span class=c1> </span><i class=\"n f4ade80\">✓</i><span class=c1> </span><i class=\"n f4ade80\">✓</i>\n<span class=\"f4ade80 c10\"><i class=n>✓</i> 8 passed</span><span class=c2>  </span><span class=\"ff87171 c10\"><i class=n>✗</i> 1 failed</span><span class=c2>  </span><span class=\"ffbbf24 c11\"><i class=n>▲</i> 1 warning</span><span class=c2>  </span><span class=fa1a1aa><i class=n>–</i> 6 skipped</span>",
+        "light": "<span class=\"f6b7280 c6\">web-01</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i>\n<span class=\"f6b7280 c6\">web-02</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n fb45309\">▲</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i>\n<span class=\"f6b7280 c6\">api-01</span><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c1> </span><i class=\"n f15803d\">✓</i>\n<span class=\"f6b7280 c5\">db-01</span><span class=c2>  </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f71717a\">–</i><span class=c1> </span><i class=\"n f15803d\">✓</i><span class=c1> </span><i class=\"n f15803d\">✓</i>\n<span class=\"f15803d c10\"><i class=n>✓</i> 8 passed</span><span class=c2>  </span><span class=\"fb91c1c c10\"><i class=n>✗</i> 1 failed</span><span class=c2>  </span><span class=\"fb45309 c11\"><i class=n>▲</i> 1 warning</span><span class=c2>  </span><span class=f71717a><i class=n>–</i> 6 skipped</span>"
       },
       "csharpRepo": "Website/examples/widgets/cellmap.cs",
       "csharpFluent": "// One cell per host and port, filled row by row, with a legend of counts.\nvar map = Ui.CellMap().Columns(4).LegendLines(2);\nforeach (string host in new[] { \"web-01\", \"web-02\", \"api-01\", \"db-01\" }) {\n    map.RowLabels.Add(host);\n}\nStatusKind[] states = {\n    StatusKind.Pass, StatusKind.Pass, StatusKind.Skip, StatusKind.Skip,\n    StatusKind.Pass, StatusKind.Warn, StatusKind.Skip, StatusKind.Skip,\n    StatusKind.Pass, StatusKind.Pass, StatusKind.Fail, StatusKind.Pass,\n    StatusKind.Skip, StatusKind.Skip, StatusKind.Pass, StatusKind.Pass\n};\nforeach (StatusKind state in states) {\n    map.Add(state);\n}\nmap.Show();\n",
@@ -1753,8 +1753,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1779,8 +1779,8 @@
       "frame": {
         "w": 72,
         "h": 6,
-        "dark": "<span class=\"f4ade80 c12\"><i class=g250c>┌</i><i class=\"g2500 c10\">──────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f8b8f9a c4\">:443</span><span class=c1> </span><span class=\"f4ade80 c11\"><i class=g250c>┌</i><i class=\"g2500 c9\">─────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f8b8f9a c4\">HTTP</span><span class=c1> </span><span class=\"ffbbf24 c9\"><i class=g250c>┌</i><i class=\"g2500 c7\">───────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"ff87171 c9\"><i class=n>✗</i> timeout</span><span class=c1> </span><span class=ff87171><i class=g250c>┌</i><i class=\"g2500 c12\">────────────</i><i class=g2510>┐</i></span>\n<i class=\"g2502 f4ade80\">│</i><span class=c1> </span><span class=\"f4ade80 c8\"><i class=n>✓</i> Client</span><span class=c1> </span><i class=\"g2502 f4ade80\">│</i><span class=\"f8b8f9a c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 f4ade80\">│</i><span class=c1> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> Proxy</span><span class=c1> </span><i class=\"g2502 f4ade80\">│</i><span class=\"f8b8f9a c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 ffbbf24\">│</i><span class=c1> </span><span class=\"ffbbf24 c5\"><i class=n>▴</i> API</span><span class=c1> </span><i class=\"g2502 ffbbf24\">│</i><span class=\"ff87171 c12\"><i class=\"g2500 c4\">────</i> <i class=n>✗</i> <i class=\"g2500 c3\">───</i><i class=n>→</i><i class=g2502>│</i></span><span class=c1> </span><span class=\"ff87171 c10\"><i class=n>✗</i> Database</span><span class=c1> </span><i class=\"g2502 ff87171\">│</i>\n<span class=\"f4ade80 c12\"><i class=g2514>└</i><i class=\"g2500 c10\">──────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"f4ade80 c11\"><i class=g2514>└</i><i class=\"g2500 c9\">─────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"ffbbf24 c9\"><i class=g2514>└</i><i class=\"g2500 c7\">───────</i><i class=g2518>┘</i></span><span class=c11>           </span><span class=ff87171><i class=g2514>└</i><i class=\"g2500 c12\">────────────</i><i class=g2518>┘</i></span>\n<span class=c62>                                                              </span><i class=\"g2502 ff87171\">│</i>\n<span class=c62>                                                              </span><span class=ff87171><i class=g2514>└</i><i class=\"g2500 c2\">──</i><i class=n>→</i></span>\n<span class=c54>                                                      </span><span class=ff87171><i class=n>✗</i> listener stopped</span>",
-        "light": "<span class=\"f15803d c12\"><i class=g250c>┌</i><i class=\"g2500 c10\">──────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f6b7280 c4\">:443</span><span class=c1> </span><span class=\"f15803d c11\"><i class=g250c>┌</i><i class=\"g2500 c9\">─────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f6b7280 c4\">HTTP</span><span class=c1> </span><span class=\"fb45309 c9\"><i class=g250c>┌</i><i class=\"g2500 c7\">───────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"fb91c1c c9\"><i class=n>✗</i> timeout</span><span class=c1> </span><span class=fb91c1c><i class=g250c>┌</i><i class=\"g2500 c12\">────────────</i><i class=g2510>┐</i></span>\n<i class=\"g2502 f15803d\">│</i><span class=c1> </span><span class=\"f15803d c8\"><i class=n>✓</i> Client</span><span class=c1> </span><i class=\"g2502 f15803d\">│</i><span class=\"f6b7280 c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 f15803d\">│</i><span class=c1> </span><span class=\"f15803d c7\"><i class=n>✓</i> Proxy</span><span class=c1> </span><i class=\"g2502 f15803d\">│</i><span class=\"f6b7280 c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 fb45309\">│</i><span class=c1> </span><span class=\"fb45309 c5\"><i class=n>▴</i> API</span><span class=c1> </span><i class=\"g2502 fb45309\">│</i><span class=\"fb91c1c c12\"><i class=\"g2500 c4\">────</i> <i class=n>✗</i> <i class=\"g2500 c3\">───</i><i class=n>→</i><i class=g2502>│</i></span><span class=c1> </span><span class=\"fb91c1c c10\"><i class=n>✗</i> Database</span><span class=c1> </span><i class=\"g2502 fb91c1c\">│</i>\n<span class=\"f15803d c12\"><i class=g2514>└</i><i class=\"g2500 c10\">──────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"f15803d c11\"><i class=g2514>└</i><i class=\"g2500 c9\">─────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"fb45309 c9\"><i class=g2514>└</i><i class=\"g2500 c7\">───────</i><i class=g2518>┘</i></span><span class=c11>           </span><span class=fb91c1c><i class=g2514>└</i><i class=\"g2500 c12\">────────────</i><i class=g2518>┘</i></span>\n<span class=c62>                                                              </span><i class=\"g2502 fb91c1c\">│</i>\n<span class=c62>                                                              </span><span class=fb91c1c><i class=g2514>└</i><i class=\"g2500 c2\">──</i><i class=n>→</i></span>\n<span class=c54>                                                      </span><span class=fb91c1c><i class=n>✗</i> listener stopped</span>"
+        "dark": "<span class=\"f4ade80 c12\"><i class=g250c>┌</i><i class=\"g2500 c10\">──────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f8b8f9a c4\">:443</span><span class=c1> </span><span class=\"f4ade80 c11\"><i class=g250c>┌</i><i class=\"g2500 c9\">─────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f8b8f9a c4\">HTTP</span><span class=c1> </span><span class=\"ffbbf24 c9\"><i class=g250c>┌</i><i class=\"g2500 c7\">───────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"ff87171 c7\">timeout</span><span class=c1> </span><span class=ff87171><i class=g250c>┌</i><i class=\"g2500 c12\">────────────</i><i class=g2510>┐</i></span>\n<i class=\"g2502 f4ade80\">│</i><span class=c1> </span><span class=\"f4ade80 c8\"><i class=n>✓</i> Client</span><span class=c1> </span><i class=\"g2502 f4ade80\">│</i><span class=\"f8b8f9a c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 f4ade80\">│</i><span class=c1> </span><span class=\"f4ade80 c7\"><i class=n>✓</i> Proxy</span><span class=c1> </span><i class=\"g2502 f4ade80\">│</i><span class=\"f8b8f9a c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 ffbbf24\">│</i><span class=c1> </span><span class=\"ffbbf24 c5\"><i class=n>▲</i> API</span><span class=c1> </span><i class=\"g2502 ffbbf24\">│</i><span class=\"ff87171 c10\"><i class=\"g2500 c3\">───</i> <i class=n>✗</i> <i class=\"g2500 c2\">──</i><i class=n>→</i><i class=g2502>│</i></span><span class=c1> </span><span class=\"ff87171 c10\"><i class=n>✗</i> Database</span><span class=c1> </span><i class=\"g2502 ff87171\">│</i>\n<span class=\"f4ade80 c12\"><i class=g2514>└</i><i class=\"g2500 c10\">──────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"f4ade80 c11\"><i class=g2514>└</i><i class=\"g2500 c9\">─────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"ffbbf24 c9\"><i class=g2514>└</i><i class=\"g2500 c7\">───────</i><i class=g2518>┘</i></span><span class=c9>         </span><span class=ff87171><i class=g2514>└</i><i class=\"g2500 c12\">────────────</i><i class=g2518>┘</i></span>\n<span class=c60>                                                            </span><i class=\"g2502 ff87171\">│</i>\n<span class=c60>                                                            </span><span class=ff87171><i class=g2514>└</i><i class=\"g2500 c2\">──</i><i class=n>→</i></span>\n<span class=c54>                                                      </span><span class=ff87171><i class=n>✗</i> listener stopped</span>",
+        "light": "<span class=\"f15803d c12\"><i class=g250c>┌</i><i class=\"g2500 c10\">──────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f6b7280 c4\">:443</span><span class=c1> </span><span class=\"f15803d c11\"><i class=g250c>┌</i><i class=\"g2500 c9\">─────────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"f6b7280 c4\">HTTP</span><span class=c1> </span><span class=\"fb45309 c9\"><i class=g250c>┌</i><i class=\"g2500 c7\">───────</i><i class=g2510>┐</i></span><span class=c1> </span><span class=\"fb91c1c c7\">timeout</span><span class=c1> </span><span class=fb91c1c><i class=g250c>┌</i><i class=\"g2500 c12\">────────────</i><i class=g2510>┐</i></span>\n<i class=\"g2502 f15803d\">│</i><span class=c1> </span><span class=\"f15803d c8\"><i class=n>✓</i> Client</span><span class=c1> </span><i class=\"g2502 f15803d\">│</i><span class=\"f6b7280 c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 f15803d\">│</i><span class=c1> </span><span class=\"f15803d c7\"><i class=n>✓</i> Proxy</span><span class=c1> </span><i class=\"g2502 f15803d\">│</i><span class=\"f6b7280 c6\"><i class=\"g2500 c5\">─────</i><i class=n>→</i></span><i class=\"g2502 fb45309\">│</i><span class=c1> </span><span class=\"fb45309 c5\"><i class=n>▲</i> API</span><span class=c1> </span><i class=\"g2502 fb45309\">│</i><span class=\"fb91c1c c10\"><i class=\"g2500 c3\">───</i> <i class=n>✗</i> <i class=\"g2500 c2\">──</i><i class=n>→</i><i class=g2502>│</i></span><span class=c1> </span><span class=\"fb91c1c c10\"><i class=n>✗</i> Database</span><span class=c1> </span><i class=\"g2502 fb91c1c\">│</i>\n<span class=\"f15803d c12\"><i class=g2514>└</i><i class=\"g2500 c10\">──────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"f15803d c11\"><i class=g2514>└</i><i class=\"g2500 c9\">─────────</i><i class=g2518>┘</i></span><span class=c6>      </span><span class=\"fb45309 c9\"><i class=g2514>└</i><i class=\"g2500 c7\">───────</i><i class=g2518>┘</i></span><span class=c9>         </span><span class=fb91c1c><i class=g2514>└</i><i class=\"g2500 c12\">────────────</i><i class=g2518>┘</i></span>\n<span class=c60>                                                            </span><i class=\"g2502 fb91c1c\">│</i>\n<span class=c60>                                                            </span><span class=fb91c1c><i class=g2514>└</i><i class=\"g2500 c2\">──</i><i class=n>→</i></span>\n<span class=c54>                                                      </span><span class=fb91c1c><i class=n>✗</i> listener stopped</span>"
       },
       "csharpRepo": "Website/examples/widgets/flow.cs",
       "csharpFluent": "// Steps joined by labelled connections; a cut connection shows where the path breaks.\nvar flow = Ui.Flow()\n    .Node(\"client\", \"Client\", StatusKind.Pass)\n    .Node(\"proxy\", \"Proxy\", StatusKind.Pass)\n    .Node(\"api\", \"API\", StatusKind.Warn)\n    .Node(\"db\", \"Database\", StatusKind.Fail)\n    .Edge(\"client\", \"proxy\", \":443\")\n    .Edge(\"proxy\", \"api\", \"HTTP\")\n    .Edge(\"api\", \"db\", \"timeout\", StatusKind.Fail, true)\n    .Branch(new FlowBranch(\"db\", \"listener stopped\", default, StatusKind.Fail));\nflow.Show();\n",
@@ -1832,8 +1832,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1858,8 +1858,8 @@
       "frame": {
         "w": 72,
         "h": 4,
-        "dark": "<i class=\"n f4ade80\">✓</i><span class=c7> DC01  </span><i class=\"g2501 c20 f8b8f9a\">━━━━━━━━━━━━━━━━━━━━</i><span class=c1> </span><span class=\"f8b8f9a c4\">100%</span><span class=c2>  </span><span class=\"f8b8f9a c3\"><i class=n>✓</i>40</span><span class=c1> </span><i class=\"n f8b8f9a\">✗</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c1> </span><i class=\"n f8b8f9a\">▴</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c2>  </span><span class=f8b8f9a>done</span>\n<i class=\"g2819 f60a5fa\">⠙</i><span class=c7> DC02  </span><i class=\"g2501 c11 f60a5fa\">━━━━━━━━━━━</i><i class=\"g2500 c9 f3a3d45\">─────────</i><span class=c2>  </span><span class=\"f8b8f9a c3\">55%</span><span class=c2>  </span><span class=\"f8b8f9a c3\"><i class=n>✓</i>21</span><span class=c1> </span><i class=\"n f8b8f9a\">✗</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c1> </span><i class=\"n ffbbf24\">▴</i><span class=c1> </span><span class=\"ffbbf24 c1\">1</span><span class=c2>  </span><span class=f8b8f9a>replication</span>\n<i class=\"g2839 f60a5fa\">⠹</i><span class=c7> DC03  </span><span class=\"f60a5fa c5\"><i class=\"g2501 c4\">━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c15 f3a3d45\">───────────────</i><span class=c2>  </span><span class=\"f8b8f9a c3\">22%</span><span class=c2>  </span><i class=\"n f8b8f9a\">✓</i><span class=c1> </span><span class=\"f8b8f9a c1\">7</span><span class=c1> </span><i class=\"n ff87171\">✗</i><span class=c1> </span><span class=\"ff87171 c1\">2</span><span class=c1> </span><i class=\"n f8b8f9a\">▴</i><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c2>  </span><span class=f8b8f9a>DNS records</span>\n<i class=\"n f71717a\">○</i><span class=c1> </span><span class=\"f8b8f9a c4\">DC04</span><span class=c2>  </span><i class=\"g2500 c20 f3a3d45\">────────────────────</i><span class=c20>                    </span><span class=f8b8f9a>queued</span>",
-        "light": "<i class=\"n f15803d\">✓</i><span class=c7> DC01  </span><i class=\"g2501 c20 f6b7280\">━━━━━━━━━━━━━━━━━━━━</i><span class=c1> </span><span class=\"f6b7280 c4\">100%</span><span class=c2>  </span><span class=\"f6b7280 c3\"><i class=n>✓</i>40</span><span class=c1> </span><i class=\"n f6b7280\">✗</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c1> </span><i class=\"n f6b7280\">▴</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c2>  </span><span class=f6b7280>done</span>\n<i class=\"g2819 f2563eb\">⠙</i><span class=c7> DC02  </span><i class=\"g2501 c11 f2563eb\">━━━━━━━━━━━</i><i class=\"g2500 c9 fd4d4d8\">─────────</i><span class=c2>  </span><span class=\"f6b7280 c3\">55%</span><span class=c2>  </span><span class=\"f6b7280 c3\"><i class=n>✓</i>21</span><span class=c1> </span><i class=\"n f6b7280\">✗</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c1> </span><i class=\"n fb45309\">▴</i><span class=c1> </span><span class=\"fb45309 c1\">1</span><span class=c2>  </span><span class=f6b7280>replication</span>\n<i class=\"g2839 f2563eb\">⠹</i><span class=c7> DC03  </span><span class=\"f2563eb c5\"><i class=\"g2501 c4\">━━━━</i><i class=g257e>╾</i></span><i class=\"g2500 c15 fd4d4d8\">───────────────</i><span class=c2>  </span><span class=\"f6b7280 c3\">22%</span><span class=c2>  </span><i class=\"n f6b7280\">✓</i><span class=c1> </span><span class=\"f6b7280 c1\">7</span><span class=c1> </span><i class=\"n fb91c1c\">✗</i><span class=c1> </span><span class=\"fb91c1c c1\">2</span><span class=c1> </span><i class=\"n f6b7280\">▴</i><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c2>  </span><span class=f6b7280>DNS records</span>\n<i class=\"n f858590\">○</i><span class=c1> </span><span class=\"f6b7280 c4\">DC04</span><span class=c2>  </span><i class=\"g2500 c20 fd4d4d8\">────────────────────</i><span class=c20>                    </span><span class=f6b7280>queued</span>"
+        "dark": "<i class=\"n f4ade80\">✓</i><span class=c7> DC01  </span><i class=\"g2501 c19 f8b8f9a\">━━━━━━━━━━━━━━━━━━━</i><span class=c1> </span><span class=\"f8b8f9a c4\">100%</span><span class=c2>  </span><span class=\"f8b8f9a c4\"><i class=n>✓</i> 40</span><span class=c1> </span><span class=\"f8b8f9a c2\"><i class=n>✗</i> </span><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c1> </span><span class=\"f8b8f9a c2\"><i class=n>▲</i> </span><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c2>  </span><span class=f8b8f9a>done</span>\n<i class=\"g2819 f60a5fa\">⠙</i><span class=c7> DC02  </span><span class=\"f60a5fa c11\"><i class=\"g2501 c10\">━━━━━━━━━━</i><i class=g2578>╸</i></span><i class=\"g2500 c8 f3a3d45\">────────</i><span class=c2>  </span><span class=\"f8b8f9a c3\">55%</span><span class=c2>  </span><span class=\"f8b8f9a c4\"><i class=n>✓</i> 21</span><span class=c1> </span><span class=\"f8b8f9a c2\"><i class=n>✗</i> </span><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c1> </span><span class=\"ffbbf24 c2\"><i class=n>▲</i> </span><span class=c1> </span><span class=\"ffbbf24 c1\">1</span><span class=c2>  </span><span class=f8b8f9a>replication</span>\n<i class=\"g2839 f60a5fa\">⠹</i><span class=c7> DC03  </span><span class=\"f60a5fa c5\"><i class=\"g2501 c4\">━━━━</i><i class=g2578>╸</i></span><i class=\"g2500 c14 f3a3d45\">──────────────</i><span class=c2>  </span><span class=\"f8b8f9a c3\">22%</span><span class=c2>  </span><span class=\"f8b8f9a c2\"><i class=n>✓</i> </span><span class=c1> </span><span class=\"f8b8f9a c1\">7</span><span class=c1> </span><span class=\"ff87171 c2\"><i class=n>✗</i> </span><span class=c1> </span><span class=\"ff87171 c1\">2</span><span class=c1> </span><span class=\"f8b8f9a c2\"><i class=n>▲</i> </span><span class=c1> </span><span class=\"f8b8f9a c1\">0</span><span class=c2>  </span><span class=f8b8f9a>DNS records</span>\n<i class=\"n f71717a\">○</i><span class=c1> </span><span class=\"f8b8f9a c4\">DC04</span><span class=c2>  </span><i class=\"g2500 c19 f3a3d45\">───────────────────</i><span class=c23>                       </span><span class=f8b8f9a>queued</span>",
+        "light": "<i class=\"n f15803d\">✓</i><span class=c7> DC01  </span><i class=\"g2501 c19 f6b7280\">━━━━━━━━━━━━━━━━━━━</i><span class=c1> </span><span class=\"f6b7280 c4\">100%</span><span class=c2>  </span><span class=\"f6b7280 c4\"><i class=n>✓</i> 40</span><span class=c1> </span><span class=\"f6b7280 c2\"><i class=n>✗</i> </span><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c1> </span><span class=\"f6b7280 c2\"><i class=n>▲</i> </span><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c2>  </span><span class=f6b7280>done</span>\n<i class=\"g2819 f2563eb\">⠙</i><span class=c7> DC02  </span><span class=\"f2563eb c11\"><i class=\"g2501 c10\">━━━━━━━━━━</i><i class=g2578>╸</i></span><i class=\"g2500 c8 fd4d4d8\">────────</i><span class=c2>  </span><span class=\"f6b7280 c3\">55%</span><span class=c2>  </span><span class=\"f6b7280 c4\"><i class=n>✓</i> 21</span><span class=c1> </span><span class=\"f6b7280 c2\"><i class=n>✗</i> </span><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c1> </span><span class=\"fb45309 c2\"><i class=n>▲</i> </span><span class=c1> </span><span class=\"fb45309 c1\">1</span><span class=c2>  </span><span class=f6b7280>replication</span>\n<i class=\"g2839 f2563eb\">⠹</i><span class=c7> DC03  </span><span class=\"f2563eb c5\"><i class=\"g2501 c4\">━━━━</i><i class=g2578>╸</i></span><i class=\"g2500 c14 fd4d4d8\">──────────────</i><span class=c2>  </span><span class=\"f6b7280 c3\">22%</span><span class=c2>  </span><span class=\"f6b7280 c2\"><i class=n>✓</i> </span><span class=c1> </span><span class=\"f6b7280 c1\">7</span><span class=c1> </span><span class=\"fb91c1c c2\"><i class=n>✗</i> </span><span class=c1> </span><span class=\"fb91c1c c1\">2</span><span class=c1> </span><span class=\"f6b7280 c2\"><i class=n>▲</i> </span><span class=c1> </span><span class=\"f6b7280 c1\">0</span><span class=c2>  </span><span class=f6b7280>DNS records</span>\n<i class=\"n f858590\">○</i><span class=c1> </span><span class=\"f6b7280 c4\">DC04</span><span class=c2>  </span><i class=\"g2500 c19 fd4d4d8\">───────────────────</i><span class=c23>                       </span><span class=f6b7280>queued</span>"
       },
       "csharpRepo": "Website/examples/widgets/lanes.cs",
       "csharpFluent": "// One lane per worker: its own bar, counts and current detail.\nvar lanes = Ui.Lanes(\"servers\");\nLane dc01 = lanes.Add(\"DC01\", \"DC01\", 40).Value(40).Passed(40).Status(StatusKind.Pass);\nLane dc02 = lanes.Add(\"DC02\", \"DC02\", 40)\n    .Value(22)\n    .Passed(21)\n    .Warned(1)\n    .Status(StatusKind.Running)\n    .Detail(\"replication\");\nLane dc03 = lanes.Add(\"DC03\", \"DC03\", 40)\n    .Value(9)\n    .Passed(7)\n    .Failed(2)\n    .Status(StatusKind.Running)\n    .Detail(\"DNS records\");\nlanes.Add(\"DC04\", \"DC04\", 40);\nlanes.Show();\n",
@@ -1911,8 +1911,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {
@@ -1937,8 +1937,8 @@
       "frame": {
         "w": 84,
         "h": 1,
-        "dark": "<i class=\"g2501 c15 f60a5fa\">━━━━━━━━━━━━━━━</i><i class=\"g2500 c5 f3a3d45\">─────</i><span class=c12>  30/40  75%</span><span class=\"f8b8f9a c15\">  ~14s left  <i class=n>·</i> </span><span class=\"f4ade80 c11\"><i class=n>✓</i> 27 passed</span><span class=\"f8b8f9a c2\">  </span><span class=\"ff87171 c10\"><i class=n>✗</i> 2 failed</span><span class=\"f8b8f9a c2\">  </span><span class=fa1a1aa><i class=n>–</i> 1 skipped</span>",
-        "light": "<i class=\"g2501 c15 f2563eb\">━━━━━━━━━━━━━━━</i><i class=\"g2500 c5 fd4d4d8\">─────</i><span class=c12>  30/40  75%</span><span class=\"f6b7280 c15\">  ~14s left  <i class=n>·</i> </span><span class=\"f15803d c11\"><i class=n>✓</i> 27 passed</span><span class=\"f6b7280 c2\">  </span><span class=\"fb91c1c c10\"><i class=n>✗</i> 2 failed</span><span class=\"f6b7280 c2\">  </span><span class=f71717a><i class=n>–</i> 1 skipped</span>"
+        "dark": "<i class=\"g2501 c15 f60a5fa\">━━━━━━━━━━━━━━━</i><i class=\"g2500 c5 f3a3d45\">─────</i><span class=c3>   </span><span class=\"B c5\">30/40</span><span class=\"f8b8f9a c3\"> <i class=n>·</i> </span><span class=\"B c3\">75%</span><span class=\"f8b8f9a c17\"> <i class=n>·</i> ~14s left <i class=n>·</i> <i class=n>✓</i> </span><span class=\"f4ade80 B c2\">27</span><span class=\"f4ade80 c7\"> passed</span><span class=\"f8b8f9a c5\"> <i class=n>·</i> <i class=n>✗</i> </span><span class=\"ff87171 B c1\">2</span><span class=ff87171> failed</span>",
+        "light": "<i class=\"g2501 c15 f2563eb\">━━━━━━━━━━━━━━━</i><i class=\"g2500 c5 fd4d4d8\">─────</i><span class=c3>   </span><span class=\"B c5\">30/40</span><span class=\"f6b7280 c3\"> <i class=n>·</i> </span><span class=\"B c3\">75%</span><span class=\"f6b7280 c17\"> <i class=n>·</i> ~14s left <i class=n>·</i> <i class=n>✓</i> </span><span class=\"f15803d B c2\">27</span><span class=\"f15803d c7\"> passed</span><span class=\"f6b7280 c5\"> <i class=n>·</i> <i class=n>✗</i> </span><span class=\"fb91c1c B c1\">2</span><span class=fb91c1c> failed</span>"
       },
       "csharpRepo": "Website/examples/widgets/summarybar.cs",
       "csharpFluent": "// One line for the whole run: a bar, counters, elapsed time and the time left.\nvar summary = Ui.SummaryBar()\n    .Elapsed(TimeSpan.FromSeconds(42))\n    .SetProgress(30, 40)\n    .SetCounter(\"passed\", 27, StatusKind.Pass)\n    .SetCounter(\"failed\", 2, StatusKind.Fail)\n    .SetCounter(\"skipped\", 1, StatusKind.Skip);\nsummary.Show();\n",
@@ -1989,8 +1989,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.6",
-          "version": "7.6",
+          "host": "PowerShell 7.5",
+          "version": "7.5",
           "identical": true
         },
         "ps5": {

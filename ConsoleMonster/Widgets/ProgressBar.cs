@@ -8,7 +8,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
-    /// A labelled progress bar with percentage and count: <c>Build  ████████▌░░░░  64%  32/50</c>.
+    /// A labelled Line bar with a track and one value: <c>Build  ━━━━━━━╾──────  32/50</c>, or a percentage for a total of 100.
     /// Live operations: <c>set</c> (Value, Total), <c>advance</c> (Value = amount), <c>label</c> (Text), <c>state</c> (State).
     /// </summary>
     public sealed class ProgressBar : LiveWidget, ILiveSummary, Output.ITaskbarProgressSource {
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The status; Pass/Fail/Warn change the bar colour once finished.</summary>
         public StatusKind Status { get; set; } = StatusKind.Running;
 
-        /// <summary>Whether the <c>value/total</c> count is shown (default true).</summary>
+        /// <summary>Whether totals other than 100 show value/total (default true); false shows a percentage. A total of 100 always shows only a percentage.</summary>
         public bool ShowCount { get; set; } = true;
 
         /// <summary>The bar shape: <see cref="BarShape.Line"/> (default, a thin stroke) or <see cref="BarShape.Block"/> (solid blocks).</summary>
@@ -158,8 +158,8 @@ namespace ConsoleMonster.Widgets {
         /// <inheritdoc />
         public override string? Describe(LiveEvent liveEvent) {
             if (liveEvent.Operation == "state" && Status != StatusKind.Running && Status != StatusKind.Pending) {
-                string count = ShowCount ? " " + NumberFormat.Compact(Value) + "/" + NumberFormat.Compact(Total) : string.Empty;
-                return Markup.Strip(Label) + " " + Status.ToWord() + " " + NumberFormat.Percent(Fraction) + count;
+                string count = ShowCount && Total != 100 ? " " + NumberFormat.Compact(Value) + "/" + NumberFormat.Compact(Total) : string.Empty;
+                return Markup.Strip(Label) + " " + Status.ToWord() + " " + (count.Length > 0 ? count.TrimStart() : NumberFormat.Percent(Fraction));
             }
             return null;
         }
@@ -178,7 +178,7 @@ namespace ConsoleMonster.Widgets {
                 ProgressLayout.Draw(region, 0, Columns, ProgressLayout.Arrange(Columns, rows, region.Width, context), row, context);
                 return;
             }
-            StyledLine label = context.Markup(Label).Lines[0];
+            StyledLine label = context.Markup(Label).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
             int labelWidth = LabelWidth ?? label.Width;
             string tail = Tail();
             int tailWidth = DisplayWidth.Measure(tail);
@@ -194,18 +194,18 @@ namespace ConsoleMonster.Widgets {
             }
             ThemeToken role = Status == StatusKind.Running || Status == StatusKind.Pending ? ThemeToken.Accent : Status.ToToken();
             BarDrawer.Draw(region, barX, 0, barWidth, Fraction, context.Style(role), context, true, Shape);
-            region.Write(region.Width - tailWidth, 0, tail, context.Style(ThemeToken.Muted));
+            region.Write(region.Width - tailWidth, 0, tail, context.Style(ThemeToken.Text));
         }
 
         private string Tail() {
             string percent = NumberFormat.Percent(Fraction).PadLeft(4);
-            if (!ShowCount) {
+            if (!ShowCount || Total == 100) {
                 return percent;
             }
             string value = NumberFormat.Compact(Value);
             string total = NumberFormat.Compact(Total);
             int width = _countColumn.Resolve(DisplayWidth.Measure(value), 0, DisplayWidth.Measure(total));
-            return percent + "  " + StatColumn.Pad(value, width, CountColumn.Alignment) + "/" + total;
+            return StatColumn.Pad(value, width, CountColumn.Alignment) + "/" + total;
         }
     }
 }

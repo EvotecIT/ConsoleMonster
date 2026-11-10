@@ -221,7 +221,7 @@ void Execute(MenuContext context, List<Work> work)
         {
             c2.Add(body);
         })
-        .Title("[bold]Server toolbox[/]")
+        .Title("[accent bold]Server toolbox[/]")
         .Subtitle(domain)
         .Footer("Ctrl+C cancel · results keep the findings");
     bool completed = false;

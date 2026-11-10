@@ -23,6 +23,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Use Kitty graphics in a terminal that supports it but isn't detected</para>
     ///   <code>Show-ConsoleImage -Path ./diagram.png -Protocol Kitty</code>
     /// </example>
+    /// <example>
+    ///   <para>Show an image from an open stream, leaving it open for the caller</para>
+    ///   <code>Show-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</code>
+    /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleImage", DefaultParameterSetName = "Path")]
     public sealed class CmdletShowConsoleImage : ConsoleImageCommand {
         /// <summary><para type="description">The protocol your terminal supports, when detection chose another one: Kitty, ITerm2, Sixel, HalfBlock or None (the placeholder). Redirected and CI output keep the placeholder.</para></summary>

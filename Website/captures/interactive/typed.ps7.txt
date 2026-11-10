@@ -1,31 +1,31 @@
-source 9e2957836e6682446752f1dc69bb9d2b
-▴ Remove FS01 from the inventory?
+source 9e2957836e668244d337ddfbe9ecd37a
+▲ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm
   ›
-  enter confirm  esc cancel03b8430eb0b47534
-▴ Remove FS01 from the inventory?
+  enter confirm  esc cancel323eefef1ca05b51
+▲ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm
   › F
-  enter confirm  esc cancel3e27e8b66f3f97b8
-▴ Remove FS01 from the inventory?
+  enter confirm  esc cancel6087b0a00c72a9f5
+▲ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm
   › FS
-  enter confirm  esc cancel6b66c93c328db922
-▴ Remove FS01 from the inventory?
+  enter confirm  esc cancel08c1e431f961a39e
+▲ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm
   › FS0
-  enter confirm  esc cancel6b24213c4e8119d8
-▴ Remove FS01 from the inventory?
+  enter confirm  esc cancele18e65c11b106b38
+▲ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm
   › FS0
   ✗ That doesn't match FS01.
-  enter confirm  esc cancel8e91e478559f45c4
-▴ Remove FS01 from the inventory?
+  enter confirm  esc cancel250c6cfbbb1b5f30
+▲ Remove FS01 from the inventory?
   Its history and reports are deleted too. This cannot be undone.
   Type FS01 to confirm
   › FS01

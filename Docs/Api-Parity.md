@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **111 commands**, **1232 parameters** and **375 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **118 commands**, **1261 parameters** and **384 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -67,6 +67,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleSplitter` | `Ui.Splitter()` | `c.Splitter(splitter => …)` |
 | `New-ConsoleAccordion` | `Ui.Accordion()` | `c.Accordion(accordion => …)` |
 | `New-ConsoleDashboardFrame` | `Ui.DashboardFrame()` | `c.DashboardFrame(dashboardFrame => …)` |
+| `New-ConsoleFacts` | `Ui.Facts()` | `c.Facts(facts => …)` |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |
@@ -193,6 +194,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.SecretPrompt.AllowReveal` | CSharpOnly: Changing whether a secret can be revealed is a C# embedding-host policy; the PowerShell secret question retains its secure default. | Read-ConsoleText -AsSecret keeps the masked secret entry policy. |
 | `ConsoleMonster.Interactive.TypedConfirmPrompt.CaseSensitive` | CSharpOnly: A custom case-sensitive confirmation belongs to a C# host; the shell uses the conventional case-insensitive name comparison. | Read-ConsoleConfirm -TypedConfirmation uses the default case-insensitive comparison. |
 | `ConsoleMonster.Layout.Responsive.Fallback` | CSharpOnly: Breakpoint layouts are composed by C# views that hold several alternative widgets; a script draws once for the width it already knows. | Build the layout for $Host.UI.RawUI.WindowSize.Width in the script, or register a C# view that uses Responsive. |
+| `ConsoleMonster.Frames.AttentionList.Groups` | CSharpOnly: Counted groups come from an AttentionTally that a C# default view keeps while rows stream; PowerShell records reach New-ConsoleDashboardFrame whole. | Pass every record to New-ConsoleDashboardFrame, which groups identical reasons itself, or register a C# view that uses AttentionTally. |
 | `ConsoleMonster.Layout.Steady.Content` | CSharpOnly: Holding a live region's size needs the same widget instance across frames, which C# live views keep. | Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady. |
 | `ConsoleMonster.Layout.Steady.MinHeight` | CSharpOnly: Holding a live region's size needs the same widget instance across frames, which C# live views keep. | Give New-ConsolePanel a fixed -Height, or register a C# view that uses Steady. |
 | `ConsoleMonster.Live.LiveEvent.Payload` | CSharpOnly: Payload carries an in-process object for custom ILiveTarget handling and is absent from the recording wire protocol. Update-Console exposes validated update fields rather than a raw payload parameter. | Use Update-Console for validated updates, or construct a ConsoleMonster.Live.LiveEvent and call LiveSession.Post for the explicit raw protocol; Payload is not serialized. |
@@ -640,6 +642,9 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Interactive.PromptLabels.LinkUnavailable` | CSharpOnly: Native prompt hosts can replace the 'Cannot open {0}' caption (A document link that leads nowhere the viewer can open: {0} is its target.) independently of the language catalogue; PowerShell retains its built-in translated wording. | Select the Prompt.LinkUnavailable catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording. |
 | `ConsoleMonster.Headless.HeadlessTerminal.Theme` | CSharpOnly: Invoke-ConsoleHeadless draws with the default dark theme so test screens are the same on every machine; a C# test that checks another theme sets it on its terminal. | Compare text and cells from the dark run, or drive the app from C# with HeadlessTerminal.Theme set. |
 | `ConsoleMonster.ConsoleSettings.FilePath` | CSharpOnly: An application or test pins or ignores the settings file for its own process before it first draws. | Set CONSOLEMONSTER_SETTINGS to a file path, or to none, before importing the module. |
+| `ConsoleMonster.Styling.ThemeCheckOptions.GlyphTier` | Host policy: The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly. | Use Set-ConsoleSetting Glyphs before Test-ConsoleTheme. |
+| `ConsoleMonster.Styling.ThemeCheckOptions.StatusMarkers` | Host policy: The PowerShell checker uses the effective terminal profile; embedding hosts can supply rendering conditions explicitly. | Use Set-ConsoleSetting StatusMarkers before Test-ConsoleTheme. |
+| `ConsoleMonster.Styling.Theme.Terminal` | Preset: The terminal-palette preset is selected by Set-ConsoleTheme Terminal. | Use Set-ConsoleTheme Terminal or Set-ConsoleSetting Theme Terminal. |
 
 ## .NET host integrations
 
@@ -664,3 +669,17 @@ The PowerShell formatting, help and progress examples run inside a compiled PSCm
 | `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.LogRegion` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
 | `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.Profile` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
 | `ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggerOptions.Writer` (ConsoleMonster.Extensions.Logging) | `dotnet run`: The Microsoft.Extensions.Logging provider receives ILogger categories, scopes and event IDs; PowerShell uses its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.TimestampFormat` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.UseUtcTimestamp` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.IncludeCategory` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.MaxExceptionLines` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.LogRegion` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.Profile` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions.Writer` (ConsoleMonster.Extensions.Serilog) | `dotnet run`: Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.TimestampFormat` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.UseUtcTimestamp` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.IncludeCategory` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.MaxExceptionLines` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.LogRegion` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.Profile` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |
+| `ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget.Writer` (ConsoleMonster.Extensions.NLog) | `dotnet run`: NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters. |

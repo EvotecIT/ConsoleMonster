@@ -1,6 +1,7 @@
 // Show the same task data as plain text and a formatted table.
 // All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
@@ -13,6 +14,9 @@ var tasks = new TaskItem[]
     new("Review examples", "In progress", 25),
     new("Archive old drafts", "Waiting", 8)
 };
+
+string separator = Terminal.GetCurrentProfile().Glyphs == GlyphTier.Ascii
+    ? "|" : "·";
 
 // Layout: compose the screen from the data above.
 string baseline = "";
@@ -33,10 +37,11 @@ foreach (var task in tasks)
 
 Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
-    c.Rule("[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]");
-    c.Markup("[bold]Before[/] [muted]| plain text[/]");
+    c.Rule(($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer "
+        + $"output[/]"));
+    c.Markup($"[bold]Before[/] [muted]{separator} plain text[/]");
     c.Markup(baseline);
-    c.Markup("[bold]After[/] [muted]| ConsoleMonster table[/]");
+    c.Markup($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]");
     c.Add(table);
     c.Markup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
 });

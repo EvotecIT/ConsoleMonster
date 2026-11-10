@@ -55,6 +55,10 @@ namespace SiteFrames.Capture {
                     _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Markdown.MarkdownConsole).Assembly.Location));
                     _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Graphics.ConsoleGraphicsExtensions).Assembly.Location));
                     _references.Add(MetadataReference.CreateFromFile(typeof(ChartForgeX.Raster.RgbaImage).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Extensions.Serilog.ConsoleMonsterSink).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(Serilog.LoggerConfiguration).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget).Assembly.Location));
+                    _references.Add(MetadataReference.CreateFromFile(typeof(NLog.LogFactory).Assembly.Location));
                 }
                 return _references;
             }
@@ -194,6 +198,7 @@ namespace SiteFrames.Capture {
                 Console.SetOut(stray);
                 Console.SetError(stray);
                 Console.SetIn(TextReader.Null);
+                using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None))
                 using (Terminal.Use(target)) {
                     // A program with top-level await still has a synchronous entry point that waits for it.
                     entry.Invoke(null, entry.GetParameters().Length == 0 ? null : new object[] { arguments ?? Array.Empty<string>() });

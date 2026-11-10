@@ -258,6 +258,7 @@ BeforeAll {
             foreach ($item in $Node) { Get-JsonPowerShellString -Node $item -Name $Name }
             return
         }
+        if ($Node -isnot [System.Management.Automation.PSCustomObject]) { return }
         foreach ($property in $Node.PSObject.Properties) {
             Get-JsonPowerShellString -Node $property.Value -Name $property.Name
         }
@@ -539,6 +540,8 @@ Describe 'Examples run headless' -Tag 'Examples' {
         }
         $script = @"
 foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }
+# Readiness markers and output assertions below use English, regardless of the host UI language.
+`$env:CONSOLEMONSTER_LANGUAGE = 'en'
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
 `$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
 Import-Module ConsoleMonster -Force
@@ -631,6 +634,18 @@ Describe 'Examples use the PowerShell cmdlet form' -Tag 'Examples' {
             Get-NativeStyleViolation -Code $snippet
         }
         @($violations) | Should -BeNullOrEmpty -Because (@($violations) -join '; ')
+    }
+
+    It 'ignores timestamp and other scalar metadata while finding nested PowerShell samples' {
+        $data = [pscustomobject]@{
+            PublishedAt = [datetime]'2026-11-09T12:00:00Z'
+            Count = 3
+            Enabled = $true
+            Details = @([pscustomobject]@{ PowerShell = 'New-ConsoleFacts -Content { 3 }' })
+        }
+        $snippets = @(Get-JsonPowerShellString -Node $data -Name '')
+        $snippets.Count | Should -Be 1
+        $snippets[0] | Should -Be 'New-ConsoleFacts -Content { 3 }'
     }
 
     It 'flags the .NET form and accepts the labelled alternative' {

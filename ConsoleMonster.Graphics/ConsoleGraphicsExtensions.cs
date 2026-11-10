@@ -31,9 +31,10 @@ namespace ConsoleMonster.Graphics {
         public static void SavePng(this IWidget widget, string path, GraphicsExportOptions? options = null) => GraphicsOutput.Bytes(path, widget.ToPng(options));
         /// <summary>Saves a recording's final frame, or the frame at a source time.</summary>
         public static void SavePng(this SessionRecording recording, string path, GraphicsExportOptions? options = null, TimeSpan? at = null) =>
-            (at.HasValue ? recording.FrameAt(at.Value) : recording.FinalFrame()).SavePng(path, options);
+            (at.HasValue ? recording.FrameAt(at.Value) : recording.FinalFrame()).SavePng(path, (options ?? new GraphicsExportOptions()).ForRecording(recording));
         /// <summary>Saves one numbered PNG per chapter. Destination is a directory; chapter labels never become paths.</summary>
         public static IReadOnlyList<string> SaveChapterPngs(this SessionRecording recording, string directory, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
+            options = (options ?? new GraphicsExportOptions()).ForRecording(recording);
             if (recording.Chapters.Count == 0) { throw new InvalidOperationException("The recording has no chapters. Add # demo: chapter directives."); }
             Directory.CreateDirectory(directory);
             List<string> paths = new List<string>();
@@ -48,7 +49,7 @@ namespace ConsoleMonster.Graphics {
         public static void SaveGraphics(this SessionRecording recording, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             GraphicsOutput.ValidatePath(path);
-            GraphicsExportOptions settings = options ?? new GraphicsExportOptions();
+            GraphicsExportOptions settings = (options ?? new GraphicsExportOptions()).ForRecording(recording);
             if (format == GraphicsFormat.Png) { recording.SavePng(path, settings); return; }
             SaveFrames(recording.CaptureFrames(Playback(settings), trimEmptyRows: settings.Preset == GraphicsPreset.Docs), path, format, settings, cancellationToken);
         }

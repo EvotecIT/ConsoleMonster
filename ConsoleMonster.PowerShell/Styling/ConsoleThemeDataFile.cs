@@ -59,6 +59,10 @@ namespace ConsoleMonster.PowerShell {
                     text.Append('\n');
                 }
                 text.Append(' ', depth * 4).Append('}');
+            } else if (value is IList list) {
+                text.Append("@(");
+                for (int i = 0; i < list.Count; i++) { if (i > 0) { text.Append(", "); } Write(text, list[i], depth); }
+                text.Append(')');
             } else if (value == null) {
                 text.Append("$null");
             } else if (value is int number) {

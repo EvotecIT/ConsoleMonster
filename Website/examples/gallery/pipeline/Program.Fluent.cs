@@ -150,7 +150,7 @@ Dashboard dashboard = Ui.Dashboard()
     {
         c.Add(body);
     })
-    .Title("[bold]Module build[/]")
+    .Title("[accent bold]Module build[/]")
     .Subtitle("Build-Module ConsoleMonster")
     .ShowElapsed(false)
     .Footer(("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C "

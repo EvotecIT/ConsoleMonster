@@ -49,6 +49,7 @@ try {
     ) {
         $setup = @(
             '$ErrorActionPreference = ''Stop'''
+            '$env:CONSOLEMONSTER_CI = ''none'''
             "Import-Module '$($script:ConcurrencyModule.Replace("'", "''"))' -Force"
             '$references = @([ConsoleMonster.Terminal].Assembly.Location)'
             'if ($PSEdition -eq ''Core'') { $references += @(Get-ChildItem (Join-Path $PSHOME ''ref'') -Filter *.dll | ForEach-Object { $_.FullName }) } else { $references += ''System.Core'' }'

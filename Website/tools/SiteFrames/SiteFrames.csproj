@@ -18,6 +18,8 @@
         <ProjectReference Include="..\..\..\ConsoleMonster\ConsoleMonster.csproj" />
         <ProjectReference Include="..\..\..\ConsoleMonster.Markdown\ConsoleMonster.Markdown.csproj" />
         <ProjectReference Include="../../../ConsoleMonster.Graphics/ConsoleMonster.Graphics.csproj" />
+        <ProjectReference Include="../../../ConsoleMonster.Extensions.Serilog/ConsoleMonster.Extensions.Serilog.csproj" />
+        <ProjectReference Include="../../../ConsoleMonster.Extensions.NLog/ConsoleMonster.Extensions.NLog.csproj" />
         <ProjectReference Include="..\..\..\ConsoleMonster.Examples\ConsoleMonster.Examples.csproj" />
         <!-- Compile hosted examples against the module's API without loading a PowerShell runtime into the renderer. -->
         <ProjectReference Include="../../../ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj" ReferenceOutputAssembly="false" />

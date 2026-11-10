@@ -31,6 +31,7 @@ namespace ConsoleMonster.PowerShell {
         private int _omittedRows;
         private SteppablePipeline? _inner;
         private bool _active;
+        private AnnotationBatch? _ciAnnotations;
 
 
         /// <summary>Starts output routing for one pipeline.</summary>
@@ -89,6 +90,14 @@ namespace ConsoleMonster.PowerShell {
         // unrolled, as PowerShell's Out-Default shows it, using PowerShell's own rule for what is enumerable (not strings,
         // dictionaries or XML nodes).
         private void Handle(PSObject? item, bool unroll) {
+            if (item?.BaseObject is ErrorRecord error && _options.Shim && _options.TopLevel && !_options.Transcript
+                && (ConsoleFormatting.Features & ConsoleFormattingFeature.Errors) != 0
+                && ContinuousIntegration.Provider != ContinuousIntegrationProvider.None && !string.IsNullOrEmpty(error.InvocationInfo?.ScriptName)
+                && FormatCommandRouter.IsUntranscribed(_host)) {
+                _ciAnnotations ??= new AnnotationBatch(text => HostOutput.WriteHostLine(_host, text));
+                _ciAnnotations.Error(error.ErrorDetails?.Message ?? error.Exception.Message, null, error.InvocationInfo!.ScriptName,
+                    error.InvocationInfo.ScriptLineNumber, error.InvocationInfo.OffsetInLine);
+            }
             if (_progress) {
                 // Output goes where the progress area was; the next Write-Progress draws it again below.
                 SessionProgress.Suspend();
@@ -162,6 +171,7 @@ namespace ConsoleMonster.PowerShell {
             Flush();
 
             _inner?.End();
+            _ciAnnotations?.Dispose();
         }
 
         // The error view of Enable-ConsoleFormatting -Feature Errors: the type, the message, the category and id, the
@@ -209,6 +219,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary>Stops the native pipeline and releases its help paging marker.</summary>
         public void Dispose() {
+            _ciAnnotations?.Dispose();
             HelpHostFormatting.EndSink(_options.HelpSink);
             _inner?.Dispose();
             _inner = null;

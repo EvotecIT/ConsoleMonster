@@ -170,7 +170,8 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.False(run.IsLive); Assert.False(run.HandleKey('p')); Assert.False(run.HandleKey('f')); Assert.False(run.HandleKey('g'));
                 run.Finished(0, StatusKind.Pass); run.Complete();
                 string text = writer.ToString();
-                Assert.Contains("Policy run", text); Assert.Contains("progress 1/1", text);
+                Assert.Contains("Policy run", text);
+                Assert.Contains("progress 1/1", Regex.Replace(text, "\u001b\\[[0-9;?]*[ -/]*[@-~]", ""));
                 Assert.DoesNotContain("\u001b[?25", text); Assert.DoesNotContain("\u001b[?2026", text);
                 if (!noLive || borrowedPlain) { Assert.True(!text.Contains("\u001b"), text.Replace("\u001b", "<ESC>")); Assert.Contains("OK", text); }
             }
@@ -197,6 +198,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void OutputFailureCannotEraseLaterWorkerOutcomesFromTheStructuredSnapshot() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             var writer = new FailingWriter();
             var profile = TerminalProfile.Fixed(80, 24, ColorDepth.None);
             var run = new LiveRun(new[] { new RunItem("last worker"), new RunItem("queued") }, new LiveRunOptions {
@@ -388,7 +390,7 @@ namespace ConsoleMonster.Tests.Live {
             })) {
                 Assert.False(run.IsLive); Assert.False(run.HandleKey('p'));
                 run.Finished(0, StatusKind.Pass); run.Complete();
-                Assert.Contains("progress 1/1 * OK1", writer.ToString()); Assert.True(!writer.ToString().Contains("\u001b"), writer.ToString().Replace("\u001b", "<ESC>"));
+                Assert.Contains("progress 1/1 | OK 1", writer.ToString()); Assert.True(!writer.ToString().Contains("\u001b"), writer.ToString().Replace("\u001b", "<ESC>"));
             }
         }
 

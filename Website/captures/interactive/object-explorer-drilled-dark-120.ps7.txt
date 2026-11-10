@@ -58,7 +58,7 @@ $server
 │                                                                                                                      │
 │                                                                                                                      │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keys13e5087089789570
+ ↑↓ move  right expand  enter drill  / search  f10 choose  esc quit  ? keysfd88b664cf21edb7
  Server configuration                                                                                         2 members
 $server.Services
 ╭─ Members ────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
@@ -67,7 +67,7 @@ $server.Services
 │                                                                                                                      │
 │ Name     Status   Port                                                                                               │
 │ ───────  ───────  ────                                                                                               │
-│ web      Running  443                                                                                                │
+│ web      Running   443                                                                                               │
 │ metrics  Running  9090                                                                                               │
 │                                                                                                                      │
 │                                                                                                                      │

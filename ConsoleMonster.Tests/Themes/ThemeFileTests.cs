@@ -103,7 +103,7 @@ namespace ConsoleMonster.Tests.Themes {
                 case "root": data["Extra"] = "ignored?"; break;
                 case "low": style["Foreground"] = new Hashtable { ["TrueColor"] = "#fff", ["Ansi16"] = 16 }; break;
                 case "middle": style["Foreground"] = new Hashtable { ["TrueColor"] = "#fff", ["Ansi256"] = -2 }; break;
-                case "version": data["SchemaVersion"] = 3; break;
+                case "version": data["SchemaVersion"] = 4; break;
             }
             FormatException error = Assert.Throws<FormatException>(() => ThemeFile.Import(data));
             Assert.Contains(location, error.Message);

@@ -14,6 +14,23 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class FlowTests {
+        [Theory]
+        [InlineData(80, GlyphTier.Full, StatusMarkerStyle.Symbols)]
+        [InlineData(18, GlyphTier.Full, StatusMarkerStyle.Words)]
+        [InlineData(80, GlyphTier.Basic, StatusMarkerStyle.Words)]
+        [InlineData(18, GlyphTier.Ascii, StatusMarkerStyle.Words)]
+        public void CutFailureUsesOneIndicatorInsteadOfRepeatingItInTheEdgeLabel(int width, GlyphTier tier, StatusMarkerStyle markers) {
+            var flow = new Flow().Add(new FlowNode("a", "A")).Add(new FlowNode("b", "B"))
+                .Add(new FlowEdge("issuer", "a", "b", "issuer", StatusKind.Fail, true));
+            var profile = TerminalProfile.Fixed(width, 40, ColorDepth.None, tier).WithStatusMarkers(markers);
+            RenderContext context = Terminal.CreateContext(profile, Theme.Dark);
+            string text = FrameComposer.RenderBlock(flow, width, context).ToPlainText();
+            Assert.Contains("issuer", text);
+            Assert.DoesNotContain(context.Glyphs.StatusMarker(StatusKind.Fail) + " issuer", text);
+            char cut = tier == GlyphTier.Ascii ? 'x' : tier == GlyphTier.Basic ? '×' : '✗';
+            Assert.Equal(1, text.Count(c => c == cut));
+        }
+
         private static Flow Chain(bool cut = false) => new Flow("chain")
             .Add(new FlowNode("client", "client", StatusKind.Pass))
             .Add(new FlowNode("host", "host:443", StatusKind.Pass))

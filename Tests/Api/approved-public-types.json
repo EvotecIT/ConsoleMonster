@@ -86,8 +86,10 @@
     "ConsoleMonster.Export.RecordingMarker",
     "ConsoleMonster.Export.RecordingPace",
     "ConsoleMonster.Export.WindowChromeStyle",
+    "ConsoleMonster.Frames.AttentionGroup",
     "ConsoleMonster.Frames.AttentionItem",
     "ConsoleMonster.Frames.AttentionList",
+    "ConsoleMonster.Frames.AttentionTally",
     "ConsoleMonster.Frames.DashboardFrame",
     "ConsoleMonster.Frames.Distribution",
     "ConsoleMonster.Frames.FrameBars",
@@ -451,6 +453,7 @@
     "ConsoleMonster.Styling.ThemeColor",
     "ConsoleMonster.Styling.ThemeDensity",
     "ConsoleMonster.Styling.ThemeFile",
+    "ConsoleMonster.Styling.ThemeScheme",
     "ConsoleMonster.Styling.ThemeStyle",
     "ConsoleMonster.Styling.ThemeToken",
     "ConsoleMonster.Terminal",
@@ -638,7 +641,20 @@
     "ConsoleMonster.Widgets.ViewHeader",
     "ConsoleMonster.Widgets.ViewHint",
     "ConsoleMonster.Widgets.WatchView",
-    "ConsoleMonster.Widgets.WidgetsFluent"
+    "ConsoleMonster.Widgets.WidgetsFluent",
+    "ConsoleMonster.Styling.ThemeCheck",
+    "ConsoleMonster.Styling.ThemeCheckKind",
+    "ConsoleMonster.Styling.ThemeCheckOptions",
+    "ConsoleMonster.Styling.ThemeCheckOutcome",
+    "ConsoleMonster.Styling.ThemeCheckReport",
+    "ConsoleMonster.Styling.ThemeCheckResult",
+    "ConsoleMonster.Styling.StylingFluent",
+    "ConsoleMonster.AnnotationLevel",
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider",
+    "ConsoleMonster.Styling.TerminalScheme",
+    "ConsoleMonster.Widgets.ViewFact",
+    "ConsoleMonster.Widgets.ViewFacts"
   ],
   "ConsoleMonster.PowerShell": [
     "ConsoleMonster.PowerShell.AppChoiceCmdlet",
@@ -791,7 +807,14 @@
     "ConsoleMonster.PowerShell.PromptCmdlet",
     "ConsoleMonster.PowerShell.SelectionCmdlet",
     "ConsoleMonster.PowerShell.TableConfigurationCmdlet",
-    "OnModuleImportAndRemove"
+    "OnModuleImportAndRemove",
+    "ConsoleMonster.PowerShell.CmdletTestConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletAddConsoleJobSummary",
+    "ConsoleMonster.PowerShell.CmdletUseConsoleGroup",
+    "ConsoleMonster.PowerShell.CmdletWriteConsoleAnnotation",
+    "ConsoleMonster.PowerShell.CmdletImportConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletConvertToConsoleView",
+    "ConsoleMonster.PowerShell.CmdletNewConsoleFacts"
   ],
   "ConsoleMonster.PowerShell.Display": [
     "ConsoleMonster.PowerShell.Display.ConsoleViewDocument",
@@ -845,5 +868,13 @@
     "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggingExtensions",
     "ConsoleMonster.Extensions.Logging.LogCategoryFormat",
     "ConsoleMonster.Extensions.Logging.LoggingFluent"
+  ],
+  "ConsoleMonster.Extensions.Serilog": [
+    "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSink",
+    "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions",
+    "Serilog.ConsoleMonsterLoggerConfigurationExtensions"
+  ],
+  "ConsoleMonster.Extensions.NLog": [
+    "ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget"
   ]
 }

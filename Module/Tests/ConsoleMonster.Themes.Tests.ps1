@@ -13,6 +13,119 @@
         Reset-ConsoleSetting Theme
     }
 
+    It 'selects named schemes and their accessible variants through the Name parameter set' {
+        Set-ConsoleTheme Dracula
+        [ConsoleMonster.Terminal]::Theme.Scheme.Name | Should -BeExactly 'Dracula'
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeFalse
+        (Get-ConsoleSetting Theme).Value | Should -BeExactly 'Dracula'
+        Set-ConsoleTheme Dracula -Accessible
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+        (Get-ConsoleSetting Theme).Value | Should -BeExactly 'Dracula · accessible'
+        (Test-ConsoleTheme -Theme 'Dracula · accessible').Passed | Should -BeTrue
+        $file = Join-Path $TestDrive 'named.psd1'
+        Export-ConsoleTheme -Path $file
+        Set-ConsoleTheme Dark
+        Set-ConsoleTheme -Path $file
+        [ConsoleMonster.Terminal]::Theme.Scheme.Name | Should -BeExactly 'Dracula'
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+        $before = [ConsoleMonster.Terminal]::Theme
+        { Set-ConsoleTheme Dark -Accessible -ErrorAction Stop } | Should -Throw '*requires a catalogue scheme*'
+        { Set-ConsoleTheme 'Not a scheme' -ErrorAction Stop } | Should -Throw
+        [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
+    }
+
+    It 'quotes multiword catalogue choices in completion and profile snippets' {
+        $line = 'Set-ConsoleTheme -Theme "Tokyo Night D'
+        $completion = TabExpansion2 -inputScript $line -cursorColumn $line.Length
+        $completion.CompletionMatches.CompletionText | Should -Contain "'Tokyo Night Dark'"
+        Set-ConsoleTheme 'Tokyo Night Dark' -Accessible
+        $snippet = @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Theme *' }
+        $snippet | Should -Contain "Set-ConsoleTheme -Theme 'Tokyo Night Dark · accessible'"
+        Invoke-Expression ($snippet -join "`n")
+        [ConsoleMonster.Terminal]::Theme.Scheme.Name | Should -BeExactly 'Tokyo Night Dark'
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+    }
+
+    It 'keeps a selected family automatic when the background becomes known later' {
+        $profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile')
+        $previous = $env:COLORFGBG
+        try {
+            $env:COLORFGBG = '0;15'
+            foreach ($family in 'Solarized', 'Gruvbox', 'Catppuccin', 'Tokyo Night') {
+                foreach ($accessible in $false, $true) {
+                    [ConsoleMonster.Terminal]::Profile = $profileType::Fixed(80, 20).WithMode('Plain')
+                    Set-ConsoleTheme $family -Accessible:$accessible
+                    [ConsoleMonster.Terminal]::Theme.Appearance.Background | Should -Be 'Dark'
+                    [ConsoleMonster.Terminal]::Profile = $profileType::Fixed(80, 20)
+                    $expected = [ConsoleMonster.Styling.Theme]::FromName($family).Appearance.Background
+                    [ConsoleMonster.Terminal]::Theme.Appearance.Background | Should -Be $expected
+                    [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -Be $accessible
+                    $snippet = @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Theme *' }
+                    $snippet | Should -HaveCount 1
+                    Invoke-Expression ($snippet -join "`n")
+                    [ConsoleMonster.Terminal]::Theme.Appearance.Background | Should -Be $expected
+                    [ConsoleMonster.Terminal]::Theme = [ConsoleMonster.Styling.Theme]::Dark
+                    @(Enable-ConsoleFormatting -ProfileSnippet) | Where-Object { $_ -like 'Set-ConsoleTheme -Theme *' } | Should -BeNullOrEmpty
+                }
+            }
+        } finally {
+            $env:COLORFGBG = $previous
+            [ConsoleMonster.Terminal]::Refresh()
+        }
+    }
+
+    It 'imports a failing scheme, reports the verdict and leaves the active theme alone' {
+        $source = Join-Path $TestDrive 'scheme.json'
+        $output = Join-Path $TestDrive 'theme.json'
+        $palette = @{ name = 'Synthetic'; foreground = '#eeeeee'; background = '#222222' }
+        foreach ($key in 'black', 'red', 'green', 'yellow', 'blue', 'purple', 'cyan', 'white', 'brightBlack', 'brightRed', 'brightGreen', 'brightYellow', 'brightBlue', 'brightPurple', 'brightCyan', 'brightWhite') { $palette[$key] = '#777777' }
+        $palette | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $before = [ConsoleMonster.Terminal]::Theme
+        $report = Import-ConsoleTheme -Path $source -OutFile $output
+        $report.Passed | Should -BeFalse
+        $report.Path | Should -BeExactly $output
+        (Get-Content -LiteralPath $output -Raw | ConvertFrom-Json).SchemaVersion | Should -Be 3
+        [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
+        ($report | Out-String) | Should -Match 'Synthetic:.*problem'
+        { Import-ConsoleTheme -Path $source -OutFile $source -ErrorAction Stop } | Should -Throw '*differ*'
+    }
+
+    It 'preserves embedded schemes and accessible choices through JSON and PSD1' {
+        $source = Join-Path $TestDrive 'accessible-source.json'
+        $catalogue = Get-Content (Join-Path $PSScriptRoot '../../ConsoleMonster/Styling/Schemes/Dracula.json') -Raw | ConvertFrom-Json
+        $palette = $catalogue.schemes[0]
+        $palette.name = 'Synthetic accessible'
+        $palette | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $report = Import-ConsoleTheme -Path $source -Accessible
+        $report.Passed | Should -BeTrue
+        ($report | Out-String) | Should -Match 'adjusted for contrast:'
+        Set-ConsoleTheme -Path $report.Path
+        [ConsoleMonster.Terminal]::Theme.IsAccessible | Should -BeTrue
+        foreach ($extension in 'json', 'psd1') {
+            $file = Join-Path $TestDrive "scheme-roundtrip.$extension"
+            Export-ConsoleTheme -Path $file
+            Set-ConsoleTheme Dark
+            Set-ConsoleTheme -Path $file
+            [ConsoleMonster.Terminal]::Theme.Scheme.Palette.Count | Should -Be 16
+            (Test-ConsoleTheme).Passed | Should -BeTrue
+        }
+    }
+
+    It 'uses a recording palette and title through the default graphics and final SVG commands' {
+        $path = Join-Path $TestDrive 'palette.cast'
+        $colors = @('#445566') * 16
+        $colors[2] = '#12ab34'
+        $header = '{"version":2,"width":60,"height":3,"title":"Saved session","theme":{"fg":"#ffffff","bg":"#112233","palette":"' + ($colors -join ':') + '"}}'
+        [IO.File]::WriteAllText($path, $header + "`n" + '[0,"o","\u001b[32m\u2588\u2588"]' + "`n", [Text.UTF8Encoding]::new($false))
+        $svg = Export-ConsoleRecording -RecordingPath $path -Format Svg -FinalFrame
+        $svg | Should -Match '#12ab34'
+        $implicit = Join-Path $TestDrive 'implicit-title.png'
+        $explicit = Join-Path $TestDrive 'explicit-title.png'
+        $null = Export-ConsoleRecording -RecordingPath $path -Format Png -Path $implicit -ChromeStyle MacOS
+        $null = Export-ConsoleRecording -RecordingPath $path -Format Png -Path $explicit -ChromeStyle MacOS -Title 'Saved session'
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($implicit)) | Should -BeExactly ([Convert]::ToBase64String([IO.File]::ReadAllBytes($explicit)))
+    }
+
     It 'uses the same public C# writer and reader for <Extension> themes' -ForEach @(
         @{ Extension = 'json' }
         @{ Extension = 'psd1' }
@@ -30,7 +143,7 @@
     }
 
     It 'selects each built-in preset including both ColorBlindSafe variants' {
-        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeLight') {
+        foreach ($preset in 'Dark', 'Light', 'HighContrast', 'ColorBlindSafeLight', 'Terminal') {
             Set-ConsoleTheme -Theme $preset
             [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly $preset
         }
@@ -164,4 +277,97 @@
         Test-Path -LiteralPath $unsupported | Should -BeFalse
         [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
     }
+
+    It 'checks the active and named themes without changing the selection' {
+        Set-ConsoleTheme ColorBlindSafeLight
+        $before = [ConsoleMonster.Terminal]::Theme
+        $active = Test-ConsoleTheme
+        $active.Passed | Should -BeTrue
+        $dark = Test-ConsoleTheme -Theme Dark
+        $dark.Passed | Should -BeFalse
+        @($dark.Results | Where-Object { $_.Check -eq 'ColourVision' -and $_.Outcome -eq 'Fail' }).Count | Should -BeGreaterThan 0
+        [object]::ReferenceEquals($before, [ConsoleMonster.Terminal]::Theme) | Should -BeTrue
+    }
+
+    It 'loads a <Extension> theme for checking and makes failures terminating in Strict mode' -ForEach @(
+        @{ Extension = 'json' }
+        @{ Extension = 'psd1' }
+    ) {
+        Set-ConsoleTheme Dark
+        $path = Join-Path $TestDrive "check.$Extension"
+        Export-ConsoleTheme -Path $path
+        Set-ConsoleTheme ColorBlindSafeLight
+        $report = Test-ConsoleTheme -Path $path
+        $report.Passed | Should -BeFalse
+        $caught = $null
+        try {
+            Test-ConsoleTheme -Path $path -Strict
+        } catch {
+            $caught = $_
+        }
+        $caught.FullyQualifiedErrorId | Should -BeLike 'ConsoleThemeCheckFailed,*'
+        @($caught.TargetObject.Results | Where-Object Outcome -EQ Fail).Count | Should -BeGreaterThan 0
+        [ConsoleMonster.Terminal]::Theme.Name | Should -BeExactly ColorBlindSafeLight
+        (Test-ConsoleTheme -Theme ColorBlindSafeLight -Background White -Strict).Passed | Should -BeTrue
+    }
+
+    It 'leads with the verdict and shows only problems and unknowns at 80 columns' {
+        $oldColumns = $env:COLUMNS
+        try {
+            $env:COLUMNS = '80'
+            $report = Test-ConsoleTheme -Theme Dark
+            $text = $report | Out-String -Width 80
+        } finally {
+            $env:COLUMNS = $oldColumns
+        }
+        $report.ThemeName | Should -BeExactly Dark
+        $report.Results.Count | Should -Be 28
+        $lines = @($text -split '\r?\n' | Where-Object { $_.Trim().Length -gt 0 })
+        $lines[0] | Should -BeExactly 'Dark: 2 problems, 1 unknown'
+        $text | Should -Match 'Pass and fail look alike with deuteranopia \(9.2, needs 25\)'
+        $text | Should -Match 'Pending text is too faint: 4.0:1, needs 4.5:1'
+        $text | Should -Match "Text uses the terminal's own colour, so its contrast can't be measured"
+        $lines[-1] | Should -BeExactly '25 other checks pass'
+        $lines.Count | Should -Be 5
+        @($lines | Where-Object Length -GT 80).Count | Should -Be 0
+        (Test-ConsoleTheme -Theme ColorBlindSafeDark | Out-String).Trim() | Should -BeExactly 'ColorBlindSafe: passes every check'
+    }
+
+    It 'keeps every measurement and uses one decimal and structural words in Detailed mode' {
+        $report = Test-ConsoleTheme -Theme Dark -Detailed
+        $report.Results.Count | Should -Be 28
+        $text = $report | Out-String -Width 100
+        $text | Should -Match '80.6, needs 25'
+        $text | Should -Match '112.5, needs 25'
+        $text | Should -Match '69.0, needs 25'
+        $text | Should -Match 'Pass and warning markers are different'
+        $text | Should -Match 'Critical is filled, unlike ordinary text'
+        $text | Should -Not -Match '1.0 / 1|RGB|other checks pass'
+        ((Test-ConsoleTheme -Theme ColorBlindSafeDark -Detailed) | Out-String -Width 100) | Should -Match 'Critical is filled'
+        (Get-Help Test-ConsoleTheme).Synopsis | Should -Match 'contrast'
+    }
+
+    It 'groups a failing pair across vision conditions without dropping measurements' {
+        $path = Join-Path $TestDrive 'same-statuses.json'
+        @{
+            Name = 'Same statuses'
+            BaseTheme = 'ColorBlindSafe'
+            Tokens = @{
+                Fail = @{
+                    Foreground = @{
+                        TrueColor = '#6cb6ff'
+                        Ansi16 = 14
+                    }
+                }
+            }
+        } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $path -Encoding UTF8
+        $report = Test-ConsoleTheme -Path $path
+        @($report.Results | Where-Object Outcome -EQ Fail).Count | Should -Be 4
+        $text = $report | Out-String -Width 120
+        $text | Should -Match 'Same statuses: 1 problem'
+        ([regex]::Matches($text, 'Pass and fail look alike')).Count | Should -Be 1
+        ($text -replace '\s+', ' ') | Should -Match 'in normal vision and with protanopia, deuteranopia and tritanopia'
+        $text | Should -Match '0\.0,\s+needs 25'
+    }
+
 }

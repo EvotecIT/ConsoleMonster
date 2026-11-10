@@ -41,13 +41,19 @@ internal sealed class SectionTitle : IWidget {
     internal SectionTitle(string title, IList<string> facts, IList<FrameState> states, string? meta) { _title = title; _facts = facts; _states = states; _meta = meta; }
 
     internal StyledLine Line(int width, bool leader, RenderContext context) {
-        string title = "[strong bold]" + FrameText.Escape(_title) + "[/]";
+        string title = "[title]" + FrameText.Escape(_title) + "[/]";
         List<string> facts = new List<string>();
         foreach (string fact in _facts) { if (!string.IsNullOrWhiteSpace(fact)) facts.Add(FrameText.Escape(fact)); }
         string factText = facts.Count == 0 ? string.Empty : "  [muted]" + string.Join(" " + FrameText.Dot(context) + " ", facts) + "[/]";
         string right = FrameState.Join(_states, context);
         if (right.Length == 0 && !string.IsNullOrEmpty(_meta)) right = "[muted]" + FrameText.Escape(_meta) + "[/]";
         StyledLine left = FrameText.Line(title + factText, context);
+        if (leader && right.Length == 0 && left.Width + 2 < width) {
+            List<TextSpan> heading = new List<TextSpan>(left) {
+                new TextSpan(" "), new TextSpan(new string(context.Glyphs.Get(Glyphs.Glyph.RuleLine)[0], width - left.Width - 1), context.Style(Styling.ThemeToken.Subtle))
+            };
+            return new StyledLine(heading);
+        }
         if (right.Length == 0 || !leader) return left.Width > width ? TextWrapper.Truncate(left, width, context.Ellipsis) : left;
         StyledLine state = FrameText.Line(right, context);
         int room = width - state.Width - 2;

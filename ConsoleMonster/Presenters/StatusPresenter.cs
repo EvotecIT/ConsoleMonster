@@ -6,7 +6,7 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Presenters {
     /// <summary>
-    /// A status as symbol, word and tone: <c>✓ PASS</c>, <c>✗ FAIL</c>, <c>▴ WARN</c>; <c>[FAIL]</c> on the ASCII tier. Accepts
+    /// A status as symbol, word and tone: <c>✓ PASS</c>, <c>✗ FAIL</c>, <c>▲ WARN</c>; <c>[FAIL]</c> on the ASCII tier. Accepts
     /// <see cref="StatusKind"/> values and status words (pass, passed, ok, fail, failed, error, warn, warning, skip...).
     /// Values that are not statuses are shown as text.
     /// </summary>
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Presenters {
             Style style = context.Render.Style(status);
             string marker = context.Render.Glyphs.StatusMarker(status);
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(marker, style) };
-            if (ShowWord && (!context.Render.Glyphs.MarkersAreWords() || Widgets.ConsoleViewStyle.IsApplied(context.Render))) {
+            if (ShowWord && !context.Render.Glyphs.MarkersAreWords()) {
                 spans.Add(new TextSpan(" " + context.Render.Labels.StatusWord(status), status == StatusKind.Pass && Widgets.ConsoleViewStyle.IsApplied(context.Render)
                     ? context.Render.Style(ThemeToken.Text) : style));
             }

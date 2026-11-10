@@ -49,9 +49,13 @@ namespace ConsoleMonster.Widgets {
             RunItemSnapshot[] running = snapshot.Items.Where(i => i.Status == StatusKind.Running).ToArray();
             RunItemSnapshot[] next = snapshot.Items.Where(i => i.Status == StatusKind.Pending).ToArray();
             if (region.Height <= 3) {
-                string totals = snapshot.Done + "/" + snapshot.Total + " · " + CountMarkup(StatusKind.Fail, snapshot.Failed, snapshot.Failed + " fail") + " · " + CountMarkup(StatusKind.Warn, snapshot.Warned, snapshot.Warned + " warn");
-                if (region.Height == 1) { new TextBlock(totals) { Overflow = TextOverflow.Ellipsis }.Render(region, context); return; }
-                new TextBlock(Markup.Escape(Title) + " · " + totals) { Overflow = TextOverflow.Ellipsis }.Render(region.Sub(0, 0, region.Width, 1), context);
+                ViewFacts totals = new ViewFacts();
+                if (region.Height > 1) { totals.Add(Title); }
+                totals.Add(snapshot.Done.ToString("N0", context.Culture) + "/" + snapshot.Total.ToString("N0", context.Culture), label: string.Empty);
+                totals.Add(new ViewFact(snapshot.Failed.ToString("N0", context.Culture), "fail", role: snapshot.Failed == 0 ? ThemeToken.Muted : ThemeToken.Fail));
+                totals.Add(new ViewFact(snapshot.Warned.ToString("N0", context.Culture), "warn", role: snapshot.Warned == 0 ? ThemeToken.Muted : ThemeToken.Warn));
+                totals.Render(region.Sub(0, 0, region.Width, 1), context);
+                if (region.Height == 1) { return; }
                 if (region.Height == 3) { Line(running.Length + " running · " + next.Length + " queued", ThemeToken.Muted).Render(region.Sub(0, 1, region.Width, 1), context); }
                 IWidget last = problems.Length > 0 ? Problem(problems[problems.Length - 1], context) : Line("Problems · 0", ThemeToken.Muted);
                 last.Render(region.Sub(0, region.Height - 1, region.Width, 1), context);
@@ -123,15 +127,14 @@ namespace ConsoleMonster.Widgets {
         }
 
         internal static IWidget Counts(RunSnapshot snapshot, RenderContext context, bool compact = false, bool includeGlyphs = true) {
-            string text = string.Empty;
+            ViewFacts facts = new ViewFacts();
             foreach (var pair in new[] { (StatusKind.Pass, snapshot.Passed, "passed"), (StatusKind.Fail, snapshot.Failed, "failed"), (StatusKind.Warn, snapshot.Warned, "warnings"), (StatusKind.Skip, snapshot.Skipped, "skipped") }) {
-                if (text.Length > 0) { text += " · "; }
                 string label = compact ? (pair.Item1 == StatusKind.Warn ? "warn" : pair.Item1.ToString().ToLowerInvariant()) : pair.Item3;
-                text += CountMarkup(pair.Item1, pair.Item2, (includeGlyphs ? context.Glyphs.StatusSymbol(pair.Item1) + " " : "") + pair.Item2 + " " + label);
+                facts.Add(new ViewFact(pair.Item2.ToString("N0", context.Culture), label, caption: includeGlyphs ? context.Glyphs.StatusSymbol(pair.Item1) : null, role: pair.Item2 == 0 ? ThemeToken.Muted : pair.Item1.ToToken()));
             }
-            return new TextBlock(text) { Overflow = TextOverflow.Ellipsis };
+            return facts;
         }
-        private static string CountMarkup(StatusKind state, int count, string text) => "[" + (count > 0 ? state.ToString().ToLowerInvariant() : "muted") + "]" + Markup.Escape(text) + "[/]";
+
         internal static IWidget Label(string text) => new TextBlock("[bold]" + Markup.Escape(text) + "[/]") { Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis };
         internal static IWidget Line(string text, ThemeToken role = ThemeToken.Text) => new TextBlock(Markup.Escape(text)) { Role = role, Overflow = TextOverflow.Ellipsis };
         internal static string ItemName(RunItemSnapshot item) => item.Item.DisplayName;

@@ -14,12 +14,14 @@ $baseline = ($tasks | ForEach-Object -Process {
     "$($_.Task) | $($_.State) | $($_.Minutes) min"
 }) -join "`n"
 
+$separator = if ((Get-ConsoleCapability).Glyphs -eq 'Ascii') { '|' } else { '·' }
+
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Everyday formatting[/] [muted]| same objects, clearer output[/]'
-    New-ConsoleText -Markup '[bold]Before[/] [muted]| plain text[/]'
+    New-ConsoleRule -Title "[accent bold]Everyday formatting[/] [muted]$separator same objects, clearer output[/]"
+    New-ConsoleText -Markup "[bold]Before[/] [muted]$separator plain text[/]"
     New-ConsoleText -Text $baseline
-    New-ConsoleText -Markup '[bold]After[/] [muted]| ConsoleMonster table[/]'
+    New-ConsoleText -Markup "[bold]After[/] [muted]$separator ConsoleMonster table[/]"
     $tasks | New-ConsoleTable -Property Task, State, Minutes -Expand
     New-ConsoleText -Markup '[muted]Three tasks. Aligned columns and right-aligned numbers.[/]'
 }

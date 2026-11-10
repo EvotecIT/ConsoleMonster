@@ -9,18 +9,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     internal static partial class CellRendering {
         internal static void DrawDataBar(Region region, int x, int y, int cells, double fraction, Style style, RenderContext context) {
-            bool consoleView = ConsoleViewStyle.IsApplied(context);
-            region.HorizontalLine(x, y, cells, context.Glyphs.Get(Glyph.ShadeLight), context.Style(consoleView ? ThemeToken.Subtle : ThemeToken.Muted));
-            double amount = cells * (double.IsNaN(fraction) ? 0 : Math.Max(0, Math.Min(1, fraction)));
-            int eighths = (int)Math.Round(amount * 8, MidpointRounding.AwayFromZero);
-            if (consoleView) {
-                region.HorizontalLine(x, y, (int)Math.Round(amount, MidpointRounding.AwayFromZero), context.Glyphs.Get(Glyph.BlockFull), style);
-                return;
-            }
-            int whole = eighths / 8;
-            region.HorizontalLine(x, y, whole, context.Glyphs.Get(Glyph.BlockFull), style);
-            string partial = context.Glyphs.HorizontalFill(eighths % 8);
-            if (partial.Length > 0 && whole < cells) { region.Write(x + whole, y, partial, style); }
+            BarDrawer.Draw(region, x, y, cells, fraction, style, context, false, BarShape.Block);
         }
         // Structured glyph/value composition never guesses meaning from arbitrary literal data.
         internal static StyledLine WithMarker(string marker, StyledLine value, Style style, Style? valueStyle = null) {

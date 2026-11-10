@@ -39,7 +39,9 @@ namespace ConsoleMonster.Widgets {
         public bool Signed { get; set; }
 
         /// <summary>The bar shape: <see cref="BarShape.Block"/> (default, solid three-quarter-height bars that keep a gap between rows) or <see cref="BarShape.Line"/>.</summary>
-        public BarShape Shape { get; set; } = BarShape.Block;
+        public BarShape Shape { get => HasWhole ? BarShape.Line : _shape ?? BarShape.Block; set => _shape = value; }
+        private BarShape? _shape;
+        private bool HasWhole => Maximum.HasValue && NumberFormat.IsFinite(Maximum.Value) && Maximum.Value > 0 && !Signed;
 
         /// <summary>
         /// Layout of the value column on the right (default right-aligned). Its numeric width never shrinks during a
@@ -211,7 +213,7 @@ namespace ConsoleMonster.Widgets {
             int barReserve = 4;
             if (ShowValues) {
                 // Missing explanations are transient text, not part of the remembered numeric column width.
-                valueWidth = Math.Max(valueWidth, _valueColumn.Resolve(numericWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(FormatValue(Maximum!.Value, context)) : 0));
+                valueWidth = Math.Max(valueWidth, _valueColumn.Resolve(numericWidth, DisplayWidth.Measure(Unit ?? string.Empty), fixedMax ? DisplayWidth.Measure(WholeValue(Maximum!.Value, context)) : 0));
                 int labelReserve = Math.Min(labelWidth, Math.Max(1, region.Width / 3));
                 int valueReserve = Math.Min(valueWidth, DisplayWidth.Measure(context.Ellipsis) + 2);
                 barReserve = Math.Min(barReserve, Math.Max(0, region.Width - labelReserve - valueReserve - 2));
@@ -252,11 +254,13 @@ namespace ConsoleMonster.Widgets {
                     BarDrawer.Draw(region, start, y, length, 1, context.Style(role), context, false, Shape);
                     region.Write(barX + zero, y, "|", context.Style(ThemeToken.Border));
                 } else {
-                    if (ShowTrack) CellRendering.DrawDataBar(region, barX, y, barWidth, fraction, context.Style(role), context);
+                    if (HasWhole) BarDrawer.Draw(region, barX, y, barWidth, fraction, context.Style(role), context, true, BarShape.Line);
+                    else if (ShowTrack) BarDrawer.Draw(region, barX, y, barWidth, fraction, context.Style(role), context, true, Shape);
                     else BarDrawer.Draw(region, barX, y, barWidth, fraction, context.Style(role), context, false, Shape);
                 }
                 if (ShowValues) {
-                    StatColumn.Write(region, region.Width - valueWidth, y, valueWidth, ValueText(item, context), reached.HasValue ? context.Style(reached.Value) : muted, ValueColumn.Alignment, context.Ellipsis);
+                    Style valueStyle = reached.HasValue ? CountStyle(item, reached.Value, context) : context.Style(ThemeToken.Text);
+                    StatColumn.Write(region, region.Width - valueWidth, y, valueWidth, ValueText(item, context), valueStyle, ValueColumn.Alignment, context.Ellipsis);
                 }
             }
             if (!string.IsNullOrEmpty(AxisLabel)) region.Write(0, _items.Count + rowOffset, TextWrapper.Truncate(AxisLabel!, region.Width, context.Ellipsis), muted);
@@ -269,21 +273,29 @@ namespace ConsoleMonster.Widgets {
         }
 
         private StyledLine LabelLine(ChartItem item, RenderContext context) {
-            StyledLine label = RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Text), context);
+            StyledLine label = RichLines.Line(item.LabelText, item.Label, context.Style(ThemeToken.Muted), context);
             StatusKind? status = StatusFor(item);
             if (ShowValues || !status.HasValue) return label;
-            var spans = new List<TextSpan> { new TextSpan(context.Glyphs.StatusSymbol(status.Value) + " ", context.Style(status.Value)) };
+            var spans = new List<TextSpan> { new TextSpan(context.Glyphs.StatusSymbol(status.Value) + " ", CountStyle(item, status.Value, context)) };
             spans.AddRange(label);
             return new StyledLine(spans);
         }
+
+        private static Style CountStyle(ChartItem item, StatusKind status, RenderContext context) =>
+            item.Value == 0 ? context.Style(ThemeToken.Muted) : context.Style(status);
 
         private string FormatValue(double value) => NumberFormat.Compact(value) + (Unit ?? string.Empty);
 
         // Threshold and explicit status always carry a symbol, independently of colour.
         private string ValueText(ChartItem item, RenderContext context) {
-            string text = NumberFormat.IsFinite(item.Value) ? FormatValue(item.Value, context) : item.MissingText ?? MissingText ?? NumberFormat.Missing(context.Glyphs.Tier);
+            string text = NumberFormat.IsFinite(item.Value) ? WholeValue(item.Value, context) : item.MissingText ?? MissingText ?? NumberFormat.Missing(context.Glyphs.Tier);
             StatusKind? reached = StatusFor(item);
             return reached.HasValue ? context.Glyphs.StatusSymbol(reached.Value) + " " + text : text;
+        }
+
+        private string WholeValue(double value, RenderContext context) {
+            if (!HasWhole || ValuePresenter != null) return FormatValue(value, context);
+            return Maximum == 100 ? NumberFormat.Compact(value) + "%" : NumberFormat.Compact(value) + "/" + NumberFormat.Compact(Maximum!.Value) + (Unit ?? string.Empty);
         }
 
         // NaN and infinite values draw no bar and show a dash instead of "InfinityM".

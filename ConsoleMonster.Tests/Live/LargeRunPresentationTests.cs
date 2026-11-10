@@ -107,12 +107,19 @@ namespace ConsoleMonster.Tests.Live {
                     string headerCount = height >= 7 ? glyph + " " + count : count + " " + (states[i] == StatusKind.Warn ? "warn" : states[i].ToString().ToLowerInvariant());
                     int x = rows[header].IndexOf(headerCount, StringComparison.Ordinal);
                     Assert.True(x >= 0);
-                    for (int cell = x; cell < x + headerCount.Length; cell++) { Assert.Equal(style, frame[cell, header].Style); }
+                    for (int cell = x; cell < x + headerCount.Length; cell++) {
+                        char character = rows[header][cell];
+                        if (char.IsWhiteSpace(character)) continue;
+                        Assert.Equal(height >= 7 && cell == x ? context.Style(ThemeToken.Muted).Color : style.Color, frame[cell, header].Style.Color);
+                        if (char.IsDigit(character)) Assert.True((frame[cell, header].Style.Decoration & TextDecoration.Bold) != 0);
+                    }
                     if (height < 7 || states[i] == StatusKind.Skip) { continue; }
-                    string groupCount = glyph + count;
+                    string groupCount = glyph + " " + count;
                     x = rows[group].IndexOf(groupCount, StringComparison.Ordinal);
                     Assert.True(x >= 0);
-                    for (int cell = x; cell < x + groupCount.Length; cell++) { Assert.Equal(style, frame[cell, group].Style); }
+                    Assert.Equal(context.Style(ThemeToken.Muted).Color, frame[x, group].Style.Color);
+                    Assert.Equal(style.Color, frame[x + 2, group].Style.Color);
+                    Assert.True((frame[x + 2, group].Style.Decoration & TextDecoration.Bold) != 0);
                 }
             }
         }

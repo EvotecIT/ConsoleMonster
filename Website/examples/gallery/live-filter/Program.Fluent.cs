@@ -40,7 +40,7 @@ IWidget Results(string query)
 
 Rows layout = Ui.Rows().Gap(1).Content(c =>
 {
-    c.Markup("[bold]Live filter[/] [muted]· host inventory[/]");
+    c.Markup("[accent bold]Live filter[/] [muted]· host inventory[/]");
     c.TextInput(textInput => textInput.Key("Query")
         .Value(string.Empty)
         .Label("Filter")

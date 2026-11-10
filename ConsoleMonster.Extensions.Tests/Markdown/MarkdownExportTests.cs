@@ -16,6 +16,15 @@ using Xunit;
 namespace ConsoleMonster.Extensions.Tests.Markdown {
     public sealed class MarkdownExportTests {
         [Fact]
+        public void JobSummaryUsesTheOptionalSemanticExporterWithoutCroppingTheTable() {
+            using IDisposable scope = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
+            var table = new Table().AddColumn("Check").AddColumn("Result").AddRow("Build | tests", "Passed");
+            string markdown = ContinuousIntegration.AddSummary(table, new ExportOptions { Width = 10 }, new MarkdownFrameExportProvider());
+            Assert.Contains("| Check | Result |\n| :--- | :--- |", markdown);
+            Assert.Contains("| Build \\| tests | Passed |", markdown);
+            Assert.DoesNotContain("```", markdown);
+        }
+        [Fact]
         public void NullOrDefaultWidgetOptionsResolveWithoutSelectingTheRecordingOverload() {
             var table = new Table().AddColumn("Host").AddRow("web-01");
             Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null));
@@ -92,7 +101,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             Assert.Contains("  - State: ✓ Pass\n  - Bytes: 2 KB\n  - Duration: 2 m 05 s\n", markdown);
             Assert.Contains("    - production\n    - web\n", markdown);
             Assert.Contains("    - \\[0\\]", markdown);
-            Assert.Contains("      - State: ▴ Warning\n      - Bytes: 4 KB\n", markdown);
+            Assert.Contains("      - State: ▲ Warning\n      - Bytes: 4 KB\n", markdown);
             string console = ConsoleExporter.ToText(tree, options);
             Assert.Contains("2 KB", console);
             Assert.Contains("✓ Pass", console);
@@ -109,7 +118,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             string markdown = MarkdownExporter.Export(new Rows(record, tree));
             Assert.Contains("| State | ✓ Pass |", markdown);
             Assert.Contains("| Notes | first<br>second |", markdown);
-            Assert.Contains("- Root\n  - ▴ Child\n    - Leaf\n", markdown);
+            Assert.Contains("- Root\n  - ▲ Child\n    - Leaf\n", markdown);
         }
 
         [Fact]

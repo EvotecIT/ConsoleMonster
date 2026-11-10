@@ -58,9 +58,14 @@ function New-ContainerFrame {
     $feed = @($script:events | Select-Object -First 4)
 
     New-ConsoleRows -Gap 1 -Content {
-        New-ConsoleRule -Title "[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · $clock[/]"
-        ("[pass]$($rows.Count - $restarting) running[/]   [warn]$restarting restarting[/]   " +
-            "[muted]memory $('{0:N0}' -f $memoryTotal) of $('{0:N0}' -f $limitTotal) MiB reserved[/]")
+        New-ConsoleRule -Title "[accent bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · $clock[/]"
+        New-ConsoleFacts -Content {
+            @{ Value = ($rows.Count - $restarting); Label = 'running'; Role = 'Pass' }
+            @{ Value = $restarting; Label = 'restarting'
+                Role = if ($restarting -eq 0) { 'Muted' } else { 'Warn' } }
+            @{ Value = ("{0:N0} of {1:N0} MiB reserved" -f $memoryTotal, $limitTotal)
+                Caption = 'memory' }
+        }
         New-ConsoleTable -InputObject $rows -Property Container, Image, State, Restarts, 'CPU %',
             'Memory MiB', 'Memory %', Status -Expand
         New-ConsoleColumns -Content {

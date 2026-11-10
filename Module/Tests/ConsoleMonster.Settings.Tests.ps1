@@ -29,6 +29,36 @@
         Remove-Item -LiteralPath $script:Folder -Recurse -Force -ErrorAction SilentlyContinue
     }
 
+    It 'round-trips the named choice <Stored> through settings.json and a fresh session' -ForEach @(
+        @{ Command = 'Set-ConsoleTheme Dracula -Save'; Stored = 'Dracula'; Scheme = 'Dracula'; Accessible = 'False' }
+        @{ Command = 'Set-ConsoleTheme Dracula -Accessible -Save'; Stored = 'Dracula · accessible'; Scheme = 'Dracula'; Accessible = 'True' }
+        @{ Command = "Set-ConsoleSetting Theme 'cAtPpUcCiN lAtTe · AcCeSsIbLe' -Save"; Stored = 'Catppuccin Latte · accessible'; Scheme = 'Catppuccin Latte'; Accessible = 'True' }
+        @{ Command = "Set-ConsoleTheme 'Tokyo Night' -Accessible -Save"; Stored = 'Tokyo Night · accessible'; Scheme = 'Tokyo Night Dark'; Accessible = 'True' }
+    ) {
+        $null = Invoke-SettingsChild -File $script:File -Script $Command
+        (Get-Content -LiteralPath $script:File -Raw -Encoding UTF8 | ConvertFrom-Json).Theme | Should -BeExactly $Stored
+        $next = Invoke-SettingsChild -File $script:File -Script '"value=$((Get-ConsoleSetting Theme).Value);source=$((Get-ConsoleSetting Theme).Source);scheme=$([ConsoleMonster.Terminal]::Theme.Scheme.Name);accessible=$([ConsoleMonster.Terminal]::Theme.IsAccessible)"'
+        $next | Should -Match ([regex]::Escape("value=$Stored;source=File;scheme=$Scheme;accessible=$Accessible"))
+        $overridden = Invoke-SettingsChild -File $script:File -Environment @{ CONSOLEMONSTER_THEME = 'nord' } -Script '"scheme=$([ConsoleMonster.Terminal]::Theme.Scheme.Name);source=$((Get-ConsoleSetting Theme).Source)"'
+        $overridden | Should -Match 'scheme=Nord;source=Environment'
+    }
+
+    It 'keeps Terminal and an accessible scheme choice across fresh sessions' {
+        $null = Invoke-SettingsChild -File $script:File -Script 'Set-ConsoleTheme Terminal -Save'
+        $next = Invoke-SettingsChild -File $script:File -Script '"theme=$((Get-ConsoleSetting Theme).Value);preference=$((Get-ConsoleCapability).ThemePreference)"'
+        $next | Should -Match 'theme=Terminal;preference=Terminal'
+        $source = Join-Path $script:Folder 'scheme.json'
+        $theme = Join-Path $script:Folder 'scheme.theme.json'
+        $data = Get-Content (Join-Path $PSScriptRoot '../../ConsoleMonster/Styling/Schemes/Dracula.json') -Raw | ConvertFrom-Json
+        $data.schemes[0].name = 'Session scheme'
+        $data.schemes[0] | ConvertTo-Json | Set-Content -LiteralPath $source -Encoding UTF8
+        $null = Invoke-SettingsChild -File $script:File -Script "Import-ConsoleTheme -Path '$source' -OutFile '$theme'; Set-ConsoleTheme -Path '$theme' -Accessible -Save"
+        $next = Invoke-SettingsChild -File $script:File -Script '"accessible=$([ConsoleMonster.Terminal]::Theme.IsAccessible);value=$((Get-ConsoleSetting Theme).Value)"'
+        $next | Should -Match 'accessible=True'
+        $next | Should -Match 'value=.*scheme.theme.json · accessible'
+        (Get-Content -LiteralPath $theme -Raw | ConvertFrom-Json).Variant | Should -BeNullOrEmpty
+    }
+
     It 'keeps a saved theme and formatting for the next session, below environment variables' {
         $null = Invoke-SettingsChild -File $script:File -Script @'
 Set-ConsoleTheme ColorBlindSafe -Save
@@ -107,17 +137,36 @@ $screen = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { S
         $text | Should -Match 'picker=True/False'
     }
 
-    It 'fits complete choice labels at 110 columns and still renders below their natural width' {
-        $text = Invoke-SettingsChild -File $script:File -Script @'
-Set-ConsoleTheme Dark
+    It 'keeps a table and complete theme verdict beside capped closed controls at <Width> columns' -ForEach @(
+        @{ Width = 110 }
+        @{ Width = 90 }
+    ) {
+        $text = Invoke-SettingsChild -File $script:File -Script @"
 Set-ConsoleSetting Glyphs Full
 Set-ConsoleSetting Density Comfortable
-$wide = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
-$narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
-"wide=$($wide.Text -match 'Density.*Comfortable \(default\)')"
-"narrow=$($narrow.Text -match 'Density')/$($narrow.Text -match 'Comfortable \(default\)')"
-'@
-        $text | Should -Match 'wide=True'
+foreach (`$theme in 'Dark', 'ColorBlindSafeDark') {
+    Set-ConsoleTheme `$theme
+    `$screen = Invoke-ConsoleHeadless -Width $Width -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+    `$lines = `$screen.Text -split "``n"
+    `$panel = `$lines | Where-Object { `$_ -match '^╭─ Settings' } | Select-Object -First 1
+    `$boundary = `$panel.IndexOf('╮') + 1
+    "`$theme/pane=`$(`$boundary -gt 0 -and `$boundary -le [Math]::Floor($Width * 0.45))"
+    "`$theme/table=`$(`$screen.Text -match 'Check.*State.*Size')/`$(`$screen.Text -match '3 records')"
+    "`$theme/dropped=`$(`$screen.Text -match '\+1 column \(Changed\)')"
+    "`$theme/labels=`$(`$screen.Text -match 'Density.*Comfortable \(default\)')"
+    "`$theme/verdict=`$(`$screen.Text -match 'deuteranopia')/`$(`$screen.Text -match 'Pending text too faint: 4.0:1')/`$(`$screen.Text -match '(Statuses apart.*|Colour-blind: )yes')"
+}
+`$narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+"narrow=`$(`$narrow.Text -match 'Density')/`$(`$narrow.Text -match 'Comfortable \(default\)')"
+"@
+        foreach ($theme in 'Dark', 'ColorBlindSafeDark') {
+            $text | Should -Match "$theme/pane=True"
+            $text | Should -Match "$theme/table=True/False"
+        }
+        if ($Width -eq 110) { $text | Should -Match 'Dark/labels=True' }
+        if ($Width -eq 90) { $text | Should -Match 'Dark/dropped=True' }
+        $text | Should -Match 'Dark/verdict=True/True/False'
+        $text | Should -Match 'ColorBlindSafeDark/verdict=False/False/True'
         $text | Should -Match 'narrow=True/False'
     }
 

@@ -44,7 +44,7 @@ namespace ConsoleMonster.Live {
             session.Summary = new RunSummary(_tracker) { Title = _options.Title, ReportPath = _options.ReportPath };
             session.LogTarget = Dashboard.Log.WidgetId;
             if (!_options.Live && session.Output?.SupportsLiveFrames == true) { throw new ArgumentException("NoLive requires an append-only output.", nameof(options)); }
-            session.AppendOnly = !_options.Live;
+            session.AppendOnly = !_options.Live || ContinuousIntegration.Provider != ContinuousIntegrationProvider.None;
             _session = new LiveSession(Dashboard, session);
             _session.Start();
             IsLive = _session.SupportsLiveFrames;

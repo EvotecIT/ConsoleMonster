@@ -30,6 +30,7 @@ namespace ConsoleMonster.TestHost {
                     case "handoff-windows": return TerminalHandoffProbe.Windows(args[1]);
                     case "reduced-status": ReducedStatus(args.Length > 1 ? args[1] : "updates"); break;
                     case "activity-frame": WriteActivityFrame(); break;
+                    case "palette": return PaletteProbe.Run(args[1]);
                     case "background": return BackgroundProbe.Run(args[1], args.Length > 2 ? args[2] : string.Empty);
                     case "unix-recording-child": return UnixRecordingChildProbe.Run();
                     case "recording-child": return RecordingChildProbe.Run();

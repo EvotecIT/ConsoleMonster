@@ -37,7 +37,7 @@ foreach (var folder in folders)
 }
 
 Rows report = new Rows(
-    new Rule("[bold]Storage review[/] [muted]· capacity planning[/]"),
+    new Rule("[accent bold]Storage review[/] [muted]· capacity planning[/]"),
     new Columns(
         new Panel() { Title = "Used / 100 GiB", Content = chart },
         new Panel() { Title = "Largest folders", Content = tree }),
@@ -46,7 +46,7 @@ Rows report = new Rows(
         Title = "Next action",
         Content = new Rows(
             new TextBlock(
-                "[warn]Artifacts is at 94%.[/] Review the retention policy before the next build."),
+                "[fail]Artifacts is at 94%.[/] Review the retention policy before the next build."),
             new TextBlock("[muted]Keep the current release; archive history older than 30 days.[/]"))
     })
 {

@@ -100,6 +100,9 @@ namespace ConsoleMonster.Capabilities {
             ThemePreference themePreference = ThemePreference.Auto;
             string themeValue = Get("CONSOLEMONSTER_THEME");
             switch (themeValue.ToLowerInvariant()) {
+                case "terminal":
+                    themePreference = ThemePreference.Terminal;
+                    break;
                 case "highcontrast":
                     themePreference = ThemePreference.HighContrast;
                     break;
@@ -128,7 +131,8 @@ namespace ConsoleMonster.Capabilities {
                 case "auto":
                     break;
                 default:
-                    decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'");
+                    if (Styling.Theme.TrySchemeName(themeValue, out string schemeName, out _, out _)) { decisions.Add("theme scheme: " + schemeName); }
+                    else { decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'"); }
                     break;
             }
             if (themePreference == ThemePreference.Auto && env.IsWindows && env.HighContrast) {

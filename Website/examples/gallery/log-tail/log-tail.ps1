@@ -23,7 +23,7 @@ function New-DemoFrame {
     )
 
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Application log[/] [muted]· worker events[/]'
+        '[accent bold]Application log[/] [muted]· worker events[/]'
         New-ConsolePanel -Title './logs/worker.log' -Content {
             foreach ($entry in $events[0..$Tick]) {
                 $label = $labels[$entry.Level].PadRight(4)
@@ -50,7 +50,7 @@ Invoke-ConsoleDashboard -Dashboard $screen -ArgumentList (, $frames) -ScriptBloc
 
 # Then read the run back: / finds text, n moves to the next match, Escape quits.
 Show-ConsoleApp -Content {
-    '[bold]Application log[/] [muted]· read the run back[/]'
+    '[accent bold]Application log[/] [muted]· read the run back[/]'
     New-ConsoleLogRegion -WidgetId worker.log -NoElapsed -Height 7 -Content {
         foreach ($entry in $events) {
             @{ Message = $entry.Message; Level = $entry.Level }

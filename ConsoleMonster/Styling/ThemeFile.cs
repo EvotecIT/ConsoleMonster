@@ -12,11 +12,11 @@ namespace ConsoleMonster.Styling {
     /// loading never changes <see cref="Terminal.Theme"/>. PowerShell data-file syntax belongs to the PowerShell adapter.
     /// </summary>
     /// <remarks>
-    /// Documents contain SchemaVersion (1 or 2), Name, optional BaseTheme, Tokens and, from version 2, an optional Style
+    /// Documents contain SchemaVersion (1, 2 or 3), Name, optional BaseTheme, Tokens and, from version 2, an optional Style
     /// (Border, Density, StatusMarkers and Background; omitted fields inherit from BaseTheme). Keys and token names are
     /// case-insensitive. BaseTheme must name a built-in preset; omitted tokens and style fields inherit from it.
     /// Without BaseTheme, omitted values use terminal defaults. An explicit null foreground/background clears inheritance.
-    /// Exports contain every token, both colours, all fallback indices and decorations, without an inheritance dependency.
+    /// Version 3 also supports a named or embedded BaseScheme, an Accessible Variant and PaletteIndex colours. Preset exports contain complete token definitions; scheme exports embed the selected source scheme and retain explicit overrides.
     /// </remarks>
     public sealed partial class ThemeFile {
         private readonly Theme _theme;
@@ -30,6 +30,15 @@ namespace ConsoleMonster.Styling {
         /// <returns>A complete theme, including resolved inheritance.</returns>
         public Theme ToTheme() => _theme;
 
+        /// <summary>Re-derives an embedded scheme accessibly, preserving explicit file overrides. Other themes have no scheme variant.</summary>
+        public Theme ToTheme(bool accessible) {
+            if (!accessible || _theme.IsAccessible) { return _theme; }
+            if (_theme.Scheme == null) { throw new FormatException("An accessible variant needs a BaseScheme theme file."); }
+            Dictionary<string, object?> data = Data(_theme);
+            data["Variant"] = "Accessible";
+            return Import(data).ToTheme();
+        }
+
         /// <summary>Captures a theme for lossless export.</summary>
         /// <param name="theme">A built-in or custom theme. Custom implementations must be representable by ThemeStyle.</param>
         /// <returns>A validated snapshot independent of subsequent changes to a custom theme.</returns>
@@ -37,12 +46,15 @@ namespace ConsoleMonster.Styling {
         /// <exception cref="FormatException">A name, fallback index or decoration is invalid.</exception>
         public static ThemeFile FromTheme(ITheme theme) {
             if (theme == null) { throw new ArgumentNullException(nameof(theme)); }
+            if (theme is Theme following && following.FollowsTerminal) { theme = following.ForExport(); }
             Dictionary<ThemeToken, ThemeStyle> styles = new Dictionary<ThemeToken, ThemeStyle>();
             foreach (ThemeToken token in Theme.AllTokens()) {
                 styles.Add(token, theme is Theme concrete ? concrete.Get(token) : Capture(theme, token));
             }
             // Apply the same rules as file import, including validation of programmatically created ThemeColor values.
-            return Import(Data(new Theme(theme.Name, styles, (theme as Theme)?.Appearance)));
+            Theme snapshot = new Theme(theme.Name, styles, (theme as Theme)?.Appearance);
+            if (theme is Theme metadata) { snapshot.WithSchemeMetadata(metadata); }
+            return Import(Data(snapshot));
         }
 
         /// <summary>Parses JSON and validates every key, token, colour, fallback and decoration before returning.</summary>
@@ -66,12 +78,16 @@ namespace ConsoleMonster.Styling {
         /// <returns>A complete, validated document; the input dictionary is not retained or modified.</returns>
         /// <exception cref="FormatException">An unknown key, token, preset or invalid value is present.</exception>
         public static ThemeFile Import(IDictionary data) {
-            Dictionary<string, object?> root = Map(data, "Theme", "SchemaVersion", "Name", "BaseTheme", "Tokens", "Style");
-            int schema = root.TryGetValue("SchemaVersion", out object? version) ? Integer(version, "SchemaVersion", 1, 2) : 1;
+            Dictionary<string, object?> root = Map(data, "Theme", "SchemaVersion", "Name", "BaseTheme", "Tokens", "Style", "BaseScheme", "Variant");
+            int schema = root.TryGetValue("SchemaVersion", out object? version) ? Integer(version, "SchemaVersion", 1, 3) : 1;
             if (schema < 2 && root.ContainsKey("Style")) { throw Error("Style", "needs SchemaVersion 2"); }
+            if (schema < 3 && (root.ContainsKey("BaseScheme") || root.ContainsKey("Variant"))) { throw Error("BaseScheme/Variant", "needs SchemaVersion 3"); }
+            if (root.ContainsKey("BaseTheme") && root.ContainsKey("BaseScheme")) { throw Error("BaseScheme", "cannot be combined with BaseTheme"); }
             string name = RequiredString(Get(root, "Name"), "Name");
             Theme? basis = root.TryGetValue("BaseTheme", out object? baseName) ? Preset(RequiredString(baseName, "BaseTheme")) : null;
-            Dictionary<string, object?> tokens = Map(Get(root, "Tokens"), "Tokens");
+            if (root.TryGetValue("BaseScheme", out object? schemeData)) { basis = ReadSchemeBasis(schemeData, root); }
+            else if (root.ContainsKey("Variant")) { throw Error("Variant", "requires BaseScheme"); }
+            Dictionary<string, object?> tokens = root.TryGetValue("Tokens", out object? tokenData) ? Map(tokenData, "Tokens") : schema == 3 ? new Dictionary<string, object?>() : Map(Get(root, "Tokens"), "Tokens");
             Dictionary<ThemeToken, ThemeStyle> styles = new Dictionary<ThemeToken, ThemeStyle>();
             foreach (ThemeToken token in Theme.AllTokens()) { styles.Add(token, basis?.Get(token) ?? default); }
             HashSet<ThemeToken> specified = new HashSet<ThemeToken>();
@@ -79,9 +95,24 @@ namespace ConsoleMonster.Styling {
                 if (!Theme.TryParseToken(pair.Key, out ThemeToken token)) { throw Error("Tokens." + pair.Key, "is an unknown theme token"); }
                 if (!specified.Add(token)) { throw Error("Tokens." + pair.Key, "is a duplicate theme token"); }
                 styles[token] = ReadStyle(pair.Value, "Tokens." + pair.Key, styles[token]);
+                if (schema < 3 && (styles[token].Color?.IsPaletteIndex == true || styles[token].BackgroundColor?.IsPaletteIndex == true)) { throw Error("Tokens." + pair.Key, "PaletteIndex needs SchemaVersion 3"); }
             }
+            if (schema < 3 && basis?.FollowsTerminal == true) { throw Error("BaseTheme", "Terminal needs SchemaVersion 3"); }
             ThemeAppearance appearance = ReadAppearance(root.TryGetValue("Style", out object? style) ? style : null, basis?.Appearance ?? ThemeAppearance.Default);
-            return new ThemeFile(new Theme(name, styles, appearance));
+            Theme resolved = new Theme(name, styles, appearance);
+            if (basis != null) { resolved.WithSchemeMetadata(basis); }
+            if (basis?.Scheme != null) {
+                foreach (KeyValuePair<string, object?> pair in tokens) {
+                    Theme.TryParseToken(pair.Key, out ThemeToken token);
+                    Dictionary<string, object?> fields = Map(pair.Value, "Tokens." + pair.Key);
+                    SchemeOverrideFields mask = SchemeOverrideFields.None;
+                    if (fields.ContainsKey("Foreground")) { mask |= SchemeOverrideFields.Foreground; }
+                    if (fields.ContainsKey("Background")) { mask |= SchemeOverrideFields.Background; }
+                    if (fields.ContainsKey("Decoration")) { mask |= SchemeOverrideFields.Decoration; }
+                    resolved.SetSchemeOverride(token, mask);
+                }
+            }
+            return new ThemeFile(resolved);
         }
 
         private static ThemeAppearance ReadAppearance(object? value, ThemeAppearance basis) {
@@ -119,11 +150,13 @@ namespace ConsoleMonster.Styling {
             Dictionary<string, object?> tokens = new Dictionary<string, object?>();
             foreach (ThemeToken token in Theme.AllTokens()) {
                 ThemeStyle style = theme.Get(token);
-                tokens.Add(token.ToString(), new Dictionary<string, object?> {
-                    ["Foreground"] = ColorData(style.Color),
-                    ["Background"] = ColorData(style.BackgroundColor),
-                    ["Decoration"] = style.Decoration.ToString()
-                });
+                SchemeOverrideFields fields = theme.Scheme == null ? SchemeOverrideFields.All : theme.SchemeOverrides(token);
+                if (fields == SchemeOverrideFields.None) { continue; }
+                Dictionary<string, object?> item = new Dictionary<string, object?>();
+                if ((fields & SchemeOverrideFields.Foreground) != 0) { item["Foreground"] = ColorData(style.Color); }
+                if ((fields & SchemeOverrideFields.Background) != 0) { item["Background"] = ColorData(style.BackgroundColor); }
+                if ((fields & SchemeOverrideFields.Decoration) != 0) { item["Decoration"] = style.Decoration.ToString(); }
+                tokens.Add(token.ToString(), item);
             }
             Dictionary<string, object?> data = new Dictionary<string, object?> { ["SchemaVersion"] = 1, ["Name"] = theme.Name, ["Tokens"] = tokens };
             if (!theme.Appearance.Equals(ThemeAppearance.Default)) {
@@ -136,12 +169,24 @@ namespace ConsoleMonster.Styling {
                     ["Background"] = theme.Appearance.Background.ToString()
                 };
             }
+            if (theme.Scheme != null) {
+                data["SchemaVersion"] = 3;
+                data["BaseScheme"] = new Dictionary<string, object?> { ["Scheme"] = SchemeData(theme.Scheme) };
+                if (theme.IsAccessible) { data["Variant"] = "Accessible"; }
+            }
+            foreach (ThemeToken token in Theme.AllTokens()) {
+                ThemeStyle style = theme.Get(token);
+                if (style.Color?.IsPaletteIndex == true || style.BackgroundColor?.IsPaletteIndex == true) { data["SchemaVersion"] = 3; break; }
+            }
+            if (theme.FollowsTerminal) { data["SchemaVersion"] = 3; data["BaseTheme"] = "Terminal"; }
             return data;
         }
 
-        private static object? ColorData(ThemeColor? color) => color.HasValue ? new Dictionary<string, object?> {
-            ["TrueColor"] = color.Value.TrueColor.ToString(), ["Ansi16"] = color.Value.Ansi16, ["Ansi256"] = color.Value.Ansi256
-        } : null;
+        private static object? ColorData(ThemeColor? color) {
+            if (!color.HasValue) { return null; }
+            if (color.Value.IsPaletteIndex) { return new Dictionary<string, object?> { ["PaletteIndex"] = color.Value.Ansi16 }; }
+            return new Dictionary<string, object?> { ["TrueColor"] = color.Value.TrueColor.ToString(), ["Ansi16"] = color.Value.Ansi16, ["Ansi256"] = color.Value.Ansi256 };
+        }
 
         private static ThemeStyle Capture(ITheme theme, ThemeToken token) {
             Style rgb = theme.Resolve(token, ColorDepth.TrueColor);
@@ -158,6 +203,7 @@ namespace ConsoleMonster.Styling {
 
         private static ThemeColor? CaptureColor(Color rgb, Color ansi16, Color ansi256) {
             if (rgb.IsDefault && ansi16.IsDefault && ansi256.IsDefault) { return null; }
+            if (rgb.Kind == ColorKind.Ansi16 && rgb == ansi16 && rgb == ansi256) { return ThemeColor.PaletteIndex(rgb.Index); }
             return new ThemeColor(rgb, ansi16.IsDefault ? -1 : ansi16.Index, ansi256.IsDefault ? -1 : ansi256.Index);
         }
     }

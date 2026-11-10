@@ -21,6 +21,14 @@ namespace SiteFrames.Frames {
         /// <summary>A light terminal.</summary>
         public static Screen Light { get; } = new Screen("light", "#24292f", "#ffffff");
 
+        /// <summary>A terminal set to a colour scheme's own default foreground and background.</summary>
+        public static Screen Of(string name, Color foreground, Color background) => new Screen(name, Css(foreground), Css(background));
+
+        private static string Css(Color color) {
+            color.ToRgb(out byte r, out byte g, out byte b);
+            return "#" + FrameHtml.Hex(r, g, b);
+        }
+
         public string Name { get; }
 
         public string Foreground { get; }

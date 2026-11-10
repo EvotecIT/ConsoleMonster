@@ -157,7 +157,7 @@ Accept wildcard characters: False
 ```
 
 ### -NoCount
-Hides the default-on count in the classic bar layout.
+Shows a percentage instead of value/total for totals other than 100. A total of 100 always shows only its percentage.
 
 ```yaml
 Type: SwitchParameter
@@ -305,7 +305,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 

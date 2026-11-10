@@ -5,7 +5,7 @@ namespace ConsoleMonster.Glyphs {
     /// <summary>Status symbols and the running spinner, shared by every widget (see Docs/Design-System.md).</summary>
     public static class GlyphSetExtensions {
         /// <summary>
-        /// The one-cell symbol of a status in the glyph set's tier: ✓ ✗ ▴ – ● ○ ◆ (Full), the same in Basic, + x ! - * . i
+        /// The one-cell symbol of a status in the glyph set's tier: ✓ ✗ ▲ – ● ○ ◆ (Full), the same in Basic, + x ! - * . i
         /// (ASCII). <see cref="IGlyphSet.StatusMarker"/> is the wider marker for status columns (bracketed words in ASCII).
         /// </summary>
         /// <param name="glyphs">The glyph set.</param>
@@ -34,8 +34,10 @@ namespace ConsoleMonster.Glyphs {
         }
 
         // Whether status markers are already words (the ASCII tier, or the Words style), so a status word after one repeats it.
-        internal static bool MarkersAreWords(this IGlyphSet glyphs) =>
-            glyphs.Tier == Capabilities.GlyphTier.Ascii || (glyphs is StyledGlyphSet styled && styled.Words);
+        internal static bool MarkersAreWords(this IGlyphSet glyphs) {
+            string marker = glyphs.StatusMarker(StatusKind.Fail);
+            return marker.Length > 1 && marker[0] == '[' && marker[marker.Length - 1] == ']';
+        }
 
         /// <summary>
         /// The text of a semantic icon in the glyph set's tier (see <see cref="GlyphIcon"/>). Custom glyph sets resolve by

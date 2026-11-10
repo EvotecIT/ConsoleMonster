@@ -94,6 +94,7 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(profile));
             }
             switch (profile.ThemePreference) {
+                case ThemePreference.Terminal: return Styling.Theme.Terminal;
                 case ThemePreference.HighContrast:
                     return Styling.Theme.HighContrast;
                 case ThemePreference.ColorBlind:
@@ -110,7 +111,7 @@ namespace ConsoleMonster {
             return DetectLight(profile) ? Styling.Theme.Light : Styling.Theme.Dark;
         }
 
-        private static bool DetectLight(TerminalProfile profile) =>
+        internal static bool DetectLight(TerminalProfile profile) =>
             profile.Mode == OutputMode.Interactive && Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo info) && info.IsLight;
         /// <summary>The active theme: the target's (see <see cref="Target"/>), or the console's.</summary>
         public static ITheme Theme {
@@ -124,8 +125,8 @@ namespace ConsoleMonster {
                 lock (Gate) {
                     if (_theme != null) return _theme;
                 }
-                // A theme file named in the settings; loaded outside Gate because the loader reads a file.
-                ITheme? fromSettings = ConsoleSettings.ThemeFromPath();
+                // A catalogue choice or theme file; resolved outside Gate because the loader can read a file.
+                ITheme? fromSettings = ConsoleSettings.ThemeFromSetting();
                 if (fromSettings != null) return fromSettings;
                 lock (Gate) {
                     if (_theme != null) return _theme;
@@ -134,7 +135,8 @@ namespace ConsoleMonster {
                 }
                 // Host callbacks and flow-local preferences must not be cached or invoked while holding Gate.
                 switch (ApplyProfilePolicy(profile).ThemePreference) {
-                    case ThemePreference.HighContrast: return Styling.Theme.HighContrast;
+                    case ThemePreference.Terminal: return Styling.Theme.Terminal;
+                case ThemePreference.HighContrast: return Styling.Theme.HighContrast;
                     case ThemePreference.ColorBlind: return ReferenceEquals(detected, Styling.Theme.Light) ? Styling.Theme.ColorBlindSafeLight : Styling.Theme.ColorBlindSafe;
                     case ThemePreference.ColorBlindLight: return Styling.Theme.ColorBlindSafeLight;
                     case ThemePreference.ColorBlindDark: return Styling.Theme.ColorBlindSafe;
@@ -153,7 +155,7 @@ namespace ConsoleMonster {
         internal static bool HasChosenTheme {
             get {
                 lock (Gate) { if (_theme != null) { return true; } }
-                return Profile.ThemePreference != ThemePreference.Auto || ConsoleSettings.ThemeFromPath() != null;
+                return Profile.ThemePreference != ThemePreference.Auto || ConsoleSettings.ThemeFromSetting() != null;
             }
         }
 

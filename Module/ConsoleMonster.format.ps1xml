@@ -116,6 +116,7 @@
         <TypeName>ConsoleMonster.Widgets.Tabs</TypeName>
         <TypeName>ConsoleMonster.Widgets.TextBlock</TypeName>
         <TypeName>ConsoleMonster.Widgets.Tree</TypeName>
+        <TypeName>ConsoleMonster.Widgets.ViewFacts</TypeName>
         <TypeName>ConsoleMonster.Widgets.ViewHeader</TypeName>
         <TypeName>ConsoleMonster.Widgets.ViewHint</TypeName>
         <TypeName>ConsoleMonster.Widgets.WatchView</TypeName>
@@ -126,6 +127,23 @@
             <CustomItem>
               <ExpressionBinding>
                 <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.WidgetFormatter'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </View>
+    <View>
+      <Name>ConsoleMonster.ThemeCheck</Name>
+      <ViewSelectedBy>
+        <TypeName>ConsoleMonster.Styling.ThemeCheckReport</TypeName>
+      </ViewSelectedBy>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>((Get-Command Show-Console).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.ThemeCheckView'))::Format($_, $Host, $(if ($style = Get-Variable -Name PSStyle -ValueOnly -ErrorAction Ignore) { [string] $style.OutputRendering } else { '' }))</ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
           </CustomEntry>

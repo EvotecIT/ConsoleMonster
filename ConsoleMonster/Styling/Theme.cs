@@ -55,7 +55,7 @@ namespace ConsoleMonster.Styling {
         /// <param name="appearance">The style.</param>
         /// <returns>A new theme.</returns>
         public Theme WithAppearance(ThemeAppearance appearance) =>
-            new Theme(Name, (ThemeStyle[])_styles.Clone(), appearance ?? throw new ArgumentNullException(nameof(appearance)));
+            Copy(Name, (ThemeStyle[])_styles.Clone(), appearance ?? throw new ArgumentNullException(nameof(appearance)));
 
         /// <summary>Returns the definition of a token.</summary>
         /// <param name="token">The token.</param>
@@ -82,13 +82,15 @@ namespace ConsoleMonster.Styling {
         public Theme With(ThemeToken token, ThemeStyle style) {
             ThemeStyle[] copy = (ThemeStyle[])_styles.Clone();
             copy[(int)token] = style;
-            return new Theme(Name, copy, Appearance);
+            Theme changed = Copy(Name, copy, Appearance);
+            if (Scheme != null) { changed.SetSchemeOverride(token, SchemeOverrideFields.All); }
+            return changed;
         }
 
         /// <summary>Returns a copy of the theme under a new name.</summary>
         /// <param name="name">The name.</param>
         /// <returns>A new theme.</returns>
-        public Theme Rename(string name) => new Theme(name ?? throw new ArgumentNullException(nameof(name)), (ThemeStyle[])_styles.Clone(), Appearance);
+        public Theme Rename(string name) => Copy(name ?? throw new ArgumentNullException(nameof(name)), (ThemeStyle[])_styles.Clone(), Appearance);
 
         /// <summary>Parses a token name case-insensitively (<c>pass</c>, <c>Muted</c>, <c>series3</c>).</summary>
         /// <param name="name">The name.</param>
@@ -98,11 +100,15 @@ namespace ConsoleMonster.Styling {
             return TokenNames.TryGetValue(name.Trim(), out token);
         }
 
-        /// <summary>Returns a built-in theme by name (Dark, Light, HighContrast, ColorBlindSafe or ColorBlindSafeLight), or <see cref="Dark"/>.</summary>
+        /// <summary>Returns a built-in theme, catalogue scheme or paired family by name, or <see cref="Dark"/> for an unknown name.</summary>
+        /// <remarks>Catalogue names accept the suffix " · accessible". Family names choose the detected background, falling back to dark.</remarks>
         /// <param name="name">The name.</param>
         /// <returns>The theme.</returns>
         public static Theme FromName(string? name) {
+            if (TrySchemeName(name, out string scheme, out bool accessible, out _)) { return CatalogueTheme(scheme, accessible); }
             switch ((name ?? string.Empty).Trim().ToLowerInvariant()) {
+                case "terminal":
+                    return Terminal;
                 case "light":
                     return Light;
                 case "highcontrast":

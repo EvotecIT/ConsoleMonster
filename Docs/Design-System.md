@@ -77,7 +77,7 @@ cards and dialogs always use Accent.
 | Status | Symbol (Full/Basic) | Symbol (ASCII) | Marker (ASCII) | Role |
 |---|---|---|---|---|
 | pass | ✓ | + | [OK] | Pass |
-| warn | ▴ | ! | [WARN] | Warn |
+| warn | ▲ | ! | [WARN] | Warn |
 | fail | ✗ | x | [FAIL] | Fail |
 | skip | – | - | [SKIP] | Skip |
 | running | spinner (●) | spinner (*) | [BUSY] | Running |
@@ -126,7 +126,7 @@ one cell wide in every tier.
 | Back | ◄ | ◄ | < |
 | List | ≡ | ≡ | = |
 | Help | ? | ? | ? |
-| Warning | ▴ | ! | ! |
+| Warning | ▲ | ▲ | ! |
 | Done | ✓ | √ | + |
 | Exit | × | × | x |
 ## Empty, loading and error states
@@ -176,3 +176,52 @@ one cell wide in every tier.
   and a closing line with the outcome in its status colour and the totals in Muted.
 - **Stream output:** one line per failure (`✗ Block › test: expected 4, actual 3 (File.Tests.ps1:12)`) and one summary
   line, with the separators of the tier.
+
+## Hierarchy
+
+The screen title is Accent and bold (`ViewHeader`, `HeaderBar`, or the first `Rule`). Section titles use Title;
+labels and captions use Muted. Values use Text, with Strong for the block's key figure. `Meter` uses Muted labels and
+Strong figures; `KeyValueList` separates its Muted keys from Text values.
+
+`ViewFacts`, `Ui.Facts()` and `New-ConsoleFacts` draw report counts in one format: a bold count and its word in the
+same semantic role, separated by ` · ` (` | ` in ASCII). Neutral facts and zero status counts are Muted, including chart values and markers. Values use table presenters, and
+facts wrap between items. Default-view summaries use this same widget. Other fact flows and frame legends share these separators; a literal middle-dot legend marker is shown as `(·)` so it cannot be mistaken for the separator.
+
+## Bars
+
+| Meaning | Component | Shape and track | Value |
+| --- | --- | --- | --- |
+| Part of a known whole | ProgressBar, BarChart with Maximum, ScoreGauge, progress cells | Line with a Subtle track to full width | Percentage for a whole of 100; otherwise value/whole |
+| Comparison | BarChart without Maximum, table data bars, histograms | Block, scaled to the largest, without a track | Right-aligned value column |
+| Composition | StackedBar, composition meters | Proportional segments; healthy share neutral, problem shares coloured | Total beside the bar |
+
+Line uses `━╸─` on Full, `═─` on Basic and `#-` on ASCII. Comparison rows use `▆`, `▄` and `#` respectively. Existing rounding stays in place: Full Line bars round to half cells with midpoint-to-even and use `╸` for the half cell; ASCII keeps its eighth-cell calculation with unsupported partial cells omitted.
+Bars and legend swatches use the semantic foreground and background colours without text decorations. Coloured composition problems use opaque blocks so a late Fail segment is not diluted by a shade pattern; monochrome and ASCII retain distinct fill patterns. A Fail underline remains on text, never on the bar geometry.
+Adjacent composition segments with the same colour and fill have a one-cell gap when there is room to retain every positive segment. Segment proportions use the remaining fill width. Legends fit each column to its own labels while keeping counts and percentages aligned across rows.
+`BarDrawer` owns horizontal bar geometry, including inline frame bars and exported output. An explicitly signed
+BarChart retains its zero baseline and comparison semantics. A non-finite Maximum falls back to comparison scaling.
+Progress columns remain configurable; an explicit set of columns determines its own count and percentage fields.
+
+## Charts
+
+A Sparkline with point Labels shows its peak and a sparse axis: first, middle and last label. Labels span the plotted
+points; narrow plots omit labels that would overlap. Without Labels the existing compact trend stays unchanged.
+Histogram labels describe its bucket edges and its peak count stays beside the vertical axis. Explicit Labels replace
+the corresponding numeric edges. A Sparkline inside a panel whose title contains the same name drops its repeated caption.
+
+## Layout
+
+Printed reports keep their measured height. A Dashboard given a full-screen region fills its last automatic row;
+an explicit Fill row takes precedence. Ordinary Rows and Show-ConsoleApp layouts retain their existing sizing.
+DashboardFrame sections start together in their columns, with a separate Title heading per section and a short rule marking headings without a state.
+Four blank cells separate frame columns (three in Compact), so a status caption cannot read as part of the next heading. Its legend
+is one Muted facts line directly under the summary it explains, including the footer counts; details follow it.
+
+Table columns whose non-empty values are all numeric align right, including values supplied as text. An explicit
+column alignment or presenter wins. Mixed text/number columns remain left-aligned.
+
+`▲` is one cell in the standard terminal width model and the site's JetBrains Mono grid. It is East Asian Ambiguous;
+a terminal configured for double-width ambiguous characters measures it as two cells. Marker placement uses measured
+widths and leaves that terminal preference intact.
+
+Review contact sheets include all 41 gallery demos at 120 columns. `SiteFrames gallery-contact-sheet Website <directory> <variant>` accepts `Dark`, `Light`, `ColorBlindSafe` and `CompactWords`; the last uses the Dark theme, Compact density and Words markers on the actual terminal profile.

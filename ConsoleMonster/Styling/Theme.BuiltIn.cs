@@ -52,7 +52,7 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#2dd4bf", 14, 43)),
                 [ThemeToken.Strong] = new ThemeStyle(null, null, TextDecoration.Bold),
                 [ThemeToken.Low] = new ThemeStyle(ThemeColor.Hex("#cdbb7c", 11, 179)),
-                [ThemeToken.Critical] = new ThemeStyle(ThemeColor.Hex("#ff5a8f", 9, 204), null, TextDecoration.Bold),
+                [ThemeToken.Critical] = new ThemeStyle(ThemeColor.Hex("#111827", 0, 234), ThemeColor.Hex("#ff5a8f", 9, 204), TextDecoration.Bold),
                 [ThemeToken.Gap] = new ThemeStyle(ThemeColor.Hex("#b893f5", 12, 141)),
                 [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#f1f5f9", 15, 255), ThemeColor.Hex("#243b5e", 4, 237))
             };
@@ -87,7 +87,7 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#0d9488", 6, 30)),
                 [ThemeToken.Strong] = new ThemeStyle(null, null, TextDecoration.Bold),
                 [ThemeToken.Low] = new ThemeStyle(ThemeColor.Hex("#76641a", 3, 94)),
-                [ThemeToken.Critical] = new ThemeStyle(ThemeColor.Hex("#ad0f56", 5, 125), null, TextDecoration.Bold),
+                [ThemeToken.Critical] = new ThemeStyle(ThemeColor.Hex("#ffffff", 15, 231), ThemeColor.Hex("#ad0f56", 5, 125), TextDecoration.Bold),
                 [ThemeToken.Gap] = new ThemeStyle(ThemeColor.Hex("#7339bd", 13, 92)),
                 [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#0f172a", 0, 233), ThemeColor.Hex("#d6e4fa", 7, 189))
             };
@@ -122,7 +122,7 @@ namespace ConsoleMonster.Styling {
                 [ThemeToken.Series6] = new ThemeStyle(ThemeColor.Hex("#ffffff", 15, 231)),
                 [ThemeToken.Strong] = new ThemeStyle(null, null, TextDecoration.Bold),
                 [ThemeToken.Low] = new ThemeStyle(ThemeColor.Hex("#cdbb7c", 11, 179)),
-                [ThemeToken.Critical] = new ThemeStyle(ThemeColor.Hex("#ff5a8f", 9, 204), null, TextDecoration.Bold),
+                [ThemeToken.Critical] = new ThemeStyle(ThemeColor.Hex("#111827", 0, 234), ThemeColor.Hex("#ff5a8f", 9, 204), TextDecoration.Bold),
                 [ThemeToken.Gap] = new ThemeStyle(ThemeColor.Hex("#b893f5", 12, 141)),
                 [ThemeToken.Focus] = new ThemeStyle(ThemeColor.Hex("#000000", 0, 16), ThemeColor.Hex("#00ffff", 14, 51), TextDecoration.Bold)
             };

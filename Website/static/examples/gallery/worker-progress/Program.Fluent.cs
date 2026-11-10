@@ -27,15 +27,15 @@ IWidget Frame(int tick)
 
     KeyValueList stats = Ui.KeyValue()
         .Add("Updates",
-            (800 + tick * 320).ToString(System.Globalization.CultureInfo.InvariantCulture))
+            (800 + tick * 320).ToString("N0", System.Globalization.CultureInfo.InvariantCulture))
         .Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture))
         .Add("Workers", "8")
-        .Add("Dropped", "[pass]0[/]");
+        .Add("Dropped", "[muted]0[/]");
     Sparkline trend = (Sparkline)Ui.Chart().Type(ChartType.Sparkline).Title("updates/s").Build();
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return Ui.Rows().Gap(1).Content(c4 =>
     {
-        c4.Markup("[bold]Worker stress dashboard[/] [muted]· worker pool[/]");
+        c4.Markup("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]");
         c4.Columns(columns => columns.Content(c3 =>
         {
             c3.Panel(p => p.Title("Workers").Content(c =>

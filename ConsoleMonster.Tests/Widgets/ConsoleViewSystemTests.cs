@@ -52,7 +52,7 @@ public sealed class ConsoleViewSystemTests {
         TextBlock text = TextBlock.Plain("a · b more");
         text.WrapSeparator = " · "; text.Overflow = overflow;
         string rendered = TestTerminal.RenderText(text, width, height: 1, glyphs: GlyphTier.Ascii);
-        Assert.Contains("a -", rendered);
+        Assert.Contains("a |", rendered);
         Assert.DoesNotContain('·', rendered);
     }
     [Theory]
@@ -77,12 +77,12 @@ public sealed class ConsoleViewSystemTests {
     }
     [Fact]
     public void Frame_NarrowTitleAndFooter_BreakBetweenCompleteEntries() {
-        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("GPOs", "× 1 broken link · ▴ 2 unlinked · ▴ 1 non-admin owner", "corp.contoso.com"));
+        ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("GPOs", "× 1 broken link · ▲ 2 unlinked · ▲ 1 non-admin owner", "corp.contoso.com"));
         frame.Footer = TextBlock.Plain("offsets: DC minus collector · reference age is not W32Time sync");
         string text = TestTerminal.RenderText(frame, 60, glyphs: GlyphTier.Full);
-        Assert.Contains("▴ 1 non-admin owner", text);
+        Assert.Contains("▲ 1 non-admin owner", text);
         Assert.Contains("reference age is not W32Time sync", text);
-        Assert.DoesNotContain("▴ 1\n", text);
+        Assert.DoesNotContain("▲ 1\n", text);
         Assert.DoesNotContain("W32Time\n", text);
     }
 
@@ -225,11 +225,12 @@ public sealed class ConsoleViewSystemTests {
         ScoreGauge gauge = new ScoreGauge(72, 100, ThemeToken.Critical);
         Review184Capture capture = new Review184Capture(gauge, width, tier, ColorDepth.TrueColor);
         string text = capture.Raw.ToPlainText();
-        Assert.StartsWith("72/100  ", text);
-        string bar = text.Substring(8);
-        Assert.Equal(cells, bar.Length);
-        Assert.Equal(capture.Context.Style(ThemeToken.Critical).Color, capture.Raw[8, 0].Style.Color);
-        Assert.DoesNotContain("security", text);
+        Assert.EndsWith("72%", text);
+        string bar = text.Substring(0, cells);
+        Assert.Contains(tier == GlyphTier.Ascii ? "-" : "─", bar);
+        Assert.Equal(capture.Context.Style(ThemeToken.Critical).Color, capture.Raw[0, 0].Style.Color);
+        Assert.Equal(capture.Context.Style(ThemeToken.Critical).BackgroundColor, capture.Raw[0, 0].Style.BackgroundColor);
+        Assert.Equal(TextDecoration.None, capture.Raw[0, 0].Style.Decoration);
     }
 
     [Fact]

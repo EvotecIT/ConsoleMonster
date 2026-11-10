@@ -131,7 +131,12 @@ namespace ConsoleMonster.Live {
                     if (TryReadWindow(out _, out _, out int currentWidth, out _) && currentWidth > 0) { width = currentWidth; }
                 }
                 CellBuffer block = FrameComposer.RenderBlock((IWidget)liveEvent.Payload!, width, _context);
-                RouteConsoleWrite(new ConsoleWriteBlock(new[] { block }));
+                if (!SupportsLiveFrames && liveEvent.Payload is Widgets.RunCompletion completion && _output is LineOutput lines
+                    && ContinuousIntegration.Provider != ContinuousIntegrationProvider.None) {
+                    lock (_outputGate) {
+                        using (ContinuousIntegration.Group(completion.GroupTitle, lines.WriteCommand)) { RouteConsoleWrite(new ConsoleWriteBlock(new[] { block })); }
+                    }
+                } else { RouteConsoleWrite(new ConsoleWriteBlock(new[] { block })); }
             } else if (target is Widgets.LogRegion scrollback && scrollback.Scrollback && liveEvent.Operation == "write" && SupportsLiveFrames) {
                 StyledText text = scrollback.ScrollbackText(liveEvent, _context!);
                 _unroutedLines.Enqueue(new ConsoleWriteBlock(text.Lines, true));

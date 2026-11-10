@@ -12,6 +12,7 @@ namespace ConsoleMonster.Sessions {
     public sealed class SessionRecording {
         private readonly List<CastEvent> _events = new List<CastEvent>();
         private string _header = string.Empty;
+        private Styling.Theme? _recordedTheme;
         /// <summary>Initial terminal columns.</summary>
         public int Width { get; private set; }
         /// <summary>Initial terminal rows.</summary>
@@ -33,6 +34,7 @@ namespace ConsoleMonster.Sessions {
             recording._header = ReadBoundedLine(reader, ref size) ?? throw new FormatException("Missing asciicast header.");
             Dictionary<string, object?> header = MiniJson.Read(recording._header) as Dictionary<string, object?> ?? throw new FormatException("Invalid asciicast header.");
             if (Number(header, "version") != 2) { throw new FormatException("Session recordings require asciicast v2."); }
+            recording._recordedTheme = SessionPalette.Read(header);
             recording.Width = Number(header, "width"); recording.Height = Number(header, "height");
             Dimensions(recording.Width, recording.Height);
             if (header.TryGetValue("title", out object? title)) { recording.Title = title as string ?? recording.Title; }
@@ -149,10 +151,20 @@ namespace ConsoleMonster.Sessions {
         /// <summary>Exports a static final-frame SVG with the same theme and cell geometry as the player.</summary>
         public string ExportFinalSvg(ExportOptions? options = null) {
             CellBuffer frame = FinalFrame();
-            ExportOptions effective = options?.Clone() ?? new ExportOptions();
+            ExportOptions effective = ResolveFrameOptions(options);
             effective.Title = effective.Title ?? Title;
             return ConsoleExporter.ToSvg(TrimRows(frame, UsedHeight(frame)), effective);
         }
+        internal ExportOptions ResolveFrameOptions(ExportOptions? options) {
+            ExportOptions effective = options?.Clone() ?? new ExportOptions();
+            if (_recordedTheme != null && effective.Theme == ExportTheme.Auto && effective.DarkTheme == null && effective.LightTheme == null) {
+                effective.Theme = _recordedTheme.Appearance.Background == Styling.ThemeBackground.Light ? ExportTheme.Light : ExportTheme.Dark;
+                effective.DarkTheme = effective.LightTheme = _recordedTheme;
+            }
+            if (effective.Theme == ExportTheme.Auto && effective.DarkTheme == null && effective.LightTheme == null) { effective.Theme = ExportTheme.Dark; }
+            return effective;
+        }
+
         /// <summary>Returns an interoperable v2 cast without input events.</summary>
         public string ToAsciicast() {
             StringBuilder output = new StringBuilder(_header).Append('\n');
@@ -163,6 +175,10 @@ namespace ConsoleMonster.Sessions {
             RecordingExportOptions source = options ?? new RecordingExportOptions();
             RecordingExportOptions result = source.Clone();
             result.Title = source.Title ?? Title;
+            if (_recordedTheme != null && result.CustomTheme == null && result.Theme == ExportTheme.Auto) {
+                result.CustomTheme = _recordedTheme;
+                result.Theme = _recordedTheme.Appearance.Background == Styling.ThemeBackground.Light ? ExportTheme.Light : ExportTheme.Dark;
+            }
             if (result.MaxFrames < 2) { throw new ArgumentOutOfRangeException(nameof(options), "Session playback needs at least two frames."); }
             int width = Width, height = Height;
             foreach (CastEvent item in _events) { if (item.Kind == "r") { ParseSize(item.Data, out int w, out int h); width = Math.Max(width, w); height = Math.Max(height, h); } }

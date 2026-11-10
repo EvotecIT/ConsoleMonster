@@ -214,7 +214,7 @@ void Execute(MenuContext context, List<Work> work)
     Dashboard dashboard = new Dashboard()
     {
         Content = body,
-        Title = "[bold]Server toolbox[/]",
+        Title = "[accent bold]Server toolbox[/]",
         Subtitle = domain,
         Footer = "Ctrl+C cancel · results keep the findings"
     };

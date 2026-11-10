@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
@@ -56,6 +57,54 @@ namespace ConsoleMonster.Tests.Capabilities {
 
         private static TerminalProfile DensityProfile() => new CapabilityDetector(
             new TerminalEnvironment(Overlaid(new Dictionary<string, string>()))).Detect();
+
+        [Theory]
+        [InlineData("0;15")]
+        [InlineData("15;0")]
+        public void CatalogueFamiliesFollowTheDetectedBackgroundWhileExplicitVariantsStayFixed(string colorFgbg) {
+            string? previous = Environment.GetEnvironmentVariable("COLORFGBG");
+            TerminalProfile profile = Terminal.Profile;
+            bool explicitProfile = Terminal.HasExplicitProfile;
+            try {
+                Environment.SetEnvironmentVariable("COLORFGBG", colorFgbg);
+                Terminal.Profile = TerminalProfile.Fixed(80, 10);
+                bool light = Terminal.DetectLight(Terminal.Profile);
+                foreach (string family in new[] { "Solarized", "Gruvbox", "Catppuccin", "Tokyo Night" }) {
+                    ThemeScheme expected = Theme.Schemes.Single(entry => entry.Family == family && entry.Variant == (light ? ThemeBackground.Light : ThemeBackground.Dark));
+                    Assert.Equal(expected.Name, Theme.FromName(family).Scheme!.Name);
+                    Assert.Equal(expected.Name, ThemeFile.Parse("{\"SchemaVersion\":3,\"Name\":\"Team\",\"BaseScheme\":\"" + family + "\"}").ToTheme().Scheme!.Name);
+                }
+                foreach (ThemeScheme entry in Theme.Schemes) { Assert.Equal(entry.Name, Theme.FromName(entry.Name).Scheme!.Name); }
+                ConsoleSettings.Set("Theme", "Tokyo Night · accessible");
+                Assert.Equal(light ? "Tokyo Night Day" : "Tokyo Night Dark", ((Theme)Terminal.Theme).Scheme!.Name);
+                Terminal.Profile = TerminalProfile.Fixed(80, 10, mode: OutputMode.Plain);
+                Terminal.RefreshBackground();
+                Assert.Equal("Tokyo Night Dark", Theme.FromName("Tokyo Night").Scheme!.Name);
+                Assert.Equal("Tokyo Night Dark", ((Theme)Terminal.Theme).Scheme!.Name);
+                Assert.True(((Theme)Terminal.Theme).IsAccessible);
+            } finally {
+                if (explicitProfile) { Terminal.Profile = profile; } else { Terminal.Refresh(); }
+                Environment.SetEnvironmentVariable("COLORFGBG", previous);
+            }
+        }
+
+        [Fact]
+        public void CataloguePreviewUsesTheBrowsedPaletteAndItsOwnCheckerVerdict() {
+            ConsoleSettings.Set("Theme", "Dark");
+            foreach (string name in new[] { "Dracula", "Nord", "Dracula · accessible", "Nord · accessible", "Catppuccin Latte" }) {
+                Theme expected = Theme.FromName(name);
+                IWidget preview = SettingsPicker.Preview(new Dictionary<string, string> { ["Theme"] = name });
+                var frame = Terminal.Render(preview, TerminalProfile.Fixed(110, 30), Theme.Dark);
+                string text = frame.ToPlainText();
+                Assert.Contains("Backups", text);
+                Assert.Contains("Statuses apart for colour-blind users: " + (expected.IsAccessible ? "yes" : "no"), text);
+                Assert.Contains(Enumerable.Range(0, frame.Height).SelectMany(y => Enumerable.Range(0, frame.Width).Select(x => frame[x, y])),
+                    cell => cell.Style.Color == expected.Get(ThemeToken.Pass).Resolve(ColorDepth.TrueColor).Color);
+                // Each scheme is previewed on its own background, so a light scheme is not drawn on the dark terminal.
+                Assert.Equal(expected.Scheme!.Background, frame[0, 0].Style.BackgroundColor);
+                Assert.Equal("Dark", ConsoleSettings.Get("Theme").Value);
+            }
+        }
 
         [Theory]
         [InlineData("Comfortable", ThemeDensity.Comfortable)]

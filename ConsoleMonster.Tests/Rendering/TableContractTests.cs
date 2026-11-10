@@ -177,13 +177,14 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Fact]
-        public void StatusCellCarriesTheMarkerAndWord() {
+        public void WordsStatusCellUsesItsMarkerWithoutRepeatingTheWord() {
             Table table = new Table { Border = TableBorder.None };
             table.AddColumn("Check");
             table.AddColumn("Result");
             table.AddRow("SPF", TableCell.ForStatus(StatusKind.Fail));
             string ascii = Terminal.RenderText(table, TerminalProfile.Fixed(40, 10, ColorDepth.None, GlyphTier.Ascii), Theme.Dark);
-            Assert.Contains("[FAIL] FAIL", ascii);
+            Assert.Contains("[FAIL]", ascii);
+            Assert.DoesNotContain("[FAIL] FAIL", ascii);
         }
     }
 }

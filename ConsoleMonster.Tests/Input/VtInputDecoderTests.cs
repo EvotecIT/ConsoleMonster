@@ -21,9 +21,11 @@ namespace ConsoleMonster.Tests.Input {
             }
         }
 
-        [Fact]
-        public void DelayedOscBackgroundReplyNeverBecomesText() {
-            const string reply = "\u001b]11;rgb:ffff/ffff/ffff\u001b\\";
+        [Theory]
+        [InlineData("\u001b]11;rgb:ffff/ffff/ffff\u001b\\")]
+        [InlineData("\u001b]10;rgb:1234/5678/abcd\u0007")]
+        [InlineData("\u001b]4;2;rgb:1234/5678/abcd\u001b\\")]
+        public void DelayedStartupColourReplyNeverBecomesText(string reply) {
             for (int split = 2; split < reply.Length; split++) {
                 VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
                 List<InputEvent> events = new List<InputEvent>();
@@ -54,6 +56,8 @@ namespace ConsoleMonster.Tests.Input {
         [Theory]
         [InlineData("\u001b]11;rgb:ffff/hello\r\u0003", "hello")]
         [InlineData("\u001b]11;rgb:ffff/\r\u0003", "")]
+        [InlineData("\u001b]4;15;rgb:ffff/hello\r\u0003", "hello")]
+        [InlineData("\u001b]10;rgb:ffff/\r\u0003", "")]
         public void MalformedBackgroundReplyPreservesUnrelatedKeys(string text, string expected) {
             VtInputDecoder decoder = new VtInputDecoder { IgnoreBackgroundReplies = true };
             List<InputEvent> events = new List<InputEvent>();

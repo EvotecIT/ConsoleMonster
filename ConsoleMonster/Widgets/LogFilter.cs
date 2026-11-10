@@ -10,14 +10,14 @@ namespace ConsoleMonster.Widgets {
     public sealed class LogFilter {
         /// <summary>Creates a filter; null or empty parts match every entry.</summary>
         /// <param name="tag">The source tag to show, compared without case, or null for every source.</param>
-        /// <param name="level">The lowest level to show (debug, verbose, info, warn, err; pass and skip rank with info), or null for every level.</param>
+        /// <param name="level">The lowest level to show (debug, verbose, info, warn, err, critical; pass and skip rank with info), or null for every level.</param>
         /// <param name="text">Literal text the entry must contain, compared without case, or null.</param>
         /// <exception cref="ArgumentException">The level is not a log level or status word.</exception>
         public LogFilter(string? tag = null, string? level = null, string? text = null) {
             Tag = string.IsNullOrWhiteSpace(tag) ? null : tag!.Trim();
             if (!string.IsNullOrWhiteSpace(level)) {
                 if (!LogLevels.TryNormalize(level, out string normalized)) {
-                    throw new ArgumentException("'" + level + "' is not a log level. Use debug, verbose, info, warn or err.", nameof(level));
+                    throw new ArgumentException("'" + level + "' is not a log level. Use debug, verbose, info, warn, err or critical.", nameof(level));
                 }
                 Level = normalized;
             }
@@ -57,6 +57,7 @@ namespace ConsoleMonster.Widgets {
                 case "verbose": return 1;
                 case "warn": return 3;
                 case "err": return 4;
+                case "critical": return 5;
                 default: return 2;
             }
         }

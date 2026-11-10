@@ -4,7 +4,8 @@ Status: the settings core (section 1, without `Get-ConsoleCapability -Explain`),
 the theme style (section 3: `Border`, `Density`, `StatusMarkers` and `Background`) and exports of the theme in use
 (section 5, through `ExportTheme.Current` and `Export-ConsoleFrame`'s default) are built. Compact density covers
 default table padding, panel padding, list gaps and layout tile gaps; explicit spacing stays as authored.
-`HeaderDecoration`, the checker (section 4) and the terminal palette and import are still proposals. The document
+The checker (section 4), including the picker summary, is implemented through `ThemeCheck.Run` and
+`Test-ConsoleTheme`. `HeaderDecoration` and the terminal palette and import are still proposals. The document
 describes how a user would set up ConsoleMonster once, see the result while choosing, and keep it in every session
 and every tool built on ConsoleMonster.
 
@@ -173,6 +174,9 @@ Settings-file `Style` values override the theme's `Style`, so a user can keep a 
 density.
 
 ### A theme that follows the terminal
+
+Superseded by [Colour-Schemes.md](Colour-Schemes.md), which builds this, importing and a curated catalogue on one
+scheme model.
 
 A new `Terminal` preset maps every token to one of the terminal's 16 palette colours (green for pass, red for fail,
 yellow for warning, blue for info and so on) and emits palette indexes at every colour-enabled depth, never RGB. With no colour (`NO_COLOR`,

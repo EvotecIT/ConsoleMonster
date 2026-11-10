@@ -42,6 +42,7 @@ namespace ConsoleMonster.PowerShell {
             } else {
                 SessionRecording recording = SessionRecording.Read(source);
                 if (frame.Title == null) { frame.Title = recording.Title; }
+                settings = settings.ForRecording(recording);
                 if (perChapter) { return recording.SaveChapterPngs(target, settings, cancellationToken); }
                 if (selected == GraphicsFormat.Png) {
                     if (chapter != null) {

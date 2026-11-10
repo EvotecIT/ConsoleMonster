@@ -115,7 +115,7 @@ namespace ConsoleMonster.Overview {
                             Value = used,
                             Total = 100,
                             ShowCount = false,
-                            Shape = BarShape.Block,
+                            Shape = BarShape.Line,
                             Status = used >= 90 ? StatusKind.Fail : used >= 80 ? StatusKind.Warn : StatusKind.Pass
                         };
                         // Reserve the same suffix space for every metric so both bar edges and percentages align.

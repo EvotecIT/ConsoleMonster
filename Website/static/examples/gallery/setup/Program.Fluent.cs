@@ -149,7 +149,7 @@ foreach (string label in installSteps)
     install.Add(label, StatusKind.Pending);
 ProgressBar bar = (ProgressBar)Ui.Progress().Label("Install").Total(40).Build();
 Dashboard dashboard = Ui.Dashboard()
-    .Title("Installing Toolbox Agent")
+    .Title("[accent bold]Installing Toolbox Agent[/]")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
     .Content(body => body.Panel(Ui.Panel().Title("Steps").Content(c =>
     {
