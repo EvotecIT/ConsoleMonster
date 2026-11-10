@@ -29,6 +29,9 @@ namespace ConsoleMonster.Presenters {
             ["terminating"] = StatusKind.Warn, ["reloading"] = StatusKind.Warn, ["activating"] = StatusKind.Warn,
             ["deactivating"] = StatusKind.Warn, ["exited"] = StatusKind.Skip, ["created"] = StatusKind.Skip, ["dead"] = StatusKind.Fail,
             ["crashloopbackoff"] = StatusKind.Fail, ["oomkilled"] = StatusKind.Fail, ["imagepullbackoff"] = StatusKind.Fail,
+            // TCP connection states keep the same semantic markers as other lifecycle words.
+            ["established"] = StatusKind.Pass, ["listen"] = StatusKind.Info,
+            ["timewait"] = StatusKind.Skip, ["closewait"] = StatusKind.Skip,
             // Certificate validity and access-control decisions.
             ["valid"] = StatusKind.Pass, ["expiring"] = StatusKind.Warn, ["notyetvalid"] = StatusKind.Warn, ["expired"] = StatusKind.Fail,
             ["allow"] = StatusKind.Pass, ["deny"] = StatusKind.Fail,

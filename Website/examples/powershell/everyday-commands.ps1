@@ -38,3 +38,11 @@ if ($windows) {
 'Info', 'Warning', 'Info', 'Error', 'Info' | Group-Object | Sort-Object Count -Descending
 12, 48, 7, 30 | Measure-Object -Sum -Average -Minimum -Maximum
 New-TimeSpan -Start '2026-10-21 12:00' -End '2026-10-21 13:42:05'
+
+# Windows inventory and installed modules.
+Get-Volume
+Get-Disk
+Get-NetTCPConnection
+Get-ScheduledTask
+Get-LocalUser
+Get-InstalledModule

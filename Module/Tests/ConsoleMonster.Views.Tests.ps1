@@ -259,7 +259,7 @@ Get-WinEvent -LogName System -MaxEvents 2 -ErrorAction Ignore | Show-ConsoleTabl
 Get-Volume -ErrorAction Ignore | Where-Object DriveLetter | Select-Object -First 1 | Show-ConsoleTable -Width 140
 '@
         $text | Should -Match 'TimeCreated\s+\S\s+Id\s+\S\s+Level\s+\S\s+ProviderName\s+\S\s+Message'
-        $text | Should -Match 'DriveLetter\s+\S.*Health\s+\S\s+Free\s+\S\s+Size'
+        $text | Should -Match 'Drive\s+\S\s+Label\s+\S\s+File system\s+\S\s+Health\s+\S\s+Size\s+\S\s+Used'
     }
 
     It 'Watch-Console prints every run without a console, and a failed run does not stop it' {

@@ -313,16 +313,6 @@ namespace ConsoleMonster.PowerShell {
                 "ProviderName",
                 Hashtable("Message", ScriptBlock.Create("if ($_.Message) { ($_.Message -split '\r?\n')[0] }"), null)
             }, null, "EventLogRecord", null, true));
-            // Windows storage objects keep their existing view. Network registrations are platform-gated in EverydayBuiltInViews.
-            object[] volumes = {
-                "DriveLetter", "FriendlyName", "FileSystemType",
-                Hashtable("Health", ScriptBlock.Create("[string] $_.HealthStatus"), "StatusWord"),
-                Hashtable("Free", ScriptBlock.Create("$_.SizeRemaining"), "Bytes"),
-                Hashtable("Size", ScriptBlock.Create("$_.Size"), "Bytes")
-            };
-            foreach (string type in new[] { "Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume", "Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume" }) {
-                AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, volumes, null, "Volume", null, true));
-            }
             AttachEverydaySummaries();
             // Ready only once every built-in is in: a concurrent lookup never sees half of them.
             lock (Gate) {

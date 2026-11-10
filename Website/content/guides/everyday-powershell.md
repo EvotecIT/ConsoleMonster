@@ -155,7 +155,19 @@ Measure-Command { Start-Sleep -Milliseconds 250 }
 
 The ACL view reads the rules with the security object's own methods, so it works the same before and after `Microsoft.PowerShell.Security` is loaded. The search, ACL and certificate objects stay exactly as the commands return them: `$acl.Access`, `$match.Line` and `$cert.NotAfter` are unchanged, and `Select-String -Raw` and `-Quiet` keep their native strings and booleans.
 
-{{< cm-frame ids="everyday-commands-ps5,everyday-commands-ps7" caption="Typed at the prompt with formatting on, on Windows PowerShell 5.1 and PowerShell 7; switch the site's theme to see the light-theme run." >}}
+{{< cm-frame ids="everyday-commands-ps5,everyday-commands-ps7" caption="Formatted at a Windows PowerShell 5.1 and PowerShell 7 prompt with invented inventory records. Switch the site theme to see the light or dark run." >}}
+
+Windows inventory commands show the fields you usually need first. Larger results include a summary under the table.
+
+| Command | View and summary |
+| --- | --- |
+| `Get-Volume` | Drive, label, file system, health, capacity and a usage bar. The summary shows total capacity, free space and unhealthy volumes. |
+| `Get-Disk` | Disk name, bus, partition style, health, operational status and size. The summary flags disks that need attention. |
+| `Get-NetTCPConnection` | Local and remote endpoints, connection state, PID and the local process name when available. The summary counts connections by state and distinct listening ports. |
+| `Get-ScheduledTask` | Path, task name and state, with counts by state. The view uses the returned task data. |
+| `Get-LocalUser` | Enabled status, last logon, password expiry and description, with counts for enabled, disabled and never used accounts. |
+
+`Get-InstalledPSResource` and `Get-InstalledModule` show names, versions, repositories, authors and available publication dates on supported platforms. Lists of five or more also show counts by repository.
 
 ## Network replies and addresses
 

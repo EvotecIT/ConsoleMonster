@@ -280,7 +280,116 @@
         @{ Label = 'Exact'; Expression = { ([timespan] $_).ToString() }; Alignment = 'Right' }
     )
 }
+@{
+    TypeName = @(
+        'Microsoft.PowerShell.PSResourceGet.UtilClasses.PSResourceInfo'
+        'Microsoft.PowerShell.Commands.PSRepositoryItemInfo'
+    )
+    Group = 'InstalledModule'
+    Property = @(
+        @{ Label = 'Name'; Expression = 'Name'; Priority = 10 }
+        @{ Label = 'Version'; Expression = { [string] $_.Version }; Priority = 9 }
+        @{ Label = 'Repository'; Expression = 'Repository'; Presenter = 'Chip'; Priority = 8 }
+        'Author'
+        @{ Label = 'Published'; Expression = 'PublishedDate'; Presenter = 'DateRelative' }
+    )
+    HideEmptyColumns = $true
+}
+
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Volume'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_Volume'
+    )
+    Group = 'Volume'
+    Property = @(
+        @{ Label = 'Drive'; Expression = { if ($_.DriveLetter -and $_.DriveLetter -ne [char] 0) { [string] $_.DriveLetter } }; Priority = 10 }
+        @{ Label = 'Label'; Expression = 'FileSystemLabel'; Priority = 9 }
+        @{ Label = 'File system'; Expression = 'FileSystemType' }
+        @{ Label = 'Health'; Expression = 'HealthStatus'; Presenter = 'StatusWord'; Priority = 8 }
+        @{ Label = 'Size'; Expression = 'Size'; Presenter = 'Bytes' }
+        @{ Label = 'Used'; Expression = {
+            if ($_.Size -gt 0 -and $null -ne $_.SizeRemaining -and $_.SizeRemaining -le $_.Size) {
+                1.0 - ([double] $_.SizeRemaining / $_.Size)
+            }
+        }; Presenter = 'Progress'; WarnAbove = 0.8; FailAbove = 0.95; Priority = 7 }
+    )
+}
+
 if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
+    @{
+        TypeName = @(
+            'Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Disk'
+            'Microsoft.Management.Infrastructure.CimInstance#MSFT_Disk'
+        )
+        Group = 'Disk'
+        Property = @(
+            @{ Label = 'Number'; Expression = 'Number'; Presenter = 'Identifier' }
+            @{ Label = 'Name'; Expression = 'FriendlyName'; Priority = 10 }
+            @{ Label = 'Bus'; Expression = 'BusType' }
+            @{ Label = 'Partition'; Expression = 'PartitionStyle' }
+            @{ Label = 'Health'; Expression = 'HealthStatus'; Presenter = 'StatusWord'; Priority = 8 }
+            @{ Label = 'Status'; Expression = { $_.OperationalStatus -join ', ' }; Presenter = 'StatusWord'; Priority = 9 }
+            @{ Label = 'Size'; Expression = 'Size'; Presenter = 'Bytes'; Priority = 7 }
+        )
+    }
+    @{
+        TypeName = @(
+            'Microsoft.Management.Infrastructure.CimInstance#ROOT/StandardCimv2/MSFT_NetTCPConnection'
+            'Microsoft.Management.Infrastructure.CimInstance#MSFT_NetTCPConnection'
+        )
+        Group = 'TcpConnection'
+        Property = @(
+            @{ Label = 'Local'; Expression = {
+                $address = $_.LocalAddress
+                if ($address -like '*:*') { $address = '[' + $address + ']' }
+                "$($address):$($_.LocalPort)"
+            }; Priority = 10 }
+            @{ Label = 'Remote'; Expression = {
+                $address = $_.RemoteAddress
+                if ($address -like '*:*') { $address = '[' + $address + ']' }
+                "$($address):$($_.RemotePort)"
+            }; Priority = 9 }
+            @{ Label = 'State'; Expression = { [string] $_.State }; Presenter = 'StatusWord'; Priority = 8 }
+            @{ Label = 'Process'; Expression = {
+                if ($_.OwningProcess -le 0 -or $_.PSComputerName) { return }
+                try {
+                    $process = [Diagnostics.Process]::GetProcessById([int] $_.OwningProcess)
+                    try { $process.ProcessName } finally { $process.Dispose() }
+                } catch [ArgumentException], [InvalidOperationException], [ComponentModel.Win32Exception] {
+                    # A TCP entry can outlive its process or belong to a protected process.
+                }
+            } }
+            @{ Label = 'PID'; Expression = 'OwningProcess'; Presenter = 'Identifier' }
+        )
+    }
+    @{
+        TypeName = @(
+            'Microsoft.Management.Infrastructure.CimInstance#Root/Microsoft/Windows/TaskScheduler/MSFT_ScheduledTask'
+            'Microsoft.Management.Infrastructure.CimInstance#MSFT_ScheduledTask'
+        )
+        Group = 'ScheduledTask'
+        Property = @(
+            @{ Label = 'Path'; Expression = 'TaskPath'; Overflow = 'TruncateMiddle' }
+            @{ Label = 'Task'; Expression = 'TaskName'; Priority = 10 }
+            @{ Label = 'State'; Expression = { [string] $_.State }; Presenter = 'StatusWord'; Priority = 9; Role = @(
+                @{ Equals = 'Running'; Role = 'Running' }
+                @{ Equals = 'Disabled'; Role = 'Muted' }
+            ) }
+        )
+    }
+    @{
+        TypeName = 'Microsoft.PowerShell.Commands.LocalUser'
+        Group = 'LocalUser'
+        Property = @(
+            @{ Label = 'Name'; Expression = 'Name'; Priority = 10 }
+            @{ Label = 'Enabled'; Expression = 'Enabled'; Presenter = 'Boolean'; Priority = 9; Role = @{ Equals = 'False'; Role = 'Muted' } }
+            @{ Label = 'Last logon'; Expression = { if ($_.LastLogon) { $_.LastLogon } else { 'never' } }; Presenter = 'DateRelative'; Priority = 8 }
+            @{ Label = 'Password expires'; Expression = 'PasswordExpires'; Presenter = 'Date' }
+            @{ Label = 'Description'; Expression = { ([string] $_.Description).Trim() }; Overflow = 'Truncate' }
+        )
+    }
+
     # Get-Acl: the owner heads a table of access rules; the security object itself stays unchanged.
     @{
         TypeName = @(

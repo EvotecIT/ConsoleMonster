@@ -10,6 +10,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData("Running", StatusKind.Running, ThemeToken.Running)]
         [InlineData("Pending", StatusKind.Pending, ThemeToken.Pending)]
         [InlineData("Stopped", StatusKind.Skip, ThemeToken.Skip)]
+        [InlineData("Established", StatusKind.Pass, ThemeToken.Pass)]
+        [InlineData("Listen", StatusKind.Info, ThemeToken.Info)]
+        [InlineData("TimeWait", StatusKind.Skip, ThemeToken.Skip)]
+        [InlineData("CloseWait", StatusKind.Skip, ThemeToken.Skip)]
         public void LifecycleWordsUseTheirSemanticMarkerAndTone(
             string word, StatusKind status, ThemeToken role) {
             var render = Terminal.CreateContext(TestTerminal.Profile(60));
@@ -30,6 +34,10 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal("[FAIL]", CellPresenters.StatusWord.Present("Failed", context).Text);
             Assert.Equal("[BUSY]", CellPresenters.StatusWord.Present("Running", context).Text);
             Assert.Equal("[WAIT]", CellPresenters.StatusWord.Present("Pending", context).Text);
+            Assert.Equal("[OK]", CellPresenters.StatusWord.Present("Established", context).Text);
+            Assert.Equal("[INFO]", CellPresenters.StatusWord.Present("Listen", context).Text);
+            Assert.Equal("[SKIP]", CellPresenters.StatusWord.Present("TimeWait", context).Text);
+            Assert.Equal("[SKIP]", CellPresenters.StatusWord.Present("CloseWait", context).Text);
             Assert.Equal("verification failed",
                 CellPresenters.StatusWord.Present("verification failed", context).Text);
         }
