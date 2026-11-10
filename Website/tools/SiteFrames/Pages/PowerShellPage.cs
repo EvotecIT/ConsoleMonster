@@ -42,6 +42,8 @@ namespace SiteFrames.Pages {
             public bool InteractiveSession { get; set; }
             // Uses Windows-only commands (Get-Acl); other producers keep the committed Windows captures.
             public bool WindowsOnly { get; set; }
+            // Capture-only fixture definitions, kept off the typed prompt and included in the source stamp.
+            public string? SetupFile { get; set; }
         }
 
         private static IEnumerable<Run> Runs() {
@@ -67,8 +69,8 @@ namespace SiteFrames.Pages {
             // Compare-Object before and after Enable-ConsoleFormatting, on both hosts.
             yield return new Run("compare-object", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true };
             // Everyday views for commands typed at the prompt (Select-String, Get-Acl, certificates, Group/Measure, TimeSpan).
-            yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
-            yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true };
+            yield return new Run("everyday-commands", "rich", PowerShellRunner.Environment("dark"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true, SetupFile = "EverydayWindows.ps1" };
+            yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true, SetupFile = "EverydayWindows.ps1" };
             // Summary lines under default views and a recursive listing as one tree, typed at the prompt.
             yield return new Run("everyday-summaries", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true };
             // Another module's command before and after registering a view with a summary.
@@ -86,7 +88,14 @@ namespace SiteFrames.Pages {
             return File.Exists(path) ? Site.Crop(TrimTop(Parity.Transcript(File.ReadAllBytes(path), width, 120))) : null;
         }
 
-        private static string Stamp(Site site, Run run, PowerShellHost host) => Stamps.Of(Twins.Script(site, "powershell", run.Id), run.Environment, host.Id, run.RunWidth.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        private static string? Setup(Site site, Run run) => run.SetupFile == null ? null :
+            Site.ReadText(Path.Combine(site.Tool, "Capture", "Assets", run.SetupFile));
+
+        private static string Stamp(Site site, Run run, PowerShellHost host) {
+            var inputs = new List<string> { host.Id, run.RunWidth.ToString(System.Globalization.CultureInfo.InvariantCulture) };
+            if (Setup(site, run) is string setup) { inputs.Add(setup); }
+            return Stamps.Of(Twins.Script(site, "powershell", run.Id), run.Environment, inputs.ToArray());
+        }
 
         public static void Capture(Site site) {
             foreach (Run run in Runs()) {
@@ -96,7 +105,7 @@ namespace SiteFrames.Pages {
                 }
                 foreach (PowerShellHost host in run.Hosts.Where(host => host.CanCapture)) {
                     List<OutputChunk> chunks = PowerShellRunner.Run(site, host, Twins.Script(site, "powershell", run.Id), run.RunWidth, 120, run.Environment,
-                        session: run.InteractiveSession, interactiveSession: run.InteractiveSession);
+                        session: run.InteractiveSession, interactiveSession: run.InteractiveSession, setup: Setup(site, run));
                     string path = Path_(site, run, host);
                     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                     File.WriteAllBytes(path, PowerShellRunner.Bytes(chunks));

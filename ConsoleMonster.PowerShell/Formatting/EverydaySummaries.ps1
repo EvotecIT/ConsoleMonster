@@ -253,7 +253,7 @@
         }
         @{ Value = $items.Count; Label = 'disks' }
         @{ Value = $size; Presenter = 'Bytes'; Label = 'total' }
-        if ($check) { @{ Value = $check; Label = 'need attention'; Role = 'Warn' } }
+        if ($check) { @{ Value = $check; Label = $(if ($check -eq 1) { 'needs attention' } else { 'need attention' }); Role = 'Warn' } }
     }
 }
 @{
@@ -273,7 +273,15 @@
             if ($state -eq 'Listen') { $null = $listeners.Add($item.LocalPort) }
         }
         @{ Value = $items.Count; Label = 'connections' }
-        foreach ($state in $states.Keys) { @{ Value = $states[$state]; Label = $state } }
+        foreach ($state in $states.Keys) {
+            $label = switch ($state) {
+                'Listen' { 'listening' }
+                'TimeWait' { 'time-wait' }
+                'CloseWait' { 'close-wait' }
+                default { $state.ToLowerInvariant() }
+            }
+            @{ Value = $states[$state]; Label = $label }
+        }
         if ($listeners.Count) { @{ Value = $listeners.Count; Label = $(if ($listeners.Count -eq 1) { 'listening port' } else { 'listening ports' }) } }
     }
 }

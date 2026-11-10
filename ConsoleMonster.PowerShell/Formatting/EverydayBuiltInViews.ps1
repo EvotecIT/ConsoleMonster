@@ -350,12 +350,7 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
                 if ($address -like '*:*') { $address = '[' + $address + ']' }
                 "$($address):$($_.RemotePort)"
             }; Priority = 9 }
-            @{ Label = 'State'; Expression = { [string] $_.State }; Presenter = 'Text'; Priority = 8; Role = @(
-                @{ Equals = 'Established'; Role = 'Pass' }
-                @{ Equals = 'Listen'; Role = 'Info' }
-                @{ Equals = 'TimeWait'; Role = 'Muted' }
-                @{ Equals = 'CloseWait'; Role = 'Muted' }
-            ) }
+            @{ Label = 'State'; Expression = { [string] $_.State }; Presenter = 'StatusWord'; Priority = 8 }
             @{ Label = 'Process'; Expression = {
                 if ($_.OwningProcess -le 0 -or $_.PSComputerName) { return }
                 try {

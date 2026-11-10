@@ -376,6 +376,7 @@ BeforeAll {
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
         # The everyday and FormatCommands demos run Windows commands (svchost, Get-Service), as their recordings do; a
         # command that does not exist stops the script, so they run on Windows only.
+        'Website/examples/powershell/everyday-commands.ps1' = @{ RequiresWindows = $true }
         'Website/examples/demos/formatting.ps1'      = @{ RequiresWindows = $true }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
         'Website/examples/demos/format-commands.ps1' = @{ RequiresWindows = $true }

@@ -32,18 +32,21 @@ Describe 'Windows everyday command output' -Skip:([Environment]::OSVersion.Platf
         ($rows[0] | ConvertTo-TestEverydayText) | Should -Not -Match 'volumes'
     }
 
-    It 'warns once for a disk that is both offline and unhealthy' {
+    It 'counts <Count> unhealthy disks once each and inflects the attention fact' -ForEach @(
+        @{ Count = 1; Expected = '1 needs attention' }
+        @{ Count = 2; Expected = '2 need attention' }
+    ) {
         $rows = @(0, 1 | ForEach-Object {
             New-ViewRow 'Microsoft.Management.Infrastructure.CimInstance#ROOT/Microsoft/Windows/Storage/MSFT_Disk' @{
                 Number = [uint32] $_; FriendlyName = "Example disk $_"; BusType = 'SATA'; PartitionStyle = 'GPT'
-                HealthStatus = if ($_ -eq 0) { 'Healthy' } else { 'Warning' }
-                OperationalStatus = if ($_ -eq 0) { 'Online' } else { 'Offline' }
+                HealthStatus = if ($_ -lt $Count) { 'Warning' } else { 'Healthy' }
+                OperationalStatus = if ($_ -lt $Count) { 'Offline' } else { 'Online' }
                 Size = [uint64] 128GB
             }
         })
         $text = $rows | ConvertTo-TestEverydayText
-        $text | Should -Match 'Example disk 1.*Offline'
-        $text | Should -Match '2 disks.*256 Gi?B total.*1 need attention'
+        $text | Should -Match 'Example disk 0.*Offline'
+        $text | Should -Match ('2 disks.*256 Gi?B total.*' + $Expected)
     }
 
     It 'brackets IPv6 endpoints and counts a dual-stack listening port once' {
@@ -51,13 +54,13 @@ Describe 'Windows everyday command output' -Skip:([Environment]::OSVersion.Platf
             New-ViewRow 'Microsoft.Management.Infrastructure.CimInstance#ROOT/StandardCimv2/MSFT_NetTCPConnection' @{
                 LocalAddress = if ($_ % 2) { '2001:db8::1' } else { '192.0.2.1' }
                 LocalPort = [uint16] 8443; RemoteAddress = '2001:db8::2'; RemotePort = [uint16] 40000
-                State = if ($_ -lt 2) { 'Listen' } else { 'Established' }
+                State = @('Listen', 'Listen', 'Established', 'TimeWait', 'CloseWait')[$_]
                 OwningProcess = [uint32] $PID
             }
         })
         $text = $rows | ConvertTo-TestEverydayText
         $text | Should -Match '\[2001:db8::1\]:8443'
-        $text | Should -Match '5 connections.*2 Listen.*3 Established.*1 listening port'
+        $text | Should -Match '5 connections.*2 listening.*1 established.*1 time-wait.*1 close-wait.*1 listening port'
         $text | Should -Match ([regex]::Escape([Diagnostics.Process]::GetCurrentProcess().ProcessName))
     }
 
