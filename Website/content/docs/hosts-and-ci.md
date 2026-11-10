@@ -60,7 +60,7 @@ Groups, annotations and job summaries use the provider's own protocol when `GITH
 
 In a PowerShell terminal:
 
-```powershell
+```terminal
 Import-Module ConsoleMonster
 
 Use-ConsoleGroup 'Build' {

@@ -338,8 +338,14 @@
     "profile-detected": {
       "src": "/site/cards/profile-detected.svg"
     },
+    "threads-ci": {
+      "src": "/site/cards/threads-ci.svg"
+    },
     "scheme-dracula": {
       "src": "/site/cards/scheme-dracula.svg"
+    },
+    "module-views": {
+      "src": "/site/cards/module-views.svg"
     },
     "dashboard-frame-110": {
       "src": "/site/cards/dashboard-frame-110.svg"
@@ -349,6 +355,14 @@
     },
     "overrides-plain": {
       "src": "/site/cards/overrides-plain.svg"
+    },
+    "pipeline-charts-120": {
+      "dark": "/site/cards/pipeline-charts-120-dark.svg",
+      "light": "/site/cards/pipeline-charts-120-light.svg"
+    },
+    "migration-form": {
+      "dark": "/site/cards/migration-form-dark.svg",
+      "light": "/site/cards/migration-form-light.svg"
     },
     "help": {
       "src": "/site/cards/help.svg"
@@ -360,6 +374,10 @@
     "hosting": {
       "src": "/site/cards/hosting.svg"
     },
+    "how-it-works-80": {
+      "dark": "/site/cards/how-it-works-80-dark.svg",
+      "light": "/site/cards/how-it-works-80-light.svg"
+    },
     "inline-images-60": {
       "src": "/site/cards/inline-images-60.svg"
     },
@@ -369,6 +387,10 @@
     "large-run-120": {
       "dark": "/site/cards/large-run-120-dark.svg",
       "light": "/site/cards/large-run-120-light.svg"
+    },
+    "layout-80": {
+      "dark": "/site/cards/layout-80-dark.svg",
+      "light": "/site/cards/layout-80-light.svg"
     },
     "login": {
       "src": "/site/cards/login.svg"
@@ -399,11 +421,17 @@
     "shaping": {
       "src": "/site/cards/shaping.svg"
     },
+    "record": {
+      "src": "/site/cards/record.svg"
+    },
     "app": {
       "src": "/site/cards/app.svg"
     },
     "template": {
       "src": "/site/cards/template.svg"
+    },
+    "headless-app": {
+      "src": "/site/cards/headless-app.svg"
     },
     "text-diff-120": {
       "src": "/site/cards/text-diff-120.svg"
@@ -411,19 +439,22 @@
     "threads-live": {
       "src": "/site/cards/threads-live.svg"
     },
+    "topology": {
+      "src": "/site/cards/topology.svg"
+    },
     "migration-report-100": {
       "dark": "/site/cards/migration-report-100-dark.svg",
       "light": "/site/cards/migration-report-100-light.svg"
     },
+    "session": {
+      "src": "/site/cards/session.svg"
+    },
+    "first-report-80": {
+      "dark": "/site/cards/first-report-80-dark.svg",
+      "light": "/site/cards/first-report-80-light.svg"
+    },
     "format-consoletable": {
       "src": "/site/cards/format-consoletable.svg"
-    },
-    "threads-ci": {
-      "src": "/site/cards/threads-ci.svg"
-    },
-    "migration-form": {
-      "dark": "/site/cards/migration-form-dark.svg",
-      "light": "/site/cards/migration-form-light.svg"
     }
   }
 }
