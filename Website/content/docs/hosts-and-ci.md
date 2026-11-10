@@ -2,9 +2,12 @@
 title: Hosts, CI and transcripts
 description: What ConsoleMonster writes on a real console, in CI, in background jobs, remoting and SSH, the ISE, transcripts and redirected output, and with NO_COLOR.
 slug: hosts-and-ci
-card: threads-ci
-order: 50
 group: shells
+order: 50
+card: threads-ci
+chips: [PowerShell, CI, Hosts]
+apis: [Use-ConsoleGroup, Write-ConsoleAnnotation, Add-ConsoleJobSummary, ContinuousIntegration]
+summary: "What each host receives: a real console, transcripts, jobs, remoting, CI logs and redirected output."
 ---
 
 ConsoleMonster draws directly only on a real local interactive console. Everywhere else the cmdlets write through the PowerShell host, line by line as `Write-Host` does, so jobs complete, transcripts record and redirection captures whole lines.
@@ -21,6 +24,8 @@ ConsoleMonster draws directly only on a real local interactive console. Everywhe
 Colours on the host routes map to the 16 console colours by role: pass green, fail red, warn yellow, muted dark grey and accent cyan; the light theme uses the darker variants. A live dashboard in those hosts narrates as append-only lines.
 
 ## Background jobs
+
+A job has no console of its own, so ConsoleMonster writes its output as `Write-Host` style information records, tagged `PSHOST`, each piece with its foreground and background colour. `Receive-Job` replays those records in the console that receives them, so a table drawn inside the job arrives whole and in colour. The job starts in a new session, so it imports ConsoleMonster itself. The objects the job returns stay separate from the drawn table: `$results = Receive-Job ...` still shows the table and puts only the objects in `$results`.
 
 {{< cm-frame ids="job-ps5,job-ps7" caption="The same job received in Windows PowerShell 5.1 and PowerShell 7, captured by the site tool in a pseudo console." >}}
 
@@ -55,7 +60,7 @@ Groups, annotations and job summaries use the provider's own protocol when `GITH
 
 In a PowerShell terminal:
 
-```terminal
+```powershell
 Import-Module ConsoleMonster
 
 Use-ConsoleGroup 'Build' {
@@ -65,7 +70,14 @@ Use-ConsoleGroup 'Build' {
     }
 }
 
-Write-ConsoleAnnotation -Level Warning -Message 'Configuration is missing a timeout' -File ./build.ps1 -Line 12 -Column 5
+$annotation = @{
+    Level = 'Warning'
+    Message = 'Configuration is missing a timeout'
+    File = './build.ps1'
+    Line = 12
+    Column = 5
+}
+Write-ConsoleAnnotation @annotation
 
 @(
     [pscustomobject]@{ Check = 'Build'; Result = 'Passed' }
@@ -82,9 +94,9 @@ Write-ConsoleAnnotation -Level Warning -Message 'Configuration is missing a time
 
 Groups nest and close when an exception unwinds the script. Sequential `Invoke-ConsoleRun` puts each item's work and result inside a group. Parallel runs and `Start-ConsoleRun` group each completed item's result atomically, so groups cannot cross when workers finish out of order. Output emitted independently by parallel workers keeps its existing routing; use `Use-ConsoleGroup` for a serial block whose entire log should fold together.
 
-Annotation files inside `GITHUB_WORKSPACE`, `BUILD_SOURCESDIRECTORY` or `CI_PROJECT_DIR` use paths relative to that checkout, with `/` separators. Paths outside the provider's workspace stay as supplied, with separators normalized. In a terminal, the source location appears once, relative to the current directory: `src/App.cs:42`. That label is a hyperlink when the host supports links and plain text otherwise. PowerShell resolves relative input from its current location.
+Annotation files inside `GITHUB_WORKSPACE`, `BUILD_SOURCESDIRECTORY` or `CI_PROJECT_DIR` use paths relative to that checkout, with `/` separators. Paths outside the provider's workspace stay as supplied, with separators normalised. In a terminal, the source location appears once, relative to the current directory: `src/App.cs:42`. That label is a hyperlink when the host supports links and plain text otherwise. PowerShell resolves relative input from its current location.
 
-`Invoke-ConsolePester` automatically annotates failing tests, with the assertion's file and line, and adds its results-by-file table and failures to the GitHub or Azure summary. `-NoJobSummary` turns off that summary. Pester's result object, throw policy, XML result file and exit code keep their native behavior. Each invocation emits at most ten automatic annotations, followed by one line counting the remainder; all failures remain in the summary. With `Enable-ConsoleFormatting`, the Errors feature also annotates displayed script errors, including terminating errors with a script position, capped at ten per output pipeline. Explicit `Write-ConsoleAnnotation` calls have no ConsoleMonster limit. An annotation alone does not set an exit code.
+`Invoke-ConsolePester` automatically annotates failing tests, with the assertion's file and line, and adds its results-by-file table and failures to the GitHub or Azure summary. `-NoJobSummary` turns off that summary. Pester's result object, throw policy, XML result file and exit code keep their native behaviour. Each invocation emits at most ten automatic annotations, followed by one line counting the remainder; all failures remain in the summary. With `Enable-ConsoleFormatting`, the Errors feature also annotates displayed script errors, including terminating errors with a script position, capped at ten per output pipeline. Explicit `Write-ConsoleAnnotation` calls have no ConsoleMonster limit. An annotation alone does not set an exit code.
 
 GitHub summary writes append. Azure retains a separate `consolemonster-summary-*.md` file for each call in `SYSTEM_DEFAULTWORKINGDIRECTORY` (or the temporary directory when forced outside an agent). Keep those files available until the agent uploads them; the job workspace owns their cleanup. GitLab and terminal callers can save the returned Markdown themselves:
 
@@ -101,13 +113,15 @@ using ConsoleMonster.Markdown;
 using ConsoleMonster.Widgets;
 
 using (ContinuousIntegration.Group("Build")) {
-    ContinuousIntegration.Annotate(AnnotationLevel.Warning, "Review this setting", file: "build.cs", line: 12);
+    ContinuousIntegration.Annotate(
+        AnnotationLevel.Warning, "Review this setting", file: "build.cs", line: 12);
 }
 var table = new Table();
 table.AddColumn("Check");
 table.AddColumn("Result");
 table.AddRow("Build", "Passed");
-string markdown = ContinuousIntegration.AddSummary(table, provider: new MarkdownFrameExportProvider());
+string markdown = ContinuousIntegration.AddSummary(
+    table, provider: new MarkdownFrameExportProvider());
 
 // A host can override detection for one async flow, then restore the previous choice.
 using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None)) {
@@ -115,7 +129,7 @@ using (ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None)) {
 }
 ```
 
-The wire formats follow [GitHub workflow commands](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands), [Azure logging commands](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops) and [GitLab custom collapsible sections](https://docs.gitlab.com/ci/jobs/job_logs/#create-custom-collapsible-sections). GitHub and Azure escape their own property and message delimiters. Azure command-shaped text in headings, notices and rendered log data is neutralized before writing. ConsoleMonster owns Pester's CI annotations even when its live adapter is disabled, so the provider override and annotation limit apply to fallback runs too.
+The wire formats follow [GitHub workflow commands](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands), [Azure logging commands](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops) and [GitLab custom collapsible sections](https://docs.gitlab.com/ci/jobs/job_logs/#create-custom-collapsible-sections). GitHub and Azure escape their own property and message delimiters. Azure command-shaped text in headings, notices and rendered log data is neutralised before writing. ConsoleMonster owns Pester's CI annotations even when its live adapter is disabled, so the provider override and annotation limit apply to fallback runs too.
 
 ## Prompts when nobody can answer
 
@@ -132,6 +146,8 @@ The wire formats follow [GitHub workflow commands](https://docs.github.com/en/ac
 - Output that was already printed cannot re-flow on a later resize. Use `-Width` or a fixed profile when output must fit a known width.
 - Transcript detection, and transcript writing on 5.1, use guarded reflection into PowerShell internals; it does nothing if a future version renames those members.
 
-## Related
+## Next
 
-To pin any of these decisions, use the [environment overrides](/docs/environment/); [capability detection](/docs/capabilities/) explains how each one is made.
+- [Environment overrides](/docs/environment/): pin any of these decisions.
+- [Capability detection](/docs/capabilities/): how each decision is made.
+- [Live runs](/docs/live-runs/): what a run prints in CI.

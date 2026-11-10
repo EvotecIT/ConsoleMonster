@@ -144,10 +144,10 @@ The live session owns redraws, output routing and cleanup. Updates can coalesce;
 ## Differences to know
 
 - `View`, `TextSpan` and old formatter types do not implement ConsoleMonster `IWidget`. Migrate one presentation boundary at a time.
-- Retain command parsing, help behavior and exit codes unless you separately intend to change them. ConsoleMonster does not replace System.CommandLine's parser.
-- Capability detection selects color/glyph behavior. Use explicit dimensions and a fixed profile for output tests; redirected output should not rely on cursor movement.
+- Retain command parsing, help behaviour and exit codes unless you separately intend to change them. ConsoleMonster does not replace System.CommandLine's parser.
+- Capability detection selects colour and glyph behaviour. Use explicit dimensions and a fixed profile for output tests; redirected output should not rely on cursor movement.
 - Typed selectors suit AOT applications. Reflection-driven object inspection needs trimming care; see [AOT limits](/docs/install/).
-- If the old program depended on a custom formatter, viewport or coordinate scheme, port that behavior explicitly. There is no automatic View-to-widget adapter; consult the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) for gaps.
+- If the old program depended on a custom formatter, viewport or coordinate scheme, port that behaviour explicitly. There is no automatic View-to-widget adapter; consult the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) for gaps.
 
 ## Next
 

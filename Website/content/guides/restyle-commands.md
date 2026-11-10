@@ -13,73 +13,6 @@ group: tasks
 
 The script stands in for someone else's module with `Get-ContosoBackup`, a function that returns typed objects. Before the registration they show as the generic table of every property, with sizes in raw bytes; after it, the same command shows the chosen columns, sizes as a bar against the largest, and a line that sums them up.
 
-## Start from a draft
-
-Pipe a few results into `ConvertTo-ConsoleView` to get a working registration script:
-
-```powershell
-Get-ContosoBackup | ConvertTo-ConsoleView
-```
-
-For the backup objects above, the draft is ready to paste into your profile:
-
-```powershell
-# Contoso.Backup: keep these lines in your profile; ConvertTo-ConsoleView -AsDataFile makes the module form.
-$state = @{ Name = 'State'; Expression = 'State'; Presenter = 'StatusWord' }
-$size = @{ Name = 'Size'; Expression = 'Size'; Presenter = 'BytesBar' }
-$took = @{ Name = 'Took'; Expression = 'Took'; Presenter = 'Duration' }
-
-$summary = {
-    param($items)
-    @{ Value = @($items).Count; Label = 'backups' }
-    $roles = @{
-        failed = 'Fail'; error = 'Fail'; stopped = 'Fail'
-        warning = 'Warn'; degraded = 'Warn'
-        completed = 'Pass'; passed = 'Pass'; success = 'Pass'; ok = 'Pass'
-    }
-    $items | Group-Object -Property 'State' | ForEach-Object {
-        $label = $_.Name.ToLowerInvariant()
-        $fact = @{ Value = $_.Count; Label = $label }
-        if ($roles.ContainsKey($label)) { $fact.Role = $roles[$label] }
-        $fact
-    }
-}
-# Drop -Summary $summary to leave the line out.
-$view = @{
-    TypeName = 'Contoso.Backup'
-    Property = @('Server', $state, $size, $took)
-    Summary = $summary
-}
-Register-ConsoleView @view
-```
-
-Plain columns stay names; presenters get short named variables. Short registrations stay
-on one line, and longer ones use a splat. The summary is on by default: it counts backups
-and each status, with lowercase labels and pass, warning or failure roles. Remove
-`-Summary $summary` (or the `Summary` entry in a splat) to leave the line out.
-
-The draft samples the first 50 objects and chooses up to six nonempty columns, with the
-name or identity first, even when a default display set puts it last. For `Get-Process`,
-that gives `Name`, `Id`, `CPU`, `Handles` and `SI`. Presenters reuse the default table's
-inference, with status words, bars for widely varying sizes and relative dates for recent
-values. Add `-Register` to install the columns and summary now; `Enable-ConsoleFormatting`
-makes registered views show on the console.
-
-To keep a data-only file instead:
-
-```powershell
-Get-ContosoBackup | ConvertTo-ConsoleView -AsDataFile |
-    Set-Content ContosoBackup.consoleviews.psd1 -Encoding UTF8
-Register-ConsoleView -Path ./ContosoBackup.consoleviews.psd1
-```
-
-Ship it as `ModuleName.consoleviews.psd1` beside that module's manifest for automatic
-discovery. Plain columns are strings in its `Property` list; only presenter columns need
-hashtables. The file contains no script blocks, so summaries stay in the profile script.
-Sample one object shape at a time. Deserialized input warns and drafts for the base type;
-that view does not apply to job or remote output. `Select-Object` input keeps its
-`Selected.` type name and warns that the view targets that selected shape.
-
 ## 1. Find the type name
 
 A view is registered for a type name, and every object carries a list of them. The first is the most specific and the one to use:
@@ -146,16 +79,84 @@ Get-Process
 
 Registrations last for the session. To have them in every session, put the lines in your profile after `Enable-ConsoleFormatting`, or keep them in a views file and load it with `Register-ConsoleView -Path ./my.consoleviews.psd1`.
 
-If you maintain the module, ship the view with it instead: a `<ModuleName>.consoleviews.psd1` file beside the manifest names the columns, presenters and grouping as plain data. ConsoleMonster picks it up for loaded modules, and the module needs no dependency on ConsoleMonster: without it, users see PowerShell's formatting. [Module-owned views](https://github.com/EvotecIT/ConsoleMonster/blob/master/Docs/Module-Views.md) describe the file. Script blocks such as `-Summary` and calculated `Expression`s belong in an explicit `Register-ConsoleView`, since the data file runs no code.
+If you maintain the module, ship the view with it instead: a `<ModuleName>.consoleviews.psd1` file beside the manifest names the columns, presenters and grouping as plain data. ConsoleMonster picks it up for loaded modules, and the module needs no dependency on ConsoleMonster: without it, users see PowerShell's formatting. [Custom views](/docs/custom-views/) describes the file. Script blocks such as `-Summary` and calculated `Expression`s belong in an explicit `Register-ConsoleView`, since the data file runs no code.
+
+## Start from a draft
+
+Steps 2 and 3 can also start from a draft: pipe a few results into `ConvertTo-ConsoleView` to get a working registration script.
+
+```powershell
+Get-ContosoBackup | ConvertTo-ConsoleView
+```
+
+For the backup objects above, the draft is ready to paste into your profile:
+
+```powershell
+# Contoso.Backup: keep these lines in your profile; ConvertTo-ConsoleView -AsDataFile makes the module form.
+$state = @{ Name = 'State'; Expression = 'State'; Presenter = 'StatusWord' }
+$size = @{ Name = 'Size'; Expression = 'Size'; Presenter = 'BytesBar' }
+$took = @{ Name = 'Took'; Expression = 'Took'; Presenter = 'Duration' }
+
+$summary = {
+    param($items)
+    @{ Value = @($items).Count; Label = 'backups' }
+    $roles = @{
+        failed = 'Fail'; error = 'Fail'; stopped = 'Fail'
+        warning = 'Warn'; degraded = 'Warn'
+        completed = 'Pass'; passed = 'Pass'; success = 'Pass'; ok = 'Pass'
+    }
+    $items | Group-Object -Property 'State' | ForEach-Object {
+        $label = $_.Name.ToLowerInvariant()
+        $fact = @{ Value = $_.Count; Label = $label }
+        if ($roles.ContainsKey($label)) { $fact.Role = $roles[$label] }
+        $fact
+    }
+}
+# Drop -Summary $summary to leave the line out.
+$view = @{
+    TypeName = 'Contoso.Backup'
+    Property = @('Server', $state, $size, $took)
+    Summary = $summary
+}
+Register-ConsoleView @view
+```
+
+Plain columns stay names; presenters get short named variables. Short registrations stay
+on one line, and longer ones use a splat. The summary is on by default: it counts backups
+and each status, with lowercase labels and pass, warning or failure roles. Remove
+`-Summary $summary` (or the `Summary` entry in a splat) to leave the line out.
+
+The draft samples the first 50 objects and chooses up to six nonempty columns, with the
+name or identity first, even when a default display set puts it last. For `Get-Process`,
+that gives `Name`, `Id`, `CPU`, `Handles` and `SI`. Presenters reuse the default table's
+inference, with status words, bars for widely varying sizes and relative dates for recent
+values. Add `-Register` to install the columns and summary now; `Enable-ConsoleFormatting`
+makes registered views show on the console.
+
+To keep a data-only file instead:
+
+```powershell
+Get-ContosoBackup | ConvertTo-ConsoleView -AsDataFile |
+    Set-Content ContosoBackup.consoleviews.psd1 -Encoding UTF8
+Register-ConsoleView -Path ./ContosoBackup.consoleviews.psd1
+```
+
+Ship it as `ModuleName.consoleviews.psd1` beside that module's manifest for automatic
+discovery. Plain columns are strings in its `Property` list; only presenter columns need
+hashtables. The file contains no script blocks, so summaries stay in the profile script.
+Sample one object shape at a time. Deserialized input warns and drafts for the base type;
+that view does not apply to job or remote output. `Select-Object` input keeps its
+`Selected.` type name and warns that the view targets that selected shape.
 
 ## When the view does not apply
 
 - **`Select-Object` made new objects.** `Get-ContosoBackup | Select-Object Server, Size` returns objects named `Selected.Contoso.Backup`, which have no view of their own. Leave the selection to the view, or register the selected type name too.
 - **They came from a job or a remote session.** `Receive-Job` and `Invoke-Command` return copies named `Deserialized.<type>`, which keep PowerShell's formatting. Pipe them to `Show-ConsoleTable -Property ...` to choose the columns there.
-- **You asked for a format.** `Format-Table`, `Format-List`, `Out-String`, redirected output and transcripts stay PowerShell's, by design.
+- **You asked for a format.** `Format-Table` and `Format-List` pick their columns the PowerShell way, so the registered view's columns do not apply. With formatting on they are still drawn by ConsoleMonster on the console, unless `-Exclude FormatCommands` keeps them native. `Out-String`, redirected output and transcripts stay PowerShell's.
 - **Formatting is off.** `Get-ConsoleFormatting` lists what is on; views need the `Output` feature, which `Enable-ConsoleFormatting` turns on by default.
 
-## Related
+## Next
 
-- [Everyday PowerShell output](/guides/everyday-powershell/): the views that ship with ConsoleMonster.
+- [Custom views](/docs/custom-views/): ship the view with your module as a data file.
+- [Everyday formatting reference](/docs/everyday-formatting/): the views that ship with ConsoleMonster.
 - [`Register-ConsoleView`](/powershell/commands/register-consoleview/) and [`Show-ConsoleTable`](/powershell/commands/show-consoletable/): every column option.
