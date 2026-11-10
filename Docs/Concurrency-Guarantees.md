@@ -42,13 +42,32 @@ output before restoration; late blocks during final cleanup wait for its final f
 Accepted blocks appear above an inline area or after a full screen ends.
 
 `Console.Write` fragments and CR/LF state are buffered per managed thread until newline. Stopping flushes each unfinished tail
-once. A logical message that continues on a different thread should use one `WriteLine` or `Terminal.Write` call.
+once. A logical message that continues on a different thread should use one `WriteLine` or `Terminal.Write` call. An
+unfinished line is kept up to 65,536 characters; past that, the text so far is written as a line of its own (never splitting a
+surrogate pair), so nothing is lost and the buffer stays bounded.
 
-Posting does not wait for the renderer or queue capacity. The queue is unbounded: memory grows with a blocked renderer's backlog.
-Runtime allocation, GC, and scheduling still apply; this is not a real-time latency guarantee. The flood test holds `Apply`
-blocked while 32 producers enqueue 131,072 updates, records the retained managed-heap change, then verifies every accepted event
-drains once. The memory observation is diagnostic, not a fixed CI budget. Full-screen output retained for final scrollback also
-consumes memory until shutdown.
+Posting does not wait for the renderer. The queue holds at most `LiveSessionOptions.MaxQueuedEvents` widget and log updates
+(1,000,000 by default; 0 removes the limit). While it is full, new updates are rejected and counted in `EventsDropped`, and
+accepted ones keep their order. One-shot console writes and the session's own control events are always admitted. A normal
+run never comes near the limit: it takes a renderer blocked for a long time while producers keep posting. Runtime allocation,
+GC, and scheduling still apply; this is not a real-time latency guarantee. The flood test holds `Apply` blocked while 32
+producers enqueue 131,072 updates, records the retained managed-heap change, then verifies every accepted event drains once.
+The memory observation is diagnostic, not a fixed CI budget. Full-screen output retained for final scrollback also consumes
+memory until shutdown.
+
+Other buffers have limits too. A log region keeps `Capacity` entries (1,000 by default) and each literal entry keeps at most
+`LogRegion.MaxLineLength` (16,384) characters, ending with an ellipsis when cut. Dashboard runspaces hand Information,
+Warning, Verbose, Debug and Progress records to the session log and then release them, so a script that runs for hours does
+not accumulate its stream history; error records and pipeline results are kept for the caller.
+
+## Host output during a live session
+
+PowerShell host writes (warnings, verbose lines, `ShouldContinue` and `-WarningAction Inquire` prompts) do not pass through
+the session. `LiveSession.WriteOutside(action)` takes the live area out of their way: captured lines are written first,
+the inline area is cleared (full screen leaves the alternate screen), the action runs synchronously for as long as it needs,
+and the area starts again below its output. No frame is drawn meanwhile and no render ticks queue up; updates keep being
+applied. Callers on several threads take turns; a nested call runs directly. `HostOutput` in
+`ConsoleMonster.PowerShell.Display` uses it for every host write it makes and for `HostOutput.Run`.
 
 Each producer's order is preserved. Concurrent producers have no prescribed order relative to one another; line output follows
 actual apply order. There is no latest-wins coalescing: every accepted event retains its normal ordering and counters.
@@ -58,6 +77,8 @@ The first Ctrl+C closes admission and requests graceful cancellation. Later post
 accepted work drains during shutdown. Graceful shutdown restores console writers, native Windows output mode, and cursor visibility.
 Native VT processing stays enabled through final scrollback and summary output, then the original output mode is restored.
 The mode is saved before first-use capability capture, including in optimized .NET Framework builds.
+Capability detection itself turns VT processing on for the rest of the process, because output written between ConsoleMonster calls relies on it.
+The console mode belongs to the console, so the mode found before that change is restored when the process exits, unless something else changed it since.
 A callback that prevents the render thread from joining can exceed `StopTimeout`. Console capture is restored, while the final
 drain and screen cleanup are deferred until that callback returns. Workers should observe cancellation. Use `GetCounters()` to inspect accepted, applied,
 dropped, and failed updates. Zero drops is the normal-run contract; a late post after cancellation is an expected rejection.
@@ -127,5 +148,9 @@ Core tests run on net472, net8.0 and net10.0; PowerShell tests run on 5.1 and 7.
 | Parallel dashboard/run host, warning, nested progress, and native results | [`routes host, warning and nested progress from <CommandName> without changing result records`](../Module/Tests/ConsoleMonster.Concurrency.Tests.ps1), all three command names |
 | Progress whose parent has not arrived contributes as a top-level activity | [`Activities_OrphansContributeProgressUntilTheirParentArrives`](../ConsoleMonster.Tests/Output/TaskbarProgressTests.cs), including a child updating after parent completion |
 | First actual Ctrl+C rejects later posts and restores terminal/writers | [`FirstActualCtrlC_RejectsLaterPostsAndRestoresNativeTerminalAndWriters`](../ConsoleMonster.Tests/Live/SessionProcessTests.cs), isolated Windows console; [`FirstCancellation_DropsLaterPostsAndRestoresWritersExactlyOnce`](../ConsoleMonster.Tests/Live/CancellationConcurrencyTests.cs), portable cancellation |
+| A full queue rejects and counts later updates; accepted updates drain in order | `FullQueue_RejectsAndCountsLaterUpdatesUntilTheRendererCatchesUp` in [DispatcherConcurrencyTests](../ConsoleMonster.Tests/Live/DispatcherConcurrencyTests.cs) |
+| An unfinished line is written in bounded pieces without losing text | `AnUnfinishedLine_IsWrittenInBoundedPiecesWithoutLosingText` in [CaptureWriterConcurrencyTests](../ConsoleMonster.Tests/Live/CaptureWriterConcurrencyTests.cs) |
+| Host output written around an inline area stays above it; nothing is drawn while it waits | `WriteOutside_KeepsHostOutputAboveTheAreaAndDrawsNothingWhileItWaits` in [InlineOutputTests](../ConsoleMonster.Tests/Live/InlineOutputTests.cs) |
+| Detection's VT change is undone when the process exits | `CapabilityDetection_RestoresTheConsoleModeWhenTheProcessExits` in [SessionProcessTests](../ConsoleMonster.Tests/Live/SessionProcessTests.cs), isolated Windows console |
 | Stress proves zero drops and actual captured line identities | [`StressRun_VerifiesZeroDropsAndCapturedLineIdentitiesAfterDrain`](../ConsoleMonster.Tests/Live/StressRunTests.cs) and the real stress example's delivered-line assertions |
 | Native Format-Wide fitting | [`matches native Wide column fitting for <LayoutName>, including boundary widths and groups`](../Module/Tests/ConsoleMonster.FormatCommands.Tests.ps1); direct-host proof in [`Assert-ConcurrencyHost.ps1`](../Module/Tests/Support/Assert-ConcurrencyHost.ps1) |

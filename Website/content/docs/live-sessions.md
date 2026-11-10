@@ -86,6 +86,13 @@ Invoke-ConsoleDashboard $d {
 
 A recording keeps the text form of row values; region swaps carry in-process widgets and are not replayed.
 
+## Step ledgers
+
+For a list of build steps, `Phases` with `StepCounter = true` draws one numbered row per step, with the time each finished step took. When the list is taller than an inline area, it shows whole steps around the furthest step that has started, with the next step below it and `+N earlier` and `+N more` rows for the rest. The window only moves forward, so an older step that is still running does not pull it back while the next step is about to start. `LiveTable.MaxRows` keeps only the newest rows and removes older ones, so it suits a recent-items list rather than a ledger.
+
+## Host output while a session runs
+
+A PowerShell warning, a verbose line or a prompt does not pass through the session. `session.WriteOutside(action)` clears an inline area (a full-screen session leaves the alternate screen), runs the action on the calling thread for as long as it needs, then starts the area again below what it wrote, so later frames never draw over it. Nothing is drawn while the action runs, and updates are still applied. Compiled cmdlets use `HostOutput.Run`, described under [add-ons](/docs/add-ons/#powershell-output-from-your-own-cmdlets).
 ## Resizing and small windows
 
 A size change clears the screen and redraws it; while a window is dragged, redraws are coalesced to at most one every 100 ms. Narrower panels drop optional parts first, table columns hide by priority and tables turn into cards. When the window is smaller than the dashboard's `MinimumSize`, it keeps its highest-priority panels, and when even those do not fit, it shows one status line.

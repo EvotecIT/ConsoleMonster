@@ -24,3 +24,32 @@ The PowerShell module includes the add-on and loads it when Markdown is requeste
 ## Hosting and logging
 
 `ConsoleMonster.Hosting` integrates hosted services with a dashboard. `ConsoleMonster.Extensions.Logging` sends structured log entries to a dashboard region. Their dependencies stay in those packages; the core has none. See [Hosting](/docs/hosting/), [Logging](/docs/logging/) and the [dependency list](/docs/install/#optional-add-ons-and-dependencies).
+
+## PowerShell output from your own cmdlets
+
+`ConsoleMonster.PowerShell.Display` is for binary PowerShell modules that use ConsoleMonster without the ConsoleMonster module. Its `HostOutput` class writes widgets and markup from a compiled cmdlet the way ConsoleMonster's own commands do: drawn directly on a local console, through the host for transcripts, the ISE, jobs, remoting and redirected output, and above a running live area instead of under it. It targets .NET Framework 4.7.2, .NET 8 and .NET 10, so one build works in Windows PowerShell 5.1 and PowerShell 7.
+
+```terminal
+dotnet add package ConsoleMonster.PowerShell.Display
+```
+
+With `using System.Management.Automation;`, `using ConsoleMonster.PowerShell.Display;` and `using ConsoleMonster.Widgets;`:
+
+```csharp
+[Cmdlet(VerbsLifecycle.Invoke, "Build")]
+public sealed class InvokeBuildCommand : PSCmdlet {
+    protected override void EndProcessing() {
+        Table table = new Table().AddColumn("Step").AddColumn("Took");
+        table.AddRow("Restore", "2.1s").AddRow("Build", "14s");
+        HostOutput.Write(this, table);
+        HostOutput.WriteMarkup(this, "[pass]Build finished[/] in [bold]16s[/]");
+        HostOutput.Run(this, () => WriteWarning("Two analyzers were skipped."));
+    }
+}
+```
+
+- `HostOutput.Write(cmdlet, widget)` and `HostOutput.WriteMarkup(cmdlet, markup)` pick the route by the cmdlet's host. `NO_COLOR` and plain mode give plain lines everywhere.
+- `HostOutput.Run(cmdlet, action)` runs the cmdlet's own host writes (`WriteWarning`, `WriteVerbose`, a `ShouldContinue` prompt) with a running live area out of the way, then draws the area again below them.
+- `HostOutput.CanRenderLive(cmdlet)` tells you whether a live session can draw here; when it is false, write progress as lines.
+
+The same package holds the optional default display adapter for product modules.

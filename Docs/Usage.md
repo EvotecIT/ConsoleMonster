@@ -543,6 +543,80 @@ using (LiveSession session = new LiveSession(new Rows(progress, lanes), new Live
   `Write-Host` calls are drawn inline, and its output is returned at the end. Commands inside other modules keep their
   own `Write-Progress`, which PowerShell shows as usual.
 
+### Writing around a running live area
+
+Output the session does not draw, such as a PowerShell host writing a warning, or a prompt that waits for an answer
+(`ShouldContinue`, `-WarningAction Inquire`), goes through `session.WriteOutside(action)`. The session writes the
+console lines it captured so far, clears an inline area (a full-screen session leaves the alternate screen) and shows
+the cursor. Then the action runs on the calling thread, for as long as it needs. Afterwards the area starts again
+below what the action wrote, so later frames never draw over it.
+
+```csharp
+session.WriteOutside(() => cmdlet.WriteWarning("The certificate expires in 5 days."));
+```
+
+- No frame is drawn while the action runs. Updates keep being applied, so the next frame is current.
+- Calls from several threads take turns. A call made inside the action, or from a render callback, just runs.
+- What the calling thread writes to `Console.Out` during the action goes to the console, not to the session log.
+- Append-only (stream) sessions and stopped sessions run the action directly; their lines are not redrawn.
+- PowerShell cmdlets use `HostOutput.Run` (below), which finds the running session itself.
+
+### Step ledgers
+
+For a list of build steps, use `Phases` with `StepCounter = true`: one numbered row per step with its status and,
+once it finishes, the time it took (taken from its `state` events, so it stays fixed). When the ledger is taller than
+its space, for example in an inline area, it shows whole steps around the furthest step that has started, with the
+next step below it and `+N earlier` / `+N more` rows for the rest. The window only moves forward. While step 7 is
+about to start, step 6 stays in view, even if an older step 3 is still running.
+
+```csharp
+Phases steps = new Phases("steps") { StepCounter = true };
+foreach (string name in plan) { steps.Set(name, StatusKind.Pending); }
+using (LiveSession session = new LiveSession(steps, new LiveSessionOptions { Mode = LiveMode.Inline })) {
+    session.Start();
+    PhasesHandle ledger = steps.Handle(session);
+    ledger.Start("Restore");
+    ledger.Complete("Restore");   // shows the time it took, such as "2.1s"
+}
+```
+
+`LiveTable.MaxRows` is a different tool: it keeps only the most recent rows and removes older ones.
+
+## Output from your own compiled cmdlets
+
+A binary module that is not ConsoleMonster's PowerShell module can still write ConsoleMonster output the way its
+commands do. Reference the `ConsoleMonster.PowerShell.Display` package (it brings `ConsoleMonster`) and call
+`HostOutput` from the cmdlet's pipeline thread. Importing the ConsoleMonster module is not needed.
+
+```csharp
+using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
+using ConsoleMonster.Widgets;
+
+[Cmdlet(VerbsLifecycle.Invoke, "Build")]
+public sealed class InvokeBuildCommand : PSCmdlet {
+    protected override void EndProcessing() {
+        Table table = new Table().AddColumn("Step").AddColumn("Took");
+        table.AddRow("Restore", "2.1s").AddRow("Build", "14s");
+        HostOutput.Write(this, table);
+        HostOutput.WriteMarkup(this, "[pass]Build finished[/] in [bold]16s[/]");
+        HostOutput.Run(this, () => WriteWarning("Two analyzers were skipped."));
+    }
+}
+```
+
+- `HostOutput.Write(cmdlet, widget, width, theme)` and `HostOutput.WriteMarkup(cmdlet, markup, newLine)` pick the
+  route by the cmdlet's host. A real local console is drawn directly, with colour. An active transcript and the ISE
+  get coloured `Host.UI` writes, and the transcript records the plain line. Jobs and remoting get `PSHOST`-tagged
+  information records with colours, as `Write-Host` writes them. Redirected output and other hosts get one plain
+  line per row. `NO_COLOR` and plain mode use plain lines everywhere.
+- `HostOutput.Run(cmdlet, action)` runs host writes (`WriteWarning`, `WriteVerbose`, `ShouldContinue`) clear of a
+  live area that is drawing on the console. `Write` and `WriteMarkup` already do this for their own host writes.
+- `HostOutput.CanRenderLive(cmdlet)` says whether a live session can draw for this cmdlet: a local console host,
+  interactive output, nothing redirected and no transcript. When it is false, write progress as lines instead.
+- The package targets .NET Framework 4.7.2, .NET 8 and .NET 10, and works in Windows PowerShell 5.1 and PowerShell 7.
+  Ship every ConsoleMonster assembly at the same version (see [Versions in products](#versions-in-products)).
+
 ### Progress columns
 
 `Lanes` and `ProgressBar` take a column model. Set `Columns` to choose what each row shows; without it they keep the
@@ -582,7 +656,8 @@ the changed cells are redrawn. Live widgets inside the new content (lanes, logs,
 their names right away.
 
 `LiveTable` is a table whose rows change: rows have stable keys and are added, updated, removed or cleared. Column
-widths only grow, so rows never jitter; `MaxRows` keeps only the most recent rows, and `SortColumn` keeps them sorted.
+widths only grow, so rows never jitter; `MaxRows` keeps only the most recent rows (older rows are removed, not
+scrolled; a step list belongs in a [step ledger](#step-ledgers)), and `SortColumn` keeps them sorted.
 In stream mode each added or updated row prints as a line.
 
 ```csharp

@@ -2,7 +2,14 @@
 
 #### What's new
 - `Theme.Schemes` ships ten named palettes with upstream provenance and licence notices. `Set-ConsoleTheme Dracula` keeps the faithful colours; `-Accessible` selects the checked variant and saves as `Dracula · accessible`. Solarized, Gruvbox, Catppuccin and Tokyo Night pick light or dark for the detected background, while explicit variant names stay fixed. Version 3 files accept a catalogue name in `BaseScheme`. `Show-ConsoleSettings` groups the Theme list into Built in, Follow my terminal, Schemes and Your files, and draws each preview on that theme's own background, so a light scheme no longer sits on a dark terminal. The [colour scheme gallery](https://consolemonster.dev/docs/colour-schemes/) shows every scheme faithful and accessible with the checker's verdict.
+- `HostOutput` in `ConsoleMonster.PowerShell.Display` is public: compiled cmdlets in other modules write widgets and markup with `HostOutput.Write` and `HostOutput.WriteMarkup` through the same routes as ConsoleMonster's own commands (local console, transcript, ISE, jobs, remoting, redirected output), without importing the ConsoleMonster module. `HostOutput.Run` runs a cmdlet's own `WriteWarning`, `WriteVerbose` or `ShouldContinue` clear of a running live area, and `HostOutput.CanRenderLive` says whether a live view can draw. The module now uses this shared class instead of its own copy.
+- `LiveSession.WriteOutside(action)` writes output the session does not draw, such as a host warning or a prompt waiting for an answer: the inline area is cleared (full screen leaves the alternate screen), the action runs synchronously, and the area starts again below its output. No frame is drawn while the action waits.
+- A `Phases` step ledger (`StepCounter`) that is taller than its space shows whole steps around the furthest step that has started, with `+N earlier` and `+N more` rows. The window only moves forward, so an older step that is still running does not pull it back.
 
+#### Fixes
+- Capability detection no longer leaves VT processing on for the shell after the process ends: the console mode found before detection is restored at process exit.
+- Buffers have limits: `LiveSessionOptions.MaxQueuedEvents` (1,000,000 by default) rejects and counts updates while the render thread is far behind, an unfinished captured line is written once it reaches 65,536 characters, log entries keep at most 16,384 characters, and dashboard runspaces release stream records once they reach the log.
+- The Spectre.Console guide said `:emoji:` shortcodes are not supported; `Markup.Shortcodes = true` expands them.
 ### 2.4.0 - 2026-11-09
 
 #### What's new
