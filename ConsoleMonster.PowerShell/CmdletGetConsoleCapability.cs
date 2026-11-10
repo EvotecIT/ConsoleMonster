@@ -1,5 +1,6 @@
 using System.Management.Automation;
 using ConsoleMonster.Capabilities;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>
