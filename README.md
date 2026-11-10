@@ -315,7 +315,7 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
   ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
   `NO_COLOR` and [`CONSOLEMONSTER_*`](https://consolemonster.dev/docs/environment/) override it
-  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/)).
+  ([hosts and CI](https://consolemonster.dev/docs/hosts-and-ci/)).
 
 [Benchmarks](https://consolemonster.dev/benchmarks/) ·
 [Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·
