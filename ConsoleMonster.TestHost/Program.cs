@@ -43,6 +43,9 @@ namespace ConsoleMonster.TestHost {
                     case "app-mode": return LaunchAppMode(args[1], args[2], args.Length > 3 ? args[3] : null);
                     case "app-mode-child": AppOutputModeProbe.Run(args[1], args[2]); break;
                     case "grid-mode-child": GridOutputModeProbe.Run(args[1], args[2]); break;
+                    case "detect-mode": return LaunchDetectionMode(args[1], args.Length > 2 ? args[2] : null);
+                    case "detect-mode-parent": return DetectionModeParent(args[1], args[2]);
+                    case "detect-mode-child": return DetectionModeChild();
                     case "host": return LaunchHidden(args.Skip(1));
                     case "native-modes": return NativeModes(args[1], args[2]);
                     case "summary-locks": RenderLockOrder(true); break;
@@ -53,7 +56,7 @@ namespace ConsoleMonster.TestHost {
                 return 0;
             } catch (Exception error) {
                 if (args.Length > 2 && (args[0] == "app-mode-child" || args[0] == "grid-mode-child")) { File.WriteAllText(args[2], error.ToString()); }
-                else if (args.Length > 1 && (args[0].StartsWith("cancel", StringComparison.Ordinal) || args[0] == "handoff-windows")) { File.WriteAllText(args[1], error.ToString()); }
+                else if (args.Length > 1 && (args[0].StartsWith("cancel", StringComparison.Ordinal) || args[0] == "handoff-windows" || args[0] == "detect-mode-parent")) { File.WriteAllText(args[1], error.ToString()); }
                 else { Console.Error.WriteLine(error); }
                 return 1;
             }
