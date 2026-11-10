@@ -193,8 +193,16 @@ namespace ConsoleMonster.Sessions {
             // Closing ConPTY must happen concurrently with the output reader, which drains its final writes.
             _terminal?.Complete();
             if (_reader != null && _reader != Thread.CurrentThread && !_reader.Join(TimeSpan.FromSeconds(10))) {
-                _terminal?.Dispose();
-                if (!_reader.Join(TimeSpan.FromSeconds(2))) { throw new IOException("The recording output reader did not finish."); }
+                bool finished;
+                if (_terminal is WindowsPseudoTerminal windows) {
+                    // ConPTY shutdown may leave a synchronous pipe read pending. Disposal alone cannot
+                    // unblock it, especially on .NET Framework. Repeat cancellation to cover a read
+                    // starting between its cancellation check and the native call; keep the pipe alive.
+                    Stopwatch abort = Stopwatch.StartNew();
+                    do { windows.CancelRead(); finished = _reader.Join(20); }
+                    while (!finished && abort.Elapsed < TimeSpan.FromSeconds(2));
+                } else { _terminal?.Dispose(); finished = _reader.Join(TimeSpan.FromSeconds(2)); }
+                if (!finished) { throw new IOException("The recording output reader did not finish."); }
             }
             _terminal?.Dispose();
             lock (_gate) { if (!_disposed) { _writer.Dispose(); _disposed = true; } }
