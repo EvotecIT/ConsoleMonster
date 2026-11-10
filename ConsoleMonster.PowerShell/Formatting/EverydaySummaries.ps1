@@ -300,7 +300,7 @@
             $states[$state]++
         }
         @{ Value = $items.Count; Label = 'tasks' }
-        foreach ($state in $states.Keys) { @{ Value = $states[$state]; Label = $state } }
+        foreach ($state in $states.Keys) { @{ Value = $states[$state]; Label = $state.ToLowerInvariant() } }
     }
 }
 @{

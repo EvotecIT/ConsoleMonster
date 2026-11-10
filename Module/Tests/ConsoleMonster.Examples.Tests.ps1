@@ -376,7 +376,10 @@ BeforeAll {
         # Demos that show failures on purpose: the run must finish, and the failures are its errors.
         # The everyday and FormatCommands demos run Windows commands (svchost, Get-Service), as their recordings do; a
         # command that does not exist stops the script, so they run on Windows only.
-        'Website/examples/powershell/everyday-commands.ps1' = @{ RequiresWindows = $true }
+        'Website/examples/powershell/everyday-commands.ps1' = @{
+            RequiresWindows = $true
+            SetupFile = 'Website/tools/SiteFrames/Capture/Assets/EverydayWindows.ps1'
+        }
         'Website/examples/demos/formatting.ps1'      = @{ RequiresWindows = $true }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
         'Website/examples/demos/format-commands.ps1' = @{ RequiresWindows = $true }
@@ -504,6 +507,11 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $pager = if ($case['NoNativePager']) { "function global:Out-ConsoleExamplePager { param(`$PagerArguments) process { `$_ } }; `$env:PAGER = 'Out-ConsoleExamplePager'" } else { '' }
         # Clear-Host needs a real console on Windows; the example's interactive recording covers it.
         $clearHost = if ($Path -like '*/demos/formatting.ps1' -or $Path -like '*\demos\formatting.ps1') { 'function global:Clear-Host {}' } else { '' }
+        # Inventory examples use the recording's invented rows, independently of the runner's providers and data.
+        $setup = if ($case['SetupFile']) {
+            $setupPath = (Join-Path $script:RepositoryRoot $case['SetupFile']).Replace("'", "''")
+            ". '$setupPath'"
+        } else { '' }
         $invoke = "& '$Path' $arguments | Out-String | Out-Null"
         if ($case['ProjectLauncher']) {
             $project = $script:LauncherProject.Replace("'", "''")
@@ -553,6 +561,7 @@ $(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
 $pager
 $clearHost
 $location
+$setup
 try {
     $invoke
     $inputComplete

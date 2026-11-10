@@ -73,7 +73,7 @@ Describe 'Windows everyday command output' -Skip:([Environment]::OSVersion.Platf
         })
         $text = $rows | ConvertTo-TestEverydayText
         $text | Should -Match 'Example task 4'
-        $text | Should -Match '5 tasks.*3 Ready.*1 Running.*1 Disabled'
+        $text | Should -MatchExactly '5 tasks.*3 ready.*1 running.*1 disabled'
     }
 
     It 'shows never for an absent last logon and counts enabled and disabled local users' {
