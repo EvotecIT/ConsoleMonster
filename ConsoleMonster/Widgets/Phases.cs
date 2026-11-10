@@ -108,10 +108,13 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>
         /// Draws a numbered ledger with hanging labels and right-aligned details, placing a detail below its label when they
-        /// cannot share a row. A finished phase keeps the duration it took (from its <c>state</c> events) as its detail.
-        /// When the ledger is taller than its space (an inline live area), it shows whole phases around the furthest phase
-        /// that has started, with the next phase below it and "+N earlier" / "+N more" rows for the rest; the window only
-        /// moves forward, so an older phase that is still running does not pull it back.
+        /// cannot share a row. A running phase spins and shows its latest detail with the time it has been running (from
+        /// the session clock); a finished phase keeps the duration it took (from its <c>state</c> events). A phase's items
+        /// (<see cref="SetItem"/>) are listed under it. When the ledger is taller than its space (an inline live area),
+        /// finished phases fold their items into a "done/total" count and running phases keep only their running and
+        /// problem items; if that is still too tall, it shows whole phases around the furthest phase that has started, with
+        /// the next phase below it, every running phase above pinned under "+N earlier", and "+N more" for the rest. The
+        /// window only moves forward. An unbounded render (the final printed state) lists every item.
         /// </summary>
         public bool StepCounter { get; set; }
 
