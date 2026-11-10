@@ -35,7 +35,7 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 ```powershell
 Import-Module ConsoleMonster
 
-'DC01', 'DC02' | New-ConsoleLanes -WidgetId servers -Total 40 -HideCompleted -Column Standard, Rate | Show-Console
+@{ Key = 'DC01'; Total = 40 }, @{ Key = 'DC02'; Total = 40 } | New-ConsoleLanes -WidgetId servers -HideCompleted -Column Standard, Rate | Show-Console
 New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Show-Console
 ```
 

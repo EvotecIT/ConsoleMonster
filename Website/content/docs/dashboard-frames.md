@@ -26,7 +26,7 @@ Each part is a record in PowerShell and an object in C#. Meters pick their kind 
 New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -Meter @(
     @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
     @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{
+) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
     Title = 'Sites'; Content = { $sites | New-ConsoleTable }
 } | Show-Console
 ```

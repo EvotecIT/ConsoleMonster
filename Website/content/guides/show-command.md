@@ -59,7 +59,7 @@ Show-Command -Name Get-Service
 
 ```powershell
 $form = New-ConsoleForm -Title 'Service inventory' -Command 'Get-Service' -Content {
-    New-ConsoleField -Key Name -Label 'Service name' -Type Text `
+    New-ConsoleField -Key Name -Label 'Service name' -Kind Text `
         -Required -ParameterName Name
 }
 Set-ConsoleFormValue -Form $form -Values @{ Name = 'WinRM' }
@@ -93,7 +93,7 @@ $command = Show-Command -Name Get-Service -PassThru
 
 ```powershell
 $form = New-ConsoleForm -Title 'Service inventory' -Command 'Get-Service' -Content {
-    New-ConsoleField -Key Name -Label 'Service name' -Type Text `
+    New-ConsoleField -Key Name -Label 'Service name' -Kind Text `
         -Required -ParameterName Name
 }
 Set-ConsoleFormValue -Form $form -Values @{ Name = 'WinRM' }

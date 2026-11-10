@@ -49,7 +49,7 @@ The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdow
 ```powershell
 $rows | Export-ConsoleFrame -Format Markdown
 $widget | Export-ConsoleFrame -Format FencedText
-Export-ConsoleRecording -InputRecordingPath ./talk.cast -Format Markdown -OutputPath ./talk.md
+Export-ConsoleRecording -RecordingPath ./talk.cast -Format Markdown -Path ./talk.md
 ```
 
 In C#, add the package and call `MarkdownExporter.Export(widget, options)` or `MarkdownExporter.ExportRecording(recording)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Semantic tables, records and trees retain the existing cell presenters, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.

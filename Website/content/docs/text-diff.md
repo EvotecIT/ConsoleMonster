@@ -33,10 +33,10 @@ Compare files with normal PowerShell paths, including relative paths, filesystem
 ```powershell
 Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf
 Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -IgnoreWhitespace
-Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -ReferenceName 'Deployed' -DifferenceName 'Proposed'
+Compare-ConsoleText -ReferencePath .\before.conf -DifferencePath .\after.conf -ReferenceLabel 'Deployed' -DifferenceLabel 'Proposed'
 ```
 
-File comparisons are headed with the resolved file names, such as `before.conf` and `after.conf`; `-ReferenceName` and `-DifferenceName` override either heading, for files or text. `-IgnoreWhitespace` ignores Unicode whitespace within each line. It does not join lines or ignore a missing final newline. CRLF, LF and CR line endings compare equally, and empty text is an empty document rather than a blank line.
+File comparisons are headed with the resolved file names, such as `before.conf` and `after.conf`; `-ReferenceLabel` and `-DifferenceLabel` override either heading, for files or text. `-IgnoreWhitespace` ignores Unicode whitespace within each line. It does not join lines or ignore a missing final newline. CRLF, LF and CR line endings compare equally, and empty text is an empty document rather than a blank line.
 
 ## Unified output and capture
 

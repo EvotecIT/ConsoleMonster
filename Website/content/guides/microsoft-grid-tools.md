@@ -155,7 +155,7 @@ $servers | Out-ConsoleGridView -Filter 'SQL' -OutputMode Single
 **ConsoleMonster**
 
 ```powershell
-$servers | Show-ConsoleGrid -Filter 'SQL' -SortBy Pending -Descending -OutputMode Single
+$servers | Show-ConsoleGrid -Filter 'SQL' -SortColumn Pending -SortDescending -OutputMode Single
 ```
 
 </div>
@@ -182,7 +182,7 @@ $inventory | Show-ObjectTree
 
 ```powershell
 $inventory = [pscustomobject] @{ CollectedBy = 'Inventory'; Servers = $servers }
-$inventory | Show-ConsoleObject -Title 'Inventory object' -Depth 4
+$inventory | Show-ConsoleObject -Title 'Inventory object' -MaxDepth 4
 ```
 
 </div>
