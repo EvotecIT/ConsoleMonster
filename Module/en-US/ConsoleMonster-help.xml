@@ -15735,7 +15735,7 @@ Show-ConsoleApp -Content {
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Title</maml:name>
           <maml:description>
-            <maml:para>The heading shown above the form or the selectable menu item text.</maml:para>
+            <maml:para>Heading displayed above the form's fields and navigation controls.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -15875,7 +15875,7 @@ Show-ConsoleApp -Content {
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Title</maml:name>
         <maml:description>
-          <maml:para>The heading shown above the form or the selectable menu item text.</maml:para>
+          <maml:para>Heading displayed above the form's fields and navigation controls.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -42143,7 +42143,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
           <maml:name>Text</maml:name>
           <maml:description>
-            <maml:para>The literal or rich text appended to the selected dashboard log region.</maml:para>
+            <maml:para>Text appended to the dashboard log region or application log viewport named by WidgetId.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
           <dev:type>
@@ -42218,7 +42218,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
         <maml:name>Text</maml:name>
         <maml:description>
-          <maml:para>The literal or rich text appended to the selected dashboard log region.</maml:para>
+          <maml:para>Text appended to the dashboard log region or application log viewport named by WidgetId.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
         <dev:type>

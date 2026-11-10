@@ -21,7 +21,7 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommunications.Write, "ConsoleLogEntry", HelpUri = "https://consolemonster.dev/powershell/commands/write-consolelogentry/")]
     public sealed class CmdletWriteConsoleLogEntry : LiveCmdlet {
-        /// <summary><para type="description">The literal or rich text appended to the selected dashboard log region.</para></summary>
+        /// <summary><para type="description">Text appended to the dashboard log region or application log viewport named by WidgetId.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
         [AllowEmptyString]
         public object Text { get; set; } = string.Empty;

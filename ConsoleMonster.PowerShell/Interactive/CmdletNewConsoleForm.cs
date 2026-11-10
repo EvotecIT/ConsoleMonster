@@ -40,7 +40,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true)] public PSObject? InputObject { get; set; }
         /// <inheritdoc />
         protected override void ProcessRecord() { if (InputObject != null) { _piped.Add(InputObject); } }
-        /// <summary><para type="description">The heading shown above the form or the selectable menu item text.</para></summary>
+        /// <summary><para type="description">Heading displayed above the form's fields and navigation controls.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public string Title { get; set; } = string.Empty;
 

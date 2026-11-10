@@ -212,7 +212,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The heading shown above the form or the selectable menu item text.
+Heading displayed above the form's fields and navigation controls.
 
 ```yaml
 Type: String

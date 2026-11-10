@@ -107,7 +107,7 @@ Accept wildcard characters: False
 ```
 
 ### -Text
-The literal or rich text appended to the selected dashboard log region.
+Text appended to the dashboard log region or application log viewport named by WidgetId.
 
 ```yaml
 Type: Object
