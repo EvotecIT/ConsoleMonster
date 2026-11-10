@@ -359,7 +359,7 @@ Accept wildcard characters: False
 ```
 
 ### -Label
-The selectable text shown in the menu; supports rich text from New-ConsoleText.
+Literal text shown for this selectable menu item; use Description for its supporting detail.
 
 ```yaml
 Type: String

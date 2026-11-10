@@ -30867,7 +30867,7 @@
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleTree",
       "Parameter": "Depth",
-      "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
+      "Reason": "The hierarchy adapter applies the selected PowerShell Depth value to this depth option."
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
@@ -30903,7 +30903,7 @@
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleTree",
       "Parameter": "Depth",
-      "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
+      "Reason": "The hierarchy adapter applies the selected PowerShell Depth value to this depth option."
     },
     {
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleTreeOptions",

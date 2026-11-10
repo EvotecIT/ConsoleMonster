@@ -37,7 +37,7 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsCommon.New, "ConsoleMenuItem", DefaultParameterSetName = "Action", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolemenuitem/")]
     [OutputType(typeof(MenuItem))]
     public sealed class CmdletNewConsoleMenuItem : NoPipelineInputCmdlet {
-        /// <summary><para type="description">The selectable text shown in the menu; supports rich text from New-ConsoleText.</para></summary>
+        /// <summary><para type="description">Literal text shown for this selectable menu item; use Description for its supporting detail.</para></summary>
         [Parameter(Position = 0)]
         public string? Label { get; set; }
 

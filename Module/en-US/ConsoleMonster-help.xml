@@ -18204,7 +18204,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18317,7 +18317,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18454,7 +18454,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18639,7 +18639,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18860,7 +18860,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19117,7 +19117,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19314,7 +19314,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19439,7 +19439,7 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19566,7 +19566,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19691,7 +19691,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19828,7 +19828,7 @@ Description and RunText.</maml:para>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
           <maml:name>Label</maml:name>
           <maml:description>
-            <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -20049,7 +20049,7 @@ Description and RunText.</maml:para>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="None">
         <maml:name>Label</maml:name>
         <maml:description>
-          <maml:para>The selectable text shown in the menu; supports rich text from New-ConsoleText.</maml:para>
+          <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
