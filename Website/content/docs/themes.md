@@ -9,7 +9,7 @@ chips: [Themes, Terminal, Schemes]
 summary: "Choose a theme, follow your terminal or import a colour scheme."
 ---
 
-Widgets never name colours directly. They use theme roles: `Text`, `Muted`, `Accent`, `Pass`, `Warn`, `Fail`, `Info`, `Skip`, `Running`, `Pending`, `Border`, `Title`, `Header`, `Surface`, `Focus` and six chart series. A theme maps each role to a 24-bit colour with its 256 and 16-colour fallbacks, so a role stays distinguishable on every tier.
+A theme restyles every widget at once. Widgets never name colours directly; they use theme roles such as `Pass`, `Muted` and `Accent`, and a theme maps each role to a 24-bit colour with its 256 and 16-colour fallbacks, so a role stays distinguishable on every tier. The [full list of roles](#roles-and-markup) is below.
 
 {{< cm-frame ids="theme-dark,theme-light,theme-contrast" caption="One summary in `Theme.Dark`, `Theme.Light` and `Theme.HighContrast`." >}}
 
@@ -43,6 +43,19 @@ Terminal.Theme = Theme.Light;                                   // every write f
 Terminal.Write(new TextBlock("[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]"));
 Terminal.Theme = Theme.HighContrast;
 Terminal.Write(new Rule("[bold]High contrast[/]"));
+```
+
+</div>
+<div class="cm-lang" data-lang="csharp-fluent">
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Styling;
+
+Terminal.Theme = Theme.Light;                                   // every write from here on
+Ui.Markup("[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]").Show();
+Terminal.Theme = Theme.HighContrast;
+Ui.Rule("[bold]High contrast[/]").Show();
 ```
 
 </div>
@@ -90,12 +103,12 @@ contrast while keeping the role's hue; grey bright slots do not replace coloured
 text colour. The accessible variant first chooses status colours from that palette, then adjusts OKLCH lightness
 while retaining hue and at least half the source chroma. If that hue cannot meet the bars, it tries another palette
 colour in the same family: blue-to-cyan, orange-to-yellow or red-to-magenta. Fail is also
-underlined. The report lists tokens **adjusted for contrast**. Arbitrary imported palettes may still fall short;
+underlined. The report lists the roles **adjusted for contrast**. Arbitrary imported palettes may still fall short;
 the report gives the measurements. A version 3 file keeps the embedded scheme, so it can also be selected with
 `Set-ConsoleTheme -Path ./my-theme.json -Accessible -Save` without rewriting the source file.
 
 In C#, use `TerminalScheme.Load(path)` and `Theme.FromScheme(scheme, accessible: true)`. See
-[theme files](#share-a-team-theme-file) for token overrides and [checking themes](#check-a-theme) for measurements.
+[theme files](#share-a-team-theme-file) for role overrides and [checking themes](#check-a-theme) for measurements.
 
 ## Keep a theme for every session
 
@@ -130,7 +143,7 @@ it, and the ASCII glyph tier still draws ASCII. `CONSOLEMONSTER_BORDER`, `CONSOL
 for one run; in C#, `Theme.WithAppearance` gives a theme its style and `TerminalProfile.WithBorder` and
 `WithDensity` and `WithStatusMarkers` override it.
 
-`Comfortable` keeps today's spacing and is the default. `Compact` removes boxed table cell padding, reduces
+`Comfortable` is the default spacing. `Compact` removes boxed table cell padding, reduces
 unboxed table and list gaps from two cells to one, removes default horizontal panel padding, and closes the
 default gap between framed layout tiles. Unframed children keep at least one cell of default separation;
 larger default gaps shrink by one. Explicit padding, gaps and
@@ -140,9 +153,36 @@ column gaps keep the values the author set. In C#, use `new ThemeAppearance(Them
 Exports follow your choice too: once you pick a theme, `Export-ConsoleFrame` draws in it on the background it is made
 for. `-Theme Auto` still gives both the dark and the light rendering, and `-Theme Current` asks for the theme in use.
 
-## Markup and roles
+## Roles and markup
 
-Theme roles are markup tags (`[pass]`, `[fail]`, `[warn]`, `[muted]`, `[accent]` and the others), also as backgrounds (`[white on fail]`). In PowerShell, `-Role` on `New-ConsoleText` and `Write-ConsoleText` does the same. Without colour, a status role adds its symbol, so status is never shown by colour alone.
+Every role is also a markup tag, written in lower case (`[pass]OK[/]`, `[muted]12:00[/]`), and works as a background too (`[white on fail]`). In PowerShell, `-Role` on `New-ConsoleText` and `Write-ConsoleText` takes the same names; in C#, the roles are the `ThemeToken` values. Theme files call them tokens. Without colour, a status role adds its symbol, so status is never shown by colour alone.
+
+| Role | Used for | Markup tag |
+|---|---|---|
+| `Text` | Body text | `[text]` |
+| `Muted` | Secondary text: timestamps, units, hints | `[muted]` |
+| `Subtle` | Very low emphasis: empty bar tracks, guides, separators | `[subtle]` |
+| `Accent` | The primary accent: titles, active items, the main series | `[accent]` |
+| `Accent2` | A secondary accent hue | `[accent2]` |
+| `Pass` | Success, passed | `[pass]` |
+| `Fail` | Failure, error | `[fail]` |
+| `Warn` | Warning | `[warn]` |
+| `Info` | Informational | `[info]` |
+| `Skip` | Skipped, not applicable | `[skip]` |
+| `Running` | In progress | `[running]` |
+| `Pending` | Queued, not started | `[pending]` |
+| `Border` | Panel and table borders | `[border]` |
+| `Title` | Panel titles | `[title]` |
+| `Header` | Table and section headers | `[header]` |
+| `Highlight` | Emphasised values, key figures | `[highlight]` |
+| `Surface` | Header and footer bars; carries a background | `[surface]` |
+| `SurfaceAccent` | Accent text on `Surface` | `[surfaceaccent]` |
+| `Series1` to `Series6` | Chart series one to six | `[series1]` to `[series6]` |
+| `Focus` | The focused row or control in prompts, menus and forms; carries a background | `[focus]` |
+| `Strong` | Emphasised text without a background fill | `[strong]` |
+| `Low` | A low-severity finding | `[low]` |
+| `Critical` | A critical finding, always emphasised | `[critical]` |
+| `Gap` | An evidence gap that prevented evaluation | `[gap]` |
 
 ## Reduction per tier
 
@@ -150,7 +190,7 @@ Colours given as hex, `rgb()` or palette names are reduced for each tier the way
 
 ## Share a team theme file
 
-Export a starting palette, edit its semantic tokens and load it for the session:
+Export a starting palette, edit its roles (the `Tokens` in the file) and load it for the session:
 
 ```powershell
 Import-Module ConsoleMonster
@@ -179,7 +219,7 @@ Export does not change the active theme. Invalid files raise an error and leave
 the previous theme active.
 
 A partial JSON file can inherit from a built-in palette. Save this as
-`team-theme.json` to change the accent while preserving the other Dark tokens:
+`team-theme.json` to change the accent while keeping the other Dark roles:
 
 ```json
 {
@@ -215,7 +255,7 @@ On a light terminal use `-BaseTheme Light` and `team-light.json`. The script lea
 
 {{< cm-frame ids="theme-files-before-60,theme-files-after-60" script="false" caption="The same programs at 60 columns. Status symbols, words and log levels stay visible in both palettes." >}}
 
-### Load JSON in .NET
+### In C#
 
 Add the `ConsoleMonster` NuGet package to a console project, then use the same
 file. The core reads JSON; PSD1 belongs to the PowerShell adapter.
@@ -236,11 +276,6 @@ dictionary. `ToJson` returns complete JSON. Loading and saving do not select a
 theme; assigning `Terminal.Theme` does. The same palette can instead be supplied
 to `LiveSessionOptions.Theme` for one session.
 
-## Related
-
-[PowerShell rich text](/powershell/) shows role-based text, and the [widget gallery](/widgets/) shows the roles at each
-colour tier.
-
 ## Check a theme
 
 `Test-ConsoleTheme` checks the active theme without changing it. Use `-Theme` for a preset or `-Path` for a JSON or PSD1 team theme:
@@ -254,8 +289,14 @@ Test-ConsoleTheme -Path ./team-theme.json -Strict
 
 The default view names the theme and gives a calm verdict, lists only problems and unknowns, and ends with the number of other checks that pass. A pair that fails under several vision conditions appears once, with its lowest distance. `-Detailed` shows every measurement; the `Results` property always retains all 28 checks, also for `Format-List` or `Show-ConsoleTable`.
 
-The checks cover text contrast (at least 4.5:1 against each token's fill or the page), pass/warning/fail separation (CIELAB distance 25 in normal vision and simulated protanopia, deuteranopia and tritanopia), markers without colour, and Critical's distinct fill. The page defaults to `#0c0c0c` for dark themes and `#ffffff` for light themes. `-Background` overrides it; `Surface` is chrome, not the page.
+The checks cover text contrast (at least 4.5:1 against each role's fill or the page), pass/warning/fail separation (CIELAB distance 25 in normal vision and simulated protanopia, deuteranopia and tritanopia), markers without colour, and Critical's distinct fill. The page defaults to `#0c0c0c` for dark themes and `#ffffff` for light themes. `-Background` overrides it; `Surface` is chrome, not the page.
 
 Dark and Light correctly fail colour-vision checks; both colour-blind presets pass. Palette indexes, terminal-default foregrounds and dim text have unknown RGB (terminals choose their own dimming) and report **Unknown**, while marker checks still run. `Passed` requires every check to pass. `-Strict` makes any **Fail** terminating, with the report in the error's `TargetObject`; Unknown alone does not throw. The settings picker shows a short verdict below its preview.
 
 In C#, call `ThemeCheck.Run(theme, new ThemeCheckOptions { Background = Color.FromHex("#ffffff") })` and inspect `Passed` and `Results`. The checker measures the theme's true-colour styles; it does not infer the live terminal palette or certify a terminal's rendering.
+
+## Next
+
+- [Colour schemes](/docs/colour-schemes/): Dracula, Nord, Solarized and others, faithful and accessible.
+- [Capability detection](/docs/capabilities/): how the colour depth and background are detected.
+- [Environment overrides](/docs/environment/): pin the theme and colour depth for CI and screenshots.

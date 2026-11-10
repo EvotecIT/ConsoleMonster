@@ -30,12 +30,21 @@ The summary bar and the cell map are widgets of their own, for your own views:
 ```powershell
 $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
 New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleSummaryBar -Done 31 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 28; failed = 2; warnings = 1 })
-    New-ConsoleCellMap -Status $states -Count 40
+    New-ConsoleSummaryBar -Value 31 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 28; failed = 2; warnings = 1 })
+    New-ConsoleCellMap -InputObject $states -Count 40
 } | Show-Console
 ```
 
 In C#, `ConsoleRun.ForEachAsync` runs the same view around any async work, and `SummaryBar` and `CellMap` are in `ConsoleMonster.Widgets`.
+
+## Which run API?
+
+| | `Invoke-ConsoleRun`, `ConsoleRun.ForEachAsync` | `Start-ConsoleRun`, `LiveRun` |
+|---|---|---|
+| Who runs the work | ConsoleMonster runs your script block or async body for each item, with throttling, timeouts and retries | Your script or application schedules it; ConsoleMonster only monitors and never changes results |
+| Finished items | Stay on one screen as cells; failures are listed when the run ends | Print once into scrollback above a dashboard of bounded height |
+| Use it for | Running a script block over many items, one at a time or in parallel | Work already running elsewhere (jobs, worker threads, your own scheduler), or runs too long to keep on one screen |
+| Pages | [Live runs](/docs/live-runs/) | [Large runs](/docs/large-runs/) |
 
 {{< cm-demo id="watch" heading="h2" >}}
 
@@ -45,6 +54,8 @@ In C#, `ConsoleRun.ForEachAsync` runs the same view around any async work, and `
 
 `Invoke-ConsolePester` takes Pester's own parameters (`-Path`, `-TagFilter`, `-Configuration`...) and shows the run as it happens: a file list with progress, one cell per test, the test running now and each failure with its expected and actual values. It returns Pester's result object with `-PassThru`. When the run ends, a table of results by file, the failures and the totals are written; in redirected output and CI they are plain text.
 
-## Related
+## Next
 
-To build a view of your own around running work, start with [live sessions](/docs/live-sessions/). Runspaces and parallel workers are covered in [threads and concurrency](/docs/threads/).
+- [Large runs](/docs/large-runs/): monitor work your script already schedules, with finished items in scrollback.
+- [Threads and concurrency](/docs/threads/): runspaces, parallel workers and what is safe from which thread.
+- [Live sessions](/docs/live-sessions/): build a view of your own around running work.

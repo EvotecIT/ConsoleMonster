@@ -21,21 +21,9 @@ dotnet add package ConsoleMonster.Graphics
 
 ## Write one
 
-Nodes, links, groups and use cases are the same model in C#, the fluent builder and PowerShell. Without Graphics registered, the core draws this as a tree:
+Nodes, links, groups and use cases are the same model in PowerShell, C# and the fluent builder. The PowerShell module bundles Graphics and registers it for the diagram commands. A C# program without Graphics registered draws the same diagram as a tree:
 
-```csharp
-using ConsoleMonster;
-using ConsoleMonster.Widgets;
-
-var diagram = Ui.Diagram("Home network")
-    .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
-    .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
-        .Subtitle("192.168.1.1").Value("1 ms"))
-    .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
-Terminal.Write(diagram);
-```
-
-The PowerShell module bundles Graphics and registers it for the diagram commands:
+<div class="cm-lang" data-lang="powershell">
 
 ```powershell
 Import-Module ConsoleMonster
@@ -46,6 +34,44 @@ New-ConsoleDiagram -Title 'Home network' {
     New-ConsoleDiagramLink 'Laptop' 'Router' -Label 'Wi-Fi'
 } | Show-ConsoleDiagram -StaticSnapshot
 ```
+
+</div>
+<div class="cm-lang" data-lang="csharp">
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var diagram = new Diagram("Home network") {
+    Nodes = {
+        new DiagramNode("Laptop") { Kind = DiagramNodeKind.Workstation },
+        new DiagramNode("Router") {
+            Kind = DiagramNodeKind.Gateway, Subtitle = "192.168.1.1", Value = "1 ms"
+        }
+    },
+    Links = {
+        new DiagramLink("Laptop", "Router") { Label = "Wi-Fi" }
+    }
+};
+Terminal.Write(diagram);
+```
+
+</div>
+<div class="cm-lang" data-lang="csharp-fluent">
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+var diagram = Ui.Diagram("Home network")
+    .Node("Laptop", n => n.Kind(DiagramNodeKind.Workstation))
+    .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
+        .Subtitle("192.168.1.1").Value("1 ms"))
+    .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
+diagram.Show();
+```
+
+</div>
 
 ## Use cases
 
@@ -91,3 +117,9 @@ In PowerShell, give the diagram a `-WidgetId` and update it with `Update-Console
 ## Glyphs and width
 
 The Full glyph set uses rounded and dashed boxes and heavy lines for the active step; Basic maps them to WGL4 box drawing; ASCII stays plain ASCII. A small diagram keeps its natural size in a wide terminal. In a terminal narrower than the full text, subtitles go first, then labels are shortened, then connection labels are dropped until it fits.
+
+## Next
+
+- [Diagrams, zero to hero](/docs/diagrams/): nine short steps from three boxes to Mermaid.
+- [Inline images](/docs/inline-images/): chart renders and pictures in terminal pixels.
+- [Live sessions](/docs/live-sessions/): the dashboards a live diagram runs in.

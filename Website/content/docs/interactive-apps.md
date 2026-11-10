@@ -46,10 +46,21 @@ new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))
 ```
 
 </div>
+<div class="cm-lang" data-lang="csharp-fluent">
 
-- **State.** `New-ConsoleTextInput -Key Query` stores the text in `$State.Query`; in C#, `TextInput("Query")` writes it to `AppState`, and `state.Get<string>("Query", string.Empty)` reads it.
+```csharp
+c.TextInput(textInput => textInput.Key("Query")
+    .Label("Query")
+    .Placeholder("Host, role, site or status"));
+c.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
+    "Query", string.Empty))));
+```
+
+</div>
+
+- **State.** `New-ConsoleTextInput -Key Query` stores the text in `$State.Query`; in C#, `TextInput("Query")` (or `.Key("Query")` in a fluent chain) writes it to `AppState`, and `state.Get<string>("Query", string.Empty)` reads it.
 - **Dependent widgets.** The count and the table come from one snapshot of the query, so they always agree. The input stays where it is while the binding rebuilds what is below it, and the Status column uses the built-in status presenter.
-- **The loop.** `Show-ConsoleApp` and `ConsoleApp.Run` drive the existing live renderer: keys go to the focused control, the binding runs, the screen redraws only the cells that changed. The layout itself is ordinary composition (`New-ConsoleRows` or `Rows`).
+- **The loop.** `Show-ConsoleApp` and `ConsoleApp.Run` drive the live renderer: keys go to the focused control, the binding runs, the screen redraws only the cells that changed. The layout itself is ordinary composition (`New-ConsoleRows` or `Rows`).
 - **The result.** `ConsoleApp.Run` returns the final state when the application ends; in PowerShell, `Show-ConsoleApp -PassThru` returns the named values.
 
 ## On a wide terminal
@@ -72,10 +83,13 @@ The mouse works wherever the keyboard does, and every pointer action also has a 
 - Right-click, the Menu key or Shift+F10 opens a context menu of the keys that work at that moment.
 
 `InteractiveOptions.Default.Mouse = false` or `CONSOLEMONSTER_NOMOUSE=1` turns the mouse off everywhere, and `Show-ConsoleApp -NoMouse` turns it off for one app. Recordings, exports, CI and redirected output are unchanged. The [incident workbench](/demos/incident-workbench/) is a whole app driven by the mouse alone, and [the grid with the mouse](/interactive/#grid-mouse) shows `Show-ConsoleGrid` the same way.
+
 ## Redirected output and CI
 
 An interactive application needs a keyboard. Without an interactive terminal, `Show-ConsoleApp` and `ConsoleApp.Run` report that prompting is unavailable, unless the caller asks for a static snapshot. Pass `-Mode Snapshot` to `Show-ConsoleApp` to print the first screen once and exit. In C#, pass `new ConsoleAppOptions { Interactive = new InteractiveOptions { Mode = InteractionMode.Snapshot } }` as the `options` argument of `ConsoleApp.Run`. A snapshot draws the layout once; it does not read a query.
 
-## Related
+## Next
 
-[Interactive prompts](/interactive/) ask for one answer at a time, [live sessions](/docs/live-sessions/) show dashboards updated by running work, and [threads and concurrency](/docs/threads/) explains the live engine's threading rules.
+- [App parts, one by one](/docs/app-parts/): panes, folding sections, tabs, linked charts, trees and searchable logs.
+- [Forms and dialogs](/docs/forms-and-dialogs/): ask several questions at once and confirm before acting.
+- [Test, record and drive apps](/docs/testing/): run an app on a headless terminal and check it against golden files.

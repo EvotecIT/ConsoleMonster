@@ -44,8 +44,6 @@ Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Filter ERROR -Count 1 -NoLive
 Watch-ConsoleLog -Path ./synthetic.log -Tail 16 -Highlight DATABASE
 ```
 
-The live renderer shows timestamp and level columns once, followed by the message. It omits recognized leading timestamp and level fields from the display message, while filtering and plain output retain the complete original line. At compact widths the source time uses `HH:mm:ss`; wider views include the date, milliseconds and offset. Unknown source timestamps leave the timestamp column blank; no current-time timestamp is invented.
-
 ## Follow a Windows event log
 
 On Windows, select a local log your account can read:
@@ -66,7 +64,7 @@ This sample uses the platform's `Get-WinEvent` command. It is documentation only
 
 `-Tail` defaults to **10** initial completed lines or events. `-Tail 0` starts with subsequent entries. `-Count` defaults to **0**, following until quit or cancellation; it counts source polls, including empty polls. `-Count 1` is a snapshot, not a one-line limit. `-PollIntervalSeconds` defaults to **0.25 seconds**.
 
-`-Capacity` defaults to **1000 retained history entries**. Updates use the existing live session's unbounded queue. Accepted updates are applied before history eviction; posts after shutdown follow the session's normal dropped-update rule. Capacity limits history after application, rather than the entire memory footprint. Scrolling pauses the viewport, not ingestion; eviction can remove the oldest retained history.
+`-Capacity` defaults to **1000 retained history entries**; once it is full, the oldest entries leave the history. Scrolling back pauses the view, not reading, so new entries keep arriving while you read.
 
 `-Plain`, piping, redirection and CI use raw line output and never acquire input. Timestamp and level prefixes and markup-like characters remain unchanged:
 
@@ -82,9 +80,7 @@ File tails recognize completed CR/LF/CRLF lines and UTF-8/UTF-16/UTF-32 byte-ord
 Watch-ConsoleLog -Path ./legacy.log -Encoding unicode -Count 1 -NoLive
 ```
 
-Partial lines wait for their terminator and can use unbounded memory. Observed rotation or truncation restarts reading at the path; unread data in the old renamed file is not drained. An unobserved truncate/regrow with identical checkpoint bytes can look like an append. File identity supports Windows and x64/arm64 Linux/macOS.
-
-Initialization scans the current file to find the requested completed history and retain any partial line, including with `-Tail 0`. Initial work grows with file size. Reads run synchronously, so cancellation is observed after an in-progress source read returns.
+A line is shown once it ends. When the file is rotated or truncated, the tail starts again at the path; lines still unread in the old, renamed file are not shown. A very large file takes longer to open, because the tail reads it to find the last lines.
 
 ## Search what a run wrote
 
@@ -99,6 +95,9 @@ Show-ConsoleApp -Content {
 ```
 
 [App parts](/docs/app-parts/#the-find-bar) shows the find bar on a deploy log, with all three languages side by side.
-## Related
 
-Put a tail beside other widgets in a [live session](/docs/live-sessions/), or use the [logging provider](/docs/logging/) to send application events straight to a dashboard.
+## Next
+
+- [Dashboard frames](/docs/dashboard-frames/): a printed summary with facts, meters and attention items.
+- [Logging](/docs/logging/): send application events straight to a dashboard.
+- [Live sessions](/docs/live-sessions/): put a tail beside other widgets.

@@ -26228,7 +26228,7 @@
       "Member": "ProbeTimeout",
       "CSharpTypeName": "System.TimeSpan",
       "Reason": "Per-provider cooperative timeout policy belongs to the C# overview host; PowerShell exposes the caller collection budget.",
-      "Alternative": "Use Show-ConsoleOverview -BudgetMilliseconds to bound the whole collection.",
+      "Alternative": "Use Show-ConsoleOverview -BudgetSeconds to bound the whole collection.",
       "Disposition": "CSharpOnly"
     },
     {

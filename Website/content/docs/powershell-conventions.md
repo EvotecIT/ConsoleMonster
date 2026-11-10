@@ -9,7 +9,7 @@ chips: [Cmdlets, Script blocks]
 summary: "One grammar for every widget, and each widget's .NET methods."
 ---
 
-I use the same vocabulary in PowerShell and C#, with small translations where the hosts differ. A command should tell me whether it creates a definition, shows it, asks a question or runs work.
+PowerShell and C# share one vocabulary, with small translations where the hosts differ. A command's verb says whether it creates a definition, shows it, asks a question or runs work.
 
 ## Commands by job
 
@@ -67,7 +67,7 @@ Display commands return no success output by default. `New-ConsoleTable` and the
 | Semantic outcome | `Status`; free text explaining it is `Detail`. |
 | Theme or colors | `Theme` selects a theme, `Role` selects a theme role, and `Color`/`BackgroundColor` are literal colors. `Decoration` adds text decorations. |
 | Wall-clock formatting | `TimestampFormat`; `ShowTimestamp` opts into display timestamps, while the Boolean `LogTimestamp` controls log-file inclusion (default true). |
-| Durations in PowerShell | Numeric `TimeoutSeconds`, `StepTimeoutSeconds`, `PollIntervalSeconds`, `IdleLimitSeconds`, `ProgressIntervalSeconds`, `ElapsedSeconds`, `DurationSeconds`, `AtSeconds`, `StartedSeconds`, `FinishedSeconds`, or `BudgetMilliseconds`. C# keeps `TimeSpan` properties such as `Timeout` and `PollInterval`. |
+| Durations in PowerShell | Numeric `TimeoutSeconds`, `StepTimeoutSeconds`, `PollIntervalSeconds`, `IdleLimitSeconds`, `ProgressIntervalSeconds`, `ElapsedSeconds`, `DurationSeconds`, `AtSeconds`, `StartedSeconds`, `FinishedSeconds`, or `BudgetSeconds`. C# keeps `TimeSpan` properties such as `Timeout` and `PollInterval`. |
 | Rendering cadence | `FramesPerSecond`; distinct from the source polling delay. |
 | Overall width | `Width = 0` resolves the current target/terminal; unknown width falls back to 100 cells. Positive widths are explicit. Recorded frames retain their geometry. |
 | Component sizing | `BarWidth` is a bar's cells; `Weight` is a share of remaining layout space. |
@@ -87,7 +87,7 @@ Watch-ConsoleLog -Path ./service.log -Count 1 -PollIntervalSeconds 0.25 -NoLive
 
 The native progress adapter keeps `Activity`, `Status`, `Id`, `ParentId`, `PercentComplete`, `SecondsRemaining`, `CurrentOperation`, `Completed` and `SourceId` exactly as PowerShell defines them. Its `Id` is never a `WidgetId`, and its native descriptive `Status` is the explicit exception to semantic outcomes. Native `Write-Host`/`Format-*` integration likewise preserves native binding. `NoNewLine` follows the familiar PowerShell spelling.
 
-##region Using the object directly
+## Using the object directly
 
 Builders return ordinary typed objects, so their methods remain available. C# uses American API spelling, including `Color`, `Center`, `PromptCanceledException` and `IsCanceled`. `RegionWidget` names a replaceable region, `MenuRunResult` names a menu result, and numeric ranges use `Minimum`/`Maximum`.
 
@@ -96,12 +96,14 @@ The module registers 15 fully qualified type accelerators: `ConsoleMonster.Termi
 Advanced interop can look up another core type from the loaded assembly without changing global accelerator state:
 
 ```powershell
-#region Using the object directly
 $profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true)
 $profile = $profileType::Fixed(100, 24)
-#endregion
 ```
 
-Prefer cmdlets for ordinary scripts. Configure headings and footers on `New-ConsoleDashboard` or `Show-ConsoleApp`; pass records to numeric-column format parameters. `New-ConsoleRegion -Horizontal Center -Padding 1` aligns and pads content. `New-ConsoleStatusList -Layout Strip` builds a phase strip. Canvas remains a C# capability. Recording JSONL keeps its existing `target` and `state` wire keys while the public API uses `WidgetId` and `Status`.
+Prefer cmdlets for ordinary scripts. Configure headings and footers on `New-ConsoleDashboard` or `Show-ConsoleApp`; pass records to numeric-column format parameters. `New-ConsoleRegion -Horizontal Center -Padding 1` aligns and pads content. `New-ConsoleStatusList -Layout Strip` builds a phase strip. Canvas is available in C# only.
 
-Try [live sessions](/docs/live-sessions/) next.
+## Next
+
+- [Themes](/docs/themes/): the colour roles every widget draws with, and how to switch them.
+- [Colour schemes](/docs/colour-schemes/): popular terminal schemes, checked for accessibility.
+- [Live sessions](/docs/live-sessions/): dashboards that any thread can update.

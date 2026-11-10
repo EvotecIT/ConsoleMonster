@@ -43,6 +43,8 @@ With `Mode = Auto` (the default) the dashboard draws only on an interactive term
 | `KeepFinalState` | `true` | Leaves the last frame in the scrollback. |
 | `ServiceName` | type name | Names a hosted service from its type. |
 
-## Related
+## Next
 
-The [logging provider](/docs/logging/) writes into the dashboard's log region, the [dotnet new template](/docs/template/) starts an app with both wired up, and [threads and concurrency](/docs/threads/) explains how updates reach the screen.
+- [Recording and replay](/docs/recording/): record a session and export a player or GIF.
+- [Logging](/docs/logging/): the provider that writes into the dashboard's log region.
+- [Threads and concurrency](/docs/threads/): how updates reach the screen.
