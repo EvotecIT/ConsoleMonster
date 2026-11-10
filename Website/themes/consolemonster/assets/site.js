@@ -14,6 +14,10 @@
     return { lang: lang, unavailable: { powershell: available.length > 0 && !has('powershell'), csharp: available.length > 0 && !has('csharp'), 'csharp-fluent': available.length > 0 && !has('csharp-fluent') } };
   }
   // </lang-choice>
+  // On a narrow screen the docs contents sit above the page, so they start closed; the page comes first.
+  if (window.matchMedia('(max-width: 860px)').matches) {
+    document.querySelectorAll('.cm-docs__menu[open]').forEach(function (menu) { menu.removeAttribute('open'); });
+  }
   document.querySelectorAll('[data-cm-theme-toggle]').forEach(function (button) {
     button.addEventListener('click', function () {
       var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
