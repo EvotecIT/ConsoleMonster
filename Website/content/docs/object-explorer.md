@@ -42,7 +42,7 @@ In C#, `ObjectExplorer.Show()` returns the selected node, or null after cancella
 
 ## What it reads
 
-PowerShell objects, dictionaries, collections and `ConvertFrom-Json` output share the existing inspector adapters. A uniform collection shows a small inline table when you drill into it. Each getter is read once, on demand, and cycles stay leaves. `-Depth`, `-MaxItems` and `-MaxNodes` bound expansion; `-Exclude` skips getters that are expensive or have side effects. A synchronous getter that is already running cannot be interrupted by an inspection budget.
+PowerShell objects, dictionaries, collections and `ConvertFrom-Json` output share the same inspector. A uniform collection shows a small inline table when you drill into it. Each getter is read once, on demand, and cycles stay leaves. `-Depth`, `-MaxItems` and `-MaxNodes` bound expansion; `-Exclude` skips getters that are expensive or have side effects. A synchronous getter that is already running cannot be interrupted by an inspection budget.
 
 ## Redirected output and CI
 
@@ -50,6 +50,8 @@ Redirected output, CI, `-NonInteractive`, line mode and accessible mode print th
 
 `Show-ConsoleObject` needs a rich interactive terminal. For a static inspector, use `$server | Show-Console -View Tree`; use `New-ConsoleTree` to construct an explicit hierarchy for a layout.
 
-## Related
+## Next
 
-[The interactive grid](/interactive/) picks rows from a collection, and [PowerShell conventions](/docs/powershell-conventions/) covers composition and capturing output.
+- [Live sessions](/docs/live-sessions/): dashboards that update while work runs.
+- [PowerShell conventions](/docs/powershell-conventions/): composition and capturing output.
+- [Interactive apps](/docs/interactive-apps/): put a tree of objects inside an app with `New-ConsoleTreeSelect`.

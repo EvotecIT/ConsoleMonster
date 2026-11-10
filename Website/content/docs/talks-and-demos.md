@@ -10,7 +10,7 @@ chips: [Typed demos, Presenter mode, Slides]
 summary: "Repeatable typed demos and exports for your next talk."
 ---
 
-I keep demo commands in a plain PowerShell file, so I can rehearse, record and present the same sequence. ConsoleMonster types them into a real PowerShell shell, waits for it to finish, and records the actual terminal output.
+Keep demo commands in a plain PowerShell file and rehearse, record and present the same sequence every time. ConsoleMonster types each command into a real PowerShell shell, waits for it to finish and records the actual terminal output.
 
 ## Write a demo
 
@@ -52,12 +52,12 @@ The driver wraps the shell's actual prompt in OSC 133 semantic marks. It never s
 ```powershell
 Import-Module ConsoleMonster
 Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./talk.cast -Seed 42
-Export-ConsoleRecording -InputRecordingPath ./talk.cast -Format Gif -Preset Slide16x9 -ChromeStyle MacOS -OutputPath ./talk.gif
+Export-ConsoleRecording -RecordingPath ./talk.cast -Format Gif -Preset Slide16x9 -ChromeStyle MacOS -Path ./talk.gif
 ```
 
 PNG, GIF and APNG run in-process without an external executable or a download. Use GIF for animated slides.
 
-`-FramesPerSecond` is the maximum sample rate (10 by default). Identical frames are merged; GIF preserves exact colours when a frame fits its palette and otherwise keeps common colours with no dither on glyphs. Changed rectangles use retained disposal; richer gradients can show gentle bands. `-Pace Normal` adds reading holds after output settles. Use `Slow` for more time or `Fast` for a quick preview. `-IdleLimitSeconds 2` caps source idle delays; it never clips reading or explicit holds. `-Pace Source -IdleLimitSeconds 0` keeps source delays without reading holds. `-LoopCount 0` loops indefinitely; one plays once. APNG preserves full-colour pixels for software that supports it.
+`-FramesPerSecond` is the maximum sample rate (10 by default); identical frames are merged. Rich gradients can show gentle bands in GIF. `-Pace Normal` adds reading holds after output settles. Use `Slow` for more time or `Fast` for a quick preview. `-IdleLimitSeconds 2` caps source idle delays; it never clips reading or explicit holds. `-Pace Source -IdleLimitSeconds 0` keeps source delays without reading holds. `-LoopCount 0` loops indefinitely; one plays once. APNG preserves full-colour pixels for software that supports it.
 
 | Preset | Canvas |
 |---|---|
@@ -70,18 +70,17 @@ For PowerPoint, choose `Slide16x9`: it renders directly at 1920×1080 with crisp
 glyphs at the slide's pixel size. Insert through **Insert → Pictures** and preview
 in Slide Show. Do not stretch a smaller `Docs` capture to fill the slide; `Docs`
 keeps natural terminal pixels for documentation. Leading empty screens are
-removed from GIF playback so the first frame is a useful poster. Explicit holds
-on those empty opening screens are retained on the first content poster. The final frame
-holds for two seconds before repeating; `-LoopCount 1` plays once and retains it.
+removed from GIF playback so the first frame is a useful poster. The final frame
+holds for two seconds before repeating; `-LoopCount 1` plays once and stays on it.
 
-Every slide preset centres the complete window inside a safe inset of 6% of the canvas's short side. Opposite margins match; the extra space follows the window's aspect ratio. Rounded corners, a subtle shadow and a fine border keep the bottom edge visible. PNG, GIF and APNG share this composition.
+Every slide preset centres the complete window with a safe margin, rounded corners and a subtle shadow. PNG, GIF and APNG share this composition.
 
 `-Fit Content` is the slide default: stills trim trailing empty rows and columns, keeping two columns of padding after the content. Animations reserve the widest and tallest content used anywhere in the clip. The window stays in one place as commands type. `-Fit Terminal` keeps the complete grid, including empty rows and columns. In both modes, the font grows until width or height reaches the inset, up to 72 pixels. `Docs` keeps its natural-size layout.
 
 The surrounding background uses the theme colour by default. Choose a solid colour or a soft gradient with hex colours:
 
 ```powershell
-Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -OutputPath ./terminal.png
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -Path ./terminal.png
 ```
 
 Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows`, `Linux` or `None`. The embedded JetBrains Mono font makes default text consistent across operating systems. `-FontFamily 'Consolas'` chooses an installed font; C# also accepts additional fallback families. Emoji and CJK coverage depends on installed fonts. Box drawing, blocks and braille use geometric cell shapes, so they join without font seams.
@@ -103,12 +102,12 @@ The pace and hold survive in the cast. Explicit `-Pace` at export overrides reco
 
 ```powershell
 # Final frame, or a moment in source-recording time.
-Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -OutputPath ./final.png
-Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -OutputPath ./moment.png
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Path ./final.png
+Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -Path ./moment.png
 
 # A chapter's completed view, or numbered slides for every chapter.
-Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -OutputPath ./report.png
-Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -OutputPath ./slides
+Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -Path ./report.png
+Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -Path ./slides
 
 # Export any widget or rendered frame too.
 New-ConsoleText 'Ready for the talk' | Export-ConsoleFrame -Format Png -Preset Social -Path ./ready.png
@@ -147,7 +146,7 @@ PNG works for stills in all three. Animated SVG commonly appears as a still in s
 
 See [Microsoft's GIF guide](https://support.microsoft.com/en-us/powerpoint/add-an-animated-gif-to-a-slide), [PowerPoint video formats](https://support.microsoft.com/en-us/powerpoint/video-and-audio-file-formats-supported-in-powerpoint), [Keynote media](https://support.apple.com/guide/keynote/add-video-and-audio-tan63d61519a/mac) and [Google Slides image and video insertion](https://support.google.com/docs/answer/97447).
 
-## C#
+## In C#
 
 Add the `ConsoleMonster` and `ConsoleMonster.Graphics` packages. The core package has no runtime package dependencies; the graphics add-on brings ChartForgeX 3.1.0. The PowerShell module includes the add-on and loads graphics assemblies on first use.
 
@@ -174,3 +173,9 @@ recording.SaveChapterPngs("slides", slides);
 For live presentation use `ConsolePresentation.Present(demo, options)`. Pass `stepChanged` to display a custom step counter and a cancellation token to stop the owned child.
 
 The repository includes a complete [PowerShell recording example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/recording) and a [runnable C# example](https://github.com/EvotecIT/ConsoleMonster/tree/master/Website/examples/presenter-kit). Both use synthetic data. The recording example works from a neutral `demo:` filesystem drive, so genuine errors show `demo:/missing.json` instead of a machine's real working path. It pipes the error record through `Write-ConsoleText -Color Red` to show the message without PowerShell's source-location header. Its example token is labelled synthetic and needs no redaction.
+
+## Next
+
+- [Interactive apps](/docs/interactive-apps/): full-screen applications with named inputs and shared state.
+- [Test, record and drive apps](/docs/testing/): run an app on a headless terminal and record it without typing.
+- [Recording and replay](/docs/recording/): record any session, including native commands.

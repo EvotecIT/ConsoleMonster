@@ -24,7 +24,7 @@ Parallel work and a console do not mix on their own: every thread that writes to
 
 - **One thread draws.** A live session starts its own render thread. It applies updates to the widgets, composes the frame and writes only the cells that changed. Your work runs on your threads and never touches the screen.
 - **Any thread posts.** Handles (`lanes.Handle(session)`, `table.Handle(session)`), `session.Post` and the PowerShell `Update-Console` command put an update into one lock-free first-in, first-out queue. Each thread's updates keep their order; updates from different threads have no set order relative to each other, and none is merged into a later one. The queue has no size limit, so posting does not wait for the screen; a flood that outpaces the render thread for long grows the queue in memory instead.
-- **Updates land between frames.** About 15 times a second (`LiveSessionOptions.FramesPerSecond`, 1 to 60) the render thread applies the waiting updates in order, a time-boxed batch per frame (about 40 ms at 15 fps; the rest go into the next one), then draws once. Every update accepted before the session stops is applied by the end; one addressed to a widget name the view does not have is dropped and counted in `EventsDropped`.
+- **Updates land between frames.** About 15 times a second (`LiveSessionOptions.FramesPerSecond`, 1 to 60) the render thread applies the waiting updates in order, a time-boxed batch per frame (about 40 ms at 15 fps; the rest go into the next one), then draws once. Every update accepted before the session stops is applied by the end; one addressed to a `WidgetId` the view does not have is dropped and counted in `EventsDropped`.
 - **Console output is captured.** While a session draws on the console, `Console.Out` and `Console.Error` are replaced by writers that collect whole lines from any thread (unless `CaptureConsole = false`; a second capturing session fails to start). `Console.Write` fragments are kept per thread until that thread ends the line, so two threads writing pieces never share a line; a message that continues on another thread should go out as one `WriteLine`. With a log region the lines become log entries. Without one, an inline area prints them above itself, and a full-screen view shows the latest in a short tail at the bottom (at most six rows and a third of the screen) and prints them all to the scrollback when it ends.
 - **One write is one block.** Each `Terminal.Write`, `Terminal.WriteLines` or `Terminal.WriteMarkupLine` call is written whole, so two threads writing widgets never mix their lines. While a session owns the console, the block is queued whole and printed above an inline area, after a full-screen view ends, or in stream mode in apply order; if the session is already stopping, the caller writes the block itself, whole and once.
 - **Stopping.** When the work ends or throws, the session stops admitting updates, applies the ones already queued, draws the final frame and restores the terminal (console writers, cursor and the Windows console mode) before the exception reaches you. The first Ctrl+C does the same for the view and cancels `session.Cancellation`; your work keeps running until it checks that token, and what it posts afterwards is dropped and counted in `EventsDropped`. `HandleCancelKey = false` leaves Ctrl+C to your program. A widget callback that blocks the render thread past `StopTimeout` delays only the final drain and screen cleanup; console capture is restored on time. A normal run ends with `GetCounters()` showing nothing dropped.
@@ -69,7 +69,7 @@ $servers | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 4 {
 
 - Variables of the calling script are not visible inside a runspace by themselves: read them with `$using:name` (also `$using:name.Member` and `$using:name[index]`), as with `ForEach-Object -Parallel`, and bring helper functions in with `-ImportFunction Name`. `-ArgumentList` with a `param()` block and the input items still work.
 - Change widgets through the update commands, never by calling a widget object's own methods from a runspace.
-- `Invoke-ConsoleRun` (also called `Invoke-ConsoleRun`) with `-Parallel` draws its own run view: a summary bar, a cell per item and the failures. While it shows, host messages, warnings, information, verbose and debug messages and errors from the workers appear in its log, and their `Write-Progress` in an activity list; each worker's progress IDs are its own, so every worker can use `-Id 0`. Results keep input order (unless `-Unordered`), and the native stream records (warnings, errors, information, verbose and debug messages) are also delivered when the view ends, so `-WarningVariable` and the pipeline still get them. Its workers receive the caller's variables with `$using:name`. Use `Invoke-ConsoleDashboard -Parallel` when workers should update widgets of your own.
+- `Invoke-ConsoleRun -Parallel` draws its own run view: a summary bar, a cell per item and the failures. While it shows, host messages, warnings, information, verbose and debug messages and errors from the workers appear in its log, and their `Write-Progress` in an activity list; each worker's progress IDs are its own, so every worker can use `-Id 0`. Results keep input order (unless `-Unordered`), and the native stream records (warnings, errors, information, verbose and debug messages) are also delivered when the view ends, so `-WarningVariable` and the pipeline still get them. Its workers receive the caller's variables with `$using:name`. Use `Invoke-ConsoleDashboard -Parallel` when workers should update widgets of your own.
 
 ## In C#
 
@@ -137,7 +137,7 @@ Build a widget fully before the session starts, then change it only through hand
 
 - **Whole lines and blocks.** While a session runs, many threads writing at once never split a line, and the lines of one `Terminal.Write` never mix with another's.
 - **Order per producer.** Each thread's updates arrive in the order it sent them.
-- **Posting never waits for the screen.** Workers keep going while drawing catches up, and every accepted update is handled exactly once (applied, or counted in `EventsDropped` when its widget name does not exist).
+- **Posting never waits for the screen.** Workers keep going while drawing catches up, and every accepted update is handled exactly once (applied, or counted in `EventsDropped` when its `WidgetId` does not exist).
 - **No drops under load.** A normal run ends with every posted update applied and nothing dropped, even with dozens of workers and stray console output.
 - **Clean shutdown.** When the work ends or throws, queued updates and output are written exactly once and the terminal is restored (see [Stopping](#how-it-works) for a widget callback that blocks drawing).
 - **Ctrl+C.** The first Ctrl+C stops new updates and restores the terminal and the console writers.
@@ -146,6 +146,10 @@ Build a widget fully before the session starts, then change it only through hand
 
 Each guarantee is covered by automated tests on .NET Framework 4.7.2, .NET 8, .NET 10 and PowerShell 5.1 and 7 ([running the tests](https://github.com/EvotecIT/ConsoleMonster/blob/master/CONTRIBUTING.md#running-the-tests)).
 
-## Related
+What a frame costs is on the [benchmarks](/benchmarks/) page.
 
-For parallel work without building a view yourself, use [live runs](/docs/live-runs/). What a frame costs is on the [benchmarks](/benchmarks/) page, and the rest of a session's duties are in [live sessions](/docs/live-sessions/).
+## Next
+
+- [Live log tails](/docs/live-tails/): follow a file or event log in a live view.
+- [Dashboard frames](/docs/dashboard-frames/): a printed summary with facts, meters and attention items.
+- [Live runs](/docs/live-runs/): parallel work with a ready-made view.

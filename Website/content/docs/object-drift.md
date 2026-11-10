@@ -10,7 +10,7 @@ chips: [Drift, Baseline]
 card: object-drift-120
 ---
 
-`Compare-ConsoleObject -View Baseline` puts two or more objects side by side: one row per property (nested properties by their path), one column per object, and a status for every row. One object is the baseline; every cell that differs from it is highlighted, and a property an object doesn't have says `(missing)` instead of looking empty. I use it for servers that should be configured alike, such as the domain controllers of one forest.
+`Compare-ConsoleObject -View Baseline` puts two or more objects side by side: one row per property (nested properties by their path), one column per object, and a status for every row. One object is the baseline; every cell that differs from it is highlighted, and a property an object doesn't have says `(missing)` instead of looking empty. It suits servers that should be configured alike, such as the domain controllers of one forest.
 
 ## Try it
 
@@ -48,6 +48,10 @@ $matrix | Export-ConsoleFrame -Format Html -Width 120 -Path ./controller-drift.h
 
 In C#, `BaselineView` is an ordinary widget; `BaselineComparison.Rows` gives each property's cells, presence and status for your own checks.
 
-## Related
+The [Compare-ConsoleObject reference](/powershell/commands/compare-consoleobject/) lists every parameter.
 
-The [Compare-ConsoleObject reference](/powershell/commands/compare-consoleobject/) lists every parameter, [Compare text and files](/docs/text-diff/) compares strings and files line by line, [Interactive apps](/docs/interactive-apps/) shows layouts the matrix can sit in, and [Recording and replay](/docs/recording/) covers HTML exports.
+## Next
+
+- [Explore an object](/docs/object-explorer/): navigate one object's members and search its values.
+- [Compare text and files](/docs/text-diff/): compare strings and files line by line.
+- [Live sessions](/docs/live-sessions/): dashboards that update while work runs.

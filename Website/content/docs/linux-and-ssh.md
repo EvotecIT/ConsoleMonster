@@ -26,7 +26,7 @@ The script prints host facts, health checks and disk use once and exits, so logi
 
 ## Why the login guards look like that
 
-Step 4 above runs the overview only for interactive SSH sessions with a terminal. `ssh host command` also loads the pwsh profile, so the pwsh guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`, and `CM_OVERVIEW_SHOWN` keeps nested shells from printing it twice. Bash reads `~/.bash_profile` instead of `~/.profile` when the first exists, so add the bash block there in that case.
+The profile step in **Use it on your servers** above runs the overview only for interactive SSH sessions with a terminal. `ssh host command` also loads the pwsh profile, so the pwsh guard checks for a terminal (`SSH_TTY`) and output that is not redirected, not only `SSH_CONNECTION`, and `CM_OVERVIEW_SHOWN` keeps nested shells from printing it twice. Bash reads `~/.bash_profile` instead of `~/.profile` when the first exists, so add the bash block there in that case.
 
 Output that is not a terminal (`scp`, `rsync`, `ssh host command`) is skipped by both guards: the pwsh guard needs a terminal and output that is not redirected, the bash one an interactive shell, and ConsoleMonster prints plain text when output is redirected anyway.
 
@@ -34,6 +34,7 @@ Output that is not a terminal (`scp`, `rsync`, `ssh host command`) is skipped by
 
 Each login that runs the overview starts PowerShell and imports the module before anything prints, which takes noticeably longer than a shell script. Measure it on your servers with `Measure-Command { pwsh -NoProfile -File ~/bin/Example-LoginOverview.ps1 }` before turning it on for everyone, keep the collectors cheap, and keep it to interactive sessions as above. A .NET tool published with native AOT starts faster when that matters.
 
-## Related
+## Next
 
-For a ready-made login summary, use the [host overview](/docs/host-overview/). Any decision detection makes can be pinned with an [environment override](/docs/environment/).
+- [Host overview](/docs/host-overview/): a ready-made login summary with resource bars.
+- [Environment overrides](/docs/environment/): pin any decision detection makes.

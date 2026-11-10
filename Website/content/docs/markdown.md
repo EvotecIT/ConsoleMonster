@@ -32,15 +32,11 @@ When a document is taller than a rich interactive screen, the shared pager opens
 
 Piped, redirected, transcribed, job, remoting, CI and non-interactive output never opens the pager. The static path prints the complete document. The exporter captures widget output on either PowerShell runtime.
 
-## C# composition
+## In C#
 
 Install the optional `ConsoleMonster.Markdown` package. `MarkdownConsole.Show(content)` writes with automatic interactive paging. `MarkdownConsole.Parse(content)` returns a `MarkdownView` that can be placed in a layout, written through `Terminal.Write`, exported, or passed to `WidgetPager.TryShow` with scripted input and screen capture options.
 
 Markdown display and export live in the add-on and use OfficeIMO.Markdown. The ConsoleMonster core stays dependency-free. Links follow the terminal capability profile: OSC 8 when supported, a muted URL otherwise. Unsupported or unsafe link schemes remain visible as text. Raw HTML is literal, images become labelled links, and neither scripts nor remote content are executed or fetched.
-
-## Related
-
-See [PowerShell conventions](/docs/powershell-conventions/), [object exploration](/docs/object-explorer/) and [text comparison](/docs/text-diff/).
 
 ## Export widgets and recordings
 
@@ -49,7 +45,13 @@ The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdow
 ```powershell
 $rows | Export-ConsoleFrame -Format Markdown
 $widget | Export-ConsoleFrame -Format FencedText
-Export-ConsoleRecording -InputRecordingPath ./talk.cast -Format Markdown -OutputPath ./talk.md
+Export-ConsoleRecording -RecordingPath ./talk.cast -Format Markdown -Path ./talk.md
 ```
 
-In C#, add the package and call `MarkdownExporter.Export(widget, options)` or `MarkdownExporter.ExportRecording(recording)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Semantic tables, records and trees retain the existing cell presenters, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.
+In C#, add the package and call `MarkdownExporter.Export(widget, options)` or `MarkdownExporter.ExportRecording(recording)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Tables, records and trees keep their cell formatting, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.
+
+## Next
+
+- [Diagrams](/docs/diagrams/): from three boxes to request walkthroughs and Mermaid.
+- [Architecture diagrams](/docs/topology/): topology diagrams with use cases played step by step.
+- [Compare text and files](/docs/text-diff/): changed lines and words between two versions.

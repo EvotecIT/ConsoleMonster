@@ -104,6 +104,8 @@ NLog also accepts empty strings for these two settings, including `timestampForm
 Exceptions use `ExceptionView`. During a live session, entries print above the view unless the configured log region
 exists, in which case they post there. Redirected output stays plain and append-only.
 
-## Related
+## Next
 
-Show the same entries inside a [hosting dashboard](/docs/hosting/), or follow a log file with [live log tails](/docs/live-tails/).
+- [dotnet new template](/docs/template/): an app with logging and the hosting dashboard wired up.
+- [Hosting dashboard](/docs/hosting/): show the same entries inside a live dashboard.
+- [Live log tails](/docs/live-tails/): follow a log file instead.

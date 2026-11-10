@@ -9,11 +9,11 @@ chips: [NuGet, Markdown, Graphics]
 summary: "Choose the bridge for documents, images, hosting or logging."
 ---
 
-The core never emits Markdown; the `ConsoleMonster.Markdown` add-on owns Markdown display and export. Markdown belongs to OfficeIMO, and image rendering belongs to ChartForgeX, so both bridges live outside the terminal core.
+Optional packages add Markdown, image export, hosting and logging. The `ConsoleMonster` core has no dependencies, so each add-on brings its own: Markdown comes from OfficeIMO and image rendering from ChartForgeX. The PowerShell module includes the Markdown and Graphics add-ons.
 
 ## Markdown
 
-Add `ConsoleMonster.Markdown` to a C# application. `MarkdownConsole.Parse` and `Show` read and display documents; `MarkdownExporter.Export` writes widgets, frames and live snapshots; `ExportRecording` writes recordings. The add-on uses OfficeIMO.Markdown's document model for fenced blocks and recording documents. Semantic widget output retains its cell presenters, groups and totals. See [Markdown display and export](/docs/markdown/).
+Add `ConsoleMonster.Markdown` to a C# application. `MarkdownConsole.Parse` and `Show` read and display documents; `MarkdownExporter.Export` writes widgets, frames and live snapshots; `ExportRecording` writes recordings. The add-on uses OfficeIMO.Markdown's document model for fenced blocks and recording documents. Tables, records and trees keep their cell formatting, groups and totals. See [Markdown display and export](/docs/markdown/).
 
 The PowerShell module includes the add-on and loads it when Markdown is requested. `$rows | Export-ConsoleFrame -Format Markdown` and `Export-ConsoleRecording -Format Markdown` keep the same command names.
 
@@ -24,3 +24,8 @@ The PowerShell module includes the add-on and loads it when Markdown is requeste
 ## Hosting and logging
 
 `ConsoleMonster.Hosting` integrates hosted services with a dashboard. `ConsoleMonster.Extensions.Logging` sends structured log entries to a dashboard region. Their dependencies stay in those packages; the core has none. See [Hosting](/docs/hosting/), [Logging](/docs/logging/) and the [dependency list](/docs/install/#optional-add-ons-and-dependencies).
+
+## Next
+
+- [How it works](/docs/how-it-works/): what ConsoleMonster detects and how it draws.
+- [Three ways to write it](/docs/csharp-styles/): the same widgets as cmdlets, C# initializers and fluent calls.
