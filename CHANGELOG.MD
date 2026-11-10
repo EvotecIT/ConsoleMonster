@@ -12,6 +12,7 @@
 - `Theme.Schemes` ships ten named palettes with upstream provenance and licence notices. `Set-ConsoleTheme Dracula` keeps the faithful colours; `-Accessible` selects the checked variant and saves as `Dracula · accessible`. Solarized, Gruvbox, Catppuccin and Tokyo Night pick light or dark for the detected background, while explicit variant names stay fixed. Version 3 files accept a catalogue name in `BaseScheme`. `Show-ConsoleSettings` groups the Theme list into Built in, Follow my terminal, Schemes and Your files, and draws each preview on that theme's own background, so a light scheme no longer sits on a dark terminal. The [colour scheme gallery](https://consolemonster.dev/docs/colour-schemes/) shows every scheme faithful and accessible with the checker's verdict.
 
 #### Fixed
+- Timed-out Windows recordings cancel a stuck output-pipe read before closing its handle, so cleanup can finalize the recording and report the session timeout. Queued output still drains before the reader finishes.
 - Theme checking and verdicts use only the cached terminal palette, without starting OSC probes. Invalid `BaseTheme` errors include `Terminal` among the accepted presets.
 - Words log markers omit the repeated level word. Adjacent identical composition fills have a one-cell gap, legends fit each column's labels, and cut flow edges show their failure indicator once.
 - Words markers no longer overwrite lane labels or adjacent calendar dates, and status cells omit a repeated status word. Running and Pending retain their own meanings in inferred status columns.
