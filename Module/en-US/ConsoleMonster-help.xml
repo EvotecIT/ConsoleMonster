@@ -7623,7 +7623,11 @@ Invoke-ConsoleDashboard $dashboard {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleActivityList -WidgetId checks -MaxVisible 3 | Show-Console</dev:code>
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleActivityList -MaxVisible 3 }
+            Invoke-ConsoleDashboard $dashboard {
+                Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50
+                Wait-ConsoleDashboard -Seconds 0.2
+            }</dev:code>
         <dev:remarks>
           <maml:para>Limit the number of visible live activities</maml:para>
         </dev:remarks>

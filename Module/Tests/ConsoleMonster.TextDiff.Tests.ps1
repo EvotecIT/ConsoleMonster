@@ -36,9 +36,9 @@ Describe 'Compare-ConsoleText adapter contracts' {
     }
 
     It 'overrides resolved filenames independently: <Case>' -TestCases @(
-        @{ Case = 'reference'; Names = @{ ReferenceName = 'Deployed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'after.txt' }
-        @{ Case = 'difference'; Names = @{ DifferenceName = 'Proposed' }; ExpectedReference = 'before.txt'; ExpectedDifference = 'Proposed' }
-        @{ Case = 'both'; Names = @{ ReferenceName = 'Deployed'; DifferenceName = 'Proposed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'Proposed' }
+        @{ Case = 'reference'; Names = @{ ReferenceLabel = 'Deployed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'after.txt' }
+        @{ Case = 'difference'; Names = @{ DifferenceLabel = 'Proposed' }; ExpectedReference = 'before.txt'; ExpectedDifference = 'Proposed' }
+        @{ Case = 'both'; Names = @{ ReferenceLabel = 'Deployed'; DifferenceLabel = 'Proposed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'Proposed' }
     ) {
         param($Case, $Names, $ExpectedReference, $ExpectedDifference)
         $before = Join-Path $TestDrive 'before.txt'

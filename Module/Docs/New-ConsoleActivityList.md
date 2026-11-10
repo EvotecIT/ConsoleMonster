@@ -33,7 +33,11 @@ The checks running on four workers
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleActivityList -WidgetId checks -MaxVisible 3 | Show-Console
+$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleActivityList -MaxVisible 3 }
+Invoke-ConsoleDashboard $dashboard {
+    Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50
+    Wait-ConsoleDashboard -Seconds 0.2
+}
 ```
 
 Limit the number of visible live activities

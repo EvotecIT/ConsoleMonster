@@ -12,7 +12,7 @@ namespace SiteFrames.Capture {
         private sealed partial class FluentFactoryRewriter(SemanticModel model) : CSharpSyntaxRewriter {
             public HashSet<string> Namespaces { get; } = new(StringComparer.Ordinal);
             private static readonly Dictionary<string, string> Names = new(StringComparer.Ordinal) {
-                ["ViewFacts"] = "Facts", ["TextBlock"] = "Text", ["KeyValueList"] = "KeyValue", ["RegionWidget"] = "Region", ["AppBinding"] = "Binding",
+                ["ViewFacts"] = "Facts", ["MarkdownView"] = "Markdown", ["TextBlock"] = "Text", ["KeyValueList"] = "KeyValue", ["RegionWidget"] = "Region", ["AppBinding"] = "Binding",
                 ["AppCommand"] = "Command", ["Grid"] = "LayoutGrid", ["RichTextBuilder"] = "RichText", ["ReviewModel"] = "Review"
             };
             public override SyntaxNode? VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) => Rewrite(node, (ObjectCreationExpressionSyntax)base.VisitObjectCreationExpression(node)!);

@@ -29,7 +29,7 @@ namespace SiteFrames.Pages {
             foreach (JsonNode? node in map["FluentGrammar"]!["Entry"]!["Factories"]!.AsArray()) {
                 JsonObject factory = node!.AsObject();
                 string noun = factory["Noun"]!.GetValue<string>();
-                body.AppendLine("| `" + factory["Command"]!.GetValue<string>() + "` | `" + factory["Pattern"]!.GetValue<string>() + "` | "
+                body.AppendLine("| `" + factory["Command"]!.GetValue<string>() + (factory["PowerShellArguments"]?.GetValue<string>() ?? string.Empty) + "` | `" + factory["Pattern"]!.GetValue<string>() + "` | "
                     + (factory["ContentBuilder"]!.GetValue<bool>() ? "`c." + noun + "(" + CSharpRunner.BuilderParameter(noun) + " => …)`" : "Definition, not display content") + " |");
             }
             body.AppendLine("\n| Primary fluent input | PowerShell input | Reason |\n| --- | --- | --- |");

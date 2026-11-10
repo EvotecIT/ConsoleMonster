@@ -104,6 +104,7 @@ namespace SiteFrames.Pages {
                     command += " -" + discriminator["Parameter"]!.GetValue<string>() + (flag ? string.Empty : " " + discriminator["Value"]!.GetValue<string>());
                     pattern += "." + discriminator["Member"]!.GetValue<string>() + "(" + (flag ? string.Empty : discriminator["EnumType"]!.GetValue<string>() + "." + discriminator["Value"]!.GetValue<string>()) + ")";
                 }
+                command += factory["PowerShellArguments"]?.GetValue<string>() ?? string.Empty;
                 result.Add(new JsonObject { ["powershell"] = command + (discriminator == null ? KindArgument(map, command, initializerType) : string.Empty), ["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = pattern, ["memberId"] = methodId, ["note"] = reason });
             }
             JsonObject markup = map["FluentGrammar"]!["Markup"]!.AsObject();
@@ -168,7 +169,7 @@ namespace SiteFrames.Pages {
                     : conversion == "MillisecondsToTimeSpan" ? "TimeSpan.FromMilliseconds(…)" : "…";
                 string? recordField = binding["RecordField"]?.GetValue<string>();
                 string recordKind = binding["RecordKind"] == null ? string.Empty : "Kind = '" + binding["RecordKind"]!.GetValue<string>() + "'; ";
-                string? note = conversion == "Identity" ? null : binding["Reason"]?.GetValue<string>() ?? conversion;
+                string? note = binding["Reason"]?.GetValue<string>() ?? (conversion == "Identity" ? null : conversion);
                 string? valueType = binding["CSharpTypeName"]?.GetValue<string>();
                 bool callback = valueType?.StartsWith("System.Action", StringComparison.Ordinal) == true || valueType?.StartsWith("System.Func", StringComparison.Ordinal) == true;
                 JsonObject? callbackRule = callback ? map["FluentExceptions"]!.AsArray().Single(rule => rule!["Kind"]!.GetValue<string>() == "DelegateProperty")!.AsObject() : null;

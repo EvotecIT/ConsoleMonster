@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Export;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Markdown;
 using ConsoleMonster.Rendering;
@@ -34,6 +36,19 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             if (tier == GlyphTier.Ascii) Assert.All(text, c => Assert.InRange((int)c, 0, 127));
             else Assert.Contains("検証", text);
             Assert.All(text.Split('\n'), line => Assert.True(DisplayWidth.Measure(line) <= width));
+        }
+
+        [Fact]
+        public void ParsedMarkdownComposesBetweenLiteralWidgets() {
+            Rows composed = Ui.Rows().Content(content => {
+                content.Text("Before");
+                content.Markdown("## Inventory\n\n**web01** is online.");
+                content.Text("After");
+            });
+            string text = ConsoleExporter.ToText(composed, new ExportOptions { Width = 60 });
+            Assert.Contains("web01 is online.", text);
+            Assert.True(text.IndexOf("Before", StringComparison.Ordinal) < text.IndexOf("Inventory", StringComparison.Ordinal));
+            Assert.True(text.IndexOf("web01", StringComparison.Ordinal) < text.IndexOf("After", StringComparison.Ordinal));
         }
 
         [Fact]

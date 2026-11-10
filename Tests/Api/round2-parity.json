@@ -33647,7 +33647,8 @@
             "ConsoleMonster.Widgets.BarChart"
           ],
           "ContentBuilder": true,
-          "Reason": "Creates the concrete BarChart directly; generated setters retain its type without Build or a cast."
+          "Reason": "Creates the concrete BarChart directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Bar"
         },
         {
           "Command": "New-ConsoleChart",
@@ -33658,7 +33659,8 @@
             "ConsoleMonster.Widgets.LineChart"
           ],
           "ContentBuilder": true,
-          "Reason": "Creates the concrete LineChart directly; generated setters retain its type without Build or a cast."
+          "Reason": "Creates the concrete LineChart directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Line"
         },
         {
           "Command": "New-ConsoleChart",
@@ -33669,7 +33671,8 @@
             "ConsoleMonster.Widgets.Sparkline"
           ],
           "ContentBuilder": true,
-          "Reason": "Creates the concrete Sparkline directly; generated setters retain its type without Build or a cast."
+          "Reason": "Creates the concrete Sparkline directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Sparkline"
         },
         {
           "Command": "New-ConsoleChart",
@@ -33680,7 +33683,8 @@
             "ConsoleMonster.Widgets.StackedBar"
           ],
           "ContentBuilder": true,
-          "Reason": "Creates the concrete StackedBar directly; generated setters retain its type without Build or a cast."
+          "Reason": "Creates the concrete StackedBar directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Stacked"
         },
         {
           "Command": "New-ConsoleProgress",
@@ -33702,7 +33706,8 @@
             "ConsoleMonster.Widgets.Spinner"
           ],
           "ContentBuilder": true,
-          "Reason": "Creates the concrete Spinner directly; generated setters retain its type without Build or a cast."
+          "Reason": "Creates the concrete Spinner directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Indeterminate"
         }
       ],
       "NonWidgetCommands": [

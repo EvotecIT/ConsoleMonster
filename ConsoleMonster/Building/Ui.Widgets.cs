@@ -72,8 +72,8 @@ namespace ConsoleMonster {
         /// <returns>The empty footer bar.</returns>
         public static FooterBar FooterBar() => new FooterBar();
 
-        /// <summary>Empty logo; configure Title and Subtitle in the chain.</summary>
-        /// <returns>The empty logo; configure Title and Subtitle in the chain.</returns>
+        /// <summary>Empty logo; configure Text and Tagline in the chain.</summary>
+        /// <returns>The empty logo; configure Text and Tagline in the chain.</returns>
         public static Logo Logo() => new Logo(string.Empty);
 
         /// <summary>Empty status list.</summary><param name="widgetId">The optional primary live identity.</param><returns>The status list.</returns>
