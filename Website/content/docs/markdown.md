@@ -2,8 +2,8 @@
 title: Markdown display and export
 description: Read Markdown in the terminal and export widgets, frames and recordings through the OfficeIMO.Markdown add-on.
 slug: markdown
-order: 17
-group: apps
+order: 23
+group: build
 summary: "Headings, lists, quotes, code and tables rendered as native console widgets."
 apis: [Show-Console -View Markdown, MarkdownConsole, MarkdownView, WidgetPager]
 chips: [CommonMark, Tables, Pager]

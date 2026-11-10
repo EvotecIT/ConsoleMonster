@@ -2,7 +2,8 @@
 title: Coming from Spectre.Console
 description: Compare C# markup, widgets, live sessions and prompts, with the behavior and gaps to check before migrating.
 slug: spectre-console
-order: 3
+order: 2
+group: from
 toc: false
 card: migration-report-100
 ---

@@ -2,7 +2,7 @@
 title: Logging
 description: Microsoft.Extensions.Logging, Serilog and NLog adapters with ConsoleMonster's level tags, structured values and exceptions, and plain redirected output.
 slug: logging
-order: 12
+order: 44
 group: apps
 card: logging
 apis: [ILogger]

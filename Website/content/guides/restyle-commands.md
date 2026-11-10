@@ -3,7 +3,8 @@ title: Restyle any command's output
 description: "Give another module's commands, or PowerShell's own, readable views: find the type name, pick columns and presenters, add a summary line and keep it."
 slug: restyle-commands
 card: formatting
-order: 1
+order: 12
+group: tasks
 ---
 
 `Enable-ConsoleFormatting` already has views for the commands people type most: files, processes, services, events, history and more. Any other command keeps a generic table of every property until you tell ConsoleMonster what matters. That works for a module someone else wrote, a module of your own and PowerShell's built-in commands alike, and the objects themselves never change.

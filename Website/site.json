@@ -189,7 +189,7 @@
           "Name": "consolemonster-site-assistant",
           "Type": "skill-md",
           "Description": "Use the ConsoleMonster documentation, widget gallery, PowerShell command reference, sitemap and llms files.",
-          "Content": "---\nname: consolemonster-site-assistant\ndescription: Use ConsoleMonster documentation, gallery, references, sitemap and llms resources.\n---\n\n# ConsoleMonster Site Assistant\n\nUse this skill when answering questions about ConsoleMonster, the zero-dependency console rendering library for .NET and PowerShell.\n\n- Prefer canonical pages from https://consolemonster.dev.\n- Use `/widgets/` for every widget with its C# and PowerShell source, `/tables/` for table width negotiation and `/live/` for live dashboards.\n- Use `/docs/live-runs/`, `/docs/help-and-defaults/`, `/docs/linux-and-ssh/`, `/docs/logging/`, `/docs/hosting/`, `/docs/template/` and `/guides/everyday-powershell/` for the recorded demos of each feature with the source that recorded them, and `/docs/powershell-conventions/` for how the widget cmdlets read.\n- Use `/powershell/commands/` for cmdlet syntax and `/api/` for the .NET API.\n- Use `/guides/` for migrations from Write-Color, Spectre.Console and Format-Table, and for host behaviour in CI, jobs and remoting.\n- Check `/llms.txt` when present for an agent-readable summary.\n- Respect `/robots.txt` and Content-Signal preferences.\n"
+          "Content": "---\nname: consolemonster-site-assistant\ndescription: Use ConsoleMonster documentation, gallery, references, sitemap and llms resources.\n---\n\n# ConsoleMonster Site Assistant\n\nUse this skill when answering questions about ConsoleMonster, the zero-dependency console rendering library for .NET and PowerShell.\n\n- Prefer canonical pages from https://consolemonster.dev.\n- Use `/widgets/` for every widget with its C# and PowerShell source, `/tables/` for table width negotiation and `/live/` for live dashboards.\n- Use `/docs/live-runs/`, `/docs/help-and-defaults/`, `/docs/linux-and-ssh/`, `/docs/logging/`, `/docs/hosting/`, `/docs/template/` and `/guides/everyday-powershell/` for the recorded demos of each feature with the source that recorded them, and `/docs/powershell-conventions/` for how the widget cmdlets read.\n- Use `/powershell/commands/` for cmdlet syntax and `/api/` for the .NET API.\n- Use `/guides/` for migrations from Spectre.Console, PwshSpectreConsole, Write-Color, Format-Table, the Microsoft grid tools (Out-GridView and ConsoleGuiTools), Show-Command and System.CommandLine.Rendering, and for task guides that build one result from start to finish, such as restyled command output.\n- Use `/docs/hosts-and-ci/` for what ConsoleMonster writes in CI, jobs, remoting, transcripts and with NO_COLOR.\n- Check `/llms.txt` when present for an agent-readable summary.\n- Respect `/robots.txt` and Content-Signal preferences.\n"
         }
       ]
     },
@@ -495,14 +495,14 @@
                 "Title": "Docs",
                 "Url": "/docs/",
                 "Meta": { "key": 1 },
-                "Description": "Install, detection, themes, live sessions, recording."
+                "Description": "Install, printed and live output, apps, PowerShell and CI."
               },
               {
                 "Id": "guides",
                 "Title": "Guides",
                 "Url": "/guides/",
                 "Meta": { "key": 4 },
-                "Description": "Coming from Write-Color, Spectre.Console or Format-Table."
+                "Description": "Move from Spectre.Console, Write-Color and other tools, or do a task."
               },
               {
                 "Id": "api",

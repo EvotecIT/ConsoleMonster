@@ -2,7 +2,7 @@
 title: Threads and concurrency
 description: "Any thread can update a live view: updates go through one queue, one thread draws, console output is captured, and CI gets whole, ordered lines."
 slug: threads
-order: 7
+order: 33
 group: live
 card: threads-live
 chips: [Queue, Render thread, Runspaces]

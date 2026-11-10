@@ -2,7 +2,7 @@
 title: App parts, one by one
 description: Explore panes, folding sections, outlines, tabs, linked charts, trees and searchable logs in small PowerShell, C# and C# fluent apps.
 slug: app-parts
-order: 12
+order: 41
 group: apps
 summary: "Panes, folding sections, outlines, tabs, linked charts, trees and the find bar, each on its own."
 apis: [New-ConsoleSplitter, New-ConsoleAccordion, New-ConsoleCollapsible, New-ConsoleOutline, New-ConsoleBreadcrumb, New-ConsoleTabs, New-ConsoleChartView, New-ConsoleTreeSelect, New-ConsoleLogRegion]

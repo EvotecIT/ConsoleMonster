@@ -2,8 +2,8 @@
 title: Compare text and files
 description: Compare configuration strings or files with line numbers, changed words and a plain unified export.
 slug: text-diff
-order: 16
-group: apps
+order: 27
+group: build
 summary: "Numbered lines, word highlights, collapsed context and unified output from strings or files."
 apis: [Compare-ConsoleText, TextDiff, TextDiffView]
 chips: [Files, Unified diff]

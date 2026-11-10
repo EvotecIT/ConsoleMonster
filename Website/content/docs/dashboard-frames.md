@@ -2,8 +2,8 @@
 title: Dashboard frames
 description: Build a dashboard frame with facts, meters, attention items and sections in PowerShell or C#, laid out for the terminal's width.
 slug: dashboard-frames
-order: 15
-group: apps
+order: 35
+group: live
 summary: "One frame for a summary: facts, meters, needs attention, sections, legend and footer."
 apis: [New-ConsoleDashboardFrame, DashboardFrame, Ui.DashboardFrame, Meter, AttentionItem, FrameSection]
 chips: [Reports, Width tiers, PowerShell, C#]

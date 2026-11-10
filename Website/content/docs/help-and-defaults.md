@@ -2,7 +2,7 @@
 title: Help, errors and progress
 description: Show PowerShell help, errors, progress and native stream colours with ConsoleMonster.
 slug: help-and-defaults
-order: 10
+order: 43
 group: apps
 card: help
 apis: [Show-ConsoleHelp]

@@ -3,7 +3,8 @@ title: Everyday PowerShell output
 description: "Enable-ConsoleFormatting makes everyday output readable and sums it up: folder trees, processes, services, events, JSON, history, jobs, drives and certificates."
 slug: everyday-powershell
 card: formatting
-order: 1
+order: 13
+group: tasks
 ---
 
 You do not have to change your commands to get readable output. One line turns it on for the session:

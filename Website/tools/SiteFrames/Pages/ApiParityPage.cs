@@ -69,7 +69,7 @@ namespace SiteFrames.Pages {
             string markdown = body.ToString().Replace("\r\n", "\n", StringComparison.Ordinal);
             site.Write(Path.Combine(site.Repository, "Docs", "Api-Parity.md"), markdown);
             site.Write(Path.Combine(site.Website, "content", "docs", "api-parity.md"),
-                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 16\ngroup: hosts\ncard: three-fluent\n---\n\n" + SiteTables(markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal)));
+                "---\ntitle: PowerShell and C# API parity\ndescription: \"The shared parameter and fluent vocabulary, including every C# host-only member decision.\"\nslug: api-parity\norder: 90\ngroup: reference\ncard: three-fluent\nsummary: \"How each cmdlet parameter maps to a C# property and a fluent call, and which members only C# has.\"\n---\n\n" + SiteTables(markdown.Replace("# PowerShell and C# API parity\n\n", string.Empty, StringComparison.Ordinal)));
         }
 
         // The site's Markdown renderer escapes '>' inside code in a table cell twice (c.Panel(widget =&gt; …) on the page), and a

@@ -2,7 +2,8 @@
 title: Coming from Microsoft grid tools
 description: Move Out-GridView, GraphicalTools and ConsoleGuiTools selection workflows into a terminal grid and object explorer.
 slug: microsoft-grid-tools
-order: 5
+order: 6
+group: from
 toc: false
 card: object-explorer-120
 ---

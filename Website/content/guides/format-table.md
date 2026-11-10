@@ -3,7 +3,8 @@ title: Coming from Format-Table
 description: "Show-ConsoleTable, Show-Console -View List and Show-Console -View Tree beside the built-in Format cmdlets: -Property, column options and Markdown exports."
 slug: format-table
 card: format-consoletable
-order: 4
+order: 5
+group: from
 ---
 
 The display commands take pipeline input like the built-in `Format-Table`, `Format-List` and `Format-Custom`, which remain the right choice when output should go through PowerShell's formatting system. They write to the console like `Write-Host`, so `$x = ... | Show-ConsoleTable` captures nothing; `-PassThru` also writes the input objects to the pipeline, and `New-ConsoleTable` constructs a widget for composition or export.

@@ -2,8 +2,8 @@
 title: Host overview
 description: Show a compact, read-only host summary with resource bars and optional sections for a terminal or SSH login.
 slug: host-overview
-order: 14
-group: hosts
+order: 54
+group: shells
 card: host-overview-120
 chips: [PowerShell, Host, Read-only]
 apis: [Show-ConsoleOverview, OverviewCollector, OverviewWidget]

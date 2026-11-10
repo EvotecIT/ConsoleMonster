@@ -2,7 +2,8 @@
 title: Coming from System.CommandLine.Rendering
 description: Replace the deprecated rendering package with widgets and live regions while keeping your command-line parser.
 slug: system-commandline-rendering
-order: 7
+order: 8
+group: from
 toc: false
 card: migration-report-100
 meta.seo_title: System.CommandLine.Rendering migration | ConsoleMonster

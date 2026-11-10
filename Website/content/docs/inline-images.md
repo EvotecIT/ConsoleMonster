@@ -2,8 +2,8 @@
 title: Inline images
 description: Show PNG, JPEG and chart renders in the terminal with Kitty, iTerm2 or Sixel pixels, half blocks or a placeholder.
 slug: inline-images
-order: 18
-group: apps
+order: 26
+group: build
 card: inline-images-60
 chips: [PowerShell, Graphics, Kitty, iTerm2, Sixel]
 apis: [Show-ConsoleImage, New-ConsoleImage, ConsoleImage, ImageProtocol]

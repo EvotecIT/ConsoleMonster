@@ -2,7 +2,8 @@
 title: Coming from PwshSpectreConsole
 description: Move PowerShell tables, prompts, progress and charts to ConsoleMonster, including Windows PowerShell 5.1.
 slug: pwshspectreconsole
-order: 4
+order: 3
+group: from
 toc: false
 card: migration-report-100
 ---

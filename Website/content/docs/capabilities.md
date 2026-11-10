@@ -2,7 +2,7 @@
 title: Capability detection
 description: ConsoleMonster detects VT support, colour depth, the glyphs the font can draw, size, redirection, CI and the background, and records why.
 slug: capabilities
-order: 3
+order: 8
 group: start
 card: profile-detected
 apis: [TerminalProfile, Get-ConsoleCapability]

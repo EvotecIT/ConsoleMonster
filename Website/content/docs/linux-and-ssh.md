@@ -2,8 +2,8 @@
 title: Linux and SSH
 description: What ConsoleMonster detects on Linux and macOS terminals and over SSH, and a login overview for your servers.
 slug: linux-and-ssh
-order: 11
-group: hosts
+order: 53
+group: shells
 card: login
 chips: [Linux, SSH]
 summary: "Detection on Unix terminals and a login overview for your servers."

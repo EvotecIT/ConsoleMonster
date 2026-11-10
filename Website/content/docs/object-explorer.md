@@ -2,8 +2,8 @@
 title: Explore an object
 description: Navigate nested object members, search their values and return a selection or its PowerShell path.
 slug: object-explorer
-order: 13
-group: apps
+order: 29
+group: build
 card: object-explorer-120
 chips: [Objects, Keyboard, PowerShell]
 apis: [Show-ConsoleObject, ObjectExplorer]

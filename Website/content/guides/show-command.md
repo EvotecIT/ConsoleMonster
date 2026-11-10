@@ -2,7 +2,8 @@
 title: Coming from Show-Command
 description: Replace Windows command dialogs with explicit terminal forms, validated answers and command previews.
 slug: show-command
-order: 6
+order: 7
+group: from
 toc: false
 card: migration-form
 ---

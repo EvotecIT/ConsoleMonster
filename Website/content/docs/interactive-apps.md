@@ -2,7 +2,7 @@
 title: Interactive apps
 description: Build a live inventory filter with a named text input, shared application state and a table that updates after every edit.
 slug: interactive-apps
-order: 11
+order: 40
 group: apps
 card: app-live-filter-filtered-60
 apis: [Show-ConsoleApp, ConsoleApp, AppState, AppBinding]

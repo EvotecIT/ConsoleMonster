@@ -2,8 +2,8 @@
 title: PowerShell conventions
 description: "One grammar for every widget: containers take script blocks, items are records with shared property names, and .NET methods still work."
 slug: powershell-conventions
-order: 15
-group: hosts
+order: 5
+group: start
 card: shaping
 chips: [Cmdlets, Script blocks]
 summary: "One grammar for every widget, and each widget's .NET methods."

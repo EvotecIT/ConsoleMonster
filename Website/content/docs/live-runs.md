@@ -2,7 +2,7 @@
 title: Live runs
 description: Run a script block for many items in parallel with a live view, re-run a command with Watch-Console, and watch Pester tests as they run.
 slug: live-runs
-order: 9
+order: 31
 group: live
 card: parallel
 apis: [Invoke-ConsoleRun, Watch-Console]

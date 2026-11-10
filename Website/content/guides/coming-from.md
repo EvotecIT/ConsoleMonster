@@ -3,6 +3,7 @@ title: Coming from another tool
 description: Find familiar APIs, compare runnable examples, and check the behavior that changes when moving to ConsoleMonster.
 slug: coming-from
 order: 1
+group: from
 toc: false
 card: migration-report-100
 ---

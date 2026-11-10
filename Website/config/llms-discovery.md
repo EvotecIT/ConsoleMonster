@@ -1,8 +1,8 @@
 ## Documentation
 
 - [Install ConsoleMonster](https://consolemonster.dev/docs/install/index.md): Set up the .NET package or PowerShell module.
-- [Documentation](https://consolemonster.dev/docs/index.md): Terminal detection, themes, layouts, live sessions and recording.
-- [Guides](https://consolemonster.dev/guides/index.md): Migration and host-specific workflows.
+- [Documentation](https://consolemonster.dev/docs/index.md): What every feature does and its options, from printed reports to live output, apps, PowerShell and CI.
+- [Guides](https://consolemonster.dev/guides/index.md): Moving from Spectre.Console, Write-Color, Format-Table and other tools, and task walkthroughs.
 - [Everyday PowerShell output](https://consolemonster.dev/guides/everyday-powershell/index.md): Enable-ConsoleFormatting before and after, arrays in cells and groups.
 - [PowerShell conventions](https://consolemonster.dev/docs/powershell-conventions/index.md): One grammar for every widget, and each widget's .NET methods.
 

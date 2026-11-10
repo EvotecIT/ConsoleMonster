@@ -2,9 +2,9 @@
 title: Architecture diagrams
 description: Draw ChartForgeX architecture and topology diagrams in the terminal, play their use cases step by step and update node values live.
 slug: topology
-order: 18
-group: apps
-card: app
+order: 25
+group: build
+card: topology
 chips: [ChartForgeX, Use cases, Live values]
 summary: "Architecture and request-flow diagrams in terminal cells, with use case playback."
 ---

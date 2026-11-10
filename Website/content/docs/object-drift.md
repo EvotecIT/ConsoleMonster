@@ -2,8 +2,8 @@
 title: Compare several objects
 description: Compare two or more objects against a baseline, property by property, with drift highlighted and noise normalised away.
 slug: object-drift
-order: 17
-group: apps
+order: 28
+group: build
 summary: "One row per property, one column per object, differences against a chosen baseline and a status for every row."
 apis: [Compare-ConsoleObject, ObjectDiff.CompareBaseline, BaselineView]
 chips: [Drift, Baseline]

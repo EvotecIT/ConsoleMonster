@@ -1,7 +1,7 @@
 ---
 title: Large runs
 slug: large-runs
-order: 10
+order: 32
 description: Stream finished work into scrollback while a bounded dashboard keeps active items and problems visible.
 summary: Follow hundreds of checks, files or deployments without fitting every finished item on one screen.
 group: live

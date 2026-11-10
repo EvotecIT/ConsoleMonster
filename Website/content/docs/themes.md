@@ -2,7 +2,7 @@
 title: Themes
 description: Built-in themes, following your terminal palette, importing schemes and checking accessible variants.
 slug: themes
-order: 4
+order: 6
 group: start
 card: theme-dark
 chips: [Themes, Terminal, Schemes]

@@ -2,12 +2,12 @@
 title: Facts, bars and hierarchy
 description: Give counts, quotas, comparisons and composition consistent meaning in terminal reports.
 slug: facts-and-bars
-order: 16
-group: apps
+order: 21
+group: build
 summary: "Shared report facts, meaningful bar shapes and labelled trends."
 apis: [New-ConsoleFacts, Ui.Facts, New-ConsoleChart, New-ConsoleProgress]
 chips: [Reports, Charts, PowerShell, C#]
-card: dashboard-frame-110
+card: pipeline-charts-120
 ---
 
 Report facts use bold counts and the same status colour for the count and its word. Neutral facts step back in Muted.

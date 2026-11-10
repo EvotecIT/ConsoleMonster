@@ -2,8 +2,8 @@
 title: Diagrams, zero to hero
 description: Draw terminal diagrams in C#, fluent C# or PowerShell, one idea at a time, from three boxes to live values, request walkthroughs, hierarchies and Mermaid.
 slug: diagrams
-order: 18
-group: apps
+order: 24
+group: build
 summary: "Nine steps from three boxes and two arrows to groups, status, data, live values, walkthroughs, hierarchies and Mermaid."
 apis: [Diagram, Ui.Diagram, New-ConsoleDiagram, New-ConsoleDiagramNode, New-ConsoleDiagramLink, New-ConsoleDiagramGroup, Show-ConsoleDiagram]
 chips: [Diagrams, Mermaid, C#, PowerShell]

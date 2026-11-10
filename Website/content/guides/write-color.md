@@ -3,7 +3,8 @@ title: Coming from Write-Color
 description: Move Write-Color scripts to Write-ConsoleText using consistent parameter names, rich text and structured logs.
 slug: write-color
 card: shaping
-order: 2
+order: 4
+group: from
 ---
 
 `Write-ConsoleText` covers the same message-writing jobs as `Write-Color` from [PSWriteColor](https://github.com/EvotecIT/PSWriteColor), using ConsoleMonster’s parameter vocabulary. Use the mappings below when moving a script. Both modules can be loaded in the same session.

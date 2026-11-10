@@ -2,8 +2,8 @@
 title: Charts from the pipeline
 description: Build numeric charts from pipeline properties, records and samples with New-ConsoleChart.
 slug: pipeline-charts
-order: 15
-group: hosts
+order: 22
+group: build
 card: pipeline-charts-60
 chips: [PowerShell, Bars, Histograms, Trends]
 apis: [New-ConsoleChart, Chart, ChartOptions]

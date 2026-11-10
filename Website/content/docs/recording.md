@@ -3,9 +3,9 @@ title: Recording and replay
 description: Record a whole terminal session, including native commands, to asciicast v2 and export an HTML player, animated SVG, text, Markdown or a final frame.
 slug: recording
 toc: false
-order: 8
+order: 37
 group: live
-card: app
+card: record
 chips: [Terminal sessions, Chapters, Export]
 summary: "Whole-session recording, dashboard replay and local exports."
 ---

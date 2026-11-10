@@ -3,7 +3,7 @@ title: Talks and demos
 description: Write a typed PowerShell demo, present it live, and export PNG slides, animated GIF or APNG.
 slug: talks-and-demos
 toc: true
-order: 9
+order: 38
 group: live
 card: app
 chips: [Typed demos, Presenter mode, Slides]

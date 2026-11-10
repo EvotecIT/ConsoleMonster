@@ -2,7 +2,7 @@
 title: Live log tails
 description: Follow a file or Windows event log with level colours, source timestamps, literal highlighting and a scrollable history.
 slug: live-tails
-order: 7
+order: 34
 group: live
 card: tails-following-120
 apis: [Watch-ConsoleLog, FileLogTail, ConsoleLogTail, LogTailView]

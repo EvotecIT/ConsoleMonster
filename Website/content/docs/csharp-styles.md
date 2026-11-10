@@ -2,7 +2,7 @@
 title: Three ways to write it
 description: "Translate the same widgets between PowerShell parameters, C# initializers and C# fluent calls."
 slug: csharp-styles
-order: 2
+order: 4
 group: start
 card: three-fluent
 chips: [PowerShell, C#, C# fluent]

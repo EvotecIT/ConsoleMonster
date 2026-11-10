@@ -15,20 +15,31 @@
 <main id="main" class="cm-main">
   {{~ masthead_title = page.title; masthead_lede = page.description; masthead_extra = "" ~}}
   {{ include "masthead" }}
-  <div class="cm-wrap cm-docs">
+  {{~ ## Built from the guides themselves (content/guides/_index.md is a section, so `items` holds every guide in order):
+       each guide's front matter names its `group` (one of guidesCatalog.groups in data/copy.json), and its card shows
+       the title and the `summary`, or the description when there is none. ## ~}}
+  {{~ cat = data.copy.guidesCatalog ~}}
+  <div class="cm-wrap cm-docs cm-docs--wide">
     {{ include "docs-sidebar" }}
     <article class="cm-docs__article">
       <div class="cm-prose">
 {{ content }}
       </div>
-      <ul class="cm-index">
-        {{~ for i in data.copy.guidesIndex ~}}
-        <li><a href="{{ i.url }}"><strong>{{ i.title }}</strong><span>{{ i.body }}</span></a></li>
-        {{~ end ~}}
-      </ul>
+      {{~ for g in cat.groups; n = 0; for i in items; if i.meta.group == g.id; n = n + 1; end; end; if n > 0 ~}}
+      <section class="cm-catalog__group" id="{{ g.id }}" aria-labelledby="{{ g.id }}-title" style="--key: var(--cm-s{{ g.key }})">
+        <div class="cm-catalog__head">
+          <h2 id="{{ g.id }}-title"><span class="cm-key" aria-hidden="true"></span>{{ g.title | html.escape }}</h2>
+          <p>{{ g.body | html.escape }}</p>
+        </div>
+        <ul class="cm-index">
+          {{~ for i in items; if i.meta.group == g.id ~}}
+          <li><a href="{{ i.output_path }}"><strong>{{ i.title | html.escape }}</strong><span>{{ (i.meta.summary ?? i.description) | html.escape }}</span></a></li>
+          {{~ end; end ~}}
+        </ul>
+      </section>
+      {{~ end; end ~}}
       {{ if edit_url != "" }}<p class="cm-docs__edit"><a href="{{ edit_url }}">Edit this page on GitHub</a></p>{{ end }}
     </article>
-    {{ if toc != "" }}<aside class="cm-docs__toc" aria-label="On this page">{{ toc }}</aside>{{ end }}
   </div>
 </main>{{ include "site-footer" }}
 {{ assets.js_html }}
