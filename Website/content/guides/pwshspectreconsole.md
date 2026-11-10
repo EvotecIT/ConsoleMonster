@@ -7,7 +7,7 @@ toc: false
 card: migration-report-100
 ---
 
-ConsoleMonster lets the same rendering script run on Windows PowerShell 5.1 and PowerShell 7, with object-oriented input and ordinary pipeline results. PwshSpectreConsole's [installation guide](https://pwshspectreconsole.com/guides/install/) requires PowerShell 7+ and recommends a Nerd Font for its full visual feature set. ConsoleMonster does not require a Nerd Font: it adapts its built-in symbols to the terminal's glyph tier. Neither statement means arbitrary emoji will work in every font.
+Both modules draw tables, trees, panels, prompts, progress and charts from PowerShell, so most scripts move command by command. The differences are in naming and hosts. ConsoleMonster separates `New-*` definitions from `Show-*` display and `Read-*` answers, and runs on Windows PowerShell 5.1 as well as PowerShell 7. PwshSpectreConsole's [installation guide](https://pwshspectreconsole.com/guides/install/) lists PowerShell 7 and recommends a Nerd Font for its full set of symbols; ConsoleMonster picks its built-in symbols from the terminal's glyph tier, so it needs no particular font. Emoji in your own text depend on the font in either module.
 
 ## Command map
 
@@ -21,10 +21,10 @@ ConsoleMonster lets the same rendering script run on Windows PowerShell 5.1 and 
 | `Write-SpectreHost` | `Write-ConsoleText -Markup` | Escape untrusted bracketed text; semantic roles are available. |
 | `Write-SpectreRule` | `New-ConsoleRule \| Show-Console` | `New-ConsoleRule` constructs a reusable definition. |
 | `Read-SpectreSelection`, `Read-SpectreSelectionGrouped` | `Read-ConsoleSelect -Display ... -GroupBy ...` | Returns the selected original object. |
-| `Read-SpectreMultiSelection`, grouped variant | `Read-ConsoleSelect -Multiple` | Returns chosen objects; check cancellation behavior. |
+| `Read-SpectreMultiSelection`, grouped variant | `Read-ConsoleSelect -Multiple` | Returns chosen objects; check cancellation behaviour. |
 | `Read-SpectreText`, `Read-SpectreConfirm` | `Read-ConsoleText`, `Read-ConsoleConfirm` | Defaults and validation use different parameters. |
-| `Invoke-SpectreCommandWithProgress` | `Use-ConsoleProgress` or `Invoke-ConsoleRun` | Wrap native progress, or execute per-item work with a run view. |
-| `Invoke-SpectreCommandWithStatus` | `Show-ConsoleStatusLine` with `try/finally` | Explicitly complete the status line. |
+| `Invoke-SpectreCommandWithProgress` | `Invoke-ConsoleRun`, or `Use-ConsoleProgress` | Per-item work with a run view; or draw an existing script's `Write-Progress` calls. |
+| `Invoke-SpectreCommandWithStatus` | `Show-ConsoleStatusLine -Spinner`, then `-Complete` | One line that updates in place until completed. |
 | `Invoke-SpectreLive` | `Invoke-ConsoleDashboard` | Session handles update named widgets. |
 | `Write-SpectreFigletText` | `New-ConsoleLogo` then `Show-Console` | Different lettering; no `.flf` font loading. |
 | `New-SpectreChartItem`, `Format-SpectreBarChart` | `New-ConsoleChart -Type Bar \| Show-Console` | The constructor accepts ordinary records and returns a widget. |
@@ -130,22 +130,17 @@ Invoke-SpectreCommandWithProgress -ScriptBlock {
 **ConsoleMonster**
 
 ```powershell
-Use-ConsoleProgress {
-    for ($i = 0; $i -lt $servers.Count; $i++) {
-        Write-Progress -Activity 'Inventory' -Status $servers[$i].Name `
-            -PercentComplete ($i * 100 / $servers.Count)
-        Start-Sleep -Milliseconds 100
-    }
-    Write-Progress -Activity 'Inventory' -Completed
+$servers | Invoke-ConsoleRun -Title 'Inventory' -Label Name {
+    Start-Sleep -Milliseconds 100
 }
 ```
 
 </div>
 </div>
 
-The sleep represents the collection operation. ConsoleMonster can draw existing `Write-Progress` calls, so native progress scripts do not need Spectre task objects. For per-server results and concurrency, use [live runs](/docs/live-runs/); their execution and error contracts differ from a single progress wrapper.
+The sleep stands in for the collection work; `$_` is the server. The run view counts done of total, shows a cell for each server and the ones still running, and lists the items that failed when it ends. Add `-Parallel -ThrottleLimit 8` to collect several at once. A script that already calls `Write-Progress` needs no rewrite: wrap it in `Use-ConsoleProgress { ... }` to draw its bars. See [live runs](/docs/live-runs/) for retries, time limits and the output contract.
 
-## 4. A scoped status line
+## 4. A status line while work runs
 
 <div class="cm-migration">
 <div>
@@ -164,18 +159,15 @@ $names = Invoke-SpectreCommandWithStatus -Title 'Reading inventory' -ScriptBlock
 **ConsoleMonster**
 
 ```powershell
-try {
-    Show-ConsoleStatusLine 'Reading inventory' -Spinner
-    $names = $servers.Name
-} finally {
-    Show-ConsoleStatusLine -Complete
-}
+Show-ConsoleStatusLine 'Reading inventory' -Spinner
+$names = $servers.Name
+Show-ConsoleStatusLine "Read $($names.Count) servers" -Status Pass -Complete
 ```
 
 </div>
 </div>
 
-Complete the line even when the work throws. This operation is separate from a `New-ConsoleStatusList` checklist or an `Invoke-ConsoleDashboard` live layout.
+Each call replaces the line; `-Complete` writes the final version and moves on. If the work throws, the spinner stops by itself as soon as the error moves the cursor, so it never draws over the message. Outside a real console each call writes a plain line. For a checklist of several steps use `New-ConsoleStatusList`, and for a full live layout `Invoke-ConsoleDashboard`.
 
 ## 5. Heading and message
 
@@ -241,8 +233,13 @@ $servers | New-ConsoleChart -Label Name -Property Pending -Type Bar | Show-Conso
 - A Nerd Font is unnecessary for built-in rendering. ASCII/plain fallback is available; custom glyphs and emoji still need a font that contains them.
 - No automatic conversion exists for Spectre renderables or Figlet fonts. Calendar output uses `New-ConsoleCalendar` with a month or year view. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) before replacing those paths.
 
-## Sources and next steps
+## Sources
 
 Checked 25 October 2026: [installation and font guidance](https://pwshspectreconsole.com/guides/install/), [PwshSpectreConsole command reference](https://pwshspectreconsole.com/reference/formatting/format-spectretable/), and the [maintained source and generated command examples](https://github.com/ShaunLawrie/PwshSpectreConsole). This guide does not describe PwshSpectreConsole as discontinued.
 
-Next: [PowerShell conventions](/docs/powershell-conventions/), [interactive screens](/interactive/), [ConsoleMonster command reference](/powershell/commands/) or [all migration guides](/guides/coming-from/).
+## Next
+
+- [PowerShell conventions](/docs/powershell-conventions/): what `New`, `Show`, `Read` and `Invoke` mean.
+- [Interactive screens](/interactive/): prompts and forms with recorded input.
+- [ConsoleMonster command reference](/powershell/commands/).
+- [All migration guides](/guides/coming-from/).

@@ -72,4 +72,4 @@ In conhost, the console font is polled about once a second; a new face or size r
 
 ## Related
 
-Every variable is listed in [environment overrides](/docs/environment/). For the light and dark choice see [themes](/docs/themes/), and for the output each host gets, [hosts, CI and transcripts](/guides/hosts-and-ci/).
+Every variable is listed in [environment overrides](/docs/environment/). For the light and dark choice see [themes](/docs/themes/), and for the output each host gets, [hosts, CI and transcripts](/docs/hosts-and-ci/).

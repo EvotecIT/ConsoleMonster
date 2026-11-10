@@ -103,4 +103,4 @@ In PowerShell, `Get-ConsoleCapability` shows the profile these variables produce
 
 ## Related
 
-What each variable overrides is explained in [capability detection](/docs/capabilities/). Without any of them, [hosts, CI and transcripts](/guides/hosts-and-ci/) shows what each environment gets.
+What each variable overrides is explained in [capability detection](/docs/capabilities/). Without any of them, [hosts, CI and transcripts](/docs/hosts-and-ci/) shows what each environment gets.

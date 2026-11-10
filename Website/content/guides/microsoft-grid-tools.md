@@ -161,7 +161,7 @@ $servers | Show-ConsoleGrid -Filter 'SQL' -SortBy Pending -Descending -OutputMod
 </div>
 </div>
 
-ConsoleGuiTools documents regular-expression filtering. ConsoleMonster uses its own grid search syntax; start with literal text and check [grid behavior](/interactive/) before porting advanced expressions. Desktop column dragging, criteria dialogs and clipboard gestures do not map one-for-one to terminal controls.
+ConsoleGuiTools documents regular-expression filtering. ConsoleMonster uses its own grid search syntax; start with literal text and check [grid behaviour](/interactive/) before porting advanced expressions. Desktop column dragging, criteria dialogs and clipboard gestures do not map one-for-one to terminal controls.
 
 ## 5. Explore a nested record
 
@@ -195,7 +195,7 @@ The default explorer is a viewer. Use `-PassThru` only when you want selected va
 - Built-in Out-GridView opens a separate desktop window and can return immediately in view-only mode. ConsoleMonster occupies the terminal and owns input until it closes; there is no separate-window `-Wait` lifecycle.
 - `Show-ConsoleGrid` defaults to `Multiple`. Explicit `None`, `Single` and `Multiple` make migrated pipelines easier to review.
 - ConsoleMonster is not an `ogv` or `ocgv` alias. The optional GridView formatting feature is an unavailable-host adapter; prefer the explicit command when migrating scripts.
-- Filter syntax, selection keys, hidden columns and sorting are ConsoleMonster behavior. Follow the on-screen key hints and keep object projection in `Select-Object` or `-Property`.
+- Filter syntax, selection keys, hidden columns and sorting are ConsoleMonster behaviour. Follow the on-screen key hints and keep object projection in `Select-Object` or `-Property`.
 - An unattended host cannot make an interactive choice. Supply the selection in script parameters; use `New-ConsoleTable | Export-ConsoleFrame -Format Text` for a noninteractive report. A fallback or snapshot is not approval.
 
 ## Next

@@ -1,6 +1,6 @@
 ---
 title: Coming from another tool
-description: Find familiar APIs, compare runnable examples, and check the behavior that changes when moving to ConsoleMonster.
+description: Find familiar APIs, compare runnable examples, and check the behaviour that changes when moving to ConsoleMonster.
 slug: coming-from
 order: 1
 toc: false
@@ -15,6 +15,8 @@ Choose the tool you use today. Each guide maps familiar commands to ConsoleMonst
 | --- | --- | --- |
 | Spectre.Console in C# | [Rendering, prompts and live output](/guides/spectre-console/) | Compose widgets and update live handles. |
 | PwshSpectreConsole | [PowerShell command mappings](/guides/pwshspectreconsole/) | Use Show for display, New for definitions and Read for answers; also run on Windows PowerShell 5.1. |
+| Write-Color from PSWriteColor | [Coloured messages and logs](/guides/write-color/) | Keep the pieces-and-colours call; colour by theme role and align in terminal cells. |
+| Format-Table, Format-List and Format-Wide | [Tables and records](/guides/format-table/) | Keep typing them with `Enable-ConsoleFormatting`, or use `Show-ConsoleTable` for column options. |
 | Out-GridView, GraphicalTools or ConsoleGuiTools | [Grids and object exploration](/guides/microsoft-grid-tools/) | Keep selection in the terminal and pass ordinary objects onward. |
 | Show-Command | [Forms and command previews](/guides/show-command/) | Define the questions explicitly; decide separately whether to execute. |
 | System.CommandLine.Rendering | [C# rendering migration](/guides/system-commandline-rendering/) | Replace the retired rendering package while retaining your command-line parser. |
@@ -42,4 +44,6 @@ Most migrations start with tables and prompts. These are the parts people usuall
 
 ## Next
 
-[Install ConsoleMonster](/docs/install/), explore the [widget gallery](/widgets/), or compare [native Format-Table](/guides/format-table/) and [Write-Color](/guides/write-color/).
+- [Install ConsoleMonster](/docs/install/).
+- [Everyday PowerShell output](/guides/everyday-powershell/): readable output from the commands you already type.
+- [The widget gallery](/widgets/): every widget in PowerShell, C# and C# fluent.

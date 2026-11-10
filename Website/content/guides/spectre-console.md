@@ -1,6 +1,6 @@
 ---
 title: Coming from Spectre.Console
-description: Compare C# markup, widgets, live sessions and prompts, with the behavior and gaps to check before migrating.
+description: Compare C# markup, widgets, live sessions and prompts, with the behaviour and gaps to check before migrating.
 slug: spectre-console
 order: 3
 toc: false
@@ -38,6 +38,8 @@ Keep your inventory collection and application logic, then replace the rendering
 
 Use these rows for each comparison. The complete program under **Try it** includes its imports. For the snippets, import `Spectre.Console` on the left, and `ConsoleMonster`, `ConsoleMonster.Widgets`, `ConsoleMonster.Layout`, `ConsoleMonster.Live`, `ConsoleMonster.Interactive`, `ConsoleMonster.Building` and `ConsoleMonster.Text` on the right. Run the two versions separately to avoid type-name collisions. `Thread`, `Task`, LINQ and collection types use the ordinary .NET namespaces.
 
+Every ConsoleMonster snippet uses one style: constructors and object initializers, with `Table.For(rows).Column(...)` for typed tables. Each widget also has a fluent spelling that starts from `Ui` (`Ui.Panel().Title("Patch inventory")`). The **Try it** block below has both, under its C# and C# fluent tabs, and [three ways to write it](/docs/csharp-styles/) translates between them.
+
 ```csharp
 var servers = new[] {
     new { Name = "FS01", Site = "Warsaw", Pending = 4, Status = "Pass" },
@@ -62,7 +64,7 @@ AnsiConsole.Write(new FigletText("Ops"));
 </div>
 <div>
 
-**ConsoleMonster**
+**ConsoleMonster (C# initializers)**
 
 ```csharp
 Terminal.WriteMarkupLine($"[pass]{Markup.Escape(servers[0].Name)}[/] ready");
@@ -73,7 +75,7 @@ Terminal.Write(new Logo("Ops"));
 </div>
 </div>
 
-`Logo` is an alternative heading style, not a Figlet font interpreter. ConsoleMonster supports `[[`/`]]`, nested tags, hex/rgb colors and theme roles. Unknown tags are lenient by default; set `Markup.Strict = true` for exceptions or use `Markup.Validate`. `:emoji:` shortcodes are not expanded. OSC 8 links depend on terminal support.
+`Logo` is an alternative heading style, not a Figlet font interpreter. ConsoleMonster supports `[[`/`]]`, nested tags, hex and rgb colours and theme roles. Unknown tags are lenient by default; set `Markup.Strict = true` for exceptions or use `Markup.Validate`. `:emoji:` shortcodes are not expanded. OSC 8 links depend on terminal support.
 
 ## 2. A table, a panel and a tree
 
@@ -95,7 +97,7 @@ AnsiConsole.Write(tree);
 </div>
 <div>
 
-**ConsoleMonster**
+**ConsoleMonster (C# initializers)**
 
 ```csharp
 var table = Table.For(servers)
@@ -142,7 +144,7 @@ AnsiConsole.Live(new Spectre.Console.Text("Starting")).Start(ctx => {
 </div>
 <div>
 
-**ConsoleMonster**
+**ConsoleMonster (C# initializers)**
 
 ```csharp
 var bar = new ProgressBar("Inventory", "inventory") { Total = servers.Length };
@@ -184,7 +186,7 @@ bool proceed = AnsiConsole.Prompt(new ConfirmationPrompt($"Review {server} for {
 </div>
 <div>
 
-**ConsoleMonster**
+**ConsoleMonster (C# initializers)**
 
 ```csharp
 string server = new SelectPrompt<string>("Target server", servers.Select(s => s.Name)).Show();
@@ -218,7 +220,7 @@ AnsiConsole.Write(breakdown);
 </div>
 <div>
 
-**ConsoleMonster**
+**ConsoleMonster (C# initializers)**
 
 ```csharp
 var bars = new BarChart();
@@ -234,7 +236,7 @@ Terminal.Write(breakdown);
 </div>
 </div>
 
-Bars compare values; a stacked bar shows parts of a total. Review legend, zero-value and width behavior rather than expecting identical pixels. ConsoleMonster also offers `LineChart`, `Histogram` and `Sparkline`.
+Bars compare values; a stacked bar shows parts of a total. Review legend, zero-value and width behaviour rather than expecting identical pixels. ConsoleMonster also offers `LineChart`, `Histogram` and `Sparkline`.
 
 ## 6. Grid, columns and application layout
 
@@ -258,7 +260,7 @@ AnsiConsole.Write(layout);
 </div>
 <div>
 
-**ConsoleMonster**
+**ConsoleMonster (C# initializers)**
 
 ```csharp
 Terminal.Write(new ConsoleMonster.Layout.LayoutGrid(2,
@@ -279,8 +281,8 @@ Terminal.Write(dashboard);
 ## Differences to know
 
 - Keep collection separate from display. A widget is a definition; `Terminal.Write` draws it and `LiveSession` controls its live lifetime.
-- Similar markup does not make the parsers interchangeable. Escape input and check strict-mode behavior, supported links, colors and emoji before moving a shared markup string.
-- ConsoleMonster chooses color depth and glyph tier for the host, including ASCII and plain output. A Nerd Font is not required; literal emoji still depend on your terminal and font.
+- Similar markup does not make the parsers interchangeable. Escape input and check strict-mode behaviour, supported links, colours and emoji before moving a shared markup string.
+- ConsoleMonster chooses colour depth and glyph tier for the host, including ASCII and plain output. A Nerd Font is not required; literal emoji still depend on your terminal and font.
 - Spectre renderables, custom renderers and extensions need rewriting against `IWidget`. Calendar maps to the marked month/year widget; custom Figlet fonts have no direct migration. Check the [roadmap](https://github.com/EvotecIT/ConsoleMonster/blob/master/ROADMAP.md) for planned capabilities; an item there is not an implemented feature.
 
 ## What you get beyond this API mapping
@@ -289,8 +291,13 @@ Terminal.Write(dashboard);
 
 The **core** has zero package dependencies. Markdown display and export belong to the `ConsoleMonster.Markdown` add-on: C# uses `MarkdownExporter.Export`, while PowerShell loads the bundled add-on when `Export-ConsoleFrame -Format Markdown` is requested. The Markdown and Graphics add-ons have their own dependencies. The .NET 8/10 core targets are AOT-compatible, with reflection-based inspection requiring explicit trimming care; this is not a claim that every integration or the PowerShell module is a native AOT executable. See [installation and AOT limits](/docs/install/) and [recording formats](/docs/recording/).
 
-## Sources and next steps
+## Sources
 
 API comparisons use the [Spectre.Console documentation](https://spectreconsole.net/console) and its [widget reference](https://spectreconsole.net/widgets/table), checked 25 October 2026. No maintenance-status argument is needed to use this guide.
 
-Next: [widget gallery](/widgets/), [three C# styles](/docs/csharp-styles/), [.NET reference](/api/) or [all migration guides](/guides/coming-from/).
+## Next
+
+- [Three ways to write it](/docs/csharp-styles/): initializers, fluent calls and PowerShell side by side.
+- [Widget gallery](/widgets/): every widget with its three programs.
+- [.NET reference](/api/).
+- [All migration guides](/guides/coming-from/).
