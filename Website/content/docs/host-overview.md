@@ -61,7 +61,7 @@ if ([Environment]::UserInteractive -and -not [Console]::IsOutputRedirected) {
 
 ## What it reads, and how long it may take
 
-The default collection budget is 750 ms; `-BudgetMilliseconds` accepts 1–900 ms. A section still collecting at the deadline shows `…` (`...` in ASCII). Each probe receives a cancellation token with a timeout of at most two seconds. The waiting budget excludes OS scheduling and terminal rendering. Built-ins launch no child processes. Repeated calls share any in-flight provider, so a blocked native call cannot create another copy on each login.
+The default collection budget is 750 ms; `-BudgetSeconds` accepts 0.001–0.9 seconds. A section still collecting at the deadline shows `…` (`...` in ASCII). Each probe receives a cancellation token with a timeout of at most two seconds. The waiting budget excludes OS scheduling and terminal rendering. Built-ins launch no child processes. Repeated calls share any in-flight provider, so a blocked native call cannot create another copy on each login.
 
 Windows uses native CPU and memory counters, read-only service status for RPC, Event Log and Task Scheduler, cached Windows Update install metadata and reboot markers. Its pending-update count queries the installed Windows Update Agent with online search and automatic agent upgrades disabled, so the count reflects cached applicability data. The native call is registered for COM cancellation when the probe expires. Security events require existing permission to read the Security channel; the command never enables privileges or changes audit policy. Failed-logon counts cover the last 24 hours, capped at 1,024 events with a `+` marker; the last three interactive logon events are shown when readable.
 

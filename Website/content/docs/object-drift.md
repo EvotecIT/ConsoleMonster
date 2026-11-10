@@ -21,12 +21,12 @@ card: object-drift-120
 Pass the objects through the pipeline or `-InputObject`, or to `ObjectDiff.CompareBaseline` in C#, and render the result with `BaselineView`:
 
 ```powershell
-$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc01 -Ignore Name `
+$controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc01 -Ignore Name `
     -Normalize @{ Spn = { $_ -replace '/[^.]+', '/HOST' } }
 ```
 
-- **Columns.** Each column is named by `-NameProperty`, by `-Name` with one name per object, or by the usual key properties (`Name`, `Id` and similar). The first object is the baseline unless `-Baseline` names another column or gives its zero-based index.
-- **Rows.** Properties are compared to `-Depth` levels, so `Security.Signing` is a row of its own. Matching rows are left out; `-IncludeEqual` shows them too. `-Property` and `-Ignore` choose the paths.
+- **Columns.** Each column is named by `-Key`, by `-Name` with one name per object, or by the usual key properties (`Name`, `Id` and similar). The first object is the baseline unless `-Baseline` names another column or gives its zero-based index.
+- **Rows.** Properties are compared to `-Depth` levels, so `Security.Signing` is a row of its own. Matching rows are left out; `-IncludeUnchanged` shows them too. `-CompareProperty` and `-Ignore` choose the paths.
 - **Case.** Strings compare case-insensitively, as `Compare-Object` does, and `-CaseSensitive` (`DiffOptions.CaseSensitive`) changes both values and names. A difference only in case is still shown, with its own status, so it never disappears silently.
 - **Noise.** `-Normalize` maps a property path to a script block (`DiffOptions.Normalize` takes a delegate) whose result is compared instead of the value. The matrix still shows the original values.
 - **Narrow windows.** When the columns don't fit, each property becomes a small card listing every object's value and the status, like other ConsoleMonster tables.
@@ -42,7 +42,7 @@ Without `-View Baseline`, `Compare-ConsoleObject -ReferenceObject $before -Diffe
 `-AsWidget` returns the comparison as a widget instead of writing it, so it goes into `Show-ConsoleApp` layouts and `Export-ConsoleFrame` exports:
 
 ```powershell
-$matrix = $controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Ignore Name -AsWidget
+$matrix = $controllers | Compare-ConsoleObject -View Baseline -Key Name -Ignore Name -AsWidget
 $matrix | Export-ConsoleFrame -Format Html -Width 120 -Path ./controller-drift.html
 ```
 
