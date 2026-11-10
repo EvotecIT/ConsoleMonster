@@ -14,8 +14,11 @@ namespace ConsoleMonster.Widgets {
     /// emphasised; phases flow onto more lines when the width is short. A phase can carry items (<see cref="SetItem"/>);
     /// the running phase fans out to them under the strip (<see cref="FanOut"/>). <see cref="Compact"/> draws one line that
     /// folds to fit, and <see cref="StepCounter"/> a numbered ledger. Live operations (Key = phase): <c>add</c> (Text =
-    /// label), <c>state</c> (State, Text = detail), <c>detail</c> (Text); for items (Key = phase, U+001F, item):
-    /// <c>item</c> (State, Text = label) and <c>item-detail</c> (Text).
+    /// label; for an existing phase it changes only the label), <c>insert</c> (Text = label, Value = position),
+    /// <c>state</c> (State, Text = detail), <c>detail</c> (Text); for items (Key = phase, U+001F, item) and their
+    /// sub-items (Key = phase, U+001F, item, U+001F, sub-item): <c>item</c> (State, Text = label) and <c>item-detail</c>
+    /// (Text). A <c>state</c> or <c>item</c> event that finishes a row may give the time it took in milliseconds as Value;
+    /// otherwise the time is measured from the event that started it.
     /// </summary>
     public sealed partial class Phases : LiveWidget {
         private readonly List<StatusItem> _phases = new List<StatusItem>();
@@ -55,6 +58,29 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
+        /// <summary>
+        /// Adds a phase at a position, for work planned after the run started that belongs between existing phases. A
+        /// phase that already exists keeps its place and is updated as <see cref="Set"/> does. Live operation:
+        /// <c>insert</c> (Key = phase, Text = label, Value = position).
+        /// </summary>
+        /// <param name="index">The zero-based position; a position past the end appends.</param>
+        /// <param name="key">Unique key (also the label when <paramref name="label"/> is null).</param>
+        /// <param name="status">Status.</param>
+        /// <param name="label">Label (markup), or <c>null</c>.</param>
+        /// <param name="detail">Detail, or <c>null</c>.</param>
+        /// <returns>This instance.</returns>
+        public Phases Insert(int index, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
+            if (index < 0) { throw new ArgumentOutOfRangeException(nameof(index)); }
+            if (_byKey.ContainsKey(key)) { return Set(key, status, label, detail); }
+            var item = new StatusItem(key, string.IsNullOrEmpty(label) ? Markup.Escape(key) : label!, status, string.IsNullOrEmpty(detail) ? null : detail);
+            index = Math.Min(index, _phases.Count);
+            _byKey[key] = item;
+            _phases.Insert(index, item);
+            if (index <= _frontier) { _frontier++; }
+            Advance(item);
+            return this;
+        }
+
         /// <summary>Returns a handle that updates the phases through a dispatcher.</summary>
         /// <param name="dispatcher">The dispatcher.</param>
         /// <returns>The handle.</returns>
@@ -70,16 +96,24 @@ namespace ConsoleMonster.Widgets {
             }
             switch (liveEvent.Operation) {
                 case "add":
-                    Set(liveEvent.Key, StatusKind.Pending, liveEvent.Text);
+                    // Adding a phase that exists changes only its label, so a running step can be retitled.
+                    if (_byKey.TryGetValue(liveEvent.Key, out StatusItem? existing)) {
+                        if (!string.IsNullOrEmpty(liveEvent.Text)) { existing.Label = liveEvent.Text!; }
+                    } else {
+                        Set(liveEvent.Key, StatusKind.Pending, liveEvent.Text);
+                    }
+                    break;
+                case "insert":
+                    Insert((int)Math.Max(0, Math.Min(int.MaxValue, liveEvent.Value)), liveEvent.Key, StatusKind.Pending, liveEvent.Text);
                     break;
                 case "state":
                     StatusKinds.TryParse(liveEvent.Status, out StatusKind status);
-                    TimeSpan now = TimeSpan.FromMilliseconds(liveEvent.Time);
                     string? detail = liveEvent.Text;
-                    if (status == StatusKind.Running) {
-                        _started[liveEvent.Key] = now;
-                    } else if (detail == null && status != StatusKind.Pending && _started.TryGetValue(liveEvent.Key, out TimeSpan started)) {
-                        detail = NumberFormat.Duration(now - started);
+                    TimeSpan? took = Track(liveEvent.Key, status, liveEvent);
+                    if (detail == null && took.HasValue) {
+                        // Without a detail the phase shows the time it took, as it always has.
+                        detail = NumberFormat.Duration(took.Value);
+                        _took.Remove(liveEvent.Key);
                     }
                     Set(liveEvent.Key, status, null, detail);
                     break;
@@ -97,10 +131,10 @@ namespace ConsoleMonster.Widgets {
                 return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Phase, Markup.Strip(item.Label)) + " " + item.Status.ToWord() + (string.IsNullOrEmpty(item.Detail) ? string.Empty : " (" + item.Detail + ")");
             }
             if (liveEvent.Operation == "item" && liveEvent.Key != null && liveEvent.Status != null) {
-                int split = liveEvent.Key.IndexOf(ItemSeparator);
-                if (split > 0 && _byKey.TryGetValue(liveEvent.Key.Substring(0, split), out StatusItem? phase)
-                    && _phaseItems.TryGetValue(phase.Key, out List<StatusItem>? items) && items.Find(i => i.Key == liveEvent.Key.Substring(split + 1)) is StatusItem child) {
-                    return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Phase, Markup.Strip(phase.Label)) + ": " + Markup.Strip(child.Label) + " " + child.Status.ToWord();
+                string[] path = liveEvent.Key.Split(ItemSeparator);
+                if (path.Length >= 2 && _byKey.TryGetValue(path[0], out StatusItem? phase) && FindItem(path) is StatusItem child) {
+                    string parent = path.Length == 3 && FindItem(new[] { path[0], path[1] }) is StatusItem owner ? Markup.Strip(owner.Label) + ": " : string.Empty;
+                    return Localization.WidgetLabels.Format(Localization.WidgetLabels.Current.Phase, Markup.Strip(phase.Label)) + ": " + parent + Markup.Strip(child.Label) + " " + child.Status.ToWord();
                 }
             }
             return null;

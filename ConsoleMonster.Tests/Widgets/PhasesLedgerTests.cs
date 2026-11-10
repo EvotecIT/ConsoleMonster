@@ -56,7 +56,8 @@ namespace ConsoleMonster.Tests.Widgets {
             phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(50, 6, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
             string[] rows = Enumerable.Range(0, buffer.Height).Select(y => buffer.GetRowText(y).TrimEnd()).ToArray();
             Assert.Contains(rows, row => row.Contains("Extract help"));
-            Assert.Contains(rows, row => row.Contains("Sign NuGet packages") && row.EndsWith("149/149 · 40s", StringComparison.Ordinal));
+            // The ASCII tier separates the count from the time with a hyphen, as its other separators do.
+            Assert.Contains(rows, row => row.Contains("Sign NuGet packages") && row.EndsWith("149/149 - 40s", StringComparison.Ordinal));
             Assert.DoesNotContain(rows, row => row.Contains("Package 1/149"));
             string final = Render(phases, 50, GlyphTier.Ascii);
             Assert.Contains("Package 1/149", final);
@@ -83,6 +84,74 @@ namespace ConsoleMonster.Tests.Widgets {
             phases.Apply(new LiveEvent("steps", "state", "help", status: "pass", time: 7500));
             Assert.EndsWith(NumberFormat.Duration(TimeSpan.FromSeconds(6.5)), Row(2, 60));
         }
+        // A package lane planned after the run started: its step goes in where it belongs, its signing stage nests the
+        // packages one level down, and once the stage finishes a short area folds it into one "done/total · time" row.
+        [Fact]
+        public void ALateStepGoesInPlaceAndAFinishedStageFoldsItsPackages() {
+            var phases = new Phases("steps") { StepCounter = true };
+            void Post(string op, string key, string? text = null, string? status = null, long time = 0) => phases.Apply(new LiveEvent("steps", op, key, text, status, time: time));
+            string Item(params string[] path) => string.Join(Phases.ItemSeparator.ToString(), path);
+            Post("add", "build", "Build module");
+            Post("add", "help", "Extract help");
+            Post("state", "build", status: "pass", time: 0);
+            phases.Apply(new LiveEvent("steps", "insert", "lane", "Package lane", value: 1));
+            Post("state", "lane", status: "running", time: 1000);
+            Post("item", Item("lane", "sign"), "Sign NuGet packages", "running", 1000);
+            for (int i = 1; i <= 30; i++) {
+                Post("item", Item("lane", "sign", "p" + i), "Package " + i, "running", 1000 + i * 100);
+                Post("item", Item("lane", "sign", "p" + i), status: "pass", time: 1100 + i * 100);
+            }
+            Post("item", Item("lane", "sign"), status: "pass", time: 13000);
+            Assert.Equal(new[] { "build", "lane", "help" }, phases.Items.Select(p => p.Key));
+            CellBuffer buffer = new CellBuffer(60, 5);
+            phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(60, 5, ColorDepth.None, GlyphTier.Ascii), Theme.Dark).WithClock(0, TimeSpan.FromSeconds(14)));
+            string[] rows = Enumerable.Range(0, buffer.Height).Select(y => buffer.GetRowText(y).TrimEnd()).ToArray();
+            Assert.Contains(rows, row => row.Contains("[02/03]") && row.Contains("Package lane"));
+            Assert.Contains(rows, row => row.Contains("Sign NuGet packages") && row.EndsWith("30/30 - 12s", StringComparison.Ordinal));
+            Assert.DoesNotContain(rows, row => row.Contains("Package 1 "));
+            string[] final = Render(phases, 60, GlyphTier.Ascii).Split('\n');
+            int stage = Array.FindIndex(final, row => row.Contains("Sign NuGet packages"));
+            int package = Array.FindIndex(final, row => row.Contains("Package 30"));
+            Assert.True(stage >= 0 && package > stage, "Packages are listed under their stage.");
+            Assert.True(final[package].IndexOf("Package 30", StringComparison.Ordinal) > final[stage].IndexOf("Sign NuGet", StringComparison.Ordinal), "Packages hang one level further in than their stage.");
+        }
+
+        // A step that changes what it does gets a new label without losing its state or its running time.
+        [Fact]
+        public void AddingAnExistingStepChangesOnlyItsLabel() {
+            var phases = new Phases("steps") { StepCounter = true };
+            phases.Apply(new LiveEvent("steps", "add", "publish", "Publish"));
+            phases.Apply(new LiveEvent("steps", "state", "publish", status: "running", time: 1000));
+            phases.Apply(new LiveEvent("steps", "add", "publish", "Publish and sign outputs", time: 2000));
+            CellBuffer buffer = new CellBuffer(60, 1);
+            phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(60, 1, ColorDepth.None, GlyphTier.Ascii), Theme.Dark).WithClock(0, TimeSpan.FromSeconds(5)));
+            string row = buffer.GetRowText(0).TrimEnd();
+            Assert.Equal(StatusKind.Running, phases.Items[0].Status);
+            Assert.Contains("Publish and sign outputs", row);
+            Assert.EndsWith(NumberFormat.Duration(TimeSpan.FromSeconds(4)), row);
+        }
+
+        // An item row has its own clock: it counts while running and keeps the time it took after its detail.
+        [Fact]
+        public void AnItemCountsItsTimeWhileRunningAndKeepsItWhenDone() {
+            var phases = new Phases("steps") { StepCounter = true };
+            string key = "sign" + Phases.ItemSeparator + "p1";
+            phases.Apply(new LiveEvent("steps", "add", "sign", "Sign"));
+            phases.Apply(new LiveEvent("steps", "state", "sign", status: "running", time: 0));
+            phases.Apply(new LiveEvent("steps", "item", key, "Package 1", "running", time: 1000));
+            phases.Apply(new LiveEvent("steps", "item-detail", key, "timestamping", time: 1000));
+            RenderContext context = Terminal.CreateContext(TerminalProfile.Fixed(60, 2, ColorDepth.None, GlyphTier.Full), Theme.Dark);
+            string ItemRow(double seconds) {
+                CellBuffer buffer = new CellBuffer(60, 2);
+                phases.Render(new Region(buffer), context.WithClock(0, TimeSpan.FromSeconds(seconds)));
+                return buffer.GetRowText(1).TrimEnd();
+            }
+            Assert.EndsWith("timestamping · " + NumberFormat.Duration(TimeSpan.FromSeconds(3)), ItemRow(4));
+            phases.Apply(new LiveEvent("steps", "item", key, status: "pass", time: 6000));
+            phases.Apply(new LiveEvent("steps", "item-detail", key, "signed", time: 6000));
+            Assert.EndsWith("signed · " + NumberFormat.Duration(TimeSpan.FromSeconds(5)), ItemRow(30));
+        }
+
         [Theory]
         [InlineData(48, GlyphTier.Full)] [InlineData(40, GlyphTier.Full)]
         [InlineData(48, GlyphTier.Ascii)] [InlineData(40, GlyphTier.Ascii)]

@@ -32,7 +32,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Keep the full label area before deciding whether the detail can share its row. With collapse, a finished phase
-        // folds its items into a "done/total" count and a running phase keeps only its running and problem items.
+        // or item folds its children into a "done/total" count and a running one keeps only its running and problem children.
         private List<LedgerLine> LedgerLines(int width, RenderContext context, bool collapse) {
             var result = new List<LedgerLine>();
             if (width <= 0) return result;
@@ -40,16 +40,15 @@ namespace ConsoleMonster.Widgets {
             for (int i = 0; i < _phases.Count; i++) {
                 StatusItem phase = _phases[i];
                 _phaseItems.TryGetValue(phase.Key, out List<StatusItem>? items);
-                bool folded = collapse && items != null && items.Count > 0 && phase.Status != StatusKind.Running && phase.Status != StatusKind.Pending;
+                bool folded = collapse && items != null && items.Count > 0 && IsFinished(phase.Status);
                 string counter = "[" + (i + 1).ToString("D" + digits, CultureInfo.InvariantCulture) + "/" + _phases.Count.ToString("D" + digits, CultureInfo.InvariantCulture) + "] ";
                 Style statusStyle = context.Style(phase.Status);
                 StyledLine prefix = TextWrapper.Truncate(StyledLine.From(counter + Marker(phase.Status, context, i) + " ", statusStyle), Math.Max(0, width - 1), context.Ellipsis);
                 int labelWidth = Math.Max(1, width - prefix.Width);
                 StyledLine label = context.Markup(phase.Label).Lines[0].WithBaseStyle(context.Style(ThemeToken.Text));
-                string detail = LedgerDetail(phase, context);
+                string detail = LedgerDetail(phase, phase.Key, context) ?? phase.Status.ToWord(context);
                 if (folded) {
-                    int done = items!.FindAll(item => item.Status != StatusKind.Pending && item.Status != StatusKind.Running).Count;
-                    detail = done.ToString("N0", context.Culture) + "/" + items.Count.ToString("N0", context.Culture) + (phase.Detail == null ? string.Empty : " · " + detail);
+                    detail = Folded(items!, context) + (phase.Detail == null ? string.Empty : Separator(context) + detail);
                 }
                 bool inline = prefix.Width + label.Width + 1 + DisplayWidth.Measure(detail) <= width;
                 IReadOnlyList<StyledLine> labels = inline ? new[] { label } : TextWrapper.Wrap(label, labelWidth);
@@ -64,34 +63,65 @@ namespace ConsoleMonster.Widgets {
                     }
                 }
                 if (items == null || folded) { continue; }
-                foreach (StatusItem item in items) {
-                    if (collapse && item.Status != StatusKind.Running && item.Status != StatusKind.Fail && item.Status != StatusKind.Warn) { continue; }
-                    var spans = new List<TextSpan> {
-                        new TextSpan(new string(' ', Math.Min(prefix.Width, Math.Max(0, width - 4)))),
-                        new TextSpan(context.Glyphs.Get(Glyph.TreeBranch), context.Style(ThemeToken.Subtle)),
-                        new TextSpan(context.Glyphs.StatusMarker(item.Status) + " ", context.Style(item.Status))
-                    };
-                    spans.AddRange(context.Markup(item.Label).Lines[0].WithBaseStyle(context.Style(item.Status == StatusKind.Pending ? ThemeToken.Muted : ThemeToken.Text)));
-                    string itemDetail = item.Detail ?? string.Empty;
-                    StyledLine row = TextWrapper.Truncate(new StyledLine(spans), Math.Max(1, width - (itemDetail.Length > 0 ? DisplayWidth.Measure(itemDetail) + 1 : 0)), context.Ellipsis);
-                    result.Add(new LedgerLine(row, itemDetail, item.Status, i));
-                }
+                ItemLines(result, items, phase.Key, Math.Min(prefix.Width, Math.Max(0, width - 4)), width, i, context, collapse);
             }
             return result;
         }
+
+        // Item rows hang under their phase, sub-item rows one tree level further in. A finished item with sub-items stays
+        // as one folded row when collapsing; other finished rows give way to running and problem rows.
+        private void ItemLines(List<LedgerLine> result, List<StatusItem> items, string owner, int indent, int width, int phase, RenderContext context, bool collapse) {
+            string branch = context.Glyphs.Get(Glyph.TreeBranch);
+            foreach (StatusItem item in items) {
+                string path = owner + ItemSeparator + item.Key;
+                _phaseItems.TryGetValue(path, out List<StatusItem>? children);
+                bool hasChildren = children != null && children.Count > 0;
+                bool folded = collapse && hasChildren && IsFinished(item.Status);
+                if (collapse && !folded && item.Status != StatusKind.Running && item.Status != StatusKind.Fail && item.Status != StatusKind.Warn) { continue; }
+                var spans = new List<TextSpan> {
+                    new TextSpan(new string(' ', indent)),
+                    new TextSpan(branch, context.Style(ThemeToken.Subtle)),
+                    new TextSpan(context.Glyphs.StatusMarker(item.Status) + " ", context.Style(item.Status))
+                };
+                spans.AddRange(context.Markup(item.Label).Lines[0].WithBaseStyle(context.Style(item.Status == StatusKind.Pending ? ThemeToken.Muted : ThemeToken.Text)));
+                string itemDetail = LedgerDetail(item, path, context) ?? string.Empty;
+                if (folded) {
+                    itemDetail = Folded(children!, context) + (itemDetail.Length == 0 ? string.Empty : Separator(context) + itemDetail);
+                }
+                StyledLine row = TextWrapper.Truncate(new StyledLine(spans), Math.Max(1, width - (itemDetail.Length > 0 ? DisplayWidth.Measure(itemDetail) + 1 : 0)), context.Ellipsis);
+                result.Add(new LedgerLine(row, itemDetail, item.Status, phase));
+                if (hasChildren && !folded && owner.IndexOf(ItemSeparator) < 0) {
+                    ItemLines(result, children!, path, Math.Min(indent + DisplayWidth.Measure(branch), Math.Max(0, width - 4)), width, phase, context, collapse);
+                }
+            }
+        }
+
+        private static bool IsFinished(StatusKind status) => status != StatusKind.Running && status != StatusKind.Pending;
+
+        // "done/total" for a folded group.
+        private static string Folded(List<StatusItem> items, RenderContext context) {
+            int done = items.FindAll(item => IsFinished(item.Status)).Count;
+            return done.ToString("N0", context.Culture) + "/" + items.Count.ToString("N0", context.Culture);
+        }
+
+        // The separator between a detail and its time: a middle dot, or a hyphen on the ASCII tier.
+        private static string Separator(RenderContext context) => " " + context.Glyphs.Get(Glyph.Dot) + " ";
 
         // A running phase spins (a still marker in ASCII) so the row shows it is alive.
         private static string Marker(StatusKind status, RenderContext context, int index) =>
             status == StatusKind.Running && context.Glyphs.Tier != GlyphTier.Ascii ? context.Spinner(index) : context.Glyphs.StatusMarker(status);
 
-        // A running phase shows its latest detail and the time it has been running, from the session clock; a finished
-        // one keeps the detail its state event gave it (by default the duration it took).
-        private string LedgerDetail(StatusItem phase, RenderContext context) {
-            if (phase.Status == StatusKind.Running && context.Elapsed > TimeSpan.Zero && _started.TryGetValue(phase.Key, out TimeSpan started)) {
-                string elapsed = NumberFormat.Duration(context.Elapsed - started < TimeSpan.Zero ? TimeSpan.Zero : context.Elapsed - started);
-                return phase.Detail == null ? elapsed : phase.Detail + " · " + elapsed;
+        // A running row shows its latest detail and the time it has been running, from the session clock; a finished one
+        // keeps its detail followed by the time it took (from its state events), or the detail alone. Null when it has neither.
+        private string? LedgerDetail(StatusItem row, string path, RenderContext context) {
+            string? time = null;
+            if (row.Status == StatusKind.Running && context.Elapsed > TimeSpan.Zero && _started.TryGetValue(path, out TimeSpan started)) {
+                time = NumberFormat.Duration(context.Elapsed - started < TimeSpan.Zero ? TimeSpan.Zero : context.Elapsed - started);
+            } else if (IsFinished(row.Status) && _took.TryGetValue(path, out TimeSpan took)) {
+                time = NumberFormat.Duration(took);
             }
-            return phase.Detail ?? phase.Status.ToWord(context);
+            if (time == null) return row.Detail;
+            return string.IsNullOrEmpty(row.Detail) ? time : row.Detail + Separator(context) + time;
         }
 
         private Size LedgerMeasure(Constraints constraints, RenderContext context) {
