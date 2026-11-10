@@ -14,7 +14,7 @@ $hosts = @(
 # Layout: construct the widgets shown on screen.
 $content = {
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Live filter[/] [muted]· host inventory[/]'
+        '[accent bold]Live filter[/] [muted]· host inventory[/]'
 
         $textInputParameters = @{
             Key = 'Query'

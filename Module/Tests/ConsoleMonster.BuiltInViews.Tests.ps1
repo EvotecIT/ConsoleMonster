@@ -209,7 +209,7 @@ Describe 'Everyday command views' {
         try {
             $text = $certificates | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 140
             $text | Should -Match '✗ Expired\s+│ old\.example\.test.*│\s+-3 │'
-            $text | Should -Match '▴ Expiring\s+│ soon\.example\.test.*│\s+9 │'
+            $text | Should -Match '▲ Expiring\s+│ soon\.example\.test.*│\s+9 │'
             $text | Should -Match '✓ Valid\s+│ new\.example\.test.*│\s+120 │'
             $text | Should -Match ([regex]::Escape($certificates[0].Thumbprint.Substring(0, 6)))
             # The view reads only the fields it shows: certificate script properties that need

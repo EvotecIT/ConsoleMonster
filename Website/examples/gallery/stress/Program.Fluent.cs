@@ -81,39 +81,38 @@ IWidget Frame(int tick)
     cpu.AddSeries("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples))
         cpu.Add("cpu", value);
-    LogRegion output = Ui.LogRegion().PreferredHeight(6).ShowElapsed(false);
+    LogRegion output = Ui.LogRegion().PreferredHeight(12).ShowElapsed(false).Wrap(true);
     for (int i = 0; i < tick * 4; i++)
         output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5],
             i % 7 == 0 ? "err" : "info");
-    Rows body = Ui.Rows().Content(c3 =>
-    {
-        c3.Columns(columns => columns.Add(Ui.Panel().Title("Workers").Content(c =>
-        {
-            c.Add(lanes);
-        }), LayoutSize.Fraction(2.2)).Add(Ui.Panel().Title("Session").Content(c2 =>
-        {
-            c2.Rows(r => r.Content(c =>
+    Columns body = Ui.Columns()
+        .Add(Ui.Panel().Title("Workers").Content(c => c.Add(lanes)), LayoutSize.Fraction(2.2))
+        .Add(Ui.Rows()
+            .Add(Ui.Panel().Title("Session").Content(c2 =>
             {
-                c.Add(stats);
-                c.Rule("updates/s");
-                c.Add(rate);
-                c.Rule("CPU % (100% = one core)");
-                c.Add(cpu);
-            }));
-        })));
-    }).Add(Ui.Panel().Title("Captured output").Content(c =>
-    {
-        c.Add(output);
-    }), LayoutSize.Fraction());
-    return Ui.Dashboard()
+                c2.Rows(r => r.Content(c =>
+                {
+                    c.Add(stats);
+                    c.Rule("updates/s");
+                    c.Add(rate);
+                    c.Rule("CPU % (100% = one core)");
+                    c.Add(cpu);
+                }));
+            }))
+            .Add(Ui.Panel().Title("Captured output").Content(c => c.Add(output)),
+                LayoutSize.Fraction()));
+    Dashboard dashboard = Ui.Dashboard()
         .Content(c =>
         {
-            c.Add(body);
+            c.Rows(rows => rows
+                .Add(body, LayoutSize.Fraction())
+                .Add(Ui.Facts().Add(32, "workers").Add(15, "frames/s").Add("Ctrl+C stop")));
         })
-        .Title("[bold]Stress test[/]")
+        .Title("[accent bold]Stress test[/]")
         .Subtitle("32 workers · captured tool output · 6s")
-        .ShowElapsed(false)
-        .Footer("[muted]32 workers    15 frames/s    Ctrl+C stop[/]");
+        .ShowElapsed(false);
+    dashboard.FooterHints.Clear();
+    return dashboard;
 }
 
 // Behaviour: show seven samples through the ordinary live session.

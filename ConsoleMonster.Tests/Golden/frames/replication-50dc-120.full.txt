@@ -6,6 +6,7 @@
  × SIN-DC01 ← LON-DC01  6h 12m  19 fails  1722 RPC server unavailable
  × LON-DC01 ← SIN-DC01   6h 8m  18 fails  1722 RPC server unavailable
  ? TYO-DC04                  —            not reached (30 s timeout)
+ ✓ current · × failing · ? not reached · (·) no partnership · 590 naming-context links
 
  Matrix  worst state · partnerships in that state ─────────────────────────────────── inbound
      source →  LON-HQ  AMS-DC  FRA-DC  NYC-BR  TOR-BR  CHI-BR  SIN-BR  SYD-BR  TYO-BR  DUB-BR
@@ -23,10 +24,10 @@
  cell: worst state · partnerships in that state
 
  Last success  all naming contexts ────── age
- <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    522
- 15m to 1h  ━━╸──────────────────────     48
- 1h to 1d   ╸────────────────────────     10
- >1d        ─────────────────────────      0
+ <15m       ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆    522
+ 15m to 1h  ▆▆                            48
+ 1h to 1d   ▆                             10
+ >1d                                       0
  unread     ? DC not reached            ? 10
 
  Inbound by DC  50 DCs by site · last success · log axis ──────────────────────────────── × 2 failing · ? 1 not reached
@@ -93,5 +94,4 @@
  DUB-DC03   2     0  ──━━━━━━━━━━●───────────────────────────     14m
  DUB-DC04   2     0  ───━━━━━━━━●────────────────────────────     10m
 
- ✓ current   × failing   ? not reached   · no partnership
- 590 naming-context links · pipe to Format-Table for every row
+ pipe to Format-Table for every row

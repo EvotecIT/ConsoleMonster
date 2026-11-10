@@ -128,3 +128,10 @@ for inspection. The normal website CI build includes the same parity check.
 For focused validation, run the gallery Pester tests and
 `python3 Tests/Build/test_template_gallery.py`; template tests use an isolated template
 hive and local package feed.
+
+## Review static demos
+
+`SiteFrames gallery-contact-sheet Website <output-directory>` writes every static demo as a Dark PNG at 120 columns
+and `gallery-dark-120-contact-sheet.png` beside them. `gallery-reference-update Website` deliberately refreshes
+cell/style references in Dark, Light and ColorBlindSafe. Review the changed files before committing them;
+`gallery-reference-verify Website` and the renderer tests compare them without rewriting anything.

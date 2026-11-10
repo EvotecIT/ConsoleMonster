@@ -75,7 +75,7 @@ BarChart latency = new BarChart("latency")
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
 IWidget report = new Rows(
-    new Rule("[bold]DNS query results[/] [muted]· example.test[/]"),
+    new Rule("[accent bold]DNS query results[/] [muted]· example.test[/]"),
     new Padding() { Bottom = 0, Right = 1, Top = 0, Left = 1, Content = summary },
     table,
     new Columns(

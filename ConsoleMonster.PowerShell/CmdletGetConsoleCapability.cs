@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
                 Terminal.Refresh();
             }
             // Report the width cmdlets use: output written through the host follows the host's width unless COLUMNS sets it.
-            TerminalProfile profile = Terminal.GetConsoleProfile();
+            TerminalProfile profile = Terminal.GetCurrentProfile();
             int width = HostOutput.UseHost(this, profile) ? HostWidth.Resolve(Host, profile) : profile.Width;
             WriteObject(width == profile.Width ? profile
                 : profile.WithSize(width, profile.Height).WithDecision("width: " + width.ToString(System.Globalization.CultureInfo.InvariantCulture) + " (PowerShell host; COLUMNS sets it for redirected output)"));

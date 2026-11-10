@@ -16,7 +16,7 @@ public enum HealthState {
     Unknown,
     /// <summary>Could not be evaluated, for example a target that did not answer (<c>?</c>, violet).</summary>
     NotEvaluated,
-    /// <summary>Needs attention soon (<c>▴</c>).</summary>
+    /// <summary>Needs attention soon (<c>▲</c>).</summary>
     Warning,
     /// <summary>Failing (<c>×</c>).</summary>
     Failing,
@@ -102,7 +102,7 @@ internal static class FrameText {
             default: return context.Glyphs.StatusSymbol(StatusKind.Pass);
         }
     }
-    internal static string Dot(RenderContext context) => context.Glyphs.Get(Glyphs.Glyph.Dot);
+    internal static string Dot(RenderContext context) => Widgets.FactFlow.DefaultSeparator(context).Trim();
 
     internal static string Arrow(RenderContext context) => context.Glyphs.Get(Glyphs.Glyph.ArrowLeft);
 

@@ -561,48 +561,21 @@ namespace ConsoleMonster.Widgets {
         private int CapOf(int column) => _columns[column].Width ?? _columns[column].MaxWidth ?? int.MaxValue;
 
         private HorizontalAlignment AutomaticAlignment(int column, List<TableLayoutRow> rows) {
-            int right = 0;
-            int other = 0;
+            bool any = false;
             foreach (TableLayoutRow row in rows) {
-                if (row.Kind != TableRowKind.Data || row.Cells == null) {
-                    continue;
-                }
+                if (row.Kind != TableRowKind.Data || row.Cells == null) continue;
                 CellContent content = row.Cells[column];
-                if (content.Presented == null || content.IsEmpty) {
-                    continue;
-                }
-                if (content.Alignment == HorizontalAlignment.Right) {
-                    right++;
-                } else {
-                    other++;
-                }
+                if (content.IsEmpty) continue;
+                any = true;
+                bool numeric = content.Alignment == HorizontalAlignment.Right ||
+                    (_columns[column].Presenter == null && content.Widget == null && content.Lines.Count == 1 && LooksNumeric(content.Lines[0].PlainText.Trim()));
+                if (!numeric) return HorizontalAlignment.Left;
             }
-            if (right + other > 0) {
-                return right > other ? HorizontalAlignment.Right : HorizontalAlignment.Left;
-            }
-            return IsNumericColumn(column) ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+            return any ? HorizontalAlignment.Right : HorizontalAlignment.Left;
         }
 
         private static List<StyledLine> Fit(List<StyledLine> lines, int width, ColumnOverflow overflow, int maxLines, RenderContext context) =>
             CellRendering.FitLines(lines, width, overflow, maxLines, context);
-
-        private bool IsNumericColumn(int column) {
-            bool any = false;
-            foreach (TableCell[] row in _rows) {
-                if (column >= row.Length || row[column].HasValue) {
-                    continue;
-                }
-                string text = Markup.Strip(row[column].Markup).Trim();
-                if (text.Length == 0 || text == "-") {
-                    continue;
-                }
-                if (row[column].Status.HasValue || !LooksNumeric(text)) {
-                    return false;
-                }
-                any = true;
-            }
-            return any;
-        }
 
         private static bool LooksNumeric(string text) {
             string value = text.Replace(",", string.Empty).Replace(" ", string.Empty);

@@ -29,7 +29,7 @@ StatusList next = new StatusList()
     .Add("orbit-docs", StatusKind.Info, "Two local edits need review")
     .Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
 Rows report = new Rows(
-    new Rule("[bold]Repository workspace[/] [muted]· ./work[/]"),
+    new Rule("[accent bold]Repository workspace[/] [muted]· ./work[/]"),
     table,
     new Panel() { Title = "Suggested next steps", Content = next })
 {

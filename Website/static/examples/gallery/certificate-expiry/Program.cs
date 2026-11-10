@@ -27,8 +27,9 @@ StatusList renewals = new StatusList()
     .Add("vpn.example.test", StatusKind.Fail, "Network · renew before Monday")
     .Add("api.example.test", StatusKind.Warn, "Platform · schedule renewal this week");
 Rows report = new Rows(
-    new Rule("[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]"),
-    new TextBlock("[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]"),
+    new Rule("[accent bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]"),
+    new ViewFacts().Add(1, "urgent", ThemeToken.Fail).Add(1, "due soon", ThemeToken.Warn)
+        .Add(2, "healthy", ThemeToken.Pass),
     table,
     new Panel()
     {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ConsoleMonster.Canvas;
-using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
@@ -11,9 +10,11 @@ namespace ConsoleMonster.Widgets;
 
 /// <summary>Flows facts at separators without breaking a fact into unrelated words.</summary>
 public sealed class FactFlow : IWidget {
+    internal static string DefaultSeparator(RenderContext context) => context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? " | " : " · ";
+
     // Normalize only semantic fact separators, including those split across markup spans.
     internal static StyledLine TierSeparators(StyledLine line, RenderContext context) {
-        string glyph = context.Glyphs.Get(Glyph.Dot);
+        string glyph = context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "|" : "·";
         if (glyph == "·") return line;
         string plain = line.PlainText;
         HashSet<int> offsets = new HashSet<int>();
@@ -83,12 +84,12 @@ public sealed class FactFlow : IWidget {
     public IList<string> Parts { get; } = new List<string>();
     /// <summary>An optional role beneath each fact.</summary>
     public ThemeToken? Role { get; set; }
-    /// <summary>Optional literal separator; the default is the tier's middle dot.</summary>
+    /// <summary>Optional literal separator; the default is a middle dot, or a pipe in ASCII.</summary>
     public string? Separator { get; set; }
     internal List<StyledLine> Lines(int width, RenderContext context) {
         List<StyledLine> lines = new List<StyledLine>();
         string current = string.Empty;
-        string separator = Separator ?? " " + context.Glyphs.Get(Glyph.Dot) + " ";
+        string separator = Separator ?? DefaultSeparator(context);
         foreach (string part in Parts) {
             string next = current.Length == 0 ? part : current + "[muted]" + separator + "[/]" + part;
             if (current.Length > 0 && context.Markup(next).Lines[0].Width > width) { Add(current); current = part; }

@@ -2,7 +2,7 @@
 Module Name: ConsoleMonster
 Module Guid: 7ef2133c-55a5-47e6-809e-6010f6e65e09
 Download Help Link: https://consolemonster.dev/
-Help Version: 2.3.0
+Help Version: 2.4.0
 Locale: en-US
 ---
 # ConsoleMonster Module
@@ -39,6 +39,13 @@ Shows the reference and difference side by side at 120 columns or more, and inli
 Finishes a run dashboard and prints its full summary into scrollback.
 
 Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
+
+### [ConvertTo-ConsoleView](ConvertTo-ConsoleView.md)
+Drafts a reusable console view from sample objects.
+
+Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.
+
+Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.
 
 ### [Disable-ConsoleFormatting](Disable-ConsoleFormatting.md)
 Turns off the ConsoleMonster default formatting (Enable-ConsoleFormatting), all of it or some features.
@@ -231,6 +238,11 @@ Content emits New-ConsoleDiagramStep values in playback order. Id defaults to La
 Creates a typed modal form for the running app's dialog service.
 
 Construction does not read input. AppDialogs.Show hosts the form on the owning application thread and returns DialogResult of AppState through its completion callback.
+
+### [New-ConsoleFacts](New-ConsoleFacts.md)
+Creates a facts line with bold counts, semantic colours and shared separators.
+
+Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.
 
 ### [New-ConsoleField](New-ConsoleField.md)
 Creates a form field for New-ConsoleForm.

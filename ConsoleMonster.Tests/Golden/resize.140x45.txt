@@ -3,18 +3,18 @@
  ✓ Discover 2.8s › ✓ Collect 4.0s › ⠸ Evaluate › ○ Report
 
 ╭─ Targets ─────────────────────────────────────────────────────────────── 6 workers ─╮ ╭─ Results ────────────────────────────────────────╮
-│ ⠸ ad.adatum.com (domain)     ━━━━━━━━────────  50%  ✓ 7 ✗ 0 ▴ 1  Service account S… │ │ ███████████████████████████████████████▓▓▓▓▓▒▒░░ │
-│ ✗ eu.ad.adatum.com (domain)  ━━━━━━━━━━━━━━━━ 100%  ✓13 ✗ 1 ▴ 1  done in 16s        │ │ █ ✓ Passed   101  82%   ▓ ▴ Warnings  14  12%    │
-│ ⠴ DC01.ad.adatum.com         ━━━━━━━━━━━━━━━╾  96%  ✓25 ✗ 0 ▴ 3  PowerShell logging │ │ ▒ ✗ Failed     4   3%   ░ – Skipped    4   3%    │
-│ ⠦ DC02.ad.adatum.com         ━━━━━━━━━━━━━━╾─  90%  ✓20 ✗ 0 ▴ 6  Firewall profile   │ │ ──────────────────────────────────────────────── │
-│ ⠧ DC03.ad.adatum.com         ━━━━━━━━━━╾─────  66%  ✓16 ✗ 3 ▴ 1  Clock skew         │ │ Evaluated         123 / 332                      │
-│ ⠇ DC04.ad.adatum.com         ━━━━━━━━━━━━╾───  76%  ✓20 ✗ 0 ▴ 2  Unconstrained del… │ │ Average rate      7.2 rules/s                    │
-│ ⠏ DC05.ad.adatum.com         ────────────────   0%  ✓ 0 ✗ 0 ▴ 0  LDAP signing requ… │ │ Remaining        ~29s                            │
-│ ○ DC06.ad.adatum.com         ────────────────                    queued             │ │ Targets done        1 / 12                       │
-│ ○ DC07.eu.ad.adatum.com      ────────────────                    queued             │ │ Targets failing     1                            │
-│ ○ DC08.eu.ad.adatum.com      ────────────────                    queued             │ │                                                  │
-│ ○ DC09.eu.ad.adatum.com      ────────────────                    queued             │ │                                                  │
-│ ○ DC10.eu.ad.adatum.com      ────────────────                    queued             │ │                                                  │
+│ ⠸ ad.adatum.com (domain)     ━━━━━━━───────  50%  ✓  7 ✗  0 ▲  1  Service account … │ │ ███████████████████████████████████▓▓▓▓▓▒▒░  123 │
+│ ✗ eu.ad.adatum.com (domain)  ━━━━━━━━━━━━━━ 100%  ✓ 13 ✗  1 ▲  1  done in 16s       │ │ █ ✓ Passed 101  82%   ▓ ▲ Warnings  14  12%      │
+│ ⠴ DC01.ad.adatum.com         ━━━━━━━━━━━━━╸  96%  ✓ 25 ✗  0 ▲  3  PowerShell loggi… │ │ ▒ ✗ Failed   4   3%   ░ – Skipped    4   3%      │
+│ ⠦ DC02.ad.adatum.com         ━━━━━━━━━━━━╸─  90%  ✓ 20 ✗  0 ▲  6  Firewall profile  │ │ ──────────────────────────────────────────────── │
+│ ⠧ DC03.ad.adatum.com         ━━━━━━━━━╸────  66%  ✓ 16 ✗  3 ▲  1  Clock skew        │ │ Evaluated         123 / 332                      │
+│ ⠇ DC04.ad.adatum.com         ━━━━━━━━━━╸───  76%  ✓ 20 ✗  0 ▲  2  Unconstrained de… │ │ Average rate      7.2 rules/s                    │
+│ ⠏ DC05.ad.adatum.com         ──────────────   0%  ✓  0 ✗  0 ▲  0  LDAP signing req… │ │ Remaining        ~29s                            │
+│ ○ DC06.ad.adatum.com         ──────────────                       queued            │ │ Targets done        1 / 12                       │
+│ ○ DC07.eu.ad.adatum.com      ──────────────                       queued            │ │ Targets failing     1                            │
+│ ○ DC08.eu.ad.adatum.com      ──────────────                       queued            │ │                                                  │
+│ ○ DC09.eu.ad.adatum.com      ──────────────                       queued            │ │                                                  │
+│ ○ DC10.eu.ad.adatum.com      ──────────────                       queued            │ │                                                  │
 ╰─────────────────────────────────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────╯
 ╭─ Throughput ────────────────────────── rules/s ─╮ ╭─ Rule duration ─────────────────────────╮ ╭─ Failures by category ───────────────────╮
 │ 11│                *     *            *         │ │ 39│      █████ ▄▄▄▄▄                    │ │ Domain controllers ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆ ✗ 1 │
@@ -34,12 +34,12 @@
 │ 00:07        DC04.ad.adatum.com: evaluating 30 rules                                                                                     │
 │ 00:11 ✗ ERR  DC03.ad.adatum.com: Credential Guard posture failed - virtualization-based security is off                                  │
 │ 00:15 ✗ ERR  eu.ad.adatum.com (domain): Password never expires failed - 18 user accounts never expire their password                     │
-│ 00:16 ▴ WARN DC01.ad.adatum.com: DC locator SRV records - stale SRV record for a retired DC                                              │
-│ 00:21 ▴ WARN DC01.ad.adatum.com: Event log sizes - Directory Service log under 64 MB                                                     │
+│ 00:16 ▲ WARN DC01.ad.adatum.com: DC locator SRV records - stale SRV record for a retired DC                                              │
+│ 00:21 ▲ WARN DC01.ad.adatum.com: Event log sizes - Directory Service log under 64 MB                                                     │
 │ 00:21 ✗ ERR  DC03.ad.adatum.com: Lingering objects failed - 3 lingering objects in the configuration partition                           │
-│ 00:22 ▴ WARN eu.ad.adatum.com (domain): Site link costs - 2 site links use default cost 100                                              │
+│ 00:22 ▲ WARN eu.ad.adatum.com (domain): Site link costs - 2 site links use default cost 100                                              │
 │ 00:23        DC05.ad.adatum.com: evaluating 30 rules                                                                                     │
 │ 00:23 ✗ ERR  DC03.ad.adatum.com: DC locator SRV records failed - _ldap._tcp.dc._msdcs record missing                                     │
-│ 00:23 ▴ WARN DC02.ad.adatum.com: Local administrators - nested group in BUILTIN\Administrators                                           │
+│ 00:23 ▲ WARN DC02.ad.adatum.com: Local administrators - nested group in BUILTIN\Administrators                                           │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
  ctrl+c stop

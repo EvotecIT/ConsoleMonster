@@ -4,6 +4,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Styling;
 
 // Data: synthetic backup jobs; no files, databases or remote services are touched.
 var jobs = new BackupJob[]
@@ -33,18 +34,21 @@ IWidget Summary()
         .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
         .Expand();
     int recovered = completed.Keys.Count(name => attempts[name] > 1);
-    string summary = attempts.Count == 0
-        ? "[muted]4 jobs queued · destination ./backups/nightly[/]"
+    ViewFacts summary = attempts.Count == 0
+        ? Ui.Facts().Add(4, "jobs queued").Add("destination ./backups/nightly")
         : completed.Count < jobs.Length
-            ? ($"[pass]{completed.Count} passed[/]   [warn]{jobs.Length - completed.Count} "
-                + $"queued for retry[/]")
-            : ($"[pass]{completed.Count} passed[/]   [accent]{recovered} recovered on "
-                + $"retry[/]   [muted]retention: 14 days[/]");
+            ? Ui.Facts()
+                .Add(completed.Count, "passed", ThemeToken.Pass)
+                .Add(jobs.Length - completed.Count, "queued for retry", ThemeToken.Warn)
+            : Ui.Facts()
+                .Add(completed.Count, "passed", ThemeToken.Pass)
+                .Add(recovered, "recovered on retry", ThemeToken.Accent)
+                .Add("retention: 14 days");
     return Ui.Rows().Gap(1).Content(c =>
     {
-        c.Rule("[bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]");
+        c.Rule("[accent bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]");
         c.Add(table);
-        c.Markup(summary);
+        c.Add(summary);
     });
 }
 

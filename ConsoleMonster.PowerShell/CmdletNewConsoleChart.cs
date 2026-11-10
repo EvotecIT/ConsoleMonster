@@ -42,13 +42,13 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The lower numeric limit.</para></summary>
         [Parameter]
         public double? Minimum { get; set; }
-        /// <summary><para type="description">The upper numeric limit.</para></summary>
+        /// <summary><para type="description">The upper numeric limit. Bar charts with a positive Maximum use a Line bar and full-width track, showing a percentage for 100 or value/whole otherwise.</para></summary>
         [Parameter]
         public double? Maximum { get; set; }
         /// <summary><para type="description">The chart theme role.</para></summary>
         [Parameter]
         public Styling.ThemeToken? Role { get; set; }
-        /// <summary><para type="description">The bar shape, Block by default.</para></summary>
+        /// <summary><para type="description">The comparison bar shape, Block by default. A positive Bar Maximum selects Line with a track.</para></summary>
         [Parameter]
         public BarShape Shape { get; set; } = BarShape.Block;
         /// <summary><para type="description">The warning threshold for Bar.</para></summary>
@@ -63,6 +63,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Strictly ascending Histogram bucket edges.</para></summary>
         [Parameter]
         public double[]? Edges { get; set; }
+        /// <summary><para type="description">Sparkline point labels or Histogram bucket-edge labels, in sample or edge order.</para></summary>
+        [Parameter] public string[]? Labels { get; set; }
         /// <summary><para type="description">Initial numeric samples for Histogram or Sparkline.</para></summary>
         [Parameter]
         public double[]? Values { get; set; }
@@ -127,6 +129,7 @@ namespace ConsoleMonster.PowerShell {
             if (MyInvocation.BoundParameters.ContainsKey(nameof(CountColumn))) { options.CountColumn = CountColumn; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(PercentColumn))) { options.PercentColumn = PercentColumn; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(LabelColumn))) { options.LabelColumn = LabelColumn; }
+            if (Labels != null) foreach (string label in Labels) options.Labels.Add(label);
             if (Series != null) {
                 if (Type != ChartType.Line && Type != ChartType.Scatter) { throw new PSArgumentException("Series applies to Line and Scatter charts."); }
                 PSItems.ChartData(options, PSItems.Items(Series));

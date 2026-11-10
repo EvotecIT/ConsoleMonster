@@ -24,7 +24,7 @@ var servers = new Server[]
 var states = new State[]
 {
     new("Compliant", ThemeToken.Pass),
-    new("Pending reboot", ThemeToken.Info),
+    new("Pending reboot", ThemeToken.Warn),
     new("Missing updates", ThemeToken.Warn),
     new("Failed", ThemeToken.Fail)
 };
@@ -51,7 +51,8 @@ var table = Ui.Table(attention)
     .Expand();
 var report = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Rule("[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]");
+    c2.Rule(("[accent bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of "
+        + "2026-10-20[/]"));
     c2.Panel(p => p.Content(content =>
     {
         content.Add(byState);

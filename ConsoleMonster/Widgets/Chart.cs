@@ -31,6 +31,7 @@ namespace ConsoleMonster.Widgets {
             if (o.Height.HasValue && o.Height < 1) { throw new ArgumentOutOfRangeException(nameof(o.Height)); }
             if (o.Minimum.HasValue && o.Maximum.HasValue && o.Minimum >= o.Maximum) { throw new ArgumentException("Minimum must be less than Maximum."); }
             if (o.Items.Count > 0 && o.Type != ChartType.Bar && o.Type != ChartType.Stacked) { throw new ArgumentException("Items apply to Bar and Stacked charts."); }
+            if (o.Labels.Count > 0 && o.Type != ChartType.Sparkline && o.Type != ChartType.Histogram) { throw new ArgumentException("Labels apply to Sparkline and Histogram charts."); }
             if (o.Series.Count > 0 && o.Type != ChartType.Line && o.Type != ChartType.Scatter) { throw new ArgumentException("Series apply to Line and Scatter charts."); }
             if (o.Role.HasValue && !Enum.IsDefined(typeof(Styling.ThemeToken), o.Role.Value)) { throw new ArgumentOutOfRangeException(nameof(o.Role)); }
             foreach (double? limit in new[] { o.Minimum, o.Maximum, o.Warning, o.Critical }) {
@@ -44,7 +45,8 @@ namespace ConsoleMonster.Widgets {
             string id = o.WidgetId ?? DefaultId(o.Type);
             switch (o.Type) {
                 case ChartType.Bar:
-                    var bars = new BarChart(id) { Unit = o.Unit, Shape = o.Shape, ShowValues = o.ShowValues, Signed = o.Signed, Maximum = o.Maximum, Warning = o.Warning, Critical = o.Critical };
+                    var bars = new BarChart(id) { Unit = o.Unit, ShowValues = o.ShowValues, Signed = o.Signed, Maximum = o.Maximum, Warning = o.Warning, Critical = o.Critical };
+                    if (o.Bound.Contains(nameof(ChartOptions.Shape))) { bars.Shape = o.Shape; }
                     if (o.Role.HasValue) { bars.Role = o.Role.Value; }
                     if (o.ValueColumn != null) { bars.ValueColumn = o.ValueColumn; }
                     foreach (ChartItem item in o.Items) {
@@ -76,10 +78,12 @@ namespace ConsoleMonster.Widgets {
                     var histogram = new Histogram(o.Edges, id) { Unit = o.Unit, Height = o.Height ?? 6 };
                     if (o.Role.HasValue) { histogram.Role = o.Role.Value; }
                     foreach (double value in o.Values ?? Array.Empty<double>()) { histogram.Add(value); }
+                    foreach (string label in o.Labels) histogram.Labels.Add(label);
                     return histogram;
                 default:
                     var sparkline = new Sparkline(id) { Unit = o.Unit, Title = o.Title, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest, Capacity = o.Capacity ?? 1024 };
                     if (o.Role.HasValue) { sparkline.Role = o.Role.Value; }
+                    foreach (string label in o.Labels) sparkline.Labels.Add(label);
                     sparkline.AddRange(o.Values ?? Array.Empty<double>());
                     return sparkline;
             }

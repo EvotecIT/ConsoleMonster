@@ -5,6 +5,7 @@
  Needs attention  2 of 8 partnerships · worst first ───────────────────────────────── × 2
  × LON-DC01 ← NYC-DC01  2d 3h  41 fails  8524 DNS lookup failure
  × NYC-DC01 ← LON-DC01  2d 3h  38 fails  8524 DNS lookup failure
+ ✓ current · × failing · (·) no partnership · 40 naming-context links
 
  Matrix  worst naming context · age ─────────────────────────── inbound
            source →  LON-HQ               AMS-DC               NYC-BR
@@ -17,10 +18,10 @@
  cell: age of the oldest naming context
 
  Last success  all naming contexts ────── age
- <15m       ━━━━━━━━━━━━━━━━━━━━━━━━━    26
- 15m to 1h  ━━━━━━───────────────────     6
- 1h to 1d   ─────────────────────────     0
- >1d        ━━━━━━━╸─────────────────     8
+ <15m       ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆    26
+ 15m to 1h  ▆▆▆▆▆▆                        6
+ 1h to 1d                                 0
+ >1d        ▆▆▆▆▆▆▆▆                      8
 
  Inbound by DC  5 DCs by site · last success · log axis ───────────────────── × 2 failing
  DC        In  Fail  1m        10m     1h             1d   4d  Worst
@@ -33,5 +34,4 @@
  NYC-BR  1 DC · × 1 failing
  NYC-DC01   1     1  ───━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━×───  2d 3h
 
- ✓ current   × failing   · no partnership
- 40 naming-context links · pipe to Format-Table for every row
+ pipe to Format-Table for every row

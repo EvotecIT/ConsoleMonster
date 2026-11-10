@@ -1,4 +1,4 @@
-BeforeAll {
+﻿BeforeAll {
     Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
 
     # The widget as plain text at a fixed width, the way it draws.
@@ -9,6 +9,17 @@ BeforeAll {
 }
 
 Describe 'One grammar for every widget' {
+    Context 'New-ConsoleFacts' {
+        It 'maps pipeline records and script-block facts to the shared public widget' {
+            $facts = @([pscustomobject] @{ Value = 3; Label = 'passed'; Role = 'Pass' }) |
+                New-ConsoleFacts -Content { @{ Value = 1; Label = 'warning'; Role = 'Warn' }; '5 checks' }
+            $facts.Facts.Count | Should -Be 3
+            $facts.Facts[0].Role | Should -Be 'Pass'
+            $facts.Facts[1].Role | Should -Be 'Warn'
+            ($facts | Get-WidgetText) | Should -Match '3 passed.*1 warning.*5 checks'
+        }
+    }
+
     Context 'New-ConsoleTree' {
         It 'builds nested nodes with statuses and details from records' {
             $text = New-ConsoleTree 'evotec.xyz' -Content {

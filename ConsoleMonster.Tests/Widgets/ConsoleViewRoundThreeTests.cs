@@ -58,16 +58,14 @@ public sealed class ConsoleViewRoundThreeTests {
     }
 
     [Theory]
-    [InlineData(GlyphTier.Full, '█', '░')]
-    [InlineData(GlyphTier.Ascii, '#', '.')]
-    public void ScoreGauge_FractionalScore_HasNoUnpaintedPartialCell(GlyphTier tier, char fill, char track) {
+    [InlineData(GlyphTier.Full, "━━━━━━━━━━━━━━━━━╸──────")]
+    [InlineData(GlyphTier.Ascii, "#################-------")]
+    public void ScoreGauge_FractionalScore_LineHeadJoinsSubtleTrack(GlyphTier tier, string expectedBar) {
         Review184Capture capture = new Review184Capture(new ScoreGauge(72), 120, tier, ColorDepth.TrueColor);
         string text = capture.Raw.ToPlainText();
-        Assert.StartsWith(tier == GlyphTier.Full ? "✓ 72/100  " : "+ 72/100  ", text);
-        string bar = text.Substring(10);
-        Assert.Equal(24, bar.Length);
-        Assert.Equal(new string(fill, 17) + new string(track, 7), bar);
-        Assert.Equal(capture.Context.Style(ThemeToken.Subtle).Color, capture.Raw[27, 0].Style.Color);
+        Assert.StartsWith(expectedBar, text);
+        Assert.EndsWith("72%", text);
+        Assert.Equal(capture.Context.Style(ThemeToken.Subtle).Color, capture.Raw[19, 0].Style.Color);
     }
 
     [Fact]

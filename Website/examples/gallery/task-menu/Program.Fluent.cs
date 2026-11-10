@@ -11,7 +11,7 @@ string[] tasks = { "Health report", "Inspect queue", "Preview cleanup" };
 // Layout: construct the widgets shown on screen.
 Rows layout = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Markup("[bold]Server toolbox[/] [muted]· operations[/]");
+    c3.Markup("[accent bold]Server toolbox[/] [muted]· operations[/]");
     c3.Select(select => select.Key("Task")
         .AddChoices(tasks.Select(task => new Choice(task)))
         .Label("Task")

@@ -3,7 +3,7 @@
 
 I use the same domain names for cmdlet parameters, C# configuration and fluent calls. PowerShell keeps numeric duration parameters with units and default-off switches; C# keeps TimeSpan values and Boolean properties.
 
-The contract covers **117 commands**, **1258 parameters** and **382 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **118 commands**, **1261 parameters** and **384 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
@@ -67,6 +67,7 @@ Operation options use a typed configure callback, for example `ConsoleRun.ForEac
 | `New-ConsoleSplitter` | `Ui.Splitter()` | `c.Splitter(splitter => …)` |
 | `New-ConsoleAccordion` | `Ui.Accordion()` | `c.Accordion(accordion => …)` |
 | `New-ConsoleDashboardFrame` | `Ui.DashboardFrame()` | `c.DashboardFrame(dashboardFrame => …)` |
+| `New-ConsoleFacts` | `Ui.Facts()` | `c.Facts(facts => …)` |
 
 | Primary fluent input | PowerShell input | Reason |
 | --- | --- | --- |

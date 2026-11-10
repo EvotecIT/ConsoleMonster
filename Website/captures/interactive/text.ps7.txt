@@ -39,11 +39,6 @@ source 568f9188c4cdc35da5c9c484fb187f45
   Shown to users when they browse the server.
   › 9reports
   ✗ Start with a letter; letters, digits, - and _ only
-  enter confirm  esc cancel542c5e8a1a488bd7
-? Share name  default: Reports
-  Shown to users when they browse the server.
-  › 9reports
-  ✗ Start with a letter; letters, digits, - and _ only
   enter confirm  esc cancela7db5c74110f379a
 ? Share name  default: Reports
   Shown to users when they browse the server.

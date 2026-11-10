@@ -52,7 +52,7 @@ var table = Ui.Table(usage)
     .Expand();
 var report = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Rule("[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
+    c3.Rule("[accent bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
     c3.Columns(columns => columns.Content(c2 =>
     {
         c2.Panel(p => p.Title("Assigned of purchased").Content(c =>

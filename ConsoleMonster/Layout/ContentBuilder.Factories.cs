@@ -83,6 +83,12 @@ namespace ConsoleMonster.Layout {
         /// <summary>Adds a configured CellMap instance.</summary><param name="widget">The widget.</param><returns>This builder.</returns>
         public ContentBuilder CellMap(CellMap widget) => Add(widget);
 
+        /// <summary>Adds a facts line configured like Ui.Facts().</summary>
+        /// <param name="configure">The fact additions.</param><returns>This builder.</returns>
+        public ContentBuilder Facts(Action<ViewFacts>? configure = null) { var widget = Ui.Facts(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds a configured facts line.</summary><param name="widget">The line.</param><returns>This builder.</returns>
+        public ContentBuilder Facts(ViewFacts widget) => Add(widget);
+
         /// <summary>Adds a KeyValue configured with the same chain as Ui.KeyValue().</summary>
         /// <param name="configure">Configures the empty widget before adding it.</param><returns>This builder.</returns>
         public ContentBuilder KeyValue(Action<KeyValueList>? configure = null) { var widget = Ui.KeyValue(); configure?.Invoke(widget); return Add(widget); }

@@ -33,11 +33,11 @@ Expires  in 22 d
 
 ad.evotec.xyz
 └── √ Site Warsaw
-    └── ! SRV01  2 warnings
+    └── ▲ SRV01  2 warnings
 
-! DNS scavenging                                          7 days
+▲ DNS scavenging                                          7 days
 
-| SRV01  ▄▄▄▄▄▄▄▄▄─────────  50%  √0 ×0 !0  copying Weekly.xlsx
+| SRV01  ════════────────  50%  √ 0 × 0 ▲ 0  copying Weekly.xlsx
 
 × ERR DC03 replication failed - no inbound replication for 4h
       from DC02
@@ -45,7 +45,7 @@ ad.evotec.xyz
 SRV01 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ 12
 SRV02 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄                         7
 
-██████████████████████████████████████████████████████████▓▓▓▓▓▓
+███████████████████████████████████████████████████████▓▓▓▓▓  44
 █ √ PASS 40  91%   ▓ × FAIL  4   9%
 
 5│        ***************               ***********************1

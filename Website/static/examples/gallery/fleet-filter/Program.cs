@@ -4,6 +4,7 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.Styling;
 
 // Data: fictional inputs kept in memory.
 var hosts = new FleetHost[]
@@ -38,12 +39,13 @@ IWidget Results(string query)
 }
 
 Rows layout = new Rows(
-    new TextBlock("[bold]Fleet health[/] [muted]· production inventory[/]"),
+    new TextBlock("[accent bold]Fleet health[/] [muted]· production inventory[/]"),
     new Panel()
     {
         Title = "Fleet summary",
-        Content = new TextBlock(
-            "[pass]2 healthy[/]  [warn]1 warning[/]  [fail]1 offline[/]  [accent]1 running[/]")
+        Content = new ViewFacts().Add(2, "healthy", ThemeToken.Pass)
+            .Add(1, "warning", ThemeToken.Warn).Add(1, "offline", ThemeToken.Fail)
+            .Add(1, "running", ThemeToken.Running)
     },
     new TextInput("Query", string.Empty)
     {

@@ -37,6 +37,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Bucket counts.</summary>
         public IReadOnlyList<int> Counts => _counts;
 
+        /// <summary>Optional bucket-edge labels, in edge order; omitted edges retain their numeric labels.</summary>
+        public IList<string> Labels { get; } = new List<string>();
+
         /// <summary>Rows for the bars (default 6).</summary>
         public int Height { get; set; } = 6;
 
@@ -132,7 +135,7 @@ namespace ConsoleMonster.Widgets {
                     region.HorizontalLine(x, barRows - 1 - r, barWidth, glyph, bar);
                 }
             }
-            DrawEdgeLabels(region, plotX, plotWidth, barRows, muted);
+            DrawEdgeLabels(region, plotX, plotWidth, barRows, muted, context);
         }
 
         /// <summary>
@@ -141,7 +144,13 @@ namespace ConsoleMonster.Widgets {
         /// narrow for every label, every Nth inner edge is labelled, with the smallest N that keeps a space between labels,
         /// so the labels thin out evenly; an inner label that would touch the last one is left out.
         /// </summary>
-        private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style) {
+        private void DrawEdgeLabels(Region region, int plotX, int plotWidth, int row, Style style, RenderContext context) {
+            if (Labels.Count > 0) {
+                string[] edgeLabels = new string[_edges.Length];
+                for (int i = 0; i < edgeLabels.Length; i++) edgeLabels[i] = i < Labels.Count ? Labels[i] : EdgeLabel(_edges[i]);
+                ChartAxis.Draw(region, row, plotX, plotWidth, edgeLabels, _edges.Length, context);
+                return;
+            }
             int buckets = _counts.Length;
             string[] labels = new string[buckets];
             int[] starts = new int[buckets];

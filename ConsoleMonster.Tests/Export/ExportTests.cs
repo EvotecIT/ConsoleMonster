@@ -341,10 +341,10 @@ namespace ConsoleMonster.Tests.Export {
                 Assert.Null(session.Snapshot());
                 session.Start();
                 session.Post(new LiveEvent("deploy", "advance", value: 2));
-                SpinWait.SpinUntil(() => session.Snapshot() != null && ConsoleExporter.ToText(session).Contains("50%"), 3000);
+                SpinWait.SpinUntil(() => session.Snapshot() != null && ConsoleExporter.ToText(session).Contains("2/4"), 3000);
                 string text = ConsoleExporter.ToText(session);
                 Assert.Contains("Deploy", text);
-                Assert.Contains("50%", text);
+                Assert.Contains("2/4", text);
                 Assert.Contains("cm-screen", ConsoleExporter.ToHtml(session));
                 session.Stop();
             }

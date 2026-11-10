@@ -15,7 +15,7 @@ $repositories = @(
 
 # Layout: numeric columns keep local changes separate from branch divergence.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Repository workspace[/] [muted]· ./work[/]'
+    New-ConsoleRule -Title '[accent bold]Repository workspace[/] [muted]· ./work[/]'
     New-ConsoleTable -InputObject $repositories -Property Repository, Branch, Modified, Staged,
         Ahead, Behind -Expand
     New-ConsolePanel -Title 'Suggested next steps' -Content {

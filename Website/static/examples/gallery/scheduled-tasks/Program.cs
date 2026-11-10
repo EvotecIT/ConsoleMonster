@@ -44,7 +44,7 @@ foreach (var failure in failures)
     flow.Add(new FlowNode("action", failure.Action, StatusKind.Fail));
     flow.Add(new FlowEdge("fires", "trigger", "task", "fired"));
     flow.Add(new FlowEdge("runs", "task", "action", failure.Outcome, StatusKind.Fail, true));
-    var details = new KeyValueList { KeyRole = ThemeToken.Fail }
+    var details = new KeyValueList { KeyRole = ThemeToken.Muted }
         .Add("Cause", failure.Cause)
         .Add("Fix", failure.Fix);
     traces.Add(new Panel(
@@ -53,7 +53,8 @@ foreach (var failure in failures)
 }
 
 var report = new Rows(
-    new Rule("[bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 09:05[/]"),
+    new Rule(("[accent bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 "
+        + "09:05[/]")),
     table,
     traces)
 {

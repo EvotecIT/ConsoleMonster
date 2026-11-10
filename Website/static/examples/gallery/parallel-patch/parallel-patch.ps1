@@ -105,8 +105,12 @@ function New-PatchSummary {
         })
     $failed = @($Outcomes | Where-Object -Property Status -EQ -Value Fail).Count
     New-ConsoleRows -Gap 1 -Content {
-        New-ConsoleRule -Title '[bold]Patching the web farm[/]'
-        '40 hosts · throttle 8 · per-host timeout 4s'
+        New-ConsoleRule -Title '[accent bold]Patching the web farm[/]'
+        New-ConsoleFacts -Content {
+            @{ Value = 40; Label = 'hosts' }
+            @{ Value = 8; Caption = 'throttle' }
+            @{ Value = '4s'; Caption = 'per-host timeout' }
+        }
         New-ConsoleSummaryBar -Total $servers.Count -Counter ([ordered] @{
                 passed = $done - $failed
                 failed = $failed

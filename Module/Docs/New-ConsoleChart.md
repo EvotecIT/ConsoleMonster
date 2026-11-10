@@ -13,7 +13,7 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] [-Type <ChartType>] [-Unit <string>] [-Title <Object>] [-Property <Object[]>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
+New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] [-Type <ChartType>] [-Unit <string>] [-Title <Object>] [-Property <Object[]>] [-Label <Object>] [-Height <Int32>] [-Minimum <Double>] [-Maximum <Double>] [-Role <ThemeToken>] [-Shape <BarShape>] [-Warning <Double>] [-Critical <Double>] [-NoLatest] [-Edges <double[]>] [-Labels <string[]>] [-Values <double[]>] [-ValueColumn <ColumnFormat>] [-CountColumn <ColumnFormat>] [-PercentColumn <ColumnFormat>] [-LabelColumn <ColumnFormat>] [-Content <scriptblock>] [-Series <Object[]>] [-NoValues] [-Signed] [-NoLegend] [-MaxLegendColumns <int>] [-Capacity <Int32>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -183,8 +183,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Labels
+Sparkline point labels or Histogram bucket-edge labels, in sample or edge order.
+
+```yaml
+Type: String[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Maximum
-The upper numeric limit.
+The upper numeric limit. Bar charts with a positive Maximum use a Line bar and full-width track, showing a percentage for 100 or value/whole otherwise.
 
 ```yaml
 Type: Double
@@ -344,7 +360,7 @@ Accept wildcard characters: False
 ```
 
 ### -Shape
-The bar shape, Block by default.
+The comparison bar shape, Block by default. A positive Bar Maximum selects Line with a track.
 
 ```yaml
 Type: BarShape

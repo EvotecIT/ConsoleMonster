@@ -57,7 +57,7 @@ if (expired)
 var phases = Ui.Phases().StepCounter();
 foreach (Step step in steps)
     phases.Set(step.Key, step.Status, step.Label, step.Detail);
-var facts = Ui.KeyValue().Columns(2).KeyRole(ThemeToken.Accent);
+var facts = Ui.KeyValue().Columns(1).KeyRole(ThemeToken.Muted);
 foreach (Pair pair in context)
     facts.Add(pair.Key, pair.Value);
 string proof = expired
@@ -81,7 +81,7 @@ Ui.Rows().Gap(1).Content(c2 =>
     {
         content.Markup(expired ? "Chain validation failed." : "Chain validation passed.");
     }).Title(verdict).Verdict().Status(chainStatus));
-    c2.KeyValue(kv => kv.KeyRole(chainStatus.ToToken())
+    c2.KeyValue(kv => kv.KeyRole(ThemeToken.Muted)
         .Add("Cause",
             expired ? "Expired intermediate certificate." : "Trusted root and complete chain.")
         .Add("Proof", proof)

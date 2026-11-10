@@ -44,7 +44,7 @@ PS> [?1h[6n$[29;5H$s[29;5H$st[29;5H$sta[29;5H$stat[29;5H$state[29;5H$sta
 [0;38;2;75;80;96m│[0m web01   [0;38;2;75;80;96m│[0m [0;38;2;74;222;128m✓[14G Completed[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆[0m           3[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m  4 m 10 s [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m│[0m files01 [0;38;2;75;80;96m│[0m [0;38;2;248;113;113m✗[14G Failed[0m    [0;38;2;75;80;96m│[0m              0[0;38;2;139;143;154m B[0m [0;38;2;75;80;96m│[0m 12 m 30 s [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰─────────┴─────────────┴──────────────────┴───────────╯[0m
-[0m 3[0;38;2;139;143;154m backups ·[13G [0;1;38;2;248;113;113m1[0;38;2;139;143;154m failed[0m
+[0m [0;1;38;2;139;143;154m3[0;38;2;139;143;154m backups ·[13G [0;1;38;2;248;113;113m1[0;38;2;248;113;113m failed[0m
 
 [6nPS> [?1h[6n
 PS> [?1h[6n$[50;5H$g[50;5H$gl[50;5H$glo[50;5H$glob[50;5H$globa[50;5H$global[50;5H$global:[50;5H$global:c[50;5H$global:cm[50;5H$global:cmS[50;5H$global:cmSi[50;5H$global:cmSit[50;5H$global:cmSite[50;5H$global:cmSiteD[50;5H$global:cmSiteDo[50;5H$global:cmSiteDon[50;5H$global:cmSiteDone[50;5H$global:cmSiteDone [50;5H$global:cmSiteDone =[50;5H$global:cmSiteDone = [50;5H$global:cmSiteDone = $[50;5H$global:cmSiteDone = $t[50;5H$global:cmSiteDone = $tr[50;5H$global:cmSiteDone = $tru[50;5H$global:cmSiteDone = $true

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <helpItems schema="maml" xmlns="http://msh">
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
     <command:details>
@@ -8962,10 +8962,22 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+          <maml:name>Labels</maml:name>
+          <maml:description>
+            <maml:para>Sparkline point labels or Histogram bucket-edge labels, in sample or edge order.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+          <dev:type>
+            <maml:name>String[]</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Maximum</maml:name>
           <maml:description>
-            <maml:para>The upper numeric limit.</maml:para>
+            <maml:para>The upper numeric limit. Bar charts with a positive Maximum use a Line bar and full-width track, showing a percentage for 100 or value/whole otherwise.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -9116,7 +9128,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Shape</maml:name>
           <maml:description>
-            <maml:para>The bar shape, Block by default.</maml:para>
+            <maml:para>The comparison bar shape, Block by default. A positive Bar Maximum selects Line with a track.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
           <command:parameterValueGroup>
@@ -9344,10 +9356,22 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="None">
+        <maml:name>Labels</maml:name>
+        <maml:description>
+          <maml:para>Sparkline point labels or Histogram bucket-edge labels, in sample or edge order.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        <dev:type>
+          <maml:name>String[]</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Maximum</maml:name>
         <maml:description>
-          <maml:para>The upper numeric limit.</maml:para>
+          <maml:para>The upper numeric limit. Bar charts with a positive Maximum use a Line bar and full-width track, showing a percentage for 100 or value/whole otherwise.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -9498,7 +9522,7 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Shape</maml:name>
         <maml:description>
-          <maml:para>The bar shape, Block by default.</maml:para>
+          <maml:para>The comparison bar shape, Block by default. A positive Bar Maximum selects Line with a track.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">BarShape</command:parameterValue>
         <command:parameterValueGroup>
@@ -13858,7 +13882,7 @@ Show-ConsoleApp -Content {
     <command:returnValues>
       <command:returnValue>
         <dev:type>
-          <maml:name>ConsoleMonster.Interactive.FormDialog`1[[ConsoleMonster.Interactive.AppState, ConsoleMonster, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null]]</maml:name>
+          <maml:name>ConsoleMonster.Interactive.FormDialog`1[[ConsoleMonster.Interactive.AppState, ConsoleMonster, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null]]</maml:name>
         </dev:type>
       </command:returnValue>
     </command:returnValues>
@@ -13873,6 +13897,105 @@ Show-ConsoleApp -Content {
         <dev:code>New-ConsoleDialog -Title Options -InitialFocus Destination -Content { New-ConsoleTextInput -Key Destination }</dev:code>
         <dev:remarks>
           <maml:para>Define fields for an app-owned dialog.</maml:para>
+        </dev:remarks>
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+    <command:details>
+      <command:name>New-ConsoleFacts</command:name>
+      <command:verb>New</command:verb>
+      <command:noun>ConsoleFacts</command:noun>
+      <maml:description>
+        <maml:para>Creates a facts line with bold counts, semantic colours and shared separators.</maml:para>
+        <maml:para>Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.</maml:para>
+      </maml:description>
+    </command:details>
+    <maml:description>
+      <maml:para>Creates a facts line with bold counts, semantic colours and shared separators.</maml:para>
+      <maml:para>Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem parameterSetName="__AllParameterSets">
+        <maml:name>New-ConsoleFacts</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+          <maml:name>Content</maml:name>
+          <maml:description>
+            <maml:para>A script block emitting values or records with Value, Label and an optional Role, Caption, Presenter and NewLine.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+          <dev:type>
+            <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+          <maml:name>InputObject</maml:name>
+          <maml:description>
+            <maml:para>Values or fact records, in display order.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
+          <dev:type>
+            <maml:name>PSObject</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="1" aliases="None">
+        <maml:name>Content</maml:name>
+        <maml:description>
+          <maml:para>A script block emitting values or records with Value, Label and an optional Role, Caption, Presenter and NewLine.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+        <dev:type>
+          <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="None">
+        <maml:name>InputObject</maml:name>
+        <maml:description>
+          <maml:para>Values or fact records, in display order.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">PSObject</command:parameterValue>
+        <dev:type>
+          <maml:name>PSObject</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>System.Management.Automation.PSObject</maml:name>
+        </dev:type>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>ConsoleMonster.Widgets.ViewFacts</maml:name>
+        </dev:type>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para></maml:para>
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+      <command:example>
+        <maml:title>EXAMPLE 1</maml:title>
+        <dev:code>New-ConsoleFacts -Content { @{ Value = 3; Label = 'passed'; Role = 'Pass' }; @{ Value = 1; Label = 'warning'; Role = 'Warn' }; @{ Value = 5; Label = 'checks' } } | Show-Console</dev:code>
+        <dev:remarks>
+          <maml:para>A report summary</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -20628,7 +20751,7 @@ Show-ConsoleApp -Content {
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>NoCount</maml:name>
           <maml:description>
-            <maml:para>Hides the default-on count in the classic bar layout.</maml:para>
+            <maml:para>Shows a percentage instead of value/total for totals other than 100. A total of 100 always shows only its percentage.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -20924,7 +21047,7 @@ Show-ConsoleApp -Content {
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>NoCount</maml:name>
         <maml:description>
-          <maml:para>Hides the default-on count in the classic bar layout.</maml:para>
+          <maml:para>Shows a percentage instead of value/total for totals other than 100. A total of 100 always shows only its percentage.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>

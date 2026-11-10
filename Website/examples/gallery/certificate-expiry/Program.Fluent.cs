@@ -27,8 +27,10 @@ StatusList renewals = Ui.StatusList()
     .Add("api.example.test", StatusKind.Warn, "Platform · schedule renewal this week");
 Rows report = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Rule("[bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]");
-    c3.Markup("[fail]1 urgent[/]   [warn]1 due soon[/]   [pass]2 healthy[/]");
+    c3.Rule("[accent bold]Certificate renewals[/] [muted]· as of 2026-10-24[/]");
+    c3.Facts(facts => facts.Add(1, "urgent", ThemeToken.Fail)
+        .Add(1, "due soon", ThemeToken.Warn)
+        .Add(2, "healthy", ThemeToken.Pass));
     c3.Add(table);
     c3.Panel(p => p.Title("Renewal policy").Content(c2 =>
     {

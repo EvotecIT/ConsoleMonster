@@ -17,6 +17,7 @@ namespace ConsoleMonster.Tests.Widgets {
             Review184Capture capture = new Review184Capture(bar, width, tier, depth);
             HashSet<string> fills = new HashSet<string>();
             string[] lines = capture.Raw.ToPlainText().Split('\n');
+            int barWidth = width - 3; // One-cell total (8) and two-cell gap.
             int position = 0;
             for (int i = 0; i < 8; i++) {
                 string marker = lines[i + 1].Substring(0, 1);
@@ -26,7 +27,7 @@ namespace ConsoleMonster.Tests.Widgets {
                 Assert.Equal(marker, capture.Raw[position, 0].Glyph);
                 Assert.Contains(marker + " category-" + i, capture.Decoded);
                 // Equal weights allocate the remainder to the earlier segments.
-                position += width / 8 + (i < width % 8 ? 1 : 0);
+                position += barWidth / 8 + (i < barWidth % 8 ? 1 : 0);
             }
         }
 
@@ -43,12 +44,15 @@ namespace ConsoleMonster.Tests.Widgets {
             for (int i = 0; i < 8; i++) bar.Add("state-" + i, 1);
             Review184Capture capture = new Review184Capture(bar, 120, tier, depth);
             Assert.Equal(1, capture.Raw.Height);
+            const int barWidth = 117; // 120 cells minus total (8) and two-cell gap.
+            int position = 0;
             for (int i = 0; i < 8; i++) {
                 string marker = bar.GetFillMarker(i + 1, capture.Context);
                 Assert.Equal(1, DisplayWidth.Measure(marker));
                 Assert.Equal(marker.Trim(), marker);
-                Assert.Equal(marker, capture.Raw[i * 15, 0].Glyph);
+                Assert.Equal(marker, capture.Raw[position, 0].Glyph);
                 Assert.Contains(marker, capture.Decoded);
+                position += barWidth / 8 + (i < barWidth % 8 ? 1 : 0);
             }
         }
     }

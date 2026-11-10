@@ -1,4 +1,4 @@
 ExampleSvc · Example Service
-├── Status   ✓ Running
+├── Status   ● Running
 ├── CanStop  ✓ yes
 └── +1 empty

@@ -64,7 +64,7 @@ $marks = @(
 
 # Layout: the accounts to act on, then the month of expiries beside the dated list.
 $report = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleRule -Title '[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]'
+    New-ConsoleRule -Title '[accent bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]'
     New-ConsoleTable -InputObject $stale -Property Account, Department, LastLogon, Inactive,
         PasswordAge, Status -Expand
     New-ConsoleColumns -Content {

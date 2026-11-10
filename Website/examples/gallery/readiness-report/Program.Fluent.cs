@@ -1,6 +1,7 @@
 // Show a readiness report with status checks and score bars.
 // All data is synthetic and inline; no services are contacted or changed.
 using ConsoleMonster;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
@@ -22,6 +23,9 @@ var areaScores = new AreaScoreRow[]
     new("Recovery", 35)
 };
 
+string separator = Terminal.GetCurrentProfile().Glyphs == GlyphTier.Ascii
+    ? "|" : "·";
+
 // Layout: compose the screen from the data above.
 StatusList statuses = Ui.StatusList();
 foreach (var check in checks)
@@ -40,9 +44,11 @@ foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
 Rows layout = Ui.Rows().Gap(1).Content(c2 =>
 {
-    c2.Rule("[bold]Readiness assessment[/] [muted]| workspace[/]");
-    c2.Markup(
-        "[pass]3 passed[/]   [warn]1 warning[/]   [fail]1 failed[/]   [muted]5 checks total[/]");
+    c2.Rule($"[accent bold]Readiness assessment[/] [muted]{separator} workspace[/]");
+    c2.Facts(facts => facts.Add(3, "passed", ThemeToken.Pass)
+        .Add(1, "warning", ThemeToken.Warn)
+        .Add(1, "failed", ThemeToken.Fail)
+        .Add(5, "checks total"));
     c2.Panel(p => p.Title("Checks").Content(c =>
     {
         c.Add(statuses);
@@ -52,7 +58,7 @@ Rows layout = Ui.Rows().Gap(1).Content(c2 =>
         c.Add(scores);
     }).HeaderRight("score / 100"));
     c2.Markup("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.");
-    c2.Markup("[muted]Review owner: Platform team · next review: Friday[/]");
+    c2.Markup($"[muted]Review owner: Platform team {separator} next review: Friday[/]");
 });
 
 // Behaviour: print the screen once and return.

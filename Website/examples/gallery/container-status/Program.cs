@@ -80,10 +80,10 @@ IWidget Frame(int tick)
             restarted ? "restarting" : "running", container.Restarts[tick], container.Cpu[tick],
             container.Memory[tick], memoryPercent, status));
     }
+
     int restarting = rows.Count(row => row.State == "restarting");
     int memoryTotal = rows.Sum(row => row.Memory);
     int limitTotal = containers.Sum(container => container.Limit);
-
     var table = Table.For(rows)
         .Column(row => row.Container)
         .Column(row => row.Image)
@@ -94,13 +94,24 @@ IWidget Frame(int tick)
         .Column("Memory %", row => row.MemoryPercent)
         .Column(row => row.Status, column => column.Presenter = CellPresenters.StatusWord);
     table.Expand = true;
-    var cpu = new BarChart("cpu") { Maximum = 100, Warning = 70, Critical = 90 };
-    var memory = new BarChart("memory") { Maximum = 100, Warning = 80, Critical = 90 };
+    var cpu = new BarChart("cpu")
+    {
+        Maximum = 100,
+        Warning = 70,
+        Critical = 90
+    };
+    var memory = new BarChart("memory")
+    {
+        Maximum = 100,
+        Warning = 80,
+        Critical = 90
+    };
     foreach (var row in rows)
     {
         cpu.Add(row.Container, row.Cpu);
         memory.Add(row.Container, row.MemoryPercent);
     }
+
     IWidget feed = new TextBlock("[muted]No restarts or memory warnings yet.[/]");
     if (events.Count > 0)
     {
@@ -112,12 +123,13 @@ IWidget Frame(int tick)
 
     return new Rows(
         new Rule(
-            ($"[bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
+            ($"[accent bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
                 + $"{clock}[/]")),
-        new TextBlock(
-            ($"[pass]{rows.Count - restarting} running[/]   [warn]{restarting} "
-                + $"restarting[/]   [muted]memory {memoryTotal:N0} of {limitTotal:N0} MiB "
-                + $"reserved[/]")),
+        new ViewFacts()
+            .Add(rows.Count - restarting, "running", ThemeToken.Pass)
+            .Add(restarting, "restarting", restarting == 0 ? ThemeToken.Muted : ThemeToken.Warn)
+            .Add(new ViewFact($"{memoryTotal:N0} of {limitTotal:N0} MiB reserved", default,
+                "memory")),
         table,
         new Columns(new Panel(cpu, "CPU %"), new Panel(memory, "Memory % of limit")),
         new Panel(feed, "Events"))
@@ -146,7 +158,7 @@ try
 catch (OperationCanceledException cancelled)
     when (cancelled.CancellationToken == session.Cancellation)
 {
-    // Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
+// Ctrl+C is a normal way to leave the dashboard, after the session restores the terminal.
 }
 
 record Container(string Name, string Image, int Limit, int[] Cpu, int[] Memory, int[] Restarts);
