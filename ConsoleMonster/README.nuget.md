@@ -137,7 +137,7 @@ var diagram = Ui.Diagram("Home network")
     .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
         .Subtitle("192.168.1.1").Value("1 ms"))
     .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
-Terminal.Write(diagram);
+diagram.Show();
 ```
 
 For boxes, routed connections, keyboard navigation and use case playback, add the optional `ConsoleMonster.Graphics`
@@ -281,7 +281,7 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
   ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
   `NO_COLOR` and [`CONSOLEMONSTER_*`](https://consolemonster.dev/docs/environment/) override it
-  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/)).
+  ([hosts and CI](https://consolemonster.dev/docs/hosts-and-ci/)).
 
 [Benchmarks](https://consolemonster.dev/benchmarks/) ·
 [Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·
