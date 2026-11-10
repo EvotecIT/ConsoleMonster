@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
         [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
-        /// <summary><para type="description">The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</para></summary>
+        /// <summary><para type="description">The caller's collection budget in seconds, from 0.001 to 0.9; default 0.75. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</para></summary>
         [Parameter]
         [ValidateRange(0.001, 0.9)]
         [PSDefaultValue(Help = "0.75")]

@@ -33,7 +33,7 @@ namespace ConsoleMonster.Interactive {
                 || (mode == InteractionMode.Accessible && interactive.LineConsole == null)) {
                 var rows = new Rows(new Widgets.HeaderBar(menu.Title) { Subtitle = menu.Subtitle });
                 RenderContext context = Terminal.CreateContext(interactive.ResolveProfile(), interactive.ResolveTheme());
-                if (!string.IsNullOrEmpty(menu.Description)) rows.Add(new Widgets.TextBlock(menu.Description!));
+                if (!string.IsNullOrEmpty(menu.Description)) rows.Add(Widgets.TextBlock.FromMarkup(menu.Description!));
                 foreach (MenuItem item in menu.Items) {
                     if (item.Kind == MenuItemKind.Separator) { rows.Add(new Widgets.Rule(item.Label)); continue; }
                     string? disabled = item.CurrentDisabledReason;
@@ -45,7 +45,7 @@ namespace ConsoleMonster.Interactive {
                     if (!string.IsNullOrEmpty(detail)) text += "  [muted]" + Markup.Escape(detail!) + "[/]";
                     if (!string.IsNullOrEmpty(item.Description)) text += "  [muted]" + Markup.Escape(item.Description!) + "[/]";
                     if (!string.IsNullOrEmpty(disabled)) text += "  [muted](" + Markup.Escape(disabled!) + ")[/]";
-                    rows.Add(new Widgets.TextBlock(text));
+                    rows.Add(Widgets.TextBlock.FromMarkup(text));
                 }
                 interactive.PrintSnapshot(rows);
                 return;

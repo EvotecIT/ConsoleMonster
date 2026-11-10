@@ -47,7 +47,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</para></summary>
         [Parameter] public AppHostKeys Keys { get; set; } = new AppHostKeys();
         /// <summary><para type="description">Allows the terminal to generate Ctrl+C and Ctrl+backslash signals instead of app input events.</para></summary>
-        [Parameter] public SwitchParameter SignalKeys { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter SignalKeys { get; set; }
         /// <summary><para type="description">App-wide keys, as an ordered dictionary of key to 'label', { action }. They work after the focused input and the current screen; the action receives $State. '1-12' opens numbered items and passes the number first: param($Number, $State).</para></summary>
         [Parameter] public object? KeyBinding { get; set; }
         /// <summary><para type="description">Child-terminal and last-output service attached for this app run.</para></summary>
@@ -67,9 +68,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Semantic status in the application heading.</para></summary>
         [Parameter, Binding.StatusKindTransformation] public Styling.StatusKind? Status { get; set; }
         /// <summary><para type="description">Minimum terminal width; smaller windows show a resize message without losing focus.</para></summary>
-        [Parameter, ValidateRange(0, 10000)] public int MinimumWidth { get; set; }
+        [Parameter, ValidateRange(0, 10000)] [PSDefaultValue(Help = "0")]
+        public int MinimumWidth { get; set; }
         /// <summary><para type="description">Minimum terminal height; zero permits any height.</para></summary>
-        [Parameter, ValidateRange(0, 10000)] public int MinimumHeight { get; set; }
+        [Parameter, ValidateRange(0, 10000)] [PSDefaultValue(Help = "0")]
+        public int MinimumHeight { get; set; }
         private readonly object _stopGate = new object();
         private CancellationTokenSource? _stop;
         private bool _stopping;
@@ -80,10 +83,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns final named values as one ordinary hashtable. Callback output is discarded.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <summary><para type="description">Disables optional terminal mouse reporting while retaining keyboard operation.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoMouse { get; set; }
 
         /// <summary><para type="description">Shared command definitions for shortcuts and the in-app palette.</para></summary>
@@ -115,10 +120,12 @@ namespace ConsoleMonster.PowerShell {
         public ITheme? Theme { get; set; }
 
         /// <summary><para type="description">Default width below which columns stack; explicit column thresholds take precedence.</para></summary>
-        [Parameter, ValidateRange(0, int.MaxValue)] public int ReflowBelow { get; set; } = 60;
+        [Parameter, ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "60")]
+        public int ReflowBelow { get; set; } = 60;
 
         /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
-        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {

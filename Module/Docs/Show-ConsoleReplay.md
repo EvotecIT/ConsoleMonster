@@ -32,7 +32,7 @@ Play an existing matching dashboard recording
 ```powershell
 # Requires build.jsonl recorded with this dashboard definition.
             $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay
+Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay:$false
 ```
 
 Start an existing recording inline and paused
@@ -40,7 +40,7 @@ Start an existing recording inline and paused
 ## PARAMETERS
 
 ### -AutoPlay
-Opens paused at the start.
+Starts playback immediately; use -AutoPlay:$false to open paused.
 
 ```yaml
 Type: SwitchParameter

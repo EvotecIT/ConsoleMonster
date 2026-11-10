@@ -80,7 +80,7 @@ Accept wildcard characters: False
 ```
 
 ### -BudgetSeconds
-The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.
+The caller's collection budget in seconds, from 0.001 to 0.9; default 0.75. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.
 
 ```yaml
 Type: Double

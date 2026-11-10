@@ -84,7 +84,7 @@ recorder.Dispose();
 SessionRecording.Read("demo.cast").SaveGraphics("demo.gif", GraphicsFormat.Gif);   // ConsoleMonster.Graphics
 ```
 
-`LiveSessionOptions.RecordPath` still records dashboard updates for replay into the same dashboard definition
+`LiveSessionOptions.RecordingPath` still records dashboard updates for replay into the same dashboard definition
 (`Show-ConsoleReplay`); it cannot hold an app's composed screen.
 
 Screens captured with `ScreenCapture` (scripted prompts, menus and apps) export as animations too:

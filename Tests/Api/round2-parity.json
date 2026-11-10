@@ -29225,7 +29225,7 @@
       "Member": "Interactive",
       "CSharpTypeName": "ConsoleMonster.Interactive.InteractiveOptions",
       "Reason": "Native replay hosts may inject interactive devices, labels and targets. Show-ConsoleReplay builds host-aware PSInteractive options and supplies the owning host line console when needed.",
-      "Alternative": "Use Show-ConsoleReplay -PlaybackMode/-Paused and the normal host; native ReplayOptions.Interactive supports custom devices.",
+      "Alternative": "Use Show-ConsoleReplay -PlaybackMode/-AutoPlay and the normal host; native ReplayOptions.Interactive supports custom devices.",
       "Disposition": "CSharpOnly"
     },
     {

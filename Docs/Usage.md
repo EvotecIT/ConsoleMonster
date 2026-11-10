@@ -62,7 +62,7 @@ New-ConsoleColumns -Content {
 } | Show-Console
 
 # Hierarchical objects become a tree; -Depth, -MaxItems and -MaxNodes keep it bounded.
-Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 2 | Show-Console
+Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -MaxDepth 2 | Show-Console
 ```
 
 Where cmdlet output goes:
@@ -249,7 +249,7 @@ Get-ChildItem -File | Show-ConsoleTable -GroupBy Extension -ShowTotals -MaxRows 
     @{ Name = 'LastWriteTime'; Header = 'Changed'; Presenter = 'DateRelative'; Priority = 5 }
     @{ Name = 'FullName'; Header = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1 }
 )
-Get-Item . | Show-Console -View Tree -Depth 2
+Get-Item . | Show-Console -View Tree -MaxDepth 2
 ```
 
 `Module/Examples/Example-Tables.ps1 -Width 80` and `ConsoleMonster.Examples tables 80` show DNS records, mail-security
@@ -500,10 +500,10 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
 
 ```powershell
 $form = New-ConsoleForm 'Install agent' -Command 'Install-Agent' -Content {
-    New-ConsoleField Path 'Install folder' -Type Path -Kind Folder -Default 'C:\Program Files\Agent' -Page Location -ParameterName Path
-    New-ConsoleField Region 'Region' -Type Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
-    New-ConsoleField Server 'Server' -Type Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -ParameterName Server
-    New-ConsoleField Proxy 'Use a proxy' -Type Toggle -Page Connection -ParameterName UseProxy
+    New-ConsoleField Path 'Install folder' -Kind Path -PathKind Folder -Default 'C:\Program Files\Agent' -Page Location -ParameterName Path
+    New-ConsoleField Region 'Region' -Kind Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
+    New-ConsoleField Server 'Server' -Kind Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -ParameterName Server
+    New-ConsoleField Proxy 'Use a proxy' -Kind Toggle -Page Connection -ParameterName UseProxy
     New-ConsoleField ProxyAddress 'Proxy address' -VisibleWhen { $Values.Proxy } -Page Connection -ParameterName Proxy
 }
 $answers = Read-ConsoleForm $form -AppName 'Agent setup' -RememberLastChoices
@@ -524,7 +524,7 @@ A live session can draw inline instead of on the alternate screen: an area as ta
 cursor, output and log lines scroll above it, and the final state stays in the scrollback.
 
 ```powershell
-Invoke-ConsoleDashboard $dashboard -Inline { ... }          # -Transient leaves nothing behind
+Invoke-ConsoleDashboard $dashboard -Inline { ... }          # -PrintFinalState:$false leaves nothing behind
 Use-ConsoleProgress { foreach ($i in 1..50) { Write-Progress -Activity 'Copying' -PercentComplete ($i * 2) } }
 ```
 
@@ -693,7 +693,7 @@ Highlighters.Register(new RegexHighlighter("ini2").Rule(@"^\s*;.*$", HighlightRo
 
 ```powershell
 $reason = Read-ConsoleText 'Change reason' -Multiline -MaxLines 10
-New-ConsoleField Reason 'Change reason' -Type Text -Multiline -MaxLines 10
+New-ConsoleField Reason 'Change reason' -Kind Text -Multiline -MaxLines 10
 ```
 
 `TextAreaPrompt` and `TextAreaField` take notes and change reasons: soft wrap, Enter for a new line, Ctrl+Enter (or
@@ -773,7 +773,7 @@ Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title Services
 For a hotkey, custom prompt, arguments or module imports, create one command:
 
 ```powershell
-$restart = New-ConsoleCommand -Key Restart -Label Restart -Hotkey F5 `
+$restart = New-ConsoleCommand -Key Restart -Label Restart -Shortcut F5 `
     -ConfirmPrompt 'Restart selected services?' -ImportModule Microsoft.PowerShell.Management `
     -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
 Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Command $restart
@@ -818,13 +818,13 @@ same action path. It never restarts a local service.
 ## Comparing objects and previewing changes
 
 ```powershell
-Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName -Ignore 'Last*'
-if (Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') {
+Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Key SamAccountName -Ignore 'Last*'
+if (Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $members -DifferenceObject $planned -Key SamAccountName -Title 'Domain Admins') {
     Set-GroupMembers $planned
 }
 ```
 
-`Compare-ConsoleObject` follows Compare-Object (`-ReferenceObject`, `-DifferenceObject`, `-Property` as the matching
+`Compare-ConsoleObject` follows Compare-Object (`-ReferenceObject`, `-DifferenceObject`, `-Key` as the matching
 key) and shows what was added, removed and changed, property by property, with nested objects by path
 (`Address.City`): added in the pass tone, removed in the fail tone, changed in the warn tone, long and multi-line values
 as line diffs. An added or removed object lists its compared properties one per line, up to six lines, then "+N more"
@@ -834,7 +834,7 @@ as line diffs. An added or removed object lists its compared properties one per 
 
 Keys and string values use ordinal case-insensitive comparison by default. `-CaseSensitive` applies to both.
 Case-only differences stay visible in every view and in `ObjectChange.Properties` with `IsCaseOnly = true`;
-the object remains `Unchanged` unless another property differs. They are listed even without `-IncludeEqual`,
+the object remains `Unchanged` unless another property differs. They are listed even without `-IncludeUnchanged`,
 and the summary reports their count separately. In C#, use `DiffOptions.CaseSensitive` and `ChangeSet.CaseOnly`.
 `PropertyChange.HasBefore` and `HasAfter` distinguish missing properties from present null or empty values.
 Missing values render as `(missing)` using the current language's `WidgetLabels.ChangesMissing` label.
@@ -850,19 +850,19 @@ $controllers = @(
     [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $false; DnsEnabled = $true; Security = @{ Signing = 'Negotiate' } }
     [pscustomobject]@{ Name = 'dc04'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $true; Security = @{ Signing = 'Required' } }
 )
-$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc01 -Ignore Name -Title 'Domain controller drift'
+$controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc01 -Ignore Name -Title 'Domain controller drift'
 ```
 
 The matrix has one row per property path and one column per input object. The first object is the reference by
 default; `-Baseline dc02` selects a name and `-Baseline 1` selects the second column. Numeric strings are names,
 and duplicate names require an integer index. Names follow `-CaseSensitive`. `-Name First,Second,Third,Fourth`
-supplies explicit headings; otherwise `-NameProperty`, `-Property`, or the usual key discovery supplies them.
+supplies explicit headings; otherwise `-Key`, `-Property`, or the usual key discovery supplies them.
 `-Ignore Name` omits the identifier from the compared rows while retaining it in the headings.
-Equal rows are hidden unless `-IncludeEqual` is set. Changed cells use the warning tone, properties absent on
+Equal rows are hidden unless `-IncludeUnchanged` is set. Changed cells use the warning tone, properties absent on
 the reference use the added tone, and missing cells use the removed tone. The status says `same`, `differs`,
 `case only`, or `missing on N`; a row that differs and has missing values reports both. Status words use their
 matching tones, while the reference column uses accent and bold emphasis. The footer counts the property rows
-shown and matching rows hidden by default, with `-IncludeEqual` as the hint to show them. In C#,
+shown and matching rows hidden by default, with `-IncludeUnchanged` as the hint to show them. In C#,
 `BaselineComparison.HiddenMatchingCount` provides the hidden count. Narrow widths use the standard table
 wrapping and record-card fallback.
 `-PassThru` returns `BaselineRow` records with `Path`, ordered `Cells`, `MissingCount`, `HasDifferences`, and
@@ -900,7 +900,7 @@ $normalizers = @{
     ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' }
     'Metadata.CheckedAt' = { $null }
 }
-Compare-ConsoleObject $before $after -Property Name -Normalize $normalizers
+Compare-ConsoleObject $before $after -Key Name -Normalize $normalizers
 $controllers | Compare-ConsoleObject -View Baseline -Normalize $normalizers -Ignore Name
 ```
 
@@ -930,7 +930,7 @@ honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or
 ```powershell
 Invoke-ConsoleDashboard $dashboard -AutoRecord 10 { ... }           # keep the last ten runs
 Show-ConsoleReplay $dashboard                                       # rewind the newest one
-Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
+Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -AutoPlay:$false
 $ConsoleSession.Mark('Wave 2')                                    # a marker while recording
 ```
 

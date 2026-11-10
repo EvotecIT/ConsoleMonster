@@ -16,6 +16,27 @@ Describe 'PowerShell and C# API parity' {
         }
     }
 
+    It 'extracts base command parameters and static splats for validation' {
+        . (Join-Path $PSScriptRoot 'Support/Get-ConsoleDocumentationUsage.ps1')
+        $source = @'
+Show-Console -Depth 4
+$options = @{ MaxStackFrames = 3 }
+Show-Console @options
+Update-Console -MissingParameter value
+'@
+        $usage = @(Get-ConsoleDocumentationUsage 'sample.ps1' $source)
+        $usage.Count | Should -Be 3
+        $usage[0].Command | Should -Be 'Show-Console'
+        $usage[0].Parameters | Should -Contain 'Depth'
+        $usage[1].Parameters | Should -Contain 'MaxStackFrames'
+        $usage[2].Command | Should -Be 'Update-Console'
+        $usage[2].Parameters | Should -Contain 'MissingParameter'
+        $hosted = @(Get-ConsoleDocumentationUsage 'host.cs' 'InvokeScript(@"Use-ConsoleProgress -Keep { Write-Progress -Activity Work }");')
+        $hosted.Count | Should -Be 1
+        $hosted[0].Command | Should -Be 'Use-ConsoleProgress'
+        $hosted[0].Parameters | Should -Contain 'Keep'
+    }
+
     It 'uses real cmdlet parameters in website documentation and examples' {
         . (Join-Path $PSScriptRoot 'Support/Get-ConsoleDocumentationUsage.ps1')
         $repository = Join-Path $PSScriptRoot '../..'
@@ -24,7 +45,7 @@ Describe 'PowerShell and C# API parity' {
         $files = @(
             Get-ChildItem (Join-Path $repository 'Website/content') -Recurse -Filter *.md
             Get-ChildItem (Join-Path $repository 'Website/examples') -Recurse -File |
-                Where-Object { $_.Extension -in '.ps1', '.md' } |
+                Where-Object { $_.Extension -in '.ps1', '.md', '.cs' } |
                 Where-Object { $_.FullName -notmatch '[/\\](bin|obj)[/\\]' }
         )
         $invalid = @(foreach ($file in $files) {

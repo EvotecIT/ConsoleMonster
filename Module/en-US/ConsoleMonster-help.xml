@@ -32932,7 +32932,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>Int32</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>0</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>MinimumWidth</maml:name>
@@ -32944,7 +32944,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>Int32</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>0</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Mode</maml:name>
@@ -32975,7 +32975,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>$false</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>PassThru</maml:name>
@@ -32987,7 +32987,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>$false</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Profile</maml:name>
@@ -33011,7 +33011,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>$false</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>ReflowBelow</maml:name>
@@ -33023,7 +33023,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>Int32</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>60</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>SelectionKey</maml:name>
@@ -33047,7 +33047,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
+          <dev:defaultValue>$false</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>Status</maml:name>
@@ -33253,7 +33253,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>Int32</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>0</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>MinimumWidth</maml:name>
@@ -33265,7 +33265,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>Int32</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>0</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Mode</maml:name>
@@ -33296,7 +33296,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>$false</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>PassThru</maml:name>
@@ -33308,7 +33308,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>$false</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Profile</maml:name>
@@ -33332,7 +33332,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>$false</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>ReflowBelow</maml:name>
@@ -33344,7 +33344,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>Int32</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>60</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>SelectionKey</maml:name>
@@ -33368,7 +33368,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           <maml:name>SwitchParameter</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
+        <dev:defaultValue>$false</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>Status</maml:name>
@@ -36107,7 +36107,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>BudgetSeconds</maml:name>
           <maml:description>
-            <maml:para>The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</maml:para>
+            <maml:para>The caller's collection budget in seconds, from 0.001 to 0.9; default 0.75. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -36158,7 +36158,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>BudgetSeconds</maml:name>
           <maml:description>
-            <maml:para>The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</maml:para>
+            <maml:para>The caller's collection budget in seconds, from 0.001 to 0.9; default 0.75. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
           <dev:type>
@@ -36209,7 +36209,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>BudgetSeconds</maml:name>
         <maml:description>
-          <maml:para>The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</maml:para>
+          <maml:para>The caller's collection budget in seconds, from 0.001 to 0.9; default 0.75. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">Double</command:parameterValue>
         <dev:type>
@@ -36617,7 +36617,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
           <maml:name>AutoPlay</maml:name>
           <maml:description>
-            <maml:para>Opens paused at the start.</maml:para>
+            <maml:para>Starts playback immediately; use -AutoPlay:$false to open paused.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -36744,7 +36744,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="None">
         <maml:name>AutoPlay</maml:name>
         <maml:description>
-          <maml:para>Opens paused at the start.</maml:para>
+          <maml:para>Starts playback immediately; use -AutoPlay:$false to open paused.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -36893,7 +36893,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <maml:title>EXAMPLE 2</maml:title>
         <dev:code># Requires build.jsonl recorded with this dashboard definition.
             $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-            Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay</dev:code>
+            Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay:$false</dev:code>
         <dev:remarks>
           <maml:para>Start an existing recording inline and paused</maml:para>
         </dev:remarks>

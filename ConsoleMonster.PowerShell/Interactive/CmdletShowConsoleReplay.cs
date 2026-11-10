@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Start an existing recording inline and paused</para>
     /// <code># Requires build.jsonl recorded with this dashboard definition.
     /// $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay</code>
+    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay:$false</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleReplay", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolereplay/")]
     public sealed partial class CmdletShowConsoleReplay : NoPipelineInputCmdlet {
@@ -51,7 +51,7 @@ namespace ConsoleMonster.PowerShell {
         [PSDefaultValue(Help = "$false")]
         public SwitchParameter Inline { get; set; }
 
-        /// <summary><para type="description">Opens paused at the start.</para></summary>
+        /// <summary><para type="description">Starts playback immediately; use -AutoPlay:$false to open paused.</para></summary>
         [Parameter]
         [PSDefaultValue(Help = "$true")]
         public SwitchParameter AutoPlay { get; set; } = new SwitchParameter(true);

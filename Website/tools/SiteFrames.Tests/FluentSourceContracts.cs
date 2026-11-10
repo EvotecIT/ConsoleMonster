@@ -288,6 +288,26 @@ namespace SiteFrames.Tests {
             Assert.Equal(original, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
         }
 
+        [Theory]
+        [InlineData("LayoutSize.Fraction()", "1:0")]
+        [InlineData("LayoutSize.Fraction(2, min: 12)", "2:12")]
+        [InlineData("LayoutSize.Fraction(min: 12)", "1:12")]
+        public void SizedTranslationPreservesOptionalWeightAndMinimum(string size, string expected) {
+            string path = Source($$"""
+                using ConsoleMonster;
+                using ConsoleMonster.Layout;
+                using ConsoleMonster.Widgets;
+                var sized = new Sized(new TextBlock("Build"), {{size}});
+                Terminal.Write(new TextBlock($"{sized.LayoutSize.Value}:{sized.LayoutSize.Min}"));
+                """);
+            string fluent = CSharpRunner.FluentSource(path);
+            CSharpRunner.Check(path, fluent);
+            var profile = CSharpRunner.Profile(30, 10, ColorDepth.None, GlyphTier.Ascii);
+            string original = CSharpRunner.Execute(path, profile, Theme.Dark, null).Output;
+            Assert.Contains(expected, original, StringComparison.Ordinal);
+            Assert.Equal(original, CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
+        }
+
         [Fact]
         public void WidgetProgramsHaveCompilableFluentTabs() {
             string website = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../.."));

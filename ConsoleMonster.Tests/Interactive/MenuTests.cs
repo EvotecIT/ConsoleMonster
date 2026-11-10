@@ -17,6 +17,28 @@ namespace ConsoleMonster.Tests.Interactive
     /// </summary>
     public sealed class MenuTests
     {
+        [Fact]
+        public void SnapshotRendersMenuMarkupAndEscapesLiteralItemText() {
+            var menu = new Menu("Tools") { Description = "[bold]Choose a task[/]" };
+            menu.Item("Build [local]", item => {
+                item.Description = "Check [all] projects";
+                item.Badge = () => RichText.FromMarkup("[green]Ready[/]");
+            });
+            var capture = new ScreenCapture(80, 20);
+            menu.Run(new MenuOptions { Interactive = new InteractiveOptions {
+                Mode = InteractionMode.Snapshot, Capture = capture,
+                Profile = TerminalProfile.Fixed(80, 20), Theme = Theme.Dark
+            } });
+            string text = capture.LastFrame!.ToPlainText();
+            Assert.Contains("Choose a task", text);
+            Assert.Contains("Build [local]", text);
+            Assert.Contains("Ready", text);
+            Assert.Contains("Check [all] projects", text);
+            Assert.DoesNotContain("[muted]", text);
+            Assert.DoesNotContain("[bold]", text);
+            Assert.DoesNotContain("[green]", text);
+        }
+
         internal static Menu Toolbox(List<string> log)
         {
             Menu menu = new Menu("Toolbox")

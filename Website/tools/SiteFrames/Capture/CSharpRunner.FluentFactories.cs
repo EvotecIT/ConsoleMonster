@@ -34,6 +34,8 @@ namespace SiteFrames.Capture {
                     && model.GetSymbolInfo(size).Symbol is IMethodSymbol sizing
                     && sizing.ContainingType.ToDisplayString() == "ConsoleMonster.Layout.LayoutSize"
                     && sizing.Name is "Fixed" or "Fraction"
+                    && size.ArgumentList.Arguments.Count == 1
+                    && (size.ArgumentList.Arguments[0].NameColon == null || size.ArgumentList.Arguments[0].NameColon!.Name.Identifier.ValueText == sizing.Parameters[0].Name)
                     && visited.ArgumentList!.Arguments[1].Expression is InvocationExpressionSyntax rewrittenSize) {
                     ExpressionSyntax widget = visited.ArgumentList.Arguments[0].Expression;
                     if (widget is ConditionalExpressionSyntax or BinaryExpressionSyntax or AssignmentExpressionSyntax) { widget = SyntaxFactory.ParenthesizedExpression(widget); }
