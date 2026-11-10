@@ -11,6 +11,16 @@ using Xunit;
 namespace ConsoleMonster.Tests.Live {
     [Collection("Live sessions")]
     public sealed class LogRegionMarkupTests {
+        // Capacity bounds the number of entries; one runaway line (a minified file, a dumped object) must not hold
+        // megabytes in every retained entry.
+        [Fact]
+        public void LiteralEntries_KeepAtMostMaxLineLengthCharacters() {
+            LogRegion log = new LogRegion();
+            log.Write(new string('x', LogRegion.MaxLineLength * 4) + "\nshort");
+            Assert.Equal(new[] { LogRegion.MaxLineLength, 5 }, log.Entries.Select(e => e.Text.Length));
+            Assert.EndsWith("\u2026", log.Entries.First().Text);
+            Assert.Equal("short", log.Entries.Last().Text);
+        }
         [Theory]
         [InlineData("\n")]
         [InlineData("\r\n")]

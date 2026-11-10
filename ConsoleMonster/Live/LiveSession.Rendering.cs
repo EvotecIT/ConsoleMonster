@@ -62,7 +62,7 @@ namespace ConsoleMonster.Live {
 
         private void Drain(int maximum, double budgetMilliseconds = double.MaxValue) {
             Stopwatch budget = Stopwatch.StartNew();
-            for (int i = 0; i < maximum && _queue.TryDequeue(out LiveEvent? liveEvent); i++) {
+            for (int i = 0; i < maximum && TryDequeue(out LiveEvent liveEvent); i++) {
                 ApplyOne(liveEvent);
                 if ((i & 255) == 255 && budget.Elapsed.TotalMilliseconds > budgetMilliseconds) {
                     break;

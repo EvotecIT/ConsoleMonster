@@ -112,8 +112,21 @@ namespace ConsoleMonster.Widgets {
 
         internal void WriteLiteral(string text, string level, TimeSpan time, DateTimeOffset? timestamp, string? tag) {
             foreach (string line in (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
-                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    "), timestamp, tag));
+                Append(new LogEntry(time, Level(level ?? "info"), Limit(line.Replace("\t", "    ")), timestamp, tag));
             }
+        }
+
+        /// <summary>
+        /// The most characters a literal entry keeps (16,384). A longer line ends with an ellipsis: no row can show it, and
+        /// <see cref="Capacity"/> bounds the number of entries, not their size.
+        /// </summary>
+        public const int MaxLineLength = 16384;
+
+        private static string Limit(string line) {
+            if (line.Length <= MaxLineLength) { return line; }
+            int keep = MaxLineLength - 1;
+            if (char.IsHighSurrogate(line[keep - 1])) { keep--; }
+            return line.Substring(0, keep) + "\u2026";
         }
 
         /// <summary>Appends rich text as separate lines, preserving styles across line breaks. Malformed markup is literal.</summary>

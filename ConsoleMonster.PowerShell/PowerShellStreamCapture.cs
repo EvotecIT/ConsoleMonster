@@ -8,6 +8,9 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// Routes the Information (including Write-Host), Warning, Verbose, Debug and Error streams of a PowerShell instance
     /// the module owns into a live session's log target, so script output never writes at a random cursor position.
+    /// With <c>releaseDelivered</c> (dashboards, whose scripts can run for hours) the Information, Warning, Verbose, Debug
+    /// and Progress records are removed from the instance once they reach the log, so those collections stay small; the
+    /// Error stream is kept for the caller.
     /// </summary>
     internal sealed class PowerShellStreamCapture : IDisposable {
         private readonly System.Management.Automation.PowerShell _shell;
@@ -15,32 +18,61 @@ namespace ConsoleMonster.PowerShell {
         private readonly string? _prefix;
         private readonly PSDataCollection<PSObject>? _merged;
         private readonly ConcurrentDictionary<int, int>? _progressIds;
+        private readonly bool _release;
         private static int _nextProgressId = -1;
 
         public PowerShellStreamCapture(System.Management.Automation.PowerShell shell, ILiveDispatcher session, string? prefix = null,
-            PSDataCollection<PSObject>? merged = null, bool isolateProgress = false) {
+            PSDataCollection<PSObject>? merged = null, bool isolateProgress = false, bool releaseDelivered = false) {
             _shell = shell;
             _session = session;
             _prefix = prefix;
             _merged = merged;
+            _release = releaseDelivered;
             _progressIds = isolateProgress ? new ConcurrentDictionary<int, int>() : null;
             if (_merged != null) { _merged.DataAdded += OnMerged; }
-            shell.Streams.Information.DataAdded += OnInformation;
-            shell.Streams.Warning.DataAdded += OnWarning;
-            shell.Streams.Verbose.DataAdded += OnVerbose;
-            shell.Streams.Debug.DataAdded += OnDebug;
+            if (_release) {
+                // Delivered from the record itself (no index), so emptying the collection afterwards cannot shift a read.
+                shell.Streams.Information.DataAdding += OnInformationAdding;
+                shell.Streams.Warning.DataAdding += OnWarningAdding;
+                shell.Streams.Verbose.DataAdding += OnVerboseAdding;
+                shell.Streams.Debug.DataAdding += OnDebugAdding;
+                shell.Streams.Progress.DataAdding += OnProgressAdding;
+                shell.Streams.Information.DataAdded += Release;
+                shell.Streams.Warning.DataAdded += Release;
+                shell.Streams.Verbose.DataAdded += Release;
+                shell.Streams.Debug.DataAdded += Release;
+                shell.Streams.Progress.DataAdded += Release;
+            } else {
+                shell.Streams.Information.DataAdded += OnInformation;
+                shell.Streams.Warning.DataAdded += OnWarning;
+                shell.Streams.Verbose.DataAdded += OnVerbose;
+                shell.Streams.Debug.DataAdded += OnDebug;
+                shell.Streams.Progress.DataAdded += OnProgress;
+            }
             shell.Streams.Error.DataAdded += OnError;
-            shell.Streams.Progress.DataAdded += OnProgress;
         }
 
         public void Dispose() {
             if (_merged != null) { _merged.DataAdded -= OnMerged; }
-            _shell.Streams.Information.DataAdded -= OnInformation;
-            _shell.Streams.Warning.DataAdded -= OnWarning;
-            _shell.Streams.Verbose.DataAdded -= OnVerbose;
-            _shell.Streams.Debug.DataAdded -= OnDebug;
+            if (_release) {
+                _shell.Streams.Information.DataAdding -= OnInformationAdding;
+                _shell.Streams.Warning.DataAdding -= OnWarningAdding;
+                _shell.Streams.Verbose.DataAdding -= OnVerboseAdding;
+                _shell.Streams.Debug.DataAdding -= OnDebugAdding;
+                _shell.Streams.Progress.DataAdding -= OnProgressAdding;
+                _shell.Streams.Information.DataAdded -= Release;
+                _shell.Streams.Warning.DataAdded -= Release;
+                _shell.Streams.Verbose.DataAdded -= Release;
+                _shell.Streams.Debug.DataAdded -= Release;
+                _shell.Streams.Progress.DataAdded -= Release;
+            } else {
+                _shell.Streams.Information.DataAdded -= OnInformation;
+                _shell.Streams.Warning.DataAdded -= OnWarning;
+                _shell.Streams.Verbose.DataAdded -= OnVerbose;
+                _shell.Streams.Debug.DataAdded -= OnDebug;
+                _shell.Streams.Progress.DataAdded -= OnProgress;
+            }
             _shell.Streams.Error.DataAdded -= OnError;
-            _shell.Streams.Progress.DataAdded -= OnProgress;
             if (_progressIds != null) {
                 // PowerShell clears a pipeline's progress when it ends, even if the script did not send -Completed.
                 foreach (int id in _progressIds.Values) {
@@ -51,8 +83,13 @@ namespace ConsoleMonster.PowerShell {
 
         // Write-Progress becomes an activity in the session's activity list (added by Invoke-ConsoleDashboard when the
         // dashboard has none), nested by ParentActivityId.
-        private void OnProgress(object? sender, DataAddedEventArgs e) {
-            ProgressRecord record = _shell.Streams.Progress[e.Index];
+        private void OnProgress(object? sender, DataAddedEventArgs e) => Progress(_shell.Streams.Progress[e.Index]);
+
+        private void OnProgressAdding(object? sender, DataAddingEventArgs e) {
+            if (e.ItemAdded is ProgressRecord record) { Progress(record); }
+        }
+
+        private void Progress(ProgressRecord record) {
             _session.Post(ProgressEvents.From(ProgressId(record.ActivityId), record.ParentActivityId < 0 ? -1 : ProgressId(record.ParentActivityId), record.Activity, record.StatusDescription, record.PercentComplete, record.SecondsRemaining, record.RecordType == ProgressRecordType.Completed));
         }
 
@@ -84,6 +121,26 @@ namespace ConsoleMonster.PowerShell {
             }
             string text = record.MessageData is HostInformationMessage plain ? plain.Message : PSWidgets.ToText(record.MessageData);
             Write(text, host ? "host" : "info");
+        }
+
+        private void OnInformationAdding(object? sender, DataAddingEventArgs e) {
+            if (e.ItemAdded is InformationRecord record) { CaptureInformation(record); }
+        }
+
+        private void OnWarningAdding(object? sender, DataAddingEventArgs e) {
+            if (e.ItemAdded is WarningRecord record) { Write(record.Message, "warn"); }
+        }
+
+        private void OnVerboseAdding(object? sender, DataAddingEventArgs e) {
+            if (e.ItemAdded is VerboseRecord record) { Write(record.Message, "verbose"); }
+        }
+
+        private void OnDebugAdding(object? sender, DataAddingEventArgs e) {
+            if (e.ItemAdded is DebugRecord record) { Write(record.Message, "debug"); }
+        }
+
+        private static void Release(object? sender, DataAddedEventArgs e) {
+            if (sender is System.Collections.IList delivered) { delivered.Clear(); }
         }
 
         private void OnWarning(object? sender, DataAddedEventArgs e) => Write(_shell.Streams.Warning[e.Index].Message, "warn");
