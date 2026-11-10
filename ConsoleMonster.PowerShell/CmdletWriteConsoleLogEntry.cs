@@ -2,10 +2,8 @@ using System.Management.Automation;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Writes a line to the log region of a running dashboard.</para>
-    /// <para type="description">-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.</para>
-    /// </summary>
+    /// <summary>Writes a line to the log region of a running dashboard.</summary>
+    /// <remarks><para>-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.</para></remarks>
     /// <example>
     ///   <para>Log a warning</para>
     ///   <code>$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }
@@ -21,21 +19,23 @@ namespace ConsoleMonster.PowerShell {
     ///     Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Write, "ConsoleLogEntry")]
+    [Cmdlet(VerbsCommunications.Write, "ConsoleLogEntry", HelpUri = "https://consolemonster.dev/powershell/commands/write-consolelogentry/")]
     public sealed class CmdletWriteConsoleLogEntry : LiveCmdlet {
-        /// <summary><para type="description">The message.</para></summary>
+        /// <summary><para type="description">The literal or rich text appended to the selected dashboard log region.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true)]
         [AllowEmptyString]
-        public object Message { get; set; } = string.Empty;
+        public object Text { get; set; } = string.Empty;
 
         /// <summary><para type="description">The level: info, warn, err, verbose, debug, pass or skip. PowerShell's words work too: Information, Warning, Error, Verbose, Debug, Success, Skipped (and the status words of Show-ConsoleStatusLine).</para></summary>
         [Parameter]
         [Binding.LogLevelTransformation]
         [ArgumentCompleter(typeof(Binding.LogLevelCompleter))]
+        [PSDefaultValue(Help = "info")]
         public string Level { get; set; } = "info";
 
         /// <summary><para type="description">The log name; defaults to the dashboard's log region. In a running app, the key of a log viewport.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$log")]
         public string WidgetId { get; set; } = "$log";
 
         /// <summary><para type="description">The source of the line (a job, server or component), shown in its own column with a colour that stays the same for that source, and matched by New-ConsoleLogRegion -Tag.</para></summary>
@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
-            string? text = PSText.EventText(Message, out bool isMarkup);
+            string? text = PSText.EventText(Text, out bool isMarkup);
             if (!string.IsNullOrEmpty(Highlight) && !isMarkup && text != null) {
                 Highlighting.ITextHighlighter highlighter = Highlighting.Highlighters.Get(Highlight) ?? throw new PSArgumentException("Unknown highlight language '" + Highlight + "'. Use Smart or one of: " + string.Join(", ", Highlighting.Highlighters.Names) + ".");
                 text = Highlighting.HighlightStyles.ToMarkup(text, highlighter);

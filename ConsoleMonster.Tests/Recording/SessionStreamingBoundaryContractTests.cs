@@ -30,18 +30,18 @@ namespace ConsoleMonster.Tests.Sessions {
         [MemberData(nameof(TerminalStringReads))]
         public void NewlinesInsideTerminalStringsKeepTheVisibleSecretPending(string start, string end, string newline, int readSize) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-boundary-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
+            SessionRecordingOptions options = new SessionRecordingOptions { RecordingPath = Path.Combine(folder, "session.cast"), InProcess = true };
             options.Redact.Add("synthetic-secret");
             try {
                 using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                     AppendReads(writer, "prefix synthe" + start + "metadata" + newline, readSize);
-                    using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (FileStream input = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
                         Assert.DoesNotContain("synthe", reader.ReadToEnd());
                     }
                     AppendReads(writer, "metadata" + end + "tic-secret safe" + newline, readSize);
                 }
-                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                string output = string.Concat(File.ReadAllLines(options.RecordingPath!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
                 Assert.Equal("prefix [REDACTED]" + start + "metadata" + newline + "metadata" + end + " safe" + newline, output);
@@ -57,19 +57,19 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\r\n", true)]
         public void NewlinesInsideCsiKeepTheVisibleSecretPending(string newline, bool builtIn) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-csi-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
+            SessionRecordingOptions options = new SessionRecordingOptions { RecordingPath = Path.Combine(folder, "session.cast"), InProcess = true };
             if (!builtIn) { options.Redact.Add("synthetic-secret"); }
             string control = "\u001b[31" + newline + "m";
             try {
                 using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                     AppendReads(writer, "prefix " + (builtIn ? "pass" : "synthe") + "\u001b[31" + newline, 1);
-                    using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (FileStream input = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
                         Assert.DoesNotContain(builtIn ? "pass" : "synthe", reader.ReadToEnd());
                     }
                     AppendReads(writer, "m" + (builtIn ? "word=private" : "tic-secret") + newline, 1);
                 }
-                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                string output = string.Concat(File.ReadAllLines(options.RecordingPath!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
                 Assert.Equal("prefix [REDACTED]" + control + newline, output);
@@ -117,17 +117,17 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\u001b#", true)]
         public void EscapesInsideControlBodiesFollowReplayWithoutReleasingSecrets(string control, bool builtIn) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-escape-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
+            SessionRecordingOptions options = new SessionRecordingOptions { RecordingPath = Path.Combine(folder, "session.cast"), InProcess = true };
             if (!builtIn) { options.Redact.Add("synthetic-secret"); }
             try {
                 using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                     AppendReads(writer, "prefix " + (builtIn ? "pass" : "synthe") + control + (builtIn ? "word=private" : "tic-secret") + "\n", 1);
                 }
-                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                string output = string.Concat(File.ReadAllLines(options.RecordingPath!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
                 Assert.Equal("prefix [REDACTED]" + control + "\n", output);
-                string replay = ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame());
+                string replay = ConsoleExporter.ToText(SessionRecording.Read(options.RecordingPath!).FinalFrame());
                 Assert.DoesNotContain(builtIn ? "private" : "synthetic-secret", replay);
             } finally {
                 if (Directory.Exists(folder)) { Directory.Delete(folder, true); }
@@ -143,14 +143,14 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\u001b[", "m", '3', "\r\n")]
         public void OversizedControlsRemainSuppressedUntilAVisibleLineBreak(string start, string end, char body, string newline) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-suppression-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
+            SessionRecordingOptions options = new SessionRecordingOptions { RecordingPath = Path.Combine(folder, "session.cast"), InProcess = true };
             options.Redact.Add("synthetic-secret");
             try {
                 using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                     AppendReads(writer, "synthe" + start + new string(body, SessionCastWriter.MaximumPendingCharacters), 8191);
                     writer.Append(newline + end + "tic-secret" + newline + "Recovered" + newline);
                 }
-                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                string output = string.Concat(File.ReadAllLines(options.RecordingPath!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
                 const string omitted = "[REDACTED: unfinished secret or terminal control exceeds 1,048,576 characters; output omitted through next line break]\r\n";
@@ -166,7 +166,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void OscBellAfterEscapeKeepsSafeOutputAndRecovery(string newline) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-osc-bell-contract-" + Guid.NewGuid().ToString("N"));
             SessionRecordingOptions options = new SessionRecordingOptions {
-                Path = Path.Combine(folder, "session.cast"), InProcess = true, MaxBytes = 8 * 1024 * 1024
+                RecordingPath = Path.Combine(folder, "session.cast"), InProcess = true, MaxBytes = 8 * 1024 * 1024
             };
             string control = "\u001b]0;title\u001b\a";
             string safe = new string('x', SessionCastWriter.MaximumPendingCharacters + 100);
@@ -175,7 +175,7 @@ namespace ConsoleMonster.Tests.Sessions {
                     AppendReads(writer, control + safe + newline + "Recovered" + newline, 8191);
                     Assert.False(writer.LimitReached);
                 }
-                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                string output = string.Concat(File.ReadAllLines(options.RecordingPath!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
                 Assert.Equal(control + safe + newline + "Recovered" + newline, output);
@@ -193,19 +193,19 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData('\u001a', 65536)]
         public void CancellationKeepsTheOpaqueStringProjection(char cancel, int readSize) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-opaque-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), InProcess = true };
+            SessionRecordingOptions options = new SessionRecordingOptions { RecordingPath = Path.Combine(folder, "session.cast"), InProcess = true };
             options.Redact.Add("synthetic-secret");
             string control = "\u001bPmeta" + cancel + "visible\u001b\u001b\\";
             try {
                 using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                     AppendReads(writer, "prefix synthe" + control, readSize);
-                    using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (FileStream input = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
                         Assert.DoesNotContain("synthe", reader.ReadToEnd());
                     }
                     AppendReads(writer, "tic-secret\u001b\\ safe\n", readSize);
                 }
-                string output = string.Concat(File.ReadAllLines(options.Path!).Skip(1)
+                string output = string.Concat(File.ReadAllLines(options.RecordingPath!).Skip(1)
                     .Select(line => (List<object?>)MiniJson.Read(line)!)
                     .Where(e => (string)e[1]! == "o").Select(e => (string)e[2]!));
                 Assert.Equal("prefix [REDACTED]" + control + "\u001b\\ safe\n", output);
@@ -219,7 +219,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData(1200)] // Crosses the streaming flush threshold before the recording ends.
         public void CursorPositionedFramesAfterAVisibleCredentialAreKept(int repaints) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-frame-contract-" + Guid.NewGuid().ToString("N"));
-            SessionRecordingOptions options = new SessionRecordingOptions { Path = Path.Combine(folder, "session.cast"), Width = 40, Height = 6, InProcess = true };
+            SessionRecordingOptions options = new SessionRecordingOptions { RecordingPath = Path.Combine(folder, "session.cast"), Width = 40, Height = 6, InProcess = true };
             try {
                 using (SessionRecorder recorder = SessionRecorder.Start(options)) {
                     // The value continues across a cursor-visibility toggle, as it does on screen;
@@ -230,19 +230,19 @@ namespace ConsoleMonster.Tests.Sessions {
                         recorder.CaptureOutput("\u001b[?2026h\u001b[2J\u001b[1;1HCommand palette\u001b[3;5HOpen file\u001b[?2026l");
                     }
                     if (repaints > 1) {
-                        using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (FileStream input = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) {
                             Assert.Contains("Open file", reader.ReadToEnd());
                         }
                     }
                 }
-                string cast = File.ReadAllText(options.Path!);
+                string cast = File.ReadAllText(options.RecordingPath!);
                 Assert.DoesNotContain("abc", cast);
                 Assert.DoesNotContain("xyz", cast);
                 Assert.DoesNotContain("hunter2", cast);
                 Assert.Contains("[deploy] [REDACTED]", cast);
                 Assert.Contains("Status bar", cast);
-                string screen = ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame());
+                string screen = ConsoleExporter.ToText(SessionRecording.Read(options.RecordingPath!).FinalFrame());
                 Assert.Contains("Command palette", screen);
                 Assert.Contains("Open file", screen);
             } finally {
@@ -262,7 +262,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void SameRowPositioningKeepsCredentialFragmentsPrivate(int scenario) {
             string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-positioned-secret-" + Guid.NewGuid().ToString("N"));
             SessionRecordingOptions options = new SessionRecordingOptions {
-                Path = Path.Combine(folder, "session.cast"), Width = scenario == 5 ? 20 : 40, Height = 6, InProcess = true
+                RecordingPath = Path.Combine(folder, "session.cast"), Width = scenario == 5 ? 20 : 40, Height = 6, InProcess = true
             };
             string movement = scenario switch {
                 1 => "\u001b[1;24f", 2 => "\u001b[1d", 3 => "\u001b[A", 4 => "\u001b[B",
@@ -274,10 +274,10 @@ namespace ConsoleMonster.Tests.Sessions {
                     recorder.CaptureOutput((scenario == 4 || scenario == 7 ? "\u001b[6;1H" : "\u001b[1;1H") + "password=syntheticStart");
                     if (scenario == 7) { recorder.Resize(40, 3); }
                     recorder.CaptureOutput(movement + "privateSuffix\u001b[2J\u001b[1;1HStatus bar" + new string('.', 70000));
-                    using (FileStream input = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (FileStream input = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     using (StreamReader reader = new StreamReader(input, Encoding.UTF8)) { AssertPrivate(reader.ReadToEnd()); }
                 }
-                AssertPrivate(File.ReadAllText(options.Path!));
+                AssertPrivate(File.ReadAllText(options.RecordingPath!));
             } finally { if (Directory.Exists(folder)) { Directory.Delete(folder, true); } }
 
             static void AssertPrivate(string cast) {

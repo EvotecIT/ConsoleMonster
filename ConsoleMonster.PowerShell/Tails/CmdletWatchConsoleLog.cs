@@ -7,10 +7,8 @@ using ConsoleMonster.Live.Tails;
 using ConsoleMonster.Output;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Follows a log file or a local Windows event log with a live, scrollable log view.</para>
-    /// <para type="description">File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows interactively until q, Escape or Ctrl+C and reads one snapshot without a user. Capacity bounds retained history. The default interval is 0.25 seconds.</para>
-    /// </summary>
+    /// <summary>Follows a log file or a local Windows event log with a live, scrollable log view.</summary>
+    /// <remarks><para>File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows interactively until q, Escape or Ctrl+C and reads one snapshot without a user. Capacity bounds retained history. The default interval is 0.25 seconds.</para></remarks>
     /// <example>
     /// <para>Inspect an existing log and highlight a component</para>
     /// <code># Requires an existing service.log file; reads two snapshots without changing the file.
@@ -25,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Follow only warnings and errors from the System event log</para>
     /// <code>Watch-ConsoleLog -LogName System -Level Warn</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Watch, "ConsoleLog", DefaultParameterSetName = "Path")]
+    [Cmdlet(VerbsCommon.Watch, "ConsoleLog", DefaultParameterSetName = "Path", HelpUri = "https://consolemonster.dev/powershell/commands/watch-consolelog/")]
     [OutputType(typeof(string))]
     public sealed class CmdletWatchConsoleLog : NoPipelineInputCmdlet {
         private readonly object _stopGate = new object();
@@ -46,21 +44,25 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">File encoding without a BOM, default utf8. A UTF-8, UTF-16 or UTF-32 BOM takes precedence. Uses the same encoding names as Write-ConsoleText.</para></summary>
         [Parameter(ParameterSetName = "Path")]
         [ValidateSet("unknown", "string", "unicode", "bigendianunicode", "utf8", "utf8BOM", "utf8NoBOM", "utf32", "ascii", "default", "oem", IgnoreCase = true)]
+        [PSDefaultValue(Help = "utf8")]
         public string Encoding { get; set; } = "utf8";
 
         /// <summary><para type="description">Completed history lines or events shown initially; zero starts with later entries.</para></summary>
         [Parameter]
         [ValidateRange(0, 100000)]
+        [PSDefaultValue(Help = "10")]
         public int Tail { get; set; } = 10;
 
         /// <summary><para type="description">Source polls before returning; zero follows interactively until cancelled, or reads one snapshot without a user.</para></summary>
         [Parameter]
         [ValidateRange(0L, long.MaxValue)]
+        [PSDefaultValue(Help = "0")]
         public long Count { get; set; }
 
         /// <summary><para type="description">Seconds between polls, from 0.05 to 86400; defaults to 0.25.</para></summary>
         [Parameter]
         [ValidateRange(0.05, 86400)]
+        [PSDefaultValue(Help = "0.25")]
         public double PollIntervalSeconds { get; set; } = 0.25;
 
         /// <summary><para type="description">Literal case-insensitive text required in a line. Null or empty accepts every line.</para></summary>
@@ -85,10 +87,12 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Maximum retained history lines, default 1000.</para></summary>
         [Parameter]
         [ValidateRange(1, 100000)]
+        [PSDefaultValue(Help = "1000")]
         public int Capacity { get; set; } = 1000;
 
         /// <summary><para type="description">Writes literal lines without a live screen or keyboard input.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoLive { get; set; }
 
         /// <inheritdoc />

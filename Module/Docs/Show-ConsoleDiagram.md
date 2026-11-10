@@ -8,10 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.
 
-Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.
-
-Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Errors in the selected diagram stop the command with the file line and diagnostic code. Errors in other visual fences and markup warnings are written as PowerShell warnings. -Path reads one file and cannot be combined with pipeline input; pipe connection rows without -Path.
-
 ## SYNTAX
 ### Rows (Default)
 ```powershell
@@ -24,8 +20,6 @@ Show-ConsoleDiagram [-Path] <string> [-Diagram <string>] [-Scenario <string>] [-
 ```
 
 ## DESCRIPTION
-Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.
-
 Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.
 
 Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Errors in the selected diagram stop the command with the file line and diagnostic code. Errors in other visual fences and markup warnings are written as PowerShell warnings. -Path reads one file and cannot be combined with pipeline input; pipe connection rows without -Path.
@@ -80,7 +74,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -96,7 +90,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -144,7 +138,7 @@ Possible values: Right, Down, Left, Up
 
 Required: False
 Position: named
-Default value: None
+Default value: Right
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -224,7 +218,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -240,7 +234,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 7
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -272,7 +266,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -320,7 +314,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -336,7 +330,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -352,7 +346,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -368,7 +362,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -384,7 +378,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -416,7 +410,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -464,7 +458,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: diagram
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -480,7 +474,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -499,4 +493,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consolediagram/](https://consolemonster.dev/powershell/commands/show-consolediagram/)

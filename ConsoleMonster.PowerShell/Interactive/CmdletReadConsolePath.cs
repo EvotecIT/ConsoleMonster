@@ -4,26 +4,32 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Asks for a file or folder path, with completion.</para>
-    /// <para type="description">Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).</para>
-    /// </summary>
+    /// <summary>Asks for a file or folder path, with completion.</summary>
+    /// <remarks><para>Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).</para></remarks>
     /// <example>
     ///   <para>An existing CSV file</para>
     ///   <code>$file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsolePath")]
+    /// <example>
+    /// <para>Select an existing inventory directory</para>
+    /// <code>$path = Read-ConsolePath -Title 'Inventory folder' -Default . -Kind Directory -MustExist
+    /// Write-ConsoleText "Inventory folder: $path"
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommunications.Read, "ConsolePath", HelpUri = "https://consolemonster.dev/powershell/commands/read-consolepath/")]
     [OutputType(typeof(string))]
     public sealed class CmdletReadConsolePath : NonSelectionPromptCmdlet {
         /// <summary><para type="description">What is accepted: Any, File or Folder.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Any")]
         public PathKind Kind { get; set; } = PathKind.Any;
 
         /// <summary><para type="description">Requires the path to exist.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter MustExist { get; set; }
 
-        /// <summary><para type="description">The default path.</para></summary>
+        /// <summary><para type="description">The path initially shown in the editor; pressing Enter accepts it.</para></summary>
         [Parameter]
         public string? Default { get; set; }
 
@@ -36,9 +42,11 @@ namespace ConsoleMonster.PowerShell {
         public string? BasePath { get; set; }
 
         /// <summary><para type="description">Includes hidden files and folders in completion suggestions.</para></summary>
-        [Parameter] public SwitchParameter ShowHidden { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ShowHidden { get; set; }
         /// <summary><para type="description">Maximum visible completion suggestions; default six.</para></summary>
-        [Parameter, ValidateRange(1, int.MaxValue)] public int Suggestions { get; set; } = 6;
+        [Parameter, ValidateRange(1, int.MaxValue)] [PSDefaultValue(Help = "6")]
+        public int Suggestions { get; set; } = 6;
 
         /// <inheritdoc />
         protected override void EndProcessing() {

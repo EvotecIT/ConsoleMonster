@@ -35,8 +35,8 @@ namespace ConsoleMonster.Changes {
             Rows rows = new Rows();
             string left = "[header]" + Markup.Escape(Comparison.ReferenceLabel) + "[/]";
             string right = "[header]" + Markup.Escape(Comparison.DifferenceLabel) + "[/]";
-            rows.Add(wide ? Pair(left, right) : new TextBlock(left + " -> " + right));
-            rows.Add(new TextBlock("[pass]+" + Number(Comparison.Added) + " added[/]  [fail]-" + Number(Comparison.Removed) + " removed[/]"));
+            rows.Add(wide ? Pair(left, right) : TextBlock.FromMarkup(left + " -> " + right));
+            rows.Add(TextBlock.FromMarkup("[pass]+" + Number(Comparison.Added) + " added[/]  [fail]-" + Number(Comparison.Removed) + " removed[/]"));
             int index = 0;
             foreach ((int Start, int End) range in Comparison.Ranges()) {
                 Collapse(rows, index, range.Start, context);
@@ -44,7 +44,7 @@ namespace ConsoleMonster.Changes {
                 while (index < range.End) {
                     TextDiffLine line = Comparison.Lines[index];
                     if (!wide || line.Kind == ChangeKind.Unchanged) {
-                        rows.Add(wide ? Pair(Cell(line, true), Cell(line, false)) : new TextBlock(Inline(line)));
+                        rows.Add(wide ? Pair(Cell(line, true), Cell(line, false)) : TextBlock.FromMarkup(Inline(line)));
                         index++;
                         continue;
                     }
@@ -61,7 +61,7 @@ namespace ConsoleMonster.Changes {
                 }
             }
             Collapse(rows, index, Comparison.Lines.Count, context);
-            if (Comparison.Lines.Count == 0) { rows.Add(new TextBlock("[muted]No changes[/]")); }
+            if (Comparison.Lines.Count == 0) { rows.Add(TextBlock.FromMarkup("[muted]No changes[/]")); }
             return rows;
         }
 
@@ -70,7 +70,7 @@ namespace ConsoleMonster.Changes {
             TextDiffLine first = Comparison.Lines[start];
             TextDiffLine last = Comparison.Lines[end - 1];
             string label = end - start == 1 ? " unchanged line (" : " unchanged lines (";
-            rows.Add(new TextBlock("[muted]" + context.Ellipsis + " " + Number(end - start) + label +
+            rows.Add(TextBlock.FromMarkup("[muted]" + context.Ellipsis + " " + Number(end - start) + label +
                 Number(first.ReferenceLineNumber) + "-" + Number(last.ReferenceLineNumber) + " / " +
                 Number(first.DifferenceLineNumber) + "-" + Number(last.DifferenceLineNumber) + ")[/]"));
         }
@@ -98,7 +98,7 @@ namespace ConsoleMonster.Changes {
         private static IWidget Pair(string left, string right) => new Columns {
             CollapseBelow = 0,
             Gap = 1
-        }.Add(new TextBlock(left)).Add(new TextBlock("[muted]|[/]"), LayoutSize.Fixed(1)).Add(new TextBlock(right));
+        }.Add(TextBlock.FromMarkup(left)).Add(TextBlock.FromMarkup("[muted]|[/]"), LayoutSize.Fixed(1)).Add(TextBlock.FromMarkup(right));
 
         private void HighlightReplacements() {
             int index = 0;

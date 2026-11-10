@@ -106,10 +106,10 @@ namespace ConsoleMonster.Changes {
             _labels = context.Labels;
             List<IWidget> parts = new List<IWidget>();
             if (!string.IsNullOrEmpty(Title)) {
-                parts.Add(new TextBlock("[title]" + Title + "[/]"));
+                parts.Add(TextBlock.FromMarkup("[title]" + Title + "[/]"));
             }
             if (Mode == ChangeViewMode.Full || Mode == ChangeViewMode.Summary) {
-                parts.Add(new TextBlock(Summary()));
+                parts.Add(TextBlock.FromMarkup(Summary()));
             }
             if (Changes.HasChanges || Changes.Changes.Count > 0) {
                 switch (Mode) {
@@ -124,7 +124,7 @@ namespace ConsoleMonster.Changes {
                         parts.AddRange(SideBySide());
                         break;
                     case ChangeViewMode.Unified:
-                        parts.Add(new TextBlock(Unified()));
+                        parts.Add(TextBlock.FromMarkup(Unified()));
                         break;
                 }
             }
@@ -216,7 +216,7 @@ namespace ConsoleMonster.Changes {
                 foreach (PropertyChange property in change.Properties.Where(p => IsLong(p.Before) || IsLong(p.After))) {
                     List<string> lines = new List<string> { "[warn]~[/] " + Markup.Escape(change.Key) + " [muted]" + PropertyLabel(property) + "[/]" };
                     lines.AddRange(TextDiff(ValueText(property, true), ValueText(property, false)).Select(DiffMarkup));
-                    yield return new TextBlock(string.Join("\n", lines));
+                    yield return TextBlock.FromMarkup(string.Join("\n", lines));
                 }
             }
         }
@@ -228,7 +228,7 @@ namespace ConsoleMonster.Changes {
                 }
                 if (change.Kind != ChangeKind.Changed && change.Kind != ChangeKind.Unchanged && change.Values.Count == 0) {
                     // A simple added or removed value: its key and the value.
-                    yield return new TextBlock(Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)) + "  [muted]" + Markup.Escape(Clip(Describe(change))) + "[/]");
+                    yield return TextBlock.FromMarkup(Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)) + "  [muted]" + Markup.Escape(Clip(Describe(change))) + "[/]");
                     continue;
                 }
                 Table table = new Table { Title = Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)), Border = TableBorder.Rounded };

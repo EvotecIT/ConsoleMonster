@@ -368,7 +368,6 @@ namespace ConsoleMonster.Generators {
             IMethodSymbol? factory = ui?.GetMembers().OfType<IMethodSymbol>().FirstOrDefault(method => method.IsStatic && !method.IsGenericMethod
                 && method.Parameters.All(parameter => parameter.IsOptional) && SymbolEqualityComparer.Default.Equals(method.ReturnType, type));
             string entry = factory == null ? receiver : "Ui." + factory.Name + "()";
-            if (type.Name == "TextBlock" && factory != null) { entry += ".Markup()"; }
             if (factory == null && type.Name.EndsWith("Options", StringComparison.Ordinal) && type.InstanceConstructors.Any(ctor => ctor.DeclaredAccessibility == Accessibility.Public && ctor.Parameters.Length == 0)) {
                 entry = receiver;
             }

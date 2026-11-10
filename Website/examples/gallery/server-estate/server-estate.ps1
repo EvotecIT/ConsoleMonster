@@ -46,8 +46,8 @@ $frame = @{
                 Order = 3
             Values = '9 d' }
     )
-    AttentionNoun = 'server'
-    AttentionOutOf = 48
+    Noun = 'server'
+    OutOf = 48
     Section = @(
         [pscustomobject] @{ Title = 'Sites'; Facts = 'by location'
             Content = { $sites | New-ConsoleTable } }

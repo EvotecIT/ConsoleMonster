@@ -35,7 +35,7 @@ namespace SiteFrames.Capture {
             ExecuteCompiled(Assembly.Load(File.ReadAllBytes(args[1])), args[1], profile, Theme.Dark,
                 new InteractiveOptions { Target = target, Profile = profile, NonInteractive = true }, args.Skip(4).ToArray(), target, false);
             using var recorder = SessionRecorder.Start(new SessionRecordingOptions { InProcess = true, Width = width, Height = height,
-                Path = Environment.GetEnvironmentVariable("SITEFRAMES_OUTPUT_RECORDING") ?? throw new InvalidOperationException("Missing hosted capture destination.") });
+                RecordingPath = Environment.GetEnvironmentVariable("SITEFRAMES_OUTPUT_RECORDING") ?? throw new InvalidOperationException("Missing hosted capture destination.") });
             if (stream) {
                 recorder.CaptureOutput(new VtOutputNormalizer(width, height).Normalize(target.Output, textLineEndings: true));
                 if (recorder.LimitReached) { throw new IOException("Hosted capture reached its recorder byte limit."); }

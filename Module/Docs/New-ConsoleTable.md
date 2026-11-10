@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a console table from pipeline objects.
 
-Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
-
 ## SYNTAX
 ### Objects (Default)
 ```powershell
@@ -18,7 +16,7 @@ New-ConsoleTable [[-InputObject] <psobject[]>] [-Property <Object[]>] [-GroupBy 
 
 ### Live
 ```powershell
-New-ConsoleTable [[-WidgetId] <string>] [[-InputObject] <psobject[]>] -Live [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-KeyProperty <string>] [-Table <Table>] [-MaxRows <int>] [-SortBy <Object>] [-Descending] [<CommonParameters>]
+New-ConsoleTable [[-WidgetId] <string>] [[-InputObject] <psobject[]>] -Live [-Property <Object[]>] [-GroupBy <Object>] [-ShowTotals] [-CardsBelow <int>] [-NoSort] [-Wrap] [-ShowGroupColumn] [-StatusProperty <string>] [-Title <Object>] [-Caption <Object>] [-Border <TableBorder>] [-NoHeaderSeparator] [-Expand] [-KeyProperty <string>] [-Table <Table>] [-MaxRows <int>] [-SortColumn <Object>] [-SortDescending] [<CommonParameters>]
 ```
 
 ### Bind
@@ -27,8 +25,6 @@ New-ConsoleTable -Bind <scriptblock> [-Property <Object[]>] [-GroupBy <Object>] 
 ```
 
 ## DESCRIPTION
-Creates a console table from pipeline objects.
-
 Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.
 
 ## EXAMPLES
@@ -86,7 +82,7 @@ Possible values: Rounded, Square, Double, Minimal, None, Rule
 
 Required: False
 Position: named
-Default value: None
+Default value: Rounded
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -118,23 +114,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Descending
-For Live, sorts larger values first.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Live
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
+Default value: 60
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -150,7 +130,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -214,7 +194,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -230,7 +210,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -246,7 +226,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -262,7 +242,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -294,7 +274,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -310,12 +290,12 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SortBy
+### -SortColumn
 For Live, the column index or header used for sorting.
 
 ```yaml
@@ -327,6 +307,22 @@ Possible values:
 Required: False
 Position: named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SortDescending
+For Live, sorts larger values first.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Live
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -390,7 +386,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: table
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -406,7 +402,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -425,4 +421,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletable/](https://consolemonster.dev/powershell/commands/new-consoletable/)

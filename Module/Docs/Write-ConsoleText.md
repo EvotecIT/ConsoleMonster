@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Writes coloured text with optional markup, alignment, wrapping and a text log.
 
-Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Write-ConsoleText [[-Text] <Object[]>] [-Indent <int>] [-Alignment <HorizontalAl
 ```
 
 ## DESCRIPTION
-Writes coloured text with optional markup, alignment, wrapping and a text log.
-
 Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.
 
 ## EXAMPLES
@@ -57,7 +53,7 @@ Possible values: Left, Center, Right
 
 Required: False
 Position: named
-Default value: None
+Default value: Left
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -137,7 +133,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -153,7 +149,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -169,7 +165,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -233,7 +229,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -265,7 +261,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -313,7 +309,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: yyyy-MM-dd HH:mm:ss
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -329,7 +325,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -345,7 +341,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -363,4 +359,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/write-consoletext/](https://consolemonster.dev/powershell/commands/write-consoletext/)

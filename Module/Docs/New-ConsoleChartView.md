@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Makes a line chart explorable inside Show-ConsoleApp.
 
-Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleChartView [-Key] <string> [[-Label] <string>] -Chart <Object> [-Heigh
 ```
 
 ## DESCRIPTION
-Makes a line chart explorable inside Show-ConsoleApp.
-
 Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.
 
 ## EXAMPLES
@@ -35,6 +31,15 @@ Show-ConsoleApp -Content {
 ```
 
 Explore CPU and memory samples next to the table they came from
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleChartView -Key cpu -Chart (New-ConsoleChart -Type Line -Series @{ Key = 'cpu'; Values = 12, 25, 18, 31 })
+}
+```
+
+Compose an inventory chart view
 
 ## PARAMETERS
 
@@ -65,7 +70,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -81,7 +86,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -177,7 +182,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +208,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -211,4 +216,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolechartview/](https://consolemonster.dev/powershell/commands/new-consolechartview/)

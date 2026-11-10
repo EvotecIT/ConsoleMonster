@@ -4,10 +4,8 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.</para>
-    /// <para type="description">Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.</para>
-    /// </summary>
+    /// <summary>Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.</summary>
+    /// <remarks><para>Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.</para></remarks>
     /// <example>
     /// <para>Open a server from a numbered list, and go back with Escape</para>
     /// <code>$servers = @(
@@ -26,7 +24,14 @@ namespace ConsoleMonster.PowerShell {
     ///     }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleScreen")]
+    /// <example>
+    /// <para>Place an inventory page inside an application</para>
+    /// <code>Show-ConsoleApp -Content {
+    ///     New-ConsoleScreen -Key inventory -Title Inventory -Content { New-ConsoleText 'web01: Online' }
+    /// }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleScreen", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolescreen/")]
     [OutputType(typeof(AppScreen))]
     public sealed class CmdletNewConsoleScreen : NoPipelineInputCmdlet {
         /// <summary><para type="description">The key that opens the screen, unique within the app. The current key is $State.Screen.</para></summary>

@@ -32,7 +32,7 @@ StatusList status = new StatusList()
     .Add("Notify", StatusKind.Running);
 BarChart chart = new BarChart().Add("web", 42).Add("sql", 87).Add("files", 23);
 ProgressBar progress = new ProgressBar("Copying") { Value = 64, Total = 100 };
-TextBlock error = new TextBlock(
+TextBlock error = TextBlock.FromMarkup(
     "[fail]Error:[/] [muted]Cannot reach[/] [accent]sql01.contoso.test[/]"
         + " [muted](port 1433)[/]");
 Terminal.Write(new Rows(table, new Columns(status, new Rows(progress, chart)), error) { Gap = 1 });

@@ -5,10 +5,8 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.</para>
-    /// <para type="description">Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Update-Console.</para>
-    /// </summary>
+    /// <summary>Creates an aligned key/value list from a hashtable, an object's properties or Key/Value records pairs.</summary>
+    /// <remarks><para>Pairs come from a hashtable (use [ordered] to keep order), from an object's properties, or from a script block of Key/Value records calls when a pair needs a status marker, markup or a presenter. Keys are muted and aligned; values wrap. Values are shown literally unless -Markup is used. In a live dashboard, update pairs with Update-Console.</para></remarks>
     /// <example>
     ///   <para>A summary block</para>
     ///   <code>New-ConsoleKeyValue -InputObject ([ordered] @{ Domain = 'evotec.xyz'; Records = 14; DNSSEC = 'not signed' }) | Show-Console</code>
@@ -29,7 +27,7 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
     /// } | Show-Console</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleKeyValue")]
+    [Cmdlet(VerbsCommon.New, "ConsoleKeyValue", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolekeyvalue/")]
     [OutputType(typeof(KeyValueList))]
     public sealed class CmdletNewConsoleKeyValue : PSCmdlet {
         private readonly List<object> _input = new List<object>();
@@ -43,24 +41,30 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Treat values as markup.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Markup { get; set; }
 
         /// <summary><para type="description">The live name used by Update-Console (default keyvalue).</para></summary>
         [Parameter(Position = 0)]
+        [PSDefaultValue(Help = "keyvalue")]
         public string WidgetId { get; set; } = "keyvalue";
 
         /// <summary><para type="description">Shared NumberColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>
         [Parameter] public Layout.ColumnFormat? NumberColumn { get; set; }
 
         /// <summary><para type="description">Cells between the key column and values.</para></summary>
-        [Parameter, ValidateRange(0, int.MaxValue)] public int Gap { get; set; } = 2;
+        [Parameter, ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "2")]
+        public int Gap { get; set; } = 2;
         /// <summary><para type="description">Preferred key fraction when natural widths do not fit.</para></summary>
-        [Parameter, ValidateRange(0.01, 0.99)] public double MaxKeyFraction { get; set; } = 0.4;
+        [Parameter, ValidateRange(0.01, 0.99)] [PSDefaultValue(Help = "0.4")]
+        public double MaxKeyFraction { get; set; } = 0.4;
 
         /// <summary><para type="description">Preferred pairs per row; reduces automatically in narrow terminals.</para></summary>
-        [Parameter, ValidateRange(1, 12)] public int Columns { get; set; } = 1;
+        [Parameter, ValidateRange(1, 12)] [PSDefaultValue(Help = "1")]
+        public int Columns { get; set; } = 1;
         /// <summary><para type="description">Theme role for keys.</para></summary>
-        [Parameter] public ConsoleMonster.Styling.ThemeToken KeyRole { get; set; } = ConsoleMonster.Styling.ThemeToken.Muted;
+        [Parameter] [PSDefaultValue(Help = "Muted")]
+        public ConsoleMonster.Styling.ThemeToken KeyRole { get; set; } = ConsoleMonster.Styling.ThemeToken.Muted;
         /// <summary><para type="description">Shared value-formatting culture, clock and time zone.</para></summary>
         [Parameter] public Presenters.PresentationOptions? Presentation { get; set; }
 

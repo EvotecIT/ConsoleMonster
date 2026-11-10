@@ -94,12 +94,44 @@
       "framework": "net8.0"
     },
     {
+      "task": "dotnet-build",
+      "id": "api-build-hosting",
+      "dependsOn": ["api-build-consolemonster"],
+      "project": "../ConsoleMonster.Hosting/ConsoleMonster.Hosting.csproj",
+      "configuration": "Release",
+      "framework": "net8.0"
+    },
+    {
+      "task": "dotnet-build",
+      "id": "api-build-extensions-logging",
+      "dependsOn": ["api-build-consolemonster"],
+      "project": "../ConsoleMonster.Extensions.Logging/ConsoleMonster.Extensions.Logging.csproj",
+      "configuration": "Release",
+      "framework": "net8.0"
+    },
+    {
+      "task": "dotnet-build",
+      "id": "api-build-extensions-serilog",
+      "dependsOn": ["api-build-consolemonster"],
+      "project": "../ConsoleMonster.Extensions.Serilog/ConsoleMonster.Extensions.Serilog.csproj",
+      "configuration": "Release",
+      "framework": "net8.0"
+    },
+    {
+      "task": "dotnet-build",
+      "id": "api-build-extensions-nlog",
+      "dependsOn": ["api-build-consolemonster"],
+      "project": "../ConsoleMonster.Extensions.NLog/ConsoleMonster.Extensions.NLog.csproj",
+      "configuration": "Release",
+      "framework": "net8.0"
+    },
+    {
       "task": "apidocs",
       "id": "build-apidocs",
-      "dependsOn": ["build-site", "api-chrome", "api-build-consolemonster", "api-build-markdown", "api-build-graphics"],
+      "dependsOn": ["build-site", "api-chrome", "api-build-consolemonster", "api-build-markdown", "api-build-graphics", "api-build-hosting", "api-build-extensions-logging", "api-build-extensions-serilog", "api-build-extensions-nlog"],
       "config": "./site.json",
-      "assemblies": ["../ConsoleMonster/bin/Release/net8.0/ConsoleMonster.dll", "../ConsoleMonster.Markdown/bin/Release/net8.0/ConsoleMonster.Markdown.dll", "../ConsoleMonster.Graphics/bin/Release/net8.0/ConsoleMonster.Graphics.dll"],
-      "xmls": ["../ConsoleMonster/bin/Release/net8.0/ConsoleMonster.xml", "../ConsoleMonster.Markdown/bin/Release/net8.0/ConsoleMonster.Markdown.xml", "../ConsoleMonster.Graphics/bin/Release/net8.0/ConsoleMonster.Graphics.xml"],
+      "assemblies": ["../ConsoleMonster/bin/Release/net8.0/ConsoleMonster.dll", "../ConsoleMonster.Markdown/bin/Release/net8.0/ConsoleMonster.Markdown.dll", "../ConsoleMonster.Graphics/bin/Release/net8.0/ConsoleMonster.Graphics.dll", "../ConsoleMonster.Hosting/bin/Release/net8.0/ConsoleMonster.Hosting.dll", "../ConsoleMonster.Extensions.Logging/bin/Release/net8.0/ConsoleMonster.Extensions.Logging.dll", "../ConsoleMonster.Extensions.Serilog/bin/Release/net8.0/ConsoleMonster.Extensions.Serilog.dll", "../ConsoleMonster.Extensions.NLog/bin/Release/net8.0/ConsoleMonster.Extensions.NLog.dll"],
+      "xmls": ["../ConsoleMonster/bin/Release/net8.0/ConsoleMonster.xml", "../ConsoleMonster.Markdown/bin/Release/net8.0/ConsoleMonster.Markdown.xml", "../ConsoleMonster.Graphics/bin/Release/net8.0/ConsoleMonster.Graphics.xml", "../ConsoleMonster.Hosting/bin/Release/net8.0/ConsoleMonster.Hosting.xml", "../ConsoleMonster.Extensions.Logging/bin/Release/net8.0/ConsoleMonster.Extensions.Logging.xml", "../ConsoleMonster.Extensions.Serilog/bin/Release/net8.0/ConsoleMonster.Extensions.Serilog.xml", "../ConsoleMonster.Extensions.NLog/bin/Release/net8.0/ConsoleMonster.Extensions.NLog.xml"],
       "out": "./_site/api",
       "title": "ConsoleMonster .NET API reference",
       "baseUrl": "/api",

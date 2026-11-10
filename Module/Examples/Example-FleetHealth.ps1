@@ -165,7 +165,7 @@ $domainChoices = foreach ($domain in $domains.Keys) {
 $domainSettings = @{
     Key         = 'Domain'
     Label        = 'Domain'
-    Type         = 'Select'
+    Kind         = 'Select'
     Page         = 'Scope'
     Required     = $true
     ParameterName    = 'Domain'
@@ -174,7 +174,7 @@ $domainSettings = @{
     CommandValue = 'Name'
     Describe     = { "$($_.Count) servers · $($_.Sites)" }
     Badge        = { "$($_.Count) servers" }
-    Description         = 'Choosing a domain loads its servers from the inventory.'
+    Help         = 'Choosing a domain loads its servers from the inventory.'
 }
 $domainField = New-ConsoleField @domainSettings
 # The servers load in their own runspace when the domain changes: grouped by site, offline ones disabled,
@@ -182,13 +182,13 @@ $domainField = New-ConsoleField @domainSettings
 $serversSettings = @{
     Key         = 'Servers'
     Label        = 'Servers'
-    Type         = 'Select'
+    Kind         = 'Select'
     Multiple     = $true
     Page         = 'Scope'
     DependsOn    = 'Domain'
     Minimum      = 1
     ParameterName    = 'ComputerName'
-    Description         = 'Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.'
+    Help         = 'Grouped by site; offline servers cannot be picked. Space toggles, Ctrl+A selects all.'
     ArgumentList = $servers, $loadDelay
     LoadChoices  = {
         param($Values, $Inventory, $Delay)
@@ -218,7 +218,7 @@ $serversField = New-ConsoleField @serversSettings
 $checksSettings = @{
     Key         = 'Checks'
     Label        = 'Checks'
-    Type         = 'Select'
+    Kind         = 'Select'
     Multiple     = $true
     Page         = 'Checks'
     Choices      = $checks
@@ -230,7 +230,7 @@ $checksSettings = @{
     ParameterName    = 'Check'
     Badge        = { '~{0} s' -f $_.Seconds.ToString('0.#', [cultureinfo]::InvariantCulture) }
     Default     = { $_.Id -in 'SecureChannel', 'TimeOffset', 'ForwardRecord' }
-    Description         = 'Grouped by category; the preview shows what a healthy server reports.'
+    Help         = 'Grouped by category; the preview shows what a healthy server reports.'
     Preview      = {
         New-ConsoleText $_.About
         New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
@@ -245,7 +245,7 @@ $checksField = New-ConsoleField @checksSettings
 $parallelSettings = @{
     Key      = 'Parallel'
     Label     = 'Servers at a time'
-    Type      = 'Number'
+    Kind      = 'Number'
     Page      = 'Options'
     Integer   = $true
     Minimum   = 1
@@ -262,7 +262,7 @@ $formats = @(
 $formatSettings = @{
     Key         = 'Format'
     Label        = 'Report format'
-    Type         = 'Select'
+    Kind         = 'Select'
     Page         = 'Options'
     Choices      = $formats
     Display      = 'Title'
@@ -271,9 +271,9 @@ $formatSettings = @{
     ParameterName    = 'Format'
 }
 $formatField = New-ConsoleField @formatSettings
-$reportField = New-ConsoleField Report 'Report folder' -Type Path -Kind Folder -Page Options `
+$reportField = New-ConsoleField Report 'Report folder' -Kind Path -PathKind Folder -Page Options `
     -Default 'Reports/Fleet' -ParameterName ReportPath
-$notifyField = New-ConsoleField Notify 'Email the report' -Type Toggle -Page Options -ParameterName Notify
+$notifyField = New-ConsoleField Notify 'Email the report' -Kind Toggle -Page Options -ParameterName Notify
 $emailSettings = @{
     Key        = 'Email'
     Label       = 'Recipient'
@@ -398,7 +398,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
                     }
                 }
                 New-ConsolePanel -Title 'Running' -Weight 0.95 -HeaderRight "$($plan.Parallel) workers" -Content {
-                    New-ConsoleActivityList -WidgetId running -MaxRows 8
+                    New-ConsoleActivityList -WidgetId running -MaxVisible 8
                 }
             }
             New-ConsoleColumns -FixedWidth 0, 0, 17 -Content {

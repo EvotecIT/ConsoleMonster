@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Layers console widgets on top of each other in the same space.
 
-Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleStack [[-Content] <Object>] [-Weight <double>] [-Height <int>] [-Fill
 ```
 
 ## DESCRIPTION
-Layers console widgets on top of each other in the same space.
-
 Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.
 
 ## EXAMPLES
@@ -32,6 +28,15 @@ New-ConsoleStack -Content {
 ```
 
 A chart with a status badge in its top-right corner
+
+### EXAMPLE 2
+```powershell
+New-ConsoleStack -Height 6 -Content {
+                New-ConsolePanel -Title Inventory -Content { New-ConsoleText 'web01: Online' }
+            } | Show-Console
+```
+
+Compose an inventory stack
 
 ## PARAMETERS
 
@@ -62,7 +67,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -78,7 +83,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -94,7 +99,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -112,4 +117,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolestack/](https://consolemonster.dev/powershell/commands/new-consolestack/)

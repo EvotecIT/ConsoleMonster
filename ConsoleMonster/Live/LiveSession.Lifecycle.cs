@@ -27,8 +27,8 @@ namespace ConsoleMonster.Live {
                 lock (_lifecycle) {
                     if (_state == 1) { return; }
                     if (_state != 0) { throw new InvalidOperationException("A live session cannot be restarted."); }
-                    if (_options.RecordPath != null && _options.RecordWriter != null) {
-                        throw new ArgumentException("Specify RecordPath or RecordWriter, not both.");
+                    if (_options.RecordingPath != null && _options.RecordWriter != null) {
+                        throw new ArgumentException("Specify RecordingPath or RecordWriter, not both.");
                     }
                     try {
                         // Capability detection can enable Windows VT mode. Save the caller's mode before resolving
@@ -73,8 +73,8 @@ namespace ConsoleMonster.Live {
                         _guardRegistration = _guard.Cancellation.Register(() => RequestCancellation(_options.StopOnCancellation));
                         _guard.Cancellation.ThrowIfCancellationRequested();
                         if (_options.RecordWriter != null) { _recorder = new LiveRecorder(_options.RecordWriter); }
-                        else if (_options.RecordPath != null) {
-                            StreamWriter writer = OpenRecording(_options.RecordPath);
+                        else if (_options.RecordingPath != null) {
+                            StreamWriter writer = OpenRecording(_options.RecordingPath);
                             try { _recorder = new LiveRecorder(writer, false); }
                             catch { writer.Dispose(); throw; }
                         } else if (_options.AutoRecord > 0) {

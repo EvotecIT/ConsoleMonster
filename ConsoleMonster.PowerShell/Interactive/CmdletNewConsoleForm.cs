@@ -4,10 +4,8 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</para>
-    /// <para type="description">The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.</para>
-    /// </summary>
+    /// <summary>Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.</summary>
+    /// <remarks><para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.</para></remarks>
     /// <example>
     ///   <para>A two-page wizard</para>
     ///   <code>
@@ -17,8 +15,8 @@ namespace ConsoleMonster.PowerShell {
     /// }
     /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     ///     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    ///     New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
-    ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
+    ///     New-ConsoleField Path 'Folder' -Kind Path -Kind Folder -MustExist -Page Basics -ParameterName Path
+    ///     New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly
     /// }</code>
     /// </example>
     /// <example>
@@ -30,11 +28,11 @@ namespace ConsoleMonster.PowerShell {
     /// }
     /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
     ///     New-ConsoleField Name 'Share name' -Required -ParameterName Name
-    ///     New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
+    ///     New-ConsoleField ReadOnly 'Read only' -Kind Toggle -ParameterName ReadOnly
     ///     [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleForm")]
+    [Cmdlet(VerbsCommon.New, "ConsoleForm", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleform/")]
     [OutputType(typeof(Form))]
     public sealed class CmdletNewConsoleForm : PSCmdlet {
         private readonly List<PSObject> _piped = new List<PSObject>();
@@ -42,7 +40,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ValueFromPipeline = true)] public PSObject? InputObject { get; set; }
         /// <inheritdoc />
         protected override void ProcessRecord() { if (InputObject != null) { _piped.Add(InputObject); } }
-        /// <summary><para type="description">The title.</para></summary>
+        /// <summary><para type="description">The heading shown above the form or the selectable menu item text.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public string Title { get; set; } = string.Empty;
 
@@ -64,10 +62,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">How the equivalent command line is written: PowerShell (-Name value), Posix (--name value) or Windows (/name:value).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "PowerShell")]
         public CommandStyle CommandStyle { get; set; } = CommandStyle.PowerShell;
 
         /// <summary><para type="description">Leaves out the review page.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoReview { get; set; }
 
         /// <summary><para type="description">The caption of the submit button (default Run).</para></summary>

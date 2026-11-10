@@ -117,7 +117,7 @@ namespace ConsoleMonster.Tests.Live {
         public void Start_UnwritableRecordPath_FailsClearlyWithoutTouchingTheScreen() {
             FakeOutput output = new FakeOutput();
             LiveSessionOptions options = LiveSessionTests.Options(output);
-            options.RecordPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing", "run.jsonl");
+            options.RecordingPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing", "run.jsonl");
             using (LiveSession session = new LiveSession(new FakeLogTarget(), options)) {
                 IOException error = Assert.Throws<IOException>(session.Start);
                 Assert.Contains("Cannot write the recording", error.Message);

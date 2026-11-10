@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
 
-Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Show-ConsoleDemo [[-Slug] <string>] [-Mode <InteractionMode>] [-Step <int>] [<Co
 ```
 
 ## DESCRIPTION
-Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.
-
 Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
 
 ## EXAMPLES
@@ -57,7 +53,7 @@ Possible values: Rich, Snapshot
 
 Required: False
 Position: named
-Default value: None
+Default value: Rich
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -89,7 +85,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -99,7 +95,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -107,4 +103,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consoledemo/](https://consolemonster.dev/powershell/commands/show-consoledemo/)

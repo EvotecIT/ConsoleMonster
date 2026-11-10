@@ -84,7 +84,7 @@ namespace ConsoleMonster.Examples.Showcases {
             for (int i = 0; i < 40; i++) {
                 badgeBase.Add(10 + (6 * Math.Sin(i / 4.0)));
             }
-            Stack overlay = new Stack(badgeBase, new Align(new TextBlock("[pass] LIVE [/]"), HorizontalAlignment.Right));
+            Stack overlay = new Stack(badgeBase, new Align(TextBlock.FromMarkup("[pass] LIVE [/]"), HorizontalAlignment.Right));
             return new Rows(
                 logo,
                 new Panel(new Rows(build, tests, docs), "Progress"),
@@ -92,7 +92,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 new Panel(phases, "Phases"),
                 new Columns(new Panel(results, "Stacked bar"), new Panel(categories, "Bar chart").Caption("failures")),
                 new Columns(new Panel(new Rows(spark, area).Gap(1), "Sparkline"), new Panel(chart, "Line chart").Caption("braille"), new Panel(histogram, "Histogram")),
-                new Columns(new Panel(new Rows(resolving, synced), "Spinner"), new Panel(new Align(new TextBlock("[muted]centred with Align[/]")), "Align"), new Panel(overlay, "Stack").Caption("badge over a chart")),
+                new Columns(new Panel(new Rows(resolving, synced), "Spinner"), new Panel(new Align(TextBlock.FromMarkup("[muted]centred with Align[/]")), "Align"), new Panel(overlay, "Stack").Caption("badge over a chart")),
                 new Panel(log, "Log region"));
         }
     }

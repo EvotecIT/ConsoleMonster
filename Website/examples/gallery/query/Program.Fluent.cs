@@ -69,30 +69,34 @@ zone.Add("mail", null, "MX target").Add("mail.example.test", StatusKind.Pass, "1
 StatusList mail = Ui.StatusList();
 foreach (var(label, status, detail)in checks)
     mail.Add(label, status, detail);
-BarChart latency = (BarChart)Ui.Chart().Type(ChartType.Bar).WidgetId("latency").Unit(" ms").Build();
+BarChart latency = Ui.BarChart("latency").Unit(" ms");
 foreach (var(label, value)in resolvers)
     latency.Add(label, value);
-IWidget report = Ui.Rows().Gap(1).Content(c4 =>
+IWidget report = Ui.Rows().Gap(1).Content(rowsContent2 =>
 {
-    c4.Rule("[accent bold]DNS query results[/] [muted]· example.test[/]");
-    c4.Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
-    {
-        c.Add(summary);
-    }));
-    c4.Add(table);
-    c4.Columns(columns => columns.Content(c3 =>
-    {
-        c3.Panel(p => p.Title("Delegation").Content(c =>
+    rowsContent2.Rule("[accent bold]DNS query results[/] [muted]· example.test[/]");
+    rowsContent2.Padding(padding => padding.Bottom(0)
+        .Right(1)
+        .Top(0)
+        .Left(1)
+        .Content(paddingContent =>
         {
-            c.Add(delegation);
+            paddingContent.Add(summary);
         }));
-        c3.Panel(p => p.Title("Mail security").Content(c2 =>
+    rowsContent2.Add(table);
+    rowsContent2.Columns(columns => columns.Content(columnsContent =>
+    {
+        columnsContent.Panel(p => p.Title("Delegation").Content(panelContent =>
         {
-            c2.Rows(r => r.Gap(0).Content(c =>
+            panelContent.Add(delegation);
+        }));
+        columnsContent.Panel(p => p.Title("Mail security").Content(panelContent =>
+        {
+            panelContent.Rows(r => r.Gap(0).Content(rowsContent =>
             {
-                c.Add(mail);
-                c.Rule();
-                c.Add(latency);
+                rowsContent.Add(mail);
+                rowsContent.Rule();
+                rowsContent.Add(latency);
             }));
         }).HeaderRight(domain));
     }));

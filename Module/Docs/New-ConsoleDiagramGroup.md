@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Groups components and nested diagram groups.
 
-Content emits New-ConsoleDiagramNode and New-ConsoleDiagramGroup objects. The grouped tree keeps all children at narrow widths. Boundary controls the topology outline.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleDiagramGroup [-Label] <string> [[-Content] <scriptblock>] [-Boundary 
 ```
 
 ## DESCRIPTION
-Groups components and nested diagram groups.
-
 Content emits New-ConsoleDiagramNode and New-ConsoleDiagramGroup objects. The grouped tree keeps all children at narrow widths. Boundary controls the topology outline.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ New-ConsoleDiagramGroup 'Office LAN' { New-ConsoleDiagramNode '12 PCs' -Kind Wor
 ```
 
 Office components.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDiagram -Title 'Production services' -Content {
+                New-ConsoleDiagramGroup -Label Production -Content { New-ConsoleDiagramNode -Id api -Label 'Orders API' }
+            } | Show-Console
+```
+
+Compose an inventory diagram group
 
 ## PARAMETERS
 
@@ -43,7 +48,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -65,7 +70,7 @@ Accept wildcard characters: False
 ```
 
 ### -Label
-The group label.
+Visible heading for the diagram group that contains related nodes.
 
 ```yaml
 Type: String
@@ -93,4 +98,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolediagramgroup/](https://consolemonster.dev/powershell/commands/new-consolediagramgroup/)

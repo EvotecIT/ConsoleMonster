@@ -3,7 +3,7 @@
   2 tests | x 1 failed | + 1 passed | - 0 skipped
 +- Files ------------------------------------------------------------------ 0 of 1 done -+
 |                                                                                        |
-| | Sample.Tests.ps1  ##############-------  66%  P 1 F 1 S 0  applies StartTab, Star... |
+| | Sample.Tests.ps1  ##############-------  66%  P 1 F 1 S 0  applies StartTab, Inde... |
 +----------------------------------------------------------------------------------------+
  + x *
  / Rich text cmdlets > Write-ConsoleText with Write-Color parameters > applies StartT...

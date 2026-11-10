@@ -8,17 +8,13 @@ schema: 2.0.0
 ## SYNOPSIS
 Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
 
-Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleReplay [-Dashboard] <IWidget> [[-RecordingPath] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-Paused] [-Height <int>] [-PlaybackMode <PlaybackMode>] [-FramesPerSecond <double>] [-MaxFrames <int>] [<CommonParameters>]
+Show-ConsoleReplay [-Dashboard] <IWidget> [[-RecordingPath] <string>] [-Title <string>] [-Speed <double>] [-Inline] [-AutoPlay] [-Height <int>] [-PlaybackMode <PlaybackMode>] [-FramesPerSecond <double>] [-MaxFrames <int>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.
-
 Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.
 
 ## EXAMPLES
@@ -36,12 +32,28 @@ Play an existing matching dashboard recording
 ```powershell
 # Requires build.jsonl recorded with this dashboard definition.
             $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -Paused
+Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay
 ```
 
 Start an existing recording inline and paused
 
 ## PARAMETERS
+
+### -AutoPlay
+Opens paused at the start.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $true
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Dashboard
 The dashboard (or any widget tree) whose widget names match the recording.
@@ -70,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -86,7 +98,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -102,7 +114,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -118,23 +130,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Paused
-Opens paused at the start.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
+Default value: 3000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -150,7 +146,7 @@ Possible values: Interactive, Automatic
 
 Required: False
 Position: named
-Default value: None
+Default value: Interactive
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -182,7 +178,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -208,7 +204,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -216,4 +212,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consolereplay/](https://consolemonster.dev/powershell/commands/show-consolereplay/)

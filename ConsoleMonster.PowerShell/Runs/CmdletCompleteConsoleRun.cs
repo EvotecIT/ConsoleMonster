@@ -4,10 +4,8 @@ using System.Runtime.CompilerServices;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Finishes a run dashboard and prints its full summary into scrollback.</para>
-    /// <para type="description">Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para>
-    /// </summary>
+    /// <summary>Finishes a run dashboard and prints its full summary into scrollback.</summary>
+    /// <remarks><para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para></remarks>
     /// <example>
     /// <para>Return a structured summary of a completed run</para>
     /// <code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
@@ -16,15 +14,25 @@ namespace ConsoleMonster.PowerShell {
     /// $summary = Complete-ConsoleRun $run -PassThru
     /// $summary.Items | Where-Object Status -eq Fail</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun")]
+    /// <example>
+    /// <para>Finish a run even when inspection fails</para>
+    /// <code>$servers = @([pscustomobject]@{ Name = 'web01' })
+    /// $run = Start-ConsoleRun -InputObject $servers -Label Name -Title 'Inspect inventory'
+    /// try { Update-Console -Run $run -Index 0 -Status Pass -Detail 'Inventory read' }
+    /// finally { Complete-ConsoleRun -Run $run }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun", HelpUri = "https://consolemonster.dev/powershell/commands/complete-consolerun/")]
     [OutputType(typeof(RunSnapshot))]
     public sealed class CmdletCompleteConsoleRun : NoPipelineInputCmdlet {
         /// <summary><para type="description">The handle returned by Start-ConsoleRun.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public LiveRun Run { get; set; } = null!;
         /// <summary><para type="description">Return the final structured snapshot.</para></summary>
-        [Parameter] public SwitchParameter PassThru { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter PassThru { get; set; }
         /// <summary><para type="description">Wait for all reported items before finalizing. Cancellation or timeout leaves unfinished work open.</para></summary>
-        [Parameter] public SwitchParameter Wait { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Wait { get; set; }
         /// <summary><para type="description">Maximum wait in seconds, including fractions; requires Wait. Omitted waits until completion.</para></summary>
         [Parameter, ValidateRange(0, double.MaxValue)] public double? TimeoutSeconds { get; set; }
         /// <inheritdoc />

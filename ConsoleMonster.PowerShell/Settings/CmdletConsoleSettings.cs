@@ -9,10 +9,8 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.PowerShell.Binding;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows ConsoleMonster's settings: the value of each and where it came from.</para>
-    /// <para type="description">Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their configured value or built-in fallback and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. This describes preference overrides, not the final themed appearance: without a Density override, Comfortable with source Default can still render with Compact spacing from the theme. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Invalid Density environment values and unusable file entries are ignored and reported as warnings.</para>
-    /// </summary>
+    /// <summary>Shows ConsoleMonster's settings: the value of each and where it came from.</summary>
+    /// <remarks><para>Lists the theme, colour, glyphs, frames (Border), spacing (Density), status markers, motion, mouse, accessibility, hyperlinks, language and culture settings with their configured value or built-in fallback and source: Session (Set-ConsoleSetting in this session), Environment (a CONSOLEMONSTER_* variable or NO_COLOR), File (the settings file) or Default. This describes preference overrides, not the final themed appearance: without a Density override, Comfortable with source Default can still render with Compact spacing from the theme. Session values beat environment variables, which beat the file, so CI and one-off runs keep working without touching it. The file is settings.json in %APPDATA%\ConsoleMonster on Windows and ~/.config/ConsoleMonster elsewhere; CONSOLEMONSTER_SETTINGS names another file, or none to ignore it. Invalid Density environment values and unusable file entries are ignored and reported as warnings.</para></remarks>
     /// <example>
     ///   <para>Every setting and its source</para>
     ///   <code>Get-ConsoleSetting</code>
@@ -21,7 +19,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>One setting</para>
     ///   <code>Get-ConsoleSetting Theme</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Get, "ConsoleSetting")]
+    [Cmdlet(VerbsCommon.Get, "ConsoleSetting", HelpUri = "https://consolemonster.dev/powershell/commands/get-consolesetting/")]
     [OutputType(typeof(ConsoleSetting))]
     public sealed class CmdletGetConsoleSetting : NoPipelineInputCmdlet {
         /// <summary><para type="description">The settings to show; all of them when omitted.</para></summary>
@@ -46,10 +44,8 @@ namespace ConsoleMonster.PowerShell {
         }
     }
 
-    /// <summary>
-    /// <para type="synopsis">Changes a ConsoleMonster setting for this session, and with -Save for every session.</para>
-    /// <para type="description">Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.</para>
-    /// </summary>
+    /// <summary>Changes a ConsoleMonster setting for this session, and with -Save for every session.</summary>
+    /// <remarks><para>Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSetting chooses settings with a live preview.</para></remarks>
     /// <example>
     ///   <para>Use the colour-blind-safe theme from now on</para>
     ///   <code>Set-ConsoleSetting Theme ColorBlindSafe -Save</code>
@@ -67,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <code># Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
     /// Set-ConsoleSetting Theme ./team-theme.json -Save</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Set, "ConsoleSetting", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Set, "ConsoleSetting", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/set-consolesetting/")]
     public sealed class CmdletSetConsoleSetting : NoPipelineInputCmdlet {
         /// <summary><para type="description">The setting: Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
@@ -81,6 +77,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Also writes the value to the settings file, for every new session.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Save { get; set; }
 
         /// <inheritdoc />
@@ -106,10 +103,8 @@ namespace ConsoleMonster.PowerShell {
         }
     }
 
-    /// <summary>
-    /// <para type="synopsis">Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.</para>
-    /// <para type="description">Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.</para>
-    /// </summary>
+    /// <summary>Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.</summary>
+    /// <remarks><para>Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.</para></remarks>
     /// <example>
     ///   <para>Go back to the saved theme</para>
     ///   <code>Reset-ConsoleSetting Theme</code>
@@ -118,7 +113,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Remove every saved setting</para>
     ///   <code>Reset-ConsoleSetting -Save</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Reset, "ConsoleSetting", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Reset, "ConsoleSetting", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/reset-consolesetting/")]
     public sealed class CmdletResetConsoleSetting : NoPipelineInputCmdlet {
         /// <summary><para type="description">The settings to reset; all of them when omitted.</para></summary>
         [Parameter(Position = 0)]
@@ -127,6 +122,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Also removes the values from the settings file.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Save { get; set; }
 
         /// <inheritdoc />
@@ -145,17 +141,21 @@ namespace ConsoleMonster.PowerShell {
         }
     }
 
-    /// <summary>
-    /// <para type="synopsis">Chooses ConsoleMonster's settings in the terminal with a live preview.</para>
-    /// <para type="description">A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use now" applies them to this session only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.</para>
-    /// </summary>
+    /// <summary>Chooses ConsoleMonster's settings in the terminal with a live preview.</summary>
+    /// <remarks><para>A full-screen picker: each setting on the left, and on the right a preview with a table, statuses, progress, a chart and an error drawn as the highlighted choice would draw them, so themes and glyph sets can be compared before choosing. Save keeps the choices for every session (Set-ConsoleSetting -Save), "Use now" applies them to this session only, and Escape or Cancel changes nothing. A setting that an environment variable sets is shown locked with the variable's name. In a non-interactive session it lists the settings and how to change them instead.</para></remarks>
     /// <example>
     ///   <para>Choose with the preview, then list what applies now and where each value came from</para>
-    ///   <code>Show-ConsoleSettings; Get-ConsoleSetting</code>
+    ///   <code>Show-ConsoleSetting; Get-ConsoleSetting</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleSettings")]
+    /// <example>
+    /// <para>Choose settings and inspect the resulting theme</para>
+    /// <code>Show-ConsoleSetting
+    /// Get-ConsoleSetting -Name Theme | Show-ConsoleTable
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.Show, "ConsoleSetting", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolesetting/")]
     [OutputType(typeof(ConsoleSetting))]
-    public sealed class CmdletShowConsoleSettings : NoPipelineInputCmdlet {
+    public sealed class CmdletShowConsoleSetting : NoPipelineInputCmdlet {
         private readonly object _stopGate = new object();
         private CancellationTokenSource? _stop;
         private bool _stopping;

@@ -1,10 +1,8 @@
 using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows objects as a table with fitted columns, readable values and optional grouping.</para>
-    /// <para type="description">Pipe objects and choose columns with Property, including calculated properties. GroupBy adds group headings, ShowTotals sums numeric columns, and Wrap keeps long text readable. Narrow output uses labelled cards below CardsBelow. This command displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting is the separate opt-in for ordinary prompt output.</para>
-    /// </summary>
+    /// <summary>Shows objects as a table with fitted columns, readable values and optional grouping.</summary>
+    /// <remarks><para>Pipe objects and choose columns with Property, including calculated properties. GroupBy adds group headings, ShowTotals sums numeric columns, and Wrap keeps long text readable. Narrow output uses labelled cards below CardsBelow. This command displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting is the separate opt-in for ordinary prompt output.</para></remarks>
     /// <example><para>Show processes with the columns you need</para><code>Get-Process | Select-Object -First 8 |
     ///     Show-ConsoleTable -Property ProcessName, Id, WorkingSet64 -Title 'Running processes'</code></example>
     /// <example><para>Group a small inventory and total its numeric columns</para><code>$inventory = @(
@@ -28,7 +26,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Display objects and keep them in the pipeline</para><code>Get-Process | Select-Object -First 5 |
     ///     Show-ConsoleTable -Property ProcessName, Id -PassThru |
     ///     Measure-Object</code></example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleTable", DefaultParameterSetName = "Objects")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleTable", DefaultParameterSetName = "Objects", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoletable/")]
     public sealed partial class CmdletShowConsoleTable : ConsoleDisplayCmdlet {
         /// <inheritdoc />
         protected override string RequestedView => "Table";

@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.
 
-Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
-
 ## SYNTAX
 ### Nodes (Default)
 ```powershell
@@ -18,13 +16,11 @@ New-ConsoleTree [[-Title] <Object>] [[-Content] <scriptblock>] [-WrapLabels] [-N
 
 ### Objects
 ```powershell
-New-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-WrapLabels] [-NoRoot] [-Presentation <PresentationOptions>] [<CommonParameters>]
+New-ConsoleTree [[-Title] <Object>] -InputObject <psobject> [-ChildrenProperty <string>] [-Children <scriptblock>] [-LabelProperty <string>] [-StatusProperty <string>] [-DetailProperty <string>] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-WrapLabels] [-NoRoot] [-Presentation <PresentationOptions>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.
-
-Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
+Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -MaxDepth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.
 
 ## EXAMPLES
 
@@ -46,7 +42,7 @@ A mail domain with records and their state
 
 ### EXAMPLE 2
 ```powershell
-Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console
+Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -MaxDepth 3 | Show-Console
 ```
 
 Folders and files from the pipeline, three levels deep
@@ -121,22 +117,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Depth
-Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -DetailProperty
 The property shown as a muted note after the label.
 
@@ -185,6 +165,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -MaxDepth
+Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when MaxDepth is omitted.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 5
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -MaxItems
 The most children listed per node, and objects listed at the top, before "+N more" (default 25; 0 lists all).
 
@@ -196,7 +192,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 25
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -212,7 +208,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 5000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -228,7 +224,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -292,7 +288,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -310,4 +306,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletree/](https://consolemonster.dev/powershell/commands/new-consoletree/)

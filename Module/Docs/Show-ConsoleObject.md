@@ -8,17 +8,13 @@ schema: 2.0.0
 ## SYNOPSIS
 Explores an object's members with the keyboard.
 
-Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [<CommonParameters>]
+Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassThru] [-RootPath <string>] [-Title <string>] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Include <string[]>] [-Exclude <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Explores an object's members with the keyboard.
-
 Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.
 
 ## EXAMPLES
@@ -45,22 +41,6 @@ $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $co
 Return its PowerShell path
 
 ## PARAMETERS
-
-### -Depth
-Maximum member depth below the root; default 8.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Exclude
 Member names to skip without invoking their getters, supporting wildcards.
@@ -110,6 +90,22 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -MaxDepth
+Maximum member depth below the root; default 8.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -MaxItems
 Maximum items read from each collection (default 100).
 
@@ -121,7 +117,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 100
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -137,7 +133,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 5000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -153,7 +149,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -169,7 +165,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $x
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -185,13 +181,13 @@ Possible values: Value, Path
 
 Required: False
 Position: 0
-Default value: None
+Default value: Value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Title
-The screen title.
+The heading above the object browser and its current property path.
 
 ```yaml
 Type: String
@@ -201,7 +197,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Object explorer
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -220,4 +216,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consoleobject/](https://consolemonster.dev/powershell/commands/show-consoleobject/)

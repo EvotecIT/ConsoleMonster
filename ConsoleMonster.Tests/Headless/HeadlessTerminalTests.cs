@@ -198,7 +198,7 @@ namespace ConsoleMonster.Tests.Headless {
             string path = Path.Combine(_folder, "app.cast");
             using HeadlessTerminal terminal = new HeadlessTerminal(80, 24);
             bool logged = false;
-            using (SessionRecorder recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = path, Width = 80, Height = 24, InProcess = true })) {
+            using (SessionRecorder recorder = SessionRecorder.Start(new SessionRecordingOptions { RecordingPath = path, Width = 80, Height = 24, InProcess = true })) {
                 ConsoleAppOptions options = new ConsoleAppOptions {
                     Interactive = new InteractiveOptions { Target = terminal, Labels = new PromptLabels() },
                     Live = new LiveSessionOptions { TaskbarProgress = false, Recorder = recorder },

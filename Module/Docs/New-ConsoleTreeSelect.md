@@ -8,17 +8,13 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates an embeddable, lazy object tree for Show-ConsoleApp.
 
-Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleTreeSelect [-Key] <string> [[-Label] <string>] -InputObject <psobject> [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-RootPath <string>] [-Height <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
+New-ConsoleTreeSelect [-Key] <string> [[-Label] <string>] -InputObject <psobject> [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-RootPath <string>] [-Height <int>] [-Disabled] [-TabIndex <int>] [-OnChange <scriptblock>] [-ValidationMessage <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates an embeddable, lazy object tree for Show-ConsoleApp.
-
 Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.
 
 ## EXAMPLES
@@ -31,23 +27,15 @@ Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $conf
 
 Browse a nested configuration
 
-## PARAMETERS
-
-### -Depth
-Maximum expansion depth.
-
-```yaml
-Type: Int32
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+### EXAMPLE 2
+```powershell
+$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
+New-ConsoleTreeSelect -Key inventory -InputObject $inventory -MaxDepth 3 | Show-Console
 ```
+
+Compose an inventory tree select
+
+## PARAMETERS
 
 ### -Disabled
 Disables editing and removes the input from keyboard focus traversal.
@@ -60,7 +48,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -76,7 +64,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 20
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -129,6 +117,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -MaxDepth
+Maximum expansion depth.
+
+```yaml
+Type: Int32
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -MaxItems
 Maximum items per collection.
 
@@ -140,7 +144,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 100
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -156,7 +160,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 5000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -188,7 +192,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $x
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -204,7 +208,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -230,7 +234,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -238,4 +242,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletreeselect/](https://consolemonster.dev/powershell/commands/new-consoletreeselect/)

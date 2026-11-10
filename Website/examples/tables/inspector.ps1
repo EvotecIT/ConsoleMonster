@@ -17,4 +17,4 @@ $zone = [ordered] @{
     )
     Tags = @('production', 'cloudflare', 'doh')
 }
-$zone | Show-Console -View Tree -Depth 3 -Title 'evotec.xyz zone'
+$zone | Show-Console -View Tree -MaxDepth 3 -Title 'evotec.xyz zone'

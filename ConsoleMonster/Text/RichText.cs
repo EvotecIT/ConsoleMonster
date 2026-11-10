@@ -293,7 +293,7 @@ namespace ConsoleMonster.Text {
         /// <returns>The text without styling.</returns>
         public override string ToString() => PlainText;
 
-        private TextBlock Block() => new TextBlock(ToMarkup()) { Alignment = Alignment, Overflow = Overflow };
+        private TextBlock Block() => new TextBlock(ToMarkup()) { IsMarkup = true, Alignment = Alignment, Overflow = Overflow };
 
         private static RichColor Pick(IReadOnlyList<RichColor>? colors, int index, RichColor fallback) {
             if (colors == null || colors.Count == 0) {

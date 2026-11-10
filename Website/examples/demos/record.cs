@@ -26,7 +26,7 @@ string recording = Path.Combine(Path.GetTempPath(), "deploy.jsonl");
 // 1. Run it, writing every update to the recording.
 using (LiveSession session = new LiveSession(
     dashboard,
-    new LiveSessionOptions { RecordPath = recording }))
+    new LiveSessionOptions { RecordingPath = recording }))
 {
     session.Run(s =>
     {

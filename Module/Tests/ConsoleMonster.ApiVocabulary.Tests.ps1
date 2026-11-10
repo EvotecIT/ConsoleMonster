@@ -127,7 +127,7 @@
         (Get-Command Update-Console).Parameters.Keys | Should -Contain WidgetId
     }
 
-    It 'keeps switches false by default and uses NoX for default-on behavior' {
+    It 'keeps control switches off and matches C# final-state and playback defaults' {
         foreach ($command in $script:Commands) {
             $instance = [Activator]::CreateInstance($command.ImplementingType)
             foreach ($entry in $command.Parameters.GetEnumerator()) {
@@ -135,7 +135,9 @@
                 if ($parameter.ParameterType -ne [Management.Automation.SwitchParameter]) { continue }
                 $property = $command.ImplementingType.GetProperty($parameter.Name)
                 if ($null -ne $property) {
-                    $property.GetValue($instance).IsPresent | Should -BeFalse -Because "$($command.Name) -$($parameter.Name) selects non-default behavior"
+                    $positiveDefault = ($command.Name -in @('Use-ConsoleProgress', 'Invoke-ConsoleDashboard') -and $parameter.Name -eq 'PrintFinalState') -or
+                        ($command.Name -eq 'Show-ConsoleReplay' -and $parameter.Name -eq 'AutoPlay')
+                    $property.GetValue($instance).IsPresent | Should -Be $positiveDefault -Because "$($command.Name) -$($parameter.Name) follows its C# Boolean default"
                 }
             }
             $command.Parameters.ContainsKey('NoLiveView') | Should -BeFalse

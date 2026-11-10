@@ -40,7 +40,7 @@ namespace SiteFrames.Tests {
                 string Echo(string value) => value;
                 var text = Echo($"{Next()} checks completed with all findings retained for the daily summary, which includes recovery instructions and the next action for every server.");
                 FormattableString template = $"{Next()} a long template which preserves its arguments and format string for a caller supplied format provider";
-                Terminal.Write(new TextBlock(label.Caption + text + template.Format + " / reads=" + reads));
+                Terminal.Write(TextBlock.FromMarkup(label.Caption + text + template.Format + " / reads=" + reads));
                 sealed class Label { public string Caption { get; set; } = ""; }
                 """;
             string directory = Path.Combine(Path.GetTempPath(), "cm-bound-layout-" + Guid.NewGuid().ToString("N"));
@@ -68,7 +68,7 @@ namespace SiteFrames.Tests {
                 int Next() => ++reads;
                 bool retry = true;
                 string summary = retry ? $"[pass]{Next()} passed[/]   [accent]{Next()} recovered on retry[/]   [muted]retention: 14 days and archive verification complete[/]" : "No jobs were retried and every archive remains available for fourteen days in the nightly backup destination directory.";
-                Terminal.Write(new TextBlock(summary + " / reads=" + reads));
+                Terminal.Write(TextBlock.FromMarkup(summary + " / reads=" + reads));
                 """;
             string formatted = SourceLayout.Format(source);
             Assert.All(formatted.Split('\n'), line => Assert.True(line.Length <= SourceLayout.Width, line));

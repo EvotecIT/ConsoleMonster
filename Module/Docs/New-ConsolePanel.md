@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a bordered panel with a title around other console widgets.
 
--Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsolePanel [[-Content] <Object>] [-Title <Object>] [-HeaderRight <Object>]
 ```
 
 ## DESCRIPTION
-Creates a bordered panel with a title around other console widgets.
-
 -Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ New-ConsolePanel -Title 'Targets' -Weight 2 -Content { New-ConsoleLanes -WidgetI
 ```
 
 A panel holding a lanes widget, taking two shares of a row
+
+### EXAMPLE 2
+```powershell
+New-ConsolePanel -Title 'Inventory result' -Content {
+                [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget
+            } | Show-Console
+```
+
+Frame an inventory record with a heading
 
 ## PARAMETERS
 
@@ -43,7 +48,7 @@ Possible values: Rounded, Single, Double, Heavy, Ascii, None
 
 Required: False
 Position: named
-Default value: None
+Default value: Rounded
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -59,7 +64,7 @@ Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, S
 
 Required: False
 Position: named
-Default value: None
+Default value: Border
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -107,7 +112,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -123,7 +128,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -155,7 +160,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -171,7 +176,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -187,7 +192,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +208,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -219,7 +224,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -235,7 +240,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -283,7 +288,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -299,7 +304,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -317,4 +322,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolepanel/](https://consolemonster.dev/powershell/commands/new-consolepanel/)

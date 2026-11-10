@@ -7,10 +7,8 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Headless;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.</para>
-    /// <para type="description">The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.</para>
-    /// </summary>
+    /// <summary>Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.</summary>
+    /// <remarks><para>The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.</para></remarks>
     /// <example><para>Drive a list with a key and a click, then check the screen.</para><code>$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {
     ///     Show-ConsoleApp -Content {
     ///         New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01
@@ -18,7 +16,14 @@ namespace ConsoleMonster.PowerShell {
     ///     }
     /// }
     /// $result.Text | Should -Match 'Picked FS01'</code></example>
-    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleHeadless")]
+    /// <example>
+    /// <para>Run a selection against scripted terminal input</para>
+    /// <code>Invoke-ConsoleHeadless -Width 60 -Height 12 -InputScript 'Enter' {
+    ///     Read-ConsoleSelect -Title 'Server' -Choices web01, web02
+    /// }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleHeadless", HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consoleheadless/")]
     [OutputType(typeof(ConsoleHeadlessResult))]
     public sealed class CmdletInvokeConsoleHeadless : NoPipelineInputCmdlet {
         /// <summary><para type="description">The script to run, usually one that calls Show-ConsoleApp or a prompt.</para></summary>
@@ -26,9 +31,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The keys, text and mouse actions to send, in the recorder's input grammar.</para></summary>
         [Parameter] public string? InputScript { get; set; }
         /// <summary><para type="description">Terminal width in cells (default 0: terminal width, falling back to 100).</para></summary>
-        [Parameter, ValidateRange(0, 1000)] public int Width { get; set; }
+        [Parameter, ValidateRange(0, 1000)] [PSDefaultValue(Help = "0")]
+        public int Width { get; set; }
         /// <summary><para type="description">Terminal height in cells (default 30).</para></summary>
-        [Parameter, ValidateRange(3, 1000)] public int Height { get; set; } = 30;
+        [Parameter, ValidateRange(3, 1000)] [PSDefaultValue(Help = "30")]
+        public int Height { get; set; } = 30;
         /// <summary><para type="description">Arguments passed to the script block.</para></summary>
         [Parameter] public object[]? ArgumentList { get; set; }
 

@@ -3,10 +3,8 @@ using System.Management.Automation;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a log region: the newest lines of a log, bottom-aligned.</para>
-    /// <para type="description">Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.</para>
-    /// </summary>
+    /// <summary>Creates a log region: the newest lines of a log, bottom-aligned.</summary>
+    /// <remarks><para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.</para></remarks>
     /// <example>
     ///   <para>A short log printed once</para>
     ///   <code>
@@ -29,13 +27,14 @@ namespace ConsoleMonster.PowerShell {
     ///     @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }
     /// } | Show-Console</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleLogRegion")]
+    [Cmdlet(VerbsCommon.New, "ConsoleLogRegion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolelogregion/")]
     [OutputType(typeof(LogRegion), typeof(Interactive.LogViewport))]
     public sealed class CmdletNewConsoleLogRegion : PSCmdlet {
         private readonly List<object> _piped = new List<object>();
 
         /// <summary><para type="description">The live widget identifier (default log).</para></summary>
         [Parameter(Position = 0)]
+        [PSDefaultValue(Help = "log")]
         public string WidgetId { get; set; } = "log";
 
         /// <summary><para type="description">A script block that emits the lines: Message/Level records calls, or strings for info lines.</para></summary>
@@ -48,18 +47,22 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Rows requested when printed once (default 8).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "8")]
         public int Height { get; set; } = 8;
 
         /// <summary><para type="description">Lines kept in memory (default 1000).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "1000")]
         public int Capacity { get; set; } = 1000;
 
         /// <summary><para type="description">Hide the time at the start of each line.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoElapsed { get; set; }
 
         /// <summary><para type="description">Wrap long lines (up to three rows each) instead of cutting them.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Wrap { get; set; }
 
         /// <summary><para type="description">Shared LevelColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>

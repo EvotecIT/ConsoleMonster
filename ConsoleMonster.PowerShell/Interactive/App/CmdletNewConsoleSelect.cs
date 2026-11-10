@@ -2,12 +2,16 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a named select input for Show-ConsoleApp.</para>
-    /// <para type="description">Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.</para>
-    /// </summary>
+    /// <summary>Creates a named select input for Show-ConsoleApp.</summary>
+    /// <remarks><para>Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.</para></remarks>
     /// <example><para>Choose initial values.</para><code>New-ConsoleSelect -Key Environment -Choices 'Production', 'Staging' -Value Staging</code></example>
-    [Cmdlet(VerbsCommon.New, "ConsoleSelect")]
+    /// <example>
+    /// <para>Compose an inventory select</para>
+    /// <code>$servers = @([pscustomobject]@{ Name = 'web01' }, [pscustomobject]@{ Name = 'web02' })
+    /// Show-ConsoleApp -Content { New-ConsoleSelect -Key server -Choices $servers -Display Name }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleSelect", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleselect/")]
     [OutputType(typeof(Select), typeof(MultiSelect))]
     public sealed class CmdletNewConsoleSelect : AppChoiceCmdlet {
         /// <summary><para type="description">Initial selected value from the supplied choices. Omit to retain the core default selection.</para></summary>
@@ -17,12 +21,15 @@ namespace ConsoleMonster.PowerShell {
         public object? Value { get; set; }
 
         /// <summary><para type="description">Allows multiple selected values.</para></summary>
-        [Parameter] public SwitchParameter Multiple { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Multiple { get; set; }
         /// <summary><para type="description">Shows single-choice items with radio indicators.</para></summary>
-        [Parameter] public SwitchParameter Radio { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Radio { get; set; }
 
         /// <summary><para type="description">Shows one row with the current choice; Enter, Space, Down or a click opens the list over the content below.</para></summary>
-        [Parameter] public SwitchParameter Dropdown { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Dropdown { get; set; }
 
         /// <summary><para type="description">Visible choice rows; omitted retains the control default.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)] public int? PageSize { get; set; }

@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a month or year calendar with dated operational outcomes.
 
-Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleCalendar [-Year <int>] [-Month <int>] [-View <CalendarView>] [-InputO
 ```
 
 ## DESCRIPTION
-Creates a month or year calendar with dated operational outcomes.
-
 Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.
 
 ## EXAMPLES
@@ -77,7 +73,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Date
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -125,7 +121,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Label
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -141,7 +137,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -157,7 +153,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -173,7 +169,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Status
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -205,7 +201,7 @@ Possible values: Month, Year
 
 Required: False
 Position: named
-Default value: None
+Default value: Month
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -221,7 +217,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -239,4 +235,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolecalendar/](https://consolemonster.dev/powershell/commands/new-consolecalendar/)

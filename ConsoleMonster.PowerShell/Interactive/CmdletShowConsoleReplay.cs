@@ -10,10 +10,8 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Replay;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</para>
-    /// <para type="description">Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para>
-    /// </summary>
+    /// <summary>Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</summary>
+    /// <remarks><para>Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para></remarks>
     /// <example>
     /// <para>Play an existing matching dashboard recording</para>
     /// <code># Requires build.jsonl recorded with this dashboard definition.
@@ -24,9 +22,9 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Start an existing recording inline and paused</para>
     /// <code># Requires build.jsonl recorded with this dashboard definition.
     /// $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -Paused</code>
+    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleReplay")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleReplay", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolereplay/")]
     public sealed partial class CmdletShowConsoleReplay : NoPipelineInputCmdlet {
         private CancellationTokenSource? _stop;
 
@@ -45,31 +43,38 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The starting speed, 0.25 to 16 (default 1).</para></summary>
         [Parameter]
         [ValidateRange(0.25, 16)]
+        [PSDefaultValue(Help = "1")]
         public double Speed { get; set; } = 1;
 
         /// <summary><para type="description">Plays below the cursor instead of on the whole window.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Inline { get; set; }
 
         /// <summary><para type="description">Opens paused at the start.</para></summary>
         [Parameter]
-        public SwitchParameter Paused { get; set; }
+        [PSDefaultValue(Help = "$true")]
+        public SwitchParameter AutoPlay { get; set; } = new SwitchParameter(true);
 
         /// <summary><para type="description">The height of the recorded screen in rows (default the window, or the dashboard's own height inline).</para></summary>
         [Parameter]
         [ValidateRange(1, 500)]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary><para type="description">Interactive player controls (default), or automatic playback without reading keys.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Interactive")]
         public PlaybackMode PlaybackMode { get; set; }
 
         /// <summary><para type="description">Samples the interactive recording at this frame rate; default ten.</para></summary>
         [Parameter, ValidateRange(0.01, 1000)]
+        [PSDefaultValue(Help = "10")]
         public double FramesPerSecond { get; set; } = 10;
 
         /// <summary><para type="description">Maximum sampled interactive frames; default 3000.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)]
+        [PSDefaultValue(Help = "3000")]
         public int MaxFrames { get; set; } = 3000;
 
         /// <inheritdoc />
@@ -82,7 +87,7 @@ namespace ConsoleMonster.PowerShell {
                 FramesPerSecond = FramesPerSecond,
                 MaxFrames = MaxFrames,
                 Inline = Inline.IsPresent,
-                AutoPlay = !Paused.IsPresent,
+                AutoPlay = AutoPlay.IsPresent,
                 Height = Height > 0 ? Height : (int?)null
             };
             options.Title ??= Dashboard is Widgets.Dashboard ? null : System.IO.Path.GetFileNameWithoutExtension(path);

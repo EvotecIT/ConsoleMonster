@@ -3,10 +3,8 @@ using System.Management.Automation;
 using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Renders native PowerShell formatting records through ConsoleMonster.</para>
-    /// <para type="description">The host-only sink used by Enable-ConsoleFormatting -Include FormatCommands. PowerShell still resolves properties, calculated expressions, grouping and named views. Unrecognized formatting records are passed to the native Out-Default. Use -AsWidget to export the same view with Export-ConsoleFrame.</para>
-    /// </summary>
+    /// <summary>Renders native PowerShell formatting records through ConsoleMonster.</summary>
+    /// <remarks><para>The host-only sink used by Enable-ConsoleFormatting -Include FormatCommands. PowerShell still resolves properties, calculated expressions, grouping and named views. Unrecognized formatting records are passed to the native Out-Default. Use -AsWidget to export the same view with Export-ConsoleFrame.</para></remarks>
     /// <example>
     /// <para>Export a table through the public frame exporter</para>
     /// <code>Get-Process | Select-Object -First 5 Name, Id | New-ConsoleTable | Export-ConsoleFrame -Format Html</code>

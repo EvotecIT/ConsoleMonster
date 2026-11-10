@@ -4,10 +4,8 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Asks for a line of text.</para>
-    /// <para type="description">A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para>
-    /// </summary>
+    /// <summary>Asks for a line of text.</summary>
+    /// <remarks><para>A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para></remarks>
     /// <example>
     ///   <para>A validated name</para>
     ///   <code>$name = Read-ConsoleText 'Server name' -Default 'srv01' -Pattern '[a-z][a-z0-9-]{1,14}' -PatternMessage 'Lower case letters, digits and dashes'</code>
@@ -16,10 +14,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A scriptblock validator ($_ is the answer; return $true, $false or an error message)</para>
     ///   <code>Read-ConsoleText 'Email' -Validator { if ($_ -notmatch '@') { 'Enter an email address' } }</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsoleText", DefaultParameterSetName = "Text")]
+    [Cmdlet(VerbsCommunications.Read, "ConsoleText", DefaultParameterSetName = "Text", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoletext/")]
     [OutputType(typeof(string), typeof(System.Security.SecureString))]
     public sealed class CmdletReadConsoleText : NonSelectionPromptCmdlet {
-        /// <summary><para type="description">The default answer.</para></summary>
+        /// <summary><para type="description">The answer initially selected; pressing Enter accepts this value.</para></summary>
         [Parameter(ParameterSetName = "Text")]
         public string? Default { get; set; }
 
@@ -29,14 +27,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Refuses an empty answer.</para></summary>
         [Parameter(ParameterSetName = "Text")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Required { get; set; }
 
-        /// <summary><para type="description">The fewest characters.</para></summary>
+        /// <summary><para type="description">Minimum accepted answer length, measured in characters.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int MinLength { get; set; }
 
-        /// <summary><para type="description">The most characters.</para></summary>
+        /// <summary><para type="description">Maximum accepted answer length, measured in characters.</para></summary>
         [Parameter(ParameterSetName = "Text")]
+        [PSDefaultValue(Help = "2147483647")]
         public int MaxLength { get; set; } = int.MaxValue;
 
         /// <summary><para type="description">A regular expression the whole answer must match.</para></summary>
@@ -57,28 +58,36 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Puts the default in the box (editable) instead of showing it as a hint.</para></summary>
         [Parameter(ParameterSetName = "Text")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PrefillDefault { get; set; }
 
         /// <summary><para type="description">Asks for several lines of text in a text area: soft wrap, Enter for a new line, Ctrl+Enter (or Ctrl+S) to save, paste keeps line breaks. In line mode the answer ends with an empty line.</para></summary>
         [Parameter(ParameterSetName = "Text")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Multiline { get; set; }
 
         /// <summary><para type="description">The most lines (-Multiline).</para></summary>
         [Parameter(ParameterSetName = "Text")]
+        [PSDefaultValue(Help = "2147483647")]
         public int MaxLines { get; set; } = int.MaxValue;
 
         /// <summary><para type="description">The visible rows of the text area (-Multiline, default 6).</para></summary>
         [Parameter(ParameterSetName = "Text")]
+        [PSDefaultValue(Help = "6")]
         public int Height { get; set; } = 6;
 
         /// <summary><para type="description">Reads a masked secret and returns SecureString by default. History and defaults are forbidden.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Secret")] public SwitchParameter AsSecret { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "Secret")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter AsSecret { get; set; }
         /// <summary><para type="description">With AsSecret, explicitly returns plaintext.</para></summary>
-        [Parameter(ParameterSetName = "Secret")] public SwitchParameter AsPlainText { get; set; }
+        [Parameter(ParameterSetName = "Secret")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter AsPlainText { get; set; }
         /// <summary><para type="description">With AsSecret, hides even the typed length.</para></summary>
-        [Parameter(ParameterSetName = "Secret")] public SwitchParameter Hidden { get; set; }
+        [Parameter(ParameterSetName = "Secret")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Hidden { get; set; }
         /// <summary><para type="description">With AsSecret, accepts an empty answer.</para></summary>
-        [Parameter(ParameterSetName = "Secret")] public SwitchParameter AllowEmpty { get; set; }
+        [Parameter(ParameterSetName = "Secret")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter AllowEmpty { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {

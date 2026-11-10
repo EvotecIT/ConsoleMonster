@@ -8,17 +8,13 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows pipeline objects in an interactive grid and returns the rows you choose.
 
-An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Show-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI or -Mode None), one static view honours the initial filter, sort and hidden columns. Nothing is selected or returned.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortBy <string>] [-Descending] [-Exclude <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
+Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortColumn <string>] [-SortDescending] [-HiddenColumns <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Shows pipeline objects in an interactive grid and returns the rows you choose.
-
 An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Show-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI or -Mode None), one static view honours the initial filter, sort and hidden columns. Nothing is selected or returned.
 
 ## EXAMPLES
@@ -36,7 +32,7 @@ Inspect selected objects with an embedded command
 
 ### EXAMPLE 2
 ```powershell
-Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortBy Memory -Descending -OutputMode None
+Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -SortDescending -OutputMode None
 ```
 
 Browse processes sorted by memory
@@ -75,43 +71,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Descending
-Sorts descending at the start.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Exclude
-Columns hidden at the start (F2 shows them again).
-
-```yaml
-Type: String[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Filter
 The filter to start with.
 
 ```yaml
 Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HiddenColumns
+Columns hidden at the start (F2 shows them again).
+
+```yaml
+Type: String[]
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -166,7 +146,7 @@ Possible values: None, Single, Multiple
 
 Required: False
 Position: named
-Default value: None
+Default value: Multiple
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +183,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -SortBy
+### -SortColumn
 The column to sort by at the start.
 
 ```yaml
@@ -219,6 +199,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -SortDescending
+Sorts descending at the start.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $false
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Title
 The title in the header bar (default Grid).
 
@@ -230,7 +226,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Grid
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -248,4 +244,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consolegrid/](https://consolemonster.dev/powershell/commands/show-consolegrid/)

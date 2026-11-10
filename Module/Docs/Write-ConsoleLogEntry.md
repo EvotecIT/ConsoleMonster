@@ -8,17 +8,13 @@ schema: 2.0.0
 ## SYNOPSIS
 Writes a line to the log region of a running dashboard.
 
--Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>] [-Tag <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
+Write-ConsoleLogEntry [-Text] <Object> [-Level <string>] [-WidgetId <string>] [-Tag <string>] [-Highlight <string>] [-Session <LiveSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Writes a line to the log region of a running dashboard.
-
 -Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
 
 ## EXAMPLES
@@ -73,24 +69,8 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: info
 Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Message
-The message.
-
-```yaml
-Type: Object
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -126,6 +106,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Text
+The literal or rich text appended to the selected dashboard log region.
+
+```yaml
+Type: Object
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
 ### -WidgetId
 The log name; defaults to the dashboard's log region. In a running app, the key of a log viewport.
 
@@ -137,7 +133,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $log
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -155,4 +151,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/write-consolelogentry/](https://consolemonster.dev/powershell/commands/write-consolelogentry/)

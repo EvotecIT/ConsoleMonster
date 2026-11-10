@@ -3,10 +3,8 @@ using System.Management.Automation;
 using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Places console widgets side by side.</para>
-    /// <para type="description">Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.</para>
-    /// </summary>
+    /// <summary>Places console widgets side by side.</summary>
+    /// <remarks><para>Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.</para></remarks>
     /// <example>
     ///   <para>Two panels, the first twice as wide</para>
     ///   <code>New-ConsoleColumns -Content { New-ConsolePanel -Title 'Steps' -Weight 2 -Content { New-ConsoleStatusList -WidgetId steps }; New-ConsolePanel -Title 'Info' -Content { New-ConsoleKeyValue -WidgetId info } }</code>
@@ -20,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     ///     New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleColumns")]
+    [Cmdlet(VerbsCommon.New, "ConsoleColumns", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecolumns/")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleColumns : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the child widgets.</para></summary>
@@ -30,6 +28,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Blank columns between children (default 1).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "1")]
         public int Gap { get; set; } = 1;
 
         /// <summary><para type="description">Fixed widths in cells, one per child in order; 0 (or no entry) keeps the child's share of the width (-Weight).</para></summary>
@@ -38,14 +37,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The width in cells below which the columns stack vertically (default: the sum of the children's minimum widths, counting 16 cells for each shared column).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "-1")]
         public int CollapseBelow { get; set; } = -1;
 
         /// <summary><para type="description">Fixed height in rows for this row of columns.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary><para type="description">Take the remaining height of a live dashboard.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Fill { get; set; }
 
         /// <inheritdoc />

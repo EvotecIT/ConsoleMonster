@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Defines a live console dashboard: a header with title and clock, the body and a footer.
 
-The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleDashboard [[-WidgetId] <string>] [[-Content] <Object>] -Title <Object
 ```
 
 ## DESCRIPTION
-Defines a live console dashboard: a header with title and clock, the body and a footer.
-
 The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ $d = New-ConsoleDashboard -Title 'Deploy' -Content { New-ConsolePanel -Title 'Se
 ```
 
 A dashboard with lanes and a log that fills the rest of the screen
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDashboard -Title 'Inventory' -Content {
+                New-ConsolePanel -Title 'Result' -Content { New-ConsoleText '2 servers online' -Role Pass }
+            } | Show-Console
+```
+
+Compose an inventory dashboard
 
 ## PARAMETERS
 
@@ -107,7 +112,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -123,7 +128,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -187,7 +192,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: dashboard
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -205,4 +210,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoledashboard/](https://consolemonster.dev/powershell/commands/new-consoledashboard/)

@@ -61,7 +61,7 @@ public sealed class ConsoleViewSystemTests {
     public void Frame_AsciiWrapping_PreservesLiteralHyphensAlongsideFactSeparators(bool markup) {
         string input = markup ? "[warn]first[/] [muted]·[/] [warn]alpha - bravo[/]" : "first · alpha - bravo";
         ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("H", input));
-        frame.Footer = markup ? new TextBlock(input) : TextBlock.Plain(input);
+        frame.Footer = markup ? TextBlock.FromMarkup(input) : TextBlock.Plain(input);
         string text = TestTerminal.RenderText(frame, 14, height: 20, glyphs: GlyphTier.Ascii);
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(text, @"alpha\s*-\s*bravo").Count);
         Assert.DoesNotContain('·', text);
@@ -99,7 +99,7 @@ public sealed class ConsoleViewSystemTests {
     [Fact]
     public void Frame_AsciiMarkupStatesAndFooter_WrapWholeEntriesWithAsciiSeparators() {
         ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("History", "[warn]1 warning[/] [muted]·[/] [fail]1 critical[/] [muted]·[/] [warn]2 pending[/]"));
-        frame.Footer = new TextBlock("[muted]latest change per link only [/]· [muted]no actor · expired deletions not shown[/]");
+        frame.Footer = TextBlock.FromMarkup("[muted]latest change per link only [/]· [muted]no actor · expired deletions not shown[/]");
         string text = TestTerminal.RenderText(frame, 35, glyphs: GlyphTier.Ascii);
         Assert.DoesNotContain('·', text);
         Assert.Contains("1 critical", text);

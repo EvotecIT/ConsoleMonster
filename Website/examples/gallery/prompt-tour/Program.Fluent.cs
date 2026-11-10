@@ -51,10 +51,10 @@ Job[] tasks = new Job[]
 string reportFolder = "./toolbox-reports/weekly";
 
 // Layout: the prompts themselves draw choices, validation, masks and editing hints.
-IWidget Preview(Job job) => Ui.Rows().Gap(1).Content(c =>
+IWidget Preview(Job job) => Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c.Markup(Markup.Escape(job.Description));
-    c.KeyValue(kv => kv.Add("Group", Markup.Escape(job.Category))
+    rowsContent.Markup(Markup.Escape(job.Description));
+    rowsContent.KeyValue(kv => kv.Add("Group", Markup.Escape(job.Category))
         .Add("Duration", $"about {job.Minutes} min per server")
         .Add("Changes", job.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only")
         .Add("Parameter", "[accent]" + job.Id + "[/]"));
@@ -142,12 +142,12 @@ LogRegion log = Ui.LogRegion().PreferredHeight(6);
 Dashboard dashboard = Ui.Dashboard()
     .Title("[accent bold]Patching[/]")
     .Subtitle("5 servers")
-    .Content(body => body.Panel(Ui.Panel().Title("Servers").Content(c =>
+    .Content(body => body.Panel(Ui.Panel().Title("Servers").Content(panelContent =>
     {
-        c.Add(lanes);
-    })).Add(Ui.Panel().Title("Log").Content(c =>
+        panelContent.Add(lanes);
+    })).Add(Ui.Panel().Title("Log").Content(panelContent =>
     {
-        c.Add(log);
+        panelContent.Add(log);
     }).Fill()));
 using (LiveSession session = dashboard.CreateSession())
 {

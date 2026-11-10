@@ -35,12 +35,12 @@ namespace ConsoleMonster.Values {
         }
 
         /// <summary>A text block for shaped markup: an ordinary block when it has no placeholder, otherwise one drawn for its tier.</summary>
-        internal static IWidget Block(string markup) => In(markup) ? new TierText(markup) : new TextBlock(markup);
+        internal static IWidget Block(string markup) => In(markup) ? new TierText(markup) : TextBlock.FromMarkup(markup);
 
         private sealed class TierText : IWidget {
             private readonly string _markup;
             internal TierText(string markup) { _markup = markup; }
-            private TextBlock For(RenderContext context) => new TextBlock(Resolve(_markup, context.Glyphs.Tier));
+            private TextBlock For(RenderContext context) => TextBlock.FromMarkup(Resolve(_markup, context.Glyphs.Tier));
             public Size Measure(Constraints constraints, RenderContext context) => For(context).Measure(constraints, context);
             public void Render(Region region, RenderContext context) => For(context).Render(region, context);
         }

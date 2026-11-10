@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
 
-PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
-
 ## SYNTAX
 ### Session (Default)
 ```powershell
@@ -22,8 +20,6 @@ Export-ConsoleRecording [-Dashboard] <IWidget> [-RecordingPath] <string> [[-Path
 ```
 
 ## DESCRIPTION
-Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.
-
 PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.
 
 ## EXAMPLES
@@ -59,7 +55,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -75,7 +71,7 @@ Possible values: Theme, Solid, Gradient
 
 Required: False
 Position: named
-Default value: None
+Default value: Theme
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -139,7 +135,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +199,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -219,7 +215,7 @@ Possible values: Content, Terminal
 
 Required: False
 Position: named
-Default value: None
+Default value: Content
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -283,7 +279,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -299,7 +295,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 30
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -315,7 +311,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -331,7 +327,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -347,7 +343,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -363,7 +359,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 72
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -379,7 +375,7 @@ Possible values: Source, Slow, Normal, Fast
 
 Required: False
 Position: named
-Default value: None
+Default value: Normal
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -395,7 +391,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -427,7 +423,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -443,7 +439,7 @@ Possible values: Docs, Slide16x9, Slide4x3, Social
 
 Required: False
 Position: named
-Default value: None
+Default value: Docs
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -475,7 +471,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -491,7 +487,7 @@ Possible values: Auto, Dark, Light, HighContrast, Current
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -539,7 +535,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -571,7 +567,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -587,7 +583,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -606,4 +602,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/export-consolerecording/](https://consolemonster.dev/powershell/commands/export-consolerecording/)

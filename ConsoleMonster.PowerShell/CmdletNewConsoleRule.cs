@@ -3,15 +3,21 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a horizontal rule, optionally with a title.</para>
-    /// <para type="description">The line uses the border colour and the glyph tier's line character.</para>
-    /// </summary>
+    /// <summary>Creates a horizontal rule, optionally with a title.</summary>
+    /// <remarks><para>The line uses the border colour and the glyph tier's line character.</para></remarks>
     /// <example>
     ///   <para>A titled separator</para>
     ///   <code>New-ConsoleRule -Title 'Results'</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleRule")]
+    /// <example>
+    /// <para>Compose an inventory rule</para>
+    /// <code>New-ConsoleRows -Content {
+    ///     New-ConsoleRule 'Inventory'
+    ///     New-ConsoleText '2 servers checked' -Role Pass
+    /// } | Show-Console
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleRule", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolerule/")]
     [OutputType(typeof(Rule))]
     public sealed class CmdletNewConsoleRule : NoPipelineInputCmdlet {
         /// <summary><para type="description">The title (markup allowed).</para></summary>
@@ -20,10 +26,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Title alignment: Left, Center or Right.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Left")]
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
         /// <summary><para type="description">Theme role for the line; default Border.</para></summary>
-        [Parameter] public Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
+        [Parameter] [PSDefaultValue(Help = "Border")]
+        public Styling.ThemeToken LineRole { get; set; } = Styling.ThemeToken.Border;
         /// <summary><para type="description">Optional line glyph style; omitted follows the active theme.</para></summary>
         [Parameter] public Glyphs.BoxStyle? LineStyle { get; set; }
 

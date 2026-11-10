@@ -232,7 +232,7 @@ namespace ConsoleMonster.Live {
                     // Markers and content must reach the same synchronous stdout sink, even inside another live session.
                     ContinuousIntegration.WriteLog(line);
                 } else {
-                    Terminal.Write(new TextBlock(Text.Markup.Escape(line)));
+                    Terminal.Write(TextBlock.FromMarkup(Text.Markup.Escape(line)));
                 }
             }
         }

@@ -58,7 +58,7 @@ namespace ConsoleMonster.Interactive {
                 bool locked = setting.Source == ConsoleSettingSource.Environment;
                 if (locked) { select.Disabled = true; }
                 selects[setting.Name] = select;
-                TextBlock label = new TextBlock((locked ? "[muted]" : "[bold]") + Markup.Escape(setting.Name) + "[/]");
+                TextBlock label = TextBlock.FromMarkup((locked ? "[muted]" : "[bold]") + Markup.Escape(setting.Name) + "[/]");
                 choices.Add(new Columns().Add(label, LayoutSize.Fixed(labelWidth)).Add(select, LayoutSize.Fraction()));
             }
             Button save = new Button("settings.save", "Save", false);
@@ -76,7 +76,7 @@ namespace ConsoleMonster.Interactive {
             // The preview pads itself, so its page colour reaches the frame.
             SettingsColumns body = new SettingsColumns(left, new Panel(preview, "Preview") { PaddingLeft = 0, PaddingRight = 0 }, settingsWidth);
             Rows layout = new Rows(
-                new TextBlock("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
+                TextBlock.FromMarkup("[bold]ConsoleMonster settings[/] [muted]· the preview follows your choices · Save keeps them for every session[/]"),
                 body) { Gap = 1 };
             ConsoleAppOptions run = options ?? new ConsoleAppOptions();
             // Each setting is a label beside its dropdown; keep that row side by side down to a narrow terminal.
@@ -203,7 +203,7 @@ namespace ConsoleMonster.Interactive {
                     lines.Add(Markup.Escape(setting.Name) + " is set by " + Markup.Escape(setting.Variable) + "; clear it to choose here.");
                 }
             }
-            return new TextBlock("[muted]" + string.Join("\n", lines) + "[/]");
+            return TextBlock.FromMarkup("[muted]" + string.Join("\n", lines) + "[/]");
         }
 
         // The committed values, except that the focused setting shows its highlighted choice, so browsing an open list
@@ -244,7 +244,7 @@ namespace ConsoleMonster.Interactive {
             IWidget content = new Rows(
                 table,
                 new Columns(status, new Rows(progress, chart)),
-                new TextBlock("[fail]Error:[/] [muted]Cannot reach[/] [accent]sql01.contoso.test[/] [muted](port 1433)[/] [link=https://consolemonster.dev/]docs[/]")) { Gap = 1 };
+                TextBlock.FromMarkup("[fail]Error:[/] [muted]Cannot reach[/] [accent]sql01.contoso.test[/] [muted](port 1433)[/] [link=https://consolemonster.dev/]docs[/]")) { Gap = 1 };
             return new PreviewScope(content, values, margin);
         }
 

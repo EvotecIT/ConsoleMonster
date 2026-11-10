@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a named single-line text input for Show-ConsoleApp.
 
-Emits a stable core TextInput widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
-
 ## SYNTAX
 ### Single (Default)
 ```powershell
@@ -22,8 +20,6 @@ New-ConsoleTextInput [-Key] <string> [[-Label] <string>] -Multiline [-Value <str
 ```
 
 ## DESCRIPTION
-Creates a named single-line text input for Show-ConsoleApp.
-
 Emits a stable core TextInput widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
 
 ## EXAMPLES
@@ -34,6 +30,15 @@ New-ConsoleTextInput -Key Query -Placeholder 'Filter' -OnChange { $State.Edits =
 ```
 
 Create an application input.
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleTextInput -Key filter -Placeholder 'Server name' -Value web
+}
+```
+
+Compose an inventory text input
 
 ## PARAMETERS
 
@@ -48,7 +53,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -64,7 +69,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 6
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -128,7 +133,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2147483647
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -144,7 +149,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -192,7 +197,7 @@ Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, S
 
 Required: False
 Position: named
-Default value: None
+Default value: Text
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -208,7 +213,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -224,7 +229,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -266,7 +271,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -275,4 +280,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletextinput/](https://consolemonster.dev/powershell/commands/new-consoletextinput/)

@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Removes registered ConsoleMonster views and value shapers.
 
-Names the registered types directly or reads their names from a validated data-only .consoleviews.psd1 file. Does not remove or execute the file.
-
 ## SYNTAX
 ### Type (Default)
 ```powershell
@@ -22,8 +20,6 @@ Unregister-ConsoleView -Path <string[]> [-WhatIf] [-Confirm] [<CommonParameters>
 ```
 
 ## DESCRIPTION
-Removes registered ConsoleMonster views and value shapers.
-
 Names the registered types directly or reads their names from a validated data-only .consoleviews.psd1 file. Does not remove or execute the file.
 
 ## EXAMPLES
@@ -34,6 +30,14 @@ Unregister-ConsoleView -TypeName 'Contoso.Server'
 ```
 
 Remove a custom result view.
+
+### EXAMPLE 2
+```powershell
+Unregister-ConsoleView -TypeName 'Inventory.Server' -WhatIf
+            Get-ConsoleFormatting
+```
+
+Preview removing a registered inventory view
 
 ## PARAMETERS
 
@@ -74,7 +78,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -82,4 +86,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/unregister-consoleview/](https://consolemonster.dev/powershell/commands/unregister-consoleview/)

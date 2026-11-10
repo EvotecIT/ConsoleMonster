@@ -519,7 +519,7 @@ function Get-OptionFields {
     $fieldParameters = @{
         Key = 'Parallel'
         Label = 'Servers at a time'
-        Type = 'Number'
+        Kind = 'Number'
         Integer = $true
         Minimum = 1
         Maximum = 16
@@ -530,13 +530,13 @@ function Get-OptionFields {
     $fieldParameters = @{
         Key = 'Report'
         Label = 'Report folder'
-        Type = 'Path'
-        Kind = 'Folder'
+        Kind = 'Path'
+        PathKind = 'Folder'
         Default = $reportRoot
         ParameterName = 'ReportPath'
     }
     New-ConsoleField @pageOption @fieldParameters
-    New-ConsoleField @pageOption -Key Format -Label 'Report format' -Type Select -Choices @(
+    New-ConsoleField @pageOption -Key Format -Label 'Report format' -Kind Select -Choices @(
         [pscustomobject] @{ Id = 'Html'; Name = 'HTML' }
         [pscustomobject] @{ Id = 'Csv'; Name = 'CSV' }
         [pscustomobject] @{ Id = 'Json'; Name = 'JSON' }
@@ -544,7 +544,7 @@ function Get-OptionFields {
     $fieldParameters = @{
         Key = 'Notify'
         Label = 'Email the report'
-        Type = 'Toggle'
+        Kind = 'Toggle'
         ParameterName = 'Notify'
     }
     New-ConsoleField @pageOption @fieldParameters
@@ -582,7 +582,7 @@ $checkForm = New-ConsoleForm @formParameters -Content {
         Key = 'Domain'
         Label = 'Domain'
         Page = 'Scope'
-        Type = 'Select'
+        Kind = 'Select'
         Choices = @($inventory.Domain | Select-Object -Unique)
         Default = $plan.Domain
         ParameterName = 'Domain'
@@ -592,7 +592,7 @@ $checkForm = New-ConsoleForm @formParameters -Content {
         Key = 'Servers'
         Label = 'Servers'
         Page = 'Scope'
-        Type = 'Select'
+        Kind = 'Select'
         Multiple = $true
         DependsOn = 'Domain'
         Minimum = 1
@@ -616,7 +616,7 @@ $checkForm = New-ConsoleForm @formParameters -Content {
         Key = 'Checks'
         Label = 'Checks'
         Page = 'Checks'
-        Type = 'Select'
+        Kind = 'Select'
         Multiple = $true
         Choices = $catalog
         Display = 'Name'

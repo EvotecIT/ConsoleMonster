@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Asks for a number.
 
-Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decimal]). -Minimum and -Maximum are shown as a hint and checked; Up and Down step by -Step (PgUp and PgDn by ten steps).
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Read-ConsoleNumber [[-Title] <string>] [-Default <Decimal>] [-Minimum <Decimal>]
 ```
 
 ## DESCRIPTION
-Asks for a number.
-
 Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decimal]). -Minimum and -Maximum are shown as a hint and checked; Up and Down step by -Step (PgUp and PgDn by ten steps).
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ $port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 44
 ```
 
 A port number
+
+### EXAMPLE 2
+```powershell
+$count = Read-ConsoleNumber -Title 'Servers per batch' -Default 5 -Minimum 1 -Maximum 20
+Write-ConsoleText "Batch size: $count"
+```
+
+Choose a bounded batch size
 
 ## PARAMETERS
 
@@ -49,7 +53,7 @@ Accept wildcard characters: False
 ```
 
 ### -Default
-The default.
+The numeric answer initially selected when the question opens.
 
 ```yaml
 Type: Decimal
@@ -91,13 +95,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Maximum
-The largest value.
+Upper bound accepted by the numeric editor, inclusive.
 
 ```yaml
 Type: Decimal
@@ -113,7 +117,7 @@ Accept wildcard characters: False
 ```
 
 ### -Minimum
-The smallest value.
+Lower bound accepted by the numeric editor, inclusive.
 
 ```yaml
 Type: Decimal
@@ -171,13 +175,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Title
-The question.
+The prompt displayed above the input control.
 
 ```yaml
 Type: String
@@ -187,7 +191,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: Enter a value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -213,7 +217,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -222,4 +226,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consolenumber/](https://consolemonster.dev/powershell/commands/read-consolenumber/)

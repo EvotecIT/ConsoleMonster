@@ -41,7 +41,7 @@ IReadOnlyList<MaintenanceTask> tasks = new MultiSelectPrompt<MaintenanceTask>(
 {
     Minimum = 1,
     Preview = t => new Rows(
-        new TextBlock(Markup.Escape(t.Description)),
+        TextBlock.FromMarkup(Markup.Escape(t.Description)),
         new KeyValueList()
             .Add("Group", Markup.Escape(t.Category))
             .Add("Duration", "about " + t.Minutes + " min per server")

@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
 
--Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Obje
 ```
 
 ## DESCRIPTION
-Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.
-
 -Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.
 
 ## EXAMPLES
@@ -63,7 +59,7 @@ Possible values: Left, Center, Right
 
 Required: False
 Position: named
-Default value: None
+Default value: Left
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -175,7 +171,7 @@ Possible values: Wrap, Ellipsis, Clip
 
 Required: False
 Position: named
-Default value: None
+Default value: Wrap
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -225,4 +221,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletext/](https://consolemonster.dev/powershell/commands/new-consoletext/)

@@ -13,9 +13,9 @@ $backups = @(
 )
 
 $settings = New-ConsoleForm 'Settings' -NoReview -SubmitText 'Save' -Content {
-    New-ConsoleField Destination 'Destination' -Type Path -Kind Folder -Default 'D:\Backups' -Description 'Where backups are written.'
-    New-ConsoleField Keep 'Days to keep' -Type Number -Integer -Minimum 1 -Maximum 365 -Default 14
-    New-ConsoleField Compress 'Compress' -Type Toggle -Default $true -Description 'Smaller files, slower backups.'
+    New-ConsoleField Destination 'Destination' -Kind Path -PathKind Folder -Default 'D:\Backups' -Help 'Where backups are written.'
+    New-ConsoleField Keep 'Days to keep' -Kind Number -Integer -Minimum 1 -Maximum 365 -Default 14
+    New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true -Help 'Smaller files, slower backups.'
 }
 
 $menu = New-ConsoleMenu 'Backup helper' -Description 'Back up and restore the reports share.' -Content {

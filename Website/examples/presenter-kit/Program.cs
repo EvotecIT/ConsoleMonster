@@ -25,7 +25,7 @@ DemoOptions options = new DemoOptions
     Output = Console.Write,
     Recording = new SessionRecordingOptions
     {
-        Path = Path.Combine(output, "talk.cast"),
+        RecordingPath = Path.Combine(output, "talk.cast"),
         Shell = "pwsh",
         Width = 80,
         Height = 12

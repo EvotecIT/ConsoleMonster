@@ -103,7 +103,7 @@ namespace ConsoleMonster.Widgets {
             foreach (ChartSeries series in _series) {
                 var values = new List<string>();
                 foreach (double value in series.Values) values.Add(value.ToString("G", context.Culture) + (Unit ?? string.Empty));
-                rows.Add(new TextBlock(Markup.Escape((StatusKinds.TryFromToken(series.Role, out StatusKind state) ? context.Glyphs.StatusSymbol(state) + " " : string.Empty) + series.Label + ": " + (values.Count == 0 ? NumberFormat.Missing(context.Glyphs.Tier) : string.Join(", ", values.ToArray())))));
+                rows.Add(TextBlock.FromMarkup(Markup.Escape((StatusKinds.TryFromToken(series.Role, out StatusKind state) ? context.Glyphs.StatusSymbol(state) + " " : string.Empty) + series.Label + ": " + (values.Count == 0 ? NumberFormat.Missing(context.Glyphs.Tier) : string.Join(", ", values.ToArray())))));
             }
             return rows;
         }

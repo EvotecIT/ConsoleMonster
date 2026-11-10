@@ -9,10 +9,8 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Output;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Writes coloured text with optional markup, alignment, wrapping and a text log.</para>
-    /// <para type="description">Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.</para>
-    /// </summary>
+    /// <summary>Writes coloured text with optional markup, alignment, wrapping and a text log.</summary>
+    /// <remarks><para>Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.</para></remarks>
     /// <example>
     ///   <para>Colour two pieces and indent the message</para>
     ///   <code>Write-ConsoleText -Text 'Checking group: ', 'Operators' -Color Gray, Green -Indent 4</code>
@@ -25,12 +23,14 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A multi-line message aligned under the time stamp</para>
     ///   <code>Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTimestamp -SplitLines "`n"</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Write, "ConsoleText")]
+    [Cmdlet(VerbsCommunications.Write, "ConsoleText", HelpUri = "https://consolemonster.dev/powershell/commands/write-consoletext/")]
     public sealed class CmdletWriteConsoleText : PSCmdlet {
         /// <summary><para type="description">Spaces before the text.</para></summary>
-        [Parameter, ValidateRange(0, 1000)] public int Indent { get; set; }
+        [Parameter, ValidateRange(0, 1000)] [PSDefaultValue(Help = "0")]
+        public int Indent { get; set; }
         /// <summary><para type="description">Left, Center or Right within the available width.</para></summary>
-        [Parameter] public Layout.HorizontalAlignment Alignment { get; set; } = Layout.HorizontalAlignment.Left;
+        [Parameter] [PSDefaultValue(Help = "Left")]
+        public Layout.HorizontalAlignment Alignment { get; set; } = Layout.HorizontalAlignment.Left;
         /// <summary><para type="description">Text pieces, shown literally (strings, or rich text from New-ConsoleText).</para></summary>
         [Parameter(Position = 0, ValueFromPipeline = true)]
 
@@ -50,10 +50,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Empty lines before the text.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int LinesBefore { get; set; }
 
         /// <summary><para type="description">Empty lines after the text.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int LinesAfter { get; set; }
 
         /// <summary><para type="description">A log file the text is appended to (plain text, see -LogFormat).</para></summary>
@@ -64,14 +66,17 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The time format for -ShowTimestamp and the log (default yyyy-MM-dd HH:mm:ss).</para></summary>
         [Parameter]
 
+        [PSDefaultValue(Help = "yyyy-MM-dd HH:mm:ss")]
         public string TimestampFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary><para type="description">Starts the line with the time in brackets.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter ShowTimestamp { get; set; }
 
         /// <summary><para type="description">Leaves the line open, so the next output continues on it.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoNewLine { get; set; }
 
         /// <summary><para type="description">Markup added after the pieces ([bold lime]Ready[/] in [muted]3s[/]).</para></summary>
@@ -97,11 +102,13 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Wraps long text at the window width, continuing under the text after the time and prefix.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Wrap { get; set; }
 
         /// <summary><para type="description">The width for -Wrap and -Alignment (default the window width).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Splits the text at this separator; the following lines are aligned under the first, after the time and prefix.</para></summary>
@@ -113,7 +120,7 @@ namespace ConsoleMonster.PowerShell {
             RichText body = PSRichText.Build(Text, Color, BackgroundColor, Markup, Decoration, Link, Role, Gradient);
             DateTime now = DateTime.Now;
             ConsoleTextLayout layout = new ConsoleTextLayout {
-                StartSpaces = Indent,
+                Indent = Indent,
                 LinesBefore = LinesBefore,
                 LinesAfter = LinesAfter,
                 Time = ShowTimestamp.IsPresent ? now : (DateTime?)null,

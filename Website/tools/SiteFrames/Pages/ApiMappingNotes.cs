@@ -80,6 +80,12 @@ namespace SiteFrames.Pages {
                 string uiId = "M:" + entryRule["FactoryType"]!.GetValue<string>() + "." + noun;
                 string nestedId = "M:ConsoleMonster.Layout.ContentBuilder." + noun;
                 string? constructed = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault();
+                // A concrete factory supersedes the polymorphic definition for this constructed renderer.
+                if (!used.Contains(uiId) && !used.Contains(nestedId) && constructed != null
+                    && entryRule["Factories"]!.AsArray().Select(node => node!.AsObject()).Any(other =>
+                        other["Noun"]!.GetValue<string>() != noun && other["ReturnType"]!.GetValue<string>() == constructed
+                        && (used.Contains("M:ConsoleMonster.Ui." + other["Noun"]!.GetValue<string>())
+                            || used.Contains("M:ConsoleMonster.Layout.ContentBuilder." + other["Noun"]!.GetValue<string>())))) { continue; }
                 string methodId = used.Contains(uiId) ? uiId : used.Contains(nestedId) ? nestedId : "C:" + constructed;
                 if (!used.Contains(methodId) || commands != null && !commands.Any(value => value == command || value.StartsWith(command + " -", StringComparison.Ordinal))) { continue; }
                 string type = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault() ?? factory["ReturnType"]!.GetValue<string>();

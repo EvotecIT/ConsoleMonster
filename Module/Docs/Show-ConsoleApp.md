@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Runs native input controls and dependent displays in a console application.
 
-Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-K
 ```
 
 ## DESCRIPTION
-Runs native input controls and dependent displays in a console application.
-
 Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.
 
 ## EXAMPLES
@@ -467,7 +463,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -475,4 +471,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consoleapp/](https://consolemonster.dev/powershell/commands/show-consoleapp/)

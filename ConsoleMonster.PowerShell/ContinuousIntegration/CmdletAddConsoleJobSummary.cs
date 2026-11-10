@@ -3,12 +3,16 @@ using System.Management.Automation;
 using ConsoleMonster.Export;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Adds widgets or objects as Markdown to the CI job summary.</para>
-    /// <para type="description">Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.</para>
-    /// </summary>
+    /// <summary>Adds widgets or objects as Markdown to the CI job summary.</summary>
+    /// <remarks><para>Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.</para></remarks>
     /// <example><para>Add a result table to the job summary</para><code>@([pscustomobject]@{ Check = 'Build'; Result = 'Passed' }) | Add-ConsoleJobSummary</code></example>
-    [Cmdlet(VerbsCommon.Add, "ConsoleJobSummary")]
+    /// <example>
+    /// <para>Add an inventory table to the CI summary</para>
+    /// <code>$servers = @([pscustomobject]@{ Name = 'web01'; State = 'Pass' })
+    /// $servers | New-ConsoleTable | Add-ConsoleJobSummary
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.Add, "ConsoleJobSummary", HelpUri = "https://consolemonster.dev/powershell/commands/add-consolejobsummary/")]
     [OutputType(typeof(string))]
     public sealed class CmdletAddConsoleJobSummary : PSCmdlet {
         private readonly List<object> _items = new List<object>();

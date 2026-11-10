@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Builds a playable sequence of diagram interactions.
 
-Content emits New-ConsoleDiagramStep values in playback order. Id defaults to Label. AutoPlay starts only when the keyboard view opens; static output keeps the selected step.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleDiagramUseCase [-Label] <string> [[-Content] <scriptblock>] [-Id <str
 ```
 
 ## DESCRIPTION
-Builds a playable sequence of diagram interactions.
-
 Content emits New-ConsoleDiagramStep values in playback order. Id defaults to Label. AutoPlay starts only when the keyboard view opens; static output keeps the selected step.
 
 ## EXAMPLES
@@ -29,6 +25,17 @@ New-ConsoleDiagramUseCase 'Place an order' { New-ConsoleDiagramStep Shopper Web 
 ```
 
 A request and reply.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDiagram -Title 'Order processing' -Content {
+                New-ConsoleDiagramNode -Id api -Label API
+                New-ConsoleDiagramNode -Id db -Label Database
+                New-ConsoleDiagramUseCase -Id save -Label 'Save order' -Content { New-ConsoleDiagramStep -From api -To db -Label Insert }
+            } | Show-Console
+```
+
+Compose an inventory diagram use case
 
 ## PARAMETERS
 
@@ -43,7 +50,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -75,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 900
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -123,7 +130,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -141,4 +148,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolediagramusecase/](https://consolemonster.dev/powershell/commands/new-consolediagramusecase/)

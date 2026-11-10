@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Asks for one civil date or inclusive date range.
 
-Returns one DateTime at midnight with unspecified kind, or one DateRange with -Range. Escape follows the normal prompt cancellation policy. Line and accessible modes accept yyyy-MM-dd and culture-aware dates; non-interactive mode requires a valid explicit default.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Read-ConsoleDate [[-Title] <string>] [-Default <Object>] [-Range] [-Selection <D
 ```
 
 ## DESCRIPTION
-Asks for one civil date or inclusive date range.
-
 Returns one DateTime at midnight with unspecified kind, or one DateRange with -Range. Escape follows the normal prompt cancellation policy. Line and accessible modes accept yyyy-MM-dd and culture-aware dates; non-interactive mode requires a valid explicit default.
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ Read-ConsoleDate -Title Window -Range -Default ([datetime]'2026-10-08')
 ```
 
 Read an inclusive maintenance window.
+
+### EXAMPLE 2
+```powershell
+$date = Read-ConsoleDate -Title 'Next maintenance date' -Default '2030-06-15'
+Write-ConsoleText "Maintenance: $date"
+```
+
+Choose a maintenance date
 
 ## PARAMETERS
 
@@ -123,7 +127,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -145,7 +149,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The question.
+The prompt displayed above the input control.
 
 ```yaml
 Type: String
@@ -155,7 +159,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: Enter a value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -174,4 +178,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consoledate/](https://consolemonster.dev/powershell/commands/read-consoledate/)

@@ -8,10 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Drafts a reusable console view from sample objects.
 
-Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.
-
-Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -19,8 +15,6 @@ ConvertTo-ConsoleView [-InputObject] <psobject[]> [-AsDataFile] [-Register] [<Co
 ```
 
 ## DESCRIPTION
-Drafts a reusable console view from sample objects.
-
 Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.
 
 Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.
@@ -81,7 +75,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -113,7 +107,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -131,4 +125,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/convertto-consoleview/](https://consolemonster.dev/powershell/commands/convertto-consoleview/)

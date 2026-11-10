@@ -4,14 +4,12 @@ using System.Threading;
 using ConsoleMonster.Overview;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows a compact, read-only summary of the local host.</para>
-    /// <para type="description">Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.</para>
-    /// </summary>
+    /// <summary>Shows a compact, read-only summary of the local host.</summary>
+    /// <remarks><para>Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.</para></remarks>
     /// <example><para>Show the local login overview.</para><code>Show-ConsoleOverview</code></example>
     /// <example><para>Return selected data for a script.</para><code>$snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject</code></example>
     /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsWidget | Export-ConsoleFrame -Format Text</code></example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleOverview", DefaultParameterSetName = "Render")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleOverview", DefaultParameterSetName = "Render", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoleoverview/")]
     [OutputType(typeof(OverviewSnapshot), typeof(string))]
     public sealed class CmdletShowConsoleOverview : NoPipelineInputCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
@@ -23,20 +21,24 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns the immutable OverviewSnapshot instead of drawing it.</para></summary>
         [Parameter(ParameterSetName = "Object")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsObject { get; set; }
 
         /// <summary><para type="description">Layout width in cells; zero resolves the terminal width, with a 100-cell fallback.</para></summary>
         [Parameter(ParameterSetName = "Render")]
         [ValidateRange(0, 32767)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.</para></summary>
         [Parameter]
         [ValidateRange(0.001, 0.9)]
+        [PSDefaultValue(Help = "0.75")]
         public double BudgetSeconds { get; set; } = 0.75;
 
         /// <summary><para type="description">Returns the view widget without drawing or acquiring input.</para></summary>
         [Parameter(ParameterSetName = "Render")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsWidget { get; set; }
 
         /// <inheritdoc />

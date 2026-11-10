@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a named action button for Show-ConsoleApp.
 
-Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleButton [-Key] <string> [[-Label] <string>] [-OnClick <scriptblock>] [
 ```
 
 ## DESCRIPTION
-Creates a named action button for Show-ConsoleApp.
-
 Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ New-ConsoleButton -Key Apply -OnClick { $State.Applied = $true }
 ```
 
 Create an application input.
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleButton -Key inspect -Label 'Inspect inventory' -OnClick { Write-ConsoleLogEntry 'Inspection requested' }
+}
+```
+
+Compose an inventory button
 
 ## PARAMETERS
 
@@ -59,7 +64,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -139,7 +144,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -165,7 +170,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -173,4 +178,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolebutton/](https://consolemonster.dev/powershell/commands/new-consolebutton/)

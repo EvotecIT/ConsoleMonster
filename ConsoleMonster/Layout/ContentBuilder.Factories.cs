@@ -5,6 +5,55 @@ using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.Layout {
     public sealed partial class ContentBuilder {
+        /// <summary>Adds a typed BarChart; the callback uses the same fluent setters as Ui.BarChart().</summary>
+        /// <param name="configure">Configures the widget before composition.</param><returns>This builder.</returns>
+        public ContentBuilder BarChart(Action<BarChart>? configure = null) { var widget = Ui.BarChart(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds an existing BarChart without rebuilding it.</summary>
+        /// <param name="widget">The concrete widget.</param><returns>This builder.</returns>
+        public ContentBuilder BarChart(BarChart widget) => Add(widget);
+
+        /// <summary>Adds a typed LineChart; the callback uses the same fluent setters as Ui.LineChart().</summary>
+        /// <param name="configure">Configures the widget before composition.</param><returns>This builder.</returns>
+        public ContentBuilder LineChart(Action<LineChart>? configure = null) { var widget = Ui.LineChart(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds an existing LineChart without rebuilding it.</summary>
+        /// <param name="widget">The concrete widget.</param><returns>This builder.</returns>
+        public ContentBuilder LineChart(LineChart widget) => Add(widget);
+
+        /// <summary>Adds a typed Sparkline; the callback uses the same fluent setters as Ui.Sparkline().</summary>
+        /// <param name="configure">Configures the widget before composition.</param><returns>This builder.</returns>
+        public ContentBuilder Sparkline(Action<Sparkline>? configure = null) { var widget = Ui.Sparkline(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds an existing Sparkline without rebuilding it.</summary>
+        /// <param name="widget">The concrete widget.</param><returns>This builder.</returns>
+        public ContentBuilder Sparkline(Sparkline widget) => Add(widget);
+
+        /// <summary>Adds a typed StackedBar; the callback uses the same fluent setters as Ui.StackedBar().</summary>
+        /// <param name="configure">Configures the widget before composition.</param><returns>This builder.</returns>
+        public ContentBuilder StackedBar(Action<StackedBar>? configure = null) { var widget = Ui.StackedBar(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds an existing StackedBar without rebuilding it.</summary>
+        /// <param name="widget">The concrete widget.</param><returns>This builder.</returns>
+        public ContentBuilder StackedBar(StackedBar widget) => Add(widget);
+
+        /// <summary>Adds a typed ProgressBar; the callback uses the same fluent setters as Ui.ProgressBar().</summary>
+        /// <param name="configure">Configures the widget before composition.</param><returns>This builder.</returns>
+        public ContentBuilder ProgressBar(Action<ProgressBar>? configure = null) { var widget = Ui.ProgressBar(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds an existing ProgressBar without rebuilding it.</summary>
+        /// <param name="widget">The concrete widget.</param><returns>This builder.</returns>
+        public ContentBuilder ProgressBar(ProgressBar widget) => Add(widget);
+
+        /// <summary>Adds a typed Spinner; the callback uses the same fluent setters as Ui.Spinner().</summary>
+        /// <param name="configure">Configures the widget before composition.</param><returns>This builder.</returns>
+        public ContentBuilder Spinner(Action<Spinner>? configure = null) { var widget = Ui.Spinner(); configure?.Invoke(widget); return Add(widget); }
+        /// <summary>Adds an existing Spinner without rebuilding it.</summary>
+        /// <param name="widget">The concrete widget.</param><returns>This builder.</returns>
+        public ContentBuilder Spinner(Spinner widget) => Add(widget);
+
+        /// <summary>Adds semantic Markdown blocks configured in place.</summary>
+        /// <param name="configure">Adds paragraphs, headings, code or other blocks.</param><returns>This builder.</returns>
+        public ContentBuilder Markdown(Action<MarkdownView> configure) { var widget = Ui.Markdown(); configure(widget); return Add(widget); }
+        /// <summary>Adds a parsed Markdown document without changing its blocks.</summary>
+        /// <param name="widget">For example, MarkdownConsole.Parse(source).</param><returns>This builder.</returns>
+        public ContentBuilder Markdown(MarkdownView widget) => Add(widget);
+
         /// <summary>Adds a Rows configured with the same chain as Ui.Rows().</summary>
         /// <param name="configure">Configures the empty widget before adding it.</param><returns>This builder.</returns>
         public ContentBuilder Rows(Action<Rows>? configure = null) { var widget = Ui.Rows(); configure?.Invoke(widget); return Add(widget); }

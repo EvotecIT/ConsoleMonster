@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows one status line that updates in place, with an optional spinner, clock and elapsed time.
 
-Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Show-ConsoleStatusLine [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColo
 ```
 
 ## DESCRIPTION
-Shows one status line that updates in place, with an optional spinner, clock and elapsed time.
-
 Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).
 
 ## EXAMPLES
@@ -87,7 +83,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -151,7 +147,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -167,7 +163,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -183,7 +179,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -231,7 +227,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: HH:mm:ss
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -241,7 +237,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -249,4 +245,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consolestatusline/](https://consolemonster.dev/powershell/commands/show-consolestatusline/)

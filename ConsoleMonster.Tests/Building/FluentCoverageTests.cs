@@ -85,7 +85,7 @@ namespace ConsoleMonster.Tests.Building {
             Assert.Equal(0, calls);
             Assert.NotNull(options.Preview!(null));
             Assert.Equal(1, calls);
-            var prompt = new SelectPrompt<int>("Number", new[] { 1, 2 }).Configure(value => value.Preview = number => new TextBlock(number.ToString()));
+            var prompt = new SelectPrompt<int>("Number", new[] { 1, 2 }).Configure(value => value.Preview = number => TextBlock.FromMarkup(number.ToString()));
             Assert.IsType<SelectPrompt<int>>(prompt);
             Assert.NotNull(prompt.Preview);
         }

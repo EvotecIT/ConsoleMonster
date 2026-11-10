@@ -8,27 +8,23 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows objects, text and widgets in a readable view that fits the terminal.
 
-Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
-
 ## SYNTAX
 ### Objects (Default)
 ```powershell
-Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
+Show-Console [[-InputObject] <psobject>] [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
+Show-Console -Path <string> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ### Content
 ```powershell
-Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-Depth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
+Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy <Object>] [-Title <Object>] [-Caption <Object>] [-Width <int>] [-Culture <cultureinfo>] [-AsWidget] [-PassThru] [-ShowTotals] [-MaxRows <int>] [-Border <TableBorder>] [-CardsBelow <int>] [-NoHeaderSeparator] [-Expand] [-StatusProperty <string>] [-ShowGroupColumn] [-NoSort] [-Wrap] [-ShowEmpty] [-MaxDepth <int>] [-MaxItems <int>] [-MaxNodes <int>] [-Exclude <string[]>] [-Language <string>] [-LineNumbers] [-ErrorLayout <string>] [-MaxInner <int>] [-NoPager] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Shows objects, text and widgets in a readable view that fits the terminal.
-
 Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
 
 ## EXAMPLES
@@ -49,7 +45,7 @@ Read selected fields as a list
 
 ### EXAMPLE 3
 ```powershell
-Get-Item . | Show-Console -View Tree -Depth 1 -Property Name, FullName, LastWriteTime
+Get-Item . | Show-Console -View Tree -MaxDepth 1 -Property Name, FullName, LastWriteTime
 ```
 
 Inspect a file object's members with a bounded tree
@@ -99,7 +95,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -115,7 +111,7 @@ Possible values: Rounded, Square, Double, Minimal, None, Rule
 
 Required: False
 Position: named
-Default value: None
+Default value: Rounded
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -147,7 +143,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 60
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -184,22 +180,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Depth
-Maximum nesting depth; default three.
-
-```yaml
-Type: Int32
-Parameter Sets: Objects, Path, Content
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -ErrorLayout
 Error detail: Compact, Standard or Detailed.
 
@@ -211,7 +191,7 @@ Possible values: Compact, Standard, Detailed
 
 Required: False
 Position: named
-Default value: None
+Default value: Standard
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -243,7 +223,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -291,7 +271,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -307,7 +287,23 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxDepth
+Maximum nesting depth; default three.
+
+```yaml
+Type: Int32
+Parameter Sets: Objects, Path, Content
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 3
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -323,7 +319,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 4
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -339,7 +335,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 100
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -355,7 +351,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -371,7 +367,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -387,7 +383,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -403,7 +399,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -419,7 +415,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -435,7 +431,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -483,7 +479,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -499,7 +495,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -515,7 +511,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -563,7 +559,7 @@ Possible values: Auto, Table, List, Tree, Code, Json, Error, Markdown
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -579,7 +575,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -595,7 +591,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -613,4 +609,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-console/](https://consolemonster.dev/powershell/commands/show-console/)

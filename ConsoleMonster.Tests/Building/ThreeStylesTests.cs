@@ -58,7 +58,7 @@ namespace ConsoleMonster.Tests.Building {
                 new Columns(
                     new Panel(table, "Servers"),
                     new Panel(new Rows(summary, cpu), "Summary")) { Gap = 1 },
-                new TextBlock("[muted]Updated 10:02[/]")) { Gap = 1 };
+                TextBlock.FromMarkup("[muted]Updated 10:02[/]")) { Gap = 1 };
         }
 
         // 2. Fluent: the generated With/Add methods, and a typed table.
@@ -76,7 +76,7 @@ namespace ConsoleMonster.Tests.Building {
                     .Add(new Panel(new Rows()
                         .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
                         .Add(new Sparkline().Title("CPU").AddRange(Cpu)), "Summary")))
-                .Add(new TextBlock("[muted]Updated 10:02[/]"));
+                .Add(TextBlock.FromMarkup("[muted]Updated 10:02[/]"));
         }
 
         // 3. Nested composition: ThreeStylesNested.cs, with `using static ConsoleMonster.Ui;`.

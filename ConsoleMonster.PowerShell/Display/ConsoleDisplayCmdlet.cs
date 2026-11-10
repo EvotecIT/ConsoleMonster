@@ -60,7 +60,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Keeps empty fields in record views.</para></summary>
         public virtual SwitchParameter ShowEmpty { get; set; }
         /// <summary><para type="description">Maximum nesting depth; default three.</para></summary>
-        public virtual int Depth { get; set; } = 3;
+        public virtual int MaxDepth { get; set; } = 3;
         /// <summary><para type="description">Maximum inspected items per collection; default 100.</para></summary>
         public virtual int MaxItems { get; set; } = 100;
         /// <summary><para type="description">Maximum hierarchy nodes; default 1000.</para></summary>
@@ -82,7 +82,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Shows framework stack frames in error views.</para></summary>
         public virtual SwitchParameter ShowFrameworkFrames { get; set; }
         /// <summary><para type="description">Maximum application frames per error; default eight.</para></summary>
-        public virtual int MaxStackFrames { get; set; } = 8;
+        public virtual int MaxFrames { get; set; } = 8;
         /// <summary><para type="description">Hides error stack frames.</para></summary>
         public virtual SwitchParameter NoStack { get; set; }
         /// <summary><para type="description">Error detail: Compact, Standard or Detailed.</para></summary>

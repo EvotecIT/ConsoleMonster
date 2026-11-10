@@ -11,10 +11,8 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs native input controls and dependent displays in a console application.</para>
-    /// <para type="description">Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para>
-    /// </summary>
+    /// <summary>Runs native input controls and dependent displays in a console application.</summary>
+    /// <remarks><para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para></remarks>
     /// <example>
     /// <para>Filter application data without leaving PowerShell</para>
     /// <code>$servers = @(
@@ -43,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
     ///     New-ConsoleBinding -Content { "Query: $($State.Query)" }
     /// } -PassThru</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleApp")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleApp", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoleapp/")]
     [OutputType(typeof(Hashtable))]
     public sealed class CmdletShowConsoleApp : NoPipelineInputCmdlet {
         /// <summary><para type="description">Host focus, cancel and palette gestures. Set a gesture to null to release it to the app registry.</para></summary>

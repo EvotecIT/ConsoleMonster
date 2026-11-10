@@ -4,10 +4,8 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a console table from pipeline objects.</para>
-    /// <para type="description">Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.</para>
-    /// </summary>
+    /// <summary>Creates a console table from pipeline objects.</summary>
+    /// <remarks><para>Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.</para></remarks>
     /// <example>
     /// <para>Build a table with a status column</para>
     /// <code>@(
@@ -26,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
     ///     New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects")]
+    [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletable/")]
     [OutputType(typeof(Table), typeof(AppBinding))]
     public partial class CmdletNewConsoleTable : TableConfigurationCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
@@ -47,15 +45,20 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Groups rows by a property or script block.</para></summary>
         [Parameter] public object? GroupBy { get; set; }
         /// <summary><para type="description">Adds totals for numeric columns.</para></summary>
-        [Parameter] public SwitchParameter ShowTotals { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ShowTotals { get; set; }
         /// <summary><para type="description">Uses cards below this width; zero keeps a grid.</para></summary>
-        [Parameter, ValidateRange(0, int.MaxValue)] public int CardsBelow { get; set; } = 60;
+        [Parameter, ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "60")]
+        public int CardsBelow { get; set; } = 60;
         /// <summary><para type="description">Keeps groups in input order.</para></summary>
-        [Parameter] public SwitchParameter NoSort { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoSort { get; set; }
         /// <summary><para type="description">Wraps long cell values without limiting their line count.</para></summary>
-        [Parameter] public SwitchParameter Wrap { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Wrap { get; set; }
         /// <summary><para type="description">Keeps the grouping property in the table columns.</para></summary>
-        [Parameter] public SwitchParameter ShowGroupColumn { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ShowGroupColumn { get; set; }
 
         /// <summary><para type="description">A property whose values are statuses (pass/fail/warn/skip/running).</para></summary>
         [Parameter]
@@ -71,30 +74,37 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Border: Rounded, Square, Double, Minimal or None.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Rounded")]
         public TableBorder Border { get; set; } = TableBorder.Rounded;
 
         /// <summary><para type="description">Underline the header instead of drawing a separator row under it.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoHeaderSeparator { get; set; }
 
         /// <summary><para type="description">Fill the available width. The text columns share the spare width in proportion to their widths, while number, date and status columns keep their natural width; a column hashtable's Weight (or Flexible) decides the share instead, and Width or MaxWidth holds.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Expand { get; set; }
 
         /// <summary><para type="description">Creates a keyed live table using the same column and row configuration.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Live")] public SwitchParameter Live { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "Live")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Live { get; set; }
         /// <summary><para type="description">The live widget identifier; default table.</para></summary>
-        [Parameter(Position = 0, ParameterSetName = "Live")] public string WidgetId { get; set; } = "table";
+        [Parameter(Position = 0, ParameterSetName = "Live")] [PSDefaultValue(Help = "table")]
+        public string WidgetId { get; set; } = "table";
         /// <summary><para type="description">For Live, the input property used as the stable row key; omitted uses the first column.</para></summary>
         [Parameter(ParameterSetName = "Live")] public string? KeyProperty { get; set; }
         /// <summary><para type="description">For Live, a table model supplying columns and presentation options.</para></summary>
         [Parameter(ParameterSetName = "Live")] public Table? Table { get; set; }
         /// <summary><para type="description">For Live, keeps this many recent rows; zero keeps all.</para></summary>
-        [Parameter, ValidateRange(0, int.MaxValue)] public int MaxRows { get; set; }
+        [Parameter, ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "0")]
+        public int MaxRows { get; set; }
         /// <summary><para type="description">For Live, the column index or header used for sorting.</para></summary>
-        [Parameter(ParameterSetName = "Live")] public object? SortBy { get; set; }
+        [Parameter(ParameterSetName = "Live")] public object? SortColumn { get; set; }
         /// <summary><para type="description">For Live, sorts larger values first.</para></summary>
-        [Parameter(ParameterSetName = "Live")] public SwitchParameter Descending { get; set; }
+        [Parameter(ParameterSetName = "Live")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter SortDescending { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {
@@ -115,8 +125,8 @@ namespace ConsoleMonster.PowerShell {
             Table table = Table ?? BuildTable(_items, boundRows: boundRows);
             if (Live.IsPresent) {
                 if (table.Columns.Count == 0) { throw new PSArgumentException("Live tables require columns or input objects that define them."); }
-                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = Descending.IsPresent, KeyProperty = KeyProperty };
-                if (SortBy != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortBy)); }
+                var live = new LiveTable(table, WidgetId) { MaxRows = MaxRows, SortDescending = SortDescending.IsPresent, KeyProperty = KeyProperty };
+                if (SortColumn != null) { live.SortColumn = ResolveColumn(table, PSWidgets.ToText(SortColumn)); }
                 if (boundRows == null) { PSItems.AddAll(this, live, _items, KeyProperty); }
                 else {
                     foreach (var row in boundRows) {
@@ -174,7 +184,7 @@ namespace ConsoleMonster.PowerShell {
 
         private static int ResolveColumn(Table table, string name) {
             if (int.TryParse(name, out int index)) {
-                if (index < 0 || index >= table.Columns.Count) { throw new PSArgumentOutOfRangeException(nameof(SortBy)); }
+                if (index < 0 || index >= table.Columns.Count) { throw new PSArgumentOutOfRangeException(nameof(SortColumn)); }
                 return index;
             }
             for (int i = 0; i < table.Columns.Count; i++) {

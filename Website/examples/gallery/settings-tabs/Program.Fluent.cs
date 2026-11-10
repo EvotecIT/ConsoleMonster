@@ -6,29 +6,31 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster;
 
 // Layout: construct the widgets shown on screen.
-Collapsible proxy = ((Collapsible)Ui.Collapsible().Key("Proxy").Content(Ui.Rows().Content(c =>
+Collapsible proxy = Ui.Collapsible().Key("Proxy").Content(Ui.Rows().Content(rowsContent =>
 {
-    c.TextInput(textInput => textInput.Key("ProxyServer")
+    rowsContent.TextInput(textInput => textInput.Key("ProxyServer")
         .Value("proxy.contoso.test:8080")
         .Label("Server"));
-    c.Toggle(toggle => toggle.Key("ProxyBypass").Value(true).Label("Bypass for local addresses"));
-})).Expanded().Build());
-Collapsible dns = ((Collapsible)Ui.Collapsible().Key("DNS").Content(Ui.Rows().Content(c =>
+    rowsContent.Toggle(toggle => toggle.Key("ProxyBypass")
+        .Value(true)
+        .Label("Bypass for local addresses"));
+})).Expanded().Build();
+Collapsible dns = Ui.Collapsible().Key("DNS").Content(Ui.Rows().Content(rowsContent =>
 {
-    c.TextInput(textInput => textInput.Key("DnsServers")
+    rowsContent.TextInput(textInput => textInput.Key("DnsServers")
         .Value("10.0.0.53, 10.0.1.53")
         .Label("Servers"));
-    c.TextInput(textInput => textInput.Key("DnsSuffix")
+    rowsContent.TextInput(textInput => textInput.Key("DnsSuffix")
         .Value("corp.contoso.test")
         .Label("Search suffix"));
-})).Build());
-Collapsible firewall = ((Collapsible)Ui.Collapsible().Key("Firewall").Content(Ui.Rows().Content(c =>
+})).Build();
+Collapsible firewall = Ui.Collapsible().Key("Firewall").Content(Ui.Rows().Content(rowsContent =>
 {
-    c.Toggle(toggle => toggle.Key("FirewallOn").Value(true).Label("Enabled"));
-    c.TextInput(textInput => textInput.Key("FirewallPorts")
+    rowsContent.Toggle(toggle => toggle.Key("FirewallOn").Value(true).Label("Enabled"));
+    rowsContent.TextInput(textInput => textInput.Key("FirewallPorts")
         .Value("443, 8443")
         .Label("Allowed ports"));
-})).Build());
+})).Build();
 Outline sections = ((Outline)Ui.Outline()
     .Key("Sections")
     .Build()).AddItem(new OutlineItem("Proxy").Target(proxy))
@@ -38,27 +40,29 @@ Outline sections = ((Outline)Ui.Outline()
 Breadcrumb where = ((Breadcrumb)Ui.Breadcrumb().Key("Where").Build()).AddAncestor("Settings")
     .AddAncestor("Network")
     .Outline(sections);
-Tabs layout = Ui.Tabs().Add("General", Ui.Rows().Content(c =>
+Tabs layout = Ui.Tabs().Add("General", Ui.Rows().Content(rowsContent =>
 {
-    c.TextInput(textInput => textInput.Key("DisplayName")
+    rowsContent.TextInput(textInput => textInput.Key("DisplayName")
         .Value("Contoso Operations")
         .Label("Display name"));
-    c.Toggle(toggle => toggle.Key("StartAtLogon").Value(false).Label("Start at logon"));
-})).Add("Network", Ui.Rows().Content(c2 =>
+    rowsContent.Toggle(toggle => toggle.Key("StartAtLogon").Value(false).Label("Start at logon"));
+})).Add("Network", Ui.Rows().Content(rowsContent2 =>
 {
-    c2.Add(where);
-    c2.Splitter(splitter => splitter.First(sections).Second(Ui.Rows().Content(c =>
-    {
-        c.Add(proxy);
-        c.Add(dns);
-        c.Add(firewall);
-    })).Ratio(0.25));
-})).Add("Logging", Ui.Rows().Content(c =>
+    rowsContent2.Add(where);
+    rowsContent2.Splitter(splitter => splitter.First(sections)
+        .Second(Ui.Rows().Content(rowsContent =>
+        {
+            rowsContent.Add(proxy);
+            rowsContent.Add(dns);
+            rowsContent.Add(firewall);
+        }))
+        .Ratio(0.25));
+})).Add("Logging", Ui.Rows().Content(rowsContent =>
 {
-    c.TextInput(textInput => textInput.Key("LogPath")
+    rowsContent.TextInput(textInput => textInput.Key("LogPath")
         .Value("C:\\Logs\\Operations")
         .Label("Folder"));
-    c.Toggle(toggle => toggle.Key("LogVerbose").Value(false).Label("Verbose"));
+    rowsContent.Toggle(toggle => toggle.Key("LogVerbose").Value(false).Label("Verbose"));
 }));
 
 // Behaviour: Ctrl+PageUp/PageDown switch tabs, Enter on an outline entry opens its section; Escape exits.

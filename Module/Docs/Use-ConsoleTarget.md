@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
 
-Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
-
 ## SYNTAX
 ### String (Default)
 ```powershell
@@ -32,8 +30,6 @@ Use-ConsoleTarget [-ScriptBlock] <scriptblock> -Target <ITerminalTarget> [-Width
 ```
 
 ## DESCRIPTION
-Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.
-
 Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.
 
 ## EXAMPLES
@@ -65,7 +61,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -97,7 +93,7 @@ Possible values: Ascii, Basic, Full
 
 Required: False
 Position: named
-Default value: None
+Default value: Ascii
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -161,7 +157,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -187,7 +183,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -195,4 +191,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/use-consoletarget/](https://consolemonster.dev/powershell/commands/use-consoletarget/)

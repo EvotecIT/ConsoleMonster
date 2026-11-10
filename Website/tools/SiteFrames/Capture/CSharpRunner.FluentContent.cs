@@ -74,8 +74,10 @@ namespace SiteFrames.Capture {
                 var used = new HashSet<string>(model.SyntaxTree.GetRoot().DescendantTokens().Concat(receiver.DescendantTokens())
                     .Concat(content.SelectMany(value => value.DescendantTokens()))
                     .Where(token => token.IsKind(SyntaxKind.IdentifierToken)).Select(token => token.ValueText), StringComparer.Ordinal);
-                string name = "c";
-                for (int suffix = 2; used.Contains(name); suffix++) { name = "c" + suffix; }
+                string typeName = receiver.DescendantNodesAndSelf().OfType<ObjectCreationExpressionSyntax>().FirstOrDefault()?.Type.ToString().Split('.').Last() ?? "content";
+                string stem = char.ToLowerInvariant(typeName[0]) + typeName.Substring(1) + "Content";
+                string name = stem;
+                for (int suffix = 2; used.Contains(name); suffix++) { name = stem + suffix; }
                 var statements = content.Select<ExpressionSyntax, StatementSyntax>(value => {
                     if (sequences?.Contains(value) == true) {
                         string child = name + "Widget";
@@ -87,7 +89,6 @@ namespace SiteFrames.Capture {
                     if (value is ObjectCreationExpressionSyntax widget && value.GetAnnotations(ContentHelperAnnotation).SingleOrDefault() is SyntaxAnnotation helper) {
                         operation = helper.Data!;
                         arguments = widget.ArgumentList!.WithArguments(SyntaxFactory.SeparatedList(widget.ArgumentList.Arguments.Select(argument => argument.WithNameColon(null))));
-                        if (operation == "Text") { operation = "Markup"; }
                     }
                     return SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
                         SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(name), SyntaxFactory.IdentifierName(operation)), arguments));

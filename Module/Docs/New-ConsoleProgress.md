@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a progress bar or an indeterminate activity indicator.
 
-The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.
-
 ## SYNTAX
 ### Bar (Default)
 ```powershell
@@ -22,8 +20,6 @@ New-ConsoleProgress [[-WidgetId] <string>] [[-Label] <Object>] -Indeterminate [-
 ```
 
 ## DESCRIPTION
-Creates a progress bar or an indeterminate activity indicator.
-
 The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.
 
 ## EXAMPLES
@@ -119,7 +115,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -167,7 +163,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -183,7 +179,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -199,7 +195,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -215,7 +211,7 @@ Possible values: Block, Line
 
 Required: False
 Position: named
-Default value: None
+Default value: Line
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -247,7 +243,7 @@ Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
-Default value: None
+Default value: Running
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -263,7 +259,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 100
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -279,7 +275,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -314,4 +310,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleprogress/](https://consolemonster.dev/powershell/commands/new-consoleprogress/)

@@ -8,7 +8,7 @@ internal static class RecordingSmoke {
     internal static void Run() {
         string folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-aot-recording-" + Guid.NewGuid().ToString("N"));
         string path = Path.Combine(folder, "session.cast");
-        var options = new SessionRecordingOptions { Path = path, InProcess = true, Width = 120, Height = 40 };
+        var options = new SessionRecordingOptions { RecordingPath = path, InProcess = true, Width = 120, Height = 40 };
         options.Redact.Add("synthetic-secret");
         string line = new string('a', 16383) + "\U0001f680" + new string('b', 200 * 1024 - 16385);
         string prefix = new string('x', 65530);

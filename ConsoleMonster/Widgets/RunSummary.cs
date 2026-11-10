@@ -48,7 +48,7 @@ namespace ConsoleMonster.Widgets {
                 rows.Add(RunDashboard.Label("Problems"));
                 rows.Add(table);
             }
-            if (!string.IsNullOrEmpty(ReportPath)) { rows.Add(new TextBlock(Markup.Escape("Report: " + ReportPath))); }
+            if (!string.IsNullOrEmpty(ReportPath)) { rows.Add(TextBlock.FromMarkup(Markup.Escape("Report: " + ReportPath))); }
             return new Rows(rows.ToArray());
         }
     }

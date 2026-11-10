@@ -34,7 +34,7 @@ namespace ConsoleMonster.Tests.Live {
                         advancing.Advance();
                         setting.Set(key, sequence.ToString());
                         counting.SetCounter(key, sequence, StatusKind.Pass);
-                        swapping.Set(new TextBlock("slot-" + producer + "-" + sequence));
+                        swapping.Set(TextBlock.FromMarkup("slot-" + producer + "-" + sequence));
                     }
                 })));
                 Assert.Same(all, await Task.WhenAny(all, Task.Delay(TimeSpan.FromSeconds(30))));

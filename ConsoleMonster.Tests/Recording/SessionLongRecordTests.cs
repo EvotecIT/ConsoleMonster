@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Sessions {
     public sealed class SessionLongRecordTests : IDisposable {
         private readonly string _folder = Path.Combine(Path.GetTempPath(), "ConsoleMonster-long-record-" + Guid.NewGuid().ToString("N"));
         private SessionRecordingOptions Options() => new SessionRecordingOptions {
-            Path = Path.Combine(_folder, "session.cast"), Width = 120, Height = 40, InProcess = true,
+            RecordingPath = Path.Combine(_folder, "session.cast"), Width = 120, Height = 40, InProcess = true,
             MaxBytes = 8 * 1024 * 1024
         };
 
@@ -26,10 +26,10 @@ namespace ConsoleMonster.Tests.Sessions {
                 // A caller can split a surrogate pair even though the native UTF-8 decoder does not.
                 recorder.CapturePowerShellOutput(text.Substring(0, 16384));
                 recorder.CapturePowerShellOutput(text.Substring(16384));
-                Assert.True(new FileInfo(options.Path!).Length > 1000, "Long output must stream before finalization.");
+                Assert.True(new FileInfo(options.RecordingPath!).Length > 1000, "Long output must stream before finalization.");
             }
-            Assert.Equal(text, Output(options.Path!));
-            Assert.Equal(120, SessionRecording.Read(options.Path!).Width);
+            Assert.Equal(text, Output(options.RecordingPath!));
+            Assert.Equal(120, SessionRecording.Read(options.RecordingPath!).Width);
         }
 
         [Fact]
@@ -50,8 +50,8 @@ namespace ConsoleMonster.Tests.Sessions {
                 }
             }
             Assert.True(text.Length > 200 * 1024);
-            Assert.Equal(text, Output(options.Path!));
-            Assert.StartsWith("Frame 49", ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame()));
+            Assert.Equal(text, Output(options.RecordingPath!));
+            Assert.StartsWith("Frame 49", ConsoleExporter.ToText(SessionRecording.Read(options.RecordingPath!).FinalFrame()));
         }
 
         [Theory]
@@ -66,11 +66,11 @@ namespace ConsoleMonster.Tests.Sessions {
             string prefix = new string('a', 65536 - half);
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + secret.Substring(0, half));
-                Assert.True(new FileInfo(options.Path!).Length > 1000);
-                Assert.DoesNotContain(secret.Substring(0, half), ReadLiveCast(options.Path!));
+                Assert.True(new FileInfo(options.RecordingPath!).Length > 1000);
+                Assert.DoesNotContain(secret.Substring(0, half), ReadLiveCast(options.RecordingPath!));
                 writer.Append(secret.Substring(half) + " safe\n");
             }
-            Assert.Equal(prefix + "[REDACTED] safe\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED] safe\n", Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -88,7 +88,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append(text.Substring(0, 65536));
                 writer.Append(text.Substring(65536));
             }
-            Assert.Equal(prefix + "[REDACTED]\u001b[31m\u001b[0m" + suffix, Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]\u001b[31m\u001b[0m" + suffix, Output(options.RecordingPath!));
         }
 
         [Fact]
@@ -97,10 +97,10 @@ namespace ConsoleMonster.Tests.Sessions {
             string prefix = new string('a', 70000) + " ";
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "password='" + new string('x', 70000));
-                Assert.DoesNotContain(new string('x', 100), ReadLiveCast(options.Path!));
+                Assert.DoesNotContain(new string('x', 100), ReadLiveCast(options.RecordingPath!));
                 writer.Append("'; visible\n");
             }
-            Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.RecordingPath!));
         }
 
         [Fact]
@@ -109,10 +109,10 @@ namespace ConsoleMonster.Tests.Sessions {
             string prefix = new string('a', 65500) + " xaccess-";
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "token='" + new string('q', 70000));
-                Assert.DoesNotContain(new string('q', 100), ReadLiveCast(options.Path!));
+                Assert.DoesNotContain(new string('q', 100), ReadLiveCast(options.RecordingPath!));
                 writer.Append("'; visible\n");
             }
-            Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]; visible\n", Output(options.RecordingPath!));
         }
 
         [Fact]
@@ -120,10 +120,10 @@ namespace ConsoleMonster.Tests.Sessions {
             if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) { return; }
             SessionRecordingOptions options = Options();
             using (SessionCastWriter writer = new SessionCastWriter(options, "test"))
-            using (FileStream reader = new FileStream(options.Path!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+            using (FileStream reader = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
                 Assert.Equal((int)'{', reader.ReadByte());
                 Assert.Throws<IOException>(() => {
-                    using (FileStream other = new FileStream(options.Path!, FileMode.Open, FileAccess.Write, FileShare.ReadWrite)) { }
+                    using (FileStream other = new FileStream(options.RecordingPath!, FileMode.Open, FileAccess.Write, FileShare.ReadWrite)) { }
                 });
             }
         }
@@ -142,7 +142,7 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(text.Substring(0, 65536)); writer.Append(text.Substring(65536));
             }
-            Assert.Equal(prefix + "[REDACTED]" + first + second + new string('z', 70000), Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]" + first + second + new string('z', 70000), Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -154,10 +154,10 @@ namespace ConsoleMonster.Tests.Sessions {
             string control = start + new string('x', 70000) + end;
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "synthe" + control.Substring(0, control.Length - end.Length));
-                Assert.DoesNotContain("synthe", ReadLiveCast(options.Path!));
+                Assert.DoesNotContain("synthe", ReadLiveCast(options.RecordingPath!));
                 writer.Append(end + "tic-secret safe\n");
             }
-            Assert.Equal(prefix + "[REDACTED]" + control + " safe\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]" + control + " safe\n", Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -177,13 +177,13 @@ namespace ConsoleMonster.Tests.Sessions {
                 for (int at = 0; at < body.Length; at += chunkSize) {
                     writer.Append(body.Substring(at, Math.Min(chunkSize, body.Length - at)));
                 }
-                Assert.DoesNotContain("synthe", ReadLiveCast(options.Path!));
+                Assert.DoesNotContain("synthe", ReadLiveCast(options.RecordingPath!));
                 foreach (char c in end) { writer.Append(c.ToString()); }
                 writer.Append("tic-");
-                Assert.DoesNotContain("synthe", ReadLiveCast(options.Path!));
+                Assert.DoesNotContain("synthe", ReadLiveCast(options.RecordingPath!));
                 writer.Append("secret safe" + lineEnding);
             }
-            Assert.Equal(prefix + "[REDACTED]" + start + body + end + " safe" + lineEnding, Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]" + start + body + end + " safe" + lineEnding, Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -196,7 +196,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append("visible" + start + body + "synthetic-");
                 writer.Append("secret" + end + "tail");
             }
-            Assert.Equal("visible" + start + body + "[REDACTED]" + end + "tail", Output(options.Path!));
+            Assert.Equal("visible" + start + body + "[REDACTED]" + end + "tail", Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -224,7 +224,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 if (boundary == "newline") { writer.Append("\nVisible\n"); }
                 if (boundary == "stop") { writer.Append(SessionRecorder.StopSequence + "unrecorded"); }
             }
-            Assert.Equal(prefix + "[REDACTED]" + (boundary == "newline" ? "\nVisible\n" : string.Empty), Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]" + (boundary == "newline" ? "\nVisible\n" : string.Empty), Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -238,7 +238,7 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "private-"); writer.Append("value safe\n");
             }
-            Assert.Equal(prefix + "[REDACTED] safe\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED] safe\n", Output(options.RecordingPath!));
         }
 
         [Theory]
@@ -250,7 +250,7 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) {
                 writer.Append(prefix + "0123456789ABCDEF" + new string('z', 24)); writer.Append("\n");
             }
-            Assert.Equal(prefix + "[REDACTED][REDACTED]" + new string('z', 24) + "\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED][REDACTED]" + new string('z', 24) + "\n", Output(options.RecordingPath!));
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace ConsoleMonster.Tests.Sessions {
             SessionRecordingOptions options = Options(); options.Redact.Add("BEGIN.*END");
             string text = string.Concat(Enumerable.Range(0, 48001).Select(i => i.ToString("D6") + "abcdefghij")) + "\n";
             using (SessionCastWriter writer = new SessionCastWriter(options, "test")) { writer.Append(text); }
-            Assert.Equal(text, Output(options.Path!));
+            Assert.Equal(text, Output(options.RecordingPath!));
         }
 
         [Fact]
@@ -269,7 +269,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append(prefix + "BEGINprivate-");
                 writer.Append("valueEND" + suffix + "\n");
             }
-            Assert.Equal(prefix + "[REDACTED]" + suffix + "\n", Output(options.Path!));
+            Assert.Equal(prefix + "[REDACTED]" + suffix + "\n", Output(options.RecordingPath!));
         }
 
         [Fact]
@@ -280,10 +280,10 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append("\nRecovered\n");
                 Assert.False(writer.LimitReached);
             }
-            string text = Output(options.Path!);
+            string text = Output(options.RecordingPath!);
             Assert.Contains("complete-record regex buffer exceeds 1,048,576 characters; output omitted through next line break", text);
             Assert.EndsWith("Recovered\n", text);
-            Dictionary<string, object?> metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.Path + ".json"))!;
+            Dictionary<string, object?> metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.RecordingPath + ".json"))!;
             Assert.False((bool)metadata["sizeLimitReached"]!);
             Assert.Equal("1", metadata["redactionFallbacks"]);
         }
@@ -299,14 +299,14 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Resize(140, 40);
                 writer.Append("\nDone\n");
             }
-            string cast = File.ReadAllText(options.Path!);
+            string cast = File.ReadAllText(options.RecordingPath!);
             Assert.DoesNotContain("synthe", cast); Assert.DoesNotContain("secret", cast);
-            List<List<object?>> events = Events(options.Path!);
+            List<List<object?>> events = Events(options.RecordingPath!);
             int marker = events.FindIndex(e => (string)e[1]! == (hold ? "cm" : "m"));
             int resize = events.FindIndex(e => (string)e[1]! == "r");
             int done = events.FindIndex(e => (string)e[1]! == "o" && ((string)e[2]!).Contains("Done"));
             Assert.True(marker > 0 && marker < resize && resize < done);
-            Assert.Equal(140, SessionRecording.Read(options.Path!).FinalFrame().Width);
+            Assert.Equal(140, SessionRecording.Read(options.RecordingPath!).FinalFrame().Width);
         }
 
         [Fact]
@@ -317,8 +317,8 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append(new string('a', 32768) + "!\nRecovered\n");
                 Assert.False(writer.LimitReached);
             }
-            Assert.Equal("[REDACTED: pattern timeout]\r\nRecovered\n", Output(options.Path!));
-            Dictionary<string, object?> metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.Path + ".json"))!;
+            Assert.Equal("[REDACTED: pattern timeout]\r\nRecovered\n", Output(options.RecordingPath!));
+            Dictionary<string, object?> metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.RecordingPath + ".json"))!;
             Assert.Equal("1", metadata["redactionFallbacks"]);
         }
 

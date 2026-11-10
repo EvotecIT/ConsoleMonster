@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows a menu until the user exits.
 
-Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Redirected output, CI, -Mode None and non-interactive sessions print the current menu once without running actions. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Show-ConsoleMenu [[-Menu] <psobject>] [-Layout <MenuLayout>] [-AppName <string>]
 ```
 
 ## DESCRIPTION
-Shows a menu until the user exits.
-
 Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Redirected output, CI, -Mode None and non-interactive sessions print the current menu once without running actions. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.
 
 ## EXAMPLES
@@ -33,6 +29,17 @@ Show-ConsoleMenu $menu -Layout Shell
 ```
 
 Run a menu as an application
+
+### EXAMPLE 2
+```powershell
+$menu = New-ConsoleMenu -Title Inventory -Content {
+    New-ConsoleMenuItem 'List servers' -Action { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-ConsoleTable }
+    New-ConsoleMenuItem -Exit
+}
+Show-ConsoleMenu $menu
+```
+
+Choose an inventory action from a menu
 
 ## PARAMETERS
 
@@ -63,7 +70,7 @@ Possible values: Auto, Classic, Shell, Inline
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -111,7 +118,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -127,7 +134,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -161,4 +168,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consolemenu/](https://consolemonster.dev/powershell/commands/show-consolemenu/)

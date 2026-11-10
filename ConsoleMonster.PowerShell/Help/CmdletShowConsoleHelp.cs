@@ -8,10 +8,8 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.</para>
-    /// <para type="description">Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. On an interactive terminal, help longer than the screen opens in the document viewer: tabs for Overview, Parameters, Examples and Related, an outline, folding sections, find (/), Ctrl+K to go to a section or parameter, and related commands that open their own help with back and forward (Alt+Left/Right). -NoPager writes it instead. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
-    /// </summary>
+    /// <summary>Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.</summary>
+    /// <remarks><para>Reads the help PowerShell has for the command (Get-Help -Full): cmdlet help files, comment-based help of functions and scripts, or the help PowerShell generates when there is none. It shows the name and synopsis, the syntax of each parameter set (parameter names, value types and optional parts told apart), the description, a parameter table (type, required, position, pipeline input, default, description), the examples with highlighted PowerShell code, inputs, outputs, notes and related links. On an interactive terminal, help longer than the screen opens in the document viewer: tabs for Overview, Parameters, Examples and Related, an outline, folding sections, find (/), Ctrl+K to go to a section or parameter, and related commands that open their own help with back and forward (Alt+Left/Right). -NoPager writes it instead. Piped on (| more, | Out-Host -Paging, | Out-File) it writes plain lines, so pagers and files get readable text. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. Works on Windows PowerShell 5.1 and PowerShell 7.</para></remarks>
     /// <example>
     ///   <para>A cmdlet</para>
     ///   <code>Show-ConsoleHelp Get-ChildItem</code>
@@ -20,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Through a pager</para>
     ///   <code>Show-ConsoleHelp Show-ConsoleTable -AsWidget | Export-ConsoleFrame -Format Text</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleHelp")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleHelp", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolehelp/")]
     [OutputType(typeof(string))]
     public sealed class CmdletShowConsoleHelp : PSCmdlet {
         /// <summary><para type="description">The command (a cmdlet, function, alias or script path), or an about topic.</para></summary>
@@ -31,21 +29,26 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The width in columns (default: the console's width).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Leaves out the examples.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoExamples { get; set; }
 
         /// <summary><para type="description">Returns the view widget without drawing or acquiring input.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsWidget { get; set; }
 
         /// <summary><para type="description">Leaves out the detailed parameter reference.</para></summary>
-        [Parameter] public SwitchParameter NoParameters { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoParameters { get; set; }
 
         /// <summary><para type="description">Writes the help to the console instead of opening the document viewer, also on an interactive terminal.</para></summary>
-        [Parameter] public SwitchParameter NoPager { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoPager { get; set; }
 
         private CancellationTokenSource? _viewing;
         private bool _stopped;

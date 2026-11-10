@@ -8,17 +8,13 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a form field for New-ConsoleForm.
 
-A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleField [-Key] <string> [[-Label] <string>] [-Type <ConsoleFieldType>] [-Multiple] [-AsSecret] [-Multiline] [-Page <string>] [-Description <string>] [-ParameterName <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-DisabledReason <Object>] [-CommandValue <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validator <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-Kind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
+New-ConsoleField [-Key] <string> [[-Label] <string>] [-Kind <ConsoleFieldType>] [-Multiple] [-AsSecret] [-Multiline] [-Page <string>] [-Help <string>] [-ParameterName <string>] [-Required] [-Default <Object>] [-Placeholder <string>] [-Choices <Object[]>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-DisabledReason <Object>] [-CommandValue <Object>] [-Preview <scriptblock>] [-LoadChoices <scriptblock>] [-ArgumentList <Object[]>] [-DependsOn <string[]>] [-VisibleWhen <scriptblock>] [-Validator <scriptblock>] [-Minimum <Decimal>] [-Maximum <Decimal>] [-Step <Decimal>] [-Integer] [-PathKind <PathKind>] [-MustExist] [-Extension <string[]>] [-OnText <string>] [-OffText <string>] [-Pattern <string>] [-PatternMessage <string>] [-MinLength <int>] [-MaxLength <int>] [-MaxLines <int>] [-Height <int>] [-CommandPlaceholder <string>] [-NoRemember] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a form field for New-ConsoleForm.
-
 A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.
 
 ## EXAMPLES
@@ -26,8 +22,8 @@ A field has a name (its key in the result), a label, help shown while it has foc
 ### EXAMPLE 1
 ```powershell
 $form = New-ConsoleForm 'Server selection' -Content {
-    New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
-    New-ConsoleField Server 'Server' -Type Select -DependsOn Site -LoadChoices {
+    New-ConsoleField Site 'Site' -Kind Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
+    New-ConsoleField Server 'Server' -Kind Select -DependsOn Site -LoadChoices {
         param($Values)
         [pscustomobject]@{ Name = "$($Values.Site)-web01" }
         [pscustomobject]@{ Name = "$($Values.Site)-web02" }
@@ -41,7 +37,7 @@ Load dependent choices from the selected site
 ### EXAMPLE 2
 ```powershell
 $form = New-ConsoleForm 'Notifications' -Content {
-    New-ConsoleField Notify 'Send an email' -Type Toggle
+    New-ConsoleField Notify 'Send an email' -Kind Toggle
     New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
 }
 Read-ConsoleForm $form
@@ -52,7 +48,7 @@ Show a field only when a toggle is enabled
 ### EXAMPLE 3
 ```powershell
 $form = New-ConsoleForm 'Servers' -Content {
-    New-ConsoleField Servers 'Servers' -Type Select -Multiple -ParameterName ComputerName -LoadChoices {
+    New-ConsoleField Servers 'Servers' -Kind Select -Multiple -ParameterName ComputerName -LoadChoices {
         [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
         [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
     } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
@@ -68,7 +64,7 @@ $checks = @(
     [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }
     [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }
 )
-New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check
+New-ConsoleField Checks 'Checks' -Kind Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check
 ```
 
 Return choice identifiers and show a duration badge
@@ -102,7 +98,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -219,22 +215,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Description
-Description shown while the field has focus.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -DisabledReason
 Why a choice cannot be picked: a property name or a scriptblock returning the reason. Nothing, $false or an empty string leaves the choice available; $true disables it without a reason. Disabled choices are dimmed and show the reason while they have focus.
 
@@ -310,6 +290,22 @@ Possible values:
 
 Required: False
 Position: named
+Default value: 8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Help
+Help shown while the field has focus.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -326,7 +322,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -348,17 +344,17 @@ Accept wildcard characters: False
 ```
 
 ### -Kind
-What a path field accepts: Any, File or Folder.
+The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.
 
 ```yaml
-Type: PathKind
+Type: ConsoleFieldType
 Parameter Sets: __AllParameterSets
 Aliases: None
-Possible values: Any, File, Folder
+Possible values: Text, Number, Toggle, Select, Path
 
 Required: False
 Position: named
-Default value: None
+Default value: Text
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -422,7 +418,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2147483647
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -438,7 +434,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2147483647
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -470,7 +466,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -486,7 +482,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -502,7 +498,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -518,7 +514,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -534,7 +530,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -599,6 +595,22 @@ Possible values:
 Required: False
 Position: named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PathKind
+What a path field accepts: Any, File or Folder.
+
+```yaml
+Type: PathKind
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values: Any, File, Folder
+
+Required: False
+Position: named
+Default value: Any
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -678,7 +690,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -691,22 +703,6 @@ Type: Decimal
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Type
-The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.
-
-```yaml
-Type: ConsoleFieldType
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values: Text, Number, Toggle, Select, Path
 
 Required: False
 Position: named
@@ -752,7 +748,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -760,4 +756,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolefield/](https://consolemonster.dev/powershell/commands/new-consolefield/)

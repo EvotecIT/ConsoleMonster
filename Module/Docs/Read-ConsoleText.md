@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Asks for a line of text.
 
-A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
-
 ## SYNTAX
 ### Text (Default)
 ```powershell
@@ -22,8 +20,6 @@ Read-ConsoleText [[-Title] <string>] -AsSecret [-MinLength <int>] [-Validator <s
 ```
 
 ## DESCRIPTION
-Asks for a line of text.
-
 A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.
 
 ## EXAMPLES
@@ -55,7 +51,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -71,7 +67,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -87,13 +83,13 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Default
-The default answer.
+The answer initially selected; pressing Enter accepts this value.
 
 ```yaml
 Type: String
@@ -135,7 +131,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 6
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -151,7 +147,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -173,7 +169,7 @@ Accept wildcard characters: False
 ```
 
 ### -MaxLength
-The most characters.
+Maximum accepted answer length, measured in characters.
 
 ```yaml
 Type: Int32
@@ -183,7 +179,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2147483647
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -199,13 +195,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2147483647
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -MinLength
-The fewest characters.
+Minimum accepted answer length, measured in characters.
 
 ```yaml
 Type: Int32
@@ -215,7 +211,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -247,7 +243,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -327,7 +323,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -343,13 +339,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Title
-The question.
+The prompt displayed above the input control.
 
 ```yaml
 Type: String
@@ -359,7 +355,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: Enter a value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -385,7 +381,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -394,4 +390,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consoletext/](https://consolemonster.dev/powershell/commands/read-consoletext/)

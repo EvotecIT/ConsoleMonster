@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Records a script, an app on a headless terminal, or an interactive child shell and saves the result.
 
-Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
-
 ## SYNTAX
 ### Script (Default)
 ```powershell
@@ -27,8 +25,6 @@ Invoke-ConsoleRecording -Interactive [-Path <string>] [-Title <string>] [-Shell 
 ```
 
 ## DESCRIPTION
-Records a script, an app on a headless terminal, or an interactive child shell and saves the result.
-
 Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.
 
 ## EXAMPLES
@@ -52,7 +48,7 @@ Preview recording a child shell
 Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {
     Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }
 }
-Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif -WhatIf
+Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif
 ```
 
 Preview recording an app driven by keys, then make a GIF of it
@@ -86,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -102,7 +98,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -118,7 +114,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 30
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -134,7 +130,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -150,7 +146,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -182,7 +178,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -198,7 +194,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 67108864
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -300,7 +296,7 @@ Accept wildcard characters: False
 ```
 
 ### -Theme
-Export colours.
+Dark or Light colour theme applied to the exported player or image.
 
 ```yaml
 Type: ExportTheme
@@ -310,7 +306,7 @@ Possible values: Auto, Dark, Light, HighContrast, Current
 
 Required: False
 Position: named
-Default value: None
+Default value: Dark
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -326,13 +322,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 86400
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Title
-Recording title.
+Title stored with the cast and shown by exported recording players.
 
 ```yaml
 Type: String
@@ -342,7 +338,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Console session
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -358,7 +354,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -368,7 +364,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -376,4 +372,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/invoke-consolerecording/](https://consolemonster.dev/powershell/commands/invoke-consolerecording/)

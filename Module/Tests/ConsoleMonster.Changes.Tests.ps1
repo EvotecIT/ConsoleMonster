@@ -20,9 +20,9 @@ Describe 'ConsoleMonster changes, replay and engine fixes' {
         $text = Invoke-ChangesChild @"
 `$d = New-ConsoleDashboard -Title 'Redirected' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }
 Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
-    Write-ConsoleLogEntry -Message 'first line' -Level info
+    Write-ConsoleLogEntry -Text 'first line' -Level info
     Start-Sleep -Milliseconds 400
-    Write-ConsoleLogEntry -Message 'second line' -Level warn
+    Write-ConsoleLogEntry -Text 'second line' -Level warn
     Start-Sleep -Milliseconds 400
 } | Out-Null
 "@
@@ -37,7 +37,7 @@ Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'web01'; Role = 'IIS'; Ram = 8 }, [pscustomobject]@{ Name = 'db01'; Role = 'SQL'; Ram = 32 })
 $after = @([pscustomobject]@{ Name = 'web01'; Role = 'IIS'; Ram = 16 }, [pscustomobject]@{ Name = 'app01'; Role = 'App'; Ram = 8 })
-$changes = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -PassThru
+$changes = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -PassThru
 foreach ($c in $changes) { "CHANGE=$($c.Kind)|$($c.Key)|$(@($c.Properties | ForEach-Object Path) -join ',')" }
 '@
         $text | Should -Match 'CHANGE=Removed\|db01\|'
@@ -49,12 +49,12 @@ foreach ($c in $changes) { "CHANGE=$($c.Kind)|$($c.Key)|$(@($c.Properties | ForE
         $text = Invoke-ChangesChild @'
 $before = [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; Optional = $null; Spn = 'HOST/dc01.example' }
 $after = [pscustomobject]@{ Name = 'DC01'; Site = 'hq'; Spn = 'HOST/dc02.example' }
-$changes = @(Compare-ConsoleObject @($before) @($after) -Property Name -Normalize @{ Spn = { $_ -replace 'dc\d+', 'HOST' } } -PassThru -ErrorAction Stop)
+$changes = @(Compare-ConsoleObject @($before) @($after) -Key Name -Normalize @{ Spn = { $_ -replace 'dc\d+', 'HOST' } } -PassThru -ErrorAction Stop)
 "COUNT=$($changes.Count) KIND=$($changes[0].Kind)"
 foreach ($property in $changes[0].Properties) { "PROP=$($property.Path)|$($property.IsCaseOnly)|$($property.HasBefore)|$($property.HasAfter)" }
-$sensitive = @(Compare-ConsoleObject @($before) @($after) -Property Name -CaseSensitive -PassThru)
+$sensitive = @(Compare-ConsoleObject @($before) @($after) -Key Name -CaseSensitive -PassThru)
 "SENSITIVE=$($sensitive.Kind -join ',')"
-$widget = Compare-ConsoleObject @($before) @($after) -Property Name -AsWidget
+$widget = Compare-ConsoleObject @($before) @($after) -Key Name -AsWidget
 "WIDGET=$($widget.GetType().Name)"
 $widget | Export-ConsoleFrame -Format Text -Width 100
 '@
@@ -76,10 +76,10 @@ $objects = @(
     [pscustomobject]@{ Name = 'dc03'; Port = 443; Site = 'HQ'; Spn = 'HOST/dc03.example' }
 )
 $normalizers = @{ Spn = { $PSItem -replace 'dc\d+', 'HOST' } }
-$widget = $objects | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline 'DC02' -Ignore Name -Normalize $normalizers -AsWidget -ErrorAction Stop
+$widget = $objects | Compare-ConsoleObject -View Baseline -Key Name -Baseline 'DC02' -Ignore Name -Normalize $normalizers -AsWidget -ErrorAction Stop
 "WIDGET=$($widget.GetType().Name) BASELINE=$($widget.Comparison.BaselineIndex)"
 $widget | Export-ConsoleFrame -Format Text -Width 110
-$rows = @(Compare-ConsoleObject -InputObject $objects -Name First,Second,Third -Baseline 1 -Ignore Name -Normalize $normalizers -IncludeEqual -PassThru -ErrorAction Stop)
+$rows = @(Compare-ConsoleObject -InputObject $objects -Name First,Second,Third -Baseline 1 -Ignore Name -Normalize $normalizers -IncludeUnchanged -PassThru -ErrorAction Stop)
 foreach ($row in $rows) { "ROW=$($row.Path)|$($row.HasDifferences)|$($row.MissingCount)|$($row.Cells.Count)" }
 "ORIGINAL=$($widget.Comparison.Rows[0].Cells[0].Value)"
 try { Compare-ConsoleObject -InputObject $objects -Baseline 8 -AsWidget -ErrorAction Stop; throw 'Accepted invalid baseline' } catch { "ERROR=$($_.FullyQualifiedErrorId)" }
@@ -99,8 +99,8 @@ try { Compare-ConsoleObject -InputObject $objects -Baseline 8 -AsWidget -ErrorAc
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'web01'; Ram = 8 })
 $after = @([pscustomobject]@{ Name = 'web01'; Ram = 16 }, [pscustomobject]@{ Name = 'app01'; Ram = 8 })
-Compare-ConsoleObject $before $after -Property Name -Title 'Servers'
-$after | Compare-ConsoleObject -ReferenceObject $before -Property Name -View Summary
+Compare-ConsoleObject $before $after -Key Name -Title 'Servers'
+$after | Compare-ConsoleObject -ReferenceObject $before -Key Name -View Summary
 '@
         $text | Should -Match 'Servers'
         $text | Should -Match '\+1 added'
@@ -112,11 +112,11 @@ $after | Compare-ConsoleObject -ReferenceObject $before -Property Name -View Sum
         $text = Invoke-ChangesChild @'
 $before = @([pscustomobject]@{ Name = 'anna' }, [pscustomobject]@{ Name = 'bob' })
 $after = @([pscustomobject]@{ Name = 'anna' })
-"WHATIF=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name -WhatIf)"
-"FORCE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name -Force)"
-"CONFIRMFALSE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name -Confirm:$false)"
-"NONE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $after -DifferenceObject $after -Property Name -Force)"
-try { Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Property Name | Out-Null; 'ASKED' } catch { 'NONINTERACTIVE' }
+"WHATIF=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Key Name -WhatIf)"
+"FORCE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Key Name -Force)"
+"CONFIRMFALSE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Key Name -Confirm:$false)"
+"NONE=$(Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $after -DifferenceObject $after -Key Name -Force)"
+try { Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $before -DifferenceObject $after -Key Name | Out-Null; 'ASKED' } catch { 'NONINTERACTIVE' }
 '@
         $text | Should -Match 'WHATIF=False'
         $text | Should -Match 'FORCE=True'
@@ -134,7 +134,7 @@ $options.Input = $inputSource
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default = $options
 $before = @([pscustomobject]@{ Name = 'one'; Count = 1 })
 $after = @([pscustomobject]@{ Name = 'one'; Count = 2 })
-$decisions = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Title PREVIEW_ONCE -Question 'Accept the change?' -ErrorAction Stop)
+$decisions = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Title PREVIEW_ONCE -Question 'Accept the change?' -ErrorAction Stop)
 "DECISIONS=$($decisions.Count) VALUE=$($decisions[0]) REMAINING=$($inputSource.Remaining)"
 "QUESTION=$($options.Capture.LastFrame.ToPlainText())"
 '@.Replace('__KEY__', $answer.Key))
@@ -151,7 +151,7 @@ $decisions = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject 
 Invoke-ConsoleDashboard `$d -RecordingPath '$recording' {
     Update-Console -WidgetId lanes -Key one -Status Running
     `$ConsoleSession.Post(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('`$marker', 'mark', `$null, 'Wave 2 started'))
-    Write-ConsoleLogEntry -Message 'disk almost full' -Level warn
+    Write-ConsoleLogEntry -Text 'disk almost full' -Level warn
     Update-Console -WidgetId lanes -Key two -Result Fail
     Update-Console -WidgetId lanes -Key one -Complete
     Update-Console -WidgetId lanes -Key two -Complete

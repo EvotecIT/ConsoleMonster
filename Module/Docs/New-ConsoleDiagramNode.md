@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a diagram component.
 
-Label is the connection identity unless Id is set. Subtitle is the second line and Value is the third. To adds unlabelled outgoing connections; missing destination nodes are created by the diagram.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleDiagramNode [-Label] <string> [-Id <string>] [-Kind <DiagramNodeKind>
 ```
 
 ## DESCRIPTION
-Creates a diagram component.
-
 Label is the connection identity unless Id is set. Subtitle is the second line and Value is the third. To adds unlabelled outgoing connections; missing destination nodes are created by the diagram.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ New-ConsoleDiagramNode Router -Kind Gateway -Subtitle '192.168.1.1' -Value '1 ms
 ```
 
 A monitored gateway.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDiagram -Title 'Request path' -Content {
+                New-ConsoleDiagramNode -Id api -Label 'Orders API' -Kind Service
+            } | Show-Console
+```
+
+Compose an inventory diagram node
 
 ## PARAMETERS
 
@@ -59,7 +64,7 @@ Possible values: Service, Server, Workstation, Gateway, Cloud, Storage, Database
 
 Required: False
 Position: named
-Default value: None
+Default value: Service
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -97,7 +102,7 @@ Accept wildcard characters: False
 ```
 
 ### -Subtitle
-The second line.
+Secondary text shown below the diagram node title.
 
 ```yaml
 Type: String
@@ -157,4 +162,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolediagramnode/](https://consolemonster.dev/powershell/commands/new-consolediagramnode/)

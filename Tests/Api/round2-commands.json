@@ -99,7 +99,7 @@
     "Show-ConsoleOverview",
     "Show-ConsolePresentation",
     "Show-ConsoleReplay",
-    "Show-ConsoleSettings",
+    "Show-ConsoleSetting",
     "Show-ConsoleStatusLine",
     "Show-ConsoleTable",
     "Start-ConsoleRun",

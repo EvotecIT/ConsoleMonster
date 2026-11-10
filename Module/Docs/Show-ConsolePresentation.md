@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Presents a scripted demo one command at a time in a real shell.
 
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. ScriptPath selects the input demo script. Optional -Path saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Show-ConsolePresentation [-ScriptPath] <string> [-Path <string>] [-Width <int>] 
 ```
 
 ## DESCRIPTION
-Presents a scripted demo one command at a time in a real shell.
-
 Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. ScriptPath selects the input demo script. Optional -Path saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
 
 ## EXAMPLES
@@ -30,6 +26,13 @@ Enter types and runs; Space types without running; b moves back without undoing 
 ```
 
 Preview presenting and recording a demo script
+
+### EXAMPLE 2
+```powershell
+Show-ConsolePresentation -ScriptPath ./inventory-demo.ps1 -WhatIf
+```
+
+Preview presenting an inventory demonstration
 
 ## PARAMETERS
 
@@ -44,7 +47,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 28
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -60,7 +63,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -76,7 +79,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0.2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -140,7 +143,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 42
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -172,7 +175,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 30
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -188,7 +191,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -198,7 +201,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -206,4 +209,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consolepresentation/](https://consolemonster.dev/powershell/commands/show-consolepresentation/)

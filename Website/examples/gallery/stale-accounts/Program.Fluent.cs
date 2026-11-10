@@ -69,19 +69,20 @@ var upcoming = Ui.StatusList();
 foreach (var mark in marks)
     upcoming.Add(mark.Date.ToString("ddd dd MMM", CultureInfo.GetCultureInfo("en-US")), mark.Status,
         mark.Label);
-var report = Ui.Rows().Gap(1).Content(c3 =>
+var report = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c3.Rule("[accent bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
-    c3.Add(table);
-    c3.Columns(columns => columns.Content(c2 =>
+    rowsContent.Rule(
+        "[accent bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]");
+    rowsContent.Add(table);
+    rowsContent.Columns(columns => columns.Content(columnsContent =>
     {
-        c2.Panel(p => p.Title("November").Content(c =>
+        columnsContent.Panel(p => p.Title("November").Content(panelContent =>
         {
-            c.Add(calendar);
+            panelContent.Add(calendar);
         }));
-        c2.Panel(p => p.Title("Coming up").Content(c =>
+        columnsContent.Panel(p => p.Title("Coming up").Content(panelContent =>
         {
-            c.Add(upcoming);
+            panelContent.Add(upcoming);
         }));
     }));
 });

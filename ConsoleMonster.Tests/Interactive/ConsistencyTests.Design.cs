@@ -78,7 +78,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal(context.Style(ThemeToken.Muted), keys[0, 0].Style);
             Assert.Equal(context.Style(ThemeToken.Text), keys[9, 0].Style);
             if (tier == GlyphTier.Full && density == ThemeDensity.Comfortable && markers == StatusMarkerStyle.Symbols) {
-                var statusScene = new Rows(new TextBlock("[fail]Failed[/] [critical]Critical[/]"), quota, composition, facts);
+                var statusScene = new Rows(TextBlock.FromMarkup("[fail]Failed[/] [critical]Critical[/]"), quota, composition, facts);
                 Golden.Match("design/status-colours." + themeName.ToLowerInvariant() + ".vt.txt",
                     Terminal.RenderEncoded(statusScene, profile, theme).Replace("\u001b", "\\e"));
             }

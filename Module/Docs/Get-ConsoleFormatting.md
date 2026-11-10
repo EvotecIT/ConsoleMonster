@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows the formatting features enabled in this runspace.
 
-Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Get-ConsoleFormatting [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Shows the formatting features enabled in this runspace.
-
 Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.
 
 ## EXAMPLES
@@ -30,6 +26,13 @@ Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting
 
 Inspect the current session's formatting
 
+### EXAMPLE 2
+```powershell
+Get-ConsoleFormatting | Select-Object Feature, Enabled | Show-ConsoleTable
+```
+
+Inspect which formatting features are enabled
+
 ## PARAMETERS
 
 ### CommonParameters
@@ -37,7 +40,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -45,4 +48,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/get-consoleformatting/](https://consolemonster.dev/powershell/commands/get-consoleformatting/)

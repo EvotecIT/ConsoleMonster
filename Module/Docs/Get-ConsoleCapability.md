@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Shows what ConsoleMonster detected about the current terminal.
 
-Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Get-ConsoleCapability [-Refresh] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Shows what ConsoleMonster detected about the current terminal.
-
 Returns the terminal profile: kind, mode (Interactive, Stream, Plain), colour depth, glyph tier, size, VT support, console font and the reasons behind each decision. -Refresh detects again (after a resize or font change).
 
 ## EXAMPLES
@@ -29,6 +25,13 @@ Get-ConsoleCapability | Select-Object -ExpandProperty Decisions
 ```
 
 Show the profile and the decisions
+
+### EXAMPLE 2
+```powershell
+Get-ConsoleCapability | Select-Object Width, Height, Glyphs, ColorDepth | Show-ConsoleTable
+```
+
+Inspect the current terminal dimensions and output tiers
 
 ## PARAMETERS
 
@@ -43,7 +46,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -53,7 +56,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -61,4 +64,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/get-consolecapability/](https://consolemonster.dev/powershell/commands/get-consolecapability/)

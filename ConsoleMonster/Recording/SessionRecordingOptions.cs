@@ -7,7 +7,7 @@ namespace ConsoleMonster.Sessions {
     public sealed class SessionRecordingOptions {
         internal bool CaptureInitiallyEnabled { get; set; } = true;
         /// <summary>Native asciicast v2 output. Null creates a timestamped name in <see cref="Folder"/>.</summary>
-        public string? Path { get; set; }
+        public string? RecordingPath { get; set; }
         /// <summary>Folder used for automatic recording names. Resolving the default does not probe its availability.</summary>
         public string Folder { get; set; } = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments, System.Environment.SpecialFolderOption.DoNotVerify), "ConsoleMonster", "Recordings");
         /// <summary>Human-readable recording title.</summary>

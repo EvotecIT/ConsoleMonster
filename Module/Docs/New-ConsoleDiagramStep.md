@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a request, message, reply or failed interaction.
 
-From and To identify diagram nodes. Payload is a hashtable of fields shown with the active step. Reply and Failed are shorthand for Kind; choose one interaction kind.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleDiagramStep [-From] <string> [-To] <string> [-Label] <string> [-Kind 
 ```
 
 ## DESCRIPTION
-Creates a request, message, reply or failed interaction.
-
 From and To identify diagram nodes. Payload is a hashtable of fields shown with the active step. Reply and Failed are shorthand for Kind; choose one interaction kind.
 
 ## EXAMPLES
@@ -29,6 +25,19 @@ New-ConsoleDiagramStep Web 'Orders API' 'create order' -Payload @{ sku = 'MUG-01
 ```
 
 A request payload.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDiagram -Title 'Checkout' -Content {
+                New-ConsoleDiagramNode -Id api -Label API
+                New-ConsoleDiagramNode -Id db -Label Database
+                New-ConsoleDiagramUseCase -Id order -Label 'Save order' -Content {
+                    New-ConsoleDiagramStep -From api -To db -Label 'Insert order'
+                }
+            } | Show-Console
+```
+
+Compose an inventory diagram step
 
 ## PARAMETERS
 
@@ -43,7 +52,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -75,13 +84,13 @@ Possible values: Request, Message, Reply, Failed
 
 Required: False
 Position: named
-Default value: None
+Default value: Request
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Label
-The interaction text.
+Description displayed on this use-case interaction arrow.
 
 ```yaml
 Type: String
@@ -123,7 +132,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -157,4 +166,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolediagramstep/](https://consolemonster.dev/powershell/commands/new-consolediagramstep/)

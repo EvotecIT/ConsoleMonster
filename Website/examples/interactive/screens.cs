@@ -10,10 +10,11 @@ Server[] servers = {
 };
 
 AppState state = new AppState();
-Rows list = new Rows(new TextBlock("[muted]Type a number to open a server.[/]"));
+Rows list = new Rows(TextBlock.FromMarkup("[muted]Type a number to open a server.[/]"));
 for (int i = 0; i < servers.Length; i++) {
     Server row = servers[i];
-    list.Add(new TextBlock($"[bold]{i + 1}[/]  {row.Name}  [muted]{row.Role}, {row.Site}[/]"));
+    list.Add(
+        TextBlock.FromMarkup($"[bold]{i + 1}[/]  {row.Name}  [muted]{row.Role}, {row.Site}[/]"));
 }
 AppScreens screens = new AppScreens();
 screens.Add(new AppScreen("list", "Servers", list) {
@@ -26,7 +27,7 @@ screens.Add(new AppScreen("list", "Servers", list) {
 });
 AppBinding detail = new AppBinding(s => {
     Server server = servers[s.Get("Server", 1) - 1];
-    return new Rows(new TextBlock(
+    return new Rows(TextBlock.FromMarkup(
         $"[bold]{server.Name}[/] is the {server.Role} server in {server.Site}."));
 });
 screens.Add(new AppScreen("server", "server", new Rows(detail)) {

@@ -28,6 +28,18 @@ namespace SiteFrames.Capture {
                 if (HasArgumentDeclarations(original)) { return visited; }
                 if (model.GetTypeInfo(original).Type is not INamedTypeSymbol type || !type.ContainingAssembly.Name.StartsWith("ConsoleMonster", StringComparison.Ordinal)
                     || model.GetSymbolInfo(original).Symbol is not IMethodSymbol ctor) { return original is ImplicitObjectCreationExpressionSyntax ? (ExpressionSyntax)original : visited; }
+                if (type.ToDisplayString() == "ConsoleMonster.Layout.Sized"
+                    && original.ArgumentList?.Arguments.Count == 2
+                    && original.ArgumentList.Arguments[1].Expression is InvocationExpressionSyntax size
+                    && model.GetSymbolInfo(size).Symbol is IMethodSymbol sizing
+                    && sizing.ContainingType.ToDisplayString() == "ConsoleMonster.Layout.LayoutSize"
+                    && sizing.Name is "Fixed" or "Fraction"
+                    && visited.ArgumentList!.Arguments[1].Expression is InvocationExpressionSyntax rewrittenSize) {
+                    ExpressionSyntax widget = visited.ArgumentList.Arguments[0].Expression;
+                    if (widget is ConditionalExpressionSyntax or BinaryExpressionSyntax or AssignmentExpressionSyntax) { widget = SyntaxFactory.ParenthesizedExpression(widget); }
+                    Namespaces.Add("ConsoleMonster");
+                    return Call(widget, sizing.Name == "Fixed" ? "Fixed" : "Fill", rewrittenSize.ArgumentList.Arguments[0].Expression).WithTriviaFrom(original);
+                }
                 if (type.Name == "LiveSession") {
                     ExpressionSyntax root = visited.ArgumentList!.Arguments[0].Expression;
                     if (root is ConditionalExpressionSyntax or BinaryExpressionSyntax or AssignmentExpressionSyntax) { root = SyntaxFactory.ParenthesizedExpression(root); }
@@ -35,10 +47,10 @@ namespace SiteFrames.Capture {
                 }
                 string noun = Names.GetValueOrDefault(type.Name, type.Name);
                 if (type.ToDisplayString() == "ConsoleMonster.Interactive.Grid") { noun = "Grid"; }
-                string? chartType = type.Name switch { "BarChart" => "Bar", "StackedBar" => "Stacked", "LineChart" => "Line", "Histogram" => "Histogram", "Sparkline" => "Sparkline", _ => null };
-                bool progress = type.Name is "ProgressBar" or "Spinner";
-                if (chartType != null) { noun = "Chart"; }
-                if (progress) { noun = "Progress"; }
+                string? chartType = type.Name == "Histogram" ? "Histogram" : null;
+                bool progress = false;
+                if (type.Name == "Histogram") { noun = "Chart"; }
+
                 bool options = type.Name.EndsWith("Options", StringComparison.Ordinal);
                 bool input = type.Name is "TextInput" or "Select" or "MultiSelect" or "Toggle" or "Button" or "Collapsible" or "Outline" or "Breadcrumb" or "ChartView" or "DataGrid" or "DatePicker" or "TreeSelect";
                 if (type.Name == "MultiSelect") { noun = "Select"; }
@@ -55,7 +67,7 @@ namespace SiteFrames.Capture {
                 string typeArgs = type.IsGenericType && question == null ? "<" + string.Join(", ", type.TypeArguments.Select(t => t.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))) + ">" : string.Empty;
                 ExpressionSyntax result = SyntaxFactory.ParseExpression(options ? "new " + type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) + "()" : "Ui." + noun + typeArgs + "()");
                 if (chartType != null) { result = Call(result, "Type", SyntaxFactory.ParseExpression("ConsoleMonster.Widgets.ChartType." + chartType)); }
-                if (type.Name == "Spinner") { result = Call(result, "Indeterminate"); }
+
                 if (question != null && QuestionVariant(type) is string variant) { result = Call(result, variant); }
                 bool build = input || progress || chartType != null || type.Name is "AppBinding" or "AppCommand";
                 var contentParameters = new HashSet<string>(StringComparer.Ordinal);
@@ -74,7 +86,7 @@ namespace SiteFrames.Capture {
                         if (contentParameters.Add(p.Name)) { result = Call(result, "Content", ConstructorContents(original, visited, ctor, p)); }
                         continue;
                     }
-                    if (type.Name == "TextBlock" && p.Name == "markup") { result = SyntaxFactory.ParseExpression("Ui.Markup(" + value + ")"); continue; }
+                    if (type.Name == "TextBlock" && p.Name == "text") { result = SyntaxFactory.ParseExpression("Ui.Text(" + value + ")"); continue; }
                     if (type.Name == "Grid" && noun == "LayoutGrid" && p.Name == "columns") { member = "Columns"; }
                     if (type.Name == "Logo" && p.Name == "text") { member = "Text"; }
                     if (type.Name == "AppBinding" && p.Name == "content" || type.Name == "AppCommand" && p.Name == "action") {
@@ -115,7 +127,7 @@ namespace SiteFrames.Capture {
                         result = built.WithExpression(((MemberAccessExpressionSyntax)built.Expression).WithName(SyntaxFactory.GenericName("Build")
                             .WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList<TypeSyntax>(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)))))));
                     }
-                    if (input) { result = SyntaxFactory.ParenthesizedExpression(SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)), result)); }
+                    if (input && type.Name != "Collapsible") { result = SyntaxFactory.ParenthesizedExpression(SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)), result)); }
                 }
                 if (visited.Initializer != null) {
                     for (int i = 0; i < visited.Initializer.Expressions.Count; i++) {
@@ -183,8 +195,8 @@ namespace SiteFrames.Capture {
                     if (method.ContainingType.ToDisplayString() == "ConsoleMonster.Widgets.Table" && method.Name == "For") {
                         return SyntaxFactory.ParseExpression("Ui.Table(" + string.Join(", ", visited.ArgumentList.Arguments) + ")").WithTriviaFrom(node);
                     }
-                    if (method.ContainingType.ToDisplayString() == "ConsoleMonster.Widgets.TextBlock" && method.Name == "Plain") {
-                        ExpressionSyntax text = SyntaxFactory.ParseExpression("Ui.Text(" + visited.ArgumentList.Arguments[0].Expression + ")");
+                    if (method.ContainingType.ToDisplayString() == "ConsoleMonster.Widgets.TextBlock" && method.Name is "Plain" or "FromMarkup") {
+                        ExpressionSyntax text = SyntaxFactory.ParseExpression("Ui." + (method.Name == "Plain" ? "Text" : "Markup") + "(" + visited.ArgumentList.Arguments[0].Expression + ")");
                         if (visited.ArgumentList.Arguments.Count > 1) { text = Call(text, "Role", visited.ArgumentList.Arguments[1].Expression); }
                         return text.WithTriviaFrom(node);
                     }
@@ -201,7 +213,7 @@ namespace SiteFrames.Capture {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)))
                         .WithArgumentList(factory.ArgumentList);
                 }
-                if (noun == "Markup") { noun = "Text"; }
+
                 if (factory.ArgumentList.Arguments.Count > 0) {
                     return visited.WithExpression(((MemberAccessExpressionSyntax)visited.Expression).WithName(SyntaxFactory.IdentifierName(noun)));
                 }

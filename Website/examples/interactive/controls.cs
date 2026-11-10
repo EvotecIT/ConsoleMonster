@@ -16,7 +16,7 @@ var notify = new Rows(
 var tabs = new Tabs().Add("Schedule", schedule).Add("Notify", notify);
 
 // One line under the tabs follows every change.
-var summary = new AppBinding(state => new TextBlock(
+var summary = new AppBinding(state => TextBlock.FromMarkup(
     $"[muted]Checks[/] {(state.Get("Enabled", false) ? "on" : "off")}" +
     $"  [muted]Window[/] {state["Window"] ?? "none"}" +
     $"  [muted]Email[/] {(state.Get("Email", false) ? "yes" : "no")}"));

@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a horizontal rule, optionally with a title.
 
-The line uses the border colour and the glyph tier's line character.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleRule [[-Title] <Object>] [-Alignment <HorizontalAlignment>] [-LineRol
 ```
 
 ## DESCRIPTION
-Creates a horizontal rule, optionally with a title.
-
 The line uses the border colour and the glyph tier's line character.
 
 ## EXAMPLES
@@ -29,6 +25,16 @@ New-ConsoleRule -Title 'Results'
 ```
 
 A titled separator
+
+### EXAMPLE 2
+```powershell
+New-ConsoleRows -Content {
+                New-ConsoleRule 'Inventory'
+                New-ConsoleText '2 servers checked' -Role Pass
+            } | Show-Console
+```
+
+Compose an inventory rule
 
 ## PARAMETERS
 
@@ -43,7 +49,7 @@ Possible values: Left, Center, Right
 
 Required: False
 Position: named
-Default value: None
+Default value: Left
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -59,7 +65,7 @@ Possible values: Text, Muted, Subtle, Accent, Accent2, Pass, Fail, Warn, Info, S
 
 Required: False
 Position: named
-Default value: None
+Default value: Border
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -101,7 +107,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -109,4 +115,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolerule/](https://consolemonster.dev/powershell/commands/new-consolerule/)

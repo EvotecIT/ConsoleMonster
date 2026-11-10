@@ -34,7 +34,7 @@ public static class Program {
         });
         menu.Item("Run the service", item => {
             item.Description = "How to start the host with its live dashboard";
-            item.Page = _ => new Panel(new TextBlock(
+            item.Page = _ => new Panel(TextBlock.FromMarkup(
                 "Run [accent]dotnet run -- serve[/] to start the generic host. The dashboard shows each hosted service, "
                 + "its state and the log; Ctrl+C stops it.\n\nPublish one native executable with "
                 + "[accent]dotnet publish -c Release -r win-x64[/] (or linux-x64, osx-arm64)."), "Service");
@@ -57,9 +57,9 @@ public static class Report {
         table.AddRow("worker", TableCell.ForStatus(StatusKind.Warn, "slow"), "3d 4h", "88 412");
         table.AddRow("reports", TableCell.ForStatus(StatusKind.Fail, "stopped"), "0s", "0");
         return new Rows(
-            new TextBlock("[bold]Services[/] [muted]· sample data[/]"),
+            TextBlock.FromMarkup("[bold]Services[/] [muted]· sample data[/]"),
             table,
-            new TextBlock("[pass]2 running[/] · [fail]1 stopped[/]"));
+            TextBlock.FromMarkup("[pass]2 running[/] · [fail]1 stopped[/]"));
     }
 }
 

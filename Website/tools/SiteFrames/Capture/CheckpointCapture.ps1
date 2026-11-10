@@ -14,7 +14,7 @@ $options.InProcess = $true
 $options.Width = $Width
 $options.Height = $Height
 if (-not $env:SITEFRAMES_OUTPUT_RECORDING) { throw 'Missing hosted capture destination.' }
-$options.Path = $env:SITEFRAMES_OUTPUT_RECORDING
+$options.RecordingPath = $env:SITEFRAMES_OUTPUT_RECORDING
 $recorder = ($assembly.GetType('ConsoleMonster.Sessions.SessionRecorder', $true))::Start($options)
 $writer = ($assembly.GetType('ConsoleMonster.Output.StringTerminalWriter', $true))::new()
 $output = [ConsoleMonster.Terminal]::CreateOutput($profile, $writer)

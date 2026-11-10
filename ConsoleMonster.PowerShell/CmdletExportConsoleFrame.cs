@@ -5,10 +5,8 @@ using System.Text;
 using ConsoleMonster.Export;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</para>
-    /// <para type="description">Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</para>
-    /// </summary>
+    /// <summary>Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.</summary>
+    /// <remarks><para>Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</para></remarks>
     /// <example>
     /// <para>Export a table as an HTML page</para>
     /// <code>Get-Process | Select-Object -First 8 Name, Id | New-ConsoleTable | Export-ConsoleFrame -Format Html</code>
@@ -17,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Export an SVG with a dark window frame</para>
     /// <code>New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -ChromeStyle MacOS</code>
     /// </example>
-    [Cmdlet(VerbsData.Export, "ConsoleFrame")]
+    [Cmdlet(VerbsData.Export, "ConsoleFrame", HelpUri = "https://consolemonster.dev/powershell/commands/export-consoleframe/")]
     [OutputType(typeof(string), typeof(byte[]), typeof(FileInfo))]
     public sealed class CmdletExportConsoleFrame : PSCmdlet {
         private readonly List<object> _items = new List<object>();
@@ -39,15 +37,18 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Width in cells for widgets (default 0: terminal width, falling back to 100).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Height in cells for widgets (default: as tall as the widget measures).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary><para type="description">Auto (both HTML renderings), Dark, Light, HighContrast, or Current: the theme in use on the background it is made for. Without -Theme, Current is used when a theme was chosen (Set-ConsoleTheme, Set-ConsoleSetting Theme, CONSOLEMONSTER_THEME or the settings file), so the export looks like your terminal; otherwise Auto. Raster Auto uses Dark.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Auto")]
         public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
         /// <summary><para type="description">The page title and, with a ChromeStyle other than None, the title bar text.</para></summary>
@@ -62,20 +63,25 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Natural-size font in pixels (default 14). Slide presets fit automatically, up to 72 pixels.</para></summary>
         [Parameter]
         [ValidateRange(4, 96)]
+        [PSDefaultValue(Help = "14")]
         public double FontSize { get; set; } = 14;
 
         /// <summary><para type="description">With -Path, also writes the file to the pipeline.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <summary><para type="description">Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</para></summary>
         [Parameter, ValidateSet("Docs", "Slide16x9", "Slide4x3", "Social")]
+        [PSDefaultValue(Help = "Docs")]
         public string Preset { get; set; } = "Docs";
 
         /// <summary><para type="description">Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</para></summary>
-        [Parameter, ValidateSet("Content", "Terminal")] public string Fit { get; set; } = "Content";
+        [Parameter, ValidateSet("Content", "Terminal")] [PSDefaultValue(Help = "Content")]
+        public string Fit { get; set; } = "Content";
         /// <summary><para type="description">Slide background: Theme (default), Solid or Gradient.</para></summary>
-        [Parameter, ValidateSet("Theme", "Solid", "Gradient")] public string Background { get; set; } = "Theme";
+        [Parameter, ValidateSet("Theme", "Solid", "Gradient")] [PSDefaultValue(Help = "Theme")]
+        public string Background { get; set; } = "Theme";
         /// <summary><para type="description">Solid background or gradient start as #RGB or #RRGGBB.</para></summary>
         [Parameter] public string? BackgroundColor { get; set; }
         /// <summary><para type="description">Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</para></summary>
@@ -85,7 +91,8 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public string? FontFamily { get; set; }
 
         /// <summary><para type="description">Maximum raster font size in pixels; default 72.</para></summary>
-        [Parameter, ValidateRange(0.01, 4096)] public double MaxFontSize { get; set; } = 72;
+        [Parameter, ValidateRange(0.01, 4096)] [PSDefaultValue(Help = "72")]
+        public double MaxFontSize { get; set; } = 72;
         /// <summary><para type="description">Additional raster font-family fallbacks, in preferred order.</para></summary>
         [Parameter] public string[]? FontFallbacks { get; set; }
 

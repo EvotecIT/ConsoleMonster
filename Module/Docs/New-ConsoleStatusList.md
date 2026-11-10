@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a checklist of items with status markers.
 
-Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleStatusList [[-WidgetId] <string>] [[-InputObject] <psobject>] [[-Cont
 ```
 
 ## DESCRIPTION
-Creates a checklist of items with status markers.
-
 Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.
 
 ## EXAMPLES
@@ -142,7 +138,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 5
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -174,7 +170,7 @@ Possible values: List, Strip, Chain
 
 Required: False
 Position: named
-Default value: None
+Default value: List
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -190,7 +186,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -206,7 +202,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: status
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -225,4 +221,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolestatuslist/](https://consolemonster.dev/powershell/commands/new-consolestatuslist/)

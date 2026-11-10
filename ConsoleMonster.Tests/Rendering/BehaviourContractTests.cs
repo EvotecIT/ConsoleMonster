@@ -275,7 +275,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private const string CallerText = "Łódź 東京 ✅ café";
         private static readonly Dictionary<string, Func<IWidget>> Scenes = new Dictionary<string, Func<IWidget>> {
-            ["text"] = () => new TextBlock(CallerText),
+            ["text"] = () => TextBlock.FromMarkup(CallerText),
             ["diagram"] = () => new Diagram().Node(CallerText).Node("Target").Link(CallerText, "Target"),
             ["code"] = () => new CodeView(CallerText),
             ["report"] = TestScenes.Report,
@@ -299,8 +299,8 @@ namespace ConsoleMonster.Tests.Rendering {
             ["activity"] = () => new ActivityList(),
             ["summary"] = () => new SummaryBar().SetCounter(CallerText, 3),
             ["watch"] = () => new WatchView(),
-            ["region"] = () => new RegionWidget("region", new TextBlock(CallerText)),
-            ["dashboard"] = () => new Dashboard(CallerText, new TextBlock(CallerText)),
+            ["region"] = () => new RegionWidget("region", TextBlock.FromMarkup(CallerText)),
+            ["dashboard"] = () => new Dashboard(CallerText, TextBlock.FromMarkup(CallerText)),
             ["live table"] = () => { var live = new LiveTable(new Table().AddColumn("Value")); live.Set("first", CallerText); return live; },
             ["grid"] = () => new DataGrid("grid", new Grid(CallerText).AddColumn("Value").AddRow("first", CallerText)),
             ["text input"] = () => new TextInput("input") { Value = CallerText },
@@ -316,7 +316,7 @@ namespace ConsoleMonster.Tests.Rendering {
             ["paths"] = () => new PathSet(new PathHop("origin", CallerText)).Add(new PathHop("next", CallerText)),
             ["shell prompt"] = () => new ShellPrompt { Path = CallerText },
             ["help"] = () => new HelpView(new Help.HelpTopic("Get-Example") { Synopsis = CallerText }),
-            ["tabs"] = () => new Tabs().Add(CallerText, new TextBlock(CallerText)),
+            ["tabs"] = () => new Tabs().Add(CallerText, TextBlock.FromMarkup(CallerText)),
             ["run dashboard"] = () => new RunDashboard(new RunTracker(1)),
             ["run summary"] = () => new RunSummary(new RunTracker(1)),
             ["run progress"] = () => new RunProgress(new RunTracker(1).Snapshot()),

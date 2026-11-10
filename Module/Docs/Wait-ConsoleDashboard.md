@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Pauses dashboard work, or captures its next checkpoint during a recording.
 
-Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Wait-ConsoleDashboard [-Seconds] <double> [-Session <LiveSession>] [<CommonParam
 ```
 
 ## DESCRIPTION
-Pauses dashboard work, or captures its next checkpoint during a recording.
-
 Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.
 
 ## EXAMPLES
@@ -38,6 +34,18 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
 
 Update progress between cancellable pauses
 
+### EXAMPLE 2
+```powershell
+$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleLanes -WidgetId servers }
+Invoke-ConsoleDashboard $dashboard {
+    Update-Console servers -Key web01 -Status Running
+    Wait-ConsoleDashboard -Seconds 0.1
+    Update-Console servers -Key web01 -Status Pass -Complete
+}
+```
+
+Pause briefly between live server updates
+
 ## PARAMETERS
 
 ### -Seconds
@@ -51,7 +59,7 @@ Possible values:
 
 Required: True
 Position: 0
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -77,7 +85,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -85,4 +93,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/wait-consoledashboard/](https://consolemonster.dev/powershell/commands/wait-consoledashboard/)

@@ -144,7 +144,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Duration", "about " + task.Minutes + " min per server")
                 .Add("Changes", task.Changes ? "[warn]yes[/], makes changes" : "[pass]no[/], read only")
                 .Add("Parameter", "[accent]" + Markup.Escape(task.Id) + "[/]");
-            return new Rows(new TextBlock(Markup.Escape(task.Description)), facts) { Gap = 1 };
+            return new Rows(TextBlock.FromMarkup(Markup.Escape(task.Description)), facts) { Gap = 1 };
         }
     }
 }

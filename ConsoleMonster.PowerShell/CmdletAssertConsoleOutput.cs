@@ -7,10 +7,8 @@ using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Compares console output with a golden file (for Pester and other tests).</para>
-    /// <para type="description">Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.</para>
-    /// </summary>
+    /// <summary>Compares console output with a golden file (for Pester and other tests).</summary>
+    /// <remarks><para>Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.</para></remarks>
     /// <example>
     /// <para>Compare a table with an existing Pester golden file</para>
     /// <code># Requires Pester and the reviewed Golden/report.txt snapshot beside the test file.
@@ -22,29 +20,38 @@ namespace ConsoleMonster.PowerShell {
     ///     $rows | New-ConsoleTable | Assert-ConsoleOutput -GoldenPath $goldenPath -Width 80
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Assert, "ConsoleOutput")]
+    /// <example>
+    /// <para>Check an inventory panel against an existing baseline</para>
+    /// <code>$view = New-ConsolePanel 'Inventory' -Content { New-ConsoleText 'web01: Pass' }
+    /// Assert-ConsoleOutput -InputObject $view -GoldenPath ./inventory.txt -PassThru
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsLifecycle.Assert, "ConsoleOutput", HelpUri = "https://consolemonster.dev/powershell/commands/assert-consoleoutput/")]
     [OutputType(typeof(string))]
     public sealed class CmdletAssertConsoleOutput : PSCmdlet {
         /// <summary><para type="description">A widget, or text to compare as it is.</para></summary>
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
         public object InputObject { get; set; } = null!;
 
-        /// <summary><para type="description">The golden file.</para></summary>
+        /// <summary><para type="description">Path to the expected plain-text rendering used for the comparison.</para></summary>
         [Parameter(Mandatory = true, Position = 1)]
         public string GoldenPath { get; set; } = string.Empty;
 
         /// <summary><para type="description">Width in cells (default 0: terminal width, falling back to 100).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Height in cells (default: as tall as the widget measures).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary><para type="description">The glyph tier (default Full).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Full")]
         public GlyphTier Glyphs { get; set; } = GlyphTier.Full;
 
         /// <summary><para type="description">The culture for numbers and dates (default: invariant).</para></summary>
@@ -53,6 +60,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Writes the rendered text to the pipeline when it matches.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <inheritdoc />

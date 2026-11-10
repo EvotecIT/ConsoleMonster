@@ -5,15 +5,13 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a form field for New-ConsoleForm.</para>
-    /// <para type="description">A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.</para>
-    /// </summary>
+    /// <summary>Creates a form field for New-ConsoleForm.</summary>
+    /// <remarks><para>A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.</para></remarks>
     /// <example>
     /// <para>Load dependent choices from the selected site</para>
     /// <code>$form = New-ConsoleForm 'Server selection' -Content {
-    ///     New-ConsoleField Site 'Site' -Type Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
-    ///     New-ConsoleField Server 'Server' -Type Select -DependsOn Site -LoadChoices {
+    ///     New-ConsoleField Site 'Site' -Kind Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
+    ///     New-ConsoleField Server 'Server' -Kind Select -DependsOn Site -LoadChoices {
     ///         param($Values)
     ///         [pscustomobject]@{ Name = "$($Values.Site)-web01" }
     ///         [pscustomobject]@{ Name = "$($Values.Site)-web02" }
@@ -24,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Show a field only when a toggle is enabled</para>
     /// <code>$form = New-ConsoleForm 'Notifications' -Content {
-    ///     New-ConsoleField Notify 'Send an email' -Type Toggle
+    ///     New-ConsoleField Notify 'Send an email' -Kind Toggle
     ///     New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
     /// }
     /// Read-ConsoleForm $form</code>
@@ -32,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Group loaded choices, disable unavailable ones and select defaults by property</para>
     /// <code>$form = New-ConsoleForm 'Servers' -Content {
-    ///     New-ConsoleField Servers 'Servers' -Type Select -Multiple -ParameterName ComputerName -LoadChoices {
+    ///     New-ConsoleField Servers 'Servers' -Kind Select -Multiple -ParameterName ComputerName -LoadChoices {
     ///         [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
     ///         [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
     ///     } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
@@ -45,9 +43,9 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }
     ///     [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }
     /// )
-    /// New-ConsoleField Checks 'Checks' -Type Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
+    /// New-ConsoleField Checks 'Checks' -Kind Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleField")]
+    [Cmdlet(VerbsCommon.New, "ConsoleField", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolefield/")]
     [OutputType(typeof(Field))]
     public sealed class CmdletNewConsoleField : NoPipelineInputCmdlet {
         /// <summary><para type="description">The key of the value in the result.</para></summary>
@@ -60,27 +58,31 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The kind: Text (default), Number, Toggle, Select or Path. -Multiple, -AsSecret and -Multiline choose the variant, as on Read-ConsoleSelect and Read-ConsoleText.</para></summary>
         [Parameter]
-        public ConsoleFieldType Type { get; set; } = ConsoleFieldType.Text;
+        [PSDefaultValue(Help = "Text")]
+        public ConsoleFieldType Kind { get; set; } = ConsoleFieldType.Text;
 
         /// <summary><para type="description">For Select: several choices instead of one.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Multiple { get; set; }
 
         /// <summary><para type="description">For Text: a masked secret, returned as SecureString unless Read-ConsoleForm -AsPlainText.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsSecret { get; set; }
 
         /// <summary><para type="description">For Text: several lines, edited in a text area dialog.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Multiline { get; set; }
 
         /// <summary><para type="description">The wizard page the field is on.</para></summary>
         [Parameter]
         public string? Page { get; set; }
 
-        /// <summary><para type="description">Description shown while the field has focus.</para></summary>
+        /// <summary><para type="description">Help shown while the field has focus.</para></summary>
         [Parameter]
-        public string? Description { get; set; }
+        public string? Help { get; set; }
 
         /// <summary><para type="description">The parameter the field supplies in the equivalent command (Name, -Key or --name).</para></summary>
         [Parameter]
@@ -88,6 +90,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Refuses an empty value.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Required { get; set; }
 
         /// <summary><para type="description">The default (for choices: the choice object or its text; for multi-selections: several).</para></summary>
@@ -164,14 +167,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Whole numbers only.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Integer { get; set; }
 
         /// <summary><para type="description">What a path field accepts: Any, File or Folder.</para></summary>
         [Parameter]
-        public PathKind Kind { get; set; } = PathKind.Any;
+        [PSDefaultValue(Help = "Any")]
+        public PathKind PathKind { get; set; } = PathKind.Any;
 
         /// <summary><para type="description">Requires a path to exist.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter MustExist { get; set; }
 
         /// <summary><para type="description">File extensions offered as path suggestions.</para></summary>
@@ -196,18 +202,22 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The fewest characters of a text or secret field.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int MinLength { get; set; }
 
         /// <summary><para type="description">The most characters (Text).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "2147483647")]
         public int MaxLength { get; set; } = int.MaxValue;
 
         /// <summary><para type="description">The most lines (Text -Multiline).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "2147483647")]
         public int MaxLines { get; set; } = int.MaxValue;
 
         /// <summary><para type="description">The visible rows of the text area dialog (Text -Multiline, default 8).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "8")]
         public int Height { get; set; } = 8;
 
         /// <summary><para type="description">What stands in for a secret in the equivalent command.</para></summary>
@@ -216,12 +226,13 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Keeps the value out of presets and remembered choices.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoRemember { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
             Field field = Create();
-            field.Help = Description;
+            field.Help = Help;
             field.ParameterName = ParameterName;
             field.Required = Required.IsPresent || field.Required && AsSecret.IsPresent;
             if (NoRemember.IsPresent) {
@@ -245,11 +256,11 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private Field Create() {
-            if (Multiple.IsPresent && Type != ConsoleFieldType.Select) { throw new PSArgumentException("Multiple applies to -Type Select."); }
-            if ((AsSecret.IsPresent || Multiline.IsPresent) && Type != ConsoleFieldType.Text) { throw new PSArgumentException((AsSecret.IsPresent ? "AsSecret" : "Multiline") + " applies to -Type Text."); }
+            if (Multiple.IsPresent && Kind != ConsoleFieldType.Select) { throw new PSArgumentException("Multiple applies to -Kind Select."); }
+            if ((AsSecret.IsPresent || Multiline.IsPresent) && Kind != ConsoleFieldType.Text) { throw new PSArgumentException((AsSecret.IsPresent ? "AsSecret" : "Multiline") + " applies to -Kind Text."); }
             if (AsSecret.IsPresent && Multiline.IsPresent) { throw new PSArgumentException("Choose AsSecret or Multiline."); }
-            if (!Multiline.IsPresent && (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLines)) || MyInvocation.BoundParameters.ContainsKey(nameof(Height)))) { throw new PSArgumentException("MaxLines and Height apply to -Type Text -Multiline."); }
-            switch (Type) {
+            if (!Multiline.IsPresent && (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLines)) || MyInvocation.BoundParameters.ContainsKey(nameof(Height)))) { throw new PSArgumentException("MaxLines and Height apply to -Kind Text -Multiline."); }
+            switch (Kind) {
                 case ConsoleFieldType.Text when Multiline.IsPresent:
                     TextAreaField area = new TextAreaField(Key, Label) { Placeholder = Placeholder, MinLength = MinLength, MaxLength = MaxLength, MaxLines = MaxLines, Height = Height };
                     if (Default != null) {
@@ -278,7 +289,7 @@ namespace ConsoleMonster.PowerShell {
                     }
                     return toggle;
                 case ConsoleFieldType.Path:
-                    PathField path = new PathField(Key, Label) { PathKind = Kind, MustExist = MustExist.IsPresent };
+                    PathField path = new PathField(Key, Label) { PathKind = PathKind, MustExist = MustExist.IsPresent };
                     if (Extension != null) {
                         foreach (string e in Extension) {
                             path.Extensions.Add(e.StartsWith(".", StringComparison.Ordinal) ? e : "." + e);

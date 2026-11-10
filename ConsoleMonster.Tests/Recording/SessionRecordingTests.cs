@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Sessions {
     public sealed class SessionRecordingTests : IDisposable {
         private readonly string _folder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ConsoleMonster-recording-" + Guid.NewGuid().ToString("N"));
         public SessionRecordingTests() { Directory.CreateDirectory(_folder); }
-        private SessionRecordingOptions Options(string name = "session") => new SessionRecordingOptions { Path = System.IO.Path.Combine(_folder, name + ".cast"), Width = 30, Height = 6, InProcess = true };
+        private SessionRecordingOptions Options(string name = "session") => new SessionRecordingOptions { RecordingPath = System.IO.Path.Combine(_folder, name + ".cast"), Width = 30, Height = 6, InProcess = true };
 
         [Fact]
         public void Redaction_CustomLabelPreservesContextAndStyles() {
@@ -28,8 +28,8 @@ namespace ConsoleMonster.Tests.Sessions {
                 recorder.CapturePowerShellOutput("value (redacted)\u001b[0m\r\n");
                 recorder.AddMarker("Report");
             }
-            SessionRecording recording = SessionRecording.Read(options.Path!);
-            Assert.DoesNotContain("synthetic-", File.ReadAllText(options.Path!));
+            SessionRecording recording = SessionRecording.Read(options.RecordingPath!);
+            Assert.DoesNotContain("synthetic-", File.ReadAllText(options.RecordingPath!));
             Assert.Contains("API_TOKEN=••••••• (redacted)", recording.Export(ExportFormat.Text));
             Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(8), recording.FinalFrame()[0, 0].Style.Color);
             Assert.Contains("Report", recording.ExportPlayerData());
@@ -42,13 +42,13 @@ namespace ConsoleMonster.Tests.Sessions {
         public void Redaction_RejectsEmptyOrControlBearingLabels(string label) {
             SessionRecordingOptions options = Options("invalid-label"); options.RedactionText = label;
             Assert.Throws<ArgumentException>(() => SessionRecorder.Start(options));
-            Assert.False(File.Exists(options.Path!));
+            Assert.False(File.Exists(options.RecordingPath!));
         }
 
         [Fact]
         public void Writer_AutoNamesUseTheConfiguredFolderAndDescribeTheRecording() {
             SessionRecordingOptions options = Options();
-            options.Path = null;
+            options.RecordingPath = null;
             options.Folder = System.IO.Path.Combine(_folder, "automatic");
             options.Title = "Automatic recording";
             options.Redact.Add("\\A" + System.Text.RegularExpressions.Regex.Escape(Environment.MachineName) + "\\z");
@@ -87,13 +87,13 @@ namespace ConsoleMonster.Tests.Sessions {
                 recorder.CapturePowerShellOutput("Server=localhost;Password='quoted secret value';Database=sample\r\n");
                 recorder.CapturePowerShellOutput("Server=localhost;Password=unquoted secret value;Database=sample\r\n");
             }
-            string cast = File.ReadAllText(options.Path!), metadata = File.ReadAllText(options.Path + ".json");
+            string cast = File.ReadAllText(options.RecordingPath!), metadata = File.ReadAllText(options.RecordingPath + ".json");
             foreach (string secret in new[] { "synthetic-token", "sample-key", "private-project", "chapter-secret", "title-secret", "sk-abcdefgh12345678", "colour-", "split-secret", "quoted secret value", "unquoted secret value" }) {
                 Assert.DoesNotContain(secret, cast); Assert.DoesNotContain(secret, metadata);
             }
             Assert.Contains("[REDACTED]", cast);
             Assert.Contains("in-process output only", cast);
-            Assert.Contains("Deploy [REDACTED] [REDACTED]", SessionRecording.Read(options.Path!).ExportPlayerData());
+            Assert.Contains("Deploy [REDACTED] [REDACTED]", SessionRecording.Read(options.RecordingPath!).ExportPlayerData());
         }
 
         [Fact]
@@ -104,11 +104,11 @@ namespace ConsoleMonster.Tests.Sessions {
                 Thread.Sleep(50);
                 recorder.CapturePowerShellOutput("second\n");
             }
-            string[] lines = File.ReadAllLines(options.Path!);
+            string[] lines = File.ReadAllLines(options.RecordingPath!);
             double last = double.Parse(lines[2].Substring(1, lines[2].IndexOf(',') - 1), System.Globalization.CultureInfo.InvariantCulture);
             Assert.True(last >= 0.05, "Capture keeps the source pause for later export choices.");
             Assert.Contains("\"idle_time_limit\":0.01", lines[0]);
-            Assert.Contains("second", ConsoleExporter.ToText(SessionRecording.Read(options.Path!).FinalFrame()));
+            Assert.Contains("second", ConsoleExporter.ToText(SessionRecording.Read(options.RecordingPath!).FinalFrame()));
         }
 
         [Fact]
@@ -117,8 +117,8 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionRecorder recorder = SessionRecorder.Start(options)) {
                 recorder.CapturePowerShellOutput("password=hidden-value\u001b[32m\r\nGreen next line\u001b[0m\r\n");
             }
-            var frame = SessionRecording.Read(options.Path!).FinalFrame();
-            Assert.DoesNotContain("hidden-value", File.ReadAllText(options.Path!));
+            var frame = SessionRecording.Read(options.RecordingPath!).FinalFrame();
+            Assert.DoesNotContain("hidden-value", File.ReadAllText(options.RecordingPath!));
             Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[0, 1].Style.Color);
             Assert.Contains("Green next line", ConsoleExporter.ToText(frame));
         }
@@ -130,10 +130,10 @@ namespace ConsoleMonster.Tests.Sessions {
                 recorder.CapturePowerShellOutput(new string('a', 2000) + "\n");
                 Assert.True(recorder.LimitReached);
             }
-            Assert.InRange(new FileInfo(options.Path!).Length, 1, options.MaxBytes);
-            var metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.Path + ".json"))!;
+            Assert.InRange(new FileInfo(options.RecordingPath!).Length, 1, options.MaxBytes);
+            var metadata = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllText(options.RecordingPath + ".json"))!;
             Assert.True((bool)metadata["sizeLimitReached"]!);
-            Assert.NotNull(SessionRecording.Read(options.Path!).FinalFrame());
+            Assert.NotNull(SessionRecording.Read(options.RecordingPath!).FinalFrame());
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append(SessionRecorder.StopSequence);
                 Assert.True(writer.StopRequested);
             }
-            Assert.NotNull(SessionRecording.Read(options.Path!).FinalFrame());
+            Assert.NotNull(SessionRecording.Read(options.RecordingPath!).FinalFrame());
         }
 
         [Theory]
@@ -160,9 +160,9 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append(prefix + "marker;" + encoded);
                 if (interrupted) { writer.Append("\u001b[32mVisible\r\n"); }
             }
-            string cast = File.ReadAllText(options.Path!);
+            string cast = File.ReadAllText(options.RecordingPath!);
             Assert.DoesNotContain(encoded, cast); Assert.DoesNotContain("private-label", cast);
-            if (interrupted) { Assert.Contains("Visible", SessionRecording.Read(options.Path!).Export(ExportFormat.Text)); }
+            if (interrupted) { Assert.Contains("Visible", SessionRecording.Read(options.RecordingPath!).Export(ExportFormat.Text)); }
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Marker("Expanded");
                 writer.Append("\r\n");
             }
-            string[] lines = File.ReadAllLines(options.Path!);
+            string[] lines = File.ReadAllLines(options.RecordingPath!);
             Assert.Contains("ABCDEF", lines[1]);
             Assert.Contains("\"r\",\"8x4\"", lines[2]);
             Assert.Contains("\"m\",\"Expanded\"", lines[3]);
@@ -183,7 +183,7 @@ namespace ConsoleMonster.Tests.Sessions {
             List<object?> resize = (List<object?>)MiniJson.Read(lines[2])!;
             double gap = double.Parse((string)resize[0]!, System.Globalization.CultureInfo.InvariantCulture) - double.Parse((string)first[0]!, System.Globalization.CultureInfo.InvariantCulture);
             Assert.True(gap >= 0.02, "Buffered output lost its original arrival time.");
-            string text = SessionRecording.Read(options.Path!).Export(ExportFormat.Text);
+            string text = SessionRecording.Read(options.RecordingPath!).Export(ExportFormat.Text);
             Assert.StartsWith("ABCD", text);
             Assert.Contains("EF", text.Split('\n')[1]);
         }
@@ -194,10 +194,10 @@ namespace ConsoleMonster.Tests.Sessions {
             using (SessionCastWriter writer = new SessionCastWriter(options, "in-process output only")) {
                 writer.Append("password=split-"); writer.Resize(40, 8); writer.Append("secret\r\n");
             }
-            string cast = File.ReadAllText(options.Path!);
+            string cast = File.ReadAllText(options.RecordingPath!);
             Assert.DoesNotContain("split-", cast); Assert.DoesNotContain("secret", cast);
             Assert.Contains("[REDACTED]", cast);
-            Assert.Equal(40, SessionRecording.Read(options.Path!).FinalFrame().Width);
+            Assert.Equal(40, SessionRecording.Read(options.RecordingPath!).FinalFrame().Width);
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 recorder.CapturePowerShellOutput("password=" + new string('x', 70000));
                 recorder.CapturePowerShellOutput("end-secret\nVisible\n");
             }
-            string cast = File.ReadAllText(options.Path!);
+            string cast = File.ReadAllText(options.RecordingPath!);
             Assert.DoesNotContain("end-secret", cast);
             Assert.DoesNotContain(new string('x', 100), cast);
             Assert.Contains("Visible", cast);
@@ -427,12 +427,12 @@ namespace ConsoleMonster.Tests.Sessions {
                     Assert.Equal(0, recorder.ExitCode);
                 }
             }
-            string raw = File.ReadAllText(options.Path!);
+            string raw = File.ReadAllText(options.RecordingPath!);
             Assert.DoesNotContain("input-secret", raw); Assert.DoesNotContain("output-secret", raw);
             Assert.Contains("\\u001b[32m", raw);
             Assert.DoesNotContain("\"i\",", raw);
             Assert.Contains("40x10", raw); Assert.Contains("[REDACTED]", raw);
-            SessionRecording recording = SessionRecording.Read(options.Path!);
+            SessionRecording recording = SessionRecording.Read(options.RecordingPath!);
             Assert.Equal(40, recording.FinalFrame().Width);
             Assert.Contains("Finished", ConsoleExporter.ToText(recording.FinalFrame()));
             Assert.Contains("git version", recording.Export(ExportFormat.Text));
@@ -444,9 +444,9 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void ExistingCastIsNeverOverwritten() {
             SessionRecordingOptions options = Options();
-            File.WriteAllText(options.Path!, "existing recording");
+            File.WriteAllText(options.RecordingPath!, "existing recording");
             Assert.Throws<IOException>(() => SessionRecorder.Start(options));
-            Assert.Equal("existing recording", File.ReadAllText(options.Path!));
+            Assert.Equal("existing recording", File.ReadAllText(options.RecordingPath!));
         }
 
         [Theory]
@@ -461,7 +461,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 writer.Append("After stop must not be stored\r\n");
                 Assert.True(writer.StopRequested);
             }
-            string cast = File.ReadAllText(options.Path!);
+            string cast = File.ReadAllText(options.RecordingPath!);
             Assert.Contains("\"m\",\"Deploy\"", cast);
             Assert.Contains("1337;SetMark", cast);
             Assert.DoesNotContain("ConsoleMonster;", cast);
@@ -476,8 +476,8 @@ namespace ConsoleMonster.Tests.Sessions {
             options.Arguments.Add(windows ? "-Command" : "-c");
             options.Arguments.Add(windows ? "Start-Sleep -Seconds 30" : "sleep 30");
             using (SessionRecorder recorder = SessionRecorder.Start(options)) { Assert.Throws<TimeoutException>(() => recorder.WaitForExit()); }
-            Assert.NotNull(SessionRecording.Read(options.Path!).FinalFrame());
-            Assert.True(File.Exists(options.Path + ".json"));
+            Assert.NotNull(SessionRecording.Read(options.RecordingPath!).FinalFrame());
+            Assert.True(File.Exists(options.RecordingPath + ".json"));
         }
 
         [Fact]
@@ -488,14 +488,14 @@ namespace ConsoleMonster.Tests.Sessions {
             options.Arguments.Add(windows ? "-Command" : "-c");
             options.Arguments.Add(windows ? "[Console]::WriteLine('Failed safely'); exit 7" : "printf 'Failed safely\n'; exit 7");
             using (SessionRecorder recorder = SessionRecorder.Start(options)) { recorder.WaitForExit(); Assert.Equal(7, recorder.ExitCode); }
-            Assert.Contains("Failed safely", SessionRecording.Read(options.Path!).Export(ExportFormat.Text));
+            Assert.Contains("Failed safely", SessionRecording.Read(options.RecordingPath!).Export(ExportFormat.Text));
         }
 
         [Fact]
         public void Options_RejectNulArgumentsBeforeCreatingArtifacts() {
             SessionRecordingOptions options = Options(); options.Arguments.Add("one\0two");
             Assert.Throws<ArgumentException>(() => SessionRecorder.Start(options));
-            Assert.False(File.Exists(options.Path));
+            Assert.False(File.Exists(options.RecordingPath));
         }
 
         public void Dispose() { if (Directory.Exists(_folder)) { Directory.Delete(_folder, true); } }

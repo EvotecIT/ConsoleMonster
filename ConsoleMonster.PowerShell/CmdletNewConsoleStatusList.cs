@@ -6,10 +6,8 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a checklist of items with status markers.</para>
-    /// <para type="description">Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</para>
-    /// </summary>
+    /// <summary>Creates a checklist of items with status markers.</summary>
+    /// <remarks><para>Content or the pipeline accepts Key/Label/Status records and strings. Records can include Detail; strings begin as pending checklist items. InputObject also accepts a dictionary mapping labels to statuses. Layout selects a vertical List, a horizontal Strip of phases, or a Chain: the phases on one line that folds to fit, for a table cell or a header. In a Strip, records with ParentKey are items of that phase; the running phase fans out to them, prioritizing failed, warning and running items within FanOut rows and counting the remaining items in +N more. The summary uses one row, so urgent items can also be folded when they exceed the limit. Statuses use the shared vocabulary: Pass, Fail, Warn, Skip, Info, Running, Pending and PowerShell's words such as Success, Warning and Error. Status is always shown with a symbol (or a [PASS]-style word in ASCII mode), never by colour alone. In a live dashboard, update items with Update-Console.</para></remarks>
     /// <example>
     ///   <para>A build checklist</para>
     ///   <code>
@@ -65,7 +63,7 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = &amp; $stages 'Fail' }
     /// ) | Show-ConsoleTable</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleStatusList")]
+    [Cmdlet(VerbsCommon.New, "ConsoleStatusList", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolestatuslist/")]
     [OutputType(typeof(StatusList), typeof(Phases))]
     public sealed class CmdletNewConsoleStatusList : PSCmdlet {
         private readonly List<object> _piped = new List<object>();
@@ -82,16 +80,20 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">List stacks the items; Strip shows ordered phases; Chain shows the phases on one line that folds to fit.</para></summary>
         [Parameter, ValidateSet("List", "Strip", "Chain")]
+        [PSDefaultValue(Help = "List")]
         public string Layout { get; set; } = "List";
 
         /// <summary><para type="description">Shows Strip phases as a numbered ledger. ParentKey items require Strip without StepCounter.</para></summary>
-        [Parameter] public SwitchParameter StepCounter { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter StepCounter { get; set; }
 
         /// <summary><para type="description">Rows the running phase of a Strip fans out to, including the +N more row (default 5; 0 hides items).</para></summary>
-        [Parameter, ValidateRange(0, 100)] public int FanOut { get; set; } = 5;
+        [Parameter, ValidateRange(0, 100)] [PSDefaultValue(Help = "5")]
+        public int FanOut { get; set; } = 5;
 
         /// <summary><para type="description">The live name (default status).</para></summary>
         [Parameter(Position = 0)]
+        [PSDefaultValue(Help = "status")]
         public string WidgetId { get; set; } = "status";
 
         /// <summary><para type="description">Shared DetailColumn layout settings as a hashtable, for example @{ MinWidth = 6; Alignment = 'Right' }.</para></summary>

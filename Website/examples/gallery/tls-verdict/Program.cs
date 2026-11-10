@@ -75,13 +75,14 @@ string action = expired
     : "No repair needed; keep expiry monitoring on.";
 int exitCode = expired ? 1 : 0;
 Terminal.Write(new Rows(
-    new TextBlock("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]"),
+    TextBlock.FromMarkup(
+        "[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]"),
     new Panel(phases, "Connection ledger"),
     facts,
     flow,
     new Rule("Trust decision"),
     new Panel(
-        new TextBlock(expired ? "Chain validation failed." : "Chain validation passed."),
+        TextBlock.FromMarkup(expired ? "Chain validation failed." : "Chain validation passed."),
         verdict) { Verdict = true, Status = chainStatus },
     new KeyValueList { KeyRole = ThemeToken.Muted }
         .Add("Cause",

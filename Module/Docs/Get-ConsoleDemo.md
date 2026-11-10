@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Lists gallery demos and returns their complete PowerShell source.
 
-Returns each demo's title, category, tags, terminal size and Source. Slug accepts an exact name or wildcard pattern. Source is the complete script, ready to inspect or save with Set-Content.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Get-ConsoleDemo [[-Slug] <string>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Lists gallery demos and returns their complete PowerShell source.
-
 Returns each demo's title, category, tags, terminal size and Source. Slug accepts an exact name or wildcard pattern. Source is the complete script, ready to inspect or save with Set-Content.
 
 ## EXAMPLES
@@ -57,7 +53,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: *
 Accept pipeline input: False
 Accept wildcard characters: True
 ```
@@ -67,7 +63,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -75,4 +71,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/get-consoledemo/](https://consolemonster.dev/powershell/commands/get-consoledemo/)

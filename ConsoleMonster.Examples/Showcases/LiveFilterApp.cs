@@ -66,7 +66,7 @@ namespace ConsoleMonster.Examples.Showcases {
         public static IWidget Build() {
             // <example>
             return new Rows(
-                new TextBlock("[bold]Host inventory[/] [muted]· synthetic data[/]"),
+                TextBlock.FromMarkup("[bold]Host inventory[/] [muted]· synthetic data[/]"),
                 new TextInput("Query") {
                     Label = "Query",
                     Placeholder = "Host, role, site or status"
@@ -80,7 +80,7 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <returns>The current matching count and table, or an empty-state explanation.</returns>
         public static IWidget Results(string query) {
             IReadOnlyList<Host> matches = Filter(query);
-            TextBlock count = new TextBlock("[bold]" + matches.Count.ToString(CultureInfo.InvariantCulture) +
+            TextBlock count = TextBlock.FromMarkup("[bold]" + matches.Count.ToString(CultureInfo.InvariantCulture) +
                 "[/] of " + Inventory.Count.ToString(CultureInfo.InvariantCulture) + " hosts");
             Table table = Table.For(matches)
                 .Column("Host", host => host.Name)
@@ -89,7 +89,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Column("Status", host => host.Status, column => column.Presenter = CellPresenters.StatusWord);
             table.HeaderSeparator = false;
             if (matches.Count == 0) {
-                return new Rows(count, table, new TextBlock("[muted]No matching hosts. Backspace to broaden the query.[/]"));
+                return new Rows(count, table, TextBlock.FromMarkup("[muted]No matching hosts. Backspace to broaden the query.[/]"));
             }
             return new Rows(count, table);
         }

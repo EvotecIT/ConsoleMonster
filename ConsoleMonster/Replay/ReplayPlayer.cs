@@ -75,7 +75,7 @@ namespace ConsoleMonster.Replay {
 
     /// <summary>
     /// Rewinds runs: an in-terminal player for recordings (the JSON-lines files written with
-    /// <see cref="LiveSessionOptions.RecordPath"/> or <see cref="LiveSessionOptions.AutoRecord"/>). The recording is played
+    /// <see cref="LiveSessionOptions.RecordingPath"/> or <see cref="LiveSessionOptions.AutoRecord"/>). The recording is played
     /// into the same dashboard definition, then shown with play/pause, speed, frame stepping, a timeline to scrub, jumps to
     /// markers, failures, warnings and log entries, and a search over the log. Without an interactive console it prints
     /// the markers as lines instead.

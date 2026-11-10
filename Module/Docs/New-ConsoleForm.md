@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
 
-The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleForm [-Title] <string> [[-Content] <scriptblock>] [-InputObject <psob
 ```
 
 ## DESCRIPTION
-Creates a form or wizard from fields (New-ConsoleField) for Read-ConsoleForm or a menu item.
-
 The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.
 
 ## EXAMPLES
@@ -31,8 +27,8 @@ function New-SharePlan {
 }
 $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    New-ConsoleField Path 'Folder' -Type Path -Kind Folder -MustExist -Page Basics -ParameterName Path
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -Page Access -ParameterName ReadOnly
+    New-ConsoleField Path 'Folder' -Kind Path -Kind Folder -MustExist -Page Basics -ParameterName Path
+    New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly
 }
 ```
 
@@ -46,7 +42,7 @@ function New-SharePlan {
 }
 $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
     New-ConsoleField Name 'Share name' -Required -ParameterName Name
-    New-ConsoleField ReadOnly 'Read only' -Type Toggle -ParameterName ReadOnly
+    New-ConsoleField ReadOnly 'Read only' -Kind Toggle -ParameterName ReadOnly
     [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
 }
 ```
@@ -82,7 +78,7 @@ Possible values: PowerShell, Posix, Windows
 
 Required: False
 Position: named
-Default value: None
+Default value: PowerShell
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -146,7 +142,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -216,7 +212,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The title.
+The heading shown above the form or the selectable menu item text.
 
 ```yaml
 Type: String
@@ -244,4 +240,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleform/](https://consolemonster.dev/powershell/commands/new-consoleform/)

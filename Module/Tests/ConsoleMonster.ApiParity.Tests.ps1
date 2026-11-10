@@ -16,6 +16,35 @@ Describe 'PowerShell and C# API parity' {
         }
     }
 
+    It 'uses real cmdlet parameters in website documentation and examples' {
+        . (Join-Path $PSScriptRoot 'Support/Get-ConsoleDocumentationUsage.ps1')
+        $repository = Join-Path $PSScriptRoot '../..'
+        $commands = @{}
+        Get-Command -Module ConsoleMonster | ForEach-Object { $commands[$_.Name] = $_ }
+        $files = @(
+            Get-ChildItem (Join-Path $repository 'Website/content') -Recurse -Filter *.md
+            Get-ChildItem (Join-Path $repository 'Website/examples') -Recurse -File |
+                Where-Object { $_.Extension -in '.ps1', '.md' } |
+                Where-Object { $_.FullName -notmatch '[/\\](bin|obj)[/\\]' }
+        )
+        $invalid = @(foreach ($file in $files) {
+            foreach ($usage in Get-ConsoleDocumentationUsage $file.FullName ([IO.File]::ReadAllText($file.FullName))) {
+                $command = $commands[$usage.Command]
+                # Out-ConsoleGridView belongs to ConsoleGuiTools and appears in the comparison guide.
+                if ($usage.Command -eq 'Out-ConsoleGridView') { continue }
+                if ($null -eq $command) { "$($file.Name): unknown command $($usage.Command)"; continue }
+                foreach ($parameter in $usage.Parameters) {
+                    if ($parameter -eq '?') { continue } # PowerShell's built-in command help switch.
+                    $matches = @($command.Parameters.Values | Where-Object { $_.Name -like "$parameter*" -or $parameter -in $_.Aliases })
+                    if (!$command.Parameters.ContainsKey($parameter) -and $matches.Count -ne 1) {
+                        "$($file.FullName): $($usage.Command) -$parameter"
+                    }
+                }
+            }
+        })
+        $invalid | Should -BeNullOrEmpty
+    }
+
     It 'exports exactly the reviewed command surface' {
         $approved = @($script:ApprovedCommands.Commands)
         $approved.Count | Should -Be $script:ApprovedCommands.ExpectedCount
@@ -86,6 +115,12 @@ Describe 'PowerShell and C# API parity' {
                     $binding.Reason | Should -Not -BeNullOrEmpty -Because $label
                     $binding.Conversion | Should -Not -Be Identity -Because $label
                     continue
+                }
+                if ($binding.Conversion -eq 'Identity') {
+                    $targetName = if ($binding.Argument) { $binding.Argument } else { $binding.Member }
+                    if ($binding.Parameter -ine $targetName) {
+                        $binding.Reason | Should -Not -BeNullOrEmpty -Because "$label differs from the C# name $targetName"
+                    }
                 }
                 if ($binding.Conversion -eq 'BooleanInversion') {
                     $binding.CSharpTypeName | Should -BeIn @('System.Boolean', 'System.Nullable`1[System.Boolean]') -Because "$label inverts a Boolean, not a similarly named data collection"
@@ -318,7 +353,7 @@ Describe 'PowerShell and C# API parity' {
         $ui = $script:ApiTypes[$rule.FactoryType]
         $builder = $script:ApiTypes[$script:Parity.FluentGrammar.Content.BuilderType]
         $constructors = @($script:ApiCommands | Where-Object Verb -EQ New | Select-Object -ExpandProperty Name)
-        Compare-Object @($constructors | Sort-Object) @(@($rule.Factories.Command) + @($rule.NonWidgetCommands.Command) | Sort-Object) | Should -BeNullOrEmpty
+        Compare-Object @($constructors | Sort-Object) @(@($rule.Factories.Command) + @($rule.NonWidgetCommands.Command) | Sort-Object -Unique) | Should -BeNullOrEmpty
         foreach ($exception in $rule.NonWidgetCommands) { $exception.Reason | Should -Not -BeNullOrEmpty }
         foreach ($factory in $rule.Factories) {
             $methods = @($ui.GetMethods([Reflection.BindingFlags] 'Public,Static,DeclaredOnly') | Where-Object { $_.Name -ceq $factory.Noun -and -not $_.IsGenericMethodDefinition -and @($_.GetParameters() | Where-Object { -not $_.IsOptional }).Count -eq 0 })

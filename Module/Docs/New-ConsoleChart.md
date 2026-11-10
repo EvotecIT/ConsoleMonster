@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates one numeric chart representation from records or samples.
 
-Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleChart [[-WidgetId] <string>] [[-InputObject] <psobject>] [-Type <Char
 ```
 
 ## DESCRIPTION
-Creates one numeric chart representation from records or samples.
-
 Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.
 
 ## EXAMPLES
@@ -162,7 +158,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Name
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -226,7 +222,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -258,7 +254,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -274,7 +270,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -290,7 +286,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -370,7 +366,7 @@ Possible values: Block, Line
 
 Required: False
 Position: named
-Default value: None
+Default value: Block
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -386,7 +382,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -418,7 +414,7 @@ Possible values: Bar, Stacked, Line, Scatter, Histogram, Sparkline
 
 Required: False
 Position: named
-Default value: None
+Default value: Bar
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -516,4 +512,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolechart/](https://consolemonster.dev/powershell/commands/new-consolechart/)

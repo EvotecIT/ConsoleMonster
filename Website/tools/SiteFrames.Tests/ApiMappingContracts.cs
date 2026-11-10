@@ -16,7 +16,7 @@ namespace SiteFrames.Tests {
 
         [Fact]
         public void ContainerAndBooleanNotesTeachTheCompiledFluentGrammar() {
-            string path = Source("content-switches", "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\nvar rows = new Rows(new Rule(\"Build\"), table, new TextBlock(\"[bold]Ready[/]\")) { Gap = 1 };\n");
+            string path = Source("content-switches", "using ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\nvar rows = new Rows(new Rule(\"Build\"), table, TextBlock.FromMarkup(\"[bold]Ready[/]\")) { Gap = 1 };\n");
             string fluent = CSharpRunner.FluentSource(path);
             CSharpRunner.Check(path, fluent);
             var notes = ApiMappingNotes.FromSource(Repository(), path, fluent);
@@ -74,7 +74,7 @@ namespace SiteFrames.Tests {
             string path = Source("kind-" + powerShell.Split(' ')[^1], "using ConsoleMonster.Widgets;\n" + body + "\n");
             string fluent = CSharpRunner.FluentSource(path);
             CSharpRunner.Check(path, fluent);
-            var note = Assert.Single(ApiMappingNotes.FromSource(Repository(), path, fluent), note => note!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.Chart")!;
+            var note = Assert.Single(ApiMappingNotes.FromSource(Repository(), path, fluent), note => note!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui." + (powerShell.EndsWith("Bar", StringComparison.Ordinal) ? "BarChart" : "Sparkline"))!;
             Assert.Equal(powerShell, note["powershell"]!.GetValue<string>());
             Assert.Equal(initializer, note["csharp"]!.GetValue<string>());
         }

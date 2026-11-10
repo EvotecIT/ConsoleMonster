@@ -15,10 +15,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Disables editing and removes the input from keyboard focus traversal.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Disabled { get; set; }
 
         /// <summary><para type="description">Keyboard focus order. Equal values preserve layout declaration order.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int TabIndex { get; set; }
 
         /// <summary><para type="description">Runs once per committed edit on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. State is a hashtable; add or assign keys to write back. Output is discarded. Retains closure variables.</para></summary>

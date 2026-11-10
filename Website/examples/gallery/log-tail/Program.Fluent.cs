@@ -36,22 +36,23 @@ IWidget Frame(int tick)
     foreach ((string time, string level, string message)in events.Take(tick + 1))
         lines.Add(Ui.Markup("[muted]" + time + "[/] [" + roles[level] + "]" + labels[level]
             .PadRight(4) + "[/]  " + message));
-    return Ui.Rows().Gap(1).Content(c2 =>
+    return Ui.Rows().Gap(1).Content(rowsContent =>
     {
-        c2.Markup("[accent bold]Application log[/] [muted]· worker events[/]");
-        c2.Panel(p => p.Title("./logs/worker.log").Content(c =>
+        rowsContent.Markup("[accent bold]Application log[/] [muted]· worker events[/]");
+        rowsContent.Panel(p => p.Title("./logs/worker.log").Content(panelContent =>
         {
-            c.Add(lines);
+            panelContent.Add(lines);
         }));
-        c2.Markup("[muted]" + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
+        rowsContent.Markup("[muted]"
+            + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
             + " / 5 events · Ctrl+C stops the live run[/]");
     });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = Ui.Region("demo").Content(c =>
+RegionWidget screen = Ui.Region("demo").Content(regionWidgetContent =>
 {
-    c.Add(Frame(0));
+    regionWidgetContent.Add(Frame(0));
 });
 using LiveSession session = screen.CreateSession();
 try
@@ -76,8 +77,8 @@ catch (OperationCanceledException cancelled)
 LogViewport log = Ui.LogViewport("worker.log").ShowElapsed(false).Height(7);
 foreach ((_, string level, string message) in events)
     log.Write(message, level);
-ConsoleApp.Run(Ui.Rows().Content(c =>
+ConsoleApp.Run(Ui.Rows().Content(rowsContent =>
 {
-    c.Markup("[accent bold]Application log[/] [muted]· read the run back[/]");
-    c.Add(log);
+    rowsContent.Markup("[accent bold]Application log[/] [muted]· read the run back[/]");
+    rowsContent.Add(log);
 }));

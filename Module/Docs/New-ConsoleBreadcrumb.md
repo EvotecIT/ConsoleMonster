@@ -35,6 +35,13 @@ Show-ConsoleApp -Content {
 
 Show where the reader is in an outline.
 
+### EXAMPLE 2
+```powershell
+New-ConsoleBreadcrumb -Key location -Segments 'Inventory', 'Servers', 'web01' | Show-Console
+```
+
+Compose an inventory breadcrumb
+
 ## PARAMETERS
 
 ### -Ancestors
@@ -64,7 +71,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -144,7 +151,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -154,7 +161,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -162,4 +169,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolebreadcrumb/](https://consolemonster.dev/powershell/commands/new-consolebreadcrumb/)

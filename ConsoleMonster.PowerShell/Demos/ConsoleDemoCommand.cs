@@ -15,17 +15,23 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The input PowerShell demo script, with optional # demo: directives.</para></summary>
         [Parameter(Mandatory = true, Position = 0)] public string ScriptPath { get; set; } = string.Empty;
         /// <summary><para type="description">Terminal width in cells.</para></summary>
-        [Parameter, ValidateRange(0, 1000)] public int Width { get; set; }
+        [Parameter, ValidateRange(0, 1000)] [PSDefaultValue(Help = "0")]
+        public int Width { get; set; }
         /// <summary><para type="description">Terminal height in cells.</para></summary>
-        [Parameter, ValidateRange(2, 1000)] public int Height { get; set; } = 28;
+        [Parameter, ValidateRange(2, 1000)] [PSDefaultValue(Help = "28")]
+        public int Height { get; set; } = 28;
         /// <summary><para type="description">Seed for repeatable character timing.</para></summary>
-        [Parameter] public int Seed { get; set; } = 42;
+        [Parameter] [PSDefaultValue(Help = "42")]
+        public int Seed { get; set; } = 42;
         /// <summary><para type="description">Maximum wait for a semantic prompt or output pattern.</para></summary>
-        [Parameter, ValidateRange(0.001, 3600)] public double StepTimeoutSeconds { get; set; } = 30;
+        [Parameter, ValidateRange(0.001, 3600)] [PSDefaultValue(Help = "30")]
+        public double StepTimeoutSeconds { get; set; } = 30;
         /// <summary><para type="description">Fractional character-delay variation from zero to one; default 0.2.</para></summary>
-        [Parameter, ValidateRange(0.0, 1.0)] public double Jitter { get; set; } = 0.2;
+        [Parameter, ValidateRange(0.0, 1.0)] [PSDefaultValue(Help = "0.2")]
+        public double Jitter { get; set; } = 0.2;
         /// <summary><para type="description">Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</para></summary>
-        [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
+        [Parameter, ValidateRange(0, 86400)] [PSDefaultValue(Help = "2")]
+        public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Output patterns redacted before recording.</para></summary>
         [Parameter] public string[] Redact { get; set; } = Array.Empty<string>();
         /// <summary><para type="description">Child PowerShell executable. Defaults to the current PowerShell.</para></summary>
@@ -42,7 +48,7 @@ namespace ConsoleMonster.PowerShell {
             using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token, relay.Token)) {
                 DemoOptions options = new DemoOptions {
                     Recording = new SessionRecordingOptions {
-                        Path = output, Shell = Shell ?? Process.GetCurrentProcess().MainModule!.FileName,
+                        RecordingPath = output, Shell = Shell ?? Process.GetCurrentProcess().MainModule!.FileName,
                         Width = Width, Height = Height, WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path,
                         IdleLimit = TimeSpan.FromSeconds(IdleLimitSeconds), Title = System.IO.Path.GetFileNameWithoutExtension(source)
                     },

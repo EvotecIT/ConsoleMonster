@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a display rebuilt from application state on the owning PowerShell input thread.
 
-Content receives param($State) and injected $State as a native hashtable. Emit widgets or text using the ordinary layout commands. Input controls must remain in the stable outer layout. Added or assigned state keys write back through AppState; bindings should normally only read state.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleBinding [[-WidgetId] <string>] [-Content] <scriptblock> [<CommonParam
 ```
 
 ## DESCRIPTION
-Creates a display rebuilt from application state on the owning PowerShell input thread.
-
 Content receives param($State) and injected $State as a native hashtable. Emit widgets or text using the ordinary layout commands. Input controls must remain in the stable outer layout. Added or assigned state keys write back through AppState; bindings should normally only read state.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleBinding -
 ```
 
 Display the current input.
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleBinding -WidgetId selection -Content { New-ConsoleText 'Choose a server to inspect' }
+}
+```
+
+Compose an inventory binding
 
 ## PARAMETERS
 
@@ -69,7 +74,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -77,4 +82,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolebinding/](https://consolemonster.dev/powershell/commands/new-consolebinding/)

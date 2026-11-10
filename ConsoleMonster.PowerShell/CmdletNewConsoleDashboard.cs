@@ -4,15 +4,20 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Defines a live console dashboard: a header with title and clock, the body and a footer.</para>
-    /// <para type="description">The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.</para>
-    /// </summary>
+    /// <summary>Defines a live console dashboard: a header with title and clock, the body and a footer.</summary>
+    /// <remarks><para>The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.</para></remarks>
     /// <example>
     ///   <para>A dashboard with lanes and a log that fills the rest of the screen</para>
     ///   <code>$d = New-ConsoleDashboard -Title 'Deploy' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleDashboard")]
+    /// <example>
+    /// <para>Compose an inventory dashboard</para>
+    /// <code>New-ConsoleDashboard -Title 'Inventory' -Content {
+    ///     New-ConsolePanel -Title 'Result' -Content { New-ConsoleText '2 servers online' -Role Pass }
+    /// } | Show-Console
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledashboard/")]
     [OutputType(typeof(Dashboard))]
     public sealed class CmdletNewConsoleDashboard : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the body widgets.</para></summary>
@@ -38,14 +43,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Live name of the dashboard (for Update-Console title, detail and status updates).</para></summary>
         [Parameter(Position = 0)]
+        [PSDefaultValue(Help = "dashboard")]
         public string WidgetId { get; set; } = "dashboard";
 
         /// <summary><para type="description">Blank rows between the body widgets.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int Gap { get; set; }
 
         /// <summary><para type="description">Hides the default elapsed clock in the dashboard header.</para></summary>
-        [Parameter] public SwitchParameter NoElapsed { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoElapsed { get; set; }
 
         /// <summary><para type="description">Additional header detail, including markup.</para></summary>
         [Parameter] public object? Detail { get; set; }

@@ -16,7 +16,7 @@ namespace ConsoleMonster.Text {
         public int StartTab { get; set; }
 
         /// <summary>Spaces before the text.</summary>
-        public int StartSpaces { get; set; }
+        public int Indent { get; set; }
 
         /// <summary>Empty lines before the text.</summary>
         public int LinesBefore { get; set; }
@@ -36,11 +36,8 @@ namespace ConsoleMonster.Text {
         /// <summary>Wraps long text at the width, continuing under the text after the prefix.</summary>
         public bool Wrap { get; set; }
 
-        /// <summary>Centres each line in the width.</summary>
-        public bool HorizontalCenter { get; set; }
-
-        // PowerShell's alignment selection shares the completed-line layout, including prefixes and wrapping.
-        internal Layout.HorizontalAlignment Alignment { get; set; }
+        /// <summary>Aligns each completed line within the available width, including indentation and timestamps.</summary>
+        public Layout.HorizontalAlignment Alignment { get; set; } = Layout.HorizontalAlignment.Left;
 
         /// <summary>Pads each line on the left to this many cells (right-aligned).</summary>
         public int PadLeft { get; set; }
@@ -74,7 +71,7 @@ namespace ConsoleMonster.Text {
             for (int i = 0; i < LinesBefore; i++) {
                 result.Add(StyledLine.Empty);
             }
-            string prefix = new string(' ', (Math.Max(0, StartTab) * 8) + Math.Max(0, StartSpaces));
+            string prefix = new string(' ', (Math.Max(0, StartTab) * 8) + Math.Max(0, Indent));
             if (Time.HasValue) {
                 prefix += "[" + Time.Value.ToString(TimestampFormat, CultureInfo.CurrentCulture) + "] ";
             }
@@ -100,7 +97,7 @@ namespace ConsoleMonster.Text {
                     }
                     spans.AddRange(pieces[w]);
                     StyledLine line = new StyledLine(spans);
-                    if ((HorizontalCenter || Alignment != Layout.HorizontalAlignment.Left) && line.Width < width) {
+                    if (Alignment != Layout.HorizontalAlignment.Left && line.Width < width) {
                         int offset = Alignment == Layout.HorizontalAlignment.Right ? width - line.Width : (width - line.Width) / 2;
                         List<TextSpan> centred = new List<TextSpan> { new TextSpan(new string(' ', offset), Style.Plain) };
                         centred.AddRange(line);

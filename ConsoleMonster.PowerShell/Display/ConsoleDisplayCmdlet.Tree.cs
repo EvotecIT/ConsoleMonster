@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
             var shape = Binding.PSShaping.Options();
             foreach (PSObject item in items) {
                 ConsoleViewRegistration? registration = Property == null ? ConsoleFormatting.Find(item) : null;
-                InspectorOptions options = PSFormatting.InspectorOptions(Depth, MaxItems, include, Exclude, MaxNodes, item, rootDefaultDisplay: true);
+                InspectorOptions options = PSFormatting.InspectorOptions(MaxDepth, MaxItems, include, Exclude, MaxNodes, item, rootDefaultDisplay: true);
                 if (Property != null && Property.Any(property => !(PSText.Unwrap(property) is string))) {
                     Binding.PSObjectMemberSource? source = options.Sources.OfType<Binding.PSObjectMemberSource>().FirstOrDefault();
                     if (source != null) {

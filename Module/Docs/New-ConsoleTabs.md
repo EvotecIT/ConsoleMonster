@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates retained tabs with keyboard and pointer navigation.
 
-Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleTabs [[-Content] <Object>] [-InputObject <psobject>] [-SelectedIndex 
 ```
 
 ## DESCRIPTION
-Creates retained tabs with keyboard and pointer navigation.
-
 Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.
 
 ## EXAMPLES
@@ -34,6 +30,16 @@ Show-ConsoleApp -Mode Snapshot -Content {
 ```
 
 Compose two retained pages.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleTabs -Key inventory -Content ([ordered]@{
+                Servers = { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget }
+                Summary = { New-ConsoleText 'One server online' -Role Pass }
+            }) | Show-Console
+```
+
+Compose two retained inventory pages
 
 ## PARAMETERS
 
@@ -112,7 +118,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -130,4 +136,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletabs/](https://consolemonster.dev/powershell/commands/new-consoletabs/)

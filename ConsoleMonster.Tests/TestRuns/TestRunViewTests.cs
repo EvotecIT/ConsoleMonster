@@ -134,7 +134,7 @@ namespace ConsoleMonster.Tests.TestRuns {
                 Blocks = new[] { "Interactive cmdlets", "Without a user (redirected input, -NonInteractive)" }, File = Sample, Line = 40,
                 Message = "Cannot convert the value 'abc' of the parameter -Count to the type System.Int32 because it is not a number at all"
             });
-            run.TestStarted(Sample, new[] { "Rich text cmdlets", "Write-ConsoleText with Write-Color parameters" }, "applies StartTab, StartSpaces, LinesBefore and LinesAfter");
+            run.TestStarted(Sample, new[] { "Rich text cmdlets", "Write-ConsoleText with Write-Color parameters" }, "applies StartTab, Indent, LinesBefore and LinesAfter");
             string text = TestTerminal.RenderText(new TestRunView(run) { Title = "Pester" }, 90, 30, tier);
             Golden.Match("testrun/truncation." + tier.ToString().ToLowerInvariant() + ".txt", text);
             string ellipsis = tier == GlyphTier.Ascii ? "..." : "…";

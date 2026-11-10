@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Places console widgets side by side.
 
-Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleColumns [[-Content] <Object>] [-Gap <int>] [-FixedWidth <int[]>] [-Co
 ```
 
 ## DESCRIPTION
-Places console widgets side by side.
-
 Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.
 
 ## EXAMPLES
@@ -54,7 +50,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: -1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -86,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -118,7 +114,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -134,7 +130,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -152,4 +148,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolecolumns/](https://consolemonster.dev/powershell/commands/new-consolecolumns/)

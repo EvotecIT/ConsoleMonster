@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Registers how a type is shown by Enable-ConsoleFormatting.
 
-Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
-
 ## SYNTAX
 ### Register (Default)
 ```powershell
@@ -22,8 +20,6 @@ Register-ConsoleView [-Path] <string[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Registers how a type is shown by Enable-ConsoleFormatting.
-
 Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.
 
 ## EXAMPLES
@@ -34,6 +30,16 @@ Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ N
 ```
 
 Show a module's result objects as a table
+
+### EXAMPLE 2
+```powershell
+Register-ConsoleView -TypeName 'Inventory.Server' -View Table -Property Name, State
+            $server = [pscustomobject]@{ Name = 'web01'; State = 'Online' }
+            $server.PSObject.TypeNames.Insert(0, 'Inventory.Server')
+            $server | Show-Console
+```
+
+Register a table for typed inventory records
 
 ## PARAMETERS
 
@@ -182,7 +188,7 @@ Possible values: Empty, Text, Code, Inspector, Table, Cards, Tree, Chart, Grid, 
 
 Required: False
 Position: named
-Default value: None
+Default value: Table
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -200,4 +206,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/register-consoleview/](https://consolemonster.dev/powershell/commands/register-consoleview/)

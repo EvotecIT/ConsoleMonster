@@ -4,10 +4,8 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a named region whose content can be replaced while a dashboard runs.</para>
-    /// <para type="description">Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.</para>
-    /// </summary>
+    /// <summary>Creates a named region whose content can be replaced while a dashboard runs.</summary>
+    /// <remarks><para>Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.</para></remarks>
     /// <example>
     ///   <para>A panel whose content switches from a spinner to a table</para>
     ///   <code>New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }</code>
@@ -16,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Align content inside a padded region</para>
     /// <code>New-ConsoleRegion -Horizontal Center -Padding 1 -Content { New-ConsoleText 'Ready' } | Show-Console</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleRegion")]
+    [Cmdlet(VerbsCommon.New, "ConsoleRegion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleregion/")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleRegion : ContainerCmdlet {
         /// <summary><para type="description">The region name used by Update-Console.</para></summary>
@@ -30,20 +28,25 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The share of the remaining space in a row or column layout.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public double Weight { get; set; }
 
         /// <summary><para type="description">A fixed height in rows.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary><para type="description">Takes the remaining height.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Fill { get; set; }
 
         /// <summary><para type="description">Horizontal placement within the available space.</para></summary>
-        [Parameter] public HorizontalAlignment Horizontal { get; set; } = HorizontalAlignment.Left;
+        [Parameter] [PSDefaultValue(Help = "Left")]
+        public HorizontalAlignment Horizontal { get; set; } = HorizontalAlignment.Left;
         /// <summary><para type="description">Vertical placement within the available space.</para></summary>
-        [Parameter] public VerticalAlignment Vertical { get; set; } = VerticalAlignment.Top;
+        [Parameter] [PSDefaultValue(Help = "Top")]
+        public VerticalAlignment Vertical { get; set; } = VerticalAlignment.Top;
         /// <summary><para type="description">Padding as one value for all sides, two for horizontal and vertical, or four for left, top, right and bottom.</para></summary>
         [Parameter, ValidateCount(1, 4), ValidateRange(0, int.MaxValue)]
         public int[]? Padding { get; set; }

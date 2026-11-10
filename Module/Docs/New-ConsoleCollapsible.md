@@ -34,6 +34,15 @@ Show-ConsoleApp -Content {
 
 Fold long sections of a help page and keep one open at a time.
 
+### EXAMPLE 2
+```powershell
+New-ConsoleCollapsible -Key servers -Label 'Checked servers' -Expanded -Content {
+                [pscustomobject]@{ Name = 'web01'; State = 'Pass' } | Show-Console -AsWidget -View List
+            } | Show-Console
+```
+
+Compose an inventory collapsible
+
 ## PARAMETERS
 
 ### -Content
@@ -63,7 +72,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -79,7 +88,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -159,7 +168,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -185,7 +194,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -193,4 +202,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolecollapsible/](https://consolemonster.dev/powershell/commands/new-consolecollapsible/)

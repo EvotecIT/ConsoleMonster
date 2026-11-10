@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
     internal static class ConsoleThemeDataFile {
         /// <summary>Loads a JSON theme or restricted PSD1 data using the same validation as Set-ConsoleTheme.</summary>
         /// <param name="path">The resolved filesystem path.</param>
-        /// <remarks>PSD1 loading runs in the caller's current PowerShell runspace; it never executes the data file.</remarks>
+        /// <remarks><para>PSD1 loading runs in the caller's current PowerShell runspace; it never executes the data file.</para></remarks>
         public static ThemeFile Load(string path) {
             if (string.Equals(System.IO.Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase)) { return ThemeFile.Load(path); }
             CheckExtension(path);

@@ -31,6 +31,6 @@ Terminal.Write(new Rows(
     new Columns(
         new Panel(table, "Servers"),
         new Panel(new Rows(summary, cpu), "Summary")) { Gap = 1 },
-    new TextBlock("[muted]Updated 10:02[/]")) { Gap = 1 });
+    TextBlock.FromMarkup("[muted]Updated 10:02[/]")) { Gap = 1 });
 
 record Server(string Name, string Role, long Ram, StatusKind Status);

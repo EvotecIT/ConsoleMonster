@@ -15,11 +15,9 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a script block for every input item, optionally in parallel, with a live view of the run.</para>
-    /// <para type="description">In GitHub Actions, Azure Pipelines and GitLab CI, sequential items enclose their work and result in a collapsible log group. Parallel items group each completed result atomically; independently emitted worker output keeps its existing routing. CONSOLEMONSTER_CI=none disables provider groups.</para>
-    /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para>
-    /// </summary>
+    /// <summary>Runs a script block for every input item, optionally in parallel, with a live view of the run.</summary>
+    /// <remarks><para>In GitHub Actions, Azure Pipelines and GitLab CI, sequential items enclose their work and result in a collapsible log group. Parallel items group each completed result atomically; independently emitted worker output keeps its existing routing. CONSOLEMONSTER_CI=none disables provider groups.</para>
+    /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para></remarks>
     /// <example>
     ///   <para>Inspect items in parallel</para>
     ///   <code>$servers = 'web01', 'web02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { $_.Name.ToUpperInvariant() }</code>
@@ -40,7 +38,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Retry flaky servers twice, five seconds apart</para>
     ///   <code>$servers = 'server01', 'server02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { "Would restart $($_.Name)" }</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun")]
+    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRun", HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consolerun/")]
 
     public sealed class CmdletInvokeConsoleRun : PSCmdlet {
         private readonly List<PSObject> _items = new List<PSObject>();
@@ -57,30 +55,36 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Runs items at the same time, each in its own runspace (pass caller variables with $using:name).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Parallel { get; set; }
 
         /// <summary><para type="description">How many items run at the same time with -Parallel (default 5).</para></summary>
         [Parameter]
         [ValidateRange(1, 1024)]
+        [PSDefaultValue(Help = "5")]
         public int ThrottleLimit { get; set; } = 5;
 
         /// <summary><para type="description">Seconds an item may run with -Parallel before it is stopped and counted as failed (default no limit; ignored with a warning without -Parallel).</para></summary>
         [Parameter]
         [ValidateRange(0, 864000)]
+        [PSDefaultValue(Help = "0")]
         public double TimeoutSeconds { get; set; }
 
         /// <summary><para type="description">How many more times a failed or timed-out item runs before it counts as failed (default 0).</para></summary>
         [Parameter]
         [ValidateRange(0, 100)]
+        [PSDefaultValue(Help = "0")]
         public int RetryCount { get; set; }
 
         /// <summary><para type="description">Seconds to wait before each retry (default 0).</para></summary>
         [Parameter]
         [ValidateRange(0, 86400)]
+        [PSDefaultValue(Help = "0")]
         public double RetryDelaySeconds { get; set; }
 
         /// <summary><para type="description">Writes each item's output as soon as it finishes instead of in input order (when the live view is not showing).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Unordered { get; set; }
 
         /// <summary><para type="description">Each item's label in the view: a property name or a script block ($_ is the item). Default a name-like property, or the item's text.</para></summary>
@@ -93,10 +97,12 @@ namespace ConsoleMonster.PowerShell {
         public object? Title { get; set; }
 
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
-        [Parameter] public SwitchParameter NoLive { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLive { get; set; }
 
         /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
-        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

@@ -71,7 +71,7 @@ Describe 'One grammar for every widget' {
             $a.Kids = @($b)
             ($a | New-ConsoleTree -Children { $_.Kids } | Get-WidgetText) | Should -Match 'A\s+\(cycle\)'
             $deep = [pscustomobject] @{ Name = 'L1'; Kids = @([pscustomobject] @{ Name = 'L2'; Kids = @([pscustomobject] @{ Name = 'L3' }) }) }
-            ($deep | New-ConsoleTree -ChildrenProperty Kids -Depth 1 | Get-WidgetText) | Should -Match 'depth limit'
+            ($deep | New-ConsoleTree -ChildrenProperty Kids -MaxDepth 1 | Get-WidgetText) | Should -Match 'depth limit'
             $wide = [pscustomobject] @{ Name = 'Share'; Files = 1..30 | ForEach-Object { [pscustomobject] @{ Name = "file$_" } } }
             ($wide | New-ConsoleTree -ChildrenProperty Files -MaxItems 5 | Get-WidgetText) | Should -Match '\+25'
         }
@@ -349,7 +349,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $table.Table.Columns[1].Alignment | Should -Be 'Right'
             $table.Table.Columns[2].Flexible | Should -BeTrue
             { New-ConsoleTable -WidgetId bad -ErrorAction Stop -Live -Property @{ Name = 'Took'; Align = 'Right' } } | Should -Throw '*Align*'
-            $list = New-ConsoleActivityList -MaxRows 3 -ShowIds -NoElapsed
+            $list = New-ConsoleActivityList -MaxVisible 3 -ShowIds -NoElapsed
             $list.WidgetId | Should -Be '$progress'
             $list.MaxVisible | Should -Be 3
             $list.ShowIds | Should -BeTrue

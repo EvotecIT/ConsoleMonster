@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.
 
-Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleScreen [-Key] <string> [-Content] <scriptblock> [-Title <Object>] [-K
 ```
 
 ## DESCRIPTION
-Creates a screen for Show-ConsoleApp: its content, its breadcrumb title and the keys that work on it.
-
 Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.
 
 ## EXAMPLES
@@ -43,6 +39,15 @@ Show-ConsoleApp -Title Servers -Content {
 ```
 
 Open a server from a numbered list, and go back with Escape
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleScreen -Key inventory -Title Inventory -Content { New-ConsoleText 'web01: Online' }
+}
+```
+
+Place an inventory page inside an application
 
 ## PARAMETERS
 
@@ -115,7 +120,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -123,4 +128,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolescreen/](https://consolemonster.dev/powershell/commands/new-consolescreen/)

@@ -3,10 +3,8 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Asks the user to pick one of the choices and returns the chosen object.</para>
-    /// <para type="description">Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.</para>
-    /// </summary>
+    /// <summary>Asks the user to pick one of the choices and returns the chosen object.</summary>
+    /// <remarks><para>Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.</para></remarks>
     /// <example>
     /// <para>Pick an object from a small inventory</para>
     /// <code>$servers = @(
@@ -19,14 +17,15 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Choose from strings with a default</para>
     /// <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single")]
+    [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleselect/")]
     public sealed class CmdletReadConsoleSelect : SelectionCmdlet {
         /// <summary><para type="description">The default: one of the choices, or its displayed text.</para></summary>
         [Parameter]
         public object? Default { get; set; }
 
         /// <summary><para type="description">Allows multiple answers; Default supplies initial selected choices.</para></summary>
-        [Parameter(Mandatory = true, ParameterSetName = "Multiple")] public SwitchParameter Multiple { get; set; }
+        [Parameter(Mandatory = true, ParameterSetName = "Multiple")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Multiple { get; set; }
 
         /// <summary><para type="description">The fewest choices accepted.</para></summary>
         [Parameter(ParameterSetName = "Multiple")]
@@ -38,6 +37,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Starts with every group collapsed.</para></summary>
         [Parameter(ParameterSetName = "Multiple")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Collapsed { get; set; }
 
         /// <inheritdoc />

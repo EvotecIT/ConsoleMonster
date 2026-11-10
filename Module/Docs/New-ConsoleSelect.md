@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Creates a named select input for Show-ConsoleApp.
 
-Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ New-ConsoleSelect [-Key] <string> [[-Label] <string>] -Choices <Object[]> [-Valu
 ```
 
 ## DESCRIPTION
-Creates a named select input for Show-ConsoleApp.
-
 Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ New-ConsoleSelect -Key Environment -Choices 'Production', 'Staging' -Value Stagi
 ```
 
 Choose initial values.
+
+### EXAMPLE 2
+```powershell
+$servers = @([pscustomobject]@{ Name = 'web01' }, [pscustomobject]@{ Name = 'web02' })
+Show-ConsoleApp -Content { New-ConsoleSelect -Key server -Choices $servers -Display Name }
+```
+
+Compose an inventory select
 
 ## PARAMETERS
 
@@ -59,7 +63,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -91,7 +95,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -155,7 +159,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +207,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -219,7 +223,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -261,7 +265,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -270,4 +274,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleselect/](https://consolemonster.dev/powershell/commands/new-consoleselect/)

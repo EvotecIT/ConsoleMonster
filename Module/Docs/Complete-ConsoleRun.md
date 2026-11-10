@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Finishes a run dashboard and prints its full summary into scrollback.
 
-Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Complete-ConsoleRun [-Run] <LiveRun> [-PassThru] [-Wait] [-TimeoutSeconds <Doubl
 ```
 
 ## DESCRIPTION
-Finishes a run dashboard and prints its full summary into scrollback.
-
 Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.
 
 ## EXAMPLES
@@ -34,6 +30,16 @@ $summary.Items | Where-Object Status -eq Fail
 
 Return a structured summary of a completed run
 
+### EXAMPLE 2
+```powershell
+$servers = @([pscustomobject]@{ Name = 'web01' })
+$run = Start-ConsoleRun -InputObject $servers -Label Name -Title 'Inspect inventory'
+try { Update-Console -Run $run -Index 0 -Status Pass -Detail 'Inventory read' }
+finally { Complete-ConsoleRun -Run $run }
+```
+
+Finish a run even when inspection fails
+
 ## PARAMETERS
 
 ### -PassThru
@@ -47,7 +53,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -95,7 +101,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -105,7 +111,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -113,4 +119,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/complete-consolerun/](https://consolemonster.dev/powershell/commands/complete-consolerun/)

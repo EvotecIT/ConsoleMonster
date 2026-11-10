@@ -8,8 +8,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Asks for a file or folder path, with completion.
 
-Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
@@ -17,8 +15,6 @@ Read-ConsolePath [[-Title] <string>] [-Kind <PathKind>] [-MustExist] [-Default <
 ```
 
 ## DESCRIPTION
-Asks for a file or folder path, with completion.
-
 Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ $file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv
 ```
 
 An existing CSV file
+
+### EXAMPLE 2
+```powershell
+$path = Read-ConsolePath -Title 'Inventory folder' -Default . -Kind Directory -MustExist
+Write-ConsoleText "Inventory folder: $path"
+```
+
+Select an existing inventory directory
 
 ## PARAMETERS
 
@@ -49,7 +53,7 @@ Accept wildcard characters: False
 ```
 
 ### -Default
-The default path.
+The path initially shown in the editor; pressing Enter accepts it.
 
 ```yaml
 Type: String
@@ -107,7 +111,7 @@ Possible values: Any, File, Folder
 
 Required: False
 Position: named
-Default value: None
+Default value: Any
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -139,7 +143,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -171,7 +175,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -187,13 +191,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 6
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Title
-The question.
+The prompt displayed above the input control.
 
 ```yaml
 Type: String
@@ -203,7 +207,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: Enter a value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -213,7 +217,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `None`
+- `System.Management.Automation.PSObject`
 
 ## OUTPUTS
 
@@ -221,4 +225,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consolepath/](https://consolemonster.dev/powershell/commands/read-consolepath/)

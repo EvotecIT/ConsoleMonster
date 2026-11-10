@@ -24,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
             if (records.Any(record => record.Fields.Any(field => IsRecordArray(field.Value)))
                 || (records.Count == 1 && (records[0].Count == 0 || records[0].Fields.Any(field => IsNested(field.Value))))) {
                 List<IWidget> parts = records.Select(record => (IWidget)BuildRecord(record, 0, budget, true)).ToList();
-                if (omittedRows > 0) { parts.Add(new TextBlock("[muted]" + More(omittedRows, "rows") + "[/]")); }
+                if (omittedRows > 0) { parts.Add(TextBlock.FromMarkup("[muted]" + More(omittedRows, "rows") + "[/]")); }
                 return PSFormatting.Combine(parts);
             }
             return BuildTable(records, omittedRows, 0, budget, false);
