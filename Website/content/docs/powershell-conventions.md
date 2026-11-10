@@ -96,8 +96,10 @@ The module registers 15 fully qualified type accelerators: `ConsoleMonster.Termi
 Advanced interop can look up another core type from the loaded assembly without changing global accelerator state:
 
 ```powershell
+#region Using the object directly
 $profileType = [ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile', $true)
 $profile = $profileType::Fixed(100, 24)
+#endregion
 ```
 
 Prefer cmdlets for ordinary scripts. Configure headings and footers on `New-ConsoleDashboard` or `Show-ConsoleApp`; pass records to numeric-column format parameters. `New-ConsoleRegion -Horizontal Center -Padding 1` aligns and pads content. `New-ConsoleStatusList -Layout Strip` builds a phase strip. Canvas is available in C# only.
