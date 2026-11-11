@@ -31,7 +31,10 @@ The PowerShell module includes the add-on and loads it when Markdown is requeste
 
 ```terminal
 dotnet add package ConsoleMonster.PowerShell.Display
+dotnet add package PowerShellStandard.Library --version 5.1.1
 ```
+
+`PowerShellStandard.Library` gives the cmdlet its PowerShell API at compile time; PowerShell supplies it at run time, so mark that reference `PrivateAssets="all"` in the project file.
 
 With `using System.Management.Automation;`, `using ConsoleMonster.PowerShell.Display;` and `using ConsoleMonster.Widgets;`:
 
