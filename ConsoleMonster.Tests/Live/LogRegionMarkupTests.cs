@@ -44,6 +44,21 @@ namespace ConsoleMonster.Tests.Live {
             Assert.True((frame[0, 1].Style.Decoration & TextDecoration.Bold) != 0);
             Assert.Equal("short", frame.GetRowText(1).Trim());
         }
+
+        // A bare [link] takes its target from all the text it encloses; cutting lines from it must not turn the kept text
+        // into a new target.
+        [Fact]
+        public void RichEntries_CutThroughABareLinkKeepItsOriginalTarget() {
+            LogRegion log = new LogRegion { Capacity = 1, ShowElapsed = false };
+            log.Write(RichText.FromMarkup("[bold link]https://example.com/a\nhttps://example.com/b[/]"));
+
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 1, ColorDepth.TrueColor), Theme.Dark);
+            CellBuffer frame = new CellBuffer(40, 1);
+            log.Render(new Region(frame), context);
+            Assert.Equal("https://example.com/b", frame.GetRowText(0).Trim());
+            Assert.Null(frame[0, 0].Style.Link);
+            Assert.True((frame[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
+        }
         [Theory]
         [InlineData("warn", "[WARN]", "WARN")]
         [InlineData("err", "[FAIL]", "ERR")]

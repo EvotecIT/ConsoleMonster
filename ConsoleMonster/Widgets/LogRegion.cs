@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -198,8 +200,11 @@ namespace ConsoleMonster.Widgets {
         // keeping only the tags still open where line 'first' begins, copies the rest and cuts lines longer than
         // MaxLineLength.
         private static void ScanMarkup(string markup, System.Text.StringBuilder? output, List<int> lengths, int first) {
-            // Valid markup has only style tags and [/], which closes the innermost one.
-            List<string>? open = output != null && first > 0 ? new List<string>() : null;
+            // Valid markup has only style tags and [/], which closes the innermost one. Before line 'first' the open tags'
+            // positions are tracked; from it on, 'reopened' tracks which open tags were written, so a reopened tag that had
+            // to be left out also leaves out the [/] that closes it.
+            List<int>? open = output != null && first > 0 ? new List<int>() : null;
+            List<bool>? reopened = null;
             int line = 0;
             int count = 0;
             bool cut = false;
@@ -208,9 +213,17 @@ namespace ConsoleMonster.Widgets {
                 if (c == '[' && i + 1 < markup.Length && markup[i + 1] != '[') {
                     int close = markup.IndexOf(']', i);
                     if (close > i) {
-                        if (open == null) { output?.Append(markup, i, close - i + 1); }
-                        else if (close - i == 2 && markup[i + 1] == '/') { if (open.Count > 0) { open.RemoveAt(open.Count - 1); } }
-                        else { open.Add(markup.Substring(i, close - i + 1)); }
+                        bool closing = close - i == 2 && markup[i + 1] == '/';
+                        if (open != null) {
+                            if (!closing) { open.Add(i); } else if (open.Count > 0) { open.RemoveAt(open.Count - 1); }
+                        } else if (output != null) {
+                            bool write = true;
+                            if (reopened != null) {
+                                if (!closing) { reopened.Add(true); }
+                                else if (reopened.Count > 0) { write = reopened[reopened.Count - 1]; reopened.RemoveAt(reopened.Count - 1); }
+                            }
+                            if (write) { output.Append(markup, i, close - i + 1); }
+                        }
                         i = close;
                         continue;
                     }
@@ -222,7 +235,7 @@ namespace ConsoleMonster.Widgets {
                     count = 0;
                     cut = false;
                     if (open != null && line == first) {
-                        foreach (string tag in open) { output!.Append(tag); }
+                        reopened = Reopen(markup, open, output!);
                         open = null;
                     }
                     continue;
@@ -242,6 +255,60 @@ namespace ConsoleMonster.Widgets {
                 i += units - 1;
             }
             if (output == null) { lengths.Add(count); }
+        }
+
+        private static readonly Regex BareLinkWord = new Regex(@"(?<!\S)link(?!\S)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        // Writes the tags still open where the first kept line begins and returns which were written. A bare [link] takes
+        // its target from all the text it encloses, cut lines included, so it is reopened with that target written out,
+        // or without the link when Markup would give it none: the target cannot be written as link=, or an enclosing
+        // link already applies (a bare link never overrides one). A tag left with nothing to apply is not written.
+        private static List<bool> Reopen(string markup, List<int> open, System.Text.StringBuilder output) {
+            List<bool> written = new List<bool>(open.Count);
+            bool linked = false;
+            foreach (int start in open) {
+                int close = markup.IndexOf(']', start);
+                string tag = markup.Substring(start + 1, close - start - 1);
+                if (MarkupStyle.TryParse(tag, null, ColorDepth.TrueColor, out MarkupStyle style)) {
+                    if (style.LinkFromText) {
+                        string target = linked ? string.Empty : LinkTarget(markup, close + 1);
+                        string explicitTag = tag + " link=" + target;
+                        tag = target.Length > 0 && MarkupStyle.TryParse(explicitTag, null, ColorDepth.TrueColor, out MarkupStyle reopened)
+                            && string.Equals(reopened.Style.Link, target, StringComparison.Ordinal)
+                            ? explicitTag : BareLinkWord.Replace(tag, " ").Trim();
+                    }
+                    linked |= style.Style.Link != null;
+                }
+                written.Add(tag.Length > 0);
+                if (tag.Length > 0) { output.Append('[').Append(tag).Append(']'); }
+            }
+            return written;
+        }
+
+        // The text a bare [link] encloses, as Markup reads it for the target: escapes resolved, nested tags skipped, up to
+        // the [/] that closes it, trimmed.
+        private static string LinkTarget(string markup, int from) {
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            int depth = 0;
+            for (int i = from; i < markup.Length; i++) {
+                char c = markup[i];
+                if ((c == '[' || c == ']') && i + 1 < markup.Length && markup[i + 1] == c) {
+                    text.Append(c);
+                    i++;
+                } else if (c == '[') {
+                    int close = markup.IndexOf(']', i);
+                    if (close - i == 2 && markup[i + 1] == '/') {
+                        if (depth == 0) { break; }
+                        depth--;
+                    } else {
+                        depth++;
+                    }
+                    i = close;
+                } else {
+                    text.Append(c);
+                }
+            }
+            return text.ToString().Trim();
         }
 
         private void Append(LogEntry entry) {
