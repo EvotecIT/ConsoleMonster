@@ -103,8 +103,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -160,8 +160,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -238,8 +238,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -315,8 +315,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -392,8 +392,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -469,8 +469,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -546,8 +546,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -603,8 +603,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -653,8 +653,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -710,8 +710,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -789,8 +789,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -832,8 +832,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -875,8 +875,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -925,8 +925,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1004,8 +1004,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1054,8 +1054,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1133,8 +1133,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1197,8 +1197,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1247,8 +1247,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1326,8 +1326,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1405,8 +1405,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1469,8 +1469,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1540,8 +1540,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1604,8 +1604,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1682,8 +1682,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1753,8 +1753,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1832,8 +1832,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1911,8 +1911,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -1989,8 +1989,8 @@
       ],
       "parity": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {

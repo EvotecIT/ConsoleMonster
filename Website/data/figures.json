@@ -4610,9 +4610,9 @@
   "markup": {
     "title": "markup.ps1",
     "file": "markup.ps1",
-    "label": "markup in PowerShell 7.5",
+    "label": "markup in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 100,
@@ -4625,9 +4625,9 @@
   "plain": {
     "title": "CONSOLEMONSTER_MODE=plain",
     "file": "format-consoletable.ps1",
-    "label": "format-consoletable in PowerShell 7.5",
+    "label": "format-consoletable in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 100,
@@ -4640,9 +4640,9 @@
   "nocolor": {
     "title": "NO_COLOR=1",
     "file": "format-consoletable.ps1",
-    "label": "format-consoletable in PowerShell 7.5",
+    "label": "format-consoletable in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 100,
@@ -4655,9 +4655,9 @@
   "narrow": {
     "title": "56 columns",
     "file": "format-consoletable.ps1",
-    "label": "format-consoletable in PowerShell 7.5",
+    "label": "format-consoletable in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 56,
@@ -4670,9 +4670,9 @@
   "format-consoletable": {
     "title": "format-consoletable.ps1",
     "file": "format-consoletable.ps1",
-    "label": "format-consoletable in PowerShell 7.5",
+    "label": "format-consoletable in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 100,
@@ -4685,9 +4685,9 @@
   "format-table": {
     "title": "format-table.ps1",
     "file": "format-table.ps1",
-    "label": "format-table in PowerShell 7.5",
+    "label": "format-table in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 99,
@@ -4700,9 +4700,9 @@
   "export-markdown": {
     "title": "Export-ConsoleFrame -Format Markdown",
     "file": "export-markdown.ps1",
-    "label": "export-markdown in PowerShell 7.5",
+    "label": "export-markdown in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 54,
@@ -4715,9 +4715,9 @@
   "files": {
     "title": "Get-ChildItem | Show-ConsoleTable",
     "file": "files.ps1",
-    "label": "files in PowerShell 7.5",
+    "label": "files in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 56,
@@ -4730,9 +4730,9 @@
   "relative-dates": {
     "title": "CONSOLEMONSTER_NOW=2026-10-21T12:00:00Z",
     "file": "relative-dates.ps1",
-    "label": "relative-dates in PowerShell 7.5",
+    "label": "relative-dates in PowerShell 7.6",
     "meta": [
-      "PowerShell 7.5"
+      "PowerShell 7.6"
     ],
     "frame": {
       "w": 26,
@@ -4743,9 +4743,9 @@
     "scriptFull": "Import-Module ConsoleMonster\n\n# Relative dates count from CONSOLEMONSTER_NOW instead of the clock, so a recording says the same thing every time.\n$env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'\n\n$reports = @(\n    [pscustomobject] @{ Name = 'Mail flow'; Changed = [datetimeoffset] '2026-10-21T11:58:00Z' }\n    [pscustomobject] @{ Name = 'Replication'; Changed = [datetimeoffset] '2026-10-21T09:00:00Z' }\n    [pscustomobject] @{ Name = 'Certificates'; Changed = [datetimeoffset] '2026-10-18T12:00:00Z' }\n)\n$reports | Show-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }\n\nRemove-Item Env:CONSOLEMONSTER_NOW"
   },
   "streams-ps7": {
-    "title": "PowerShell 7.5",
+    "title": "PowerShell 7.6",
     "file": "streams.ps1",
-    "label": "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Include Streams in PowerShell 7.5",
+    "label": "Warning, verbose and debug messages before and after Enable-ConsoleFormatting -Include Streams in PowerShell 7.6",
     "meta": [],
     "frame": {
       "w": 100,
@@ -4771,9 +4771,9 @@
     "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nNew-ConsoleRule -Title \"PowerShell's own colours\" | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Include Streams\n\nNew-ConsoleRule -Title 'With -Include Streams: the theme''s colours' | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams"
   },
   "everyday-commands-ps7": {
-    "title": "PowerShell 7.5",
+    "title": "PowerShell 7.6",
     "file": "everyday-commands.ps1",
-    "label": "Select-String, Get-Acl, certificates, Group-Object, Measure-Object and a TimeSpan typed at the prompt with Enable-ConsoleFormatting in PowerShell 7.5",
+    "label": "Select-String, Get-Acl, certificates, Group-Object, Measure-Object and a TimeSpan typed at the prompt with Enable-ConsoleFormatting in PowerShell 7.6",
     "meta": [],
     "frame": {
       "w": 100,
@@ -4801,7 +4801,7 @@
   "everyday-summaries": {
     "title": "PowerShell 7",
     "file": "everyday-summaries.ps1",
-    "label": "everyday-summaries in PowerShell 7.5",
+    "label": "everyday-summaries in PowerShell 7.6",
     "meta": [],
     "frame": {
       "w": 90,
@@ -4814,7 +4814,7 @@
   "restyle-commands": {
     "title": "PowerShell 7",
     "file": "restyle-commands.ps1",
-    "label": "restyle-commands in PowerShell 7.5",
+    "label": "restyle-commands in PowerShell 7.6",
     "meta": [],
     "frame": {
       "w": 99,
@@ -4840,7 +4840,7 @@
   "compare-object-ps7": {
     "title": "PowerShell 7",
     "file": "compare-object.ps1",
-    "label": "compare-object in PowerShell 7.5",
+    "label": "compare-object in PowerShell 7.6",
     "meta": [],
     "frame": {
       "w": 68,
@@ -4866,7 +4866,7 @@
   "job-ps7": {
     "title": "PowerShell 7",
     "file": "job.ps1",
-    "label": "job in PowerShell 7.5",
+    "label": "job in PowerShell 7.6",
     "meta": [],
     "frame": {
       "w": 22,
@@ -6054,8 +6054,8 @@
     "parity": {
       "powershell": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
           "identical": true
         },
         "ps5": {
@@ -6138,8 +6138,13 @@
     "parity": {
       "powershell": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
           "identical": true
         }
       },
@@ -6215,8 +6220,13 @@
     "parity": {
       "powershell": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
           "identical": true
         }
       },
@@ -6294,8 +6304,13 @@
     "parity": {
       "powershell": {
         "ps7": {
-          "host": "PowerShell 7.5",
-          "version": "7.5",
+          "host": "PowerShell 7.6",
+          "version": "7.6",
+          "identical": true
+        },
+        "ps5": {
+          "host": "Windows PowerShell 5.1",
+          "version": "5.1",
           "identical": true
         }
       },

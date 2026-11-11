@@ -1,32 +1,56 @@
 {
   "version": 1,
-  "producer": "macos",
+  "producer": "windows",
   "complete": true,
   "scope": "produced-only",
   "requestedSet": "starter",
   "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "docs/how-it-works-dark-80.ps7.ansi": {
-      "platform": "macos",
+    "docs/how-it-works-dark-80.ps5.ansi": {
+      "platform": "windows",
       "category": "neutral",
-      "sha256": "a5ea918864f24e9c1866b6c62b88e33cb83a657133733ba9ceee09613f6c8130",
+      "sha256": "4d56e9fe9ef34b7bd5b43f29f5816629cdc4c1a9f455b7dc8085529dea3d410e",
+      "screen": "dark",
+      "width": 80,
+      "height": 80
+    },
+    "docs/how-it-works-dark-80.ps7.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "4d56e9fe9ef34b7bd5b43f29f5816629cdc4c1a9f455b7dc8085529dea3d410e",
+      "screen": "dark",
+      "width": 80,
+      "height": 80
+    },
+    "docs/layout-dark-80.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "fa3a1722af511a4d5c335a7e9bea1a187feef12c4e75408fb498ae698a2f5359",
       "screen": "dark",
       "width": 80,
       "height": 80
     },
     "docs/layout-dark-80.ps7.ansi": {
-      "platform": "macos",
+      "platform": "windows",
       "category": "neutral",
-      "sha256": "9fdc43c2c6d92e5acf6a74e2e1c2f9a30020e472864f93d78a34bc863167f544",
+      "sha256": "fa3a1722af511a4d5c335a7e9bea1a187feef12c4e75408fb498ae698a2f5359",
+      "screen": "dark",
+      "width": 80,
+      "height": 80
+    },
+    "guides/first-report-dark-80.ps5.ansi": {
+      "platform": "windows",
+      "category": "neutral",
+      "sha256": "ccf6f3cc5cef53a062cd16d63ecfbd81f30fdd0505504aeea4407ff40ef8d4fc",
       "screen": "dark",
       "width": 80,
       "height": 80
     },
     "guides/first-report-dark-80.ps7.ansi": {
-      "platform": "macos",
+      "platform": "windows",
       "category": "neutral",
-      "sha256": "f7911dbcd54c61b5bae3fda998eb7e0233709813f807f9d57172c276c57d88f7",
+      "sha256": "ccf6f3cc5cef53a062cd16d63ecfbd81f30fdd0505504aeea4407ff40ef8d4fc",
       "screen": "dark",
       "width": 80,
       "height": 80
