@@ -22,17 +22,20 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal("short", log.Entries.Last().Text);
         }
 
-        // Rich entries share one source: neither a runaway line nor lines pushed straight out of Capacity may stay in it.
+        // Rich entries share one source: neither a runaway line nor lines pushed straight out of Capacity (their text, line
+        // breaks or tags) may stay in it.
         [Fact]
         public void RichEntries_RetainABoundedSourceAndKeepTheirStyles() {
+            const int pushedOut = 100000;
             LogRegion log = new LogRegion { Capacity = 2, ShowElapsed = false };
-            log.Write(RichText.FromMarkup("[bold]dropped " + new string('d', LogRegion.MaxLineLength * 4) + "\n[pass]" + new string('x', LogRegion.MaxLineLength * 4) + "[/]\nshort[/]"));
+            string many = string.Concat(Enumerable.Repeat("[pass]dropped[/]\n", pushedOut));
+            log.Write(RichText.FromMarkup("[bold]" + many + "dropped " + new string('d', LogRegion.MaxLineLength * 4) + "\n[pass]" + new string('x', LogRegion.MaxLineLength * 4) + "[/]\nshort[/]"));
 
             Assert.Equal(new[] { LogRegion.MaxLineLength, 5 }, log.Entries.Select(e => e.Text.Length));
             Assert.EndsWith("…", log.Entries.First().Text);
-            Assert.Equal(new[] { 1, 2 }, log.Entries.Select(e => e.LineIndex));
             Assert.True(log.Entries.First().RichText!.ToMarkup().Length < LogRegion.MaxLineLength + 100);
-            Assert.Equal(3, log.TotalLines);
+            Assert.Equal(new[] { 0, 1 }, log.Entries.Select(e => e.LineIndex));
+            Assert.Equal(pushedOut + 3, log.TotalLines);
             RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 2, ColorDepth.TrueColor), Theme.Dark);
             CellBuffer frame = new CellBuffer(40, 2);
             log.Render(new Region(frame), context);

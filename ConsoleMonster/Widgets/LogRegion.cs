@@ -153,7 +153,7 @@ namespace ConsoleMonster.Widgets {
                 WriteLiteral(literal.ToString(), level, time, null, tag);
                 return;
             }
-            string limited = LimitMarkup(markup, Math.Max(1, Capacity));
+            string limited = LimitMarkup(markup, Math.Max(1, Capacity), out int removed);
             if (!ReferenceEquals(limited, markup)) {
                 if (!Markup.Validate(limited, out _)) {
                     // A cut that leaves a tag without its text (an implicit link) keeps the lines as literal text instead.
@@ -163,6 +163,12 @@ namespace ConsoleMonster.Widgets {
                 text = RichText.FromMarkup(limited);
                 markup = limited;
             }
+            if (removed > 0) {
+                // Lines this write pushes straight out of Capacity are gone from the source, but they were still received:
+                // they pass through the region (and its tail model) as empty entries, as they always have.
+                LogEntry gone = new LogEntry(time, Level(level ?? "info"), string.Empty, null, tag);
+                for (int i = 0; i < removed; i++) { Append(gone); }
+            }
             string[] lines = Markup.Strip(markup).Split('\n');
             for (int i = 0; i < lines.Length; i++) {
                 // Keep one complete source: the parser must resolve spanning tags and implicit links before slicing.
@@ -171,22 +177,25 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Every line of a rich write keeps the one shared source, so bound that source as literal entries are bounded: a line
-        // longer than MaxLineLength ends with an ellipsis, and lines this write pushes out of Capacity keep no text. Tags
-        // and line breaks are all kept, so styles and line indexes stay as they were. Returns the markup itself when
-        // nothing is cut.
-        private static string LimitMarkup(string markup, int capacity) {
+        // longer than MaxLineLength ends with an ellipsis, and the lines this write pushes out of Capacity are removed
+        // ('removed' counts them). The kept lines start with the tags still open where they began, so their styles stay
+        // and their line indexes count from the first kept line. Returns the markup itself when nothing is cut.
+        private static string LimitMarkup(string markup, int capacity, out int removed) {
             List<int> lengths = new List<int>();
             ScanMarkup(markup, null, lengths, 0);
-            int first = Math.Max(0, lengths.Count - capacity);
-            if (first == 0 && lengths.TrueForAll(length => length <= MaxLineLength)) { return markup; }
+            removed = Math.Max(0, lengths.Count - capacity);
+            if (removed == 0 && lengths.TrueForAll(length => length <= MaxLineLength)) { return markup; }
             System.Text.StringBuilder output = new System.Text.StringBuilder();
-            ScanMarkup(markup, output, lengths, first);
+            ScanMarkup(markup, output, lengths, removed);
             return output.ToString();
         }
 
-        // Walks valid markup. Without output it records each line's length; with output it copies tags and line breaks,
-        // drops the text of lines before 'first' and cuts lines longer than MaxLineLength.
+        // Walks valid markup. Without output it records each line's length; with output it skips lines before 'first',
+        // keeping only the tags still open where line 'first' begins, copies the rest and cuts lines longer than
+        // MaxLineLength.
         private static void ScanMarkup(string markup, System.Text.StringBuilder? output, List<int> lengths, int first) {
+            // Valid markup has only style tags and [/], which closes the innermost one.
+            List<string>? open = output != null && first > 0 ? new List<string>() : null;
             int line = 0;
             int count = 0;
             bool cut = false;
@@ -195,17 +204,23 @@ namespace ConsoleMonster.Widgets {
                 if (c == '[' && i + 1 < markup.Length && markup[i + 1] != '[') {
                     int close = markup.IndexOf(']', i);
                     if (close > i) {
-                        output?.Append(markup, i, close - i + 1);
+                        if (open == null) { output?.Append(markup, i, close - i + 1); }
+                        else if (close - i == 2 && markup[i + 1] == '/') { if (open.Count > 0) { open.RemoveAt(open.Count - 1); } }
+                        else { open.Add(markup.Substring(i, close - i + 1)); }
                         i = close;
                         continue;
                     }
                 }
                 if (c == '\r' || c == '\n') {
                     if (c == '\r' && i + 1 < markup.Length && markup[i + 1] == '\n') { i++; }
-                    if (output == null) { lengths.Add(count); } else { output.Append('\n'); }
+                    if (output == null) { lengths.Add(count); } else if (line >= first) { output.Append('\n'); }
                     line++;
                     count = 0;
                     cut = false;
+                    if (open != null && line == first) {
+                        foreach (string tag in open) { output!.Append(tag); }
+                        open = null;
+                    }
                     continue;
                 }
                 bool escaped = (c == '[' || c == ']') && i + 1 < markup.Length && markup[i + 1] == c;
