@@ -45,6 +45,23 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal("short", frame.GetRowText(1).Trim());
         }
 
+        // Lines a later write evicts leave the source their write shared, so a kept entry no longer exposes them.
+        [Fact]
+        public void RichEntries_DropLinesEvictedByLaterWritesFromTheirSource() {
+            LogRegion log = new LogRegion { Capacity = 2, ShowElapsed = false };
+            log.Write(RichText.FromMarkup("[pass]secret\nkept[/]"));
+            log.Write("new");
+
+            LogEntry kept = log.Entries.First();
+            Assert.DoesNotContain("secret", kept.RichText!.ToMarkup());
+            Assert.Equal(0, kept.LineIndex);
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 2, ColorDepth.TrueColor), Theme.Dark);
+            CellBuffer frame = new CellBuffer(40, 2);
+            log.Render(new Region(frame), context);
+            Assert.Equal("kept", frame.GetRowText(0).Trim());
+            Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[0, 0].Style.Color);
+        }
+
         // A bare [link] takes its target from all the text it encloses; cutting lines from it must not turn the kept text
         // into a new target.
         [Fact]

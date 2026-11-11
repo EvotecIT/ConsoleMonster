@@ -104,6 +104,7 @@ namespace ConsoleMonster.Widgets {
             if (entry == null) { throw new ArgumentNullException(nameof(entry)); }
             if (entry.IsLineSlice) {
                 Append(new LogEntry(entry.Time, Level(entry.Level), entry.RichText!, entry.Text, entry.LineIndex, entry.Tag));
+                DropEvictedLines();
             } else if (entry.RichText != null) {
                 WriteRich(entry.RichText, entry.Level, entry.Time, entry.Tag);
             } else {
@@ -123,6 +124,7 @@ namespace ConsoleMonster.Widgets {
             foreach (string line in (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
                 Append(new LogEntry(time, Level(level ?? "info"), Limit(line.Replace("\t", "    ")), timestamp, tag));
             }
+            DropEvictedLines();
         }
 
         /// <summary>
@@ -180,6 +182,7 @@ namespace ConsoleMonster.Widgets {
                 // Keep one complete source: the parser must resolve spanning tags and implicit links before slicing.
                 Append(new LogEntry(time, Level(level ?? "info"), text, lines[i], i, string.IsNullOrWhiteSpace(tag) ? null : tag!.Trim()));
             }
+            DropEvictedLines();
         }
 
         // Every line of a rich write keeps the one shared source, so bound that source as literal entries are bounded: a line
@@ -191,9 +194,40 @@ namespace ConsoleMonster.Widgets {
             ScanMarkup(markup, null, lengths, 0);
             removed = Math.Max(0, lengths.Count - capacity);
             if (removed == 0 && lengths.TrueForAll(length => length <= MaxLineLength)) { return markup; }
+            return KeepFrom(markup, lengths, removed);
+        }
+
+        private static string KeepFrom(string markup, List<int> lengths, int first) {
             System.Text.StringBuilder output = new System.Text.StringBuilder();
-            ScanMarkup(markup, output, lengths, removed);
+            ScanMarkup(markup, output, lengths, first);
             return output.ToString();
+        }
+
+        // Rich sources whose leading lines were evicted during the current write.
+        private List<RichText>? _evictedSources;
+
+        // A rich source is shared by every line of its write, so once later writes evict its leading lines, the slices still
+        // kept move to a source that starts at the oldest of them, with the same tags still open there.
+        private void DropEvictedLines() {
+            if (_evictedSources == null) { return; }
+            List<RichText> sources = _evictedSources;
+            _evictedSources = null;
+            foreach (RichText source in sources) {
+                int first = int.MaxValue;
+                foreach (LogEntry entry in _entries) {
+                    if (ReferenceEquals(entry.RichText, source)) { first = Math.Min(first, entry.LineIndex); }
+                }
+                if (first == int.MaxValue || first == 0) { continue; }
+                string markup = source.ToMarkup();
+                List<int> lengths = new List<int>();
+                ScanMarkup(markup, null, lengths, 0);
+                string keptMarkup = KeepFrom(markup, lengths, first);
+                if (!Markup.Validate(keptMarkup, out _)) { continue; }
+                RichText kept = RichText.FromMarkup(keptMarkup);
+                foreach (LogEntry entry in _entries) {
+                    if (ReferenceEquals(entry.RichText, source)) { entry.Rebase(kept, entry.LineIndex - first); }
+                }
+            }
         }
 
         // Walks valid markup. Without output it records each line's length; with output it skips lines before 'first',
@@ -318,6 +352,8 @@ namespace ConsoleMonster.Widgets {
             while (_entries.Count > Math.Max(1, Capacity)) {
                 LogEntry evicted = _entries.Dequeue();
                 Evicted?.Invoke(evicted);
+                RichText? source = evicted.RichText;
+                if (source != null && (_evictedSources ??= new List<RichText>()).TrueForAll(s => !ReferenceEquals(s, source))) { _evictedSources.Add(source); }
             }
         }
 

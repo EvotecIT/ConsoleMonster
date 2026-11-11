@@ -49,12 +49,18 @@ namespace ConsoleMonster.Widgets {
         public string Text { get; }
 
         /// <summary>The rich source, or null for literal <see cref="Text"/>. Select <see cref="LineIndex"/> after rendering the source.</summary>
-        public RichText? RichText { get; }
+        public RichText? RichText { get; private set; }
 
         /// <summary>Zero-based line in <see cref="RichText"/> represented by this entry; zero for single-line or literal entries.</summary>
-        public int LineIndex { get; }
+        public int LineIndex { get; private set; }
 
         internal bool IsLineSlice { get; }
+
+        // A region drops the lines it no longer keeps from a shared rich source; its surviving slices move to the new source.
+        internal void Rebase(RichText source, int lineIndex) {
+            RichText = source;
+            LineIndex = lineIndex;
+        }
 
         internal LogEntry(TimeSpan time, string level, RichText source, string text, int lineIndex, string? tag) {
             Time = time;
