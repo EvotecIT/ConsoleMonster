@@ -39,7 +39,9 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">Label (markup), or <c>null</c>.</param>
         /// <param name="detail">Detail (duration, percentage), or <c>null</c>.</param>
         /// <returns>This instance.</returns>
+        /// <exception cref="ArgumentException">The key contains U+001F, which separates phase and item keys.</exception>
         public Phases Set(string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
+            CheckKey(key, nameof(key));
             if (!_byKey.TryGetValue(key, out StatusItem? item)) {
                 item = new StatusItem(key, string.IsNullOrEmpty(label) ? Markup.Escape(key) : label!, status, string.IsNullOrEmpty(detail) ? null : detail);
                 _byKey[key] = item;
@@ -69,8 +71,10 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">Label (markup), or <c>null</c>.</param>
         /// <param name="detail">Detail, or <c>null</c>.</param>
         /// <returns>This instance.</returns>
+        /// <exception cref="ArgumentException">The key contains U+001F, which separates phase and item keys.</exception>
         public Phases Insert(int index, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (index < 0) { throw new ArgumentOutOfRangeException(nameof(index)); }
+            CheckKey(key, nameof(key));
             if (_byKey.ContainsKey(key)) { return Set(key, status, label, detail); }
             var item = new StatusItem(key, string.IsNullOrEmpty(label) ? Markup.Escape(key) : label!, status, string.IsNullOrEmpty(detail) ? null : detail);
             index = Math.Min(index, _phases.Count);
@@ -92,6 +96,10 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             if ((liveEvent.Operation == "item" || liveEvent.Operation == "item-detail") && ApplyItem(liveEvent)) {
+                return;
+            }
+            // An item path is never a phase key.
+            if (liveEvent.Key.IndexOf(ItemSeparator) >= 0) {
                 return;
             }
             switch (liveEvent.Operation) {

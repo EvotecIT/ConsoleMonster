@@ -152,6 +152,19 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.EndsWith("signed · " + NumberFormat.Duration(TimeSpan.FromSeconds(5)), ItemRow(30));
         }
 
+        // Item paths join keys with U+001F, so a key containing it would alias another owner ("p\u001fa" as a phase and
+        // item "a" of phase "p" would share one item list).
+        [Fact]
+        public void KeysCannotContainTheItemSeparator() {
+            string joined = "p" + Phases.ItemSeparator + "a";
+            var phases = new Phases().Set("p", StatusKind.Running).SetItem("p", "a", StatusKind.Running);
+            Assert.Throws<ArgumentException>(() => phases.Set(joined));
+            Assert.Throws<ArgumentException>(() => phases.Insert(0, joined));
+            Assert.Throws<ArgumentException>(() => phases.SetItem("p", joined));
+            Assert.Throws<ArgumentException>(() => phases.SetSubItem("p", "a", joined));
+            Assert.Equal(new[] { "p" }, phases.Items.Select(p => p.Key));
+        }
+
         [Theory]
         [InlineData(48, GlyphTier.Full)] [InlineData(40, GlyphTier.Full)]
         [InlineData(48, GlyphTier.Ascii)] [InlineData(40, GlyphTier.Ascii)]

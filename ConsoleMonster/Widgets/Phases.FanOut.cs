@@ -34,10 +34,11 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">Label (markup), or null to keep the existing one.</param>
         /// <param name="detail">Detail (duration, percentage), or null to keep the existing one.</param>
         /// <returns>This instance.</returns>
-        /// <exception cref="ArgumentException">The phase has not been added.</exception>
+        /// <exception cref="ArgumentException">The phase has not been added, or the key is empty or contains U+001F.</exception>
         public Phases SetItem(string phase, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (phase == null || !_byKey.ContainsKey(phase)) { throw new ArgumentException("Add the phase '" + phase + "' before its items.", nameof(phase)); }
             if (string.IsNullOrEmpty(key)) { throw new ArgumentException("An item needs a key.", nameof(key)); }
+            CheckKey(key, nameof(key));
             SetItemCore(phase, key, status, label, detail);
             return this;
         }
@@ -54,10 +55,11 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">Label (markup), or null to keep the existing one.</param>
         /// <param name="detail">Detail, or null to keep the existing one.</param>
         /// <returns>This instance.</returns>
-        /// <exception cref="ArgumentException">The phase or the item has not been added.</exception>
+        /// <exception cref="ArgumentException">The phase or the item has not been added, or the key is empty or contains U+001F.</exception>
         public Phases SetSubItem(string phase, string item, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (phase == null || item == null || FindItem(new[] { phase, item }) == null) { throw new ArgumentException("Add the item '" + item + "' of phase '" + phase + "' before its sub-items.", nameof(item)); }
             if (string.IsNullOrEmpty(key)) { throw new ArgumentException("A sub-item needs a key.", nameof(key)); }
+            CheckKey(key, nameof(key));
             SetItemCore(phase + ItemSeparator + item, key, status, label, detail);
             return this;
         }
@@ -78,8 +80,13 @@ namespace ConsoleMonster.Widgets {
             if (replaceDetail || !string.IsNullOrEmpty(detail)) { item.Detail = detail; }
         }
 
-        // Live item events address "phase␟item" or "phase␟item␟sub-item"; the unit separator cannot appear in a typed key.
+        // Live item events address "phase␟item" or "phase␟item␟sub-item", so no phase, item or sub-item key may contain the
+        // unit separator: "p␟a" as a phase would share item lists and timings with item "a" of phase "p".
         internal const char ItemSeparator = '\u001f';
+
+        private static void CheckKey(string key, string name) {
+            if (key != null && key.IndexOf(ItemSeparator) >= 0) { throw new ArgumentException("A phase or item key cannot contain U+001F, which separates phase and item keys.", name); }
+        }
 
         private bool ApplyItem(LiveEvent liveEvent) {
             string[] path = liveEvent.Key!.Split(ItemSeparator);
