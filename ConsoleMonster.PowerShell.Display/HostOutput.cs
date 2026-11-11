@@ -100,10 +100,11 @@ namespace ConsoleMonster.PowerShell.Display {
             });
         }
 
-        // Host writes from a console host reach the console a live session may be drawing on; clear its area for them.
-        // Other hosts (jobs, remoting, dashboard runspaces) never write to this console.
+        // Host writes from a console host reach the console a live session may be drawing on; clear that session's area for
+        // them (the console owner, not the most recent session, which may draw on another target). Other hosts (jobs,
+        // remoting, dashboard runspaces) never write to this console.
         private static void Through(PSCmdlet cmdlet, Action write) {
-            LiveSession? session = string.Equals(cmdlet.Host?.Name, "ConsoleHost", StringComparison.Ordinal) ? LiveSession.Current : null;
+            LiveSession? session = string.Equals(cmdlet.Host?.Name, "ConsoleHost", StringComparison.Ordinal) ? Terminal.ConsoleOwner : null;
             if (session == null) {
                 write();
             } else {
