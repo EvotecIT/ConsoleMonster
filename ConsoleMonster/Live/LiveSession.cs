@@ -64,6 +64,7 @@ namespace ConsoleMonster.Live {
         private bool _restored;
         private bool _finishing;
         private long _eventsPosted;
+        private int _queued;
         private long _eventsApplied;
         private long _eventsDropped;
         private long _framesRendered;
@@ -280,7 +281,8 @@ namespace ConsoleMonster.Live {
                 if (Interlocked.CompareExchange(ref _admission, admission + 1, admission) == admission) { break; }
             }
             try {
-                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear" || liveEvent.Operation == "state") {
+                if (QueueFull(liveEvent)) { return false; }
+                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear" || liveEvent.Operation == "state" || liveEvent.Operation == "insert") {
                     lock (_updateGate) {
                         if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") { ProjectContent(liveEvent); }
                         ProjectCellCount(liveEvent);
@@ -383,8 +385,34 @@ namespace ConsoleMonster.Live {
         }
 
         private void Enqueue(LiveEvent liveEvent) {
+            Interlocked.Increment(ref _queued);
             _queue.Enqueue(liveEvent.Time == 0 ? liveEvent.WithTime((long)Elapsed.TotalMilliseconds) : liveEvent);
             Interlocked.Increment(ref _eventsPosted);
+        }
+
+        private bool TryDequeue(out LiveEvent liveEvent) {
+            if (!_queue.TryDequeue(out LiveEvent? item)) { liveEvent = null!; return false; }
+            Interlocked.Decrement(ref _queued);
+            liveEvent = item;
+            return true;
+        }
+
+        // Widget and log updates obey MaxQueuedEvents, whatever their ids (widgets such as $progress included); console
+        // writes and the session's own control events ($frame, $flush, $checkpoint, $console, markers) are always admitted,
+        // so a full queue cannot strand a pause or a waiting writer.
+        private bool QueueFull(LiveEvent liveEvent) {
+            int limit = _options.MaxQueuedEvents;
+            if (limit <= 0 || Volatile.Read(ref _queued) < limit) { return false; }
+            switch (liveEvent.WidgetId) {
+                case "$frame":
+                case "$flush":
+                case "$checkpoint":
+                case "$console":
+                case MarkerTarget:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         private void Error(Exception error) => Volatile.Write(ref _lastError, error);

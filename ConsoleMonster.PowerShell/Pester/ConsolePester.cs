@@ -8,6 +8,7 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Export;
 using ConsoleMonster.Live;
 using ConsoleMonster.TestRuns;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell.Pester {
     /// <summary>Owns the existing Pester adapter, dashboard and native result policy for a C# PowerShell host. Requires Pester and the caller's owning runspace.</summary>

@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>

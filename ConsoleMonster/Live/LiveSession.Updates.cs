@@ -39,7 +39,7 @@ namespace ConsoleMonster.Live {
         }
 
         private void ProjectPhaseKey(LiveEvent item) {
-            if ((item.Operation == "add" || item.Operation == "state") && item.Key != null
+            if ((item.Operation == "add" || item.Operation == "insert" || item.Operation == "state") && item.Key != null
                 && _updateTargets.TryGetValue(item.WidgetId, out ILiveTarget? target) && target is Phases phases) {
                 PhaseKeys(phases).Add(item.Key);
             }

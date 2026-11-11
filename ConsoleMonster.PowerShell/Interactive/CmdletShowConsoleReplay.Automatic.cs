@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text;
 using ConsoleMonster.Live;
+using ConsoleMonster.PowerShell.Display;
 namespace ConsoleMonster.PowerShell {
     public sealed partial class CmdletShowConsoleReplay {
         // Automatic playback retains the existing event engine and host-thread relay.

@@ -34,18 +34,41 @@ namespace ConsoleMonster.Widgets {
         /// <param name="label">Label (markup), or null to keep the existing one.</param>
         /// <param name="detail">Detail (duration, percentage), or null to keep the existing one.</param>
         /// <returns>This instance.</returns>
-        /// <exception cref="ArgumentException">The phase has not been added.</exception>
+        /// <exception cref="ArgumentException">The phase has not been added, or the key is empty or contains U+001F.</exception>
         public Phases SetItem(string phase, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (phase == null || !_byKey.ContainsKey(phase)) { throw new ArgumentException("Add the phase '" + phase + "' before its items.", nameof(phase)); }
             if (string.IsNullOrEmpty(key)) { throw new ArgumentException("An item needs a key.", nameof(key)); }
+            CheckKey(key, nameof(key));
             SetItemCore(phase, key, status, label, detail);
             return this;
         }
 
-        private void SetItemCore(string phase, string key, StatusKind? status, string? label, string? detail, bool replaceDetail = false) {
-            if (!_phaseItems.TryGetValue(phase, out List<StatusItem>? items)) {
+        /// <summary>
+        /// Adds a sub-item under an item of a phase (a package under the stage that signs it) or updates its status. The
+        /// step ledger lists sub-items under their item and folds a finished item's sub-items into a "done/total" count
+        /// when it is short of space; the fan-out and the compact chain show items only.
+        /// </summary>
+        /// <param name="phase">The key of an existing phase.</param>
+        /// <param name="item">The key of an existing item of that phase.</param>
+        /// <param name="key">The sub-item key, unique within the item (also the label when <paramref name="label"/> is null).</param>
+        /// <param name="status">The sub-item status.</param>
+        /// <param name="label">Label (markup), or null to keep the existing one.</param>
+        /// <param name="detail">Detail, or null to keep the existing one.</param>
+        /// <returns>This instance.</returns>
+        /// <exception cref="ArgumentException">The phase or the item has not been added, or the key is empty or contains U+001F.</exception>
+        public Phases SetSubItem(string phase, string item, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
+            if (phase == null || item == null || FindItem(new[] { phase, item }) == null) { throw new ArgumentException("Add the item '" + item + "' of phase '" + phase + "' before its sub-items.", nameof(item)); }
+            if (string.IsNullOrEmpty(key)) { throw new ArgumentException("A sub-item needs a key.", nameof(key)); }
+            CheckKey(key, nameof(key));
+            SetItemCore(phase + ItemSeparator + item, key, status, label, detail);
+            return this;
+        }
+
+        // Items are listed by their owner's path: a phase key for items, "phase␟item" for sub-items.
+        private void SetItemCore(string owner, string key, StatusKind? status, string? label, string? detail, bool replaceDetail = false) {
+            if (!_phaseItems.TryGetValue(owner, out List<StatusItem>? items)) {
                 items = new List<StatusItem>();
-                _phaseItems[phase] = items;
+                _phaseItems[owner] = items;
             }
             StatusItem? item = items.Find(existing => existing.Key == key);
             if (item == null) {
@@ -57,22 +80,69 @@ namespace ConsoleMonster.Widgets {
             if (replaceDetail || !string.IsNullOrEmpty(detail)) { item.Detail = detail; }
         }
 
-        // Live item events address "phase␟item"; the unit separator cannot appear in a typed key.
+        // Live item events address "phase␟item" or "phase␟item␟sub-item", so no phase, item or sub-item key may contain the
+        // unit separator: "p␟a" as a phase would share item lists and timings with item "a" of phase "p".
         internal const char ItemSeparator = '\u001f';
 
+        private static void CheckKey(string key, string name) {
+            if (key != null && key.IndexOf(ItemSeparator) >= 0) { throw new ArgumentException("A phase or item key cannot contain U+001F, which separates phase and item keys.", name); }
+        }
+
         private bool ApplyItem(LiveEvent liveEvent) {
-            int split = liveEvent.Key!.IndexOf(ItemSeparator);
-            if (split <= 0 || split == liveEvent.Key.Length - 1) { return false; }
-            string phase = liveEvent.Key.Substring(0, split);
-            string key = liveEvent.Key.Substring(split + 1);
-            if (!_byKey.ContainsKey(phase)) { return true; }
+            string[] path = liveEvent.Key!.Split(ItemSeparator);
+            if (path.Length < 2 || path.Length > 3 || Array.Exists(path, part => part.Length == 0)) { return false; }
+            if (!_byKey.ContainsKey(path[0])) { return true; }
+            string owner = path[0];
+            if (path.Length == 3) {
+                // A sub-item needs its item first.
+                if (FindItem(new[] { path[0], path[1] }) == null) { return true; }
+                owner = path[0] + ItemSeparator + path[1];
+            }
+            string key = path[path.Length - 1];
             if (liveEvent.Operation == "item") {
                 StatusKind? status = StatusKinds.TryParse(liveEvent.Status, out StatusKind parsed) ? parsed : (StatusKind?)null;
-                SetItemCore(phase, key, status, liveEvent.Text, null);
+                SetItemCore(owner, key, status, liveEvent.Text, null);
+                if (status.HasValue) { Track(liveEvent.Key, status.Value, liveEvent); }
             } else {
-                SetItemCore(phase, key, null, null, liveEvent.Text, replaceDetail: true);
+                SetItemCore(owner, key, null, null, liveEvent.Text, replaceDetail: true);
             }
             return true;
+        }
+
+        // The item or sub-item a path ("phase", "item"[, "sub-item"]) names, or null.
+        private StatusItem? FindItem(string[] path) {
+            string owner = path[0];
+            StatusItem? found = null;
+            for (int i = 1; i < path.Length; i++) {
+                if (!_phaseItems.TryGetValue(owner, out List<StatusItem>? items)) { return null; }
+                found = items.Find(item => item.Key == path[i]);
+                if (found == null) { return null; }
+                owner += ItemSeparator + path[i];
+            }
+            return found;
+        }
+
+        // When rows started (session time) and how long finished rows took, by path ("phase" or "phase␟item[␟sub-item]").
+        private readonly Dictionary<string, TimeSpan> _took = new Dictionary<string, TimeSpan>(StringComparer.Ordinal);
+
+        // Records a row's timing from its state events: a running row starts its clock once, a finished row keeps the time
+        // it took (Value in milliseconds when the event gives it, otherwise measured from the start). Returns that time.
+        private TimeSpan? Track(string path, StatusKind status, LiveEvent liveEvent) {
+            TimeSpan now = TimeSpan.FromMilliseconds(liveEvent.Time);
+            if (status == StatusKind.Running) {
+                if (!_started.ContainsKey(path)) { _started[path] = now; }
+                _took.Remove(path);
+                return null;
+            }
+            TimeSpan? took = null;
+            if (status != StatusKind.Pending && liveEvent.Value > 0) {
+                took = TimeSpan.FromMilliseconds(liveEvent.Value);
+            } else if (status != StatusKind.Pending && _started.TryGetValue(path, out TimeSpan started)) {
+                took = now - started < TimeSpan.Zero ? TimeSpan.Zero : now - started;
+            }
+            _started.Remove(path);
+            if (took.HasValue) { _took[path] = took.Value; } else { _took.Remove(path); }
+            return took;
         }
 
         internal bool HasItems => _phaseItems.Count > 0;

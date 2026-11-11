@@ -7,6 +7,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 using ConsoleMonster.Output;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>

@@ -182,6 +182,26 @@ namespace ConsoleMonster.Live {
         /// </summary>
         public bool Discoverable { get; set; } = true;
 
+        /// <summary>The default for <see cref="MaxQueuedEvents"/>: 1,000,000 widget updates.</summary>
+        public const int DefaultMaxQueuedEvents = 1000000;
+
+        private int _maxQueuedEvents = DefaultMaxQueuedEvents;
+
+        /// <summary>
+        /// The most widget and log updates waiting for the render thread (default <see cref="DefaultMaxQueuedEvents"/>; 0
+        /// removes the limit). Posting never waits: while the queue is full, new updates are rejected and counted in
+        /// <see cref="LiveSession.EventsDropped"/>. The queue only fills when updates arrive faster than they can be applied
+        /// for a long time, for example while a widget callback blocks the render thread. One-shot console writes and the
+        /// session's own control events are not limited.
+        /// </summary>
+        public int MaxQueuedEvents {
+            get => _maxQueuedEvents;
+            set {
+                if (value < 0) { throw new ArgumentOutOfRangeException(nameof(value)); }
+                _maxQueuedEvents = value;
+            }
+        }
+
         /// <summary>Maximum render-thread join wait; defaults to two seconds. Must be between zero and Int32.MaxValue milliseconds.</summary>
         public TimeSpan StopTimeout {
             get => _stopTimeout;
