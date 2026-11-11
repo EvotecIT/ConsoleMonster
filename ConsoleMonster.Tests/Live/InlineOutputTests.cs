@@ -175,7 +175,7 @@ namespace ConsoleMonster.Tests.Live {
             using (ManualResetEventSlim answered = new ManualResetEventSlim()) {
                 session.Start();
                 session.Post(new LiveEvent("build", "advance", value: 1));
-                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("25%"), 3000));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("1/4"), 3000));
                 Thread prompt = new Thread(() => session.WriteOutside(() => {
                     writer.Write("WARNING: Continue?\r\n");
                     waiting.Set();
@@ -189,16 +189,16 @@ namespace ConsoleMonster.Tests.Live {
                 Assert.Equal(during, writer.ToString());
                 answered.Set();
                 Assert.True(prompt.Join(TimeSpan.FromSeconds(10)));
-                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Length > during.Length && writer.ToString().Substring(during.Length).Contains("50%"), 3000));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Length > during.Length && writer.ToString().Substring(during.Length).Contains("2/4"), 3000));
                 session.Post(new LiveEvent("build", "advance", value: 2));
-                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("100%"), 3000));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("4/4"), 3000));
                 session.Stop();
             }
             FakeVtScreen screen = new FakeVtScreen(40, 10, DisplayWidth.Measure);
             screen.Feed(writer.ToString());
             Assert.Equal("WARNING: Continue?", screen.Row(0));
             Assert.StartsWith("Build", screen.Row(1));
-            Assert.Contains("100%", screen.Row(1));
+            Assert.Contains("4/4", screen.Row(1));
             Assert.Equal("second row", screen.Row(2));
             Assert.Equal(string.Empty, screen.Row(3));
         }
