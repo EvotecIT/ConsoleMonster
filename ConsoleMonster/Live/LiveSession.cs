@@ -397,13 +397,22 @@ namespace ConsoleMonster.Live {
             return true;
         }
 
-        // Widget and log updates obey MaxQueuedEvents; console writes and the session's own control events ($frame, $flush,
-        // $checkpoint, $console, markers) are always admitted, so a full queue cannot strand a pause or a waiting writer.
+        // Widget and log updates obey MaxQueuedEvents, whatever their ids (widgets such as $progress included); console
+        // writes and the session's own control events ($frame, $flush, $checkpoint, $console, markers) are always admitted,
+        // so a full queue cannot strand a pause or a waiting writer.
         private bool QueueFull(LiveEvent liveEvent) {
             int limit = _options.MaxQueuedEvents;
             if (limit <= 0 || Volatile.Read(ref _queued) < limit) { return false; }
-            string id = liveEvent.WidgetId ?? string.Empty;
-            return id == "$log" || !id.StartsWith("$", StringComparison.Ordinal);
+            switch (liveEvent.WidgetId) {
+                case "$frame":
+                case "$flush":
+                case "$checkpoint":
+                case "$console":
+                case MarkerTarget:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         private void Error(Exception error) => Volatile.Write(ref _lastError, error);

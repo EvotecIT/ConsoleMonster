@@ -95,11 +95,13 @@ namespace ConsoleMonster.Tests.Live {
             }
         }
 
-        [Fact]
-        public async Task FullQueue_RejectsAndCountsLaterUpdatesUntilTheRendererCatchesUp() {
+        [Theory]
+        [InlineData("work")]
+        [InlineData("$work")] // A registered widget whose id starts with '$' is not a control event.
+        public async Task FullQueue_RejectsAndCountsLaterUpdatesUntilTheRendererCatchesUp(string widgetId) {
             TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             using (ManualResetEventSlim release = new ManualResetEventSlim()) {
-                FakeTarget target = new FakeTarget();
+                FakeTarget target = new FakeTarget(widgetId);
                 target.Applying = e => {
                     if (e.Key == "block") {
                         entered.TrySetResult(true);
@@ -110,10 +112,10 @@ namespace ConsoleMonster.Tests.Live {
                 options.MaxQueuedEvents = 100;
                 using (LiveSession session = new LiveSession(target, options)) {
                     session.Start();
-                    session.Post(new LiveEvent("work", "set", "block"));
+                    session.Post(new LiveEvent(widgetId, "set", "block"));
                     try {
                         await Observed(entered.Task);
-                        for (int i = 0; i < 150; i++) { session.Post(new LiveEvent("work", "set", "flood", value: i)); }
+                        for (int i = 0; i < 150; i++) { session.Post(new LiveEvent(widgetId, "set", "flood", value: i)); }
                         Assert.Equal(1 + 100, session.EventsPosted);
                         Assert.Equal(50, session.EventsDropped);
                     } finally { release.Set(); }
