@@ -155,6 +155,29 @@ namespace ConsoleMonster.Tests.Live {
             }
         }
 
+        // A captured line whose publishing fails (here: the session clock throws) must not keep its queue slot.
+        [Fact]
+        public void CapturedLine_ReleasesItsQueueSlotWhenPublishingFails() {
+            int caller = Environment.CurrentManagedThreadId;
+            bool failClock = false;
+            FakeLogTarget log = new FakeLogTarget();
+            LiveSessionOptions options = LiveSessionTests.Options(new FakeOutput(false));
+            options.CaptureConsole = true;
+            options.MaxQueuedEvents = 1;
+            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+            options.Clock = () => Volatile.Read(ref failClock) && Environment.CurrentManagedThreadId == caller ? throw new InvalidOperationException("clock") : watch.Elapsed;
+            using (LiveSession session = new LiveSession(log, options)) {
+                session.Start();
+                Volatile.Write(ref failClock, true);
+                Assert.Throws<InvalidOperationException>(() => Console.WriteLine("lost"));
+                Volatile.Write(ref failClock, false);
+                Console.WriteLine("kept");
+                session.Stop();
+                Assert.Equal(0, session.EventsDropped);
+                Assert.Equal(new[] { "kept" }, log.Events.Select(e => e.Text));
+            }
+        }
+
         private static async Task Observed(Task task) {
             Assert.Same(task, await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))));
             await task;
