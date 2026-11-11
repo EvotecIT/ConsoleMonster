@@ -33,6 +33,9 @@
         <EmbeddedResource Include="..\Website\examples\gallery\**\*.ps1;..\Website\examples\gallery\**\metadata.json"
                           LogicalName="ConsoleMonster.PowerShell.Gallery.$([System.String]::Copy('%(RecursiveDir)').Replace('\', '.').Replace('/', '.'))%(Filename)%(Extension)"
                           WithCulture="false" />
+        <EmbeddedResource Include="ConsoleRunSequential.ps1;ConsoleRunParallel.ps1;ProgressProxy.ps1;HostProxy.ps1" />
+        <EmbeddedResource Include="Formatting/ModuleCleanup.ps1;Formatting/UnixFileName.ps1;Binding/FormatViews.ps1;Interactive/App/CommandAction.ps1" />
+        <EmbeddedResource Include="Recording/RecordScript.ps1" />
         <!-- The PowerShell side of Invoke-ConsolePester, kept as a native script. -->
         <EmbeddedResource Include="Pester\PesterAdapter.ps1" LogicalName="ConsoleMonster.PowerShell.Pester.PesterAdapter.ps1" />
         <EmbeddedResource Include="Gallery/DemoCapture.ps1" LogicalName="ConsoleMonster.PowerShell.Gallery.DemoCapture.ps1" />

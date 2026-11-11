@@ -39,12 +39,14 @@ namespace ConsoleMonster.PowerShell {
             using (Runspace runspace = RunspaceFactory.CreateRunspace(initial)) {
                 runspace.Open();
                 _token.ThrowIfCancellationRequested();
+                // Parse user source inside the original child block, preserving its scope and param() binding.
+                string script = PSScriptResources.Read("Interactive.App.CommandAction.ps1").Replace("__CONSOLE_ACTION_SOURCE__", _source);
                 for (int index = 0; index < Math.Max(1, _context.Rows.Count); index++) {
                     _token.ThrowIfCancellationRequested();
                     string row = _context.Rows.Count == 0 ? PSSerializer.Serialize(null) : ((PSCommandActions.RowData)_context.Rows[index]!).Xml;
                     using (System.Management.Automation.PowerShell pipeline = System.Management.Automation.PowerShell.Create()) {
                         pipeline.Runspace = runspace;
-                        pipeline.AddScript("param($rowXml, $argumentsXml)\n$Row = [System.Management.Automation.PSSerializer]::Deserialize($rowXml)\n$arguments = [System.Management.Automation.PSSerializer]::Deserialize($argumentsXml)\n& {\n" + _source + "\n} $Row @arguments");
+                        pipeline.AddScript(script);
                         pipeline.AddArgument(row).AddArgument(_arguments);
                         using (PSDataCollection<PSObject> output = new PSDataCollection<PSObject>()) {
                             AttachStreams(pipeline, output);

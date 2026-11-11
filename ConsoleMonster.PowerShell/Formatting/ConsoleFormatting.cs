@@ -210,14 +210,8 @@ namespace ConsoleMonster.PowerShell {
                 previous = state.PreviousModuleOnRemove;
             }
             // A closure keeps the module's earlier OnRemove (for example type accelerator cleanup) running after ours.
-            ScriptBlock factory = ScriptBlock.Create("param($__cmPrevious, $__cmOutDefault, $__cmReset) { $__cmProgressCleanup = $true; "
-                + "$__cmFunction = ${function:global:Out-Default}; "
-                + "if ($__cmFunction -and $__cmFunction.ToString().IndexOf('" + Marker + "', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { "
-                + "if ($__cmOutDefault) { Microsoft.PowerShell.Management\\Set-Item -Path 'Function:\\global:Out-Default' -Value $__cmOutDefault } "
-                + "else { Microsoft.PowerShell.Management\\Remove-Item -Path 'Function:\\Out-Default' -Force } }; "
-                + "$__cmReset.Invoke(); "
-                + "if ($__cmPrevious) { & $__cmPrevious @args } }.GetNewClosure()");
-            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.RemoveProgress(state); FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }));
+            ScriptBlock factory = ScriptBlock.Create(PSScriptResources.Read("Formatting.ModuleCleanup.ps1"));
+            System.Collections.ObjectModel.Collection<PSObject> made = factory.Invoke(previous, SavedOutDefault, (Action)(() => { GridViewInstallation.Remove(state); FormatCommandInstallation.RemoveProgress(state); FormatCommandInstallation.Remove(state); FormatCommandInstallation.RemoveHelp(state); state.Reset(); }), Marker);
             if (made.Count > 0 && made[0]?.BaseObject is ScriptBlock cleanup) {
                 state.PreviousModuleOnRemove = previous;
                 state.ProgressCleanupHook = cleanup;
@@ -238,7 +232,7 @@ namespace ConsoleMonster.PowerShell {
 
         // The Out-Default shim: everything goes through Out-ConsoleDefault while ConsoleMonster is loaded, and straight to
         // PowerShell's Out-Default if the module was removed.
-        internal static string ShimScript => FormatCommandInstallation.ReadResource("Formatting.OutDefaultProxy.ps1");
+        internal static string ShimScript => PSScriptResources.Read("Formatting.OutDefaultProxy.ps1");
 
         internal static IReadOnlyCollection<ConsoleViewRegistration> Registrations {
             get {
