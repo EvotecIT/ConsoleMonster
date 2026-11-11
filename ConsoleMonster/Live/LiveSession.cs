@@ -282,7 +282,7 @@ namespace ConsoleMonster.Live {
             }
             try {
                 if (QueueFull(liveEvent)) { return false; }
-                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear" || liveEvent.Operation == "state") {
+                if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear" || liveEvent.Operation == "state" || liveEvent.Operation == "insert") {
                     lock (_updateGate) {
                         if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") { ProjectContent(liveEvent); }
                         ProjectCellCount(liveEvent);
