@@ -83,18 +83,31 @@ namespace ConsoleMonster.Widgets {
                     new TextSpan(branch, context.Style(ThemeToken.Subtle)),
                     new TextSpan(context.Glyphs.StatusMarker(item.Status) + " ", context.Style(item.Status))
                 };
-                spans.AddRange(context.Markup(item.Label).Lines[0].WithBaseStyle(context.Style(item.Status == StatusKind.Pending ? ThemeToken.Muted : ThemeToken.Text)));
+                StyledLine label = context.Markup(item.Label).Lines[0].WithBaseStyle(context.Style(item.Status == StatusKind.Pending ? ThemeToken.Muted : ThemeToken.Text));
+                spans.AddRange(label);
                 string itemDetail = LedgerDetail(item, path, context) ?? string.Empty;
                 if (folded) {
                     itemDetail = Folded(children!, context) + (itemDetail.Length == 0 ? string.Empty : Separator(context) + itemDetail);
                 }
-                StyledLine row = TextWrapper.Truncate(new StyledLine(spans), Math.Max(1, width - (itemDetail.Length > 0 ? DisplayWidth.Measure(itemDetail) + 1 : 0)), context.Ellipsis);
-                result.Add(new LedgerLine(row, itemDetail, item.Status, phase));
+                StyledLine full = new StyledLine(spans);
+                int room = width - (itemDetail.Length > 0 ? DisplayWidth.Measure(itemDetail) + 1 : 0);
+                if (itemDetail.Length == 0 || room - (full.Width - label.Width) >= Math.Min(label.Width, MinimumItemLabel)) {
+                    result.Add(new LedgerLine(TextWrapper.Truncate(full, Math.Max(1, room), context.Ellipsis), itemDetail, item.Status, phase));
+                } else {
+                    // The result would leave the label unreadable: it goes on the rows below, as a phase's detail does.
+                    result.Add(new LedgerLine(TextWrapper.Truncate(full, width, context.Ellipsis), string.Empty, item.Status, phase));
+                    foreach (StyledLine line in TextWrapper.Wrap(StyledLine.From(itemDetail), Math.Max(1, width - indent))) {
+                        result.Add(new LedgerLine(StyledLine.Empty, line.PlainText, item.Status, phase));
+                    }
+                }
                 if (hasChildren && !folded && owner.IndexOf(ItemSeparator) < 0) {
                     ItemLines(result, children!, path, Math.Min(indent + DisplayWidth.Measure(branch), Math.Max(0, width - 4)), width, phase, context, collapse);
                 }
             }
         }
+
+        // The fewest label cells an item row keeps beside its result before the result moves to the row below.
+        private const int MinimumItemLabel = 8;
 
         private static bool IsFinished(StatusKind status) => status != StatusKind.Running && status != StatusKind.Pending;
 
@@ -199,9 +212,12 @@ namespace ConsoleMonster.Widgets {
             }
             for (int i = start[top]; i < start[bottom + 1]; i++) { shown.Add(i); }
             if (shown.Count > budget) {
-                // Too many rows even so: keep the frontier phase's rows first, then pinned running rows.
+                // Too many rows even so: keep the frontier phase's rows first, then pinned running rows. A frontier phase
+                // taller than the area gives its last row to the next phase's row, so what comes next stays in view.
                 List<int> keep = new List<int>();
-                for (int i = start[anchor]; i < start[anchor + 1] && keep.Count < rows; i++) { keep.Add(i); }
+                bool next = anchor + 1 < count && rows > 1 && Lines(anchor) >= rows;
+                for (int i = start[anchor]; i < start[anchor + 1] && keep.Count < (next ? rows - 1 : rows); i++) { keep.Add(i); }
+                if (next) { keep.Add(start[anchor + 1]); }
                 foreach (int index in shown) {
                     if (keep.Count >= rows) break;
                     if (!keep.Contains(index) && lines[index].Status == StatusKind.Running) { keep.Add(index); }

@@ -152,6 +152,34 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.EndsWith("signed · " + NumberFormat.Duration(TimeSpan.FromSeconds(5)), ItemRow(30));
         }
 
+        // A long item result must not cut the item's label down to nothing and then draw over it: it goes below.
+        [Fact]
+        public void AnItemResultTooWideToShareTheRowGoesBelowItsLabel() {
+            var phases = new Phases { StepCounter = true };
+            phases.Set("sign", StatusKind.Running, "Sign");
+            phases.SetItem("sign", "p1", StatusKind.Pass, "Package one", "timestamped by fallback");
+            CellBuffer buffer = new CellBuffer(40, 4);
+            phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(40, 4, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
+            string[] rows = Enumerable.Range(0, buffer.Height).Select(y => buffer.GetRowText(y).TrimEnd()).ToArray();
+            int label = Array.FindIndex(rows, row => row.Contains("Package one"));
+            Assert.True(label > 0, "The item label stays readable.");
+            Assert.EndsWith("timestamped by fallback", rows[label + 1]);
+        }
+
+        // A running step with more running items than the area holds still leaves the next step in view.
+        [Fact]
+        public void AFrontierStepTallerThanTheAreaStillShowsTheNextStep() {
+            var phases = new Phases { StepCounter = true };
+            phases.Set("build", StatusKind.Pass, "Build").Set("sign", StatusKind.Running, "Sign").Set("pack", StatusKind.Pending, "Pack");
+            for (int i = 1; i <= 20; i++) { phases.SetItem("sign", "p" + i, StatusKind.Running, "Package " + i); }
+            CellBuffer buffer = new CellBuffer(40, 6);
+            phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(40, 6, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
+            string[] rows = Enumerable.Range(0, buffer.Height).Select(y => buffer.GetRowText(y).TrimEnd()).ToArray();
+            Assert.Contains("Sign", rows[0]);
+            Assert.Contains("[03/03]", rows[5]);
+            Assert.Contains("Package 4", rows[4]);
+        }
+
         // Item paths join keys with U+001F, so a key containing it would alias another owner ("p\u001fa" as a phase and
         // item "a" of phase "p" would share one item list).
         [Fact]
