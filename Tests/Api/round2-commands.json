@@ -1,6 +1,6 @@
 {
   "BaselineCount": 144,
-  "ExpectedCount": 113,
+  "ExpectedCount": 118,
   "Commands": [
     "Add-ConsoleRecordingMarker",
     "Assert-ConsoleOutput",
@@ -16,7 +16,6 @@
     "Get-ConsoleDemo",
     "Get-ConsoleFormatting",
     "Get-ConsoleSetting",
-    "Import-ConsoleTheme",
     "Invoke-ConsoleDashboard",
     "Invoke-ConsoleHeadless",
     "Invoke-ConsolePester",
@@ -52,8 +51,8 @@
     "New-ConsoleKeyValue",
     "New-ConsoleLanes",
     "New-ConsoleLayoutGrid",
-    "New-ConsoleLogRegion",
     "New-ConsoleLogo",
+    "New-ConsoleLogRegion",
     "New-ConsoleMenu",
     "New-ConsoleMenuItem",
     "New-ConsoleOutline",
@@ -114,7 +113,13 @@
     "Watch-Console",
     "Watch-ConsoleLog",
     "Write-ConsoleLogEntry",
-    "Write-ConsoleText"
+    "Write-ConsoleText",
+    "Add-ConsoleJobSummary",
+    "Use-ConsoleGroup",
+    "Write-ConsoleAnnotation",
+    "Import-ConsoleTheme",
+    "ConvertTo-ConsoleView",
+    "New-ConsoleFacts"
   ],
   "Retired": [
     "Add-ConsoleItem",

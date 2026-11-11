@@ -90,8 +90,8 @@ namespace ConsoleMonster.Tests.Overview {
                     return panelText.TrimStart(' ', '|', '│').StartsWith(label, StringComparison.Ordinal) && panelText.Contains("%");
                 });
                 int[] bars = Enumerable.Range(left, right - left).Where(x =>
-                    glyphs == GlyphTier.Full ? frame[x, y].Glyph == "▆" :
-                    glyphs == GlyphTier.Basic ? frame[x, y].Glyph == "▄" :
+                    glyphs == GlyphTier.Full ? frame[x, y].Glyph == "━" || frame[x, y].Glyph == "╸" || frame[x, y].Glyph == "─" :
+                    glyphs == GlyphTier.Basic ? frame[x, y].Glyph == "═" || frame[x, y].Glyph == "─" :
                     frame[x, y].Glyph == "#" || frame[x, y].Glyph == "-").ToArray();
                 Assert.NotEmpty(bars);
                 int percentCell = Assert.Single(Enumerable.Range(left, right - left), x => frame[x, y].Glyph == "%");
@@ -114,8 +114,10 @@ namespace ConsoleMonster.Tests.Overview {
             TerminalProfile profile = TerminalProfile.Fixed(60, 24, ColorDepth.TrueColor, GlyphTier.Full);
             RenderContext context = new RenderContext(profile, Theme.Dark);
             CellBuffer buffer = Terminal.Render(new OverviewWidget(snapshot), profile, Theme.Dark);
-            Assert.Contains(Enumerable.Range(0, buffer.Height).SelectMany(y => Enumerable.Range(0, buffer.Width).Select(x => buffer[x, y])),
-                cell => cell.Glyph == "▆" && cell.Style.Color.Equals(context.Style(tone).Color));
+            int barRow = Assert.Single(Enumerable.Range(0, buffer.Height), y => Enumerable.Range(0, buffer.Width).Any(x =>
+                buffer[x, y].Glyph == "━" && buffer[x, y].Style.Color.Equals(context.Style(tone).Color)));
+            Assert.Contains(Enumerable.Range(0, buffer.Width).Select(x => buffer[x, barRow]),
+                cell => cell.Glyph == "─" && cell.Style.Color.Equals(context.Style(ThemeToken.Subtle).Color));
             string text = Terminal.RenderText(new OverviewWidget(snapshot), profile);
             if (used >= 90) { Assert.Contains("critical", text); }
             else if (used >= 80) { Assert.Contains("high", text); }

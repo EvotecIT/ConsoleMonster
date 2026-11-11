@@ -9,6 +9,7 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.TestHost {
     public static partial class Program {
         private static void CancellationRun(string receipt) {
+            using var provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             IntPtr input = GetStdHandle(-10), output = GetStdHandle(-11);
             if (!GetConsoleMode(input, out uint inputBefore) || !GetConsoleMode(output, out uint outputBefore) || !GetConsoleCursorInfo(output, out CursorInfo cursorBefore)) {
                 throw new InvalidOperationException("The isolated child needs a native console.");

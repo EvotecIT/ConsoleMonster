@@ -68,7 +68,7 @@ foreach (var mark in marks)
         mark.Label);
 
 var report = new Rows(
-    new Rule("[bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]"),
+    new Rule("[accent bold]Account hygiene[/] [muted]· adatum.example.test · as of 2026-11-02[/]"),
     table,
     new Columns(new Panel(calendar, "November"), new Panel(upcoming, "Coming up")))
 {

@@ -487,7 +487,7 @@ Dashboard dashboard = Ui.Dashboard()
     {
         c2.Add(body);
     })
-    .Title("[bold]Nightly checks[/]")
+    .Title("[accent bold]Nightly checks[/]")
     .Subtitle("ad.adatum.com forest assessment · 12 targets · 332 rules")
     .ShowElapsed(false)
     .Footer("[muted]Discover · Collect · Evaluate · Report    Ctrl+C stop[/]");

@@ -144,7 +144,9 @@ namespace ConsoleMonster.Widgets {
 
         private static string Marker(StatusKind? status, RenderContext context) => status.HasValue ? context.Glyphs.StatusMarker(status.Value) + " " : string.Empty;
         private static string Literal(string text) => text.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ');
-        private static string EdgeText(FlowEdge edge, RenderContext context) => Marker(edge.Status, context) + Literal(edge.Label ?? string.Empty);
+        // A cut already carries the failure indicator on its connector.
+        private static string EdgeText(FlowEdge edge, RenderContext context) =>
+            (edge.Cut && edge.Status == StatusKind.Fail ? string.Empty : Marker(edge.Status, context)) + Literal(edge.Label ?? string.Empty);
 
         // Wrap only at whitespace. An indivisible word wider than the available space becomes an ellipsis,
         // rather than splitting a word or a grapheme across a box border.

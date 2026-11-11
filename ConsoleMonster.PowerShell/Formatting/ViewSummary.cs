@@ -26,7 +26,7 @@ namespace ConsoleMonster.PowerShell {
             foreach (PSObject? result in output) {
                 // A fact naming an unknown presenter is left out; the view and the other facts still show.
                 try {
-                    ViewFact? fact = Fact(result?.BaseObject);
+                    ViewFact? fact = Fact(result);
                     if (fact != null) { facts.Add(fact); }
                 } catch (ArgumentException) {
                 }
@@ -34,8 +34,15 @@ namespace ConsoleMonster.PowerShell {
             return facts.Count == 0 ? null : new ViewFacts(facts);
         }
 
-        private static ViewFact? Fact(object? value) {
+        internal static ViewFact? Fact(object? value) {
+            PSObject? wrapper = value == null ? null : PSObject.AsPSObject(value);
+            if (wrapper?.BaseObject is PSCustomObject) {
+                var record = new System.Collections.Specialized.OrderedDictionary();
+                foreach (PSPropertyInfo property in wrapper.Properties) record[property.Name] = property.Value;
+                value = record;
+            } else if (value is PSObject wrappedValue) value = wrappedValue.BaseObject;
             if (value == null) { return null; }
+            if (value is ViewFact fact) return fact;
             if (value is string text) { return string.IsNullOrWhiteSpace(text) ? null : new ViewFact(text, presenter: CellPresenters.Text); }
             if (!(value is IDictionary map)) { return new ViewFact(value); }
             object? factValue = Get(map, "Value");

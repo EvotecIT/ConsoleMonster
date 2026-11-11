@@ -649,7 +649,12 @@
     "ConsoleMonster.Styling.ThemeCheckReport",
     "ConsoleMonster.Styling.ThemeCheckResult",
     "ConsoleMonster.Styling.StylingFluent",
-    "ConsoleMonster.Styling.TerminalScheme"
+    "ConsoleMonster.AnnotationLevel",
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider",
+    "ConsoleMonster.Styling.TerminalScheme",
+    "ConsoleMonster.Widgets.ViewFact",
+    "ConsoleMonster.Widgets.ViewFacts"
   ],
   "ConsoleMonster.PowerShell": [
     "ConsoleMonster.PowerShell.AppChoiceCmdlet",
@@ -804,7 +809,12 @@
     "ConsoleMonster.PowerShell.TableConfigurationCmdlet",
     "OnModuleImportAndRemove",
     "ConsoleMonster.PowerShell.CmdletTestConsoleTheme",
-    "ConsoleMonster.PowerShell.CmdletImportConsoleTheme"
+    "ConsoleMonster.PowerShell.CmdletAddConsoleJobSummary",
+    "ConsoleMonster.PowerShell.CmdletUseConsoleGroup",
+    "ConsoleMonster.PowerShell.CmdletWriteConsoleAnnotation",
+    "ConsoleMonster.PowerShell.CmdletImportConsoleTheme",
+    "ConsoleMonster.PowerShell.CmdletConvertToConsoleView",
+    "ConsoleMonster.PowerShell.CmdletNewConsoleFacts"
   ],
   "ConsoleMonster.PowerShell.Display": [
     "ConsoleMonster.PowerShell.Display.ConsoleViewDocument",
@@ -859,5 +869,13 @@
     "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggingExtensions",
     "ConsoleMonster.Extensions.Logging.LogCategoryFormat",
     "ConsoleMonster.Extensions.Logging.LoggingFluent"
+  ],
+  "ConsoleMonster.Extensions.Serilog": [
+    "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSink",
+    "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions",
+    "Serilog.ConsoleMonsterLoggerConfigurationExtensions"
+  ],
+  "ConsoleMonster.Extensions.NLog": [
+    "ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget"
   ]
 }

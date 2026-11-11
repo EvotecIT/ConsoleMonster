@@ -68,6 +68,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void InlineHeightLimitTracksTerminalResize() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             StringTerminalWriter writer = new StringTerminalWriter();
             int height = 50;
             LiveRunOptions options = Options(writer, true, 120, height);
@@ -83,6 +84,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void WarningDetailsAndGroupsSurvivePauseAndCompletion() {
+            using IDisposable provider = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
             StringTerminalWriter writer = new StringTerminalWriter();
             using (LiveRun run = new LiveRun(new[] { new RunItem("one [literal]", "host-1", "Network"), new RunItem("two", "host-2", "Network") }, Options(writer, true))) {
                 Assert.True(run.HandleKey('p')); Assert.True(run.HandleKey('g')); Assert.True(run.HandleKey('?'));
@@ -108,7 +110,7 @@ namespace ConsoleMonster.Tests.Live {
                 RunSnapshot final = run.Complete();
                 Assert.Equal(1, final.Skipped);
                 string output = writer.ToString();
-                Assert.Contains("2/3 * 1 passed * 1 failed", output);
+                Assert.Contains("2/3 | 1 passed | 1 failed", output);
                 Assert.Contains("Problems", output); Assert.Contains("bad endpoint", output);
                 Assert.Empty(Regex.Matches(output, ".{0,30}\u001b.{0,50}").Cast<Match>().Select(m => m.Value.Replace("\u001b", "<ESC>")));
             }
@@ -121,7 +123,7 @@ namespace ConsoleMonster.Tests.Live {
             LiveRunOptions options = Options(writer, false); options.ProgressEvery = 0; options.ProgressInterval = TimeSpan.FromSeconds(2); options.Clock = () => TimeSpan.FromTicks(Interlocked.Read(ref ticks));
             using (LiveRun run = new LiveRun(new[] { new RunItem("slow check") }, options)) {
                 run.Started(0); Interlocked.Exchange(ref ticks, TimeSpan.FromSeconds(3).Ticks);
-                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("0/1 * 0 passed"), 5000));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("0/1 | 0 passed"), 5000));
                 Assert.Equal(0, run.Snapshot().Done);
             }
         }

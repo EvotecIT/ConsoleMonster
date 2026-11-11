@@ -141,7 +141,7 @@ Rows body = new Rows(
 Dashboard dashboard = new Dashboard()
 {
     Content = body,
-    Title = "[bold]Module build[/]",
+    Title = "[accent bold]Module build[/]",
     Subtitle = "Build-Module ConsoleMonster",
     ShowElapsed = false,
     Footer = ("[muted]Prepare · Restore · Build · Test · Docs · Sign · Package · Publish    Ctrl+C "

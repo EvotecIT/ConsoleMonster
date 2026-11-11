@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -118,8 +119,8 @@ namespace ConsoleMonster.Examples.Showcases {
                 }
             }
             return done.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "/" + ParallelRunRecording.TotalRules
-                + " · [fail]✗" + failed.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "[/] [warn]▴"
-                + warned.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "[/]";
+                + " · [fail]✗" + failed.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "[/] [warn]"
+                + GlyphSet.Full.Get(Glyph.Warning) + warned.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + "[/]";
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ public sealed class Distribution : IWidget {
             spans.Add(new TextSpan("  "));
             string middle = bucket.Note != null
                 ? FrameBars.Note(bucket.Note, bucket.State ?? HealthState.Unknown, bar, context)
-                : FrameBars.Line(maximum == 0 ? 0 : (double)bucket.Count / maximum, bar, bucket.State, context);
+                : Widgets.BarDrawer.Markup(bar, maximum == 0 ? 0 : (double)bucket.Count / maximum, role.Length == 0 ? "muted" : role, context, false, Widgets.BarShape.Block);
             spans.AddRange(FrameText.Fit(FrameText.Line(middle, context), bar, false, context));
             spans.Add(new TextSpan("  "));
             string number = FrameText.Number(bucket.Count, context);

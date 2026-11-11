@@ -24,7 +24,7 @@ var servers = new Server[]
 var states = new State[]
 {
     new("Compliant", ThemeToken.Pass),
-    new("Pending reboot", ThemeToken.Info),
+    new("Pending reboot", ThemeToken.Warn),
     new("Missing updates", ThemeToken.Warn),
     new("Failed", ThemeToken.Fail)
 };
@@ -51,7 +51,8 @@ var table = Table.For(attention)
 table.Expand = true;
 
 var report = new Rows(
-    new Rule("[bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of 2026-10-20[/]"),
+    new Rule(("[accent bold]Windows Update compliance[/] [muted]· 2026-10 cumulative · as of "
+        + "2026-10-20[/]")),
     new Panel(byState, $"Fleet · {servers.Length} servers"),
     table,
     new Panel(overdue, "Overdue · unpatched for more than 30 days"))

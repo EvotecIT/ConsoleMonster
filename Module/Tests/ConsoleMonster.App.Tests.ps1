@@ -340,6 +340,13 @@ Describe 'Native console applications' {
         $result.Text | Should -Match 'Find: timeout\s+2 of 2'
     }
 
+    It 'reports the active headless terminal through Get-ConsoleCapability' {
+        $result = Invoke-ConsoleHeadless -Width 71 -Height 9 { Get-ConsoleCapability }
+        $result.Output[0].Width | Should -Be 71
+        $result.Output[0].Height | Should -Be 9
+        $result.Output[0].Glyphs.ToString() | Should -Be Full
+    }
+
     It 'preserves script output records and restores the target after a headless failure' {
         $record = [pscustomobject] @{ Name = 'WEB01'; Count = 42 }
         $result = Invoke-ConsoleHeadless -ArgumentList $record { param($item) $item }

@@ -105,8 +105,10 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
         : failures;
     return Ui.Rows().Gap(1).Content(c2 =>
     {
-        c2.Rule("[bold]Patching the web farm[/]");
-        c2.Markup("40 hosts · throttle 8 · per-host timeout 4s");
+        c2.Rule("[accent bold]Patching the web farm[/]");
+        c2.Facts(facts => facts.Add(40, "hosts")
+            .Add(new ViewFact(8, default, "throttle"))
+            .Add(new ViewFact("4s", default, "per-host timeout")));
         c2.Add(summary);
         c2.Panel(p => p.Title("Host outcomes").Content(c =>
         {

@@ -22,6 +22,21 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal("short", log.Entries.Last().Text);
         }
         [Theory]
+        [InlineData("warn", "[WARN]", "WARN")]
+        [InlineData("err", "[FAIL]", "ERR")]
+        [InlineData("pass", "[OK]", "OK")]
+        [InlineData("skip", "[SKIP]", "SKIP")]
+        public void WordsMarkersReplaceTheFollowingLogLevel(string level, string marker, string plain) {
+            foreach (GlyphTier tier in new[] { GlyphTier.Full, GlyphTier.Basic, GlyphTier.Ascii }) {
+                var log = new LogRegion { ShowElapsed = false };
+                log.Write("record", level);
+                var profile = TerminalProfile.Fixed(40, 4, ColorDepth.None, tier).WithStatusMarkers(StatusMarkerStyle.Words);
+                string text = Terminal.RenderText(log, profile, Theme.Dark).Trim();
+                Assert.Equal((tier == GlyphTier.Ascii ? plain : marker) + " record", text);
+            }
+        }
+
+        [Theory]
         [InlineData("\n")]
         [InlineData("\r\n")]
         [InlineData("\r")]

@@ -313,7 +313,7 @@ namespace ConsoleMonster.Interactive {
                 Rows rows = new Rows();
                 rows.Add(new UiLine(context => new StyledLine(new[] {
                     new TextSpan(InteractiveGlyphs.For(context).Question + " ", context.Style(ThemeToken.Accent).With(TextDecoration.Bold)),
-                    new TextSpan(Pane.Title, context.Style(ThemeToken.Title))
+                    new TextSpan(Pane.Title, context.Style(ThemeToken.Accent).With(TextDecoration.Bold))
                 })));
                 rows.Add(new Padding(Current.Build(frame, _modals.Count == 0), 2, 0, 0, 0));
                 rows.Add(Footer(frame));

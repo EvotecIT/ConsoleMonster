@@ -12,7 +12,7 @@ namespace ConsoleMonster.Sessions {
         private IntPtr _pty;
         private ProcessInformation _process;
         private FileStream? _input;
-        private FileStream? _output;
+        private WindowsPipeReader? _output;
         public WindowsPseudoTerminal(SessionRecordingOptions options) {
             SafeFileHandle? inputRead = null, inputWrite = null, outputRead = null, outputWrite = null;
             IntPtr attributes = IntPtr.Zero;
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Sessions {
                 if (options.Environment.Count > 0) { environment = EnvironmentBlock(options.Environment); }
                 if (!CreateProcessW(null, command, IntPtr.Zero, IntPtr.Zero, false, 0x00080000 | 0x00000400, environment, options.WorkingDirectory, ref startup, out _process)) { throw Error(); }
                 _input = new FileStream(inputWrite, FileAccess.Write, 4096);
-                _output = new FileStream(outputRead, FileAccess.Read, 4096);
+                _output = new WindowsPipeReader(outputRead);
             } catch {
                 inputWrite?.Dispose();
                 outputRead?.Dispose();
@@ -65,7 +65,8 @@ namespace ConsoleMonster.Sessions {
         }
         // Reuse the shared Windows argument encoder. In particular, cmd.exe switches must remain unquoted.
         internal static string Quote(string value) => Interactive.CommandLine.Quote(value, Interactive.CommandStyle.Windows);
-        public int Read(byte[] bytes) => _output!.Read(bytes, 0, bytes.Length);
+        public int Read(byte[] bytes) => _output!.Read(bytes);
+        internal void CancelRead() => _output?.Cancel();
         public void Write(byte[] bytes) { _input!.Write(bytes, 0, bytes.Length); _input.Flush(); }
         public void Resize(int width, int height) { int hr = ResizePseudoConsole(_pty, new Coord(width, height)); if (hr != 0) { throw new Win32Exception(hr); } }
         public bool HasExited => _process.Process != IntPtr.Zero && WaitForSingleObject(_process.Process, 0) == 0;

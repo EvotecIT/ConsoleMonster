@@ -30,7 +30,7 @@ public sealed class DashboardFrameTests {
             var context = Terminal.CreateContext(TestTerminal.Profile(100).WithDensity(density), Styling.Theme.Dark);
             string text = global::ConsoleMonster.Rendering.FrameComposer.RenderBlock(frame, 100, context).ToPlainText();
             string row = Assert.Single(Lines(text), line => line.Contains("x") && line.Contains("y"));
-            Assert.Contains(density == Styling.ThemeDensity.Compact ? "x y" : "x  y", row);
+            Assert.Contains(density == Styling.ThemeDensity.Compact ? "x   y" : "x    y", row);
         }
     }
 
@@ -367,7 +367,7 @@ public sealed class DashboardFrameTests {
         DashboardFrame frame = new DashboardFrame("Targets");
         frame.Meters.Add(Meter.Composition("Targets", 1, warning: 1, failing: 1, unknown: 1, notEvaluated: 1));
         string bar = Lines(Render(frame, 120))[2];
-        Assert.Contains("×", bar); Assert.Contains("▴", bar); Assert.Contains("?", bar);
+        Assert.Contains("×", bar); Assert.Contains("▲", bar); Assert.Contains("?", bar);
         Assert.DoesNotContain("…", bar);
     }
 
@@ -376,7 +376,7 @@ public sealed class DashboardFrameTests {
         Canvas.RenderContext context = ConsoleViewStyle.Apply(Terminal.CreateContext(TerminalProfile.Fixed(80, 24, ColorDepth.None, GlyphTier.Full)));
         Assert.Contains("×", Markup.Strip(FrameBars.Range(0.1, 0.8, 20, HealthState.Failing, null, context)));
         string text = TestTerminal.RenderText(new Distribution().Add("<1h", 10).Add(">1d", 3, HealthState.Warning), 60, 0, GlyphTier.Full, CultureInfo.InvariantCulture);
-        Assert.Contains("▴ 3", text);
+        Assert.Contains("▲ 3", text);
     }
 
     [Fact]
@@ -450,8 +450,8 @@ public sealed class DashboardFrameTests {
             return heading;
         };
         string text = TestTerminal.RenderText(rows, 118, 0, GlyphTier.Full, CultureInfo.InvariantCulture);
-        Assert.Contains("LON-HQ  ▴ 1 pending", text);
-        Assert.Contains("LON-DR  ▴ 1 pending", text);
+        Assert.Contains("LON-HQ  ▲ 1 pending", text);
+        Assert.Contains("LON-DR  ▲ 1 pending", text);
         if (collapsed) Assert.Contains("60 healthy rows not listed", text);
     }
 
@@ -473,6 +473,6 @@ public sealed class DashboardFrameTests {
         frame.Sections.Add(cappedFirst ? growing : capped);
         Render(frame, 120);
         Assert.Equal(30, cappedWidth);
-        Assert.Equal(86, growingWidth);
+        Assert.Equal(84, growingWidth);
     }
 }

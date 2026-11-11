@@ -58,7 +58,7 @@ $server
 │                                                          │
 │                                                          │
 ╰──────────────────────────────────────────────────────────╯
- ↑↓ move  right expand  enter drill  / search  ? keys7f836abbaf496932
+ ↑↓ move  right expand  enter drill  / search  ? keyse3dbe0d55f80ccd5
  Server configuration                             2 members
 $server.Services
 ╭─ Members ────────────────────────────────────────────────╮
@@ -67,7 +67,7 @@ $server.Services
 │                                                          │
 │ Name     Status   Port                                   │
 │ ───────  ───────  ────                                   │
-│ web      Running  443                                    │
+│ web      Running   443                                   │
 │ metrics  Running  9090                                   │
 │                                                          │
 │                                                          │

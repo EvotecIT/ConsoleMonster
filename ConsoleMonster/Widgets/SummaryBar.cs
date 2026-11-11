@@ -204,58 +204,39 @@ namespace ConsoleMonster.Widgets {
         /// <param name="context">The render context.</param>
         /// <returns>The line.</returns>
         public StyledLine Line(int width, RenderContext context) {
-            Style muted = context.Style(ThemeToken.Muted);
-            Style text = context.Style(ThemeToken.Text);
-            List<TextSpan> spans = new List<TextSpan>();
-            int used = 0;
+            if (width <= 0) { return StyledLine.Empty; }
+            ViewFacts facts = new ViewFacts();
             if (Total > 0) {
-                string counts = Value.ToString("N0", context.Culture) + "/" + Total.ToString("N0", context.Culture) + "  " + NumberFormat.Percent(Math.Min(1, Value / Total));
-                spans.Add(new TextSpan(counts, text));
-                used += DisplayWidth.Measure(counts);
+                facts.Add(Value.ToString("N0", context.Culture) + "/" + Total.ToString("N0", context.Culture), label: string.Empty, role: ThemeToken.Text);
+                facts.Add(NumberFormat.Percent(Math.Min(1, Value / Total)), label: string.Empty, role: ThemeToken.Text);
                 TimeSpan? left = Remaining;
-                if (left.HasValue) {
-                    string eta = "  ~" + Localization.WidgetLabels.Format(context.Labels.TimeLeft, NumberFormat.Remaining(left.Value));
-                    spans.Add(new TextSpan(eta, muted));
-                    used += DisplayWidth.Measure(eta);
-                }
+                if (left.HasValue) { facts.Add("~" + Localization.WidgetLabels.Format(context.Labels.TimeLeft, NumberFormat.Remaining(left.Value)), role: ThemeToken.Muted); }
             } else if (Value > 0) {
-                // The total is not known yet: "9 done".
-                string counts = Localization.WidgetLabels.Format(DoneLabel ?? context.Labels.DoneCount, Value.ToString("N0", context.Culture));
-                spans.Add(new TextSpan(counts, text));
-                used += DisplayWidth.Measure(counts);
+                string format = DoneLabel ?? context.Labels.DoneCount;
+                int slot = format.IndexOf("{0}", StringComparison.Ordinal);
+                facts.Add(new ViewFact(Value.ToString("N0", context.Culture),
+                    label: slot >= 0 ? format.Substring(slot + 3).Trim() : format,
+                    caption: slot >= 0 ? format.Substring(0, slot).Trim() : null, role: ThemeToken.Text));
             }
-            string separator = " " + Interactive.InteractiveGlyphs.For(context).Separator + " ";
-            bool first = true;
-            bool allShown = true;
             foreach (Counter counter in _counters) {
-                string symbol = counter.Status.HasValue ? context.Glyphs.StatusSymbol(counter.Status.Value) + " " : string.Empty;
-                string count = counter.Count.ToString("N0", context.Culture);
-                string body = symbol + (counter.Label.IndexOf("{0}", StringComparison.Ordinal) >= 0 ? Localization.WidgetLabels.Format(counter.Label, count) : count + " " + counter.Label);
-                string lead = spans.Count == 0 ? string.Empty : first ? "  " + separator.TrimStart() : "  ";
-                if (used + DisplayWidth.Measure(lead) + DisplayWidth.Measure(body) > width) {
-                    allShown = false;
-                    break;
-                }
-                // Zero counts stay in place, dimmed, so the line keeps its shape as counts appear.
-                Style style = counter.Count == 0 ? muted : counter.Status.HasValue ? context.Style(counter.Status.Value) : text;
-                if (lead.Length > 0) {
-                    spans.Add(new TextSpan(lead, muted));
-                }
-                spans.Add(new TextSpan(body, style));
-                used += DisplayWidth.Measure(lead) + DisplayWidth.Measure(body);
-                first = false;
+                string? symbol = counter.Status.HasValue ? context.Glyphs.StatusSymbol(counter.Status.Value) : null;
+                int slot = counter.Label.IndexOf("{0}", StringComparison.Ordinal);
+                string prefix = slot >= 0 ? counter.Label.Substring(0, slot).Trim() : string.Empty;
+                string caption = (symbol + (symbol != null && prefix.Length > 0 ? " " : string.Empty) + prefix).Trim();
+                facts.Add(new ViewFact(counter.Count.ToString("N0", context.Culture),
+                    label: slot >= 0 ? counter.Label.Substring(slot + 3).Trim() : counter.Label, caption: caption,
+                    role: counter.Count == 0 ? ThemeToken.Muted : counter.Status?.ToToken() ?? ThemeToken.Text));
             }
+            List<StyledLine> lines = facts.Lines(width, context);
+            StyledLine line = lines.Count > 0 ? lines[0] : StyledLine.Empty;
             TimeSpan? elapsed = Effective;
-            if (ShowElapsed && allShown && Total > 0 && Value >= Total && elapsed.HasValue && elapsed.Value > TimeSpan.Zero) {
-                // Finished: how long the run took, after the counters when they all fit and it fits too.
-                string took = "  " + separator.Trim() + " " + Localization.WidgetLabels.Format(context.Labels.TookDuration, NumberFormat.Duration(elapsed.Value));
-                if (used + DisplayWidth.Measure(took) <= width) {
-                    spans.Add(new TextSpan(took, muted));
-                }
+            if (ShowElapsed && lines.Count <= 1 && Total > 0 && Value >= Total && elapsed.HasValue && elapsed.Value > TimeSpan.Zero) {
+                facts.Add(Localization.WidgetLabels.Format(context.Labels.TookDuration, NumberFormat.Duration(elapsed.Value)), role: ThemeToken.Muted);
+                List<StyledLine> finished = facts.Lines(width, context);
+                if (finished.Count == 1) { line = finished[0]; }
             }
-            return TextWrapper.Truncate(new StyledLine(spans), width, context.Ellipsis);
+            return line;
         }
-
 
         private sealed class Counter {
             internal Counter(string label, int count, StatusKind? status) {

@@ -7,6 +7,8 @@
     "ConsoleMonster.PowerShell.Display": "2.4.0",
     "ConsoleMonster.Markdown": "2.4.0",
     "ConsoleMonster.Extensions.Logging": "2.4.0",
+    "ConsoleMonster.Extensions.Serilog": "2.4.0",
+    "ConsoleMonster.Extensions.NLog": "2.4.0",
     "ConsoleMonster.Hosting": "2.4.0",
     "ConsoleMonster.Graphics": "2.4.0",
     "ConsoleMonster.Templates": "2.4.0"

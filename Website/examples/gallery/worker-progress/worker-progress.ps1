@@ -13,7 +13,7 @@ function New-DemoFrame {
     )
 
     New-ConsoleRows -Gap 1 -Content {
-        '[bold]Worker stress dashboard[/] [muted]· worker pool[/]'
+        '[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]'
         New-ConsoleColumns -Content {
             New-ConsolePanel -Title Workers -Content {
                 foreach ($worker in 1..$workerCount) {
@@ -29,10 +29,11 @@ function New-DemoFrame {
             }
             New-ConsolePanel -Title Session -Content {
                 New-ConsoleKeyValue -Markup -InputObject ([ordered] @{
-                        'Updates' = [string] (800 + $Tick * 320)
+                        'Updates' = (800 + $Tick * 320).ToString('N0',
+                            [cultureinfo]::InvariantCulture)
                         'Queue' = [string] (24 - $Tick * 5)
                         'Workers' = '8'
-                        'Dropped' = '[pass]0[/]'
+                        'Dropped' = '[muted]0[/]'
                     })
                 New-ConsoleChart -Title 'updates/s' -Type Sparkline -Values @(120, 180, 160, 240,
                     210, (220 + $Tick * 15))

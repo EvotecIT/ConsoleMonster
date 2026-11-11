@@ -6,10 +6,14 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 // Data: fictional counts already grouped from the System and Application logs of six servers.
-double[] errorsPerHour = { 4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4,
-    6, 5 };
-double[] warningsPerHour = { 12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24,
-    19, 16, 14, 13, 15, 14 };
+double[] errorsPerHour =
+{
+    4, 3, 5, 2, 3, 4, 6, 9, 14, 11, 8, 7, 6, 9, 31, 44, 27, 12, 8, 6, 5, 4, 6, 5
+};
+double[] warningsPerHour =
+{
+    12, 10, 11, 9, 10, 12, 15, 22, 30, 26, 21, 19, 18, 20, 41, 52, 38, 24, 19, 16, 14, 13, 15, 14
+};
 var sources = new SourceCount[]
 {
     new("Service Control Manager", 74),
@@ -49,6 +53,8 @@ var errors = (Sparkline)Ui.Chart()
     .Role(ThemeToken.Fail)
     .Build();
 errors.AddRange(errorsPerHour);
+foreach (int hour in Enumerable.Range(0, 24))
+    errors.Labels.Add($"{hour:00}:00");
 var warnings = (Sparkline)Ui.Chart()
     .Type(ChartType.Sparkline)
     .Title("warnings")
@@ -56,6 +62,8 @@ var warnings = (Sparkline)Ui.Chart()
     .Role(ThemeToken.Warn)
     .Build();
 warnings.AddRange(warningsPerHour);
+foreach (int hour in Enumerable.Range(0, 24))
+    warnings.Labels.Add($"{hour:00}:00");
 var noisiest = (BarChart)Ui.Chart().Type(ChartType.Bar).Build();
 foreach (var source in sources)
     noisiest.Add(source.Source, source.Errors);
@@ -75,9 +83,11 @@ var criticalTable = Ui.Table(critical)
     .Expand();
 var report = Ui.Rows().Gap(1).Content(c3 =>
 {
-    c3.Rule("[bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]");
-    c3.Markup(($"[fail]{critical.Length} critical[/]   [warn]{errorTotal} errors[/]   [muted]"
-        + $"{warningTotal} warnings · busiest hour {peak:00}:00[/]"));
+    c3.Rule("[accent bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]");
+    c3.Facts(facts => facts.Add(critical.Length, "critical", ThemeToken.Critical)
+        .Add(errorTotal, "errors", ThemeToken.Fail)
+        .Add(warningTotal, "warnings", ThemeToken.Warn)
+        .Add(new ViewFact($"{peak:00}:00", default, "busiest hour")));
     c3.Columns(columns => columns.Content(c2 =>
     {
         c2.Panel(p => p.Title("Errors per hour").Content(c =>

@@ -227,7 +227,7 @@ namespace ConsoleMonster.Widgets {
                 }
             }
             StatusKind overall = failed > 0 ? StatusKind.Fail : StatusKind.Pass;
-            string marker = context.Glyphs.Tier == GlyphTier.Ascii ? context.Glyphs.StatusSymbol(overall) : context.Glyphs.StatusMarker(overall);
+            string marker = context.Glyphs.StatusSymbol(overall);
             region.Write(0, 0, marker, context.Style(overall));
             string count = _lanes.Count.ToString(CultureInfo.InvariantCulture);
             string text = first.HasValue && last.HasValue
@@ -319,7 +319,7 @@ namespace ConsoleMonster.Widgets {
                 marker = context.Spinner(glyphs.Tier == GlyphTier.Ascii ? 0 : lane.Order);
                 markerStyle = context.Style(ThemeToken.Running);
             } else {
-                marker = glyphs.Tier == GlyphTier.Ascii ? glyphs.StatusSymbol(shown) : glyphs.StatusMarker(shown);
+                marker = glyphs.StatusSymbol(shown);
                 markerStyle = context.Style(shown);
             }
             region.Write(0, y, marker, markerStyle);
@@ -377,35 +377,35 @@ namespace ConsoleMonster.Widgets {
                 total = Math.Max(total, lane.Total);
             }
             // A lane can never count more steps than its total, so a known total reserves every column from the first frame.
-            int totalDigits = total > 0 ? Digits((int)Math.Min(int.MaxValue, Math.Ceiling(total))) : 0;
+            int totalWidth = total > 0 ? CountWidth((int)Math.Min(int.MaxValue, Math.Ceiling(total)), context) : 0;
             return new CountLayout(
-                pass, Resolve(_passColumn, pass, passed, totalDigits),
-                fail, Resolve(_failColumn, fail, failed, totalDigits),
-                warn, Resolve(_warnColumn, warn, warned, totalDigits));
+                pass, Resolve(_passColumn, pass, CountWidth(passed, context), totalWidth),
+                fail, Resolve(_failColumn, fail, CountWidth(failed, context), totalWidth),
+                warn, Resolve(_warnColumn, warn, CountWidth(warned, context), totalWidth));
         }
 
-        private static int Resolve(StatColumn column, string symbol, int widest, int totalDigits) {
-            int symbolWidth = DisplayWidth.Measure(symbol);
-            return column.Resolve(symbolWidth + Digits(widest), symbolWidth, totalDigits > 0 ? symbolWidth + totalDigits : 0);
+        private static int Resolve(StatColumn column, string symbol, int countWidth, int totalWidth) {
+            int symbolWidth = DisplayWidth.Measure(symbol) + 1;
+            return column.Resolve(symbolWidth + countWidth, symbolWidth, totalWidth > 0 ? symbolWidth + totalWidth : 0);
         }
 
-        private static int Digits(int value) => value.ToString(CultureInfo.InvariantCulture).Length;
+        private static int CountWidth(int value, RenderContext context) => DisplayWidth.Measure(value.ToString("N0", context.Culture));
 
         private void DrawCounts(Region region, int x, int y, Lane lane, CountLayout counts, RenderContext context) {
             if (lane.Status == StatusKind.Pending && lane.Value == 0) {
                 return;
             }
             Style muted = context.Style(ThemeToken.Muted);
-            x = DrawCount(region, x, y, counts.PassSymbol, counts.PassWidth, lane.Passed, muted, muted);
-            x = DrawCount(region, x + 1, y, counts.FailSymbol, counts.FailWidth, lane.Failed, lane.Failed > 0 ? context.Style(ThemeToken.Fail) : muted, muted);
+            x = DrawCount(region, x, y, counts.PassSymbol, counts.PassWidth, lane.Passed, muted, context);
+            x = DrawCount(region, x + 1, y, counts.FailSymbol, counts.FailWidth, lane.Failed, lane.Failed > 0 ? context.Style(ThemeToken.Fail) : muted, context);
             int third = CountSkipped ? lane.Skipped : lane.Warned;
-            DrawCount(region, x + 1, y, counts.WarnSymbol, counts.WarnWidth, third, third > 0 ? context.Style(CountSkipped ? ThemeToken.Skip : ThemeToken.Warn) : muted, muted);
+            DrawCount(region, x + 1, y, counts.WarnSymbol, counts.WarnWidth, third, third > 0 ? context.Style(CountSkipped ? ThemeToken.Skip : ThemeToken.Warn) : muted, context);
         }
 
-        private int DrawCount(Region region, int x, int y, string symbol, int width, int value, Style style, Style muted) {
+        private int DrawCount(Region region, int x, int y, string symbol, int width, int value, Style style, RenderContext context) {
             int symbolWidth = DisplayWidth.Measure(symbol);
-            region.Write(x, y, symbol, style, width);
-            StatColumn.Write(region, x + symbolWidth, y, width - symbolWidth, value.ToString(CultureInfo.InvariantCulture), style, CountColumn.Alignment);
+            region.Write(x, y, symbol + " ", style, width);
+            StatColumn.Write(region, x + symbolWidth + 1, y, width - symbolWidth - 1, value.ToString("N0", context.Culture), style, CountColumn.Alignment);
             return x + width;
         }
 

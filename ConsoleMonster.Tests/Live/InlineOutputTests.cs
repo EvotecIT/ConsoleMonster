@@ -113,7 +113,7 @@ namespace ConsoleMonster.Tests.Live {
                 Console.WriteLine("compiling project");
                 session.Post(new LiveEvent("build", "advance", value: 2));
                 session.Post(new LiveEvent("$log", "write", text: "a log line"));
-                SpinWait.SpinUntil(() => writer.ToString().Contains("a log line") && writer.ToString().Contains("50%"), 3000);
+                SpinWait.SpinUntil(() => writer.ToString().Contains("a log line") && writer.ToString().Contains("2/4"), 3000);
                 session.Post(new LiveEvent("build", "advance", value: 2));
                 session.Stop();
             }
@@ -126,7 +126,7 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal("compiling project", rows[0]);
             Assert.Equal("a log line", rows[1]);
             Assert.StartsWith("Build", rows[2]);
-            Assert.Contains("100%", rows[2]);
+            Assert.Contains("4/4", rows[2]);
             Assert.Equal(string.Empty, rows[3]);
         }
 

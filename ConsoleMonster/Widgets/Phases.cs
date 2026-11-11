@@ -156,7 +156,9 @@ namespace ConsoleMonster.Widgets {
         public override Size Measure(Constraints constraints, RenderContext context) {
             if (StepCounter) return LedgerMeasure(constraints, context);
             if (Compact) return new Size(Math.Min(constraints.MaxWidth, ChainLine(constraints.MaxWidth, context).Width), Math.Min(1, constraints.MaxHeight));
-            int lines = Flow(constraints.MaxWidth, context).Count;
+            var strip = StripLayout(constraints.MaxWidth, context);
+            int lines = Flow(constraints.MaxWidth, context, strip.Separator, strip.DetailsBelow).Count
+                + (strip.DetailsBelow ? 1 : 0);
             List<StatusItem>? items = FanOutItems(out _);
             if (items != null) { lines += Math.Min(items.Count, _fanOut); }
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? lines : Math.Min(lines, constraints.MaxHeight));
@@ -166,9 +168,10 @@ namespace ConsoleMonster.Widgets {
         public override void Render(Region region, RenderContext context) {
             if (StepCounter) { LedgerRender(region, context); return; }
             if (Compact) { if (region.Height > 0) { region.Write(0, 0, ChainLine(region.Width, context)); } return; }
-            List<List<StyledLine>> lines = Flow(region.Width, context);
+            var strip = StripLayout(region.Width, context);
+            List<List<StyledLine>> lines = Flow(region.Width, context, strip.Separator, strip.DetailsBelow);
             List<StatusItem>? items = FanOutItems(out int fanOutPhase);
-            string separator = " " + context.Glyphs.Get(Glyph.Chevron) + " ";
+            string separator = strip.Separator;
             Style sepStyle = context.Style(ThemeToken.Subtle);
             int phase = 0, fanOutX = 0;
             for (int row = 0; row < lines.Count && row < region.Height; row++) {
@@ -179,25 +182,53 @@ namespace ConsoleMonster.Widgets {
                     }
                     // Fan-out rows hang under the marker of the phase they belong to.
                     if (phase == fanOutPhase) { fanOutX = x; }
+                    if (strip.DetailsBelow && !string.IsNullOrEmpty(_phases[phase].Detail) && region.Height > 1) {
+                        region.Write(x, 1, _phases[phase].Detail!, context.Style(ThemeToken.Muted));
+                    }
                     x = region.Write(x, row, lines[row][i]);
                 }
             }
             if (items == null) { return; }
             int indent = Math.Max(0, Math.Min(fanOutX, region.Width - 16));
             List<StyledLine> fan = FanOutLines(items, Math.Max(1, region.Width - indent), context);
-            for (int i = 0; i < fan.Count && lines.Count + i < region.Height; i++) {
-                region.Write(indent, lines.Count + i, fan[i]);
+            int fanStart = lines.Count + (strip.DetailsBelow ? 1 : 0);
+            for (int i = 0; i < fan.Count && fanStart + i < region.Height; i++) {
+                region.Write(indent, fanStart + i, fan[i]);
             }
         }
 
-        private List<List<StyledLine>> Flow(int width, RenderContext context) {
+        // Keep every phase and duration: a wide strip puts long details on a second aligned row before wrapping names.
+        private (string Separator, bool DetailsBelow) StripLayout(int width, RenderContext context) {
             string separator = " " + context.Glyphs.Get(Glyph.Chevron) + " ";
+            int inline = 0, stacked = 0;
+            bool details = false;
+            foreach (StatusItem phase in _phases) {
+                StyledLine label = Chip(phase, context, includeDetail: false);
+                inline += Chip(phase, context).Width;
+                stacked += Math.Max(label.Width, DisplayWidth.Measure(phase.Detail ?? string.Empty));
+                details |= !string.IsNullOrEmpty(phase.Detail);
+            }
+            int gaps = Math.Max(0, _phases.Count - 1);
+            if (inline + gaps * DisplayWidth.Measure(separator) <= width) return (separator, false);
+            if (stacked + gaps * DisplayWidth.Measure(separator) <= width) return (separator, details);
+            if (stacked + gaps <= width) return (" ", details);
+            return (separator, false);
+        }
+
+        private List<List<StyledLine>> Flow(int width, RenderContext context, string separator, bool detailsBelow) {
             int separatorWidth = DisplayWidth.Measure(separator);
             List<List<StyledLine>> lines = new List<List<StyledLine>>();
             List<StyledLine> current = new List<StyledLine>();
             int used = 0;
             foreach (StatusItem phase in _phases) {
-                StyledLine chip = Chip(phase, context);
+                StyledLine chip = Chip(phase, context, includeDetail: !detailsBelow);
+                if (detailsBelow) {
+                    int padding = DisplayWidth.Measure(phase.Detail ?? string.Empty) - chip.Width;
+                    if (padding > 0) {
+                        List<TextSpan> spans = new List<TextSpan>(chip) { new TextSpan(new string(' ', padding)) };
+                        chip = new StyledLine(spans);
+                    }
+                }
                 int needed = (current.Count > 0 ? separatorWidth : 0) + chip.Width;
                 if (current.Count > 0 && used + needed > width) {
                     lines.Add(current);
@@ -215,7 +246,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         // Only phase chips animate; fan-out items use the still running marker, so a spinner frame never reads as a line into the name.
-        private static StyledLine Chip(StatusItem phase, RenderContext context, bool animate = true) {
+        private static StyledLine Chip(StatusItem phase, RenderContext context, bool animate = true, bool includeDetail = true) {
             IGlyphSet glyphs = context.Glyphs;
             string marker = animate && phase.Status == StatusKind.Running && glyphs.Tier != GlyphTier.Ascii
                 ? context.Spinner()
@@ -235,7 +266,7 @@ namespace ConsoleMonster.Widgets {
             foreach (TextSpan span in context.Markup(phase.Label).Lines[0]) {
                 spans.Add(new TextSpan(span.Text, labelStyle.Combine(span.Style)));
             }
-            if (!string.IsNullOrEmpty(phase.Detail)) {
+            if (includeDetail && !string.IsNullOrEmpty(phase.Detail)) {
                 spans.Add(new TextSpan(" " + phase.Detail, context.Style(ThemeToken.Muted)));
             }
             return new StyledLine(spans);

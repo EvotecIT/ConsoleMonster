@@ -10,6 +10,7 @@ using ConsoleMonster.PowerShell.Display;
 namespace ConsoleMonster.PowerShell {
     /// <summary>
     /// <para type="synopsis">Starts a bounded run dashboard for work scheduled by your script.</para>
+    /// <para type="description">In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.</para>
     /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para>
     /// </summary>
     /// <example>

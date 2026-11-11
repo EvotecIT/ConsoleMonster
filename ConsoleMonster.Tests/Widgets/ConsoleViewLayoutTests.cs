@@ -51,6 +51,24 @@ public sealed class ConsoleViewLayoutTests {
         Assert.All(text.Split('\n'), line => Assert.InRange(ConsoleMonster.Text.DisplayWidth.Measure(line), 0, 39));
     }
 
+    [Theory]
+    [InlineData(GlyphTier.Full, " · ")]
+    [InlineData(GlyphTier.Basic, " · ")]
+    [InlineData(GlyphTier.Ascii, " | ")]
+    public void FactsAndFrameLegendsShareTierSeparatorsWithoutConfusingLiteralMarkers(GlyphTier tier, string separator) {
+        var profile = TestTerminal.Profile(100, glyphs: tier);
+        var context = Terminal.CreateContext(profile, Theme.Dark);
+        string facts = Terminal.RenderText(new FactFlow("current", "failing"), profile);
+        Assert.Equal("current" + separator + "failing", facts.TrimEnd());
+        string separated = Terminal.RenderText(new TextBlock("current [muted]·[/] failing") { WrapSeparator = " · " }, profile);
+        Assert.Equal("current" + separator + "failing", separated.TrimEnd());
+        var frame = new ConsoleMonster.Frames.DashboardFrame("Replication");
+        frame.Legend.Add(ConsoleMonster.Frames.HealthState.Healthy, "current");
+        frame.Legend.Add("·", "no partnership");
+        string legend = Terminal.RenderText(frame, profile);
+        Assert.Contains(tier == GlyphTier.Ascii ? "| (-) no partnership" : "· (·) no partnership", legend);
+    }
+
     [Fact]
     public void Tree_NaturalWidthBelowTierBoundary_KeepsWideProfileValueColumns() {
         Tree tree = new Tree { ValuePlacement = TreeValuePlacement.AfterLabel, ShowValueHeaders = false };

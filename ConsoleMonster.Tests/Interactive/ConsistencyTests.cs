@@ -23,7 +23,7 @@ namespace ConsoleMonster.Tests.Interactive
     /// started from a menu and prompts, in every glyph tier.
     /// </summary>
     [Collection("Live sessions")]
-    public sealed class ConsistencyTests
+    public sealed partial class ConsistencyTests
     {
         private const int Width = 90;
         private const int Height = 24;

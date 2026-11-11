@@ -17,8 +17,8 @@
 ✓ Free disk space 131          node-03                  3.2s
 ✓ Service health 132           node-04                  4.2s
 ✓ Certificate expiry 133       node-05                  1.2s
-▴ Route reachability 134       node-06     A parti…     2.2s
+▲ Route reachability 134       node-06     A parti…     2.2s
 ✓ Volume permissions 135       node-07                  3.2s
 ✓ Time synchronisation 136     node-08                  4.2s
 ✗ Directory replication 137    node-09     Endpoin…     1.2s
-progress 137/214 · ✓125 ✗4 ▴3 –5 · ETA 1m 37s
+progress 137/214 · ✓ 125 · ✗ 4 · ▲ 3 · – 5 · ETA 1m 37s

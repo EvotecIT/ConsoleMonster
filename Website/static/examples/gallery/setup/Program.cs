@@ -165,7 +165,7 @@ ProgressBar bar = new ProgressBar("Install")
 {
     Total = 40
 };
-Dashboard dashboard = Ui.Dashboard().Title("Installing Toolbox Agent")
+Dashboard dashboard = Ui.Dashboard().Title("[accent bold]Installing Toolbox Agent[/]")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
     .Content(body => body
         .Panel(new Panel(install, "Steps"))

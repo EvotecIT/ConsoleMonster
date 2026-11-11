@@ -132,10 +132,12 @@ namespace ConsoleMonster.Tests {
             var options = WaitingOptions();
             options.SessionTimeout = TimeSpan.FromSeconds(3);
             using var recorder = SessionRecorder.Start(options);
-            recorder.WaitForOutput("READY", TimeSpan.FromSeconds(10));
+            // Readiness is irrelevant here and competes with the same three-second lifetime under startup load.
             Thread.Sleep(TimeSpan.FromMilliseconds(3100));
+            Assert.False(recorder.HasExited);
             Assert.Throws<TimeoutException>(() => recorder.SendInputAfter(TimeSpan.Zero, "late"));
             Assert.True(recorder.HasExited);
+            Assert.NotEmpty(File.ReadAllText(options.Path! + ".json"));
         }
 
         [Fact]

@@ -7,6 +7,22 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Widgets {
     public sealed class PhasesFanOutTests {
+        [Theory]
+        [InlineData(StatusMarkerStyle.Symbols)]
+        [InlineData(StatusMarkerStyle.Words)]
+        public void WideStripKeepsEveryPhaseOnOneRowAndPlacesLongDurationsBeneath(StatusMarkerStyle markers) {
+            var phases = new Phases();
+            string[] names = { "Prepare", "Restore", "Build", "Test", "Docs", "Sign", "Package", "Publish" };
+            for (int i = 0; i < names.Length; i++) phases.Set(names[i], StatusKind.Pass, detail: (20 + i) + ".1s");
+            var profile = TerminalProfile.Fixed(116, 10, ColorDepth.TrueColor, GlyphTier.Full).WithStatusMarkers(markers);
+            string text = Terminal.RenderText(phases, profile, Theme.Dark);
+            string[] lines = text.TrimEnd('\n').Split('\n');
+            Assert.Equal(2, lines.Length);
+            foreach (string name in names) Assert.Contains(name, lines[0]);
+            for (int i = 0; i < names.Length; i++) Assert.Contains((20 + i) + ".1s", lines[1]);
+            Assert.All(lines, line => Assert.InRange(ConsoleMonster.Text.DisplayWidth.Measure(line), 0, 116));
+        }
+
         private static string[] Render(Phases phases, int width) => Terminal.RenderText(
             phases, TerminalProfile.Fixed(width, 40, ColorDepth.None, GlyphTier.Ascii), Theme.Dark).Split('\n').Select(line => line.TrimEnd()).ToArray();
 

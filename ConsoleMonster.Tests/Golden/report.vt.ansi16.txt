@@ -1,7 +1,7 @@
 \e[0;90m──\e[0m \e[0;1mReport\e[0m \e[0;90m──────────────────────────────────────────────────\e[0m
 
 \e[0;90mDomain\e[0m  evotec.xyz\e[0m
-\e[0;90mDNSSEC\e[0m  \e[0;93m▴\e[10G \e[0mnot signed\e[0m
+\e[0;90mDNSSEC\e[0m  \e[0;93m▲\e[10G \e[0mnot signed\e[0m
 
 \e[0m \e[0;1mRecords\e[0m
 \e[0;90m╭───────────────────┬──────┬──────┬────────────────────────╮\e[0m
@@ -19,7 +19,7 @@
 
 \e[0;90m╭─\e[0m \e[0;1mTree\e[0m \e[0;90m────────────────────╮\e[0m \e[0;90m╭─\e[0m \e[0;1mChecks\e[0m \e[0;90m─────────\e[0m \e[0;90m3 items\e[0m \e[0;90m─╮\e[0m
 \e[0;90m│\e[0m root                      \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;92m✓\e[0m\e[34G SPF            \e[0;90m9 lookups\e[0m \e[0;90m│\e[0m
-\e[0;90m│\e[0m \e[0;90m└── \e[0mxyz.  \e[0;90m2 servers\e[0m       \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;93m▴\e[0m\e[34G MTA-STS          \e[0;90mmissing\e[0m \e[0;90m│\e[0m
+\e[0;90m│\e[0m \e[0;90m└── \e[0mxyz.  \e[0;90m2 servers\e[0m       \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;93m▲\e[0m\e[34G MTA-STS          \e[0;90mmissing\e[0m \e[0;90m│\e[0m
 \e[0;90m│\e[0m \e[0;90m    ├── \e[0;92m✓\e[0m\e[12G dana.ns.cloudf…\e[28G \e[0;90m│\e[0m \e[0;90m│\e[0m \e[0;37m–\e[0m\e[34G BIMI                     \e[0;90m│\e[0m
 \e[0;90m│\e[0m \e[0;90m    └── \e[0;91m✗\e[0m\e[12G kirk.ns.cloudf…\e[28G \e[0;90m│\e[0m \e[0;90m│\e[0m                            \e[0;90m│\e[0m
 \e[0;90m╰───────────────────────────╯\e[0m \e[0;90m╰────────────────────────────╯\e[0m

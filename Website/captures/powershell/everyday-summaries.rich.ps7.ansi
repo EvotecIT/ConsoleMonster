@@ -36,7 +36,7 @@ PS> [?1h[6n#[4;5H# [4;5H# A[4;5H# An[4;5H# An [4;5H# An i[4;5H# An in[4
 [0;38;2;75;80;96m│   ├── [0mCHANGELOG.md          62[0;38;2;139;143;154m KB[0m  2026-10-21 12:00[0m
 [0;38;2;75;80;96m│   └── [0mREADME.md             15[0;38;2;139;143;154m KB[0m  2026-10-21 12:00[0m
 [0;38;2;75;80;96m└── [0minstall.ps1                2[0;38;2;139;143;154m KB[0m  2026-10-21 12:00[0m
-[0m 3[0;38;2;139;143;154m folders ·[13G [0m6[0;38;2;139;143;154m files ·[23G [0m1.7[0;38;2;139;143;154m MB ·[32G largest [0mConsoleMonster.dll[0m
+[0m [0;1;38;2;139;143;154m3[0;38;2;139;143;154m folders ·[13G [0;1;38;2;139;143;154m6[0;38;2;139;143;154m files ·[23G [0;1;38;2;139;143;154m1.7 MB[0;38;2;139;143;154m ·[32G largest ConsoleMonster.dll[0m
 
 [6nPS> [?1h[6n
 PS> [?1h[6n#[42;5H# [42;5H# Y[42;5H# Yo[42;5H# You[42;5H# Your[42;5H# Your [42;5H# Your o[42;5H# Your ow[42;5H# Your own[42;5H# Your own [42;5H# Your own t[42;5H# Your own ty[42;5H# Your own typ[42;5H# Your own type[42;5H# Your own types[42;5H# Your own types [42;5H# Your own types c[42;5H# Your own types ca[42;5H# Your own types can[42;5H# Your own types can [42;5H# Your own types can s[42;5H# Your own types can su[42;5H# Your own types can sum[42;5H# Your own types can sum [42;5H# Your own types can sum t[42;5H# Your own types can sum th[42;5H# Your own types can sum the[42;5H# Your own types can sum them[42;5H# Your own types can sum thems[42;5H# Your own types can sum themse[42;5H# Your own types can sum themsel[42;5H# Your own types can sum themselv[42;5H# Your own types can sum themselve[42;5H# Your own types can sum themselves[42;5H# Your own types can sum themselves [42;5H# Your own types can sum themselves u[42;5H# Your own types can sum themselves up[42;5H# Your own types can sum themselves up [42;5H# Your own types can sum themselves up t[42;5H# Your own types can sum themselves up to[42;5H# Your own types can sum themselves up too[42;5H# Your own types can sum themselves up too.
@@ -61,11 +61,11 @@ PS> [?1h[6n#[42;5H# [42;5H# Y[42;5H# Yo[42;5H# You[42;5H# Your[42;5H# Yo
 [?1l[0;38;2;75;80;96m╭────────┬───────────┬───────────────────╮[0m
 [0;38;2;75;80;96m│[0m [0;1mName[0m   [0;38;2;75;80;96m│[0m [0;1mState[0m     [0;38;2;75;80;96m│[0m              [0;1mDisk[0m [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m├────────┼───────────┼───────────────────┤[0m
-[0;38;2;75;80;96m│[0m web-01 [0;38;2;75;80;96m│[0m [0;38;2;74;222;128m✓[13G Running[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆▆▆[0m        120[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m web-02 [0;38;2;75;80;96m│[0m [0;38;2;74;222;128m✓[13G Running[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆▆[0m          96[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m
-[0;38;2;75;80;96m│[0m db-01  [0;38;2;75;80;96m│[0m [0;38;2;161;161;170m–[13G [0;38;2;139;143;154mStopped[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆▆▆▆▆▆▆▆▆▆[0m 410[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m web-01 [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m●[13G Running[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆▆▆[0m        120[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m web-02 [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m●[13G Running[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆▆[0m          96[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m
+[0;38;2;75;80;96m│[0m db-01  [0;38;2;75;80;96m│[0m [0;38;2;161;161;170m–[0;38;2;139;143;154m[13G Stopped[0m [0;38;2;75;80;96m│[0m [0;38;2;96;165;250m▆▆▆▆▆▆▆▆▆▆[0m 410[0;38;2;139;143;154m GB[0m [0;38;2;75;80;96m│[0m
 [0;38;2;75;80;96m╰────────┴───────────┴───────────────────╯[0m
-[0m 3[0;38;2;139;143;154m servers ·[13G [0;1;38;2;251;191;36m1[0;38;2;139;143;154m stopped ·[25G disk [0m626[0;38;2;139;143;154m GB[0m
+[0m [0;1;38;2;139;143;154m3[0;38;2;139;143;154m servers ·[13G [0;1;38;2;251;191;36m1[0;38;2;251;191;36m stopped[0;38;2;139;143;154m ·[25G disk [0;1;38;2;139;143;154m626 GB[0m
 
 [6nPS> [?1h[6n$[70;5H$g[70;5H$gl[70;5H$glo[70;5H$glob[70;5H$globa[70;5H$global[70;5H$global:[70;5H$global:c[70;5H$global:cm[70;5H$global:cmS[70;5H$global:cmSi[70;5H$global:cmSit[70;5H$global:cmSite[70;5H$global:cmSiteD[70;5H$global:cmSiteDo[70;5H$global:cmSiteDon[70;5H$global:cmSiteDone[70;5H$global:cmSiteDone [70;5H$global:cmSiteDone =[70;5H$global:cmSiteDone = [70;5H$global:cmSiteDone = $[70;5H$global:cmSiteDone = $t[70;5H$global:cmSiteDone = $tr[70;5H$global:cmSiteDone = $tru[70;5H$global:cmSiteDone = $true
 [?1l[6n[1A[2KPS> [?1h[6ne[70;5Hex[70;5Hexi[70;5Hexit

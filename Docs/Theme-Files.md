@@ -142,7 +142,7 @@ unboxed table and list gaps from two cells to one, removes default horizontal pa
 gaps between framed layout tiles. A one-cell default gap between unframed children stays one; larger default
 gaps shrink by one. Explicit padding, gaps and column gaps stay as authored. `Set-ConsoleSetting Density Compact`
 or `CONSOLEMONSTER_DENSITY=compact` overrides the theme; C# uses `TerminalProfile.WithDensity`.
-`StatusMarkers` is `Symbols` (✓ ✗ ▴) or `Words` (`[OK]` `[FAIL]` `[WARN]` at every glyph tier). `Background` is the
+`StatusMarkers` is `Symbols` (✓ ✗ ▲) or `Words` (`[OK]` `[FAIL]` `[WARN]` at every glyph tier). `Background` is the
 background the theme is made for, which `Export-ConsoleFrame` uses for the page. Omitted fields inherit from
 `BaseTheme`; the `Light` presets are made for a light background. Exports write version `2` only when the style
 differs from the default, so existing version `1` files stay as they are. `BaseTheme` can be `Dark`, `Light`,

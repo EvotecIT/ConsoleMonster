@@ -34,6 +34,7 @@ namespace ConsoleMonster.PowerShell.Pester {
 
         /// <summary>Runs Pester once on the owning pipeline thread, preserving its native result and exit policy.</summary>
         public void Run() {
+            using var annotations = new AnnotationBatch(text => HostOutput.WriteHostLine(_source, text));
             TerminalProfile profile = Terminal.GetCurrentProfile();
             bool stream = HostOutput.UseHost(_source, profile) || profile.Mode != OutputMode.Interactive;
             TestRun run = new TestRun();
@@ -53,8 +54,9 @@ namespace ConsoleMonster.PowerShell.Pester {
             };
             bridge.OnContainer = () => _session?.Invalidate();
             bridge.OnFailure = record => {
+                annotations.Error(record.Message ?? "Test failed", record.Name, record.File, record.Line);
                 if (stream && bridge.UsedAdapter && !quiet) {
-                    HostOutput.WriteHostLine(_source, TestRunText.FailureLine(record, glyphs));
+                    ContinuousIntegration.WriteLog(TestRunText.FailureLine(record, glyphs), text => HostOutput.WriteHostLine(_source, text));
                 }
             };
 
@@ -76,6 +78,16 @@ namespace ConsoleMonster.PowerShell.Pester {
 
             run.Finished();
             TestRunSnapshot snapshot = run.Snapshot();
+            annotations.Dispose();
+            if (!_options.NoJobSummary && ContinuousIntegration.Provider != ContinuousIntegrationProvider.None) {
+                try {
+                    string markdown = MarkdownExportBridge.Widget(new TestRunSummary(snapshot) { MaxFailures = int.MaxValue }, new ExportOptions(), false);
+                    ContinuousIntegration.AddSummary(markdown, text => HostOutput.WriteHostLine(_source, text));
+                } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) {
+                    // Reporting cannot replace Pester's result, throw or exit policy.
+                    _source.WriteWarning("The CI job summary could not be written: " + ex.Message);
+                }
+            }
             if (!quiet) {
                 if (stream) {
                     HostOutput.WriteHostLine(_source, TestRunText.SummaryLine(snapshot, glyphs));

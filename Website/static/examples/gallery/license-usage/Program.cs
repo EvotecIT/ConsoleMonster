@@ -53,7 +53,8 @@ var table = Table.For(usage)
 table.Expand = true;
 
 var report = new Rows(
-    new Rule("[bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]"),
+    new Rule(
+        "[accent bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]"),
     new Columns(new Panel(bars, "Assigned of purchased"), new Panel(savings, "Reclaim first")),
     table,
     new TextBlock(

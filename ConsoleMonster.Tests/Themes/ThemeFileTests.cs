@@ -107,6 +107,7 @@ namespace ConsoleMonster.Tests.Themes {
             }
             FormatException error = Assert.Throws<FormatException>(() => ThemeFile.Import(data));
             Assert.Contains(location, error.Message);
+            if (problem == "preset") { Assert.Contains("Terminal", error.Message); }
         }
 
         [Theory]

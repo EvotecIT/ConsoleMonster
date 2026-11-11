@@ -36,7 +36,7 @@ IWidget Frame(int tick)
         lines.Add(new TextBlock("[muted]" + time + "[/] [" + roles[level] + "]" + labels[level]
             .PadRight(4) + "[/]  " + message));
     return new Rows(
-        new TextBlock("[bold]Application log[/] [muted]· worker events[/]"),
+        new TextBlock("[accent bold]Application log[/] [muted]· worker events[/]"),
         new Panel() { Title = "./logs/worker.log", Content = lines },
         new TextBlock("[muted]"
             + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
@@ -72,5 +72,5 @@ LogViewport log = new LogViewport("worker.log") { ShowElapsed = false, Height = 
 foreach ((_, string level, string message) in events)
     log.Write(message, level);
 ConsoleApp.Run(new Rows(
-    new TextBlock("[bold]Application log[/] [muted]· read the run back[/]"),
+    new TextBlock("[accent bold]Application log[/] [muted]· read the run back[/]"),
     log));

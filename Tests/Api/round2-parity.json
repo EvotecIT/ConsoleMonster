@@ -2745,6 +2745,26 @@
           "Static": false
         },
         {
+          "Parameter": "NoJobSummary",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpType": "ConsoleMonster.PowerShell.Pester.ConsolePesterOptions",
+          "Member": "NoJobSummary",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "NoLive",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -5041,6 +5061,26 @@
           "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Labels",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "Labels",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
           "Static": false
         }
       ]
@@ -16268,7 +16308,7 @@
           "Argument": "save",
           "CSharpTypeName": "System.Boolean",
           "Conversion": "Identity",
-          "Reason": "The chosen preset, catalogue name or file path is stored as the Theme setting; accessible choices keep the · accessible suffix and -Save writes settings.json."
+          "Reason": "The chosen preset, catalogue name or file path is stored as the Theme setting; accessible choices keep the \u00b7 accessible suffix and -Save writes settings.json."
         },
         {
           "Parameter": "Theme",
@@ -24938,6 +24978,217 @@
       ]
     },
     {
+      "Command": "Add-ConsoleJobSummary",
+      "Job": "Add-ConsoleJobSummary",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "AddSummary",
+          "Argument": "widget",
+          "MemberKind": "Method",
+          "Conversion": "WidgetAdaptation",
+          "CSharpTypeName": "ConsoleMonster.Layout.IWidget",
+          "Reason": "Uses the existing automatic view and semantic Markdown exporter before the shared summary transport."
+        }
+      ]
+    },
+    {
+      "Command": "Use-ConsoleGroup",
+      "Job": "Use-ConsoleGroup",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "ScriptBlock",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ScriptBlockCallback",
+          "Reason": "Runs the script on its owning pipeline thread inside the C# group scope, which closes in finally."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Group",
+          "Argument": "title",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
+      "Command": "Write-ConsoleAnnotation",
+      "Job": "Write-ConsoleAnnotation",
+      "CSharpType": "ConsoleMonster.ContinuousIntegration",
+      "Bindings": [
+        {
+          "Parameter": "Column",
+          "ParameterType": "System.Nullable`1[System.Int32]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "column",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int32]"
+        },
+        {
+          "Parameter": "File",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "file",
+          "MemberKind": "Method",
+          "Conversion": "ProviderPath",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "Level",
+          "ParameterType": "ConsoleMonster.AnnotationLevel",
+          "Default": "Error",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "level",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.AnnotationLevel"
+        },
+        {
+          "Parameter": "Line",
+          "ParameterType": "System.Nullable`1[System.Int32]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "line",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int32]"
+        },
+        {
+          "Parameter": "Message",
+          "ParameterType": "System.String",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "message",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.ContinuousIntegration",
+          "Member": "Annotate",
+          "Argument": "title",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String"
+        }
+      ]
+    },
+    {
       "Command": "Import-ConsoleTheme",
       "Job": "Import-ConsoleTheme",
       "CSharpType": "ConsoleMonster.Styling.TerminalScheme",
@@ -25012,6 +25263,95 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineInputPolicy",
           "Reason": "Rejects unsupported pipeline input at the PowerShell boundary."
+        }
+      ]
+    },
+    {
+      "Command": "ConvertTo-ConsoleView",
+      "Job": "ConvertTo-ConsoleView",
+      "CSharpType": "ConsoleMonster.PowerShell.ConsoleHostViews",
+      "Bindings": [
+        {
+          "Parameter": "AsDataFile",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "DraftSerialization",
+          "Reason": "Serializes the sampled columns as a data-only PowerShell view file instead of a registration script."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SampledViewDefinition",
+          "Reason": "Samples at most fifty input objects to draft up to six columns, reusing default-table presenter inference."
+        },
+        {
+          "Parameter": "Register",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "SessionRegistration",
+          "Reason": "Also installs the drafted ConsoleViewRegistration through ConsoleHostViews.Register in the current session."
+        }
+      ]
+    },
+    {
+      "Command": "New-ConsoleFacts",
+      "Job": "New-ConsoleFacts",
+      "CSharpType": "ConsoleMonster.Widgets.ViewFacts",
+      "Bindings": [
+        {
+          "Parameter": "Content",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 1,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ContentBuilder",
+          "Reason": "Evaluates a PowerShell content block, then supplies the collected widget/items to the same container or definition."
+        },
+        {
+          "Parameter": "InputObject",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineCollection",
+          "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
         }
       ]
     }
@@ -25622,7 +25962,7 @@
       "Member": "ProcessEvents",
       "CSharpTypeName": "System.Action`1[ConsoleMonster.Interactive.AppState]",
       "Reason": "Show-ConsoleApp reserves this owning-thread hook for draining its registered callbacks; replacing it would detach the PowerShell callback lifecycle.",
-      "Alternative": "Use New-ConsoleBinding and the inputs’ OnChange/OnClick script blocks.",
+      "Alternative": "Use New-ConsoleBinding and the inputs\u2019 OnChange/OnClick script blocks.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25912,7 +26252,7 @@
       "Member": "Arguments",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "The PowerShell recording adapter constructs safe child-shell arguments from the script; C# hosts can launch a different approved child command.",
-      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25920,7 +26260,7 @@
       "Member": "Environment",
       "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.String]",
       "Reason": "The cmdlet preserves its documented isolated child environment; C# hosts may construct a separate per-child environment map.",
-      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25928,7 +26268,7 @@
       "Member": "WorkingDirectory",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell resolves script/provider paths before recording; C# hosts can specify the native child process working directory.",
-      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -25983,7 +26323,7 @@
       "CSharpType": "ConsoleMonster.TestRuns.TestRunSummary",
       "Member": "ShowFailures",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Controls a custom summary’s failure section; the PowerShell adapter preserves its standard result summary.",
+      "Reason": "Controls a custom summary\u2019s failure section; the PowerShell adapter preserves its standard result summary.",
       "Alternative": "Invoke-ConsolePester owns its consistent final summary; custom C# test hosts can compose a summary widget.",
       "Disposition": "CSharpOnly"
     },
@@ -26031,7 +26371,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "Culture",
       "CSharpTypeName": "System.Globalization.CultureInfo",
-      "Reason": "PowerShell’s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
+      "Reason": "PowerShell\u2019s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -26063,7 +26403,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "MaxNodes",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host’s bounded projection and explicit inspector limits.",
+      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host\u2019s bounded projection and explicit inspector limits.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -26120,7 +26460,7 @@
       "Member": "BasePath",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its current filesystem provider path for source diagnostics; C# hosts choose their own base path.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26128,7 +26468,7 @@
       "Member": "DetailsHint",
       "CSharpTypeName": "System.String",
       "Reason": "The PowerShell adapter generates the native Get-Error hint; C# hosts supply wording for their own error-detail route.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26136,7 +26476,7 @@
       "Member": "Provider",
       "CSharpTypeName": "ConsoleMonster.Views.IConsoleViewProvider",
       "Reason": "Native view providers are a C# extension point; cmdlets use the shared built-in and registered PowerShell view owners.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26144,7 +26484,7 @@
       "Member": "Shape",
       "CSharpTypeName": "ConsoleMonster.Values.ShapeOptions",
       "Reason": "PowerShell owns PSObject shaping and runspace selectors; native C# hosts supply their own ShapeOptions.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26152,14 +26492,14 @@
       "Member": "Sources",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Data.IMemberSource]",
       "Reason": "Native member-source implementations are the AOT/C# extension point; cmdlets install the canonical PSObject source.",
-      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "CompactSummary",
       "CSharpTypeName": "System.Func`1[System.String]",
-      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard’s normal compact summary.",
+      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard\u2019s normal compact summary.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -26167,7 +26507,7 @@
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "MinimumSize",
       "CSharpTypeName": "ConsoleMonster.Layout.Size",
-      "Reason": "Controls an embedded C# dashboard’s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
+      "Reason": "Controls an embedded C# dashboard\u2019s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -26207,8 +26547,8 @@
       "CSharpType": "ConsoleMonster.Widgets.InspectorView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a static inspector’s clock/time zone; PowerShell uses the owning host’s current value presentation.",
-      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
+      "Reason": "A C# host can pin a static inspector\u2019s clock/time zone; PowerShell uses the owning host\u2019s current value presentation.",
+      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26216,7 +26556,7 @@
       "Member": "ShowHeader",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Controls a directly embedded static inspector; PowerShell chooses its header according to the inspector route.",
-      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
+      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26255,7 +26595,7 @@
       "CSharpType": "ConsoleMonster.Widgets.RecordView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a record’s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
+      "Reason": "A C# host can pin a record\u2019s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
       "Alternative": "Use Show-Console -View List and its Property/Depth/ShowEmpty/Culture controls.",
       "Disposition": "CSharpOnly"
     },
@@ -26367,7 +26707,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Content",
       "CSharpTypeName": "System.String",
-      "Reason": "TextBlock stores one string; PowerShell’s canonical text command returns RichText pieces usable in cells as well as block rendering.",
+      "Reason": "TextBlock stores one string; PowerShell\u2019s canonical text command returns RichText pieces usable in cells as well as block rendering.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -26391,7 +26731,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Role",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
-      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style.",
+      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText\u2019s base style.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -27575,7 +27915,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "ActionOutput",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the 'Action output · Alt+PgUp/PgDn scroll' caption (The action output pane's title while idle.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the 'Action output \u00b7 Alt+PgUp/PgDn scroll' caption (The action output pane's title while idle.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.ActionOutput catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -27583,7 +27923,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "ActionRunning",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the 'Action running · {0} cancels' caption (The action output pane's title while an action runs: {0} is the cancel key.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the 'Action running \u00b7 {0} cancels' caption (The action output pane's title while an action runs: {0} is the cancel key.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.ActionRunning catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -28263,7 +28603,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "Loading",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the 'Loading…' caption (Options are loading.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the 'Loading\u2026' caption (Options are loading.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.Loading catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -28631,7 +28971,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "TextAreaCounter",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the '{0} lines · {1} characters' caption (The counter under a multi-line text box: {0} lines, {1} characters.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the '{0} lines \u00b7 {1} characters' caption (The counter under a multi-line text box: {0} lines, {1} characters.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.TextAreaCounter catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -29334,7 +29674,7 @@
   ],
   "SchemaVersion": 2,
   "BaselineCount": 144,
-  "ExpectedCount": 113,
+  "ExpectedCount": 118,
   "ConfigurableRoots": [
     "ConsoleMonster.Capabilities.CapabilityDetector",
     "ConsoleMonster.Changes.BaselineView",
@@ -29549,7 +29889,9 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
-    "ConsoleMonster.Styling.TerminalScheme"
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.Styling.TerminalScheme",
+    "ConsoleMonster.Widgets.ViewFacts"
   ],
   "ConfigurableTypes": [
     "ConsoleMonster.Canvas.Cell",
@@ -29930,7 +30272,12 @@
     "ConsoleMonster.Headless.HeadlessTerminal",
     "ConsoleMonster.Styling.ThemeCheck",
     "ConsoleMonster.Styling.ThemeCheckOptions",
-    "ConsoleMonster.Styling.TerminalScheme"
+    "ConsoleMonster.ContinuousIntegration",
+    "ConsoleMonster.ContinuousIntegrationProvider",
+    "ConsoleMonster.Export.IFrameExportProvider",
+    "ConsoleMonster.Styling.TerminalScheme",
+    "ConsoleMonster.Widgets.ViewFact",
+    "ConsoleMonster.Widgets.ViewFacts"
   ],
   "RelatedBindings": [
     {
@@ -32520,6 +32867,33 @@
       "Command": "New-ConsoleLogRegion",
       "Parameter": "Filter",
       "Reason": "Inside Show-ConsoleApp content -Tag, -Level and -Filter become the LogViewport filter."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Sparkline",
+      "Member": "Labels",
+      "MemberId": "ConsoleMonster.Widgets.Sparkline.Labels",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleChart",
+      "Parameter": "Labels",
+      "Reason": "Point or bucket-edge labels are copied into the selected chart renderer."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.Histogram",
+      "Member": "Labels",
+      "MemberId": "ConsoleMonster.Widgets.Histogram.Labels",
+      "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+      "Command": "New-ConsoleChart",
+      "Parameter": "Labels",
+      "Reason": "Point or bucket-edge labels are copied into the selected chart renderer."
+    },
+    {
+      "CSharpType": "ConsoleMonster.Widgets.ViewFacts",
+      "Member": "Facts",
+      "MemberId": "ConsoleMonster.Widgets.ViewFacts.Facts",
+      "CSharpTypeName": "System.Collections.Generic.List`1[ConsoleMonster.Widgets.ViewFact]",
+      "Command": "New-ConsoleFacts",
+      "Parameter": "InputObject",
+      "Reason": "Fact records supply values, labels, captions, presenters, roles and line breaks to the shared widget."
     }
   ],
   "Endings": [
@@ -32594,6 +32968,34 @@
         "Profile",
         "Writer"
       ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.Serilog.ConsoleMonsterSinkOptions",
+      "Package": "ConsoleMonster.Extensions.Serilog",
+      "Reason": "Serilog configures its native sink through WriteTo.ConsoleMonster; PowerShell writes through its own stream and log-entry adapters.",
+      "Members": [
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "IncludeCategory",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
+    },
+    {
+      "CSharpType": "ConsoleMonster.Extensions.NLog.ConsoleMonsterTarget",
+      "Package": "ConsoleMonster.Extensions.NLog",
+      "Reason": "NLog configures its native target through LoggingConfiguration or XML; PowerShell writes through its own stream and log-entry adapters.",
+      "Members": [
+        "TimestampFormat",
+        "UseUtcTimestamp",
+        "IncludeCategory",
+        "MaxExceptionLines",
+        "LogRegion",
+        "Profile",
+        "Writer"
+      ]
     }
   ],
   "IntegrationOperations": [
@@ -32606,13 +33008,18 @@
       "CSharpType": "ConsoleMonster.Extensions.Logging.ConsoleMonsterLoggingExtensions",
       "Member": "AddConsoleMonster",
       "Reason": "The .NET logging provider is configured through its logging builder; PowerShell launches the same project with dotnet."
+    },
+    {
+      "CSharpType": "Serilog.ConsoleMonsterLoggerConfigurationExtensions",
+      "Member": "ConsoleMonster",
+      "Reason": "Serilog registers the native sink through LoggerSinkConfiguration; PowerShell launches the same .NET project with dotnet."
     }
   ],
   "FluentExceptions": [
     {
       "Kind": "DelegateProperty",
       "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = …)",
+      "Pattern": ".Configure(item => item.{Member} = \u2026)",
       "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
     }
   ],
@@ -32625,8 +33032,8 @@
       "IsPrefix": "A Boolean IsX property keeps its .NET name; the fluent setter is X()/X(bool). This is a mechanical grammar exception, not an alias."
     },
     "Content": {
-      "PowerShellPattern": "-Content { … }",
-      "FluentPattern": ".Content(c => { … })",
+      "PowerShellPattern": "-Content { \u2026 }",
+      "FluentPattern": ".Content(c => { \u2026 })",
       "BuilderType": "ConsoleMonster.Layout.ContentBuilder",
       "Bindings": [
         {
@@ -33247,6 +33654,16 @@
           "InitializerTypes": [
             "ConsoleMonster.Frames.DashboardFrame"
           ]
+        },
+        {
+          "Command": "New-ConsoleFacts",
+          "Noun": "Facts",
+          "ReturnType": "ConsoleMonster.Widgets.ViewFacts",
+          "ContentBuilder": true,
+          "Pattern": "Ui.Facts()",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.ViewFacts"
+          ]
         }
       ],
       "NonWidgetCommands": [
@@ -33520,7 +33937,7 @@
         }
       ],
       "Pattern": "Ui.{Noun}()",
-      "NestedPattern": "c.{Noun}({Parameter} => …)",
+      "NestedPattern": "c.{Noun}({Parameter} => \u2026)",
       "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
         {
@@ -33570,6 +33987,10 @@
         {
           "CSharpType": "ConsoleMonster.Frames.FrameSection",
           "Reason": "A dashboard frame's attention item or section, the same record New-ConsoleDashboardFrame takes; the frame lays it out."
+        },
+        {
+          "CSharpType": "ConsoleMonster.Widgets.ViewFact",
+          "Reason": "Immutable fact data supplies the value, caption, presenter and semantic role to Ui.Facts().Add; the widget itself starts from Ui.Facts()."
         }
       ]
     },

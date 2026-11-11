@@ -25,6 +25,14 @@ namespace SiteFrames.Tests {
             return new Site(Path.Combine(root!.FullName, "Website"));
         }
 
+        // Authoring gate: this catches later changes to complete static demo cells/styles in each supported theme;
+        // component tests cannot observe whole-program composition, and references run the real public programs.
+        [Theory]
+        [InlineData("Dark")]
+        [InlineData("Light")]
+        [InlineData("ColorBlindSafe")]
+        public void StaticGalleryMatchesReviewedCellsAndStyles(string theme) => GalleryReferences.Verify(Repository(), theme);
+
         [Theory]
         [InlineData("assessment")]
         [InlineData("stress")]
@@ -223,12 +231,12 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("worker-progress", "Updates", "2080")]
+        [InlineData("worker-progress", "Updates", "2,080")]
         [InlineData("build-steps", "Package", "complete")]
         [InlineData("log-tail", "Batch complete", "5 / 5")]
         [InlineData("patch-progress", "5 passed", "1 retry needed")]
         [InlineData("backup-runner", "4 passed", "1 recovered on retry")]
-        [InlineData("process-monitor", "CPU 66%", "1768 MiB")]
+        [InlineData("process-monitor", "CPU 66%", "1,768 MiB")]
         public void LiveDriversFinishAndRetainTheirResult(string slug, string expected, string detail) {
             GalleryPage.Demo demo = GalleryPage.Read(Repository()).Single(d => d.Slug == slug);
             var profile = CSharpRunner.Profile(demo.Width, demo.Height, ColorDepth.TrueColor, GlyphTier.Full);

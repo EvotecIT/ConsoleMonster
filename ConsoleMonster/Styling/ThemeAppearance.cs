@@ -4,7 +4,7 @@ using ConsoleMonster.Glyphs;
 namespace ConsoleMonster.Styling {
     /// <summary>How statuses are marked in status columns, lists, headers and messages.</summary>
     public enum StatusMarkerStyle {
-        /// <summary>Symbols: ✓ ✗ ▴ (bracketed words at the ASCII glyph tier).</summary>
+        /// <summary>Symbols: ✓ ✗ ▲ (bracketed words at the ASCII glyph tier).</summary>
         Symbols = 0,
         /// <summary>Bracketed words at every glyph tier: [OK], [FAIL], [WARN]. Easier for screen readers and small symbols.</summary>
         Words

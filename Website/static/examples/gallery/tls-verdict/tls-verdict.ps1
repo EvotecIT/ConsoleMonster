@@ -71,7 +71,7 @@ New-ConsoleRows -Gap 1 {
     New-ConsolePanel -Title 'Connection ledger' {
         $steps | New-ConsoleStatusList -Layout Strip -WidgetId phases -StepCounter
     }
-    New-ConsoleKeyValue -Columns 2 -KeyRole Accent -Content {
+    New-ConsoleKeyValue -Columns 1 -KeyRole Muted -Content {
         foreach ($pair in $context) {
             [pscustomobject] @{ Key = $pair.Key; Value = $pair.Value }
         }
@@ -87,7 +87,7 @@ New-ConsoleRows -Gap 1 {
         New-ConsoleText -Text $(if ($expired) { 'Chain validation failed.' }
         else { 'Chain validation passed.' })
     }
-    New-ConsoleKeyValue -KeyRole $chainStatus -Content {
+    New-ConsoleKeyValue -KeyRole Muted -Content {
         [pscustomobject] @{ Key = 'Cause'
             Value = $(if ($expired) { 'Expired intermediate certificate.' }
             else { 'Trusted root and complete chain.' }) }

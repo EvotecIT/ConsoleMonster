@@ -341,7 +341,7 @@
         $text | Should -Match '112.5, needs 25'
         $text | Should -Match '69.0, needs 25'
         $text | Should -Match 'Pass and warning markers are different'
-        $text | Should -Match 'Critical is not filled'
+        $text | Should -Match 'Critical is filled, unlike ordinary text'
         $text | Should -Not -Match '1.0 / 1|RGB|other checks pass'
         ((Test-ConsoleTheme -Theme ColorBlindSafeDark -Detailed) | Out-String -Width 100) | Should -Match 'Critical is filled'
         (Get-Help Test-ConsoleTheme).Synopsis | Should -Match 'contrast'

@@ -7,12 +7,12 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Presenters {
     /// <summary>
     /// Enum and text values that read as a status (Running, Stopped, Healthy, Failed, Degraded...) shown with a status
-    /// marker and colour, keeping the value's own word: <c>✓ Running</c>, <c>○ Stopped</c>, <c>✗ Failed</c>. Words it does not
-    /// know show as plain text.
+    /// marker and colour, keeping the value's own word: <c>● Running</c>, <c>○ Stopped</c>, <c>✗ Failed</c>. Words it does not
+    /// know show as plain text. Word markers replace recognized status words instead of repeating them.
     /// </summary>
     public sealed class StatusEnumPresenter : ICellPresenter {
         private static readonly Dictionary<string, StatusKind> Words = new Dictionary<string, StatusKind>(StringComparer.OrdinalIgnoreCase) {
-            ["running"] = StatusKind.Pass, ["started"] = StatusKind.Pass, ["enabled"] = StatusKind.Pass, ["online"] = StatusKind.Pass,
+            ["running"] = StatusKind.Running, ["started"] = StatusKind.Pass, ["enabled"] = StatusKind.Pass, ["online"] = StatusKind.Pass,
             ["up"] = StatusKind.Pass, ["healthy"] = StatusKind.Pass, ["ok"] = StatusKind.Pass, ["success"] = StatusKind.Pass,
             ["succeeded"] = StatusKind.Pass, ["completed"] = StatusKind.Pass, ["active"] = StatusKind.Pass, ["connected"] = StatusKind.Pass,
             ["ready"] = StatusKind.Pass, ["passed"] = StatusKind.Pass, ["pass"] = StatusKind.Pass, ["true"] = StatusKind.Pass,
@@ -21,7 +21,7 @@ namespace ConsoleMonster.Presenters {
             ["failed"] = StatusKind.Fail, ["error"] = StatusKind.Fail, ["offline"] = StatusKind.Fail, ["down"] = StatusKind.Fail,
             ["unhealthy"] = StatusKind.Fail, ["critical"] = StatusKind.Fail, ["disconnected"] = StatusKind.Fail, ["fail"] = StatusKind.Fail,
             ["false"] = StatusKind.Fail,
-            ["warning"] = StatusKind.Warn, ["degraded"] = StatusKind.Warn, ["paused"] = StatusKind.Warn, ["pending"] = StatusKind.Warn,
+            ["warning"] = StatusKind.Warn, ["degraded"] = StatusKind.Warn, ["paused"] = StatusKind.Warn, ["pending"] = StatusKind.Pending,
             ["startpending"] = StatusKind.Warn, ["stoppending"] = StatusKind.Warn, ["continuepending"] = StatusKind.Warn,
             ["pausepending"] = StatusKind.Warn, ["suspended"] = StatusKind.Warn, ["unknown"] = StatusKind.Warn,
             // Container, pod and service lifecycle words (Docker, Kubernetes, systemd).
@@ -29,6 +29,9 @@ namespace ConsoleMonster.Presenters {
             ["terminating"] = StatusKind.Warn, ["reloading"] = StatusKind.Warn, ["activating"] = StatusKind.Warn,
             ["deactivating"] = StatusKind.Warn, ["exited"] = StatusKind.Skip, ["created"] = StatusKind.Skip, ["dead"] = StatusKind.Fail,
             ["crashloopbackoff"] = StatusKind.Fail, ["oomkilled"] = StatusKind.Fail, ["imagepullbackoff"] = StatusKind.Fail,
+            // TCP connection states keep the same semantic markers as other lifecycle words.
+            ["established"] = StatusKind.Pass, ["listen"] = StatusKind.Info,
+            ["timewait"] = StatusKind.Skip, ["closewait"] = StatusKind.Skip,
             // Certificate validity and access-control decisions.
             ["valid"] = StatusKind.Pass, ["expiring"] = StatusKind.Warn, ["notyetvalid"] = StatusKind.Warn, ["expired"] = StatusKind.Fail,
             ["allow"] = StatusKind.Pass, ["deny"] = StatusKind.Fail,
@@ -73,7 +76,11 @@ namespace ConsoleMonster.Presenters {
             }
             Style style = context.Render.Style(status);
             string marker = context.Render.Glyphs.StatusMarker(status);
-            return new PresentedValue(new StyledLine(new[] { new TextSpan(marker + " ", style), new TextSpan(text, status == StatusKind.Skip ? context.Render.Style(ThemeToken.Muted) : style) })) { Role = status.ToToken() };
+            List<TextSpan> spans = new List<TextSpan> { new TextSpan(marker, style) };
+            if (!context.Render.Glyphs.MarkersAreWords()) {
+                spans.Add(new TextSpan(" " + text, status == StatusKind.Skip ? context.Render.Style(ThemeToken.Muted) : style));
+            }
+            return new PresentedValue(new StyledLine(spans)) { Role = status.ToToken() };
         }
     }
 }

@@ -13,6 +13,6 @@ Jobs
   ╭───────────┬───────────╮
   │ Name      │ State     │
   ├───────────┼───────────┤
-  │ backup    │ ✓ Running │
+  │ backup    │ ● Running │
   │ inventory │ ✓ Ready   │
   ╰───────────┴───────────╯

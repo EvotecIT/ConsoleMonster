@@ -29,15 +29,10 @@ public sealed class ScoreGauge : IWidget {
     private FactFlow Build(int width, RenderContext context) {
         int cells = Math.Max(1, Width > 0 ? Width : width >= 78 ? 24 : 20);
         double ratio = Maximum > 0 && !double.IsNaN(Value) ? Math.Max(0, Math.Min(1, Value / Maximum)) : 0;
-        // Whole cells keep the fill and track contiguous in real console fonts; a partial block leaves
-        // an unpainted remainder which looks like a gap. The exact supplied score remains beside it.
-        int whole = (int)Math.Round(cells * ratio, MidpointRounding.AwayFromZero);
-        string bar = new string(context.Glyphs.Get(Glyph.BlockFull)[0], whole);
-        int remaining = cells - whole;
         string marker = StatusKinds.TryFromToken(Role, out StatusKind status) ? Markup.Escape(context.Glyphs.StatusSymbol(status)) + " " : string.Empty;
-        string markup = marker + "[strong]" + Value.ToString("0.##", context.Culture) + "[/][muted]/" + Maximum.ToString("0.##", context.Culture)
-            + "[/]  [" + Role.ToString().ToLowerInvariant() + "]" + bar + "[/][subtle]"
-            + new string(context.Glyphs.Get(Glyph.ShadeLight)[0], Math.Max(0, remaining)) + "[/]";
+        string value = Value.ToString("0.##", context.Culture) + (Maximum == 100 ? "%" : "/" + Maximum.ToString("0.##", context.Culture));
+        string bar = BarDrawer.Markup(cells, ratio, (Role == ThemeToken.Pass ? ThemeToken.Muted : Role).ToString().ToLowerInvariant(), context, true, BarShape.Line);
+        string markup = bar + "  " + marker + "[strong]" + value + "[/]";
         List<string> details = new List<string>();
         foreach (KeyValuePair<string, string> part in Parts) {
             if (width < 78 && string.Equals(part.Key, "coverage", StringComparison.OrdinalIgnoreCase)) { continue; }
