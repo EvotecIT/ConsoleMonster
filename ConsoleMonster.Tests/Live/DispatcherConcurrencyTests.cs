@@ -125,6 +125,36 @@ namespace ConsoleMonster.Tests.Live {
                 }
             }
         }
+
+        [Fact]
+        public async Task FullQueue_RejectsAndCountsCapturedConsoleLines() {
+            TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (ManualResetEventSlim release = new ManualResetEventSlim()) {
+                FakeLogTarget log = new FakeLogTarget();
+                log.Applying = e => {
+                    if (e.Text == "block") {
+                        entered.TrySetResult(true);
+                        if (!release.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("Blocked apply watchdog expired."); }
+                    }
+                };
+                LiveSessionOptions options = LiveSessionTests.Options(new FakeOutput(false));
+                options.CaptureConsole = true;
+                options.MaxQueuedEvents = 100;
+                using (LiveSession session = new LiveSession(log, options)) {
+                    session.Start();
+                    try {
+                        Console.WriteLine("block");
+                        await Observed(entered.Task);
+                        for (int i = 0; i < 150; i++) { Console.WriteLine("flood-" + i); }
+                        Assert.Equal(1 + 100, session.EventsPosted);
+                        Assert.Equal(50, session.EventsDropped);
+                    } finally { release.Set(); }
+                    session.Stop();
+                    Assert.Equal(Enumerable.Range(0, 100).Select(i => "flood-" + i), log.Events.Where(e => e.Text != "block").Select(e => e.Text));
+                }
+            }
+        }
+
         private static async Task Observed(Task task) {
             Assert.Same(task, await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))));
             await task;

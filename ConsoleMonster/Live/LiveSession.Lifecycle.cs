@@ -218,8 +218,10 @@ namespace ConsoleMonster.Live {
         }
 
         private void CaptureLine(string line, string level) {
-            // Capture owns its own admission during shutdown, until both partial buffers have been flushed.
-            Enqueue(new LiveEvent("$log", "write", text: line, status: level));
+            // Capture owns its own admission during shutdown, until both partial buffers have been flushed, but its lines
+            // are log updates and obey MaxQueuedEvents like any other.
+            LiveEvent liveEvent = new LiveEvent("$log", "write", text: line, status: level);
+            if (TryReserve(liveEvent)) { Publish(liveEvent); } else { Interlocked.Increment(ref _eventsDropped); }
         }
 
         private void RestoreCapture() {

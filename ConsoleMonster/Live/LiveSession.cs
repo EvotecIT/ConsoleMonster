@@ -280,17 +280,23 @@ namespace ConsoleMonster.Live {
                 if (admission < 0) { return false; }
                 if (Interlocked.CompareExchange(ref _admission, admission + 1, admission) == admission) { break; }
             }
+            bool reserved = false, published = false;
             try {
-                if (QueueFull(liveEvent)) { return false; }
+                if (!(reserved = TryReserve(liveEvent))) { return false; }
                 if (liveEvent.Operation == "set" || liveEvent.Operation == "add" || liveEvent.Operation == "count" || liveEvent.Operation == "clear" || liveEvent.Operation == "state" || liveEvent.Operation == "insert") {
                     lock (_updateGate) {
                         if ((liveEvent.Operation == "set" && liveEvent.Payload is IWidget) || liveEvent.Operation == "clear") { ProjectContent(liveEvent); }
                         ProjectCellCount(liveEvent);
                         ProjectPhaseKey(liveEvent);
-                        Enqueue(liveEvent);
+                        Publish(liveEvent);
                     }
-                } else { Enqueue(liveEvent); }
-            } finally { Interlocked.Decrement(ref _admission); }
+                } else { Publish(liveEvent); }
+                published = true;
+            } finally {
+                // A projection that throws must hand back the slot it reserved.
+                if (reserved && !published) { Interlocked.Decrement(ref _queued); }
+                Interlocked.Decrement(ref _admission);
+            }
             return true;
         }
 
@@ -384,8 +390,8 @@ namespace ConsoleMonster.Live {
             return elapsed < TimeSpan.Zero ? TimeSpan.Zero : elapsed;
         }
 
-        private void Enqueue(LiveEvent liveEvent) {
-            Interlocked.Increment(ref _queued);
+        // Publishes an event whose queue slot TryReserve already counted.
+        private void Publish(LiveEvent liveEvent) {
             _queue.Enqueue(liveEvent.Time == 0 ? liveEvent.WithTime((long)Elapsed.TotalMilliseconds) : liveEvent);
             Interlocked.Increment(ref _eventsPosted);
         }
@@ -397,21 +403,24 @@ namespace ConsoleMonster.Live {
             return true;
         }
 
-        // Widget and log updates obey MaxQueuedEvents, whatever their ids (widgets such as $progress included); console
-        // writes and the session's own control events ($frame, $flush, $checkpoint, $console, markers) are always admitted,
-        // so a full queue cannot strand a pause or a waiting writer.
-        private bool QueueFull(LiveEvent liveEvent) {
+        // Widget and log updates, captured console lines included, obey MaxQueuedEvents, whatever their ids (widgets such
+        // as $progress included); console writes and the session's own control events ($frame, $flush, $checkpoint,
+        // $console, markers) are always admitted, so a full queue cannot strand a pause or a waiting writer. The slot is
+        // counted before the check, so concurrent producers cannot all see room for one more and overfill the queue.
+        private bool TryReserve(LiveEvent liveEvent) {
+            int queued = Interlocked.Increment(ref _queued);
             int limit = _options.MaxQueuedEvents;
-            if (limit <= 0 || Volatile.Read(ref _queued) < limit) { return false; }
+            if (limit <= 0 || queued <= limit) { return true; }
             switch (liveEvent.WidgetId) {
                 case "$frame":
                 case "$flush":
                 case "$checkpoint":
                 case "$console":
                 case MarkerTarget:
-                    return false;
-                default:
                     return true;
+                default:
+                    Interlocked.Decrement(ref _queued);
+                    return false;
             }
         }
 
