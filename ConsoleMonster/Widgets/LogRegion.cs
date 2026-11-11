@@ -153,6 +153,7 @@ namespace ConsoleMonster.Widgets {
                 WriteLiteral(literal.ToString(), level, time, null, tag);
                 return;
             }
+            string original = markup;
             string limited = LimitMarkup(markup, Math.Max(1, Capacity), out int removed);
             if (!ReferenceEquals(limited, markup)) {
                 if (!Markup.Validate(limited, out _)) {
@@ -165,9 +166,12 @@ namespace ConsoleMonster.Widgets {
             }
             if (removed > 0) {
                 // Lines this write pushes straight out of Capacity are gone from the source, but they were still received:
-                // they pass through the region (and its tail model) as empty entries, as they always have.
-                LogEntry gone = new LogEntry(time, Level(level ?? "info"), string.Empty, null, tag);
-                for (int i = 0; i < removed; i++) { Append(gone); }
+                // they pass through the region (and its tail model, whose text filter counts them) as literal entries that
+                // the kept lines evict before this write returns.
+                string[] gone = Markup.Strip(original).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+                for (int i = 0; i < removed; i++) {
+                    Append(new LogEntry(time, Level(level ?? "info"), i < gone.Length ? Limit(gone[i]) : string.Empty, null, tag));
+                }
             }
             string[] lines = Markup.Strip(markup).Split('\n');
             for (int i = 0; i < lines.Length; i++) {
