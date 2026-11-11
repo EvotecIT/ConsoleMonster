@@ -207,18 +207,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // Dot-sourced into the caller's scope: it removes its own variables and restores the caller's $ProgressPreference.
-        private const string SequentialScript = "param($__cmBody, $__cmItem, $__cmQuiet, $__cmOutput)\n"
-            + "$__cmProgress = Get-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore\n"
-            + "$__cmProgressValue = if ($__cmProgress) { $__cmProgress.Value } else { $null }\n"
-            + "$__cmGlobalProgress = $global:ProgressPreference\n"
-            // Script-module functions (Compress-Archive, Install-Module) read the global value, not the caller's scope.
-            + "if ($__cmQuiet) { $ProgressPreference = 'SilentlyContinue'; $global:ProgressPreference = 'SilentlyContinue' }\n"
-            // The dot-sourced block makes the redirection reach native programs inside the body (their stderr lines).
-            + "try { . { , $__cmItem | ForEach-Object -Process $__cmBody } *>&1 | ForEach-Object { $__cmOutput.Add($_) } }\n"
-            + "finally {\n"
-            + "    if ($__cmQuiet) { $global:ProgressPreference = $__cmGlobalProgress; if ($__cmProgress) { $ProgressPreference = $__cmProgressValue } else { Remove-Variable -Name ProgressPreference -Scope 0 -ErrorAction Ignore } }\n"
-            + "    Remove-Variable -Name __cmBody, __cmItem, __cmQuiet, __cmOutput, __cmProgress, __cmProgressValue, __cmGlobalProgress -Scope 0 -ErrorAction Ignore\n"
-            + "}";
+        private static readonly string SequentialScript = PSScriptResources.Read("ConsoleRunSequential.ps1");
 
         // Up to ThrottleLimit items at a time in a runspace pool; completions come back to the pipeline thread.
         private void RunParallel(RunMonitor monitor, List<string> labels, Writer writer, string script, Hashtable usings) {
@@ -353,9 +342,8 @@ namespace ConsoleMonster.PowerShell {
             if (!block.StartsWith("{", StringComparison.Ordinal)) {
                 block = "{" + block + "}";
             }
-            return "param($__cmItem, $__cmUsing)\n"
-                + "foreach ($__cmPair in $__cmUsing.GetEnumerator()) { Set-Variable -Name $__cmPair.Key -Value $__cmPair.Value }\n"
-                + ". { , $__cmItem | ForEach-Object -Process " + block + " } *>&1";
+            // Keep the rewritten body in the wrapper's AST so its scope and parameter binding stay unchanged.
+            return PSScriptResources.Read("ConsoleRunParallel.ps1").Replace("__CONSOLE_RUN_BODY__", block);
         }
 
         // Sorts an item's merged streams: output to the writer, errors as error records (they fail the item), the rest re-emitted.

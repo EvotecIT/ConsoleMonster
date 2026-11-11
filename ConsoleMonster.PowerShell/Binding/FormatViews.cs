@@ -23,7 +23,7 @@ namespace ConsoleMonster.PowerShell.Binding {
         private static readonly TimeSpan MissingViewLifetime = TimeSpan.FromMinutes(1);
         private static readonly Regex Escapes = new Regex("\u001b\\[[0-9;?]*[ -/]*[@-~]|\u001b\\][^\u0007\u001b]*(\u0007|\u001b\\\\)", RegexOptions.Compiled);
 
-        private const string Script = "param($TypeName) $parameters = @{ TypeName = $TypeName; ErrorAction = 'Ignore' }; if ((Get-Command -Name Get-FormatData).Parameters.ContainsKey('PowerShellVersion')) { $parameters.PowerShellVersion = $PSVersionTable.PSVersion }; Get-FormatData @parameters";
+        private static readonly string Script = PSScriptResources.Read("Binding.FormatViews.ps1");
 
         /// <summary>Whether a record's declared types currently supply a native table view in the calling session.</summary>
         internal static bool HasTypedTableView(PSObject item, PSCmdlet cmdlet) {
