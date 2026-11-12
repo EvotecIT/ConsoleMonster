@@ -1,4 +1,4 @@
-Describe 'Everyday formatting defaults' {
+﻿Describe 'Everyday formatting defaults' {
     BeforeAll {
         . (Join-Path $PSScriptRoot 'Support/Invoke-TestChild.ps1')
         $script:ModulePath = Join-Path $PSScriptRoot '../ConsoleMonster.psd1'
@@ -153,30 +153,27 @@ if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'Progress was
             if (-not $windows) { $cases += @{ Name = '-File plain.ps1'; Arguments = @('-NoLogo', '-File', $plain) } }
 
             function Invoke-HostCase([hashtable] $Case, [bool] $Formatting) {
-                $info = [System.Diagnostics.ProcessStartInfo]::new($script:Runtime)
-                if ($Case.Arguments -is [string]) { $info.Arguments = $Case.Arguments }
-                else {
+                if ($Case.Input) {
+                    # .NET Framework sends a UTF-8 BOM down a redirected stdin as soon as the process starts, which turns
+                    # the first command into an unknown '\uFEFFImport-Module'. cmd.exe feeds a BOM-free file instead.
+                    $inputPath = Join-Path $work 'stdin.txt'
+                    [IO.File]::WriteAllText($inputPath, $(if ($Formatting) { "$enable`n" }) + "$($Case.Input)`n", [Text.UTF8Encoding]::new($false))
+                    $info = [System.Diagnostics.ProcessStartInfo]::new($env:ComSpec)
+                    $info.Arguments = '/d /c ""{0}" {1} < "{2}""' -f $script:Runtime, $Case.Arguments, $inputPath
+                } else {
+                    $info = [System.Diagnostics.ProcessStartInfo]::new($script:Runtime)
                     if (-not $Formatting) { $info.ArgumentList.Add('-NoProfile') }
                     foreach ($argument in $Case.Arguments) { $info.ArgumentList.Add($argument) }
                 }
                 if (-not $windows) { $info.Environment['XDG_CONFIG_HOME'] = $work }
                 $info.UseShellExecute = $false
                 $info.CreateNoWindow = $true
-                $info.RedirectStandardInput = $true
                 $info.RedirectStandardOutput = $true
                 $info.RedirectStandardError = $true
                 $process = [System.Diagnostics.Process]::Start($info)
                 try {
                     $stdout = $process.StandardOutput.ReadToEndAsync()
                     $stderr = $process.StandardError.ReadToEndAsync()
-                    # Write raw UTF-8 bytes: Windows PowerShell's StandardInput writer can lead with a BOM, which
-                    # turns the first command into an unknown '﻿Import-Module'.
-                    $stdin = $process.StandardInput.BaseStream
-                    if ($Case.Input) {
-                        $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($(if ($Formatting) { "$enable`n" }) + "$($Case.Input)`n")
-                        $stdin.Write($bytes, 0, $bytes.Length)
-                    }
-                    $stdin.Close()
                     if (-not $process.WaitForExit(120000)) { Stop-TestChildProcess -Process $process; throw "'$($Case.Name)' did not finish." }
                     $process.WaitForExit()
                     if ($Formatting -and $stdout.Result -notmatch 'SHIM=Function') {
