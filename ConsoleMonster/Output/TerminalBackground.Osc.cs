@@ -21,12 +21,31 @@ namespace ConsoleMonster.Output {
             });
         }
 
-        private static TerminalBackgroundInfo? QueryBackground() {
+        /// <summary>
+        /// Queries the background once for output that never reads keys (tables, lists, charts) when the automatic theme
+        /// needs it and no other signal answered. Only on an interactive Unix terminal whose input nobody is reading; the
+        /// exchange is fenced and bounded, so an unanswered query costs at most one short wait per process.
+        /// </summary>
+        /// <returns>Whether this call learned the background.</returns>
+        internal static bool ProbeForOutput() {
+            if (ConsoleMonster.Interop.WindowsConsole.IsWindows || _oscAttempted || TryParseColorFgbg(Environment.GetEnvironmentVariable("COLORFGBG"), out _)) { return false; }
+            bool learned = false;
+            ConsoleInput.BeforeFirstRead(() => {
+                if (_oscAttempted) { return; }
+                _oscAttempted = true;
+                try { _oscBackground = QueryBackground(fence: true); }
+                catch (Exception) { /* Optional detection must never prevent output. */ }
+                learned = _oscBackground != null;
+            });
+            return learned;
+        }
+
+        private static TerminalBackgroundInfo? QueryBackground(bool fence = false) {
             TerminalBackgroundInfo? result = null;
             TerminalColorQuery.Read("\u001b]11;?\u0007", reply => {
                 if (!TryParseOsc11(reply, out TerminalBackgroundInfo info)) { return false; }
                 result = info; return true;
-            }, () => result != null);
+            }, () => result != null, fence);
             return result;
         }
 
@@ -46,7 +65,7 @@ namespace ConsoleMonster.Output {
                 rgb[i] = (byte)(value * 255 / ((1u << (channel.Length * 4)) - 1));
             }
             double luminance = CalculateLuminance(rgb[0], rgb[1], rgb[2]);
-            info = new TerminalBackgroundInfo(luminance > 0.5, true, rgb[0], rgb[1], rgb[2], luminance, "OSC 11", "background queried before console input");
+            info = new TerminalBackgroundInfo(luminance > 0.5, true, rgb[0], rgb[1], rgb[2], luminance, "OSC 11", "background queried from the terminal");
             return true;
         }
     }

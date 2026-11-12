@@ -1,4 +1,5 @@
-"""Run PowerShell on a real Unix terminal; --submissions uses automatic host output."""
+"""Run PowerShell on a real Unix terminal; --submissions uses automatic host output.
+--light-background answers the background query (OSC 11) with white and device attributes (CSI c) as a light terminal does."""
 import errno
 import fcntl
 import os
@@ -14,11 +15,12 @@ runtime, script, output = sys.argv[1:4]
 timeout_seconds = float(sys.argv[4]) if len(sys.argv) > 4 else 30
 width = int(sys.argv[5]) if len(sys.argv) > 5 else 120
 submissions = "--submissions" in sys.argv[6:]
+light_background = "--light-background" in sys.argv[6:]
 input_file = os.open(script, os.O_RDONLY) if submissions else None
 pid, master = pty.fork()
 if pid == 0:
     os.environ.update(TERM="xterm-256color", COLORTERM="truecolor", COLUMNS=str(width), LINES="40")
-    for name in ("CI", "TF_BUILD", "GITHUB_ACTIONS", "GITLAB_CI", "CODEX_CI", "NO_COLOR", "CONSOLEMONSTER_MODE"):
+    for name in ("CI", "TF_BUILD", "GITHUB_ACTIONS", "GITLAB_CI", "CODEX_CI", "NO_COLOR", "CONSOLEMONSTER_MODE", "COLORFGBG", "CONSOLEMONSTER_THEME"):
         os.environ.pop(name, None)
     if submissions:
         os.dup2(input_file, 0)
@@ -44,6 +46,10 @@ try:
             if not chunk:
                 break
             data.extend(chunk)
+            if light_background and b"\x1b]11;?" in chunk:
+                os.write(master, b"\x1b]11;rgb:ffff/ffff/ffff\x07")
+            if light_background and b"\x1b[c" in chunk:
+                os.write(master, b"\x1b[?62;22c")
         done, observed = os.waitpid(pid, os.WNOHANG)
         if done:
             status = observed

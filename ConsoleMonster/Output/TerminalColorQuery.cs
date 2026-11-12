@@ -8,8 +8,10 @@ using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
     // One startup exchange owner for OSC 4/10/11. Call only inside ConsoleInput.BeforeFirstRead.
+    // With fence, a primary device attributes request (CSI c, which every VT terminal answers) follows the query and the
+    // read waits for its reply, so a terminal that ignores the query never leaves a late reply in the input buffer.
     internal static class TerminalColorQuery {
-        internal static void Read(string query, Func<string, bool> consume, Func<bool> complete) {
+        internal static void Read(string query, Func<string, bool> consume, Func<bool> complete, bool fence = false) {
             string? term = Environment.GetEnvironmentVariable("TERM");
             if (WindowsConsole.IsWindows || Console.IsInputRedirected || Console.IsOutputRedirected || string.IsNullOrEmpty(term) || term == "dumb"
                 || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CI")) || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"))
@@ -24,15 +26,22 @@ namespace ConsoleMonster.Output {
                 UnixInputNative.MakeRaw(raw);
                 if (UnixInputNative.SetAttributes(0, 0, raw) != 0) { return; }
                 changed = true;
-                byte[] bytes = Encoding.ASCII.GetBytes(query);
+                // Keys typed ahead belong to whoever reads next; don't mix them with the replies.
+                if (fence && UnixInputNative.Ready(0)) { return; }
+                bool fenced = false;
+                byte[] bytes = Encoding.ASCII.GetBytes(fence ? query + "\u001b[c" : query);
                 using (System.IO.Stream output = Console.OpenStandardOutput()) { output.Write(bytes, 0, bytes.Length); output.Flush(); }
                 Stopwatch budget = Stopwatch.StartNew();
                 byte[] one = new byte[1];
-                while (!complete() && budget.ElapsedMilliseconds < 100 && received.Length < 4096) {
+                while (!(fence ? fenced : complete()) && budget.ElapsedMilliseconds < (fence ? 250 : 100) && received.Length < 4096) {
                     if (!UnixInputNative.Ready(0)) { Thread.Sleep(1); continue; }
                     if (UnixInputNative.Read(0, one, new UIntPtr(1)).ToInt64() != 1) { break; }
                     received.Append((char)one[0]);
                     string text = received.ToString();
+                    if (fence && one[0] == (byte)'c') {
+                        int attributes = text.LastIndexOf("\u001b[?", StringComparison.Ordinal);
+                        if (attributes >= 0) { received.Remove(attributes, text.Length - attributes); fenced = true; continue; }
+                    }
                     int start = text.LastIndexOf("\u001b]", StringComparison.Ordinal);
                     if (start < 0) { continue; }
                     int end = text.IndexOf('\u0007', start), terminator = 1;

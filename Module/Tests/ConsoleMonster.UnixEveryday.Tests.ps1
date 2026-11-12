@@ -59,4 +59,20 @@ Get-Process -Id $PID | Format-Table -Property Id, Handles
         $implicit | Should -Match 'Memory'
         ($text -split '--- explicit')[1] | Should -Match 'Handles'
     }
+
+    It 'asks a light terminal for its background before static output and leaves no reply in the input' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
+        $source = @'
+Import-Module '__MODULE__'
+[pscustomobject]@{ Check = 'SPF'; Status = 'Pass' } | Show-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
+Start-Sleep -Milliseconds 300
+"theme=$([ConsoleMonster.Terminal]::Theme.Name) pending=$([Console]::KeyAvailable)"
+'@
+        $file = Join-Path $TestDrive 'light-table.ps1'
+        $capture = Join-Path $TestDrive 'light-table.ansi'
+        [IO.File]::WriteAllText($file, $source.Replace('__MODULE__', $script:Module.Replace("'", "''")))
+        & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --light-background
+        $LASTEXITCODE | Should -Be 0
+        $text = [IO.File]::ReadAllText($capture)
+        $text | Should -Match 'theme=Light pending=False' -Because $text
+    }
 }
