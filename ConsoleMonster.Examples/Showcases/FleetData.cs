@@ -314,7 +314,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Healthy", "[pass]" + Markup.Escape(check.Expected) + "[/]")
                 .Add("Typical", "about " + check.Seconds.ToString("0.#", CultureInfo.InvariantCulture) + " s per server")
                 .Add("Parameter", "[accent]-Check " + Markup.Escape(check.Id) + "[/]");
-            return new Rows(new TextBlock(Markup.Escape(check.Description)), facts) { Gap = 1 };
+            return new Rows(TextBlock.FromMarkup(Markup.Escape(check.Description)), facts) { Gap = 1 };
         }
 
         /// <summary>The preview of a preset: its scope, checks and options.</summary>
@@ -326,7 +326,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Workers", preset.Parallel.ToString(CultureInfo.InvariantCulture) + " servers at a time")
                 .Add("Report", preset.Format.ToUpperInvariant() + (preset.Notify ? " [muted]· emailed[/]" : string.Empty))
                 .Add("Schedule", Markup.Escape(preset.Schedule));
-            TextBlock checks = new TextBlock("[muted]" + Markup.Escape(string.Join(" · ", preset.Checks.Select(id => Check(id).Name))) + "[/]");
+            TextBlock checks = TextBlock.FromMarkup("[muted]" + Markup.Escape(string.Join(" · ", preset.Checks.Select(id => Check(id).Name))) + "[/]");
             return new Rows(facts, checks) { Gap = 1 };
         }
     }

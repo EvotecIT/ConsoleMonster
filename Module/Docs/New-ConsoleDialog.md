@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoledialog/
 schema: 2.0.0
 ---
 # New-ConsoleDialog
 ## SYNOPSIS
 Creates a typed modal form for the running app's dialog service.
-
-Construction does not read input. AppDialogs.Show hosts the form on the owning application thread and returns DialogResult of AppState through its completion callback.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleDialog [[-Content] <Object>] -Title <string> [-AcceptText <string>] [
 ```
 
 ## DESCRIPTION
-Creates a typed modal form for the running app's dialog service.
-
 Construction does not read input. AppDialogs.Show hosts the form on the owning application thread and returns DialogResult of AppState through its completion callback.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ New-ConsoleDialog -Title Options -InitialFocus Destination -Content { New-Consol
 ```
 
 Define fields for an app-owned dialog.
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleDialog -Title 'Inventory result' -Content { New-ConsoleText 'All checks passed' -Role Pass }
+}
+```
+
+Compose an inventory dialog
 
 ## PARAMETERS
 
@@ -43,7 +48,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: OK
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -59,7 +64,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Cancel
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -91,7 +96,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -123,13 +128,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 64
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Title
-Visible heading.
+Heading displayed in the dialog title bar.
 
 ```yaml
 Type: String
@@ -173,4 +178,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoledialog/](https://consolemonster.dev/powershell/commands/new-consoledialog/)

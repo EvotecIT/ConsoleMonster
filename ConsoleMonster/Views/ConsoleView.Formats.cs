@@ -30,7 +30,7 @@ namespace ConsoleMonster.Views {
             bool json = options.View == ConsoleViewKind.Json;
             if (json) {
                 if (!items.All(item => item is string) || !ValueJson.TryReindent(text, out string indented)) {
-                    text = ValueJson.Serialize(items.Count == 1 ? items[0] : items, options.Depth, options.Shape);
+                    text = ValueJson.Serialize(items.Count == 1 ? items[0] : items, options.MaxDepth, options.Shape);
                 } else { text = indented; }
             }
             CodeView code = CodeView.For(text, json ? "Json" : options.Language, options.Path);

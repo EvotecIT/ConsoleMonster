@@ -32,6 +32,6 @@ Use-ConsoleProgress {
     }
     Write-Progress -Id 2 -Activity 'Servers' -Completed
     Write-Progress -Id 1 -Activity 'Collecting inventory' -Completed
-} -Keep
+} -PrintFinalState
 Disable-ConsoleFormatting
 Write-ConsoleText 'Inventory collected: 36 servers across 3 sites.'

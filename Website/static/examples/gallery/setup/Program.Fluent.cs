@@ -147,16 +147,16 @@ if (!answers.Submitted)
 StatusList install = Ui.StatusList("steps");
 foreach (string label in installSteps)
     install.Add(label, StatusKind.Pending);
-ProgressBar bar = (ProgressBar)Ui.Progress().Label("Install").Total(40).Build();
+ProgressBar bar = Ui.ProgressBar().Label("Install").Total(40);
 Dashboard dashboard = Ui.Dashboard()
     .Title("[accent bold]Installing Toolbox Agent[/]")
     .Subtitle(Markup.Escape(answers.Values.Get<string>("Path")))
-    .Content(body => body.Panel(Ui.Panel().Title("Steps").Content(c =>
+    .Content(body => body.Panel(Ui.Panel().Title("Steps").Content(panelContent =>
     {
-        c.Add(install);
-    })).Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(c =>
+        panelContent.Add(install);
+    })).Padding(padding => padding.Bottom(0).Right(1).Top(0).Left(1).Content(paddingContent =>
     {
-        c.Add(bar);
+        paddingContent.Add(bar);
     })));
 using (LiveSession session = dashboard.CreateSession())
 {
@@ -191,9 +191,10 @@ using (LiveSession session = dashboard.CreateSession())
     }
 }
 
-Ui.Panel().Title("Toolbox Agent installed").Content(c =>
+Ui.Panel().Title("Toolbox Agent installed").Content(panelContent =>
 {
-    c.KeyValue(kv => kv.Add("Install folder", Markup.Escape(answers.Values.Get<string>("Path")))
+    panelContent.KeyValue(kv => kv.Add("Install folder",
+        Markup.Escape(answers.Values.Get<string>("Path")))
         .Add("Components",
             Markup.Escape(string.Join(", ", answers.Values.GetList<object>("Components"))))
         .Add("Server", Markup.Escape(answers.Values.Get<string>("Server")))

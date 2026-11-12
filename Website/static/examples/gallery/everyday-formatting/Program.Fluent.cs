@@ -35,15 +35,16 @@ foreach (var task in tasks)
     baseline += $"{task.Task} | {task.State} | {task.Minutes} min";
 }
 
-Rows layout = Ui.Rows().Gap(1).Content(c =>
+Rows layout = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c.Rule(($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer "
-        + $"output[/]"));
-    c.Markup($"[bold]Before[/] [muted]{separator} plain text[/]");
-    c.Markup(baseline);
-    c.Markup($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]");
-    c.Add(table);
-    c.Markup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
+    rowsContent.Rule(
+        ($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer "
+            + $"output[/]"));
+    rowsContent.Markup($"[bold]Before[/] [muted]{separator} plain text[/]");
+    rowsContent.Markup(baseline);
+    rowsContent.Markup($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]");
+    rowsContent.Add(table);
+    rowsContent.Markup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]");
 });
 
 // Behaviour: print the screen once and return.

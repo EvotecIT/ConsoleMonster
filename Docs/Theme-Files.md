@@ -199,7 +199,7 @@ using ConsoleMonster.Widgets;
 ThemeFile document = ThemeFile.Load("team-dark.json");
 Theme team = document.ToTheme();
 Terminal.Theme = team;
-Terminal.Write(new TextBlock("[pass]Deployment ready[/]"));
+Terminal.Write(TextBlock.FromMarkup("[pass]Deployment ready[/]"));
 
 // Capture the resolved palette, including every fallback and decoration.
 ThemeFile.FromTheme(team).Save("team-snapshot.json");

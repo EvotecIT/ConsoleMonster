@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/use-consolegroup/
 schema: 2.0.0
 ---
 # Use-ConsoleGroup
 ## SYNOPSIS
 Runs a script inside a collapsible CI log group or beneath a muted terminal heading.
-
-Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Use-ConsoleGroup [-Title] <string> [-ScriptBlock] <scriptblock> [<CommonParamete
 ```
 
 ## DESCRIPTION
-Runs a script inside a collapsible CI log group or beneath a muted terminal heading.
-
 Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ Use-ConsoleGroup 'Build' { dotnet build }
 ```
 
 Group a build log
+
+### EXAMPLE 2
+```powershell
+Use-ConsoleGroup 'Check sample inventory' {
+    [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable
+}
+```
+
+Group a sample inventory in a CI log
 
 ## PARAMETERS
 
@@ -69,7 +74,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -77,4 +82,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/use-consolegroup/](https://consolemonster.dev/powershell/commands/use-consolegroup/)

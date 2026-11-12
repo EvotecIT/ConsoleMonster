@@ -52,7 +52,7 @@ string reportFolder = "./toolbox-reports/weekly";
 
 // Layout: the prompts themselves draw choices, validation, masks and editing hints.
 IWidget Preview(Job job) => new Rows(
-    new TextBlock(Markup.Escape(job.Description)),
+    TextBlock.FromMarkup(Markup.Escape(job.Description)),
     new KeyValueList()
         .Add("Group", Markup.Escape(job.Category))
         .Add("Duration", $"about {job.Minutes} min per server")

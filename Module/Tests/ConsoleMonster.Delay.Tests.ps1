@@ -77,7 +77,7 @@ $previous = [ConsoleMonster.Terminal]::Target
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     $slot = New-ConsoleRegion -WidgetId body
-    $result = @(Invoke-ConsoleDashboard $slot -Transient {
+    $result = @(Invoke-ConsoleDashboard $slot -PrintFinalState:$false {
         Update-Console -WidgetId body -Content { New-ConsoleText 'first' }
         Wait-ConsoleDashboard -Seconds 10
         Update-Console -WidgetId body -Content { New-ConsoleText 'second' }
@@ -99,7 +99,7 @@ $target.SkipDelays = $true
 $scope = [ConsoleMonster.Terminal]::Use($target)
 try {
     $log = New-ConsoleLogRegion -WidgetId log -Height 1
-    Invoke-ConsoleDashboard $log -Transient {
+    Invoke-ConsoleDashboard $log -PrintFinalState:$false {
         $ConsoleSession.Post(([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Live.LiveEvent'))::new('log', 'write', $null, 'source timestamp', 'info', 0, 0, 123000, $false))
         Wait-ConsoleDashboard -Seconds 0
     }

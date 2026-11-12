@@ -6,10 +6,8 @@ using ConsoleMonster.Views;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.</para>
-    /// <para type="description">This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes, versions and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</para>
-    /// </summary>
+    /// <summary>Shows objects of registered types through ConsoleMonster and passes everything else to PowerShell's Out-Default.</summary>
+    /// <remarks><para>This is what Enable-ConsoleFormatting puts behind Out-Default. Consecutive objects of registered types (Register-ConsoleView; after Enable-ConsoleFormatting also files and folders, processes, services, commands, modules, event log records, IP addresses, volumes, versions and dictionaries) are collected and shown as one ConsoleMonster view; any other object, format data from Format-*, errors and strings go to PowerShell's Out-Default unchanged. It only takes over when the output is displayed on a real local console: redirected output, jobs, remoting and other hosts get PowerShell's default output (-Force renders anyway). The objects themselves are never changed.</para></remarks>
     /// <example>
     /// <para>Show processes explicitly</para>
     /// <code>Get-Process | Select-Object -First 5 | Show-Console</code>

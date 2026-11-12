@@ -1,31 +1,27 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolecommand/
 schema: 2.0.0
 ---
 # New-ConsoleCommand
 ## SYNOPSIS
 Defines an in-app action for buttons, palettes and grid rows.
 
-Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleCommand [-Key] <string> -ScriptBlock <scriptblock> [-Label <string>] [-Hotkey <string>] [-ConfirmPrompt <string>] [-ProgressDialog] [-ArgumentList <Object[]>] [-ImportModule <string[]>] [<CommonParameters>]
+New-ConsoleCommand [-Key] <string> -ScriptBlock <scriptblock> [-Label <string>] [-Shortcut <string>] [-ConfirmPrompt <string>] [-ProgressDialog] [-ArgumentList <Object[]>] [-ImportModule <string[]>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Defines an in-app action for buttons, palettes and grid rows.
-
 Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Hotkey Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {
+$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Shortcut Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {
     param($Row)
     $Row | Select-Object Name, Id
 }
@@ -33,6 +29,16 @@ Get-Process | Select-Object -First 8 | Show-ConsoleGrid -Command $inspect
 ```
 
 Confirm before inspecting a selected object
+
+### EXAMPLE 2
+```powershell
+$refresh = New-ConsoleCommand -Key refresh -Label 'Refresh inventory' -Shortcut F5 -ScriptBlock {
+    Write-ConsoleLogEntry 'Inventory refreshed' -Level Info
+}
+Show-ConsoleApp -Command $refresh -Content { New-ConsoleText 'Press F5 to refresh' }
+```
+
+Compose an inventory command
 
 ## PARAMETERS
 
@@ -68,22 +74,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Hotkey
-Optional key chord, for example Ctrl+R or F5.
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -ImportModule
 Modules to import in the operation's isolated runspace.
 
@@ -101,7 +91,7 @@ Accept wildcard characters: False
 ```
 
 ### -Key
-Stable command identity.
+Unique key used to invoke or enable this command within the application.
 
 ```yaml
 Type: String
@@ -143,7 +133,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -164,6 +154,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Shortcut
+Optional key chord, for example Ctrl+R or F5.
+
+```yaml
+Type: String
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -177,4 +183,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolecommand/](https://consolemonster.dev/powershell/commands/new-consolecommand/)

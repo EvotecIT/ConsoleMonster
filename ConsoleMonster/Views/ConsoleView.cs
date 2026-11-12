@@ -88,7 +88,7 @@ namespace ConsoleMonster.Views {
             options ??= new ConsoleViewOptions();
             switch (Decide(items, options)) {
                 case ConsoleViewKind.Empty:
-                    return new TextBlock(string.Empty);
+                    return TextBlock.FromMarkup(string.Empty);
                 case ConsoleViewKind.Text:
                     return Values.Placeholders.Block(Markup.Escape(string.Join("\n", items.Select(item => Values.ValueShaper.ShapedText(item, new Values.ShapeOptions())))));
                 case ConsoleViewKind.Code: case ConsoleViewKind.Json:
@@ -242,7 +242,7 @@ namespace ConsoleMonster.Views {
         }
 
         private static IWidget BuildInspector(IReadOnlyList<object?> items, ConsoleViewOptions options) {
-            InspectorOptions inspect = new InspectorOptions { MaxDepth = options.Depth };
+            InspectorOptions inspect = new InspectorOptions { MaxDepth = options.MaxDepth };
             foreach (IMemberSource source in options.Sources) {
                 inspect.Sources.Add(source);
             }
@@ -261,7 +261,7 @@ namespace ConsoleMonster.Views {
             List<InspectMember> members = Members(item, options).ToList();
             string label = Label(item, members, child);
             TreeNode node = parent.Add(Markup.Escape(label));
-            if (child == null || depth + 1 >= options.Depth) {
+            if (child == null || depth + 1 >= options.MaxDepth) {
                 return;
             }
             InspectMember? children = members.FirstOrDefault(member => string.Equals(member.Name, child, StringComparison.OrdinalIgnoreCase));

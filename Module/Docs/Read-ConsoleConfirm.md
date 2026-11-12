@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/read-consoleconfirm/
 schema: 2.0.0
 ---
 # Read-ConsoleConfirm
 ## SYNOPSIS
 Asks a yes/no question and returns $true or $false.
-
-Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Read-ConsoleConfirm [[-Title] <string>] [-Default <Boolean>] [-Destructive] [-Ty
 ```
 
 ## DESCRIPTION
-Asks a yes/no question and returns $true or $false.
-
 Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.
 
 ## EXAMPLES
@@ -40,7 +36,7 @@ A typed confirmation before deleting
 ## PARAMETERS
 
 ### -Default
-The default answer.
+The answer initially selected; pressing Enter accepts this value.
 
 ```yaml
 Type: Boolean
@@ -82,7 +78,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -136,7 +132,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The question.
+The prompt displayed above the input control.
 
 ```yaml
 Type: String
@@ -146,7 +142,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: Enter a value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -212,4 +208,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consoleconfirm/](https://consolemonster.dev/powershell/commands/read-consoleconfirm/)

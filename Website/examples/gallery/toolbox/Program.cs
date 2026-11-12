@@ -118,7 +118,7 @@ IWidget History()
 }
 
 IWidget Preview(Check c) => new Rows(
-    new TextBlock(Markup.Escape(c.Description)),
+    TextBlock.FromMarkup(Markup.Escape(c.Description)),
     new KeyValueList()
         .Add("Group", c.Category)
         .Add("Expected", c.Expected)

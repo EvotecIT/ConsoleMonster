@@ -1,31 +1,27 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoleactivitylist/
 schema: 2.0.0
 ---
 # New-ConsoleActivityList
 ## SYNOPSIS
 Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.
 
-Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-Console from the script of a running dashboard or menu run. -MaxRows caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Invoke-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleActivityList [[-WidgetId] <string>] [-MaxRows <int>] [-ShowIds] [-NoElapsed] [<CommonParameters>]
+New-ConsoleActivityList [[-WidgetId] <string>] [-MaxVisible <int>] [-ShowIds] [-NoElapsed] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates an activity list: the work in progress right now, one row per activity, with a spinner or a bar and the time it has taken.
-
-Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-Console from the script of a running dashboard or menu run. -MaxRows caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Invoke-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.
+Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-Console from the script of a running dashboard or menu run. -MaxVisible caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Invoke-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxRows 4 } }
+$dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }
 Invoke-ConsoleDashboard $dashboard {
     Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'
     Start-Sleep -Seconds 1
@@ -35,9 +31,20 @@ Invoke-ConsoleDashboard $dashboard {
 
 The checks running on four workers
 
+### EXAMPLE 2
+```powershell
+$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleActivityList -MaxVisible 3 }
+Invoke-ConsoleDashboard $dashboard {
+    Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50
+    Wait-ConsoleDashboard -Seconds 0.2
+}
+```
+
+Limit the number of visible live activities
+
 ## PARAMETERS
 
-### -MaxRows
+### -MaxVisible
 The most activities shown (default 8); more are summed up in one line.
 
 ```yaml
@@ -48,7 +55,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -64,7 +71,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -80,7 +87,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -96,7 +103,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: $progress
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -114,4 +121,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleactivitylist/](https://consolemonster.dev/powershell/commands/new-consoleactivitylist/)

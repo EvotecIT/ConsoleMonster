@@ -6,10 +6,8 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Selects the theme used by every ConsoleMonster widget.</para>
-    /// <para type="description">Select a built-in preset or catalogue scheme, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Catalogue schemes use upstream colours faithfully by default; -Accessible chooses colours that pass ThemeCheck. The saved accessible name is Dracula · accessible, for example. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para>
-    /// </summary>
+    /// <summary>Selects the theme used by every ConsoleMonster widget.</summary>
+    /// <remarks><para>Select a built-in preset or catalogue scheme, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Catalogue schemes use upstream colours faithfully by default; -Accessible chooses colours that pass ThemeCheck. The saved accessible name is Dracula · accessible, for example. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSetting previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.</para></remarks>
     /// <example>
     /// <para>Use the light theme for this session</para>
     /// <code>Set-ConsoleTheme -Theme Light</code>
@@ -28,11 +26,12 @@ namespace ConsoleMonster.PowerShell {
     /// <code># Requires an existing team-theme.psd1 file. Changes the active session theme.
     /// Set-ConsoleTheme -Path ./team-theme.psd1</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Set, "ConsoleTheme", DefaultParameterSetName = "Name")]
+    [Cmdlet(VerbsCommon.Set, "ConsoleTheme", DefaultParameterSetName = "Name", HelpUri = "https://consolemonster.dev/powershell/commands/set-consoletheme/")]
     public sealed class CmdletSetConsoleTheme : NoPipelineInputCmdlet {
         /// <summary><para type="description">A built-in preset, Terminal, or a catalogue scheme or family. Theme.Schemes lists the ten palettes. Solarized, Gruvbox, Catppuccin and Tokyo Night select light or dark for the detected background (dark when unknown). Explicit names such as Solarized Light, Catppuccin Latte and Tokyo Night Dark choose one variant. Add · accessible to a catalogue name, or use -Accessible.</para></summary>
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Name")]
         [Binding.ThemeName, ArgumentCompleter(typeof(Binding.ThemeNameCompleter))]
+        [PSDefaultValue(Help = "Dark")]
         public string Theme { get; set; } = "Dark";
 
         /// <summary><para type="description">A literal .json or .psd1 theme file path. Relative paths use the current PowerShell location. All values are validated before applying the theme.</para></summary>
@@ -42,10 +41,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Also writes the theme to the settings file, so every new session uses it.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Save { get; set; }
 
         /// <summary><para type="description">Uses a catalogue scheme's accessible variant, or re-derives a version 3 BaseScheme file while preserving its explicit token overrides. Built-in presets do not have scheme variants.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Accessible { get; set; }
 
         /// <inheritdoc />

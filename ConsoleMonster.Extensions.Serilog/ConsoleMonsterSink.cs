@@ -22,7 +22,9 @@ namespace ConsoleMonster.Extensions.Serilog {
         /// <summary>The sink's rendering options.</summary>
         public ConsoleMonsterSinkOptions Options { get; }
 
-        /// <inheritdoc />
+        /// <summary>Renders a Serilog event with its template values, properties and exception through ConsoleMonster.</summary>
+        /// <param name="logEvent">The event to render.</param>
+        /// <exception cref="ArgumentNullException">The event is null.</exception>
         public void Emit(LogEvent logEvent) {
             if (logEvent == null) { throw new ArgumentNullException(nameof(logEvent)); }
             List<LogProperty> properties = new List<LogProperty>();

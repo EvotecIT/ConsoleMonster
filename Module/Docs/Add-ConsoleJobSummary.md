@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/add-consolejobsummary/
 schema: 2.0.0
 ---
 # Add-ConsoleJobSummary
 ## SYNOPSIS
 Adds widgets or objects as Markdown to the CI job summary.
-
-Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Add-ConsoleJobSummary [-InputObject] <Object> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Adds widgets or objects as Markdown to the CI job summary.
-
 Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends 
 ```
 
 Add a result table to the job summary
+
+### EXAMPLE 2
+```powershell
+$servers = @([pscustomobject]@{ Name = 'web01'; State = 'Pass' })
+$servers | New-ConsoleTable | Add-ConsoleJobSummary
+```
+
+Add an inventory table to the CI summary
 
 ## PARAMETERS
 
@@ -61,4 +65,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/add-consolejobsummary/](https://consolemonster.dev/powershell/commands/add-consolejobsummary/)

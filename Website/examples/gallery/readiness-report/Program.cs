@@ -48,8 +48,9 @@ Rows layout = new Rows(
         .Add(1, "failed", ThemeToken.Fail).Add(5, "checks total"),
     new Panel() { Title = "Checks", Content = statuses },
     new Panel() { Title = "Readiness by area", Content = scores, HeaderRight = "score / 100" },
-    new TextBlock("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),
-    new TextBlock($"[muted]Review owner: Platform team {separator} next review: Friday[/]"))
+    TextBlock.FromMarkup(
+        "[bold]Next:[/] rehearse a restore, then add the two missing test scenarios."),
+    TextBlock.FromMarkup($"[muted]Review owner: Platform team {separator} next review: Friday[/]"))
 {
     Gap = 1
 };

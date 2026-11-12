@@ -33,8 +33,8 @@ Rows layout = new Rows(
     new Logo("HELLO", "[muted]A little context before your next command.[/]"),
     new Panel() { Title = "Host summary", Content = hostSummary, HeaderRight = "local workspace" },
     new Panel() { Title = $"Git {separator} comet-notes", Content = git },
-    new TextBlock("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
-    new TextBlock("[muted]Ready when you are.[/]"))
+    TextBlock.FromMarkup("[bold]Tip[/] Get-Help New-ConsoleTable -Examples"),
+    TextBlock.FromMarkup("[muted]Ready when you are.[/]"))
 {
     Gap = 1
 };

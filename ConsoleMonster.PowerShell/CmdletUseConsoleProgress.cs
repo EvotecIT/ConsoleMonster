@@ -7,10 +7,8 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a script and shows its Write-Progress calls as an inline progress area.</para>
-    /// <para type="description">The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the area disappears (or stays with -Keep) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. Inside the script, $ConsoleSession is this progress area's session, so Wait-ConsoleDashboard can capture or pause it. In jobs, remoting, the ISE and redirected output the script simply runs with $ConsoleSession set to null. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para>
-    /// </summary>
+    /// <summary>Runs a script and shows its Write-Progress calls as an inline progress area.</summary>
+    /// <remarks><para>The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the final state stays (or disappears with -PrintFinalState:$false) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. Inside the script, $ConsoleSession is this progress area's session, so Wait-ConsoleDashboard can capture or pause it. In jobs, remoting, the ISE and redirected output the script simply runs with $ConsoleSession set to null. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para></remarks>
     /// <example>
     ///   <para>An existing loop, unchanged</para>
     ///   <code>
@@ -21,31 +19,45 @@ namespace ConsoleMonster.PowerShell {
     ///     }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsOther.Use, "ConsoleProgress")]
+    /// <example>
+    /// <para>Return server results and suppress the final progress area</para>
+    /// <code>Use-ConsoleProgress -PrintFinalState:$false {
+    ///     foreach ($server in 'web01', 'web02') {
+    ///         Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
+    ///         [pscustomobject]@{ Server = $server; Result = 'Pass' }
+    ///     }
+    /// } | Show-ConsoleTable
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsOther.Use, "ConsoleProgress", HelpUri = "https://consolemonster.dev/powershell/commands/use-consoleprogress/")]
     [OutputType(typeof(object))]
     public sealed class CmdletUseConsoleProgress : NoPipelineInputCmdlet {
         private static readonly string ProgressProxy = PSScriptResources.Read("ProgressProxy.ps1");
 
         internal static readonly string HostProxy = PSScriptResources.Read("HostProxy.ps1");
 
-        /// <summary><para type="description">The script to run.</para></summary>
+        /// <summary><para type="description">The work to run while native Write-Progress calls update the inline progress area.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public ScriptBlock ScriptBlock { get; set; } = null!;
 
-        /// <summary><para type="description">Leaves the final state of the progress area in the scrollback.</para></summary>
+        /// <summary><para type="description">Prints the final progress state in scrollback (default true); pass -PrintFinalState:$false to leave nothing behind.</para></summary>
         [Parameter]
-        public SwitchParameter Keep { get; set; }
+        [PSDefaultValue(Help = "$true")]
+        public SwitchParameter PrintFinalState { get; set; } = new SwitchParameter(true);
 
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
         [ValidateRange(1, 60)]
+        [PSDefaultValue(Help = "15")]
         public double FramesPerSecond { get; set; } = 15;
 
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
-        [Parameter] public SwitchParameter NoLive { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLive { get; set; }
 
         /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
-        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -77,7 +89,7 @@ namespace ConsoleMonster.PowerShell {
             LiveSessionOptions options = new LiveSessionOptions { ReducedMotion = MyInvocation.BoundParameters.ContainsKey(nameof(ReducedMotion)) ? (bool?)ReducedMotion.IsPresent : null,
                 Mode = LiveMode.Inline,
                 Live = !NoLive.IsPresent,
-                PrintFinalState = Keep.IsPresent,
+                PrintFinalState = PrintFinalState.IsPresent,
                 FramesPerSecond = FramesPerSecond,
                 // Ctrl+C stops the script the PowerShell way; the session is stopped (and the area cleared) in finally.
                 HandleCancelKey = false

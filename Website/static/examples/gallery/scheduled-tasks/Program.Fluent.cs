@@ -49,20 +49,21 @@ foreach (var failure in failures)
         .Add("Fix", failure.Fix);
     traces.Add(Ui.Panel().Content(content =>
     {
-        content.Rows(r => r.Gap(1).Content(c =>
+        content.Rows(r => r.Gap(1).Content(rowsContent =>
         {
-            c.Add(flow);
-            c.Add(details);
+            rowsContent.Add(flow);
+            rowsContent.Add(details);
         }));
     }).Title($"{failure.Task} · {failure.Outcome}").Status(StatusKind.Fail));
 }
 
-var report = Ui.Rows().Gap(1).Content(c =>
+var report = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c.Rule(("[accent bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 "
-        + "09:05[/]"));
-    c.Add(table);
-    c.Add(traces);
+    rowsContent.Rule(
+        ("[accent bold]Scheduled tasks[/] [muted]· app-01.adatum.example.test · 2026-10-26 "
+            + "09:05[/]"));
+    rowsContent.Add(table);
+    rowsContent.Add(traces);
 });
 
 // Behaviour: print once; fix the cause, then start the task by hand and rerun this check.

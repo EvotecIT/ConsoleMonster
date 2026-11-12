@@ -4,10 +4,8 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a named, embeddable data grid for Show-ConsoleApp.</para>
-    /// <para type="description">The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.</para>
-    /// </summary>
+    /// <summary>Creates a named, embeddable data grid for Show-ConsoleApp.</summary>
+    /// <remarks><para>The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.</para></remarks>
     /// <example>
     /// <para>Embed an empty listing in an application</para>
     /// <code>Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid 'Inventory' -Height 18 }</code>
@@ -16,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>List services with three columns</para>
     /// <code>Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Services -InputObject (Get-Service) -Property Name, Status, StartType -Height 12 }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleDataGrid", DefaultParameterSetName = GridSet)]
+    [Cmdlet(VerbsCommon.New, "ConsoleDataGrid", DefaultParameterSetName = GridSet, HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledatagrid/")]
     [OutputType(typeof(DataGrid))]
     public sealed class CmdletNewConsoleDataGrid : AppInputCmdlet {
         private const string GridSet = "Grid";
@@ -29,9 +27,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Columns: names, wildcards and calculated properties with the Show-ConsoleTable column options.</para></summary>
         [Parameter(ParameterSetName = ObjectSet)] public object[]? Property { get; set; }
         /// <summary><para type="description">Natural content height; the terminal viewport can constrain it further.</para></summary>
-        [Parameter, ValidateRange(1, 10000)] public int Height { get; set; } = 20;
+        [Parameter, ValidateRange(1, 10000)] [PSDefaultValue(Help = "20")]
+        public int Height { get; set; } = 20;
         /// <summary><para type="description">Leaves printable keys to the app's command registry.</para></summary>
-        [Parameter] public SwitchParameter NoQuickSearch { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoQuickSearch { get; set; }
         /// <summary><para type="description">The state key shared with linked controls (New-ConsoleChartView, New-ConsoleSelect, another grid): the selected row's position in the listing. A position it cannot show is ignored.</para></summary>
         [Parameter] public string? LinkKey { get; set; }
         /// <inheritdoc />

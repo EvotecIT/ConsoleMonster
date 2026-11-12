@@ -45,9 +45,10 @@ Rows report = new Rows(
     {
         Title = "Next action",
         Content = new Rows(
-            new TextBlock(
+            TextBlock.FromMarkup(
                 "[fail]Artifacts is at 94%.[/] Review the retention policy before the next build."),
-            new TextBlock("[muted]Keep the current release; archive history older than 30 days.[/]"))
+            TextBlock.FromMarkup(
+                "[muted]Keep the current release; archive history older than 30 days.[/]"))
     })
 {
     Gap = 1

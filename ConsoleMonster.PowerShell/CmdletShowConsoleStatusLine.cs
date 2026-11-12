@@ -8,10 +8,8 @@ using ConsoleMonster.Output;
 using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows one status line that updates in place, with an optional spinner, clock and elapsed time.</para>
-    /// <para type="description">Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).</para>
-    /// </summary>
+    /// <summary>Shows one status line that updates in place, with an optional spinner, clock and elapsed time.</summary>
+    /// <remarks><para>Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).</para></remarks>
     /// <example>
     /// <para>Show progress through a sample inventory</para>
     /// <code>$servers = 'web01', 'web02', 'sql01'
@@ -25,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Show a waiting line with a clock</para>
     /// <code>Show-ConsoleStatusLine 'Waiting' -Color Green -ShowTimestamp -ShowElapsed; Start-Sleep -Seconds 1; Show-ConsoleStatusLine 'Done' -Status Pass -Complete</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleStatusLine")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleStatusLine", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolestatusline/")]
     public sealed class CmdletShowConsoleStatusLine : NoPipelineInputCmdlet {
         private static string? _lastFallback;
 
@@ -67,23 +65,28 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Shows a spinner while the status is open.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Spinner { get; set; }
 
         /// <summary><para type="description">Shows the time of day, refreshed every second.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter ShowTimestamp { get; set; }
 
         /// <summary><para type="description">Shows the time since the status line started.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter ShowElapsed { get; set; }
 
         /// <summary><para type="description">The clock format (default HH:mm:ss).</para></summary>
         [Parameter]
 
+        [PSDefaultValue(Help = "HH:mm:ss")]
         public string TimestampFormat { get; set; } = "HH:mm:ss";
 
         /// <summary><para type="description">Writes the final version of the line and ends it.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Complete { get; set; }
 
         /// <inheritdoc />

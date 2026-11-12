@@ -107,10 +107,10 @@ IWidget History()
     return table;
 }
 
-IWidget Preview(Check c) => Ui.Rows().Gap(1).Content(c2 =>
+IWidget Preview(Check c) => Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Markup(Markup.Escape(c.Description));
-    c2.KeyValue(kv => kv.Add("Group", c.Category)
+    rowsContent.Markup(Markup.Escape(c.Description));
+    rowsContent.KeyValue(kv => kv.Add("Group", c.Category)
         .Add("Expected", c.Expected)
         .Add("Duration", "about " + Seconds(c.Seconds))
         .Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]")
@@ -203,40 +203,40 @@ IWidget Body(List<Work> work, int done, int phase)
         .Build();
     foreach (Work w in finished)
         durations.Add(w.Seconds);
-    Columns top = Ui.Columns().Add(Ui.Panel().Title("Check map").Content(c2 =>
+    Columns top = Ui.Columns().Add(Ui.Panel().Title("Check map").Content(panelContent =>
     {
-        c2.Add(map);
-    })).Add(Ui.Panel().Title("Categories").Content(c3 =>
+        panelContent.Add(map);
+    })).Add(Ui.Panel().Title("Categories").Content(panelContent =>
     {
-        c3.Rows(r => r.Content(c2 =>
+        panelContent.Rows(r => r.Content(rowsContent =>
         {
-            c2.Add(lanes);
-            c2.Rule();
-            c2.Add(facts);
+            rowsContent.Add(lanes);
+            rowsContent.Rule();
+            rowsContent.Add(facts);
         }));
-    }), LayoutSize.Fraction(1.15)).Add(Ui.Panel().Title("Running").Content(c2 =>
+    }), LayoutSize.Fraction(1.15)).Add(Ui.Panel().Title("Running").Content(panelContent =>
     {
-        c2.Add(running);
+        panelContent.Add(running);
     }), LayoutSize.Fraction(.95)).CollapseBelow(100);
-    Columns bottom = Ui.Columns().Add(Ui.Panel().Title("Findings").Content(c2 =>
+    Columns bottom = Ui.Columns().Add(Ui.Panel().Title("Findings").Content(panelContent =>
     {
-        c2.Add(Findings(finished));
-    }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Slowest checks").Content(c2 =>
+        panelContent.Add(Findings(finished));
+    }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Slowest checks").Content(panelContent =>
     {
-        c2.Add(slow);
-    })).Add(Ui.Panel().Title("Durations").Content(c2 =>
+        panelContent.Add(slow);
+    })).Add(Ui.Panel().Title("Durations").Content(panelContent =>
     {
-        c2.Add(durations);
+        panelContent.Add(durations);
     }), LayoutSize.Fixed(20)).CollapseBelow(100);
-    return Ui.Rows().Content(c3 =>
+    return Ui.Rows().Content(rowsContent =>
     {
-        c3.Add(summary);
-        c3.Add(phases);
-        c3.Add(top);
-        c3.Add(bottom);
-        c3.Panel(p2 => p2.Title("Log").Content(c2 =>
+        rowsContent.Add(summary);
+        rowsContent.Add(phases);
+        rowsContent.Add(top);
+        rowsContent.Add(bottom);
+        rowsContent.Panel(p2 => p2.Title("Log").Content(panelContent =>
         {
-            c2.Add(log);
+            panelContent.Add(log);
         }));
     });
 }
@@ -244,14 +244,14 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = Ui.Region("body").Content(c2 =>
+    RegionWidget body = Ui.Region("body").Content(regionWidgetContent =>
     {
-        c2.Add(Body(work, 0, 0));
+        regionWidgetContent.Add(Body(work, 0, 0));
     });
     Dashboard dashboard = Ui.Dashboard()
-        .Content(c2 =>
+        .Content(dashboardContent =>
         {
-            c2.Add(body);
+            dashboardContent.Add(body);
         })
         .Title("[accent bold]Fleet health check[/]")
         .Subtitle(domain)

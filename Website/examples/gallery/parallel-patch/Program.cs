@@ -103,7 +103,7 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     }
 
     IWidget failureContent = failures.Items.Count == 0
-        ? new TextBlock("[muted]No failures recorded[/]")
+        ? TextBlock.FromMarkup("[muted]No failures recorded[/]")
         : failures;
     return new Rows(
         new Rule("[accent bold]Patching the web farm[/]"),
@@ -115,7 +115,7 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
         new Panel() { Title = "Host outcomes", Content = map },
         new Panel() { Title = finished ? "Last eight hosts" : "Worker lanes", Content = lanes },
         new Panel() { Title = "Retained failures", Content = failureContent },
-        new TextBlock(finished
+        TextBlock.FromMarkup(finished
             ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry"
             : "[muted]Ctrl+C cancels active work and skips queued hosts[/]"))
     {

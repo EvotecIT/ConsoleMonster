@@ -436,7 +436,7 @@ function Get-OptionFields {
     $fieldParameters = @{
         Key = 'Parallel'
         Label = 'Servers at a time'
-        Type = 'Number'
+        Kind = 'Number'
         Integer = $true
         Minimum = 1
         Maximum = 16
@@ -447,13 +447,13 @@ function Get-OptionFields {
     $fieldParameters = @{
         Key = 'Report'
         Label = 'Report folder'
-        Type = 'Path'
-        Kind = 'Folder'
+        Kind = 'Path'
+        PathKind = 'Folder'
         Default = $reportRoot
         ParameterName = 'ReportPath'
     }
     New-ConsoleField @pageOption @fieldParameters
-    New-ConsoleField @pageOption -Key Format -Label 'Report format' -Type Select -Choices @(
+    New-ConsoleField @pageOption -Key Format -Label 'Report format' -Kind Select -Choices @(
         [pscustomobject] @{ Id = 'Html'; Name = 'HTML' }
         [pscustomobject] @{ Id = 'Csv'; Name = 'CSV' }
         [pscustomobject] @{ Id = 'Json'; Name = 'JSON' }
@@ -461,7 +461,7 @@ function Get-OptionFields {
     $fieldParameters = @{
         Key = 'Notify'
         Label = 'Email the report'
-        Type = 'Toggle'
+        Kind = 'Toggle'
         ParameterName = 'Notify'
     }
     New-ConsoleField @pageOption @fieldParameters
@@ -475,7 +475,7 @@ function Get-OptionFields {
     New-ConsoleField @pageOption @fieldParameters -VisibleWhen {
         $Values.Notify
     } -Validator { if ($_ -notlike '*@*') { 'Enter an email address' } }
-    New-ConsoleField @pageOption -Key DryRun -Label 'Dry run' -Type Toggle -ParameterName WhatIf
+    New-ConsoleField @pageOption -Key DryRun -Label 'Dry run' -Kind Toggle -ParameterName WhatIf
 }
 function Set-Options {
     param(
@@ -503,7 +503,7 @@ $menuItemParameters = @{
     Display = 'Name'
     GroupBy = 'Site'
     Describe = 'Detail'
-    Default = $plan.Targets
+    Selected = $plan.Targets
     Minimum = 1
     ChoiceBadge = 'Role'
     ChoiceDisabledReason = 'Offline'
@@ -528,7 +528,7 @@ $menuItemParameters = @{
     Display = 'Name'
     GroupBy = 'Category'
     Describe = 'Description'
-    Default = $plan.Checks
+    Selected = $plan.Checks
     Minimum = 1
 }
 $taskItem = New-ConsoleMenuItem @menuItemParameters -Preview {

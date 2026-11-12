@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/add-consolerecordingmarker/
 schema: 2.0.0
 ---
 # Add-ConsoleRecordingMarker
 ## SYNOPSIS
 Adds a chapter or an export hold to a recorded terminal session.
-
-Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Add-ConsoleRecordingMarker [[-Label] <string>] [-HoldSeconds <double>] [<CommonP
 ```
 
 ## DESCRIPTION
-Adds a chapter or an export hold to a recorded terminal session.
-
 Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.
 
 ## EXAMPLES
@@ -50,13 +46,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Label
-Chapter label.
+Visible chapter name stored at the recording's current timestamp.
 
 ```yaml
 Type: String
@@ -84,4 +80,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/add-consolerecordingmarker/](https://consolemonster.dev/powershell/commands/add-consolerecordingmarker/)

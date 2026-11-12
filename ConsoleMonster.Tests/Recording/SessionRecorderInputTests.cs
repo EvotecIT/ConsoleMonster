@@ -28,7 +28,7 @@ namespace ConsoleMonster.Tests {
                 Assert.Equal(0, recorder.ExitCode);
                 Assert.Throws<ObjectDisposedException>(() => recorder.WaitForOutput("READY", TimeSpan.FromSeconds(1)));
             }
-            Assert.Contains("ACK:hello", File.ReadAllText(options.Path!));
+            Assert.Contains("ACK:hello", File.ReadAllText(options.RecordingPath!));
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace ConsoleMonster.Tests {
             Assert.Same(marker, await System.Threading.Tasks.Task.WhenAny(marker, System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(5))));
             await marker;
             Assert.Throws<TimeoutException>(() => recorder.WaitForExit());
-            Assert.Contains("still responsive", File.ReadAllText(options.Path!));
+            Assert.Contains("still responsive", File.ReadAllText(options.RecordingPath!));
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace ConsoleMonster.Tests {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return; }
             for (int iteration = 0; iteration < 8; iteration++) {
                 var options = Options();
-                options.Path = Path.Combine(_folder, "exit-" + iteration + ".cast");
+                options.RecordingPath = Path.Combine(_folder, "exit-" + iteration + ".cast");
                 options.Shell = "/bin/sh";
                 options.Arguments.Add("-c");
                 options.Arguments.Add("trap 'exit 0' INT; printf READY; sleep 0.02");
@@ -137,7 +137,7 @@ namespace ConsoleMonster.Tests {
             Assert.False(recorder.HasExited);
             Assert.Throws<TimeoutException>(() => recorder.SendInputAfter(TimeSpan.Zero, "late"));
             Assert.True(recorder.HasExited);
-            Assert.NotEmpty(File.ReadAllText(options.Path! + ".json"));
+            Assert.NotEmpty(File.ReadAllText(options.RecordingPath! + ".json"));
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace ConsoleMonster.Tests {
             recorder.WaitForExitWithInterrupt(TimeSpan.FromMilliseconds(200));
             Assert.True(recorder.Interrupted);
             Assert.Equal(0, recorder.ExitCode);
-            Assert.Contains("STOPPED", File.ReadAllText(options.Path!));
+            Assert.Contains("STOPPED", File.ReadAllText(options.RecordingPath!));
         }
 
         [Theory]
@@ -220,12 +220,12 @@ namespace ConsoleMonster.Tests {
                 Assert.Throws<TimeoutException>(() => recorder.WaitForOutput("absent", TimeSpan.FromMilliseconds(100)));
                 Assert.True(recorder.HasExited);
             }
-            Assert.True(File.Exists(options.Path! + ".json"));
+            Assert.True(File.Exists(options.RecordingPath! + ".json"));
         }
 
         private SessionRecordingOptions Options() {
             Directory.CreateDirectory(_folder);
-            return new SessionRecordingOptions { Path = Path.Combine(_folder, "input.cast"), Width = 40, Height = 10, Timeout = TimeSpan.FromSeconds(15) };
+            return new SessionRecordingOptions { RecordingPath = Path.Combine(_folder, "input.cast"), Width = 40, Height = 10, Timeout = TimeSpan.FromSeconds(15) };
         }
 
         public void Dispose() { if (Directory.Exists(_folder)) { Directory.Delete(_folder, true); } }

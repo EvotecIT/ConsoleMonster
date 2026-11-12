@@ -35,7 +35,7 @@ int unusedSeats = usage.Sum(sku => sku.Unused);
 int monthlyWaste = usage.Sum(sku => sku.Waste);
 
 // Layout: utilisation bars beside the biggest savings, then the full ledger.
-var bars = (BarChart)Ui.Chart().Type(ChartType.Bar).Maximum(100).Unit("%").Build();
+var bars = Ui.BarChart().Maximum(100).Unit("%");
 foreach (var sku in usage)
     bars.Add(sku.Sku, sku.Used, sku.Status.ToToken());
 var savings = Ui.StatusList();
@@ -50,23 +50,25 @@ var table = Ui.Table(usage)
     .Column("Waste $", row => row.Waste)
     .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
     .Expand();
-var report = Ui.Rows().Gap(1).Content(c3 =>
+var report = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c3.Rule("[accent bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
-    c3.Columns(columns => columns.Content(c2 =>
+    rowsContent.Rule(
+        "[accent bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]");
+    rowsContent.Columns(columns => columns.Content(columnsContent =>
     {
-        c2.Panel(p => p.Title("Assigned of purchased").Content(c =>
+        columnsContent.Panel(p => p.Title("Assigned of purchased").Content(panelContent =>
         {
-            c.Add(bars);
+            panelContent.Add(bars);
         }));
-        c2.Panel(p => p.Title("Reclaim first").Content(c =>
+        columnsContent.Panel(p => p.Title("Reclaim first").Content(panelContent =>
         {
-            c.Add(savings);
+            panelContent.Add(savings);
         }));
     }));
-    c3.Add(table);
-    c3.Markup(($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. "
-        + $"[muted]Reclaim before the renewal date.[/]"));
+    rowsContent.Add(table);
+    rowsContent.Markup(
+        ($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. "
+            + $"[muted]Reclaim before the renewal date.[/]"));
 });
 
 // Behaviour: print once; review the reclaim list with each license owner before removing seats.

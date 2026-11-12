@@ -73,10 +73,10 @@ Without `-Path`, filenames use the date, time and a unique suffix under Document
 ### Export the same cast in another format
 
 ```powershell
-Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review.svg
-Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review.txt
-Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review.md
-Export-ConsoleRecording -InputRecordingPath ./command-review.cast -OutputPath ./command-review-final.svg `
+Export-ConsoleRecording -RecordingPath ./command-review.cast -Path ./command-review.svg
+Export-ConsoleRecording -RecordingPath ./command-review.cast -Path ./command-review.txt
+Export-ConsoleRecording -RecordingPath ./command-review.cast -Path ./command-review.md
+Export-ConsoleRecording -RecordingPath ./command-review.cast -Path ./command-review-final.svg `
     -FinalFrame -Theme Light -ChromeStyle Windows
 ```
 
@@ -162,7 +162,7 @@ Invoke-ConsoleRecording {
     Write-Host '8 of 8 checks passed' -ForegroundColor Green
 } -Path ./chrome-demo.html -ChromeStyle Windows -Theme Light
 
-Export-ConsoleRecording -InputRecordingPath ./chrome-demo.cast -OutputPath ./chrome-demo-final.svg `
+Export-ConsoleRecording -RecordingPath ./chrome-demo.cast -Path ./chrome-demo-final.svg `
     -FinalFrame -ChromeStyle Linux -Theme Light -Title 'Build report'
 ```
 
@@ -199,10 +199,10 @@ For 225 new characters on three lines, the reading budgets are 8.456 / 5.597 / 3
 In the pipeline recording used to check these presets, the same cast exports to a 1920×1080 GIF lasting 15.51 seconds at Source, 19.51 at Fast, 23.51 at Normal and 31.51 at Slow. These exports disable idle capping and include a two-second final hold and the playable cadence for retained instantaneous redraws. The preset changes the delays, without dropping screens or rerecording the demo.
 
 ```powershell
-Export-ConsoleRecording ./run.cast -OutputPath ./run.gif -Preset Slide16x9 -Pace Normal
-Export-ConsoleRecording ./run.cast -OutputPath ./run-slow.gif -Preset Slide16x9 -Pace Slow
+Export-ConsoleRecording ./run.cast -Path ./run.gif -Preset Slide16x9 -Pace Normal
+Export-ConsoleRecording ./run.cast -Path ./run-slow.gif -Preset Slide16x9 -Pace Slow
 # Keep the cast's source delays, with no reading holds or idle compression.
-Export-ConsoleRecording ./run.cast -OutputPath ./run-source.html -Pace Source -IdleLimitSeconds 0
+Export-ConsoleRecording ./run.cast -Path ./run-source.html -Pace Source -IdleLimitSeconds 0
 ```
 
 `-IdleLimitSeconds 2` caps source delays on an unchanged screen. It never shortens reading holds, explicit marker holds or the final hold (`-HoldLastFrameSeconds 2`). Source timestamps in new casts are preserved; the cast's `idle_time_limit` header is only a hint to other players. An older cast whose timestamps were already compressed cannot recover the lost pause.
@@ -221,11 +221,11 @@ A hold freezes the screen as it was when the marker arrived, including when late
 Trim with source positions, or with unique chapter labels. The start is included and the end is excluded. `-TrimEndChapter Cleanup` stops before that chapter and its hold. Earlier output is still replayed to reconstruct the screen at the new start.
 
 ```powershell
-Export-ConsoleRecording ./run.cast -OutputPath ./results.gif -Preset Slide16x9 `
+Export-ConsoleRecording ./run.cast -Path ./results.gif -Preset Slide16x9 `
     -TrimStartChapter Install -TrimEndChapter Cleanup `
     -ChapterSpeeds @{ Install = 4; Results = 1 } -ChapterHoldSeconds 2
 # Time boundaries use positions in the original cast, before speed and holds.
-Export-ConsoleRecording ./run.cast -OutputPath ./excerpt.svg -TrimStartSeconds 4 -TrimEndSeconds 18
+Export-ConsoleRecording ./run.cast -Path ./excerpt.svg -TrimStartSeconds 4 -TrimEndSeconds 18
 ```
 
 Chapter speed multiplies `-Speed` for source and reading delays; explicit holds keep their requested duration. GIF, APNG, HTML/player data and animated SVG share this timeline. Raw session asciicast, text/transcripts and still PNG/SVG exports retain their source content and positions.
@@ -234,7 +234,7 @@ In C#, use `RecordingExportOptions.Pace`, `IdleLimit`, `ChapterHold`, `TrimStart
 
 ### Record dashboard updates
 
-A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordingPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
+A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordingPath` in PowerShell, or `LiveSessionOptions.RecordingPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
 
 {{< cm-demo id="record" heading="h4" >}}
 
@@ -248,7 +248,7 @@ using ConsoleMonster.Sessions;
 var options = new SessionRecordingOptions {
     Shell = "pwsh",
     Arguments = { "-NoLogo", "-NoProfile", "-Command", "[Console]::WriteLine('READY'); [Console]::WriteLine([Console]::ReadLine())" },
-    Path = "scripted.cast",
+    RecordingPath = "scripted.cast",
     Width = 80,
     Height = 20,
     Timeout = TimeSpan.FromSeconds(30),

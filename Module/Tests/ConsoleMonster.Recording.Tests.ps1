@@ -163,7 +163,7 @@
         $shell = if ($windows) { '' } else { " -Shell '/bin/sh'" }
         $script = "Import-Module '$($module.Replace("'", "''"))'; Invoke-ConsoleRecording -Interactive -Path '$($inner.Replace("'", "''"))'$shell -Width 50 -Height 10; [Console]::WriteLine('OUTER-DONE')"
         $options = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecordingOptions'))::new()
-        $options.Path = $outer
+        $options.RecordingPath = $outer
         $options.Shell = $runtime
         $options.Width = 50
         $options.Height = 10

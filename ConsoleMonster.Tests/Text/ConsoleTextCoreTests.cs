@@ -6,6 +6,7 @@ using System.Text;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Output;
+using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.TestRuns;
 using ConsoleMonster.Text;
@@ -39,11 +40,11 @@ namespace ConsoleMonster.Tests.Text {
 
         [Fact]
         public void Layout_WrapContinuesUnderTheTextAndCentringUsesCells() {
-            ConsoleTextLayout layout = new ConsoleTextLayout { StartSpaces = 4, Wrap = true };
+            ConsoleTextLayout layout = new ConsoleTextLayout { Indent = 4, Wrap = true };
             string[] lines = Plain(layout.Lines(RichText.Plain("alpha beta gamma delta"), Context(), 16));
             Assert.Equal("    alpha beta", lines[0].TrimEnd());
             Assert.StartsWith("    gamma", lines[1]);
-            ConsoleTextLayout centred = new ConsoleTextLayout { HorizontalCenter = true };
+            ConsoleTextLayout centred = new ConsoleTextLayout { Alignment = HorizontalAlignment.Center };
             Assert.Equal("  中文", Plain(centred.Lines(RichText.Plain("中文"), Context(), 8))[0]);
         }
 

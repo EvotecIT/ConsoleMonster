@@ -9,7 +9,7 @@ string[] tasks = { "Health report", "Inspect queue", "Preview cleanup" };
 
 // Layout: construct the widgets shown on screen.
 Rows layout = new Rows(
-    new TextBlock("[accent bold]Server toolbox[/] [muted]· operations[/]"),
+    TextBlock.FromMarkup("[accent bold]Server toolbox[/] [muted]· operations[/]"),
     new Select("Task", tasks.Select(task => new Choice(task))) { Label = "Task", Value = tasks[0] },
     new AppBinding(state =>
     {
@@ -29,7 +29,7 @@ Rows layout = new Rows(
         return new Panel()
         {
             Title = "Preview",
-            Content = new Rows(lines.Select(line => new TextBlock(line)).ToArray())
+            Content = new Rows(lines.Select(line => TextBlock.FromMarkup(line)).ToArray())
         };
     }))
 {

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/export-consoletheme/
 schema: 2.0.0
 ---
 # Export-ConsoleTheme
 ## SYNOPSIS
 Exports the current ConsoleMonster theme as a starting file for a user or team.
-
-Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Export-ConsoleTheme [-Path] <string> [-PassThru] [-WhatIf] [-Confirm] [<CommonPa
 ```
 
 ## DESCRIPTION
-Exports the current ConsoleMonster theme as a starting file for a user or team.
-
 Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.
 
 ## EXAMPLES
@@ -50,7 +46,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -84,4 +80,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/export-consoletheme/](https://consolemonster.dev/powershell/commands/export-consoletheme/)

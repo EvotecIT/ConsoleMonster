@@ -67,7 +67,7 @@ Display commands return no success output by default. `New-ConsoleTable` and the
 | Semantic outcome | `Status`; free text explaining it is `Detail`. |
 | Theme or colors | `Theme` selects a theme, `Role` selects a theme role, and `Color`/`BackgroundColor` are literal colors. `Decoration` adds text decorations. |
 | Wall-clock formatting | `TimestampFormat`; `ShowTimestamp` opts into display timestamps, while the Boolean `LogTimestamp` controls log-file inclusion (default true). |
-| Durations in PowerShell | Numeric `TimeoutSeconds`, `StepTimeoutSeconds`, `PollIntervalSeconds`, `IdleLimitSeconds`, `ProgressIntervalSeconds`, `ElapsedSeconds`, `DurationSeconds`, `AtSeconds`, `StartedSeconds`, `FinishedSeconds`, or `BudgetMilliseconds`. C# keeps `TimeSpan` properties such as `Timeout` and `PollInterval`. |
+| Durations in PowerShell | Numeric `TimeoutSeconds`, `StepTimeoutSeconds`, `PollIntervalSeconds`, `IdleLimitSeconds`, `ProgressIntervalSeconds`, `ElapsedSeconds`, `DurationSeconds`, `AtSeconds`, `StartedSeconds`, `FinishedSeconds`, or `BudgetSeconds`. C# keeps `TimeSpan` properties such as `Timeout` and `PollInterval`. |
 | Rendering cadence | `FramesPerSecond`; distinct from the source polling delay. |
 | Overall width | `Width = 0` resolves the current target/terminal; unknown width falls back to 100 cells. Positive widths are explicit. Recorded frames retain their geometry. |
 | Component sizing | `BarWidth` is a bar's cells; `Weight` is a share of remaining layout space. |

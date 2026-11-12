@@ -4,10 +4,8 @@ using System.Threading;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows a form or wizard and returns the answers.</para>
-    /// <para type="description">The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\&lt;app&gt;. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.</para>
-    /// </summary>
+    /// <summary>Shows a form or wizard and returns the answers.</summary>
+    /// <remarks><para>The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\&lt;app&gt;. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.</para></remarks>
     /// <example>
     ///   <para>Run a wizard and use the answers</para>
     ///   <code>
@@ -15,7 +13,15 @@ namespace ConsoleMonster.PowerShell {
     /// $answers = Read-ConsoleForm $form
     /// if ($answers) { Write-Host "Selected $($answers.Name)" }</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsoleForm")]
+    /// <example>
+    /// <para>Collect a server name and display the submitted values</para>
+    /// <code>$form = New-ConsoleForm 'Inspect inventory' -Content {
+    ///     New-ConsoleField Server 'Server name' -Default web01 -Required
+    /// }
+    /// Read-ConsoleForm $form | Show-ConsoleTable
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommunications.Read, "ConsoleForm", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleform/")]
     [OutputType(typeof(PSObject), typeof(FormResult))]
     public sealed class CmdletReadConsoleForm : PSCmdlet {
         private CancellationTokenSource? _stop;
@@ -31,6 +37,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Remembers the submitted answers and offers them next time (needs -AppName).</para></summary>
         [Parameter]
 
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter RememberLastChoices { get; set; }
 
         /// <summary><para type="description">The folder that holds the app's storage folder (default: per user).</para></summary>
@@ -39,6 +46,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Draws the form in the scrollback instead of the alternate screen.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Inline { get; set; }
 
         /// <summary><para type="description">A preset to apply first: a built-in one (New-ConsoleForm -Preset) or one saved under -AppName.</para></summary>
@@ -47,10 +55,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns the full result (Submitted, Values, CommandLine) instead of the answers.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <summary><para type="description">Returns secrets as plain strings.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsPlainText { get; set; }
 
         /// <summary><para type="description">Forces how to ask: Rich, Line, Accessible or None.</para></summary>

@@ -35,9 +35,9 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
     IWidget summary = outcomes.Count > 0
         ? new ViewFacts().Add(outcomes.Count(result => result.Succeeded), "passed", ThemeToken.Pass)
             .Add(outcomes.Count(result => !result.Succeeded), "retry needed", ThemeToken.Warn)
-        : new TextBlock("[muted]Ctrl+C cancels active work.[/]");
+        : TextBlock.FromMarkup("[muted]Ctrl+C cancels active work.[/]");
     return new Rows(
-        new TextBlock("[accent bold]Parallel patch run[/] [muted]· throttle 3[/]"),
+        TextBlock.FromMarkup("[accent bold]Parallel patch run[/] [muted]· throttle 3[/]"),
         table,
         summary)
     {

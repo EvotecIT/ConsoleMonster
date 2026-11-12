@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoletoggle/
 schema: 2.0.0
 ---
 # New-ConsoleToggle
 ## SYNOPSIS
 Creates a named Boolean toggle for Show-ConsoleApp.
-
-Emits a stable core Toggle widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleToggle [-Key] <string> [[-Label] <string>] [-Value <bool>] [-OnText <
 ```
 
 ## DESCRIPTION
-Creates a named Boolean toggle for Show-ConsoleApp.
-
 Emits a stable core Toggle widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.
 
 ## EXAMPLES
@@ -29,6 +25,15 @@ New-ConsoleToggle -Key Enabled -Label 'Enable checks' -Value $true
 ```
 
 Create an application input.
+
+### EXAMPLE 2
+```powershell
+Show-ConsoleApp -Content {
+    New-ConsoleToggle -Key includeOffline -Label 'Include offline servers'
+}
+```
+
+Compose an inventory toggle
 
 ## PARAMETERS
 
@@ -43,7 +48,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -139,7 +144,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -171,7 +176,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -189,4 +194,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletoggle/](https://consolemonster.dev/powershell/commands/new-consoletoggle/)

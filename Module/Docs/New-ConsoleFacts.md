@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolefacts/
 schema: 2.0.0
 ---
 # New-ConsoleFacts
 ## SYNOPSIS
 Creates a facts line with bold counts, semantic colours and shared separators.
-
-Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleFacts [[-InputObject] <psobject>] [[-Content] <scriptblock>] [<Common
 ```
 
 ## DESCRIPTION
-Creates a facts line with bold counts, semantic colours and shared separators.
-
 Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ New-ConsoleFacts -Content { @{ Value = 3; Label = 'passed'; Role = 'Pass' }; @{ 
 ```
 
 A report summary
+
+### EXAMPLE 2
+```powershell
+$summary = [pscustomobject]@{ Value = 4; Label = 'servers online'; Role = 'Pass' }
+$summary | New-ConsoleFacts | Show-Console
+```
+
+Show the number of online servers
 
 ## PARAMETERS
 
@@ -77,4 +81,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolefacts/](https://consolemonster.dev/powershell/commands/new-consolefacts/)

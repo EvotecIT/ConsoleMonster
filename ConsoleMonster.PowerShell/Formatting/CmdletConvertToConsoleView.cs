@@ -3,11 +3,9 @@ using System.Linq;
 using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Drafts a reusable console view from sample objects.</para>
-    /// <para type="description">Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.</para>
-    /// <para type="description">Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.</para>
-    /// </summary>
+    /// <summary>Drafts a reusable console view from sample objects.</summary>
+    /// <remarks><para>Returns a ready-to-paste Register-ConsoleView script with plain property names, named one-line presenter columns and a default count summary. Examines the first 50 objects and chooses up to six nonempty columns from DefaultDisplayPropertySet or declared properties, with a name or identity column first. Reuses default-table presenters, with status words, byte bars for a range greater than tenfold and relative dates for the last 30 days. Long registrations use a splat. Input objects are not changed. Empty input produces no draft.</para>
+    /// <para type="description">Keep the script in your profile, or use -AsDataFile for a ModuleName.consoleviews.psd1 file beside the module manifest. Deserialized input drafts for the base type with a warning; Selected input keeps its selected type name with a warning. A draft describes the first object's type; sample one shape at a time.</para></remarks>
     /// <example>
     /// <para>Draft Name, Id, CPU, Handles and SI with a processes count. The Id presenter uses a named variable, plain columns stay names, and the registration uses a splat when needed. Paste the returned script into your profile; drop -Summary $summary to omit its count line.</para>
     /// <code>Get-Process | ConvertTo-ConsoleView</code>
@@ -43,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
     /// Get-Process
     /// </code>
     /// </example>
-    [Cmdlet(VerbsData.ConvertTo, "ConsoleView")]
+    [Cmdlet(VerbsData.ConvertTo, "ConsoleView", HelpUri = "https://consolemonster.dev/powershell/commands/convertto-consoleview/")]
     [OutputType(typeof(string))]
     public sealed class CmdletConvertToConsoleView : PSCmdlet {
         /// <summary><para type="description">Objects of one shape to sample. Only the first 50 objects influence the draft.</para></summary>
@@ -52,10 +50,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns a complete data-only .consoleviews.psd1 document with one Views entry. Expressions are property names; no script blocks are written. A name too long to fit a line under 100 characters produces a warning and no draft; omit this switch to use a script instead.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsDataFile { get; set; }
 
         /// <summary><para type="description">Also registers the drafted columns and default summary in this session. Use Enable-ConsoleFormatting to show registered views on the console. The summary counts items using the type name and adds lowercase status counts with pass, warning and failure roles.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Register { get; set; }
 
         private readonly List<PSObject> _samples = new List<PSObject>();

@@ -46,25 +46,15 @@ int peak = Array.IndexOf(errorsPerHour, errorsPerHour.Max());
 var topIds = eventIds.OrderByDescending(row => row.Count).ToArray();
 
 // Layout: headline, the 24-hour trend, the noisiest sources beside the top IDs, then criticals.
-var errors = (Sparkline)Ui.Chart()
-    .Type(ChartType.Sparkline)
-    .Title("errors")
-    .Height(3)
-    .Role(ThemeToken.Fail)
-    .Build();
+var errors = Ui.Sparkline().Title("errors").Height(3).Role(ThemeToken.Fail);
 errors.AddRange(errorsPerHour);
 foreach (int hour in Enumerable.Range(0, 24))
     errors.Labels.Add($"{hour:00}:00");
-var warnings = (Sparkline)Ui.Chart()
-    .Type(ChartType.Sparkline)
-    .Title("warnings")
-    .Height(3)
-    .Role(ThemeToken.Warn)
-    .Build();
+var warnings = Ui.Sparkline().Title("warnings").Height(3).Role(ThemeToken.Warn);
 warnings.AddRange(warningsPerHour);
 foreach (int hour in Enumerable.Range(0, 24))
     warnings.Labels.Add($"{hour:00}:00");
-var noisiest = (BarChart)Ui.Chart().Type(ChartType.Bar).Build();
+var noisiest = Ui.BarChart();
 foreach (var source in sources)
     noisiest.Add(source.Source, source.Errors);
 var idTable = Ui.Table(topIds)
@@ -81,38 +71,38 @@ var criticalTable = Ui.Table(critical)
     .Column(row => row.Message)
     .Border(TableBorder.None)
     .Expand();
-var report = Ui.Rows().Gap(1).Content(c3 =>
+var report = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c3.Rule("[accent bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]");
-    c3.Facts(facts => facts.Add(critical.Length, "critical", ThemeToken.Critical)
+    rowsContent.Rule("[accent bold]Event log summary[/] [muted]· 6 servers · Sunday 2026-10-25[/]");
+    rowsContent.Facts(facts => facts.Add(critical.Length, "critical", ThemeToken.Critical)
         .Add(errorTotal, "errors", ThemeToken.Fail)
         .Add(warningTotal, "warnings", ThemeToken.Warn)
         .Add(new ViewFact($"{peak:00}:00", default, "busiest hour")));
-    c3.Columns(columns => columns.Content(c2 =>
+    rowsContent.Columns(columns => columns.Content(columnsContent =>
     {
-        c2.Panel(p => p.Title("Errors per hour").Content(c =>
+        columnsContent.Panel(p => p.Title("Errors per hour").Content(panelContent =>
         {
-            c.Add(errors);
+            panelContent.Add(errors);
         }));
-        c2.Panel(p => p.Title("Warnings per hour").Content(c =>
+        columnsContent.Panel(p => p.Title("Warnings per hour").Content(panelContent =>
         {
-            c.Add(warnings);
+            panelContent.Add(warnings);
         }));
     }));
-    c3.Columns(columns => columns.Content(c2 =>
+    rowsContent.Columns(columns => columns.Content(columnsContent =>
     {
-        c2.Panel(p => p.Title("Noisiest sources").Content(c =>
+        columnsContent.Panel(p => p.Title("Noisiest sources").Content(panelContent =>
         {
-            c.Add(noisiest);
+            panelContent.Add(noisiest);
         }));
-        c2.Panel(p => p.Title("Top event IDs").Content(c =>
+        columnsContent.Panel(p => p.Title("Top event IDs").Content(panelContent =>
         {
-            c.Add(idTable);
+            panelContent.Add(idTable);
         }));
     }));
-    c3.Panel(p => p.Title("Critical events").Content(c =>
+    rowsContent.Panel(p => p.Title("Critical events").Content(panelContent =>
     {
-        c.Add(criticalTable);
+        panelContent.Add(criticalTable);
     }));
 });
 

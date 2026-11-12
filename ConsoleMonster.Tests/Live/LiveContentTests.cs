@@ -67,7 +67,7 @@ namespace ConsoleMonster.Tests.Live {
             RegionWidget slot = new RegionWidget("main", new TextBlock("loading"));
             Panel panel = new Panel(slot, "Result");
             Assert.Contains("loading", TestTerminal.RenderText(panel, 30, glyphs: GlyphTier.Ascii));
-            slot.Apply(new LiveEvent("main", "set") { Payload = new TextBlock("[pass]done[/]") });
+            slot.Apply(new LiveEvent("main", "set") { Payload = TextBlock.FromMarkup("[pass]done[/]") });
             string text = TestTerminal.RenderText(panel, 30, glyphs: GlyphTier.Ascii);
             Assert.Contains("done", text);
             Assert.DoesNotContain("loading", text);

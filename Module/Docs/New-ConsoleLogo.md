@@ -1,34 +1,37 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolelogo/
 schema: 2.0.0
 ---
 # New-ConsoleLogo
 ## SYNOPSIS
 Creates banner text drawn with a pixel font and a colour gradient.
 
-Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) on modern and Consolas fonts, and with # in ASCII mode. Colours accept names, #hex or rgb().
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleLogo [-Text] <string> [-Subtitle <Object>] [-StartColor <string>] [-EndColor <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
+New-ConsoleLogo [-Text] <string> [-Tagline <Object>] [-StartColor <string>] [-EndColor <string>] [-Alignment <HorizontalAlignment>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates banner text drawn with a pixel font and a colour gradient.
-
 Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) on modern and Consolas fonts, and with # in ASCII mode. Colours accept names, #hex or rgb().
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLogo -Text 'DEPLOY' -Subtitle 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console
+New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console
 ```
 
 A banner with a tagline
+
+### EXAMPLE 2
+```powershell
+New-ConsoleLogo -Text 'Fleet' -Tagline 'Inventory checks' | Show-Console
+```
+
+Print a fleet heading and tagline
 
 ## PARAMETERS
 
@@ -43,7 +46,7 @@ Possible values: Left, Center, Right
 
 Required: False
 Position: named
-Default value: None
+Default value: Left
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -80,7 +83,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Subtitle
+### -Tagline
 A muted tagline under the banner (markup allowed).
 
 ```yaml
@@ -97,7 +100,7 @@ Accept wildcard characters: False
 ```
 
 ### -Text
-The banner text.
+The literal heading drawn with the selected banner font.
 
 ```yaml
 Type: String
@@ -125,4 +128,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolelogo/](https://consolemonster.dev/powershell/commands/new-consolelogo/)

@@ -6,10 +6,8 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Sessions;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</para>
-    /// <para type="description">PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para>
-    /// </summary>
+    /// <summary>Exports a terminal session or dashboard recording to slide images, animations, video, a player or asciicast.</summary>
+    /// <remarks><para>PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para></remarks>
     /// <example>
     /// <para>Return a text document from an existing terminal recording</para>
     /// <code># Requires an existing session.cast recorded by Invoke-ConsoleRecording.
@@ -22,7 +20,7 @@ namespace ConsoleMonster.PowerShell {
     /// Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Svg
     /// Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Html -Width 120 -Height 36</code>
     /// </example>
-    [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session")]
+    [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session", HelpUri = "https://consolemonster.dev/powershell/commands/export-consolerecording/")]
     [OutputType(typeof(string), typeof(FileInfo))]
     public sealed partial class CmdletExportConsoleRecording : NoPipelineInputCmdlet {
         private readonly System.Threading.CancellationTokenSource _exportStop = new System.Threading.CancellationTokenSource();
@@ -49,25 +47,30 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Dashboard playback width in cells (default 0: terminal width, falling back to 100). Session casts retain their recorded dimensions.</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Dashboard playback height in cells (default 30). Session casts retain their recorded dimensions.</para></summary>
         [Parameter]
         [ValidateRange(3, 1000)]
+        [PSDefaultValue(Help = "30")]
         public int Height { get; set; } = 30;
 
         /// <summary><para type="description">Frames per second sampled from the recording (default 10).</para></summary>
         [Parameter]
         [ValidateRange(0.1, 60)]
+        [PSDefaultValue(Help = "10")]
         public double FramesPerSecond { get; set; } = 10;
 
         /// <summary><para type="description">Playback speed baked into the export (default 1).</para></summary>
         [Parameter]
         [ValidateRange(0.01, 100)]
+        [PSDefaultValue(Help = "1")]
         public double Speed { get; set; } = 1;
 
         /// <summary><para type="description">Auto (default) uses a terminal recording's captured palette, otherwise Dark. Dark, Light and HighContrast override it; Current uses the session's active theme.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Auto")]
         public ExportTheme Theme { get; set; } = ExportTheme.Auto;
 
         /// <summary><para type="description">The title (page title, title bar, asciicast title).</para></summary>
@@ -81,19 +84,24 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">With -Path, also writes the file to the pipeline.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <summary><para type="description">With a session cast, exports the final visible frame as static SVG or PNG.</para></summary>
         [Parameter(ParameterSetName = "Session")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter FinalFrame { get; set; }
 
         /// <summary><para type="description">Graphics canvas: Docs, Slide16x9, Slide4x3 or Social.</para></summary>
         [Parameter, ValidateSet("Docs", "Slide16x9", "Slide4x3", "Social")]
+        [PSDefaultValue(Help = "Docs")]
         public string Preset { get; set; } = "Docs";
         /// <summary><para type="description">Slide fitting: Content trims unused rows and columns with two trailing columns of padding; Terminal keeps the complete grid. Animations use one stable size throughout the clip.</para></summary>
-        [Parameter, ValidateSet("Content", "Terminal")] public string Fit { get; set; } = "Content";
+        [Parameter, ValidateSet("Content", "Terminal")] [PSDefaultValue(Help = "Content")]
+        public string Fit { get; set; } = "Content";
         /// <summary><para type="description">Slide background: Theme (default), Solid or Gradient.</para></summary>
-        [Parameter, ValidateSet("Theme", "Solid", "Gradient")] public string Background { get; set; } = "Theme";
+        [Parameter, ValidateSet("Theme", "Solid", "Gradient")] [PSDefaultValue(Help = "Theme")]
+        public string Background { get; set; } = "Theme";
         /// <summary><para type="description">Solid background or gradient start as #RGB or #RRGGBB.</para></summary>
         [Parameter] public string? BackgroundColor { get; set; }
         /// <summary><para type="description">Gradient end as #RGB or #RRGGBB; omitted uses the theme background.</para></summary>
@@ -102,19 +110,24 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Installed raster font; omitted uses embedded JetBrains Mono.</para></summary>
         [Parameter] public string? FontFamily { get; set; }
         /// <summary><para type="description">Source recording time for PNG, before playback speed or idle compression.</para></summary>
-        [Parameter(ParameterSetName = "Session")] public double AtSeconds { get; set; }
+        [Parameter(ParameterSetName = "Session")] [PSDefaultValue(Help = "0")]
+        public double AtSeconds { get; set; }
         private System.TimeSpan At => System.TimeSpan.FromSeconds(AtSeconds);
         /// <summary><para type="description">Exports the completed view of this chapter as PNG.</para></summary>
         [Parameter(ParameterSetName = "Session")] public string? Chapter { get; set; }
         /// <summary><para type="description">Writes numbered PNG slides to the destination directory, one per chapter.</para></summary>
-        [Parameter(ParameterSetName = "Session")] public SwitchParameter PerChapter { get; set; }
+        [Parameter(ParameterSetName = "Session")] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter PerChapter { get; set; }
         /// <summary><para type="description">Maximum source delay on an unchanged screen; zero disables capping. Reading and explicit holds are never capped.</para></summary>
-        [Parameter, ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
+        [Parameter, ValidateRange(0, 86400)] [PSDefaultValue(Help = "2")]
+        public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Total animation plays: zero repeats forever, one plays once.</para></summary>
-        [Parameter, ValidateRange(0, 65536)] public int LoopCount { get; set; }
+        [Parameter, ValidateRange(0, 65536)] [PSDefaultValue(Help = "0")]
+        public int LoopCount { get; set; }
 
         /// <summary><para type="description">Maximum raster font size in pixels; default 72.</para></summary>
-        [Parameter, ValidateRange(0.01, 4096)] public double MaxFontSize { get; set; } = 72;
+        [Parameter, ValidateRange(0.01, 4096)] [PSDefaultValue(Help = "72")]
+        public double MaxFontSize { get; set; } = 72;
         /// <summary><para type="description">Additional raster font-family fallbacks, in preferred order.</para></summary>
         [Parameter] public string[]? FontFallbacks { get; set; }
 

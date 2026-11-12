@@ -1,18 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/enable-consoleformatting/
 schema: 2.0.0
 ---
 # Enable-ConsoleFormatting
 ## SYNOPSIS
 Enables the everyday console views, native format commands and theme colours.
-
-Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting.
-
-By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Prompt, Help, Progress and GridView require Include. ErrorLayout Compact opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session. In supported CI providers, the Errors feature also annotates displayed errors with a script position, including terminating errors; each output pipeline emits at most ten annotations and one overflow count.
-
-Files, processes, services, structured records, commands, modules, history, IP addresses, volumes, versions, dictionaries and registered types get built-in or registered views. Explicit Show-Console commands remain available when you want to choose the view yourself. Custom Out-Default functions are kept unless Force is specified; Prompt does not replace oh-my-posh or Starship without Force.
 
 ## SYNTAX
 ### Default (Default)
@@ -21,8 +15,6 @@ Enable-ConsoleFormatting [-Include <ConsoleFormattingFeature[]>] [-Exclude <Cons
 ```
 
 ## DESCRIPTION
-Enables the everyday console views, native format commands and theme colours.
-
 Three ways to use ConsoleMonster output: Automatic: enable formatting, then use ordinary commands for known and registered types. Explicit: pipe any objects to Show-ConsoleTable to choose columns, a title and grouping, or to Show-ConsoleObject to explore their members. These commands do not change session formatting; Show-ConsoleObject -Mode Snapshot avoids interactive input in scripts. Native Format commands: FormatCommands styles direct console output while keeping PowerShell's column choices; it is included by default; use -Exclude FormatCommands to leave it native. You do not need both automatic and explicit formatting.
 
 By default, Output, FormatCommands, Errors, Streams and ReadLine are enabled. Format-Table, Format-List and Format-Wide keep PowerShell's column choices and change only direct console output; pipelines, captures, files, jobs, remoting and transcripts remain native. Use Include to add opt-in features and Exclude to remove features from the default set. Prompt, Help, Progress and GridView require Include. ErrorLayout Compact opts into the compact error layout. Get-ConsoleFormatting reports what is enabled. Disable-ConsoleFormatting restores the session. In supported CI providers, the Errors feature also annotates displayed errors with a script position, including terminating errors; each output pipeline emits at most ten annotations and one overflow count.
@@ -107,7 +99,7 @@ Possible values: Compact, Standard, Detailed
 
 Required: False
 Position: named
-Default value: None
+Default value: Standard
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -139,7 +131,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -171,7 +163,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -187,7 +179,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +195,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -213,7 +205,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -221,4 +213,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/enable-consoleformatting/](https://consolemonster.dev/powershell/commands/enable-consoleformatting/)

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolelayoutgrid/
 schema: 2.0.0
 ---
 # New-ConsoleLayoutGrid
 ## SYNOPSIS
 Lays console widgets out in an equal-width grid.
-
-Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleLayoutGrid [[-Content] <Object>] [-Columns <int>] [-ColumnGap <int>] 
 ```
 
 ## DESCRIPTION
-Lays console widgets out in an equal-width grid.
-
 Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.
 
 ## EXAMPLES
@@ -29,6 +25,16 @@ New-ConsoleLayoutGrid -Columns 3 -Content { New-ConsoleChart -WidgetId a -Type S
 ```
 
 Three charts in a row
+
+### EXAMPLE 2
+```powershell
+New-ConsoleLayoutGrid -Columns 2 -Content {
+                New-ConsolePanel 'Inventory' -Content { New-ConsoleText '2 servers' }
+                New-ConsolePanel 'Status' -Content { New-ConsoleText 'Online' -Role Pass }
+            } | Show-Console
+```
+
+Arrange an inventory count beside its status
 
 ## PARAMETERS
 
@@ -43,7 +49,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -59,7 +65,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -91,7 +97,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 24
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -107,7 +113,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -123,7 +129,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -141,4 +147,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolelayoutgrid/](https://consolemonster.dev/powershell/commands/new-consolelayoutgrid/)

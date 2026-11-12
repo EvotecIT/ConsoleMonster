@@ -16,11 +16,11 @@ IWidget Frame(int tick)
     {
         string status = index < tick ? "pass" : index == tick ? "accent" : "muted";
         string label = index < tick ? "complete" : index == tick ? "running" : "pending";
-        checklist.Add(new TextBlock("[" + status + "]" + stages[index] + "[/]  " + label));
+        checklist.Add(TextBlock.FromMarkup("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
     return new Rows(
-        new TextBlock("[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]"),
+        TextBlock.FromMarkup("[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]"),
         new Panel() { Title = "Release checklist", Content = checklist },
         new ProgressBar("Overall") { Value = tick, Total = 4 },
         new KeyValueList()
@@ -28,7 +28,7 @@ IWidget Frame(int tick)
             .Add("Version", "1.2.0")
             .Add("Artifacts", "./artifacts/")
             .Add("Publish", "manual approval"),
-        new TextBlock("[muted]Ctrl+C stops the live run.[/]"))
+        TextBlock.FromMarkup("[muted]Ctrl+C stops the live run.[/]"))
     {
         Gap = 1
     };

@@ -19,13 +19,7 @@ var folders = new FolderRow[]
 };
 
 // Layout: bars answer where pressure is; the tree explains what occupies the space.
-BarChart chart = (BarChart)Ui.Chart()
-    .Type(ChartType.Bar)
-    .Maximum(100)
-    .Unit("%")
-    .Warning(80)
-    .Critical(90)
-    .Build();
+BarChart chart = Ui.BarChart().Maximum(100).Unit("%").Warning(80).Critical(90);
 foreach (var volume in used)
     chart.Add(volume.Name, volume.Percent);
 Tree tree = Ui.Tree().Title("./");
@@ -36,27 +30,28 @@ foreach (var folder in folders)
         node.Add(child.Label, null, child.Size);
 }
 
-Rows report = Ui.Rows().Gap(1).Content(c3 =>
+Rows report = Ui.Rows().Gap(1).Content(rowsContent2 =>
 {
-    c3.Rule("[accent bold]Storage review[/] [muted]· capacity planning[/]");
-    c3.Columns(columns => columns.Content(c2 =>
+    rowsContent2.Rule("[accent bold]Storage review[/] [muted]· capacity planning[/]");
+    rowsContent2.Columns(columns => columns.Content(columnsContent =>
     {
-        c2.Panel(p => p.Title("Used / 100 GiB").Content(c =>
+        columnsContent.Panel(p => p.Title("Used / 100 GiB").Content(panelContent =>
         {
-            c.Add(chart);
+            panelContent.Add(chart);
         }));
-        c2.Panel(p => p.Title("Largest folders").Content(c =>
+        columnsContent.Panel(p => p.Title("Largest folders").Content(panelContent =>
         {
-            c.Add(tree);
+            panelContent.Add(tree);
         }));
     }));
-    c3.Panel(p => p.Title("Next action").Content(c2 =>
+    rowsContent2.Panel(p => p.Title("Next action").Content(panelContent =>
     {
-        c2.Rows(r => r.Content(c =>
+        panelContent.Rows(r => r.Content(rowsContent =>
         {
-            c.Markup(
+            rowsContent.Markup(
                 "[fail]Artifacts is at 94%.[/] Review the retention policy before the next build.");
-            c.Markup("[muted]Keep the current release; archive history older than 30 days.[/]");
+            rowsContent.Markup(
+                "[muted]Keep the current release; archive history older than 30 days.[/]");
         }));
     }));
 });

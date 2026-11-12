@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolediagram/
 schema: 2.0.0
 ---
 # New-ConsoleDiagram
 ## SYNOPSIS
 Builds a diagram from a script block or connection rows.
-
-Emit New-ConsoleDiagramNode, Link, Group and UseCase objects in Content. A node's label is its id unless Id is given. Pipeline rows use From, To, Label, Status and Group; selectors accept property names or script blocks using $_. Connections create undeclared endpoints. Graphics is optional for C#; the module includes it and registers its renderer.
 
 ## SYNTAX
 ### Rows (Default)
@@ -17,8 +15,6 @@ New-ConsoleDiagram [[-Content] <scriptblock>] [-InputObject <psobject>] [-Title 
 ```
 
 ## DESCRIPTION
-Builds a diagram from a script block or connection rows.
-
 Emit New-ConsoleDiagramNode, Link, Group and UseCase objects in Content. A node's label is its id unless Id is given. Pipeline rows use From, To, Label, Status and Group; selectors accept property names or script blocks using $_. Connections create undeclared endpoints. Graphics is optional for C#; the module includes it and registers its renderer.
 
 ## EXAMPLES
@@ -66,7 +62,7 @@ Possible values: Right, Down, Left, Up
 
 Required: False
 Position: named
-Default value: None
+Default value: Right
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -146,7 +142,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -162,7 +158,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 7
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -178,7 +174,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -194,7 +190,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -210,7 +206,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -226,7 +222,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -242,7 +238,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -306,7 +302,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: diagram
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -324,4 +320,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolediagram/](https://consolemonster.dev/powershell/commands/new-consolediagram/)

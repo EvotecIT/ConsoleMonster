@@ -9,10 +9,8 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a script block again and again and shows its latest output as a live view.</para>
-    /// <para type="description">Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Without an interactive console (redirected output, CI, a job), the current view is printed once by default; an explicit finite -Count prints that many runs. Piped output is append-only; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.</para>
-    /// </summary>
+    /// <summary>Runs a script block again and again and shows its latest output as a live view.</summary>
+    /// <remarks><para>Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Without an interactive console (redirected output, CI, a job), the current view is printed once by default; an explicit finite -Count prints that many runs. Piped output is append-only; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.</para></remarks>
     /// <example>
     /// <para>Watch a bounded process sample</para>
     /// <code>Watch-Console { Get-Process | Select-Object -First 5 Name, Id, CPU } -Count 3 -PollIntervalSeconds 1</code>
@@ -25,26 +23,29 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Highlight changes in file-system drive space</para>
     /// <code>Watch-Console -Title 'Disk space' -PollIntervalSeconds 1 -Count 3 -Differences { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Watch, "Console")]
+    [Cmdlet(VerbsCommon.Watch, "Console", HelpUri = "https://consolemonster.dev/powershell/commands/watch-console/")]
     public sealed class CmdletWatchConsole : NoPipelineInputCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
 
-        /// <summary><para type="description">The script block to run.</para></summary>
+        /// <summary><para type="description">The script evaluated on each refresh to produce the next displayed value.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         public ScriptBlock ScriptBlock { get; set; } = null!;
 
         /// <summary><para type="description">Seconds between runs (default 2).</para></summary>
         [Parameter]
         [ValidateRange(0.05, 86400)]
+        [PSDefaultValue(Help = "2")]
         public double PollIntervalSeconds { get; set; } = 2;
 
         /// <summary><para type="description">How many runs; zero follows interactively until Ctrl+C, or prints one snapshot without a user.</para></summary>
         [Parameter]
         [ValidateRange(0, int.MaxValue)]
+        [PSDefaultValue(Help = "0")]
         public int Count { get; set; }
 
         /// <summary><para type="description">Highlights the cells that changed since the previous run.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Differences { get; set; }
 
         /// <summary><para type="description">A title for the heading (markup); default the script block's text.</para></summary>
@@ -52,10 +53,12 @@ namespace ConsoleMonster.PowerShell {
         public object? Title { get; set; }
 
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
-        [Parameter] public SwitchParameter NoLive { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLive { get; set; }
 
         /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
-        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -136,7 +139,7 @@ namespace ConsoleMonster.PowerShell {
             }
             IWidget view = PSFormatting.ViewOf(output, this);
             if (notes.Count > 0) {
-                view = new Rows(view, new TextBlock(string.Join("\n", notes.ToArray())));
+                view = new Rows(view, TextBlock.FromMarkup(string.Join("\n", notes.ToArray())));
             }
             // A run with errors shows its content and says so in the heading.
             return errors > 0 ? new WatchFrame(view, errors == 1 ? "1 error" : errors.ToString(System.Globalization.CultureInfo.InvariantCulture) + " errors") : view;

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/read-consoleselect/
 schema: 2.0.0
 ---
 # Read-ConsoleSelect
 ## SYNOPSIS
 Asks the user to pick one of the choices and returns the chosen object.
-
-Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
 
 ## SYNTAX
 ### Single (Default)
@@ -22,8 +20,6 @@ Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] -Multiple [-Defau
 ```
 
 ## DESCRIPTION
-Asks the user to pick one of the choices and returns the chosen object.
-
 Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
 
 ## EXAMPLES
@@ -91,7 +87,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -267,7 +263,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -283,7 +279,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -321,7 +317,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The question.
+The prompt displayed above the input control.
 
 ```yaml
 Type: String
@@ -331,7 +327,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: Enter a value
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -349,4 +345,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consoleselect/](https://consolemonster.dev/powershell/commands/read-consoleselect/)

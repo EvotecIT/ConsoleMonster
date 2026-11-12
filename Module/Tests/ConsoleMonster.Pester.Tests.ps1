@@ -150,7 +150,7 @@ $c.Run.Path = $fixtures
 $c.Run.PassThru = $true
 $c.Filter.FullName = '*adds*'
 $path = Join-Path $fixtures 'run.html'
-$r = Invoke-ConsolePester -Configuration $c -ReportPath $path
+$r = Invoke-ConsolePester -Configuration $c -ExportHtml $path
 "COUNTS=$($r.Result);$($r.PassedCount);$($r.FailedCount)"
 "HTML=$((Get-Content -LiteralPath $path -Raw) -match 'Sample\.Tests\.ps1')"
 '@
@@ -161,7 +161,7 @@ $r = Invoke-ConsolePester -Configuration $c -ReportPath $path
     It 'stops with a clear error when Pester 5 or later is not installed' {
         $text = Invoke-PesterChild -WithoutPester @'
 $preview = Join-Path $fixtures 'preview/never.html'
-Invoke-ConsolePester -Path $fixtures -ReportPath $preview -WhatIf -ErrorAction Stop
+Invoke-ConsolePester -Path $fixtures -ExportHtml $preview -WhatIf -ErrorAction Stop
 if (Get-Module Pester) { throw 'WhatIf imported Pester' }
 if (Test-Path (Split-Path $preview -Parent)) { throw 'WhatIf created report output' }
 'PESTER_PREVIEW_OK'

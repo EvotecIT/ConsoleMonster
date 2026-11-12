@@ -6,10 +6,8 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a console dashboard live while a script does the work.</para>
-    /// <para type="description">The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.</para>
-    /// </summary>
+    /// <summary>Runs a console dashboard live while a script does the work.</summary>
+    /// <remarks><para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.</para></remarks>
     /// <example>
     /// <para>Process three sample servers in parallel</para>
     /// <code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content {
@@ -33,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
     ///     foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleDashboard")]
+    [Cmdlet(VerbsLifecycle.Invoke, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consoledashboard/")]
     public sealed class CmdletInvokeConsoleDashboard : PSCmdlet, IDisposable {
         private volatile bool _stopping;
         private LiveSession? _session;
@@ -60,10 +58,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Run the script once per input item on a runspace pool.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Parallel { get; set; }
 
         /// <summary><para type="description">Maximum concurrent runspaces with -Parallel (default 4).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "4")]
         public int ThrottleLimit { get; set; } = 4;
 
         /// <summary><para type="description">Functions from the caller's session to define in the dashboard runspaces, by name.</para></summary>
@@ -81,6 +81,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Records the run automatically to the local ConsoleMonster\Recordings folder and keeps only this many recent runs (within 50 MB together), for Show-ConsoleReplay. Ignored with -RecordingPath.</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int AutoRecord { get; set; }
 
         /// <summary><para type="description">A widget printed to scrollback after the dashboard ends (default: the dashboard's final state).</para></summary>
@@ -89,11 +90,13 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Draws the dashboard inline, below the cursor, instead of on the alternate screen: output and log lines scroll above it and the final state stays in the scrollback.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Inline { get; set; }
 
-        /// <summary><para type="description">Leaves nothing behind when the dashboard ends (no final state in the scrollback).</para></summary>
+        /// <summary><para type="description">Prints the final dashboard state in scrollback (default true); pass -PrintFinalState:$false to leave nothing behind.</para></summary>
         [Parameter]
-        public SwitchParameter Transient { get; set; }
+        [PSDefaultValue(Help = "$true")]
+        public SwitchParameter PrintFinalState { get; set; } = new SwitchParameter(true);
 
         /// <summary><para type="description">An optional C# run clock implementing IClock for the header clock, the summary bar's times and log times, instead of real time. Pass it to the script with -ArgumentList to move it forward there.</para></summary>
         [Parameter]
@@ -101,6 +104,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Redraw rate (default 15).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "15")]
         public double FramesPerSecond { get; set; } = 15;
 
         private bool Cancelled => _stopping || (_session != null && _session.Cancellation.IsCancellationRequested);
@@ -138,10 +142,12 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary><para type="description">Disables live redraws and uses append-only output.</para></summary>
-        [Parameter] public SwitchParameter NoLive { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLive { get; set; }
 
         /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
-        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void BeginProcessing() {
@@ -149,9 +155,9 @@ namespace ConsoleMonster.PowerShell {
                 FramesPerSecond = FramesPerSecond,
                 Live = !NoLive.IsPresent,
                 Mode = Inline.IsPresent ? LiveMode.Inline : LiveMode.FullScreen,
-                PrintFinalState = !Transient.IsPresent,
+                PrintFinalState = PrintFinalState.IsPresent,
                 Summary = Summary,
-                RecordPath = RecordingPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath),
+                RecordingPath = RecordingPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath),
                 AutoRecord = AutoRecord,
                 RecordingName = "dashboard",
                 Clock = Clock == null ? null : new Func<TimeSpan>(Clock.Read)

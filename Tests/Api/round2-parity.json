@@ -355,7 +355,7 @@
           "Static": false
         },
         {
-          "Parameter": "IncludeEqual",
+          "Parameter": "IncludeUnchanged",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
           "Sets": [
@@ -394,6 +394,27 @@
           ]
         },
         {
+          "Parameter": "Key",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
+          "Member": "Key",
+          "MemberKind": "Property",
+          "Conversion": "Collection",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Reason": "PowerShell property selection is adapted to the typed comparison options.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
           "CSharpTypeName": "System.Collections.Generic.IReadOnlyList`1[System.String]",
           "MemberKind": "Method",
           "Argument": "names",
@@ -410,27 +431,6 @@
               "Mandatory": false
             }
           ]
-        },
-        {
-          "Default": null,
-          "MemberKind": "Property",
-          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
-          "Sets": [
-            {
-              "Name": "Baseline",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "Nullable": "Unknown",
-          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-          "ParameterType": "System.String",
-          "Writable": false,
-          "Reason": "The baseline column heading uses the same named key selection as two-set matching.",
-          "Member": "Key",
-          "Conversion": "Collection",
-          "Parameter": "NameProperty",
-          "Static": false
         },
         {
           "Default": null,
@@ -492,27 +492,6 @@
           "MemberKind": "HostPolicy",
           "Conversion": "ShellOutputPolicy",
           "Reason": "Returns the command result or original input through the PowerShell pipeline; C# already returns or retains that value."
-        },
-        {
-          "Parameter": "Property",
-          "ParameterType": "System.String[]",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Changes.DiffOptions",
-          "Member": "Key",
-          "MemberKind": "Property",
-          "Conversion": "Collection",
-          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-          "Reason": "PowerShell property selection is adapted to the typed comparison options.",
-          "Nullable": "Unknown",
-          "Writable": false,
-          "Static": false
         },
         {
           "CSharpType": "ConsoleMonster.Changes.ChangePreviewOptions",
@@ -660,7 +639,7 @@
           "Static": false
         },
         {
-          "Parameter": "DifferenceName",
+          "Parameter": "DifferenceLabel",
           "ParameterType": "System.String",
           "Default": null,
           "Sets": [
@@ -748,7 +727,7 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "ReferenceName",
+          "Parameter": "ReferenceLabel",
           "ParameterType": "System.String",
           "Default": null,
           "Sets": [
@@ -2486,6 +2465,26 @@
           "Reason": "Schedules the callbacks in owning PowerShell worker runspaces."
         },
         {
+          "Parameter": "PrintFinalState",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": true,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "PrintFinalState",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "RecordingPath",
           "ParameterType": "System.String",
           "Default": null,
@@ -2497,13 +2496,34 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "RecordPath",
+          "Member": "RecordingPath",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         },
         {
           "Parameter": "ScriptBlock",
@@ -2554,48 +2574,6 @@
           "MemberKind": "HostPolicy",
           "Conversion": "HostPolicy",
           "Reason": "Bounds the PowerShell worker runspace count."
-        },
-        {
-          "Parameter": "Transient",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "PrintFinalState",
-          "MemberKind": "Property",
-          "Conversion": "BooleanInversion",
-          "CSharpTypeName": "System.Boolean",
-          "Reason": "Suppresses the final printed dashboard when the scope ends.",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "ReducedMotion",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "ReducedMotion",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false,
-          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -2700,6 +2678,26 @@
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String[]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "ExportHtml",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.Pester.ConsolePesterOptions",
+          "Member": "ExportHtml",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
@@ -2860,26 +2858,6 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "ReportPath",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.PowerShell.Pester.ConsolePesterOptions",
-          "Member": "ExportHtml",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "TagFilter",
           "ParameterType": "System.String[]",
           "Default": null,
@@ -2927,40 +2905,6 @@
       "CSharpType": "ConsoleMonster.Sessions.SessionRecorder",
       "Bindings": [
         {
-          "Parameter": "Headless",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "Headless",
-              "Position": -2147483648,
-              "Mandatory": true
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "HostPolicy",
-          "Reason": "Runs the script in this session against a headless terminal and records it; C# creates a HeadlessTerminal and calls Record."
-        },
-        {
-          "Parameter": "InputScript",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Headless",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
-          "Member": "Send",
-          "Argument": "script",
-          "MemberKind": "Method",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Reason": "The scripted keys are queued on the headless terminal before the script runs, and input ends after them."
-        },
-        {
           "Parameter": "ChromeStyle",
           "ParameterType": "ConsoleMonster.Export.WindowChromeStyle",
           "Default": "MacOS",
@@ -3007,6 +2951,21 @@
           "Conversion": "EnumDiscriminator",
           "CSharpTypeName": null,
           "Reason": "Selects the final-frame SVG operation."
+        },
+        {
+          "Parameter": "Headless",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Headless",
+              "Position": -2147483648,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "HostPolicy",
+          "Reason": "Runs the script in this session against a headless terminal and records it; C# creates a HeadlessTerminal and calls Record."
         },
         {
           "Parameter": "Height",
@@ -3067,6 +3026,25 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "InputScript",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Headless",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
+          "Member": "Send",
+          "Argument": "script",
+          "MemberKind": "Method",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Reason": "The scripted keys are queued on the headless terminal before the script runs, and input ends after them."
         },
         {
           "Parameter": "Interactive",
@@ -3160,7 +3138,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
-          "Member": "Path",
+          "Member": "RecordingPath",
           "MemberKind": "Property",
           "Conversion": "ProviderPath",
           "CSharpTypeName": "System.String",
@@ -3412,6 +3390,27 @@
           "Reason": "Schedules the callbacks in owning PowerShell worker runspaces."
         },
         {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
+        },
+        {
           "Parameter": "RetryCount",
           "ParameterType": "System.Int32",
           "Default": 0,
@@ -3540,27 +3539,6 @@
           "MemberKind": "HostPolicy",
           "Conversion": "HostPolicy",
           "Reason": "Controls when the PowerShell pipeline receives completed worker output."
-        },
-        {
-          "Parameter": "ReducedMotion",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "ReducedMotion",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false,
-          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -3570,7 +3548,7 @@
       "CSharpType": "ConsoleMonster.Widgets.ActivityList",
       "Bindings": [
         {
-          "Parameter": "MaxRows",
+          "Parameter": "MaxVisible",
           "ParameterType": "System.Int32",
           "Default": 8,
           "Sets": [
@@ -4685,6 +4663,26 @@
           "Static": false
         },
         {
+          "Parameter": "Labels",
+          "ParameterType": "System.String[]",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
+          "Member": "Labels",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
           "Parameter": "Maximum",
           "ParameterType": "System.Nullable`1[System.Double]",
           "Default": null,
@@ -5061,26 +5059,6 @@
           "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "Labels",
-          "ParameterType": "System.String[]",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "Labels",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-          "Nullable": "Unknown",
-          "Writable": false,
           "Static": false
         }
       ]
@@ -5492,26 +5470,6 @@
           "Static": false
         },
         {
-          "Parameter": "Hotkey",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.PowerShell.ConsoleCommandOptions",
-          "Member": "Shortcut",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "ImportModule",
           "ParameterType": "System.String[]",
           "Default": null,
@@ -5623,6 +5581,26 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Management.Automation.ScriptBlock",
           "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Shortcut",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.PowerShell.ConsoleCommandOptions",
+          "Member": "Shortcut",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
           "Writable": true,
           "Static": false
         }
@@ -5941,8 +5919,8 @@
           "Static": false
         },
         {
-          "Parameter": "PointLabels",
-          "ParameterType": "System.String[]",
+          "Parameter": "LinkKey",
+          "ParameterType": "System.String",
           "Default": null,
           "Sets": [
             {
@@ -5952,10 +5930,10 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
-          "Member": "PointLabels",
+          "Member": "LinkKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
+          "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
@@ -5996,8 +5974,8 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "LinkKey",
-          "ParameterType": "System.String",
+          "Parameter": "PointLabels",
+          "ParameterType": "System.String[]",
           "Default": null,
           "Sets": [
             {
@@ -6007,10 +5985,10 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.ChartViewInputOptions",
-          "Member": "LinkKey",
+          "Member": "PointLabels",
           "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
@@ -6178,6 +6156,26 @@
           "Static": false
         },
         {
+          "Parameter": "LinkKey",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
+          "Member": "LinkKey",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "NoQuickSearch",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -6252,26 +6250,6 @@
           "Reason": "The shell spelling selects this explicit nested option or typed collection.",
           "Nullable": "Unknown",
           "Writable": false,
-          "Static": false
-        },
-        {
-          "Parameter": "LinkKey",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.DataGridInputOptions",
-          "Member": "LinkKey",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
           "Static": false
         },
         {
@@ -6862,26 +6840,6 @@
           "Argument": "describe"
         },
         {
-          "Parameter": "Description",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.Field",
-          "Member": "Help",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "DisabledReason",
           "ParameterType": "System.Object",
           "Default": null,
@@ -6977,6 +6935,26 @@
           "Static": false
         },
         {
+          "Parameter": "Help",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Help",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Integer",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -7016,8 +6994,8 @@
         },
         {
           "Parameter": "Kind",
-          "ParameterType": "ConsoleMonster.Interactive.PathKind",
-          "Default": "Any",
+          "ParameterType": "ConsoleMonster.PowerShell.ConsoleFieldType",
+          "Default": "Text",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -7025,14 +7003,14 @@
               "Mandatory": false
             }
           ],
-          "CSharpType": "ConsoleMonster.Interactive.PathField",
-          "Member": "PathKind",
+          "CSharpType": "ConsoleMonster.Interactive.Field",
+          "Member": "Kind",
           "MemberKind": "Property",
           "Conversion": "EnumDiscriminator",
-          "CSharpTypeName": "ConsoleMonster.Interactive.PathKind",
-          "Reason": "Kind selects the path policy only for a path field; Type selects the field kind.",
-          "Nullable": "NotNull",
-          "Writable": true,
+          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
+          "Reason": "Kind selects the typed Field subclass; PathKind configures the path policy for Path fields.",
+          "Nullable": "Unknown",
+          "Writable": false,
           "Static": false
         },
         {
@@ -7337,6 +7315,26 @@
           "Static": false
         },
         {
+          "Parameter": "PathKind",
+          "ParameterType": "ConsoleMonster.Interactive.PathKind",
+          "Default": "Any",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.PathField",
+          "Member": "PathKind",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Interactive.PathKind",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Pattern",
           "ParameterType": "System.String",
           "Default": null,
@@ -7469,27 +7467,6 @@
           "CSharpTypeName": "System.Decimal",
           "Nullable": "NotNull",
           "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "Type",
-          "ParameterType": "ConsoleMonster.PowerShell.ConsoleFieldType",
-          "Default": "Text",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.Field",
-          "Member": "Kind",
-          "MemberKind": "Property",
-          "Conversion": "EnumDiscriminator",
-          "CSharpTypeName": "ConsoleMonster.Interactive.FieldKind",
-          "Reason": "Selects the corresponding typed Field subclass; Field.Kind records the immutable kind.",
-          "Nullable": "Unknown",
-          "Writable": false,
           "Static": false
         },
         {
@@ -7685,7 +7662,8 @@
           "Argument": "field",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "T"
+          "CSharpTypeName": "T",
+          "Reason": "InputObject follows the PowerShell pipeline convention; the C# argument names the individual field."
         },
         {
           "Parameter": "NoReview",
@@ -7890,7 +7868,8 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
-          "Argument": "name"
+          "Argument": "name",
+          "Reason": "Label names the visible placeholder label; the image constructor calls that label name."
         },
         {
           "Parameter": "Path",
@@ -8658,7 +8637,8 @@
           "Argument": "text",
           "MemberKind": "Constructor",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "CSharpTypeName": "System.String",
+          "Reason": "Filter is the log query; its text is passed to the typed filter constructor."
         },
         {
           "Parameter": "Height",
@@ -8891,7 +8871,7 @@
           "Static": false
         },
         {
-          "Parameter": "Subtitle",
+          "Parameter": "Tagline",
           "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
@@ -8988,7 +8968,8 @@
           "Argument": "item",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Interactive.MenuItem"
+          "CSharpTypeName": "ConsoleMonster.Interactive.MenuItem",
+          "Reason": "InputObject follows the PowerShell pipeline convention; the C# argument names the individual item."
         },
         {
           "Parameter": "Layout",
@@ -9190,36 +9171,6 @@
           "CSharpTypeName": "System.String",
           "Reason": "Computes each choice disabled reason; MenuItem.DisabledReason applies to the menu item.",
           "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "Default",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "Select",
-              "Position": -2147483648,
-              "Mandatory": false
-            },
-            {
-              "Name": "MultiSelect",
-              "Position": -2147483648,
-              "Mandatory": false
-            },
-            {
-              "Name": "LoadChoices",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.Choice",
-          "Member": "Selected",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         },
@@ -9754,6 +9705,36 @@
           "Static": false
         },
         {
+          "Parameter": "Selected",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "Select",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "MultiSelect",
+              "Position": -2147483648,
+              "Mandatory": false
+            },
+            {
+              "Name": "LoadChoices",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Choice",
+          "Member": "Selected",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Separator",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -9822,26 +9803,6 @@
       "Job": "New-ConsoleOutline",
       "CSharpType": "ConsoleMonster.Interactive.Outline",
       "Bindings": [
-        {
-          "Parameter": "SelectedIndex",
-          "ParameterType": "System.Int32",
-          "Default": "-1",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.Outline",
-          "Member": "SelectedIndex",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
         {
           "Parameter": "Disabled",
           "ParameterType": "System.Management.Automation.SwitchParameter",
@@ -9935,6 +9896,26 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineInputPolicy",
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "SelectedIndex",
+          "ParameterType": "System.Int32",
+          "Default": -1,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.Outline",
+          "Member": "SelectedIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "TabIndex",
@@ -10986,24 +10967,6 @@
       "CSharpType": "ConsoleMonster.Interactive.AppScreen",
       "Bindings": [
         {
-          "Parameter": "Key",
-          "ParameterType": "System.String",
-          "Default": "",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": 0,
-              "Mandatory": true
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.AppScreen",
-          "Member": ".ctor",
-          "MemberKind": "Constructor",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Argument": "key"
-        },
-        {
           "Parameter": "Content",
           "ParameterType": "System.Management.Automation.ScriptBlock",
           "Default": null,
@@ -11023,25 +10986,22 @@
           "Reason": "The script block's widgets become the screen content, as rows when it emits several."
         },
         {
-          "Parameter": "Title",
-          "ParameterType": "System.Object",
-          "Default": null,
+          "Parameter": "Key",
+          "ParameterType": "System.String",
+          "Default": "",
           "Sets": [
             {
               "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
+              "Position": 0,
+              "Mandatory": true
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.AppScreen",
-          "Member": "Title",
-          "MemberKind": "Property",
-          "Conversion": "TextOrStateScript",
+          "Member": ".ctor",
+          "MemberKind": "Constructor",
+          "Conversion": "Identity",
           "CSharpTypeName": "System.String",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false,
-          "Reason": "Text sets Title; a script block sets TitleSource and is invoked with $State on the app's input thread."
+          "Argument": "key"
         },
         {
           "Parameter": "KeyBinding",
@@ -11078,6 +11038,27 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineInputPolicy",
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
+        },
+        {
+          "Parameter": "Title",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.AppScreen",
+          "Member": "Title",
+          "MemberKind": "Property",
+          "Conversion": "TextOrStateScript",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "Text sets Title; a script block sets TitleSource and is invoked with $State on the app's input thread."
         }
       ]
     },
@@ -11267,6 +11248,26 @@
           "Argument": "display"
         },
         {
+          "Parameter": "Dropdown",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
+          "Member": "Dropdown",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Key",
           "ParameterType": "System.String",
           "Default": "",
@@ -11299,6 +11300,26 @@
           ],
           "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
           "Member": "Label",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "LinkKey",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
+          "Member": "LinkKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -11402,26 +11423,6 @@
           "Static": false
         },
         {
-          "Parameter": "Dropdown",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
-          "Member": "Dropdown",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "TabIndex",
           "ParameterType": "System.Int32",
           "Default": 0,
@@ -11454,26 +11455,6 @@
           ],
           "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
           "Member": "ValidationMessage",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "LinkKey",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.SelectInputOptions",
-          "Member": "LinkKey",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -12150,26 +12131,6 @@
           ]
         },
         {
-          "Parameter": "Descending",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "Live",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.LiveTable",
-          "Member": "SortDescending",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "Expand",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -12596,7 +12557,7 @@
           ]
         },
         {
-          "Parameter": "SortBy",
+          "Parameter": "SortColumn",
           "ParameterType": "System.Object",
           "Default": null,
           "Sets": [
@@ -12614,6 +12575,27 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Descending",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "Live",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.LiveTable",
+          "Member": "SortDescending",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "PowerShell uses Descending for reverse sorting, as in Sort-Object; the C# options retain SortDescending."
         },
         {
           "Parameter": "StatusProperty",
@@ -12865,26 +12847,6 @@
           ]
         },
         {
-          "Parameter": "SelectedIndex",
-          "ParameterType": "System.Int32",
-          "Default": 0,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.Tabs",
-          "Member": "SelectedIndex",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "Key",
           "ParameterType": "System.String",
           "Default": null,
@@ -12921,6 +12883,26 @@
           "Conversion": "ScriptBlockCallback",
           "CSharpTypeName": "System.EventHandler`1[ConsoleMonster.Interactive.AppValueChangedEventArgs]",
           "Reason": "The script block runs on the app input thread each time the active page changes, as Changed reports it."
+        },
+        {
+          "Parameter": "SelectedIndex",
+          "ParameterType": "System.Int32",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.Tabs",
+          "Member": "SelectedIndex",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         }
       ]
     },
@@ -13679,26 +13661,6 @@
           "Reason": "Evaluates a PowerShell content block, then supplies the collected widget/items to the same container or definition."
         },
         {
-          "Parameter": "Depth",
-          "ParameterType": "System.Int32",
-          "Default": 5,
-          "Sets": [
-            {
-              "Name": "Objects",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
-          "Member": "MaxDepth",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "DetailProperty",
           "ParameterType": "System.String",
           "Default": null,
@@ -13752,6 +13714,27 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Depth",
+          "ParameterType": "System.Int32",
+          "Default": 5,
+          "Sets": [
+            {
+              "Name": "Objects",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxDepth",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
         },
         {
           "Parameter": "MaxItems",
@@ -13906,26 +13889,6 @@
       "CSharpType": "ConsoleMonster.Interactive.TreeSelectInputOptions",
       "Bindings": [
         {
-          "Parameter": "Depth",
-          "ParameterType": "System.Int32",
-          "Default": 8,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
-          "Member": "MaxDepth",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "Disabled",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -14022,6 +13985,27 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "Depth",
+          "ParameterType": "System.Int32",
+          "Default": 8,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxDepth",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
         },
         {
           "Parameter": "MaxItems",
@@ -16308,7 +16292,7 @@
           "Argument": "save",
           "CSharpTypeName": "System.Boolean",
           "Conversion": "Identity",
-          "Reason": "The chosen preset, catalogue name or file path is stored as the Theme setting; accessible choices keep the \u00b7 accessible suffix and -Save writes settings.json."
+          "Reason": "The chosen preset, catalogue name or file path is stored as the Theme setting; accessible choices keep the · accessible suffix and -Save writes settings.json."
         },
         {
           "Parameter": "Theme",
@@ -16443,26 +16427,6 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.Globalization.CultureInfo",
           "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "Depth",
-          "ParameterType": "System.Int32",
-          "Default": 3,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
-          "Member": "MaxDepth",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         },
@@ -16687,6 +16651,47 @@
           "Static": false
         },
         {
+          "Parameter": "Depth",
+          "ParameterType": "System.Int32",
+          "Default": 3,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxDepth",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
+        },
+        {
+          "Parameter": "MaxFrames",
+          "ParameterType": "System.Int32",
+          "Default": 8,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Views.ConsoleViewOptions",
+          "Member": "MaxFrames",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Int32",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "MaxInner",
           "ParameterType": "System.Int32",
           "Default": 4,
@@ -16779,26 +16784,6 @@
           ],
           "CSharpType": "ConsoleMonster.Widgets.Table",
           "Member": "MaxRows",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "MaxStackFrames",
-          "ParameterType": "System.Int32",
-          "Default": 8,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Views.ConsoleViewOptions",
-          "Member": "MaxFrames",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32",
@@ -17562,27 +17547,6 @@
           "Static": false
         },
         {
-          "Parameter": "KeyBinding",
-          "ParameterType": "System.Object",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
-          "Member": "KeyBindings",
-          "MemberKind": "Property",
-          "Conversion": "KeyBindings",
-          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.KeyBinding]",
-          "Nullable": "Unknown",
-          "Writable": false,
-          "Static": false,
-          "Reason": "An ordered dictionary of key to label and script block becomes KeyBinding entries; '1-N' becomes KeyBinding.Numbered."
-        },
-        {
           "Parameter": "InputSource",
           "ParameterType": "ConsoleMonster.Input.IInputSource",
           "Default": null,
@@ -17602,6 +17566,27 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "KeyBinding",
+          "ParameterType": "System.Object",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "KeyBindings",
+          "MemberKind": "Property",
+          "Conversion": "KeyBindings",
+          "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Interactive.KeyBinding]",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false,
+          "Reason": "An ordered dictionary of key to label and script block becomes KeyBinding entries; '1-N' becomes KeyBinding.Numbered."
         },
         {
           "Parameter": "Keys",
@@ -17752,6 +17737,27 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         },
         {
           "Parameter": "ReflowBelow",
@@ -17912,27 +17918,6 @@
               "Mandatory": false
             }
           ]
-        },
-        {
-          "Parameter": "ReducedMotion",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.ConsoleAppOptions",
-          "Member": "ReducedMotion",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false,
-          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -18061,9 +18046,9 @@
           "Static": false
         },
         {
-          "Parameter": "Descending",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
+          "Parameter": "Filter",
+          "ParameterType": "System.String",
+          "Default": null,
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -18072,12 +18057,11 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.GridOptions",
-          "Member": "SortDescending",
+          "Member": "Filter",
           "MemberKind": "Property",
-          "Conversion": "NestedConfiguration",
-          "CSharpTypeName": "System.Boolean",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
-          "Nullable": "NotNull",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "Nullable",
           "Writable": true,
           "Static": false
         },
@@ -18097,31 +18081,11 @@
           "MemberKind": "Property",
           "Conversion": "NestedConfiguration",
           "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Reason": "PowerShell uses Exclude for omitted names, as in Get-ChildItem and the Select-Object ExcludeProperty family; the C# grid stores HiddenColumns.",
           "Nullable": "Unknown",
           "Writable": false,
           "Static": false,
           "FluentMember": "AddHiddenColumn"
-        },
-        {
-          "Parameter": "Filter",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Interactive.GridOptions",
-          "Member": "Filter",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false
         },
         {
           "Parameter": "InputObject",
@@ -18221,7 +18185,7 @@
           "Reason": "The owning runspace adapts the row snapshot and command key to the core row-refresh callback."
         },
         {
-          "Parameter": "SortBy",
+          "Parameter": "SortColumn",
           "ParameterType": "System.String",
           "Default": null,
           "Sets": [
@@ -18237,6 +18201,27 @@
           "Conversion": "NestedConfiguration",
           "CSharpTypeName": "System.Int32",
           "Reason": "The shell spelling selects this explicit nested option or typed collection.",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "Descending",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.GridOptions",
+          "Member": "SortDescending",
+          "MemberKind": "Property",
+          "Conversion": "NestedConfiguration",
+          "CSharpTypeName": "System.Boolean",
+          "Reason": "PowerShell uses Descending for reverse sorting, as in Sort-Object; the C# options retain SortDescending.",
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
@@ -18469,7 +18454,8 @@
           "MemberKind": "Constructor",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
-          "Argument": "name"
+          "Argument": "name",
+          "Reason": "Label names the visible placeholder label; the image constructor calls that label name."
         },
         {
           "Parameter": "Path",
@@ -18682,27 +18668,6 @@
       "CSharpType": "ConsoleMonster.Interactive.ObjectExplorer",
       "Bindings": [
         {
-          "Parameter": "Depth",
-          "ParameterType": "System.Int32",
-          "Default": 8,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
-          "Member": "MaxDepth",
-          "MemberKind": "Property",
-          "Conversion": "NestedConfiguration",
-          "CSharpTypeName": "System.Int32",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "Exclude",
           "ParameterType": "System.String[]",
           "Default": null,
@@ -18756,6 +18721,27 @@
           "MemberKind": "HostPolicy",
           "Conversion": "PipelineCollection",
           "Reason": "Collects PowerShell pipeline records before calling the owner; C# supplies a typed sequence directly."
+        },
+        {
+          "Parameter": "Depth",
+          "ParameterType": "System.Int32",
+          "Default": 8,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Data.InspectorOptions",
+          "Member": "MaxDepth",
+          "MemberKind": "Property",
+          "Conversion": "NestedConfiguration",
+          "CSharpTypeName": "System.Int32",
+          "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth.",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "MaxItems",
@@ -19059,7 +19045,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Sessions.SessionRecordingOptions",
-          "Member": "Path",
+          "Member": "RecordingPath",
           "MemberKind": "Property",
           "Conversion": "ProviderPath",
           "CSharpTypeName": "System.String",
@@ -19210,6 +19196,26 @@
       "CSharpType": "ConsoleMonster.Replay.ReplayPlayer",
       "Bindings": [
         {
+          "Parameter": "AutoPlay",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": true,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Replay.ReplayOptions",
+          "Member": "AutoPlay",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "Dashboard",
           "ParameterType": "ConsoleMonster.Layout.IWidget",
           "Default": null,
@@ -19304,27 +19310,6 @@
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "Paused",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Replay.ReplayOptions",
-          "Member": "AutoPlay",
-          "MemberKind": "Property",
-          "Conversion": "BooleanInversion",
-          "CSharpTypeName": "System.Boolean",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
@@ -20399,7 +20384,8 @@
           "Argument": "items",
           "MemberKind": "Constructor",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[ConsoleMonster.Live.RunItem]"
+          "CSharpTypeName": "System.Collections.Generic.IEnumerable`1[ConsoleMonster.Live.RunItem]",
+          "Reason": "InputObject follows the PowerShell pipeline convention; the C# argument names the individual items."
         },
         {
           "Parameter": "InteractiveKeys",
@@ -20537,6 +20523,27 @@
           "Static": false
         },
         {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
+        },
+        {
           "Parameter": "ReportPath",
           "ParameterType": "System.String",
           "Default": null,
@@ -20615,27 +20622,6 @@
           "Nullable": "NotNull",
           "Writable": true,
           "Static": false
-        },
-        {
-          "Parameter": "ReducedMotion",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "ReducedMotion",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false,
-          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -21613,27 +21599,6 @@
           "Static": false
         },
         {
-          "Parameter": "Keep",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "PrintFinalState",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Boolean",
-          "Reason": "Keeps the final inline progress state after the scope ends.",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
           "Parameter": "NoLive",
           "ParameterType": "System.Management.Automation.SwitchParameter",
           "Default": false,
@@ -21669,19 +21634,24 @@
           "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
-          "Parameter": "ScriptBlock",
-          "ParameterType": "System.Management.Automation.ScriptBlock",
-          "Default": null,
+          "Parameter": "PrintFinalState",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": true,
           "Sets": [
             {
               "Name": "__AllParameterSets",
-              "Position": 0,
-              "Mandatory": true
+              "Position": -2147483648,
+              "Mandatory": false
             }
           ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "ScriptBlockCallback",
-          "Reason": "Runs the callback on the owning PowerShell pipeline/runspace; C# uses a typed delegate and cancellation token."
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "PrintFinalState",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
         },
         {
           "Parameter": "ReducedMotion",
@@ -21703,6 +21673,21 @@
           "Writable": true,
           "Static": false,
           "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
+        },
+        {
+          "Parameter": "ScriptBlock",
+          "ParameterType": "System.Management.Automation.ScriptBlock",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "ScriptBlockCallback",
+          "Reason": "Runs the callback on the owning PowerShell pipeline/runspace; C# uses a typed delegate and cancellation token."
         }
       ]
     },
@@ -22021,6 +22006,27 @@
           "Static": false
         },
         {
+          "Parameter": "ReducedMotion",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+          "Member": "ReducedMotion",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false,
+          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
+        },
+        {
           "Parameter": "ScriptBlock",
           "ParameterType": "System.Management.Automation.ScriptBlock",
           "Default": null,
@@ -22054,27 +22060,6 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
-        },
-        {
-          "Parameter": "ReducedMotion",
-          "ParameterType": "System.Management.Automation.SwitchParameter",
-          "Default": false,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
-          "Member": "ReducedMotion",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Boolean]",
-          "Nullable": "Nullable",
-          "Writable": true,
-          "Static": false,
-          "Reason": "An explicitly bound switch sets the shared motion preference; an unbound switch keeps the environment preference."
         }
       ]
     },
@@ -22376,27 +22361,6 @@
           "CSharpTypeName": "System.String"
         },
         {
-          "Parameter": "Message",
-          "ParameterType": "System.Object",
-          "Default": "",
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": 0,
-              "Mandatory": true
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Widgets.LogEntry",
-          "Member": "Text",
-          "MemberKind": "Property",
-          "Conversion": "NestedConfiguration",
-          "CSharpTypeName": "System.String",
-          "Reason": "The shell spelling selects this explicit nested option or typed collection.",
-          "Nullable": "Unknown",
-          "Writable": false,
-          "Static": false
-        },
-        {
           "Parameter": "Session",
           "ParameterType": "ConsoleMonster.Live.LiveSession",
           "Default": null,
@@ -22430,6 +22394,27 @@
           "CSharpTypeName": "System.String"
         },
         {
+          "Parameter": "Message",
+          "ParameterType": "System.Object",
+          "Default": "",
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": 0,
+              "Mandatory": true
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Widgets.LogEntry",
+          "Member": "Text",
+          "MemberKind": "Property",
+          "Conversion": "NestedConfiguration",
+          "CSharpTypeName": "System.String",
+          "Reason": "PowerShell uses Message for diagnostic text, as in Write-Error, Write-Warning and Write-Verbose; the C# log record stores Text.",
+          "Nullable": "Unknown",
+          "Writable": false,
+          "Static": false
+        },
+        {
           "Parameter": "WidgetId",
           "ParameterType": "System.String",
           "Default": "$log",
@@ -22456,14 +22441,13 @@
       "Bindings": [
         {
           "CSharpType": "ConsoleMonster.Text.ConsoleTextLayout",
-          "Member": "HorizontalCenter",
+          "Member": "Alignment",
           "MemberKind": "Property",
-          "Conversion": "TextAlignment",
-          "CSharpTypeName": "System.Boolean",
+          "Conversion": "Identity",
+          "CSharpTypeName": "ConsoleMonster.Layout.HorizontalAlignment",
           "Writable": true,
           "Static": false,
           "Nullable": "NotNull",
-          "Reason": "Selects completed-line alignment in ConsoleTextLayout.Lines. Center matches HorizontalCenter; Right includes indentation and timestamps rather than padding the unprefixed body; Left keeps ordinary alignment.",
           "Parameter": "Alignment",
           "ParameterType": "ConsoleMonster.Layout.HorizontalAlignment",
           "Default": "Left",
@@ -22560,7 +22544,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Text.ConsoleTextLayout",
-          "Member": "StartSpaces",
+          "Member": "Indent",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Int32",
@@ -23104,7 +23088,8 @@
           "Argument": "id",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String"
+          "CSharpTypeName": "System.String",
+          "Reason": "Scenario selects the use case to play; SelectScenario takes its id."
         },
         {
           "Parameter": "ShowDetails",
@@ -24276,21 +24261,6 @@
       "CSharpType": "ConsoleMonster.Frames.DashboardFrame",
       "Bindings": [
         {
-          "Parameter": "PipelineInput",
-          "ParameterType": "System.Management.Automation.PSObject",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "PipelineInputPolicy",
-          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
-        },
-        {
           "Parameter": "Attention",
           "ParameterType": "System.Object[]",
           "Default": null,
@@ -24309,46 +24279,6 @@
           "Reason": "Records with State, Identity, Reason, Order and Values become AttentionItem entries.",
           "Nullable": "Unknown",
           "Writable": false,
-          "Static": false
-        },
-        {
-          "Parameter": "AttentionNoun",
-          "ParameterType": "System.String",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Frames.AttentionList",
-          "Member": "Noun",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "NotNull",
-          "Writable": true,
-          "Static": false
-        },
-        {
-          "Parameter": "AttentionOutOf",
-          "ParameterType": "System.Int64",
-          "Default": 0,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "CSharpType": "ConsoleMonster.Frames.AttentionList",
-          "Member": "OutOf",
-          "MemberKind": "Property",
-          "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[System.Int64]",
-          "Nullable": "Nullable",
-          "Writable": true,
           "Static": false
         },
         {
@@ -24476,6 +24406,26 @@
           "Static": false
         },
         {
+          "Parameter": "Noun",
+          "ParameterType": "System.String",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.AttentionList",
+          "Member": "Noun",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.String",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false
+        },
+        {
           "Parameter": "ObservedAt",
           "ParameterType": "System.Nullable`1[System.DateTimeOffset]",
           "Default": null,
@@ -24494,6 +24444,41 @@
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
+        },
+        {
+          "Parameter": "OutOf",
+          "ParameterType": "System.Int64",
+          "Default": 0,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Frames.AttentionList",
+          "Member": "OutOf",
+          "MemberKind": "Property",
+          "Conversion": "Identity",
+          "CSharpTypeName": "System.Nullable`1[System.Int64]",
+          "Nullable": "Nullable",
+          "Writable": true,
+          "Static": false
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
           "Parameter": "Section",
@@ -24564,21 +24549,6 @@
       "CSharpType": "ConsoleMonster.Headless.HeadlessTerminal",
       "Bindings": [
         {
-          "Parameter": "PipelineInput",
-          "ParameterType": "System.Management.Automation.PSObject",
-          "Default": null,
-          "Sets": [
-            {
-              "Name": "__AllParameterSets",
-              "Position": -2147483648,
-              "Mandatory": false
-            }
-          ],
-          "MemberKind": "HostPolicy",
-          "Conversion": "PipelineInputPolicy",
-          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
-        },
-        {
           "Parameter": "ArgumentList",
           "ParameterType": "System.Object[]",
           "Default": null,
@@ -24630,6 +24600,21 @@
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
           "Reason": "The scripted keys, text and mouse actions are queued before the script runs, and input ends after them."
+        },
+        {
+          "Parameter": "PipelineInput",
+          "ParameterType": "System.Management.Automation.PSObject",
+          "Default": null,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "MemberKind": "HostPolicy",
+          "Conversion": "PipelineInputPolicy",
+          "Reason": "Rejects unsupported pipeline objects once at the PowerShell boundary."
         },
         {
           "Parameter": "ScriptBlock",
@@ -24845,8 +24830,8 @@
       ]
     },
     {
-      "Command": "Show-ConsoleSettings",
-      "Job": "Show-ConsoleSettings",
+      "Command": "Show-ConsoleSetting",
+      "Job": "Show-ConsoleSetting",
       "CSharpType": "ConsoleMonster.ConsoleSettings",
       "Bindings": [
         {
@@ -25962,7 +25947,7 @@
       "Member": "ProcessEvents",
       "CSharpTypeName": "System.Action`1[ConsoleMonster.Interactive.AppState]",
       "Reason": "Show-ConsoleApp reserves this owning-thread hook for draining its registered callbacks; replacing it would detach the PowerShell callback lifecycle.",
-      "Alternative": "Use New-ConsoleBinding and the inputs\u2019 OnChange/OnClick script blocks.",
+      "Alternative": "Use New-ConsoleBinding and the inputs’ OnChange/OnClick script blocks.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26228,7 +26213,7 @@
       "Member": "ProbeTimeout",
       "CSharpTypeName": "System.TimeSpan",
       "Reason": "Per-provider cooperative timeout policy belongs to the C# overview host; PowerShell exposes the caller collection budget.",
-      "Alternative": "Use Show-ConsoleOverview -BudgetMilliseconds to bound the whole collection.",
+      "Alternative": "Use Show-ConsoleOverview -BudgetSeconds to bound the whole collection.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26252,7 +26237,7 @@
       "Member": "Arguments",
       "CSharpTypeName": "System.Collections.Generic.IList`1[System.String]",
       "Reason": "The PowerShell recording adapter constructs safe child-shell arguments from the script; C# hosts can launch a different approved child command.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26260,7 +26245,7 @@
       "Member": "Environment",
       "CSharpTypeName": "System.Collections.Generic.IDictionary`2[System.String,System.String]",
       "Reason": "The cmdlet preserves its documented isolated child environment; C# hosts may construct a separate per-child environment map.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26268,7 +26253,7 @@
       "Member": "WorkingDirectory",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell resolves script/provider paths before recording; C# hosts can specify the native child process working directory.",
-      "Alternative": "Use the child script or the presenter\u2019s explicit shell/working-directory setup.",
+      "Alternative": "Use the child script or the presenter’s explicit shell/working-directory setup.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26323,7 +26308,7 @@
       "CSharpType": "ConsoleMonster.TestRuns.TestRunSummary",
       "Member": "ShowFailures",
       "CSharpTypeName": "System.Boolean",
-      "Reason": "Controls a custom summary\u2019s failure section; the PowerShell adapter preserves its standard result summary.",
+      "Reason": "Controls a custom summary’s failure section; the PowerShell adapter preserves its standard result summary.",
       "Alternative": "Invoke-ConsolePester owns its consistent final summary; custom C# test hosts can compose a summary widget.",
       "Disposition": "CSharpOnly"
     },
@@ -26371,7 +26356,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "Culture",
       "CSharpTypeName": "System.Globalization.CultureInfo",
-      "Reason": "PowerShell\u2019s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
+      "Reason": "PowerShell’s owning adapter resolves the command/runspace culture; C# shapers can supply a culture directly.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -26403,7 +26388,7 @@
       "CSharpType": "ConsoleMonster.Values.ShapeOptions",
       "Member": "MaxNodes",
       "CSharpTypeName": "System.Int32",
-      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host\u2019s bounded projection and explicit inspector limits.",
+      "Reason": "Bounds custom C# shaping graphs; PowerShell uses the host’s bounded projection and explicit inspector limits.",
       "Alternative": "PowerShell uses its canonical PSObject/member shaping and explicit Property/Culture selection.",
       "Disposition": "CSharpOnly"
     },
@@ -26460,7 +26445,7 @@
       "Member": "BasePath",
       "CSharpTypeName": "System.String",
       "Reason": "PowerShell supplies its current filesystem provider path for source diagnostics; C# hosts choose their own base path.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26468,7 +26453,7 @@
       "Member": "DetailsHint",
       "CSharpTypeName": "System.String",
       "Reason": "The PowerShell adapter generates the native Get-Error hint; C# hosts supply wording for their own error-detail route.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26476,7 +26461,7 @@
       "Member": "Provider",
       "CSharpTypeName": "ConsoleMonster.Views.IConsoleViewProvider",
       "Reason": "Native view providers are a C# extension point; cmdlets use the shared built-in and registered PowerShell view owners.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26484,7 +26469,7 @@
       "Member": "Shape",
       "CSharpTypeName": "ConsoleMonster.Values.ShapeOptions",
       "Reason": "PowerShell owns PSObject shaping and runspace selectors; native C# hosts supply their own ShapeOptions.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26492,14 +26477,14 @@
       "Member": "Sources",
       "CSharpTypeName": "System.Collections.Generic.IList`1[ConsoleMonster.Data.IMemberSource]",
       "Reason": "Native member-source implementations are the AOT/C# extension point; cmdlets install the canonical PSObject source.",
-      "Alternative": "Use Show-Console\u2019s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
+      "Alternative": "Use Show-Console’s representation/property options or the public ConsoleHostViews adapter for C# PowerShell hosts.",
       "Disposition": "CSharpOnly"
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "CompactSummary",
       "CSharpTypeName": "System.Func`1[System.String]",
-      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard\u2019s normal compact summary.",
+      "Reason": "A C# embedding host may supply a separate compact widget; PowerShell uses the dashboard’s normal compact summary.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -26507,7 +26492,7 @@
       "CSharpType": "ConsoleMonster.Widgets.Dashboard",
       "Member": "MinimumSize",
       "CSharpTypeName": "ConsoleMonster.Layout.Size",
-      "Reason": "Controls an embedded C# dashboard\u2019s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
+      "Reason": "Controls an embedded C# dashboard’s compact-mode threshold; the PowerShell host keeps its supported adaptive threshold.",
       "Alternative": "Use New-ConsoleDashboard and the normal adaptive dashboard layout.",
       "Disposition": "CSharpOnly"
     },
@@ -26547,8 +26532,8 @@
       "CSharpType": "ConsoleMonster.Widgets.InspectorView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a static inspector\u2019s clock/time zone; PowerShell uses the owning host\u2019s current value presentation.",
-      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
+      "Reason": "A C# host can pin a static inspector’s clock/time zone; PowerShell uses the owning host’s current value presentation.",
+      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26556,7 +26541,7 @@
       "Member": "ShowHeader",
       "CSharpTypeName": "System.Boolean",
       "Reason": "Controls a directly embedded static inspector; PowerShell chooses its header according to the inspector route.",
-      "Alternative": "Use Show-ConsoleObject\u2019s standard inspector presentation.",
+      "Alternative": "Use Show-ConsoleObject’s standard inspector presentation.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -26595,7 +26580,7 @@
       "CSharpType": "ConsoleMonster.Widgets.RecordView",
       "Member": "Presentation",
       "CSharpTypeName": "ConsoleMonster.Presenters.PresentationOptions",
-      "Reason": "A C# host can pin a record\u2019s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
+      "Reason": "A C# host can pin a record’s clock/time zone; PowerShell list values use their explicit Culture and owning-host context.",
       "Alternative": "Use Show-Console -View List and its Property/Depth/ShowEmpty/Culture controls.",
       "Disposition": "CSharpOnly"
     },
@@ -26707,7 +26692,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Content",
       "CSharpTypeName": "System.String",
-      "Reason": "TextBlock stores one string; PowerShell\u2019s canonical text command returns RichText pieces usable in cells as well as block rendering.",
+      "Reason": "TextBlock stores one string; PowerShell’s canonical text command returns RichText pieces usable in cells as well as block rendering.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -26731,7 +26716,7 @@
       "CSharpType": "ConsoleMonster.Widgets.TextBlock",
       "Member": "Role",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
-      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText\u2019s base style.",
+      "Reason": "TextBlock stores a block role; PowerShell applies the same Role through RichText’s base style.",
       "Alternative": "Use New-ConsoleText -Text/-Markup/-Role/-Alignment/-Overflow; its RichText result is also a widget.",
       "Disposition": "EquivalentRepresentation"
     },
@@ -27915,7 +27900,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "ActionOutput",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the 'Action output \u00b7 Alt+PgUp/PgDn scroll' caption (The action output pane's title while idle.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the 'Action output · Alt+PgUp/PgDn scroll' caption (The action output pane's title while idle.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.ActionOutput catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -27923,7 +27908,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "ActionRunning",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the 'Action running \u00b7 {0} cancels' caption (The action output pane's title while an action runs: {0} is the cancel key.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the 'Action running · {0} cancels' caption (The action output pane's title while an action runs: {0} is the cancel key.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.ActionRunning catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -28603,7 +28588,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "Loading",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the 'Loading\u2026' caption (Options are loading.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the 'Loading…' caption (Options are loading.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.Loading catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -28971,7 +28956,7 @@
       "CSharpType": "ConsoleMonster.Interactive.PromptLabels",
       "Member": "TextAreaCounter",
       "CSharpTypeName": "System.String",
-      "Reason": "Native prompt hosts can replace the '{0} lines \u00b7 {1} characters' caption (The counter under a multi-line text box: {0} lines, {1} characters.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
+      "Reason": "Native prompt hosts can replace the '{0} lines · {1} characters' caption (The counter under a multi-line text box: {0} lines, {1} characters.) independently of the language catalogue; PowerShell retains its built-in translated wording.",
       "Alternative": "Select the Prompt.TextAreaCounter catalogue entry through CONSOLEMONSTER_LANGUAGE or $PSUICulture; use Title/Description for question-specific wording.",
       "Disposition": "CSharpOnly"
     },
@@ -29252,7 +29237,7 @@
       "Member": "Interactive",
       "CSharpTypeName": "ConsoleMonster.Interactive.InteractiveOptions",
       "Reason": "Native replay hosts may inject interactive devices, labels and targets. Show-ConsoleReplay builds host-aware PSInteractive options and supplies the owning host line console when needed.",
-      "Alternative": "Use Show-ConsoleReplay -PlaybackMode/-Paused and the normal host; native ReplayOptions.Interactive supports custom devices.",
+      "Alternative": "Use Show-ConsoleReplay -PlaybackMode/-AutoPlay and the normal host; native ReplayOptions.Interactive supports custom devices.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -30853,7 +30838,7 @@
       "MemberId": "ConsoleMonster.Widgets.ExceptionView.MaxFrames",
       "CSharpTypeName": "System.Int32",
       "Command": "Show-Console",
-      "Parameter": "MaxStackFrames",
+      "Parameter": "MaxFrames",
       "Reason": "The shared factory/view adapter applies this option to the resulting ExceptionView."
     },
     {
@@ -30890,7 +30875,7 @@
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleTree",
       "Parameter": "Depth",
-      "Reason": "The shared factory/view adapter applies this option to the resulting TreeHierarchyOptions."
+      "Reason": "The hierarchy adapter applies the selected PowerShell Depth value to this depth option."
     },
     {
       "CSharpType": "ConsoleMonster.Widgets.TreeHierarchyOptions",
@@ -30926,7 +30911,7 @@
       "CSharpTypeName": "System.Int32",
       "Command": "New-ConsoleTree",
       "Parameter": "Depth",
-      "Reason": "The shared factory/view adapter applies this option to the resulting ConsoleTreeOptions."
+      "Reason": "The hierarchy adapter applies the selected PowerShell Depth value to this depth option."
     },
     {
       "CSharpType": "ConsoleMonster.PowerShell.ConsoleTreeOptions",
@@ -31426,12 +31411,12 @@
     },
     {
       "CSharpType": "ConsoleMonster.Views.ConsoleViewOptions",
-      "Member": "Depth",
-      "MemberId": "ConsoleMonster.Views.ConsoleViewOptions.Depth",
+      "Member": "MaxDepth",
+      "MemberId": "ConsoleMonster.Views.ConsoleViewOptions.MaxDepth",
       "CSharpTypeName": "System.Int32",
       "Command": "Show-Console",
       "Parameter": "Depth",
-      "Reason": "The view request receives the selected tree/JSON depth."
+      "Reason": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
     },
     {
       "CSharpType": "ConsoleMonster.Graphics.GraphicsExportOptions",
@@ -32019,7 +32004,7 @@
       "MemberId": "ConsoleMonster.Interactive.CommandOptions.Shortcut",
       "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Input.KeyChord]",
       "Command": "New-ConsoleCommand",
-      "Parameter": "Hotkey",
+      "Parameter": "Shortcut",
       "Reason": "The typed C# action definition configures the same immutable AppCommand; PowerShell supplies its script runner."
     },
     {
@@ -33019,7 +33004,7 @@
     {
       "Kind": "DelegateProperty",
       "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = \u2026)",
+      "Pattern": ".Configure(item => item.{Member} = …)",
       "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
     }
   ],
@@ -33032,8 +33017,8 @@
       "IsPrefix": "A Boolean IsX property keeps its .NET name; the fluent setter is X()/X(bool). This is a mechanical grammar exception, not an alias."
     },
     "Content": {
-      "PowerShellPattern": "-Content { \u2026 }",
-      "FluentPattern": ".Content(c => { \u2026 })",
+      "PowerShellPattern": "-Content { … }",
+      "FluentPattern": ".Content(c => { … })",
       "BuilderType": "ConsoleMonster.Layout.ContentBuilder",
       "Bindings": [
         {
@@ -33664,6 +33649,77 @@
           "InitializerTypes": [
             "ConsoleMonster.Widgets.ViewFacts"
           ]
+        },
+        {
+          "Command": "New-ConsoleChart",
+          "Noun": "BarChart",
+          "Pattern": "Ui.BarChart()",
+          "ReturnType": "ConsoleMonster.Widgets.BarChart",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.BarChart"
+          ],
+          "ContentBuilder": true,
+          "Reason": "Creates the concrete BarChart directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Bar"
+        },
+        {
+          "Command": "New-ConsoleChart",
+          "Noun": "LineChart",
+          "Pattern": "Ui.LineChart()",
+          "ReturnType": "ConsoleMonster.Widgets.LineChart",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.LineChart"
+          ],
+          "ContentBuilder": true,
+          "Reason": "Creates the concrete LineChart directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Line"
+        },
+        {
+          "Command": "New-ConsoleChart",
+          "Noun": "Sparkline",
+          "Pattern": "Ui.Sparkline()",
+          "ReturnType": "ConsoleMonster.Widgets.Sparkline",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Sparkline"
+          ],
+          "ContentBuilder": true,
+          "Reason": "Creates the concrete Sparkline directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Sparkline"
+        },
+        {
+          "Command": "New-ConsoleChart",
+          "Noun": "StackedBar",
+          "Pattern": "Ui.StackedBar()",
+          "ReturnType": "ConsoleMonster.Widgets.StackedBar",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.StackedBar"
+          ],
+          "ContentBuilder": true,
+          "Reason": "Creates the concrete StackedBar directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Type Stacked"
+        },
+        {
+          "Command": "New-ConsoleProgress",
+          "Noun": "ProgressBar",
+          "Pattern": "Ui.ProgressBar()",
+          "ReturnType": "ConsoleMonster.Widgets.ProgressBar",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.ProgressBar"
+          ],
+          "ContentBuilder": true,
+          "Reason": "Creates the concrete ProgressBar directly; generated setters retain its type without Build or a cast."
+        },
+        {
+          "Command": "New-ConsoleProgress",
+          "Noun": "Spinner",
+          "Pattern": "Ui.Spinner()",
+          "ReturnType": "ConsoleMonster.Widgets.Spinner",
+          "InitializerTypes": [
+            "ConsoleMonster.Widgets.Spinner"
+          ],
+          "ContentBuilder": true,
+          "Reason": "Creates the concrete Spinner directly; generated setters retain its type without Build or a cast.",
+          "PowerShellArguments": " -Indeterminate"
         }
       ],
       "NonWidgetCommands": [
@@ -33788,6 +33844,10 @@
         {
           "Noun": "LogViewport",
           "Reason": "New-ConsoleLogRegion makes a LogViewport inside Show-ConsoleApp content, so the app log has no command of its own."
+        },
+        {
+          "Noun": "Markdown",
+          "Reason": "Concrete Markdown composition uses generated property setters without a polymorphic Build or cast."
         }
       ],
       "PrimaryInputs": [
@@ -33934,10 +33994,58 @@
           "Parameter": "WidgetId",
           "Position": 0,
           "Reason": "The app log's key is the region's widget id, positional in both surfaces."
+        },
+        {
+          "Noun": "BarChart",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleChart",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The live widget identity is fixed at construction; remaining settings use the typed chain."
+        },
+        {
+          "Noun": "LineChart",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleChart",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The live widget identity is fixed at construction; remaining settings use the typed chain."
+        },
+        {
+          "Noun": "Sparkline",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleChart",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The live widget identity is fixed at construction; remaining settings use the typed chain."
+        },
+        {
+          "Noun": "StackedBar",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleChart",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The live widget identity is fixed at construction; remaining settings use the typed chain."
+        },
+        {
+          "Noun": "ProgressBar",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleProgress",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The live widget identity is fixed at construction; remaining settings use the typed chain."
+        },
+        {
+          "Noun": "Spinner",
+          "Argument": "widgetId",
+          "Command": "New-ConsoleProgress",
+          "Parameter": "WidgetId",
+          "Position": 0,
+          "Reason": "The live widget identity is fixed at construction; remaining settings use the typed chain."
         }
       ],
       "Pattern": "Ui.{Noun}()",
-      "NestedPattern": "c.{Noun}({Parameter} => \u2026)",
+      "NestedPattern": "c.{Noun}({Parameter} => …)",
       "NestedParameterNaming": "Use the shared teaching-code callback name (Table t, Rows r, Panel p, KeyValue kv, Chart chart; otherwise lower camel case), with a numeric suffix on local collisions.",
       "DataConstructionExceptions": [
         {

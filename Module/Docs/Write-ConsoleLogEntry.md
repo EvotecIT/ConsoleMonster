@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/write-consolelogentry/
 schema: 2.0.0
 ---
 # Write-ConsoleLogEntry
 ## SYNOPSIS
 Writes a line to the log region of a running dashboard.
-
--Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>]
 ```
 
 ## DESCRIPTION
-Writes a line to the log region of a running dashboard.
-
 -Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.
 
 ## EXAMPLES
@@ -73,13 +69,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: info
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Message
-The message.
+Text appended to the dashboard log region or application log viewport named by WidgetId.
 
 ```yaml
 Type: Object
@@ -137,7 +133,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $log
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -155,4 +151,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/write-consolelogentry/](https://consolemonster.dev/powershell/commands/write-consolelogentry/)

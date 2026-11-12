@@ -29,20 +29,20 @@ string separator = Terminal.GetCurrentProfile().Glyphs == GlyphTier.Ascii
 KeyValueList hostSummary = Ui.KeyValue();
 foreach (var item in hostData)
     hostSummary.Add(item.Label, item.Value);
-Rows layout = Ui.Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Logo(logo => logo.Text("HELLO")
+    rowsContent.Logo(logo => logo.Text("HELLO")
         .Tagline("[muted]A little context before your next command.[/]"));
-    c2.Panel(p => p.Title("Host summary").Content(c =>
+    rowsContent.Panel(p => p.Title("Host summary").Content(panelContent =>
     {
-        c.Add(hostSummary);
+        panelContent.Add(hostSummary);
     }).HeaderRight("local workspace"));
-    c2.Panel(p => p.Title($"Git {separator} comet-notes").Content(c =>
+    rowsContent.Panel(p => p.Title($"Git {separator} comet-notes").Content(panelContent =>
     {
-        c.Add(git);
+        panelContent.Add(git);
     }));
-    c2.Markup("[bold]Tip[/] Get-Help New-ConsoleTable -Examples");
-    c2.Markup("[muted]Ready when you are.[/]");
+    rowsContent.Markup("[bold]Tip[/] Get-Help New-ConsoleTable -Examples");
+    rowsContent.Markup("[muted]Ready when you are.[/]");
 });
 
 // Behaviour: print the screen once and return.

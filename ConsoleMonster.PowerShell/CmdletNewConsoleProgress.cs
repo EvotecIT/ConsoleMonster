@@ -5,13 +5,11 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a progress bar or an indeterminate activity indicator.</para>
-    /// <para type="description">The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.</para>
-    /// </summary>
+    /// <summary>Creates a progress bar or an indeterminate activity indicator.</summary>
+    /// <remarks><para>The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.</para></remarks>
     /// <example><para>Show completed work</para><code>New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Show-Console</code></example>
     /// <example><para>Show work with no known total</para><code>New-ConsoleProgress resolve -Indeterminate -Label 'Resolving DNS' -Detail 'zone 4' | Show-Console</code></example>
-    [Cmdlet(VerbsCommon.New, "ConsoleProgress", DefaultParameterSetName = "Bar")]
+    [Cmdlet(VerbsCommon.New, "ConsoleProgress", DefaultParameterSetName = "Bar", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleprogress/")]
     [OutputType(typeof(ProgressBar), typeof(Spinner))]
     public sealed class CmdletNewConsoleProgress : NoPipelineInputCmdlet {
         /// <summary><para type="description">The live identifier; default progress, or spinner with Indeterminate.</para></summary>
@@ -24,24 +22,30 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         [Binding.StatusKindTransformation]
         [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
+        [PSDefaultValue(Help = "Running")]
         public Styling.StatusKind Status { get; set; } = Styling.StatusKind.Running;
         /// <summary><para type="description">Creates a spinner for work without a known total.</para></summary>
         [Parameter(Mandatory = true, ParameterSetName = "Indeterminate")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Indeterminate { get; set; }
         /// <summary><para type="description">The muted indeterminate activity detail.</para></summary>
         [Parameter(ParameterSetName = "Indeterminate")]
         public object? Detail { get; set; }
         /// <summary><para type="description">Hides the default-on indeterminate elapsed time.</para></summary>
         [Parameter(ParameterSetName = "Indeterminate")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoElapsed { get; set; }
         /// <summary><para type="description">The completed value; default zero.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
+        [PSDefaultValue(Help = "0")]
         public double Value { get; set; }
         /// <summary><para type="description">The planned total; default 100.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
+        [PSDefaultValue(Help = "100")]
         public double Total { get; set; } = 100;
         /// <summary><para type="description">The progress bar shape; default Line.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
+        [PSDefaultValue(Help = "Line")]
         public BarShape Shape { get; set; } = BarShape.Line;
         /// <summary><para type="description">Ordered builtin column names, Type/Alignment/Priority/MaxWidth records or typed ProgressColumn objects.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
@@ -51,12 +55,14 @@ namespace ConsoleMonster.PowerShell {
         public Layout.ColumnFormat? CountColumn { get; set; }
         /// <summary><para type="description">Shows a percentage instead of value/total for totals other than 100. A total of 100 always shows only its percentage.</para></summary>
         [Parameter(ParameterSetName = "Bar")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoCount { get; set; }
         /// <summary><para type="description">The fixed label width.</para></summary>
         [Parameter(ParameterSetName = "Bar"), ValidateRange(0, int.MaxValue)]
         public int? LabelWidth { get; set; }
         /// <summary><para type="description">Rate smoothing window in seconds; default ten.</para></summary>
         [Parameter(ParameterSetName = "Bar"), ValidateRange(0, double.MaxValue)]
+        [PSDefaultValue(Help = "10")]
         public double RateWindowSeconds { get; set; } = 10;
         /// <summary><para type="description">Initial indeterminate start time on the session clock, in seconds.</para></summary>
         [Parameter(ParameterSetName = "Indeterminate")] public double? StartedSeconds { get; set; }

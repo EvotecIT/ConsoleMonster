@@ -80,6 +80,12 @@ namespace SiteFrames.Pages {
                 string uiId = "M:" + entryRule["FactoryType"]!.GetValue<string>() + "." + noun;
                 string nestedId = "M:ConsoleMonster.Layout.ContentBuilder." + noun;
                 string? constructed = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault();
+                // A concrete factory supersedes the polymorphic definition for this constructed renderer.
+                if (!used.Contains(uiId) && !used.Contains(nestedId) && constructed != null
+                    && entryRule["Factories"]!.AsArray().Select(node => node!.AsObject()).Any(other =>
+                        other["Noun"]!.GetValue<string>() != noun && other["ReturnType"]!.GetValue<string>() == constructed
+                        && (used.Contains("M:ConsoleMonster.Ui." + other["Noun"]!.GetValue<string>())
+                            || used.Contains("M:ConsoleMonster.Layout.ContentBuilder." + other["Noun"]!.GetValue<string>())))) { continue; }
                 string methodId = used.Contains(uiId) ? uiId : used.Contains(nestedId) ? nestedId : "C:" + constructed;
                 if (!used.Contains(methodId) || commands != null && !commands.Any(value => value == command || value.StartsWith(command + " -", StringComparison.Ordinal))) { continue; }
                 string type = factory["InitializerTypes"]!.AsArray().Select(node => node!.GetValue<string>()).Where(type => used.Contains("C:" + type)).OrderBy(type => Position("C:" + type)).FirstOrDefault() ?? factory["ReturnType"]!.GetValue<string>();
@@ -98,6 +104,7 @@ namespace SiteFrames.Pages {
                     command += " -" + discriminator["Parameter"]!.GetValue<string>() + (flag ? string.Empty : " " + discriminator["Value"]!.GetValue<string>());
                     pattern += "." + discriminator["Member"]!.GetValue<string>() + "(" + (flag ? string.Empty : discriminator["EnumType"]!.GetValue<string>() + "." + discriminator["Value"]!.GetValue<string>()) + ")";
                 }
+                command += factory["PowerShellArguments"]?.GetValue<string>() ?? string.Empty;
                 result.Add(new JsonObject { ["powershell"] = command + (discriminator == null ? KindArgument(map, command, initializerType) : string.Empty), ["csharp"] = noun == "Table" && used.Contains("M:ConsoleMonster.Widgets.Table.For") ? "Table.For(rows)" : "new " + initializerType + "(…)", ["fluent"] = pattern, ["memberId"] = methodId, ["note"] = reason });
             }
             JsonObject markup = map["FluentGrammar"]!["Markup"]!.AsObject();
@@ -162,7 +169,7 @@ namespace SiteFrames.Pages {
                     : conversion == "MillisecondsToTimeSpan" ? "TimeSpan.FromMilliseconds(…)" : "…";
                 string? recordField = binding["RecordField"]?.GetValue<string>();
                 string recordKind = binding["RecordKind"] == null ? string.Empty : "Kind = '" + binding["RecordKind"]!.GetValue<string>() + "'; ";
-                string? note = conversion == "Identity" ? null : binding["Reason"]?.GetValue<string>() ?? conversion;
+                string? note = binding["Reason"]?.GetValue<string>() ?? (conversion == "Identity" ? null : conversion);
                 string? valueType = binding["CSharpTypeName"]?.GetValue<string>();
                 bool callback = valueType?.StartsWith("System.Action", StringComparison.Ordinal) == true || valueType?.StartsWith("System.Func", StringComparison.Ordinal) == true;
                 JsonObject? callbackRule = callback ? map["FluentExceptions"]!.AsArray().Single(rule => rule!["Kind"]!.GetValue<string>() == "DelegateProperty")!.AsObject() : null;

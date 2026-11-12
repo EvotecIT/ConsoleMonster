@@ -6,13 +6,11 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates one numeric chart representation from records or samples.</para>
-    /// <para type="description">Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.</para>
-    /// </summary>
+    /// <summary>Creates one numeric chart representation from records or samples.</summary>
+    /// <remarks><para>Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.</para></remarks>
     /// <example><para>Chart a property of ordinary objects inside a report</para><code>$servers = [pscustomobject]@{ Name = 'web01'; Cpu = 42 }, [pscustomobject]@{ Name = 'web02'; Cpu = 27 }; $servers | New-ConsoleChart -Property Cpu -Label Name -Unit '%'</code></example>
     /// <example><para>Show resolver latency</para><code>[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console</code></example>
-    [Cmdlet(VerbsCommon.New, "ConsoleChart")]
+    [Cmdlet(VerbsCommon.New, "ConsoleChart", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolechart/")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleChart : PSCmdlet {
         private readonly List<object> _items = new List<object>();
@@ -20,6 +18,7 @@ namespace ConsoleMonster.PowerShell {
         private Presenters.ICellPresenter? _valuePresenter;
         /// <summary><para type="description">The numeric chart kind: Bar, Stacked, Line, Scatter, Histogram or Sparkline.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Bar")]
         public ChartType Type { get; set; } = ChartType.Bar;
         /// <summary><para type="description">The live identifier; omitted uses the selected kind default.</para></summary>
         [Parameter(Position = 0)]
@@ -35,6 +34,7 @@ namespace ConsoleMonster.PowerShell {
         public object[]? Property { get; set; }
         /// <summary><para type="description">For Bar with -Property: the label property or expression; default Name.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Name")]
         public object Label { get; set; } = "Name";
         /// <summary><para type="description">Plot rows; omitted uses the selected kind default.</para></summary>
         [Parameter]
@@ -50,6 +50,7 @@ namespace ConsoleMonster.PowerShell {
         public Styling.ThemeToken? Role { get; set; }
         /// <summary><para type="description">The comparison bar shape, Block by default. A positive Bar Maximum selects Line with a track.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Block")]
         public BarShape Shape { get; set; } = BarShape.Block;
         /// <summary><para type="description">The warning threshold for Bar.</para></summary>
         [Parameter]
@@ -59,6 +60,7 @@ namespace ConsoleMonster.PowerShell {
         public double? Critical { get; set; }
         /// <summary><para type="description">Hides the latest Sparkline value.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoLatest { get; set; }
         /// <summary><para type="description">Strictly ascending Histogram bucket edges.</para></summary>
         [Parameter]
@@ -88,13 +90,17 @@ namespace ConsoleMonster.PowerShell {
         [Parameter] public object[]? Series { get; set; }
 
         /// <summary><para type="description">Hides Bar-chart numeric value labels.</para></summary>
-        [Parameter] public SwitchParameter NoValues { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoValues { get; set; }
         /// <summary><para type="description">Shows signed Bar values on both sides of zero.</para></summary>
-        [Parameter] public SwitchParameter Signed { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Signed { get; set; }
         /// <summary><para type="description">Hides the Stacked-chart legend.</para></summary>
-        [Parameter] public SwitchParameter NoLegend { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLegend { get; set; }
         /// <summary><para type="description">Maximum Stacked legend columns; zero fits the available width.</para></summary>
-        [Parameter, ValidateRange(0, int.MaxValue)] public int MaxLegendColumns { get; set; }
+        [Parameter, ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "0")]
+        public int MaxLegendColumns { get; set; }
         /// <summary><para type="description">Retained Line, Scatter or Sparkline samples; omitted uses the selected kind default.</para></summary>
         [Parameter, ValidateRange(1, int.MaxValue)] public int? Capacity { get; set; }
 

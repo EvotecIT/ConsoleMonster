@@ -14,7 +14,7 @@ namespace ConsoleMonster.Tests.Sessions {
         public void WindowsControlsFollowPendingRepaints(bool hold) {
             string folder = Path.Combine(Path.GetTempPath(), "cm-marker-order-" + Guid.NewGuid().ToString("N"));
             var options = new SessionRecordingOptions {
-                Path = Path.Combine(folder, "capture.cast"), Shell = "pwsh.exe", Width = 100, Height = 46,
+                RecordingPath = Path.Combine(folder, "capture.cast"), Shell = "pwsh.exe", Width = 100, Height = 46,
                 Timeout = TimeSpan.FromSeconds(20)
             };
             var script = new StringBuilder("$ErrorActionPreference = 'Stop'; ");
@@ -40,7 +40,7 @@ namespace ConsoleMonster.Tests.Sessions {
                     recorder.WaitForExit();
                     Assert.Equal(0, recorder.ExitCode);
                 }
-                SessionRecording recording = SessionRecording.Read(options.Path);
+                SessionRecording recording = SessionRecording.Read(options.RecordingPath);
                 Assert.Equal(steps + 1, recording.Chapters.Count);
                 for (int i = 0; i < steps; i++) {
                     Assert.Equal("WebApi-" + i + " Worker-" + i + " Archive-" + i,

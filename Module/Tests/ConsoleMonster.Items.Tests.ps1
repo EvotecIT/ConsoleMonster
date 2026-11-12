@@ -349,7 +349,7 @@ if ([regex]::Matches($text, 'leaf').Count -ne 2) { throw 'Shared content was rej
             $table.Table.Columns[1].Alignment | Should -Be 'Right'
             $table.Table.Columns[2].Flexible | Should -BeTrue
             { New-ConsoleTable -WidgetId bad -ErrorAction Stop -Live -Property @{ Name = 'Took'; Align = 'Right' } } | Should -Throw '*Align*'
-            $list = New-ConsoleActivityList -MaxRows 3 -ShowIds -NoElapsed
+            $list = New-ConsoleActivityList -MaxVisible 3 -ShowIds -NoElapsed
             $list.WidgetId | Should -Be '$progress'
             $list.MaxVisible | Should -Be 3
             $list.ShowIds | Should -BeTrue

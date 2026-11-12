@@ -160,7 +160,7 @@ async Task<IEnumerable<Choice>> LoadServersAsync(CancellationToken token)
 }
 
 IWidget TaskPreview(MaintenanceTask task) => new Rows(
-    new TextBlock(Markup.Escape(task.Description)),
+    TextBlock.FromMarkup(Markup.Escape(task.Description)),
     new KeyValueList()
         .Add("Group", Markup.Escape(task.Category))
         .Add("Duration", "about " + task.Minutes + " min per server")

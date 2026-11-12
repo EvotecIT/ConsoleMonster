@@ -49,6 +49,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The preferred number of visible rows.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int PageSize { get; set; }
 
         /// <summary>The collected choices.</summary>

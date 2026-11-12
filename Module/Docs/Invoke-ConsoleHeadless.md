@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/invoke-consoleheadless/
 schema: 2.0.0
 ---
 # Invoke-ConsoleHeadless
 ## SYNOPSIS
 Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.
-
-The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Invoke-ConsoleHeadless [-ScriptBlock] <scriptblock> [-InputScript <string>] [-Wi
 ```
 
 ## DESCRIPTION
-Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.
-
 The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.
 
 ## EXAMPLES
@@ -35,6 +31,15 @@ $result.Text | Should -Match 'Picked FS01'
 ```
 
 Drive a list with a key and a click, then check the screen.
+
+### EXAMPLE 2
+```powershell
+Invoke-ConsoleHeadless -Width 60 -Height 12 -InputScript 'Enter' {
+    Read-ConsoleSelect -Title 'Server' -Choices web01, web02
+}
+```
+
+Run a selection against scripted terminal input
 
 ## PARAMETERS
 
@@ -65,7 +70,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 30
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -113,7 +118,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -131,4 +136,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/invoke-consoleheadless/](https://consolemonster.dev/powershell/commands/invoke-consoleheadless/)

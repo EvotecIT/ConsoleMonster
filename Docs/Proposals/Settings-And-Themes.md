@@ -103,7 +103,7 @@ Get-ConsoleSetting Theme
 Set-ConsoleSetting Theme ColorBlindSafe   # this session
 Set-ConsoleSetting Theme ColorBlindSafe -Save   # this session and the file
 Reset-ConsoleSetting Theme -Save
-Show-ConsoleSettings                      # the interactive picker
+Show-ConsoleSetting                      # the interactive picker
 ```
 
 `Set-ConsoleTheme` stays as the familiar way to set one setting; `Set-ConsoleTheme ... -Save` writes the file.
@@ -125,7 +125,7 @@ does. An application that needs fixed output, such as a snapshot test or a recor
 
 ## 2. The settings picker
 
-`Show-ConsoleSettings` is an ordinary `ConsoleApp`: a list of sections on the left (Theme, Style, Glyphs, Formatting,
+`Show-ConsoleSetting` is an ordinary `ConsoleApp`: a list of sections on the left (Theme, Style, Glyphs, Formatting,
 Input and motion, Language and formats) and a live preview on the right. The preview is fixed sample content that
 shows every token: a table with pass, warning and fail rows, a status list, a progress bar, a small chart, a panel and
 an error.
@@ -265,7 +265,7 @@ One PR per phase, each usable on its own:
    `Enable-ConsoleFormatting`, `Get-ConsoleCapability -Explain`, the C# `ConsoleSettings` API and the opt-out.
 2. **Theme v2 and exports.** The `Style` section, `Density` and `StatusMarkers` in the widgets that draw borders,
    spacing and status, and exports that follow the active theme.
-3. **Picker and checker.** `Show-ConsoleSettings` and `Test-ConsoleTheme`.
+3. **Picker and checker.** `Show-ConsoleSetting` and `Test-ConsoleTheme`.
 4. **Terminal palette and import.** The `Terminal` preset, palette-index colours and `Import-ConsoleTheme`.
 
 Each phase adds its tests at the boundary that owns the behaviour: precedence in the settings resolver, style in the

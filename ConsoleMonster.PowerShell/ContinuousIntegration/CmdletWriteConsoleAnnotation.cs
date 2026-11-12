@@ -2,16 +2,21 @@ using System.Management.Automation;
 using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Writes a CI error, warning or notice, or a styled terminal status line.</para>
-    /// <para type="description">GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.</para>
-    /// </summary>
+    /// <summary>Writes a CI error, warning or notice, or a styled terminal status line.</summary>
+    /// <remarks><para>GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.</para></remarks>
     /// <example><para>Point to a build error</para><code>Write-ConsoleAnnotation -Level Error -Message 'Missing configuration' -File ./build.ps1 -Line 12 -Column 5</code></example>
-    [Cmdlet(VerbsCommunications.Write, "ConsoleAnnotation")]
+    /// <example>
+    /// <para>Highlight an inventory warning in a CI log</para>
+    /// <code>$result = [pscustomobject]@{ Name = 'Inventory'; Detail = 'Two servers need an update' }
+    /// Write-ConsoleAnnotation -Level Warning -Title $result.Name -Message $result.Detail
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommunications.Write, "ConsoleAnnotation", HelpUri = "https://consolemonster.dev/powershell/commands/write-consoleannotation/")]
     [OutputType(typeof(void))]
     public sealed class CmdletWriteConsoleAnnotation : NoPipelineInputCmdlet {
         /// <summary><para type="description">Error, Warning or Notice.</para></summary>
-        [Parameter(Mandatory = true)] public AnnotationLevel Level { get; set; }
+        [Parameter(Mandatory = true)] [PSDefaultValue(Help = "Error")]
+        public AnnotationLevel Level { get; set; }
         /// <summary><para type="description">The literal annotation text.</para></summary>
         [Parameter(Mandatory = true)] [AllowEmptyString] public string Message { get; set; } = string.Empty;
         /// <summary><para type="description">An optional title; Azure and plain lines prepend it to the message.</para></summary>

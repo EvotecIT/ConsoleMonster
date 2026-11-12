@@ -24,7 +24,7 @@ namespace ConsoleMonster.Tests.Live {
             Parallel.For(0, 16, producer => {
                 for (int sequence = 0; sequence < 32; sequence++) {
                     string key = producer + ":" + sequence;
-                    Terminal.Write(new TextBlock("begin-" + key + "\nbody-" + key + "\nend-" + key), Profile, writer);
+                    Terminal.Write(TextBlock.FromMarkup("begin-" + key + "\nbody-" + key + "\nend-" + key), Profile, writer);
                 }
             });
             string[] lines = writer.ToString().Replace("\r\n", "\n").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.TrimEnd()).ToArray();

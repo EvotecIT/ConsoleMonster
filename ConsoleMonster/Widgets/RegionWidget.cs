@@ -48,7 +48,7 @@ namespace ConsoleMonster.Widgets {
                         _child = widget;
                     } else if (liveEvent.Text != null) {
                         // A recording replays the text form of the content.
-                        _child = new TextBlock(liveEvent.Text);
+                        _child = TextBlock.FromMarkup(liveEvent.Text);
                     }
                     break;
                 case "clear":

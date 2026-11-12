@@ -4,10 +4,8 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.</para>
-    /// <para type="description">-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.</para>
-    /// </summary>
+    /// <summary>Creates rich text: multicolour words for table cells, calculated properties, titles, labels, log lines or output on its own.</summary>
+    /// <remarks><para>-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.</para></remarks>
     /// <example>
     /// <para>Build status cells from a calculated property</para>
     /// <code>@(
@@ -26,7 +24,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Use markup and a gradient</para>
     /// <code>New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleText")]
+    [Cmdlet(VerbsCommon.New, "ConsoleText", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletext/")]
     [OutputType(typeof(RichText))]
     public sealed class CmdletNewConsoleText : PSCmdlet {
         /// <summary><para type="description">The text pieces, shown literally (strings, or rich text from New-ConsoleText).</para></summary>
@@ -69,10 +67,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Alignment when the text is written as a widget: Left, Center or Right.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Left")]
         public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
 
         /// <summary><para type="description">Overflow policy when rendered in constrained cells.</para></summary>
-        [Parameter] public Widgets.TextOverflow Overflow { get; set; } = Widgets.TextOverflow.Wrap;
+        [Parameter] [PSDefaultValue(Help = "Wrap")]
+        public Widgets.TextOverflow Overflow { get; set; } = Widgets.TextOverflow.Wrap;
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

@@ -17,12 +17,12 @@ IWidget Frame(int tick)
     {
         string name = "worker-" + worker.ToString("00",
             System.Globalization.CultureInfo.InvariantCulture);
-        workers.Add((ProgressBar)Ui.Progress()
-            .Label(name)
-            .WidgetId(name)
-            .Value(Math.Min(100, 12 + worker * 5 + tick * 17))
-            .Total(100)
-            .Build());
+        workers.Add(((Func<ProgressBar>)(() =>
+        {
+            string argument0 = name;
+            string argument1 = name;
+            return Ui.ProgressBar(argument1).Label(argument0);
+        }))().Value(Math.Min(100, 12 + worker * 5 + tick * 17)).Total(100));
     }
 
     KeyValueList stats = Ui.KeyValue()
@@ -31,34 +31,34 @@ IWidget Frame(int tick)
         .Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture))
         .Add("Workers", "8")
         .Add("Dropped", "[muted]0[/]");
-    Sparkline trend = (Sparkline)Ui.Chart().Type(ChartType.Sparkline).Title("updates/s").Build();
+    Sparkline trend = Ui.Sparkline().Title("updates/s");
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
-    return Ui.Rows().Gap(1).Content(c4 =>
+    return Ui.Rows().Gap(1).Content(rowsContent2 =>
     {
-        c4.Markup("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]");
-        c4.Columns(columns => columns.Content(c3 =>
+        rowsContent2.Markup("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]");
+        rowsContent2.Columns(columns => columns.Content(columnsContent =>
         {
-            c3.Panel(p => p.Title("Workers").Content(c =>
+            columnsContent.Panel(p => p.Title("Workers").Content(panelContent =>
             {
-                c.Add(workers);
+                panelContent.Add(workers);
             }));
-            c3.Panel(p => p.Title("Session").Content(c2 =>
+            columnsContent.Panel(p => p.Title("Session").Content(panelContent =>
             {
-                c2.Rows(r => r.Content(c =>
+                panelContent.Rows(r => r.Content(rowsContent =>
                 {
-                    c.Add(stats);
-                    c.Add(trend);
+                    rowsContent.Add(stats);
+                    rowsContent.Add(trend);
                 }));
             }));
         }));
-        c4.Markup("[muted]Ctrl+C stops the live run.[/]");
+        rowsContent2.Markup("[muted]Ctrl+C stops the live run.[/]");
     });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = Ui.Region("demo").Content(c =>
+RegionWidget screen = Ui.Region("demo").Content(regionWidgetContent =>
 {
-    c.Add(Frame(0));
+    regionWidgetContent.Add(Frame(0));
 });
 using LiveSession session = screen.CreateSession();
 try

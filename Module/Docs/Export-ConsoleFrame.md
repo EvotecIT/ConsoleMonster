@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/export-consoleframe/
 schema: 2.0.0
 ---
 # Export-ConsoleFrame
 ## SYNOPSIS
 Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
-
-Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Export-ConsoleFrame [-InputObject] <Object> [[-Path] <string>] [-Format <string>
 ```
 
 ## DESCRIPTION
-Exports a widget, a rendered frame or a live-session snapshot to PNG, HTML, SVG, Markdown or text.
-
 Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.
 
 ## EXAMPLES
@@ -50,7 +46,7 @@ Possible values: Theme, Solid, Gradient
 
 Required: False
 Position: named
-Default value: None
+Default value: Theme
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -114,7 +110,7 @@ Possible values: Content, Terminal
 
 Required: False
 Position: named
-Default value: None
+Default value: Content
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -162,7 +158,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 14
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -194,7 +190,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -226,7 +222,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 72
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -242,7 +238,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -274,7 +270,7 @@ Possible values: Docs, Slide16x9, Slide4x3, Social
 
 Required: False
 Position: named
-Default value: None
+Default value: Docs
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -290,7 +286,7 @@ Possible values: Auto, Dark, Light, HighContrast, Current
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -322,7 +318,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -342,4 +338,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/export-consoleframe/](https://consolemonster.dev/powershell/commands/export-consoleframe/)

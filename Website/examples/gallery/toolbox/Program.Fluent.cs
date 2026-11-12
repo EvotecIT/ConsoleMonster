@@ -114,10 +114,10 @@ IWidget History()
     return table;
 }
 
-IWidget Preview(Check c) => Ui.Rows().Gap(1).Content(c2 =>
+IWidget Preview(Check c) => Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Markup(Markup.Escape(c.Description));
-    c2.KeyValue(kv => kv.Add("Group", c.Category)
+    rowsContent.Markup(Markup.Escape(c.Description));
+    rowsContent.KeyValue(kv => kv.Add("Group", c.Category)
         .Add("Expected", c.Expected)
         .Add("Duration", "about " + c.Minutes + " min per server")
         .Add("Changes", c.Changes ? "[warn]yes[/]" : "[pass]no[/]")
@@ -182,29 +182,29 @@ IWidget Body(List<Work> work, int done, int phase)
         .Add("Parallel", parallel.ToString())
         .Add("Report", format.ToUpperInvariant())
         .Add("Dry run", dryRun ? "yes" : "no");
-    Columns info = Ui.Columns().CollapseBelow(90).Content(c3 =>
+    Columns info = Ui.Columns().CollapseBelow(90).Content(columnsContent =>
     {
-        c3.Panel(p2 => p2.Title("Servers").Content(c2 =>
+        columnsContent.Panel(p2 => p2.Title("Servers").Content(panelContent =>
         {
-            c2.Add(lanes);
+            panelContent.Add(lanes);
         }));
-        c3.Panel(p2 => p2.Title("Run options").Content(c2 =>
+        columnsContent.Panel(p2 => p2.Title("Run options").Content(panelContent =>
         {
-            c2.Add(facts);
+            panelContent.Add(facts);
         }));
     });
-    return Ui.Rows().Content(c3 =>
+    return Ui.Rows().Content(rowsContent =>
     {
-        c3.Add(summary);
-        c3.Add(phases);
-        c3.Add(info);
-        c3.Panel(p2 => p2.Title("Findings").Content(c2 =>
+        rowsContent.Add(summary);
+        rowsContent.Add(phases);
+        rowsContent.Add(info);
+        rowsContent.Panel(p2 => p2.Title("Findings").Content(panelContent =>
         {
-            c2.Add(Findings(finished));
+            panelContent.Add(Findings(finished));
         }));
-        c3.Panel(p2 => p2.Title("Log").Content(c2 =>
+        rowsContent.Panel(p2 => p2.Title("Log").Content(panelContent =>
         {
-            c2.Add(log);
+            panelContent.Add(log);
         }));
     });
 }
@@ -212,14 +212,14 @@ IWidget Body(List<Work> work, int done, int phase)
 // Behaviour: native form/menu navigation, then a bounded run with cancellation and history.
 void Execute(MenuContext context, List<Work> work)
 {
-    RegionWidget body = Ui.Region("body").Content(c2 =>
+    RegionWidget body = Ui.Region("body").Content(regionWidgetContent =>
     {
-        c2.Add(Body(work, 0, 0));
+        regionWidgetContent.Add(Body(work, 0, 0));
     });
     Dashboard dashboard = Ui.Dashboard()
-        .Content(c2 =>
+        .Content(dashboardContent =>
         {
-            c2.Add(body);
+            dashboardContent.Add(body);
         })
         .Title("[accent bold]Server toolbox[/]")
         .Subtitle(domain)

@@ -24,7 +24,7 @@ Button next = new Button("Next", "Next / preview");
 back.Clicked += (_, _) => page = Math.Max(0, page - 1);
 next.Clicked += (_, _) => page = Math.Min(2, page + 1);
 Rows layout = new Rows(
-    new TextBlock("[accent bold]Install Toolbox Agent[/]"),
+    TextBlock.FromMarkup("[accent bold]Install Toolbox Agent[/]"),
     folder,
     component,
     new Sized(new Columns()
@@ -38,12 +38,14 @@ Rows layout = new Rows(
             : page == 1
                 ? new TextBlock("Core runs local jobs. Reports adds an HTML summary.")
                 : new Rows(
-                    new TextBlock("Folder: " + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
-                        "Folder", ""))),
-                    new TextBlock("Component: "
+                    TextBlock.FromMarkup("Folder: "
+                        + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
+                            "Folder", ""))),
+                    TextBlock.FromMarkup("Component: "
                         + ConsoleMonster.Text.Markup.Escape(state.Get<string>(
                             "Component", ""))),
-                    new TextBlock("[pass]Ready to install. Review the folder and components.[/]"));
+                    TextBlock.FromMarkup(
+                        "[pass]Ready to install. Review the folder and components.[/]"));
         return new Panel()
         {
             Title = title,

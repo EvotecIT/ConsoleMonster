@@ -26,19 +26,19 @@ Describe 'Compare-ConsoleText adapter contracts' {
     }
 
     It 'uses explicit names for text in unified and rendered output' {
-        $actual = Compare-ConsoleText -ReferenceText "old`n" -DifferenceText "new`n" -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified
+        $actual = Compare-ConsoleText -ReferenceText "old`n" -DifferenceText "new`n" -ReferenceLabel 'Deployed' -DifferenceLabel 'Proposed' -AsUnified
         $actual | Should -BeExactly "--- Deployed`n+++ Proposed`n@@ -1,1 +1,1 @@`n-old`n+new`n"
         $rendered = Use-ConsoleTarget -Width 60 {
-            Compare-ConsoleText -ReferenceText "old`n" -DifferenceText "new`n" -ReferenceName '[old] config' -DifferenceName '[new] config'
+            Compare-ConsoleText -ReferenceText "old`n" -DifferenceText "new`n" -ReferenceLabel '[old] config' -DifferenceLabel '[new] config'
         }
         $rendered | Should -Match '\[old\] config -> \[new\] config'
         $rendered | Should -Match '\+ new'
     }
 
     It 'overrides resolved filenames independently: <Case>' -TestCases @(
-        @{ Case = 'reference'; Names = @{ ReferenceName = 'Deployed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'after.txt' }
-        @{ Case = 'difference'; Names = @{ DifferenceName = 'Proposed' }; ExpectedReference = 'before.txt'; ExpectedDifference = 'Proposed' }
-        @{ Case = 'both'; Names = @{ ReferenceName = 'Deployed'; DifferenceName = 'Proposed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'Proposed' }
+        @{ Case = 'reference'; Names = @{ ReferenceLabel = 'Deployed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'after.txt' }
+        @{ Case = 'difference'; Names = @{ DifferenceLabel = 'Proposed' }; ExpectedReference = 'before.txt'; ExpectedDifference = 'Proposed' }
+        @{ Case = 'both'; Names = @{ ReferenceLabel = 'Deployed'; DifferenceLabel = 'Proposed' }; ExpectedReference = 'Deployed'; ExpectedDifference = 'Proposed' }
     ) {
         param($Case, $Names, $ExpectedReference, $ExpectedDifference)
         $before = Join-Path $TestDrive 'before.txt'

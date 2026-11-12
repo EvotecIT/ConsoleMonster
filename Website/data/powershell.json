@@ -5,7 +5,7 @@
       "scriptFull": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576\n        Time = [timespan]::FromSeconds(11.7); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302\n        Time = [timespan]::FromSeconds(1.2); Signed = $false\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Format-Table -AutoSize",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 99,
             "h": 6,
@@ -27,7 +27,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576\n        Time = [timespan]::FromSeconds(11.7); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302\n        Time = [timespan]::FromSeconds(1.2); Signed = $false\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts | Show-ConsoleTable -Title '[bold]Build artifacts[/]' -GroupBy Kind -Property @(\n    @{ Name = 'Name'; Key = $true; Overflow = 'Never' }\n    @{ Name = 'Length'; Header = 'Size'; Presenter = 'Bytes'; Priority = 9; Aggregate = 'Sum' }\n    @{ Name = 'Time'; Header = 'Built in'; Presenter = 'Duration'; Priority = 6; Aggregate = 'Sum' }\n    @{ Name = 'Signed'; Presenter = 'Boolean'; Priority = 5 }\n    @{ Name = 'Path'; Overflow = 'TruncateMiddle'; Priority = 1; MinWidth = 20 }\n) -ShowTotals",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 14,
@@ -45,7 +45,7 @@
       },
       "plain": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 14,
@@ -55,7 +55,7 @@
       },
       "nocolor": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 14,
@@ -75,7 +75,7 @@
       },
       "narrow": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 56,
             "h": 29,
@@ -89,7 +89,7 @@
       "scriptFull": "# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576\n        Time = [timespan]::FromSeconds(11.7); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302\n        Time = [timespan]::FromSeconds(1.2); Signed = $false\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] | Format-List",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 67,
             "h": 6,
@@ -111,7 +111,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n# Build artifacts as a module build reports them.\n$artifacts = @(\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.nupkg'; Kind = 'NuGet'; Length = 1482113\n        Time = [timespan]::FromSeconds(48.2); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.nupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster.2.0.0.snupkg'; Kind = 'NuGet'; Length = 402331\n        Time = [timespan]::FromSeconds(3.1); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster.2.0.0.snupkg' }\n    [pscustomobject] @{ Name = 'ConsoleMonster-2.0.0.zip'; Kind = 'Module'; Length = 2904576\n        Time = [timespan]::FromSeconds(11.7); Signed = $true\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\ConsoleMonster-2.0.0.zip' }\n    [pscustomobject] @{ Name = 'Docs.zip'; Kind = 'Module'; Length = 51302\n        Time = [timespan]::FromSeconds(1.2); Signed = $false\n        Path = 'D:\\Builds\\ConsoleMonster\\Packed\\Docs.zip' }\n)\n\n$artifacts[0] |\n    Show-Console -View List -Property Name, Kind, @{ Name = 'Length'; Header = 'Size'\n        Presenter = 'Bytes' }, @{ Name = 'Time'; Header = 'Built in'\n            Presenter = 'Duration' }, @{ Name = 'Signed'; Presenter = 'Boolean' }, Path",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 70,
             "h": 6,
@@ -133,7 +133,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n$certificate = [pscustomobject] @{\n    Subject                 = 'CN=mail.evotec.xyz'\n    Issuer                  = \"CN=R11, O=Let's Encrypt, C=US\"\n    KeyAlgorithm            = 'ECDSA P-256'\n    SubjectAlternativeNames = @('mail.evotec.xyz', 'autodiscover.evotec.xyz', 'mta-sts.evotec.xyz')\n    Chain                   = @(\n        [pscustomobject] @{ Subject = 'CN=mail.evotec.xyz'; Key = 'ECDSA P-256'; Revoked = $false }\n        [pscustomobject] @{ Subject = \"CN=R11, O=Let's Encrypt\"; Key = 'RSA 2048'\n            Revoked = $false }\n        [pscustomobject] @{ Subject = 'CN=ISRG Root X1'; Key = 'RSA 4096'; Revoked = $false }\n    )\n}\n$certificate | Show-Console -View Tree -Title 'mail.evotec.xyz certificate'",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 51,
             "h": 21,
@@ -155,7 +155,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleText -Markup '[bold red]Markup[/] in the [italic]Spectre.Console[/] dialect: [cadetblue]cadetblue[/], [grey50]grey50[/], [deepskyblue3]deepskyblue3[/]'\nWrite-ConsoleText -Markup '[#ff8800]#ff8800[/], [rgb(120,200,90)]rgb(120,200,90)[/], [color(208)]color(208)[/] and [white on fail] theme roles [/]'\nWrite-ConsoleText -Markup '[[brackets]] are literal, [[nosuchcolour]] is an escaped literal tag, and [link=https://consolemonster.dev]links[/] use OSC 8'",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 4,
@@ -177,7 +177,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\nWrite-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, Cyan, Gray, Yellow\nWrite-ConsoleText -Markup '[pass]√[/] copied 1,204 files' -Indent 4\nWrite-ConsoleText -Text 'Status: ', 'healthy' -Color DarkGray, Green -Indent 8\n$textParameters = @{\n    Text = 'Collecting inventory '\n    Color = 'Gray'\n    NoNewLine = $true\n}\nWrite-ConsoleText @textParameters\nWrite-ConsoleText -Text ' done' -Color Green\nWrite-ConsoleText -Text 'Release 2026.10 is live' -Gradient '#38bdf8', '#c084fc' -Alignment Center",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 61,
             "h": 5,
@@ -199,7 +199,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n$module = (Get-Module ConsoleMonster).Path\nStart-Job -ArgumentList $module {\n    param($Module)\n    Import-Module $Module\n    [pscustomobject] @{ Check = 'SPF'\n        Status = 'Pass' }, [pscustomobject] @{ Check = 'DMARC'; Status = 'Fail' } |\n        Show-ConsoleTable -Title 'From a background job' -StatusProperty Status\n} | Receive-Job -Wait -AutoRemoveJob",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 22,
             "h": 7,
@@ -221,7 +221,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n# Invented package artifacts, exported as a Markdown table for a report.\n$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'\n$files = @(\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.dll'; Length = 1048576; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.deps.json'; Length = 4096; LastWriteTime = $recordedAt\n    }\n    [pscustomobject] @{\n        Name = 'start.ps1'; Length = 512; LastWriteTime = $recordedAt\n    }\n)\n$files | New-ConsoleTable -Property Name, Length, LastWriteTime `\n    -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }  |\n    Export-ConsoleFrame -Format Markdown",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 54,
             "h": 5,
@@ -235,7 +235,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n# Relative dates count from CONSOLEMONSTER_NOW instead of the clock, so a recording says the same thing every time.\n$env:CONSOLEMONSTER_NOW = '2026-10-21T12:00:00Z'\n\n$reports = @(\n    [pscustomobject] @{ Name = 'Mail flow'; Changed = [datetimeoffset] '2026-10-21T11:58:00Z' }\n    [pscustomobject] @{ Name = 'Replication'; Changed = [datetimeoffset] '2026-10-21T09:00:00Z' }\n    [pscustomobject] @{ Name = 'Certificates'; Changed = [datetimeoffset] '2026-10-18T12:00:00Z' }\n)\n$reports | Show-ConsoleTable -Property Name, @{ Name = 'Changed'; Presenter = 'DateRelative' }\n\nRemove-Item Env:CONSOLEMONSTER_NOW",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 26,
             "h": 7,
@@ -249,7 +249,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n# Invented package artifacts with fixed sizes and UTC timestamps.\n$recordedAt = [datetimeoffset] '2026-10-21T12:00:00Z'\n$files = @(\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.dll'; Length = 1048576\n        LastWriteTime = $recordedAt; Extension = '.dll'\n    }\n    [pscustomobject] @{\n        Name = 'ConsoleMonster.deps.json'; Length = 4096\n        LastWriteTime = $recordedAt; Extension = '.json'\n    }\n    [pscustomobject] @{\n        Name = 'start.ps1'; Length = 512\n        LastWriteTime = $recordedAt; Extension = '.ps1'\n    }\n)\n$files | Show-ConsoleTable -Property Name, Length, LastWriteTime `\n    -GroupBy Extension -Presentation @{ TimeZone = [TimeZoneInfo]::Utc }",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 56,
             "h": 9,
@@ -263,7 +263,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n# Show every stream for this demo.\n$VerbosePreference = 'Continue'\n$DebugPreference = 'Continue'\n\nNew-ConsoleRule -Title \"PowerShell's own colours\" | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nEnable-ConsoleFormatting -Include Streams\n\nNew-ConsoleRule -Title 'With -Include Streams: the theme''s colours' | Show-Console\nWrite-Warning 'Certificate for mail.evotec.xyz expires in 12 days'\nWrite-Verbose 'Queried 4 domain controllers in 2 domains'\nWrite-Debug 'Cache hit for evotec.xyz'\n\nDisable-ConsoleFormatting -Feature Streams",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 8,
@@ -281,7 +281,7 @@
       },
       "light": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 8,
@@ -303,7 +303,7 @@
       "scriptFull": "Import-Module ConsoleMonster\n\n$before = @(\n    [pscustomobject] @{ Name = 'web01'; Port = 80 }\n    [pscustomobject] @{ Name = 'web02'; Port = 443 }\n    [pscustomobject] @{ Name = 'sql01'; Port = 1433 }\n)\n$after = @(\n    [pscustomobject] @{ Name = 'web01'; Port = 443 }\n    [pscustomobject] @{ Name = 'web02'; Port = 443 }\n    [pscustomobject] @{ Name = 'dc01'; Port = 389 }\n)\n\n# PowerShell's own output\nCompare-Object $before $after -Property Name, Port\n\nEnable-ConsoleFormatting\n\n# The same comparison now\nCompare-Object $before $after -Property Name, Port -IncludeEqual",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 68,
             "h": 39,
@@ -325,7 +325,7 @@
       "scriptFull": "Import-Module ConsoleMonster\nEnable-ConsoleFormatting\n\n# Search text: matches highlighted, -Context lines dimmed.\n$log = 'Started', 'Warning: api-02 is slow', 'Checked 12', 'Error: api-03 timed out', 'Done'\n$log | Select-String -Pattern 'Warning|Error' -Context 1\n\n# ACLs and certificate stores are Windows features.\n$windows = $IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop'\n\n# Get-Acl and Cert:\\ load the module behind these objects; the fixtures below load it themselves.\nif ($windows) {\n    Import-Module Microsoft.PowerShell.Security\n}\n\n# A folder ACL as Get-Acl returns it, built from fixed SDDL with well-known accounts.\nif ($windows) {\n    $acl = New-Object System.Security.AccessControl.DirectorySecurity\n    $acl.SetSecurityDescriptorSddlForm(\n        'O:BAG:SYD:PAI(D;;SD;;;WD)(A;OICIID;FA;;;SY)(A;OICI;FA;;;BA)(A;OICIIO;GA;;;CO)(A;OICINP;0x1200a9;;;BU)')\n    $acl\n}\n\n# Three invented certificates with fixed dates: expired, expiring and valid.\nif ($windows) {\n    $certificates = @(\n        'MIIBKjCB0KADAgECAggvcTE9RKF/bzAKBggqhkjOPQQDAjAbMRkwFwYDVQQDExB2cG4uZXhhbXBsZS50ZXN0MB4XDTI1MTAyMTEyMDAwMFoXDTI2MTAxODEyMDAwMFowGzEZMBcGA1UEAxMQdnBuLmV4YW1wbGUudGVzdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABKZisgRy8+IHe8o56IQPyVMExb4wQdMQopSpYo9aBg2yy6NZrQI5Mn1+bconqBWt/Qf/IhoeInAEONSwxgd0iEwwCgYIKoZIzj0EAwIDSQAwRgIhAMi0NVEH3Rdj8I9kAvrd8LAPVjBGStsH2mv89JrrsvZaAiEAlIq2VFwK7pSf09EZRZp2ISVtnE9jyBpNob7H/0CHEsQ='\n        'MIIBKjCB0KADAgECAggi8amAzhXvhzAKBggqhkjOPQQDAjAbMRkwFwYDVQQDExBhcGkuZXhhbXBsZS50ZXN0MB4XDTI1MTAyMTEyMDAwMFoXDTI2MTAzMDEyMDAwMFowGzEZMBcGA1UEAxMQYXBpLmV4YW1wbGUudGVzdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABG5qZumktovjlNi/B8Tg2JAmDN0mOspNzMBl/tXceIpoK35Hj1Yb5g/oJuo8ZG4BDI/AfYkxiyhEsjYh2ZSZ1gIwCgYIKoZIzj0EAwIDSQAwRgIhAJ687lafA0jM9v7hnYcq3695N9WgnwmwKphsjJAqkx8nAiEA+35r9XtUFixSxhUPn8gn0rW/oKYzPfyigkA7eTa9jmc='\n        'MIIBLjCB1qADAgECAghUZ3JsL9/HszAKBggqhkjOPQQDAjAeMRwwGgYDVQQDExNwb3J0YWwuZXhhbXBsZS50ZXN0MB4XDTI1MTAyMTEyMDAwMFoXDTI3MDIxNDEyMDAwMFowHjEcMBoGA1UEAxMTcG9ydGFsLmV4YW1wbGUudGVzdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABHKVW2PoHLpQq0yTzkqV1M8UGH81HENH6tz9seHhy5eLWTK2FM4a9G1mfcisZEZt60lmSYiM1jzy/7xbDYjAqDIwCgYIKoZIzj0EAwIDRwAwRAIgc0rww4RQjhbtDpcwyj5dC1RRG/cI1z36/n39AM5hWlwCIH9nSfnbTygb4p+mRu/h4b62fXA8cdwCzNigXR36rQWG'\n    )\n    foreach ($text in $certificates) {\n        $bytes = [Convert]::FromBase64String($text)\n        New-Object Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList (, $bytes)\n    }\n}\n\n# Counts, statistics and elapsed time.\n'Info', 'Warning', 'Info', 'Error', 'Info' | Group-Object | Sort-Object Count -Descending\n12, 48, 7, 30 | Measure-Object -Sum -Average -Minimum -Maximum\nNew-TimeSpan -Start '2026-10-21 12:00' -End '2026-10-21 13:42:05'\n\n# Windows inventory and installed modules.\nGet-Volume\nGet-Disk\nGet-NetTCPConnection\nGet-ScheduledTask\nGet-LocalUser\nGet-InstalledModule",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 176,
@@ -343,7 +343,7 @@
       },
       "light": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 100,
             "h": 176,
@@ -365,7 +365,7 @@
       "scriptFull": "Import-Module ConsoleMonster\nEnable-ConsoleFormatting\n\n# An invented release folder with fixed sizes and times.\n$temp = if ($IsMacOS -or $IsLinux) { '/tmp' } else { $env:TEMP }\n$root = Join-Path $temp 'release'\nif (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }\n$files = [ordered] @{\n    'bin/ConsoleMonster.dll' = 1048576\n    'bin/ConsoleMonster.xml' = 262144\n    'bin/runtimes/libcm.so'  = 393216\n    'docs/README.md'         = 15360\n    'docs/CHANGELOG.md'      = 63488\n    'install.ps1'            = 2048\n}\nforeach ($name in $files.Keys) {\n    $path = Join-Path $root $name\n    $null = New-Item -ItemType Directory -Path (Split-Path $path) -Force\n    [System.IO.File]::WriteAllBytes($path, (New-Object byte[] $files[$name]))\n}\n$stamp = [datetime] '2026-10-21 12:00'\nGet-ChildItem $root -Recurse -Force | ForEach-Object { $_.LastWriteTime = $stamp }\n(Get-Item -LiteralPath $root).LastWriteTime = $stamp\n\n# A recursive listing is one tree with folder sizes; the line under it sums it up.\nGet-ChildItem -LiteralPath $root -Recurse\n\n# Your own types can sum themselves up too.\n$state = @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }\n$disk = @{ Name = 'Disk'; Expression = { $_.Disk }; Presenter = 'BytesBar' }\nRegister-ConsoleView -TypeName Contoso.Server -Property Name, $state, $disk -Summary {\n    param($servers)\n    @{ Value = $servers.Count; Label = 'servers' }\n    $down = @($servers | Where-Object State -ne 'Running').Count\n    if ($down) { @{ Value = $down; Label = 'stopped'; Role = 'Warn' } }\n    $total = ($servers | Measure-Object Disk -Sum).Sum\n    @{ Caption = 'disk'; Value = $total; Presenter = 'Bytes' }\n}\n$servers = @(\n    [pscustomobject] @{ Name = 'web-01'; State = 'Running'; Disk = 120GB }\n    [pscustomobject] @{ Name = 'web-02'; State = 'Running'; Disk = 96GB }\n    [pscustomobject] @{ Name = 'db-01'; State = 'Stopped'; Disk = 410GB }\n)\n$servers | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'Contoso.Server') }\n$servers",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 90,
             "h": 68,
@@ -379,7 +379,7 @@
       "scriptFull": "Import-Module ConsoleMonster\nEnable-ConsoleFormatting\n\n# Someone else's command: typed objects, no view of its own.\nfunction Get-ContosoBackup {\n    $took = [timespan] '00:41:00'\n    [pscustomobject] @{ PSTypeName = 'Contoso.Backup'; Server = 'sql01'\n        State = 'Completed'; Size = 52GB; Took = $took }\n    [pscustomobject] @{ PSTypeName = 'Contoso.Backup'; Server = 'web01'\n        State = 'Completed'; Size = 3GB; Took = [timespan] '00:04:10' }\n    [pscustomobject] @{ PSTypeName = 'Contoso.Backup'; Server = 'files01'\n        State = 'Failed'; Size = 0; Took = [timespan] '00:12:30' }\n}\n\nGet-ContosoBackup\n\n# The first type name is the one to register.\n(Get-ContosoBackup)[0].PSObject.TypeNames[0]\n\n$state = @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }\n$size = @{ Name = 'Size'; Expression = { $_.Size }; Presenter = 'BytesBar' }\n$took = @{ Name = 'Took'; Expression = { $_.Took }; Presenter = 'Duration' }\nRegister-ConsoleView -TypeName Contoso.Backup -Property Server, $state, $size, $took -Summary {\n    param($backups)\n    @{ Value = $backups.Count; Label = 'backups' }\n    $failed = @($backups | Where-Object State -eq 'Failed').Count\n    if ($failed) { @{ Value = $failed; Label = 'failed'; Role = 'Fail' } }\n}\n\nGet-ContosoBackup",
       "rich": {
         "ps7": {
-          "host": "PowerShell 7.5",
+          "host": "PowerShell 7.6",
           "frame": {
             "w": 99,
             "h": 47,
@@ -820,9 +820,9 @@
           "url": "/powershell/commands/show-consolereplay/"
         },
         {
-          "name": "Show-ConsoleSettings",
+          "name": "Show-ConsoleSetting",
           "synopsis": "Chooses ConsoleMonster's settings in the terminal with a live preview.",
-          "url": "/powershell/commands/show-consolesettings/"
+          "url": "/powershell/commands/show-consolesetting/"
         },
         {
           "name": "Show-ConsoleStatusLine",

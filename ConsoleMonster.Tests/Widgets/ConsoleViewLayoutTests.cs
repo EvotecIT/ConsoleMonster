@@ -60,7 +60,7 @@ public sealed class ConsoleViewLayoutTests {
         var context = Terminal.CreateContext(profile, Theme.Dark);
         string facts = Terminal.RenderText(new FactFlow("current", "failing"), profile);
         Assert.Equal("current" + separator + "failing", facts.TrimEnd());
-        string separated = Terminal.RenderText(new TextBlock("current [muted]·[/] failing") { WrapSeparator = " · " }, profile);
+        string separated = Terminal.RenderText(new TextBlock("current [muted]·[/] failing") { IsMarkup = true, WrapSeparator = " · " }, profile);
         Assert.Equal("current" + separator + "failing", separated.TrimEnd());
         var frame = new ConsoleMonster.Frames.DashboardFrame("Replication");
         frame.Legend.Add(ConsoleMonster.Frames.HealthState.Healthy, "current");

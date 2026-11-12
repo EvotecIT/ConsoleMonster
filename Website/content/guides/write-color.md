@@ -24,10 +24,10 @@ Write-ConsoleText -Text 'Deploying ', 'FS01', ' to ', 'Production' -Color Gray, 
 | `-Color` (`-C`, `-ForegroundColor`, `-FGC`) | `-Color` | Also theme roles, `#RRGGBB`, `rgb()` and `r,g,b`. Extra pieces take the first colour, as in Write-Color. Without `-Color` the terminal's own colour is used; Write-Color uses White. |
 | `-BackGroundColor` (`-B`, `-BGC`) | `-BackgroundColor` | Counts don't have to match: extra pieces take the first background. |
 | `-StartTab` (`-Indent`) | `-StartTab` | Eight cells per tab. |
-| `-StartSpaces`, `-LinesBefore`, `-LinesAfter` | same | |
+| `-StartSpaces`, `-LinesBefore`, `-LinesAfter` | `-Indent`, `-LinesBefore`, `-LinesAfter` | |
 | `-ShowTime`, `-DateTimeFormat` (`-DateFormat`, `-TimeFormat`) | `-ShowTimestamp`, `-TimestampFormat` | Wall-clock time. |
 | `-NoNewLine` | same | Works in transcripts, jobs and the host route too. |
-| `-HorizontalCenter` | same | Measured in terminal cells, so emoji and CJK centre correctly. |
+| `-HorizontalCenter` | `-Alignment Center` | Measured in terminal cells, so emoji and CJK centre correctly. |
 | `-LogFile` (`-L`), `-LogTime` (`-LogTimeStamp`), `-LogRetry` | `-LogFile`, `-LogTimestamp`, `-LogRetry` | Appends under a file lock, with retries and warnings as in Write-Color. |
 | `-Encoding` | same | A new log defaults to UTF-8 without a byte order mark; Write-Color defaults to UTF-16. Appending to an existing log keeps its encoding, so last month's Write-Color log stays UTF-16, and a contradicting `-Encoding` warns. |
 | `-NoConsoleOutput` (`-HideConsole`) | `-NoConsoleOutput` | |

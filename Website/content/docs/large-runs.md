@@ -23,7 +23,7 @@ This example reports two illustrative outcomes without contacting either target.
 Declare the items, report state changes, then complete the run in `finally`. The monitor leaves your script's output and exit code alone:
 
 ```powershell
-$run = Start-ConsoleRun -Items $checks -Label Name -Target Target -Group { $_.Category }
+$run = Start-ConsoleRun -InputObject $checks -Label Name -Target Target -Group { $_.Category }
 try {
     Update-Console -Run $run -Index 0 -Status Running -Label 'collecting'
     Update-Console -Run $run -Index 0 -Status Pass

@@ -201,7 +201,7 @@ $results = 1..60 | Invoke-ConsoleDashboard $d -Parallel -ThrottleLimit 3 {
         $text | Should -Match 'SUM=18300'
     }
 
-    It 'records a dashboard run with -RecordPath and replays the recording' {
+    It 'records a dashboard run with -RecordingPath and replays the recording' {
         $recording = Join-Path $TestDrive 'run.jsonl'
         $text = Invoke-ConsoleChild -Script @"
 `$d = New-ConsoleDashboard -Title 'Recorded' -Content { New-ConsoleLanes -WidgetId lanes; New-ConsoleLogRegion }

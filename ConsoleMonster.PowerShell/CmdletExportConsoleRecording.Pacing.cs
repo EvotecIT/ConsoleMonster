@@ -7,15 +7,20 @@ using ConsoleMonster.Export;
 namespace ConsoleMonster.PowerShell {
     public sealed partial class CmdletExportConsoleRecording {
         /// <summary><para type="description">Slow, Normal (default), Fast or Source. Adds reading time after output settles. Explicitly specifying Pace overrides recorded demo pace directives. Source adds no reading time; use IdleLimitSeconds 0 to retain all source delays.</para></summary>
-        [Parameter] public RecordingPace Pace { get; set; } = RecordingPace.Normal;
+        [Parameter] [PSDefaultValue(Help = "Normal")]
+        public RecordingPace Pace { get; set; } = RecordingPace.Normal;
         /// <summary><para type="description">Extra export hold at every chapter marker, unaffected by speed or idle capping.</para></summary>
-        [Parameter, ValidateRange(0, 86400)] public double ChapterHoldSeconds { get; set; }
+        [Parameter, ValidateRange(0, 86400)] [PSDefaultValue(Help = "0")]
+        public double ChapterHoldSeconds { get; set; }
         /// <summary><para type="description">Final screen hold after the source timeline and reading holds (default 2 seconds).</para></summary>
-        [Parameter, ValidateRange(0, 86400)] public double HoldLastFrameSeconds { get; set; } = 2;
+        [Parameter, ValidateRange(0, 86400)] [PSDefaultValue(Help = "2")]
+        public double HoldLastFrameSeconds { get; set; } = 2;
         /// <summary><para type="description">Inclusive source position at which to begin. Cannot be combined with TrimStartChapter.</para></summary>
-        [Parameter, ValidateRange(0, 31536000)] public double TrimStartSeconds { get; set; }
+        [Parameter, ValidateRange(0, 31536000)] [PSDefaultValue(Help = "0")]
+        public double TrimStartSeconds { get; set; }
         /// <summary><para type="description">Exclusive source position at which to end. Cannot be combined with TrimEndChapter.</para></summary>
-        [Parameter, ValidateRange(0, 31536000)] public double TrimEndSeconds { get; set; }
+        [Parameter, ValidateRange(0, 31536000)] [PSDefaultValue(Help = "0")]
+        public double TrimEndSeconds { get; set; }
         /// <summary><para type="description">Begin at this chapter marker, retaining its hold and all later output.</para></summary>
         [Parameter, ValidateNotNullOrEmpty] public string? TrimStartChapter { get; set; }
         /// <summary><para type="description">End before this chapter marker. Its output and hold are excluded.</para></summary>

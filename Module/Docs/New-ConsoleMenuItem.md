@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolemenuitem/
 schema: 2.0.0
 ---
 # New-ConsoleMenuItem
 ## SYNOPSIS
 Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
-
-What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
 
 ## SYNTAX
 ### Action (Default)
@@ -28,17 +26,17 @@ New-ConsoleMenuItem [[-Label] <string>] -Form <Form> [-Hotkey <Char>] [-Descript
 
 ### Select
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Default <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### MultiSelect
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### LoadChoices
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### Page
@@ -67,8 +65,6 @@ New-ConsoleMenuItem [[-Label] <string>] -Exit [-Hotkey <Char>] [-Description <st
 ```
 
 ## DESCRIPTION
-Creates a menu item: an action, a submenu, a form, a selection, a page, a review, the presets list, a separator or the exit.
-
 What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.
 
 ## EXAMPLES
@@ -80,7 +76,7 @@ $tasks = @(
     [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
 )
 $menu = New-ConsoleMenu 'Tasks' -Content {
-    New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Default { $_.Enabled }
+    New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Selected { $_.Enabled }
     New-ConsoleMenuItem -Exit
 }
 Show-ConsoleMenu $menu
@@ -186,22 +182,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Default
-Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.
-
-```yaml
-Type: Object
-Parameter Sets: Select, MultiSelect, LoadChoices
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Describe
 A sentence for the focused choice: a property name or a scriptblock.
 
@@ -293,7 +273,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -379,7 +359,7 @@ Accept wildcard characters: False
 ```
 
 ### -Label
-The title.
+Literal text shown for this selectable menu item; use Description for its supporting detail.
 
 ```yaml
 Type: String
@@ -517,7 +497,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -572,6 +552,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Selected
+Pre-selected choices: the objects or their texts, or a scriptblock returning $true for static choices. With -LoadChoices, pass initial values; they are matched when the choices arrive.
+
+```yaml
+Type: Object
+Parameter Sets: Select, MultiSelect, LoadChoices
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Separator
 Makes a divider (with -Label as its heading, if given).
 
@@ -583,7 +579,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -599,7 +595,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -633,4 +629,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolemenuitem/](https://consolemonster.dev/powershell/commands/new-consolemenuitem/)

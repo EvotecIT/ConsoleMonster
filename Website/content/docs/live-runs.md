@@ -30,8 +30,8 @@ The summary bar and the cell map are widgets of their own, for your own views:
 ```powershell
 $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
 New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleSummaryBar -Done 31 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 28; failed = 2; warnings = 1 })
-    New-ConsoleCellMap -Status $states -Count 40
+    New-ConsoleSummaryBar -Value 31 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 28; failed = 2; warnings = 1 })
+    New-ConsoleCellMap -InputObject $states -Count 40
 } | Show-Console
 ```
 

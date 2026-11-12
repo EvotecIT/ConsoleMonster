@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/update-console/
 schema: 2.0.0
 ---
 # Update-Console
 ## SYNOPSIS
 Updates a live widget or a caller-managed run through one validated operation.
-
-WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.
 
 ## SYNTAX
 ### Fields (Default)
@@ -72,8 +70,6 @@ Update-Console [-WidgetId] <string> -Content <Object> [-Session <LiveSession>] [
 ```
 
 ## DESCRIPTION
-Updates a live widget or a caller-managed run through one validated operation.
-
 WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.
 
 ## EXAMPLES
@@ -121,7 +117,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -137,7 +133,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -153,7 +149,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -169,7 +165,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -185,7 +181,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -217,7 +213,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -249,13 +245,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Detail
-The replacement detail.
+Detail text replacing the current message on the addressed live item.
 
 ```yaml
 Type: Object
@@ -313,7 +309,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -409,7 +405,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -425,7 +421,7 @@ Possible values:
 
 Required: True
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -441,7 +437,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -457,7 +453,7 @@ Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
-Default value: None
+Default value: Pending
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -511,7 +507,7 @@ Accept wildcard characters: False
 ```
 
 ### -Status
-The new state.
+The replacement live status, such as Running, Pass, Warn or Fail.
 
 ```yaml
 Type: StatusKind
@@ -521,7 +517,7 @@ Possible values: Pending, Running, Pass, Fail, Warn, Skip, Info, Unknown, None
 
 Required: False
 Position: named
-Default value: None
+Default value: Pending
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -537,7 +533,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -587,4 +583,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/update-console/](https://consolemonster.dev/powershell/commands/update-console/)

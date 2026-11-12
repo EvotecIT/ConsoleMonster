@@ -3,15 +3,13 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.</para>
-    /// <para type="description">The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenu -Preset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.</para>
-    /// </summary>
+    /// <summary>Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.</summary>
+    /// <remarks><para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenu -Preset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.</para></remarks>
     /// <example>
     /// <para>Build a small script menu</para>
     /// <code>$settings = New-ConsoleForm 'Settings' -Content {
     ///     New-ConsoleField Target 'Target' -Default Weekly
-    ///     New-ConsoleField Compress 'Compress' -Type Toggle -Default $true
+    ///     New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
     /// }
     /// $menu = New-ConsoleMenu 'Backup helper' -Content {
     ///     New-ConsoleMenuItem 'Preview backup' -Hotkey b -Action {
@@ -30,7 +28,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Offer a preset for a menu form</para>
     /// <code>$settings = New-ConsoleForm 'Settings' -Content {
     ///     New-ConsoleField Target 'Target' -Default Weekly
-    ///     New-ConsoleField Compress 'Compress' -Type Toggle -Default $true
+    ///     New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
     /// }
     /// $menu = New-ConsoleMenu 'Backup helper' -Content {
     ///     [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
@@ -40,7 +38,7 @@ namespace ConsoleMonster.PowerShell {
     /// }
     /// Show-ConsoleMenu $menu -Layout Shell</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleMenu")]
+    [Cmdlet(VerbsCommon.New, "ConsoleMenu", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolemenu/")]
     [OutputType(typeof(Menu))]
     public sealed class CmdletNewConsoleMenu : PSCmdlet {
         private readonly List<PSObject> _piped = new List<PSObject>();
@@ -70,6 +68,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The default layout for Show-ConsoleMenu: Auto, Classic, Shell or Inline.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Auto")]
         public MenuLayout Layout { get; set; } = MenuLayout.Auto;
 
         /// <inheritdoc />

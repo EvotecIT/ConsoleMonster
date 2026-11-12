@@ -26,7 +26,7 @@ namespace SiteFrames.Capture {
             Console.OutputEncoding = new UTF8Encoding(false);
             using var recorder = SessionRecorder.Start(new SessionRecordingOptions {
                 InProcess = true, Width = int.Parse(args[2], CultureInfo.InvariantCulture), Height = int.Parse(args[3], CultureInfo.InvariantCulture),
-                Path = Environment.GetEnvironmentVariable("SITEFRAMES_OUTPUT_RECORDING") ?? throw new InvalidOperationException("Missing hosted capture destination.")
+                RecordingPath = Environment.GetEnvironmentVariable("SITEFRAMES_OUTPUT_RECORDING") ?? throw new InvalidOperationException("Missing hosted capture destination.")
             });
             TextWriter original = Console.Out;
             Console.SetOut(new PrintedWriter(original, recorder));

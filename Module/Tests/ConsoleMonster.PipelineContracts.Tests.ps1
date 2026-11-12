@@ -13,8 +13,8 @@ Describe 'Supported comparison and chart pipeline contracts' {
             [pscustomobject]@{ Name = 'new'; Value = 4 }
         )
         $errors = @()
-        $piped = @($after | Compare-ConsoleObject -ReferenceObject $before -Property Name -PassThru -ErrorAction Stop -ErrorVariable errors -WarningAction SilentlyContinue -WarningVariable warnings)
-        $explicit = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -PassThru -ErrorAction Stop)
+        $piped = @($after | Compare-ConsoleObject -ReferenceObject $before -Key Name -PassThru -ErrorAction Stop -ErrorVariable errors -WarningAction SilentlyContinue -WarningVariable warnings)
+        $explicit = @(Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -PassThru -ErrorAction Stop)
         $errors.Count | Should -Be 0
         $piped.Count | Should -Be 3
         $actual = @($piped | ForEach-Object { '{0}:{1}' -f $_.Kind, $_.Key } | Sort-Object)

@@ -27,6 +27,12 @@ namespace ConsoleMonster.Markdown {
             return ConvertBlocks(MarkdownReader.Parse(content, options).Blocks);
         }
 
+        /// <summary>Parses Markdown source and adds its semantic blocks to a content builder.</summary>
+        /// <param name="content">The layout being composed.</param>
+        /// <param name="source">The complete Markdown document, including link definitions.</param>
+        /// <returns>The same content builder.</returns>
+        public static ContentBuilder Markdown(this ContentBuilder content, string source) => content.Add(Parse(source));
+
         /// <summary>Writes a document, using the shared pager when it exceeds an interactive screen.</summary>
         /// <param name="content">The complete Markdown source.</param>
         /// <param name="paging">Whether a long interactive document may acquire the input lease.</param>

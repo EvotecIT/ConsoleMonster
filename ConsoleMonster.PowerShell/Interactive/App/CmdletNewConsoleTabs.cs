@@ -7,17 +7,23 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates retained tabs with keyboard and pointer navigation.</para>
-    /// <para type="description">Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</para>
-    /// </summary>
+    /// <summary>Creates retained tabs with keyboard and pointer navigation.</summary>
+    /// <remarks><para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</para></remarks>
     /// <example><para>Compose two retained pages.</para><code>Show-ConsoleApp -Mode Snapshot -Content {
     ///     New-ConsoleTabs -Key Page -Content ([ordered]@{
     ///         Search = { New-ConsoleTextInput -Key Query }
     ///         About = { New-ConsoleText 'Inventory browser' }
     ///     })
     /// }</code></example>
-    [Cmdlet(VerbsCommon.New, "ConsoleTabs")]
+    /// <example>
+    /// <para>Compose two retained inventory pages</para>
+    /// <code>New-ConsoleTabs -Key inventory -Content ([ordered]@{
+    ///     Servers = { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget }
+    ///     Summary = { New-ConsoleText 'One server online' -Role Pass }
+    /// }) | Show-Console
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleTabs", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletabs/")]
     [OutputType(typeof(Tabs))]
     public sealed class CmdletNewConsoleTabs : PSCmdlet {
         private readonly List<LayoutRegion> _pages = new List<LayoutRegion>();
@@ -26,7 +32,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Page records from the pipeline.</para></summary>
         [Parameter(ValueFromPipeline = true)] public PSObject? InputObject { get; set; }
         /// <summary><para type="description">Initial zero-based active page.</para></summary>
-        [Parameter, ValidateRange(0, int.MaxValue)] public int SelectedIndex { get; set; }
+        [Parameter, ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "0")]
+        public int SelectedIndex { get; set; }
         /// <summary><para type="description">Unique key in the application's state; the value is the active page's title.</para></summary>
         [Parameter, ValidateNotNullOrEmpty] public string? Key { get; set; }
         /// <summary><para type="description">Runs once each time the active page changes, on the owning input thread. Receives param($Value, $State) and injected $Value, $State and $Control. Output is discarded.</para></summary>

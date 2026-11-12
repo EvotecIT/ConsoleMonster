@@ -4,10 +4,8 @@ using System.Threading;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows a menu until the user exits.</para>
-    /// <para type="description">Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Redirected output, CI, -Mode None and non-interactive sessions print the current menu once without running actions. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.</para>
-    /// </summary>
+    /// <summary>Shows a menu until the user exits.</summary>
+    /// <remarks><para>Shell is an app: a title bar with the breadcrumb, a sidebar (it folds into the breadcrumb in narrow windows), the content pane with the open item's list, form, page or review, and a footer generated from the keys that work right now. Classic is one centred menu; Inline is a list in the scrollback for scripts. Everywhere: Esc goes back, Ctrl+K (or :) opens the command palette, ? shows every key, Ctrl+Q leaves (asking first when a form has unsaved changes). Item actions run on the pipeline thread. Redirected output, CI, -Mode None and non-interactive sessions print the current menu once without running actions. Selections and form values survive navigation; -AppName stores presets, and with -RememberLastChoices the last choices.</para></remarks>
     /// <example>
     /// <para>Run a menu as an application</para>
     /// <code>$menu = New-ConsoleMenu 'Server toolbox' -Content {
@@ -16,7 +14,16 @@ namespace ConsoleMonster.PowerShell {
     /// }
     /// Show-ConsoleMenu $menu -Layout Shell</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleMenu")]
+    /// <example>
+    /// <para>Choose an inventory action from a menu</para>
+    /// <code>$menu = New-ConsoleMenu -Title Inventory -Content {
+    ///     New-ConsoleMenuItem 'List servers' -Action { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-ConsoleTable }
+    ///     New-ConsoleMenuItem -Exit
+    /// }
+    /// Show-ConsoleMenu $menu
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.Show, "ConsoleMenu", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolemenu/")]
     public sealed class CmdletShowConsoleMenu : PSCmdlet {
         private CancellationTokenSource? _stop;
 
@@ -26,6 +33,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The layout: Auto (the menu's own, or Shell when items open content), Classic, Shell or Inline.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Auto")]
         public MenuLayout Layout { get; set; } = MenuLayout.Auto;
 
         /// <summary><para type="description">The app name presets and remembered choices are stored under (default: the menu title).</para></summary>
@@ -35,6 +43,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Remembers selections and form answers between runs.</para></summary>
         [Parameter]
 
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter RememberLastChoices { get; set; }
 
         /// <summary><para type="description">The folder that holds the app's storage folder (default: per user).</para></summary>
@@ -43,6 +52,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Turns the command palette off.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter NoCommandPalette { get; set; }
 
         /// <summary><para type="description">Forces how to interact: Rich, Line or Accessible.</para></summary>

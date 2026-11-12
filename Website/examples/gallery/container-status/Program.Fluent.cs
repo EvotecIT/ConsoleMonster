@@ -94,20 +94,8 @@ IWidget Frame(int tick)
         .Column("Memory %", row => row.MemoryPercent)
         .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord))
         .Expand();
-    var cpu = (BarChart)Ui.Chart()
-        .Type(ChartType.Bar)
-        .WidgetId("cpu")
-        .Maximum(100)
-        .Warning(70)
-        .Critical(90)
-        .Build();
-    var memory = (BarChart)Ui.Chart()
-        .Type(ChartType.Bar)
-        .WidgetId("memory")
-        .Maximum(100)
-        .Warning(80)
-        .Critical(90)
-        .Build();
+    var cpu = Ui.BarChart("cpu").Maximum(100).Warning(70).Critical(90);
+    var memory = Ui.BarChart("memory").Maximum(100).Warning(80).Critical(90);
     foreach (var row in rows)
     {
         cpu.Add(row.Container, row.Cpu);
@@ -123,39 +111,39 @@ IWidget Frame(int tick)
         feed = list;
     }
 
-    return Ui.Rows().Gap(1).Content(c3 =>
+    return Ui.Rows().Gap(1).Content(rowsContent =>
     {
-        c3.Rule(
+        rowsContent.Rule(
             ($"[accent bold]Containers[/] [muted]· docker-01.adatum.example.test · refresh 2s · "
                 + $"{clock}[/]"));
-        c3.Facts(facts => facts.Add(rows.Count - restarting, "running", ThemeToken.Pass)
+        rowsContent.Facts(facts => facts.Add(rows.Count - restarting, "running", ThemeToken.Pass)
             .Add(restarting, "restarting", restarting == 0 ? ThemeToken.Muted : ThemeToken.Warn)
             .Add(new ViewFact($"{memoryTotal:N0} of {limitTotal:N0} MiB reserved", default,
                 "memory")));
-        c3.Add(table);
-        c3.Columns(columns => columns.Content(c2 =>
+        rowsContent.Add(table);
+        rowsContent.Columns(columns => columns.Content(columnsContent =>
         {
-            c2.Panel(p => p.Title("CPU %").Content(c =>
+            columnsContent.Panel(p => p.Title("CPU %").Content(panelContent =>
             {
-                c.Add(cpu);
+                panelContent.Add(cpu);
             }));
-            c2.Panel(p => p.Title("Memory % of limit").Content(c =>
+            columnsContent.Panel(p => p.Title("Memory % of limit").Content(panelContent =>
             {
-                c.Add(memory);
+                panelContent.Add(memory);
             }));
         }));
-        c3.Panel(p => p.Title("Events").Content(c =>
+        rowsContent.Panel(p => p.Title("Events").Content(panelContent =>
         {
-            c.Add(feed);
+            panelContent.Add(feed);
         }));
     });
 }
 
 // Behaviour: build each sample's screen, then replay them in a bounded live dashboard.
 var frames = Enumerable.Range(0, 4).Select(Frame).ToArray();
-var screen = Ui.Region("containers").Content(c =>
+var screen = Ui.Region("containers").Content(regionWidgetContent =>
 {
-    c.Add(frames[0]);
+    regionWidgetContent.Add(frames[0]);
 });
 using LiveSession session = screen.CreateSession();
 try

@@ -337,7 +337,7 @@ namespace ConsoleMonster.PowerShell {
             if (expanded.Count > 0 && expanded.All(item => PSShaping.IsValueLike(item, shape))) {
                 // Values have no fields: one line each, as text.
                 string lines = string.Join("\n", expanded.Select(item => Text.Markup.Escape(ValueShaper.ShapedText(item, shape, ShapeBudget.For(shape)))));
-                return title == null ? Placeholders.Block(lines) : new Rows(new TextBlock(title), Placeholders.Block(lines));
+                return title == null ? Placeholders.Block(lines) : new Rows(TextBlock.FromMarkup(title), Placeholders.Block(lines));
             }
             RecordView view = new RecordView(title) { HideEmpty = !showEmpty };
             if (expanded.Count > 1 || groupBy != null) {
@@ -413,7 +413,7 @@ namespace ConsoleMonster.PowerShell {
                 profile = profile.WithSize(width, profile.Height);
             }
             // A blank line after each block, as Format-Table does, so consecutive outputs stay apart.
-            HostOutput.Write(cmdlet, appendBlankLine ? new Rows(widget, new TextBlock(string.Empty)) : widget, profile, width > 0);
+            HostOutput.Write(cmdlet, appendBlankLine ? new Rows(widget, TextBlock.FromMarkup(string.Empty)) : widget, profile, width > 0);
         }
 
         /// <summary>
@@ -453,7 +453,7 @@ namespace ConsoleMonster.PowerShell {
             bool fits = width <= 0 || hostWidth <= 1 || width < hostWidth;
             if (!passThru && fits && EmitsRendering(cmdlet)) {
                 // A blank line after the block, as Format-Table and the host route print.
-                cmdlet.WriteObject(new ConsoleRendering(appendBlankLine ? new Rows(widget, new TextBlock(string.Empty)) : widget, width, culture));
+                cmdlet.WriteObject(new ConsoleRendering(appendBlankLine ? new Rows(widget, TextBlock.FromMarkup(string.Empty)) : widget, width, culture));
                 return;
             }
             Write(cmdlet, widget, width, culture, appendBlankLine);
@@ -516,7 +516,7 @@ namespace ConsoleMonster.PowerShell {
             System.Text.StringBuilder text = new System.Text.StringBuilder();
             void Flush() {
                 if (text.Length > 0) {
-                    parts.Add(new TextBlock(Text.Markup.Escape(text.ToString().TrimEnd('\n'))));
+                    parts.Add(TextBlock.FromMarkup(Text.Markup.Escape(text.ToString().TrimEnd('\n'))));
                     text.Clear();
                 }
                 if (objects.Count > 0) {
@@ -544,7 +544,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             Flush();
-            return parts.Count == 0 ? new TextBlock(string.Empty) : Combine(parts);
+            return parts.Count == 0 ? TextBlock.FromMarkup(string.Empty) : Combine(parts);
         }
 
         /// <summary>Several widgets as one: a single one as it is, more with a blank line between them.</summary>

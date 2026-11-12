@@ -107,7 +107,7 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void Markup_PlainOutput_ShowsTheTargetAfterDifferentLinkText() {
-            TextBlock text = new TextBlock("see [link=https://evotec.xyz]Evo[bold]tec[/][/] and [link]https://evotec.xyz[/]");
+            TextBlock text = TextBlock.FromMarkup("see [link=https://evotec.xyz]Evo[bold]tec[/][/] and [link]https://evotec.xyz[/]");
             TerminalProfile plain = Profile.WithMode(OutputMode.Stream).WithColorDepth(ColorDepth.None);
             Assert.Equal("see Evotec (https://evotec.xyz) and https://evotec.xyz", Terminal.RenderText(text, plain, Theme.Dark).TrimEnd());
             // Fixed profiles (exports, tests) keep the link on the cells for the HTML and SVG writers.
@@ -116,10 +116,10 @@ namespace ConsoleMonster.Tests.Rendering {
 
         [Fact]
         public void Markup_HyperlinkTerminal_ShowsTheTargetOfALinkItCannotOpen() {
-            TextBlock text = new TextBlock("[link=docs/report.pdf]Report[/] and [link=https://evotec.xyz]Evotec[/]");
+            TextBlock text = TextBlock.FromMarkup("[link=docs/report.pdf]Report[/] and [link=https://evotec.xyz]Evotec[/]");
             Assert.Equal("Report (docs/report.pdf) and Evotec", Terminal.RenderText(text, Profile, Theme.Dark).TrimEnd());
             // A label that is only part of the address still needs the address.
-            Assert.Equal("report (docs/report.pdf)", Terminal.RenderText(new TextBlock("[link=docs/report.pdf]report[/]"), Profile, Theme.Dark).TrimEnd());
+            Assert.Equal("report (docs/report.pdf)", Terminal.RenderText(TextBlock.FromMarkup("[link=docs/report.pdf]report[/]"), Profile, Theme.Dark).TrimEnd());
             Assert.Contains(Osc + "https://evotec.xyz", Terminal.RenderEncoded(text, Profile, Theme.Dark));
         }
 

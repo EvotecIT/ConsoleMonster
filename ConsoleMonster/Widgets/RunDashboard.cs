@@ -135,8 +135,8 @@ namespace ConsoleMonster.Widgets {
             return facts;
         }
 
-        internal static IWidget Label(string text) => new TextBlock("[bold]" + Markup.Escape(text) + "[/]") { Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis };
-        internal static IWidget Line(string text, ThemeToken role = ThemeToken.Text) => new TextBlock(Markup.Escape(text)) { Role = role, Overflow = TextOverflow.Ellipsis };
+        internal static IWidget Label(string text) => new TextBlock("[bold]" + Markup.Escape(text) + "[/]") { IsMarkup = true, Role = ThemeToken.Muted, Overflow = TextOverflow.Ellipsis };
+        internal static IWidget Line(string text, ThemeToken role = ThemeToken.Text) => new TextBlock(Markup.Escape(text)) { IsMarkup = true, Role = role, Overflow = TextOverflow.Ellipsis };
         internal static string ItemName(RunItemSnapshot item) => item.Item.DisplayName;
         internal static IWidget Problem(RunItemSnapshot item, RenderContext context) => Line(context.Glyphs.StatusSymbol(item.Status) + " " + ItemName(item) + (item.Detail.Length > 0 ? ": " + item.Detail : ""), item.Status == StatusKind.Fail ? ThemeToken.Fail : ThemeToken.Warn);
     }

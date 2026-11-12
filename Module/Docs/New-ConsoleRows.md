@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolerows/
 schema: 2.0.0
 ---
 # New-ConsoleRows
 ## SYNOPSIS
 Stacks console widgets vertically.
-
-Children emitted by the scriptblock are placed top to bottom. In a live dashboard, children created with -Fill or -Weight share the remaining height.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleRows [[-Content] <Object>] [-Gap <int>] [-Weight <double>] [-Fill] [<
 ```
 
 ## DESCRIPTION
-Stacks console widgets vertically.
-
 Children emitted by the scriptblock are placed top to bottom. In a live dashboard, children created with -Fill or -Weight share the remaining height.
 
 ## EXAMPLES
@@ -29,6 +25,16 @@ New-ConsoleRows -Gap 1 -Content { New-ConsoleRule -Title 'Summary'; New-ConsoleK
 ```
 
 Two widgets stacked with a blank row between them
+
+### EXAMPLE 2
+```powershell
+New-ConsoleRows -Gap 1 -Content {
+                New-ConsoleText 'Inventory' -Decoration Bold
+                New-ConsoleText 'web01 and web02 are online' -Role Pass
+            } | Show-Console
+```
+
+Stack an inventory heading and result
 
 ## PARAMETERS
 
@@ -59,7 +65,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -75,7 +81,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -91,7 +97,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -109,4 +115,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolerows/](https://consolemonster.dev/powershell/commands/new-consolerows/)

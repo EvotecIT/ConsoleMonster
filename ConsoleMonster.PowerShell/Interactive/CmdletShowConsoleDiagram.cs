@@ -10,17 +10,15 @@ using ConsoleMonster.Interactive;
 using DiagramWidget = ConsoleMonster.Widgets.Diagram;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.</para>
-    /// <para type="description">Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.</para>
-    /// <para type="description">Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Errors in the selected diagram stop the command with the file line and diagnostic code. Errors in other visual fences and markup warnings are written as PowerShell warnings. -Path reads one file and cannot be combined with pipeline input; pipe connection rows without -Path.</para>
-    /// </summary>
+    /// <summary>Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.</summary>
+    /// <remarks><para>Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.</para>
+    /// <para type="description">Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Errors in the selected diagram stop the command with the file line and diagnostic code. Errors in other visual fences and markup warnings are written as PowerShell warnings. -Path reads one file and cannot be combined with pipeline input; pipe connection rows without -Path.</para></remarks>
     /// <example><para>Explore a diagram and its use cases with the keyboard.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md</code></example>
     /// <example><para>Print one step of a use case without reading keys.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot</code></example>
     /// <example><para>Capture the diagram as plain text for a log or a ticket.</para><code>Show-ConsoleDiagram -Path ./tierbridge.md -Scenario blocked -Step 7 -Width 120 -AsString</code></example>
     /// <example><para>Show connection rows using their standard columns.</para><code>$rows | Show-ConsoleDiagram -Title 'Replication' -StaticSnapshot</code></example>
     /// <example><para>Select columns and calculate connection labels.</para><code>$rows | Show-ConsoleDiagram -From Source -To Destination -Label { $_.Lag.ToString() + ' min' } -Status Health -Group Site -AsString</code></example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleDiagram", DefaultParameterSetName = "Rows")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleDiagram", DefaultParameterSetName = "Rows", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolediagram/")]
     [OutputType(typeof(DiagramWidget), typeof(string))]
     public sealed class CmdletShowConsoleDiagram : DiagramContentCmdlet {
         private CancellationTokenSource? _stop;
@@ -44,6 +42,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The one-based step to highlight in the selected use case. Interactive views start there; static views show that step.</para></summary>
         [Parameter]
         [ValidateRange(1, int.MaxValue)]
+        [PSDefaultValue(Help = "0")]
         public int Step { get; set; }
 
         /// <summary><para type="description">Rich runs the keyboard view. Line, Accessible, None and Snapshot print the static view.</para></summary>
@@ -53,14 +52,18 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Width used by the static view; zero detects the host width.</para></summary>
         [Parameter]
         [ValidateRange(0, 32767)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Prints a static view without reading keys.</para></summary>
-        [Parameter] public SwitchParameter StaticSnapshot { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter StaticSnapshot { get; set; }
         /// <summary><para type="description">Returns the static view as one plain-text string.</para></summary>
-        [Parameter] public SwitchParameter AsString { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter AsString { get; set; }
         /// <summary><para type="description">Returns the diagram widget without drawing it, for static display or live updates in Show-ConsoleApp layouts. The consumer must handle keys to enable diagram navigation and playback. Cannot be combined with -AsString or -StaticSnapshot.</para></summary>
-        [Parameter] public SwitchParameter AsWidget { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter AsWidget { get; set; }
 
         /// <inheritdoc />
         protected override void BeginProcessing() {

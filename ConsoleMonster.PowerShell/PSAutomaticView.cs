@@ -13,7 +13,7 @@ namespace ConsoleMonster.PowerShell {
         internal static IWidget Build(IReadOnlyList<PSObject> input, PSCmdlet cmdlet, object[]? property = null, string? title = null, int depth = 3) {
             ShapeOptions shape = PSShaping.Options();
             IReadOnlyList<PSObject> items = PSFormatting.Expand(input, shape);
-            ConsoleViewOptions options = new ConsoleViewOptions { Title = title, Depth = depth };
+            ConsoleViewOptions options = new ConsoleViewOptions { Title = title, MaxDepth = depth };
             options.Sources.Add(new DirectoryEntryMemberSource());
             options.Sources.Add(new PSObjectMemberSource());
             List<object?> values = new List<object?>(items.Count);

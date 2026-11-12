@@ -25,7 +25,7 @@ namespace ConsoleMonster.Tests.Views {
                 current.Children.Add(child);
                 current = child;
             }
-            Tree tree = ConsoleView.BuildTree(new object?[] { root }, new ConsoleViewOptions { Depth = depth });
+            Tree tree = ConsoleView.BuildTree(new object?[] { root }, new ConsoleViewOptions { MaxDepth = depth });
             string text = TestTerminal.RenderText(tree, 80, glyphs: GlyphTier.Ascii);
             Assert.Contains("level" + depth, text);
             Assert.DoesNotContain("level" + (depth + 1), text);

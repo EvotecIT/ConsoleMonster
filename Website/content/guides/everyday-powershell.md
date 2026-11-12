@@ -199,7 +199,7 @@ The Windows views register only on Windows. None of these views performs network
 
 {{< cm-frame ids="compare-object-ps5,compare-object-ps7" script="true" >}}
 
-To have Compare-ConsoleObject match objects by key and list which properties changed, call `Compare-ConsoleObject $before $after -Property Name`.
+To have Compare-ConsoleObject match objects by key and list which properties changed, call `Compare-ConsoleObject $before $after -Key Name`.
 
 ## Format-Table, Format-List and Format-Wide
 

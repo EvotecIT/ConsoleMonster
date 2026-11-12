@@ -1,24 +1,20 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/invoke-consoledashboard/
 schema: 2.0.0
 ---
 # Invoke-ConsoleDashboard
 ## SYNOPSIS
 Runs a console dashboard live while a script does the work.
 
-The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordingPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-Transient] [-Clock <SimulatedClock>] [-FramesPerSecond <double>] [-NoLive] [-ReducedMotion] [<CommonParameters>]
+Invoke-ConsoleDashboard [-Dashboard] <IWidget> [-ScriptBlock] <scriptblock> [-ArgumentList <Object[]>] [-InputObject <Object>] [-Parallel] [-ThrottleLimit <int>] [-ImportFunction <string[]>] [-ImportModule <string[]>] [-RecordingPath <string>] [-AutoRecord <int>] [-Summary <IWidget>] [-Inline] [-PrintFinalState] [-Clock <SimulatedClock>] [-FramesPerSecond <double>] [-NoLive] [-ReducedMotion] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Runs a console dashboard live while a script does the work.
-
 The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.
 
 ## EXAMPLES
@@ -81,7 +77,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -129,7 +125,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 15
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -177,7 +173,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -209,7 +205,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -225,7 +221,23 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -PrintFinalState
+Prints the final dashboard state in scrollback (default true); pass -PrintFinalState:$false to leave nothing behind.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $true
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -257,7 +269,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -305,23 +317,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Transient
-Leaves nothing behind when the dashboard ends (no final state in the scrollback).
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
+Default value: 4
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -339,4 +335,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/invoke-consoledashboard/](https://consolemonster.dev/powershell/commands/invoke-consoledashboard/)

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/show-console/
 schema: 2.0.0
 ---
 # Show-Console
 ## SYNOPSIS
 Shows objects, text and widgets in a readable view that fits the terminal.
-
-Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
 
 ## SYNTAX
 ### Objects (Default)
@@ -27,8 +25,6 @@ Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy
 ```
 
 ## DESCRIPTION
-Shows objects, text and widgets in a readable view that fits the terminal.
-
 Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
 
 ## EXAMPLES
@@ -99,7 +95,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -115,7 +111,7 @@ Possible values: Rounded, Square, Double, Minimal, None, Rule
 
 Required: False
 Position: named
-Default value: None
+Default value: Rounded
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -147,7 +143,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 60
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -195,7 +191,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 3
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -211,7 +207,7 @@ Possible values: Compact, Standard, Detailed
 
 Required: False
 Position: named
-Default value: None
+Default value: Standard
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -243,7 +239,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -291,7 +287,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -307,7 +303,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -323,7 +319,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 4
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -339,7 +335,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 100
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -355,7 +351,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -371,7 +367,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -387,7 +383,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -403,7 +399,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -419,7 +415,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -435,7 +431,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -483,7 +479,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -499,7 +495,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -515,7 +511,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -563,7 +559,7 @@ Possible values: Auto, Table, List, Tree, Code, Json, Error, Markdown
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -579,7 +575,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -595,7 +591,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -613,4 +609,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-console/](https://consolemonster.dev/powershell/commands/show-console/)

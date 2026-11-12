@@ -444,7 +444,7 @@ Describe 'Native console applications' {
             @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
             @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
             @{ Label = 'Oldest patch'; Value = '41 days'; Fact = 'FS-02'; State = 'Warning' }
-        ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @(
+        ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @(
             @{ Title = 'Sites'; Content = { 'London 22' } }
             @{ Title = 'Backups'; Placement = 'Detail'; Content = { 'Nightly OK' } }
         ) -FooterCount '48 servers'

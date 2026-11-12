@@ -52,7 +52,7 @@ The driver wraps the shell's actual prompt in OSC 133 semantic marks. It never s
 ```powershell
 Import-Module ConsoleMonster
 Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./talk.cast -Seed 42
-Export-ConsoleRecording -InputRecordingPath ./talk.cast -Format Gif -Preset Slide16x9 -ChromeStyle MacOS -OutputPath ./talk.gif
+Export-ConsoleRecording -RecordingPath ./talk.cast -Format Gif -Preset Slide16x9 -ChromeStyle MacOS -Path ./talk.gif
 ```
 
 PNG, GIF and APNG run in-process without an external executable or a download. Use GIF for animated slides.
@@ -81,7 +81,7 @@ Every slide preset centres the complete window inside a safe inset of 6% of the 
 The surrounding background uses the theme colour by default. Choose a solid colour or a soft gradient with hex colours:
 
 ```powershell
-Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -OutputPath ./terminal.png
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Fit Terminal -Background Solid -BackgroundColor '#1b2638' -Path ./terminal.png
 ```
 
 Use `-Theme Dark`, `Light` or `HighContrast`, and `-ChromeStyle MacOS`, `Windows`, `Linux` or `None`. The embedded JetBrains Mono font makes default text consistent across operating systems. `-FontFamily 'Consolas'` chooses an installed font; C# also accepts additional fallback families. Emoji and CJK coverage depends on installed fonts. Box drawing, blocks and braille use geometric cell shapes, so they join without font seams.
@@ -103,12 +103,12 @@ The pace and hold survive in the cast. Explicit `-Pace` at export overrides reco
 
 ```powershell
 # Final frame, or a moment in source-recording time.
-Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -OutputPath ./final.png
-Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -OutputPath ./moment.png
+Export-ConsoleRecording ./talk.cast -Format Png -Preset Slide16x9 -Path ./final.png
+Export-ConsoleRecording ./talk.cast -Format Png -AtSeconds 04 -Preset Slide16x9 -Path ./moment.png
 
 # A chapter's completed view, or numbered slides for every chapter.
-Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -OutputPath ./report.png
-Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -OutputPath ./slides
+Export-ConsoleRecording ./talk.cast -Format Png -Chapter Report -Preset Slide16x9 -Path ./report.png
+Export-ConsoleRecording ./talk.cast -Format Png -PerChapter -Preset Slide16x9 -Path ./slides
 
 # Export any widget or rendered frame too.
 New-ConsoleText 'Ready for the talk' | Export-ConsoleFrame -Format Png -Preset Social -Path ./ready.png
@@ -160,7 +160,7 @@ var demo = DemoScript.Read("demo.ps1");
 var options = new DemoOptions {
     Seed = 42,
     Recording = new SessionRecordingOptions {
-        Path = "talk.cast", Shell = "pwsh", Width = 100, Height = 28
+        RecordingPath = "talk.cast", Shell = "pwsh", Width = 100, Height = 28
     },
     Output = Console.Write
 };

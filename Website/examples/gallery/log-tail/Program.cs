@@ -33,12 +33,13 @@ IWidget Frame(int tick)
 {
     Rows lines = new Rows();
     foreach ((string time, string level, string message) in events.Take(tick + 1))
-        lines.Add(new TextBlock("[muted]" + time + "[/] [" + roles[level] + "]" + labels[level]
-            .PadRight(4) + "[/]  " + message));
+        lines.Add(TextBlock.FromMarkup("[muted]" + time + "[/] [" + roles[level] + "]"
+            + labels[level]
+                .PadRight(4) + "[/]  " + message));
     return new Rows(
-        new TextBlock("[accent bold]Application log[/] [muted]· worker events[/]"),
+        TextBlock.FromMarkup("[accent bold]Application log[/] [muted]· worker events[/]"),
         new Panel() { Title = "./logs/worker.log", Content = lines },
-        new TextBlock("[muted]"
+        TextBlock.FromMarkup("[muted]"
             + (tick + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)
             + " / 5 events · Ctrl+C stops the live run[/]"))
     {
@@ -72,5 +73,5 @@ LogViewport log = new LogViewport("worker.log") { ShowElapsed = false, Height = 
 foreach ((_, string level, string message) in events)
     log.Write(message, level);
 ConsoleApp.Run(new Rows(
-    new TextBlock("[accent bold]Application log[/] [muted]· read the run back[/]"),
+    TextBlock.FromMarkup("[accent bold]Application log[/] [muted]· read the run back[/]"),
     log));

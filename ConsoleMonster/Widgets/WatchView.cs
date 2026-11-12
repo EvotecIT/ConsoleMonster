@@ -16,7 +16,7 @@ namespace ConsoleMonster.Widgets {
     /// as an error message, or null).</para>
     /// </summary>
     public sealed class WatchView : LiveWidget {
-        private IWidget _content = new TextBlock(string.Empty);
+        private IWidget _content = TextBlock.FromMarkup(string.Empty);
         private string[,]? _previous;
         private string[,]? _rendered;
         private DateTimeOffset? _lastRun;
@@ -49,7 +49,7 @@ namespace ConsoleMonster.Widgets {
         /// <returns>This instance.</returns>
         public WatchView Update(IWidget content, int iteration, string? status = null, DateTimeOffset? time = null) {
             _previous = _rendered;
-            _content = content ?? new TextBlock(string.Empty);
+            _content = content ?? TextBlock.FromMarkup(string.Empty);
             Iteration = iteration;
             Status = status;
             _lastRun = time?.ToLocalTime() ?? Presenters.PresentationOptions.ReferenceNow();

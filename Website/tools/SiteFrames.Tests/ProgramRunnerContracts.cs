@@ -93,7 +93,7 @@ namespace SiteFrames.Tests {
         public void Execute_FileArguments_ReachTheCompleteProgram_AndDefaultToEmpty() {
             string data = Path.Combine(_folder, "a theme file.txt");
             File.WriteAllText(data, "Loaded team palette");
-            string path = Program("arguments", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(new TextBlock(args.Length == 0 ? \"Current palette\" : File.ReadAllText(args[0])));\n");
+            string path = Program("arguments", "using ConsoleMonster;\nusing ConsoleMonster.Widgets;\n\nTerminal.Write(TextBlock.FromMarkup(args.Length == 0 ? \"Current palette\" : File.ReadAllText(args[0])));\n");
             var profile = CSharpRunner.Profile(40, 10, ColorDepth.TrueColor, GlyphTier.Full);
             Assert.Contains("Loaded team palette", CSharpRunner.Execute(path, profile, Theme.Dark, null, new[] { data }).Output, StringComparison.Ordinal);
             Assert.Contains("Current palette", CSharpRunner.Execute(path, profile, Theme.Dark, null).Output, StringComparison.Ordinal);

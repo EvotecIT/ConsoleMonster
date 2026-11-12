@@ -8,11 +8,9 @@ using ConsoleMonster.Rendering;
 using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Starts a bounded run dashboard for work scheduled by your script.</para>
-    /// <para type="description">In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.</para>
-    /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para>
-    /// </summary>
+    /// <summary>Starts a bounded run dashboard for work scheduled by your script.</summary>
+    /// <remarks><para>In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.</para>
+    /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para></remarks>
     /// <example>
     /// <para>Track file inspections without modifying the files</para>
     /// <code>$files = @(Get-ChildItem -File | Select-Object -First 5)
@@ -31,14 +29,15 @@ namespace ConsoleMonster.PowerShell {
     /// Update-Console -Run $run -Index 0 -Status Pass
     /// Complete-ConsoleRun $run</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Start, "ConsoleRun")]
+    [Cmdlet(VerbsLifecycle.Start, "ConsoleRun", HelpUri = "https://consolemonster.dev/powershell/commands/start-consolerun/")]
     [OutputType(typeof(LiveRun))]
     public sealed class CmdletStartConsoleRun : NoPipelineInputCmdlet {
         /// <summary><para type="description">The complete input list. Updates identify each item by zero-based position.</para></summary>
         [Parameter(Mandatory = true)] [AllowEmptyCollection]
         public PSObject[] InputObject { get; set; } = Array.Empty<PSObject>();
         /// <summary><para type="description">The literal run title.</para></summary>
-        [Parameter] public string Title { get; set; } = "Run";
+        [Parameter] [PSDefaultValue(Help = "Run")]
+        public string Title { get; set; } = "Run";
         /// <summary><para type="description">A name property or script block ($_ is the item). Default the item's display title.</para></summary>
         [Parameter] public object? Label { get; set; }
         /// <summary><para type="description">An optional target property or script block.</para></summary>
@@ -46,24 +45,32 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">An optional group property or script block.</para></summary>
         [Parameter] public object? Group { get; set; }
         /// <summary><para type="description">Force append-only output without cursor movement.</para></summary>
-        [Parameter] public SwitchParameter NoLive { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLive { get; set; }
         /// <summary><para type="description">Enable optional p/f/g/? keys when keyboard input is available.</para></summary>
-        [Parameter] public SwitchParameter InteractiveKeys { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter InteractiveKeys { get; set; }
         /// <summary><para type="description">Show the throughput trend next to its rate.</para></summary>
-        [Parameter] public SwitchParameter ShowTrend { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ShowTrend { get; set; }
         /// <summary><para type="description">Maximum terminal height percentage used by the live dashboard (default 40).</para></summary>
-        [Parameter] [ValidateRange(1, 100)] public int HeightPercent { get; set; } = 40;
+        [Parameter] [ValidateRange(1, 100)] [PSDefaultValue(Help = "40")]
+        public int HeightPercent { get; set; } = 40;
         /// <summary><para type="description">Print CI progress after this many items (default 25). Zero disables the count trigger.</para></summary>
-        [Parameter] [ValidateRange(0, int.MaxValue)] public int ProgressEvery { get; set; } = 25;
+        [Parameter] [ValidateRange(0, int.MaxValue)] [PSDefaultValue(Help = "25")]
+        public int ProgressEvery { get; set; } = 25;
         /// <summary><para type="description">Print CI progress at this interval in seconds (default 10). Zero disables the timer.</para></summary>
-        [Parameter] [ValidateRange(0, 86400)] public double ProgressIntervalSeconds { get; set; } = 10;
+        [Parameter] [ValidateRange(0, 86400)] [PSDefaultValue(Help = "10")]
+        public double ProgressIntervalSeconds { get; set; } = 10;
         /// <summary><para type="description">Optional report location shown in the final summary.</para></summary>
         [Parameter] public string? ReportPath { get; set; }
 
         /// <summary><para type="description">Hides default-on category progress.</para></summary>
-        [Parameter] public SwitchParameter NoGroups { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoGroups { get; set; }
         /// <summary><para type="description">Disables animation and limits live redraws to once a second without changing the layout. Accessible mode always enables reduced motion.</para></summary>
-        [Parameter] public SwitchParameter ReducedMotion { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter ReducedMotion { get; set; }
 
         /// <inheritdoc />
         protected override void EndProcessing() {

@@ -58,7 +58,7 @@ namespace ConsoleMonster.Live {
         /// <summary>The automatic recording file of this session, or null.</summary>
         public string? RecordingPath { get; private set; }
 
-        private bool RecordingRequired => _options.RecordWriter != null || _options.RecordPath != null;
+        private bool RecordingRequired => _options.RecordWriter != null || _options.RecordingPath != null;
 
         private void Record(LiveEvent liveEvent) {
             LiveRecorder? recorder = _recorder;

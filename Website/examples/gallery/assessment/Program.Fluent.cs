@@ -405,10 +405,8 @@ void Add(List<LiveEvent> events, double time, string target, string operation, s
 // Layout: retain the worker lanes, result split, rate chart, duration histogram and category findings.
 var events = Generate();
 Phases phases = Ui.Phases().Set("Discover").Set("Collect").Set("Evaluate").Set("Report");
-StackedBar results = ((StackedBar)Ui.Chart()
-    .Type(ChartType.Stacked)
-    .WidgetId("results")
-    .Build()).Add("Passed", 0, ThemeToken.Pass)
+StackedBar results = Ui.StackedBar("results")
+    .Add("Passed", 0, ThemeToken.Pass)
     .Add("Warnings", 0, ThemeToken.Warn)
     .Add("Failed", 0, ThemeToken.Fail)
     .Add("Skipped", 0, ThemeToken.Skip);
@@ -418,11 +416,7 @@ KeyValueList summary = Ui.KeyValue("summary")
     .Add("Remaining", "-")
     .Add("Targets done", "0 / 12")
     .Add("Targets failing", "0");
-LineChart throughput = (LineChart)Ui.Chart()
-    .Type(ChartType.Line)
-    .WidgetId("throughput")
-    .Height(7)
-    .Build();
+LineChart throughput = Ui.LineChart("throughput").Height(7);
 throughput.AddSeries("completed", ThemeToken.Accent);
 throughput.AddSeries("failed", ThemeToken.Fail);
 Histogram durations = (Histogram)Ui.Chart()
@@ -432,11 +426,7 @@ Histogram durations = (Histogram)Ui.Chart()
     .Height(6)
     .Unit("s")
     .Build();
-BarChart findings = (BarChart)Ui.Chart()
-    .Type(ChartType.Bar)
-    .WidgetId("findings")
-    .Role(ThemeToken.Fail)
-    .Build();
+BarChart findings = Ui.BarChart("findings").Role(ThemeToken.Fail);
 foreach (string category in new[]
 {
     "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts",
@@ -447,45 +437,49 @@ foreach (string category in new[]
     findings.Add(category, 0);
 Lanes lanes = Ui.Lanes().MaxLabelWidth(28);
 LogRegion log = Ui.LogRegion().PreferredHeight(6);
-Rows body = Ui.Rows().Content(c4 =>
+Rows body = Ui.Rows().Content(rowsContent2 =>
 {
-    c4.Padding(padding => padding.Bottom(1).Right(1).Top(0).Left(1).Content(c2 =>
-    {
-        c2.Add(phases);
-    }));
-    c4.Columns(columns => columns.Add(Ui.Panel().Title("Targets").Content(c2 =>
-    {
-        c2.Add(lanes);
-    }).HeaderRight("6 workers"), LayoutSize.Fraction(2.3))
-        .Add(Ui.Panel().Title("Results").Content(c3 =>
+    rowsContent2.Padding(padding => padding.Bottom(1)
+        .Right(1)
+        .Top(0)
+        .Left(1)
+        .Content(paddingContent =>
         {
-            c3.Rows(r2 => r2.Content(c2 =>
+            paddingContent.Add(phases);
+        }));
+    rowsContent2.Columns(columns => columns.Add(Ui.Panel().Title("Targets").Content(panelContent =>
+    {
+        panelContent.Add(lanes);
+    }).HeaderRight("6 workers"), LayoutSize.Fraction(2.3))
+        .Add(Ui.Panel().Title("Results").Content(panelContent =>
+        {
+            panelContent.Rows(r2 => r2.Content(rowsContent =>
             {
-                c2.Add(results);
-                c2.Rule();
-                c2.Add(summary);
+                rowsContent.Add(results);
+                rowsContent.Rule();
+                rowsContent.Add(summary);
             }));
         })));
-    c4.Columns(columns => columns.Add(Ui.Panel().Title("Throughput").Content(c2 =>
+    rowsContent2.Columns(columns => columns.Add(
+        Ui.Panel().Title("Throughput").Content(panelContent =>
+        {
+            panelContent.Add(throughput);
+        }).HeaderRight("rules/s"),
+        LayoutSize.Fraction(1.2)).Add(Ui.Panel().Title("Rule duration").Content(panelContent =>
     {
-        c2.Add(throughput);
-    }).HeaderRight("rules/s"), LayoutSize.Fraction(1.2))
-        .Add(Ui.Panel().Title("Rule duration").Content(c2 =>
-        {
-            c2.Add(durations);
-        }))
-        .Add(Ui.Panel().Title("Failures by category").Content(c2 =>
-        {
-            c2.Add(findings);
-        })));
-}).Add(Ui.Panel().Title("Log").Content(c2 =>
+        panelContent.Add(durations);
+    })).Add(Ui.Panel().Title("Failures by category").Content(panelContent =>
+    {
+        panelContent.Add(findings);
+    })));
+}).Add(Ui.Panel().Title("Log").Content(panelContent =>
 {
-    c2.Add(log);
+    panelContent.Add(log);
 }), LayoutSize.Fraction());
 Dashboard dashboard = Ui.Dashboard()
-    .Content(c2 =>
+    .Content(dashboardContent =>
     {
-        c2.Add(body);
+        dashboardContent.Add(body);
     })
     .Title("[accent bold]Nightly checks[/]")
     .Subtitle("ad.adatum.com forest assessment · 12 targets · 332 rules")

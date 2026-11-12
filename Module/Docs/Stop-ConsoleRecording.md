@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/stop-consolerecording/
 schema: 2.0.0
 ---
 # Stop-ConsoleRecording
 ## SYNOPSIS
 Stops recording from inside the recorded child shell.
-
-Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Invoke-ConsoleRecording -Interactive session.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Stop-ConsoleRecording [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Stops recording from inside the recorded child shell.
-
 Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Invoke-ConsoleRecording -Interactive session.
 
 ## EXAMPLES
@@ -30,6 +26,15 @@ Write-Host 'Deployment finished'
 ```
 
 Finish from inside the recorded child shell
+
+### EXAMPLE 2
+```powershell
+# In a shell started with Invoke-ConsoleRecording -Interactive:
+            Write-ConsoleText 'Inspection complete' -Role Pass
+            Stop-ConsoleRecording
+```
+
+End a recording from inside the recorded shell
 
 ## PARAMETERS
 
@@ -46,4 +51,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/stop-consolerecording/](https://consolemonster.dev/powershell/commands/stop-consolerecording/)

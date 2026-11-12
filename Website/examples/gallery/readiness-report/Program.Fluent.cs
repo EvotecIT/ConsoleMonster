@@ -33,32 +33,27 @@ foreach (var check in checks)
     statuses.Add(check.Name, check.Status, check.Detail);
 }
 
-BarChart scores = (BarChart)Ui.Chart()
-    .Type(ChartType.Bar)
-    .Maximum(100)
-    .Unit("%")
-    .Warning(80)
-    .Critical(50)
-    .Build();
+BarChart scores = Ui.BarChart().Maximum(100).Unit("%").Warning(80).Critical(50);
 foreach (var area in areaScores)
     scores.Add(area.Name, area.Score);
-Rows layout = Ui.Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Rule($"[accent bold]Readiness assessment[/] [muted]{separator} workspace[/]");
-    c2.Facts(facts => facts.Add(3, "passed", ThemeToken.Pass)
+    rowsContent.Rule($"[accent bold]Readiness assessment[/] [muted]{separator} workspace[/]");
+    rowsContent.Facts(facts => facts.Add(3, "passed", ThemeToken.Pass)
         .Add(1, "warning", ThemeToken.Warn)
         .Add(1, "failed", ThemeToken.Fail)
         .Add(5, "checks total"));
-    c2.Panel(p => p.Title("Checks").Content(c =>
+    rowsContent.Panel(p => p.Title("Checks").Content(panelContent =>
     {
-        c.Add(statuses);
+        panelContent.Add(statuses);
     }));
-    c2.Panel(p => p.Title("Readiness by area").Content(c =>
+    rowsContent.Panel(p => p.Title("Readiness by area").Content(panelContent =>
     {
-        c.Add(scores);
+        panelContent.Add(scores);
     }).HeaderRight("score / 100"));
-    c2.Markup("[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.");
-    c2.Markup($"[muted]Review owner: Platform team {separator} next review: Friday[/]");
+    rowsContent.Markup(
+        "[bold]Next:[/] rehearse a restore, then add the two missing test scenarios.");
+    rowsContent.Markup($"[muted]Review owner: Platform team {separator} next review: Friday[/]");
 });
 
 // Behaviour: print the screen once and return.

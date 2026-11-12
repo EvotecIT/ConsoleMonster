@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/show-consoletable/
 schema: 2.0.0
 ---
 # Show-ConsoleTable
 ## SYNOPSIS
 Shows objects as a table with fitted columns, readable values and optional grouping.
-
-Pipe objects and choose columns with Property, including calculated properties. GroupBy adds group headings, ShowTotals sums numeric columns, and Wrap keeps long text readable. Narrow output uses labelled cards below CardsBelow. This command displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting is the separate opt-in for ordinary prompt output.
 
 ## SYNTAX
 ### Objects (Default)
@@ -22,8 +20,6 @@ Show-ConsoleTable -Content <Object> [-Property <Object[]>] [-GroupBy <Object>] [
 ```
 
 ## DESCRIPTION
-Shows objects as a table with fitted columns, readable values and optional grouping.
-
 Pipe objects and choose columns with Property, including calculated properties. GroupBy adds group headings, ShowTotals sums numeric columns, and Wrap keeps long text readable. Narrow output uses labelled cards below CardsBelow. This command displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting is the separate opt-in for ordinary prompt output.
 
 ## EXAMPLES
@@ -100,7 +96,7 @@ Possible values: Rounded, Square, Double, Minimal, None, Rule
 
 Required: False
 Position: named
-Default value: None
+Default value: Rounded
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -132,7 +128,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 60
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -180,7 +176,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -228,7 +224,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -244,7 +240,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -260,7 +256,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -276,7 +272,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -308,7 +304,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -324,7 +320,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -372,7 +368,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -388,7 +384,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -406,4 +402,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consoletable/](https://consolemonster.dev/powershell/commands/show-consoletable/)

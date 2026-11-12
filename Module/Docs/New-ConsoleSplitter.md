@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolesplitter/
 schema: 2.0.0
 ---
 # New-ConsoleSplitter
@@ -32,6 +32,15 @@ Show-ConsoleApp -Content {
 
 Show a list beside its details and let the reader widen either side.
 
+### EXAMPLE 2
+```powershell
+New-ConsoleSplitter -Key inventory -First { New-ConsoleText 'web01' } -Second {
+                New-ConsoleText 'State: Online' -Role Pass
+            } | Show-Console
+```
+
+Compose an inventory splitter
+
 ## PARAMETERS
 
 ### -Fill
@@ -45,7 +54,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -77,7 +86,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -109,7 +118,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0.5
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -141,7 +150,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -157,7 +166,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -175,4 +184,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolesplitter/](https://consolemonster.dev/powershell/commands/new-consolesplitter/)

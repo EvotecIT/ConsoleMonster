@@ -89,10 +89,10 @@ namespace SiteFrames.Pages {
         private static IWidget Migration() {
             return new Rows(
                 new Rule("[bold]Write-Color[/] [muted]→[/] [bold]Write-ConsoleText[/]"),
-                new TextBlock("[muted]-Text[/]  [accent]-Text[/]   [muted]-Color[/]  [accent]-Color[/]"),
-                new TextBlock("[muted]-LogFile[/]  [accent]-LogFile[/]  [pass]√ same encoding[/]"),
+                TextBlock.FromMarkup("[muted]-Text[/]  [accent]-Text[/]   [muted]-Color[/]  [accent]-Color[/]"),
+                TextBlock.FromMarkup("[muted]-LogFile[/]  [accent]-LogFile[/]  [pass]√ same encoding[/]"),
                 new Rule("[bold]Spectre.Console[/] [muted]→[/] [bold]markup[/]"),
-                new TextBlock("[[bold red]] [bold red]text[/] [[/]]  [pass]√ unchanged[/]"));
+                TextBlock.FromMarkup("[[bold red]] [bold red]text[/] [[/]]  [pass]√ unchanged[/]"));
         }
 
         private static IWidget Namespaces() {

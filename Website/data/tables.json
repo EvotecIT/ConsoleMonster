@@ -246,7 +246,7 @@
           "csharp": "Title = …",
           "fluent": ".Title(…)",
           "memberId": "ConsoleMonster.Widgets.RecordView.Title",
-          "note": null
+          "note": "The registered list view receives the same title."
         },
         {
           "powershell": "New-ConsoleTable",
@@ -316,7 +316,7 @@
           "csharp": "MaxDepth = …",
           "fluent": ".MaxDepth(…)",
           "memberId": "ConsoleMonster.Data.InspectorOptions.MaxDepth",
-          "note": null
+          "note": "PowerShell uses Depth for bounded traversal, as in ConvertTo-Json, Format-Custom and Get-ChildItem; the C# options retain MaxDepth."
         },
         {
           "powershell": "| Show-Console",
