@@ -17,7 +17,7 @@
 - The `Phases` step ledger (`StepCounter`) lists each step's items under it, spins running steps and shows their latest detail with a ticking elapsed time. When it is taller than its space, finished groups fold into their row (`149/149 · 40s`), running steps stay visible (pinned under `+N earlier` when they are above the window), and the window around the furthest started step only moves forward. The final printed ledger lists every item.
 - Ledger stages nest: `Phases.SetSubItem` (or an `item` event keyed phase, item and sub-item) lists packages under the stage that runs them, and a finished stage folds into one `done/total · time` row in a short area. `Phases.Insert` and the live `insert` operation put a step planned after the run started at its place. Items have their own clock: a running item shows its elapsed time after its detail and a finished one keeps the time it took; a finishing `state` or `item` event can give that time as Value.
 - `LogRegion.FitToEntries` makes a log take only the rows its newest entries need, up to `PreferredHeight`, and none while it is empty, so a message area under inline progress appears and grows with its messages.
-
+- `MarkdownConsole` reads GitHub READMEs: `> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]` alerts render with their title and a bar in the alert's colour, task items show `✓`/`○` (`[x]`/`[ ]` on ASCII) with checked items in the pass colour, and YAML front matter is no longer printed as a rule and heading. Markdown and frame exports show the same text.
 
 #### Fixed
 - Re-adding an existing `Phases` step (the live `add` operation) changed it back to pending; it now changes only the label, so a running step can be retitled.
