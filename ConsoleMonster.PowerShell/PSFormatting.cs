@@ -620,7 +620,8 @@ namespace ConsoleMonster.PowerShell {
                 List<string> notes = new List<string>();
                 if (view.HideEmpty && shown > visible) { notes.Add("+" + (shown - visible).ToString("N0", CultureInfo.InvariantCulture) + " empty"); }
                 if (omitted > 0) { notes.Add("+" + omitted.ToString("N0", CultureInfo.InvariantCulture) + (omitted == 1 ? " more field" : " more fields")); }
-                if (notes.Count > 0) { view.AddFieldAt(fieldLevel, string.Empty, new TableCell("[muted]" + string.Join("  ", notes) + "[/]")); }
+                // A dim line at the key column, as the tree ends a record with its empty count.
+                if (notes.Count > 0) { view.AddWidgetAt(fieldLevel, TextBlock.FromMarkup("[muted]" + string.Join("  ", notes) + "[/]")); }
             }
         }
 

@@ -52,7 +52,8 @@
 '@
         $text | Should -Match 'uploader\s+daxian-dbw \(127450\)\s+\+2 fields'
         $text | Should -Match 'url\s+https://api\.example\.test/assets/200'
-        $text | Should -Match '\+1 empty'
+        # The count sits at the key column, under the last field's key.
+        $text | Should -Match '(?m)^(\s+)url\s.*\n\1\+1 empty'
         $text | Should -Not -Match '(?m)^\s+login\s'
     }
 
