@@ -23,6 +23,16 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Equal("L4\nL5", Render(log).ToPlainText());
         }
 
+        // Rich lines a write pushes straight out of Capacity were still received, so a paused text filter counts them.
+        [Fact]
+        public void PausedTextFilterCountsRichLinesPushedOutOfCapacity() {
+            LogRegion log = new LogRegion { Capacity = 1 };
+            LogTail tail = new LogTail(log) { Filter = new LogFilter(text: "match") };
+            tail.Pause();
+            log.Write(RichText.FromMarkup("[bold]match 1\nmatch 2\nother[/]"));
+            Assert.Equal(2, tail.NewLines);
+        }
+
         [Fact]
         public void SourceTimestampAndLevelWidthsStayAlignedWhenScrollingToUnknownInfoEntries() {
             LogRegion log = new LogRegion { ShowTimestamp = true };

@@ -22,17 +22,20 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Equal("short", log.Entries.Last().Text);
         }
 
-        // Rich entries share one source: neither a runaway line nor lines pushed straight out of Capacity may stay in it.
+        // Rich entries share one source: neither a runaway line nor lines pushed straight out of Capacity (their text, line
+        // breaks or tags) may stay in it.
         [Fact]
         public void RichEntries_RetainABoundedSourceAndKeepTheirStyles() {
+            const int pushedOut = 100000;
             LogRegion log = new LogRegion { Capacity = 2, ShowElapsed = false };
-            log.Write(RichText.FromMarkup("[bold]dropped " + new string('d', LogRegion.MaxLineLength * 4) + "\n[pass]" + new string('x', LogRegion.MaxLineLength * 4) + "[/]\nshort[/]"));
+            string many = string.Concat(Enumerable.Repeat("[pass]dropped[/]\n", pushedOut));
+            log.Write(RichText.FromMarkup("[bold]" + many + "dropped " + new string('d', LogRegion.MaxLineLength * 4) + "\n[pass]" + new string('x', LogRegion.MaxLineLength * 4) + "[/]\nshort[/]"));
 
             Assert.Equal(new[] { LogRegion.MaxLineLength, 5 }, log.Entries.Select(e => e.Text.Length));
             Assert.EndsWith("…", log.Entries.First().Text);
-            Assert.Equal(new[] { 1, 2 }, log.Entries.Select(e => e.LineIndex));
             Assert.True(log.Entries.First().RichText!.ToMarkup().Length < LogRegion.MaxLineLength + 100);
-            Assert.Equal(3, log.TotalLines);
+            Assert.Equal(new[] { 0, 1 }, log.Entries.Select(e => e.LineIndex));
+            Assert.Equal(pushedOut + 3, log.TotalLines);
             RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 2, ColorDepth.TrueColor), Theme.Dark);
             CellBuffer frame = new CellBuffer(40, 2);
             log.Render(new Region(frame), context);
@@ -40,6 +43,38 @@ namespace ConsoleMonster.Tests.Live {
             Assert.True((frame[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
             Assert.True((frame[0, 1].Style.Decoration & TextDecoration.Bold) != 0);
             Assert.Equal("short", frame.GetRowText(1).Trim());
+        }
+
+        // Lines a later write evicts leave the source their write shared, so a kept entry no longer exposes them.
+        [Fact]
+        public void RichEntries_DropLinesEvictedByLaterWritesFromTheirSource() {
+            LogRegion log = new LogRegion { Capacity = 2, ShowElapsed = false };
+            log.Write(RichText.FromMarkup("[pass]secret\nkept[/]"));
+            log.Write("new");
+
+            LogEntry kept = log.Entries.First();
+            Assert.DoesNotContain("secret", kept.RichText!.ToMarkup());
+            Assert.Equal(0, kept.LineIndex);
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 2, ColorDepth.TrueColor), Theme.Dark);
+            CellBuffer frame = new CellBuffer(40, 2);
+            log.Render(new Region(frame), context);
+            Assert.Equal("kept", frame.GetRowText(0).Trim());
+            Assert.Equal(context.Style(ThemeToken.Pass).Color, frame[0, 0].Style.Color);
+        }
+
+        // A bare [link] takes its target from all the text it encloses; cutting lines from it must not turn the kept text
+        // into a new target.
+        [Fact]
+        public void RichEntries_CutThroughABareLinkKeepItsOriginalTarget() {
+            LogRegion log = new LogRegion { Capacity = 1, ShowElapsed = false };
+            log.Write(RichText.FromMarkup("[bold link]https://example.com/a\nhttps://example.com/b[/]"));
+
+            RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 1, ColorDepth.TrueColor), Theme.Dark);
+            CellBuffer frame = new CellBuffer(40, 1);
+            log.Render(new Region(frame), context);
+            Assert.Equal("https://example.com/b", frame.GetRowText(0).Trim());
+            Assert.Null(frame[0, 0].Style.Link);
+            Assert.True((frame[0, 0].Style.Decoration & TextDecoration.Bold) != 0);
         }
         [Theory]
         [InlineData("warn", "[WARN]", "WARN")]

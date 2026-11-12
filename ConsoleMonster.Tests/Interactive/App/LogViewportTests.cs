@@ -17,6 +17,25 @@ namespace ConsoleMonster.Tests.Interactive.App {
         private static readonly Canvas.RenderContext Context = Terminal.CreateContext(TerminalProfile.Fixed(60, 12, ColorDepth.None, GlyphTier.Ascii));
 
         [Fact]
+        public void DetachedSnapshotKeepsItsRichSourceAndLineIndexAfterEviction() {
+            var log = new LogViewport("Log") { Capacity = 2 };
+            ((ILiveTarget)log).Apply(new LiveEvent("Log", "write", key: "worker", text: "[pass]first\nsecond[/]",
+                status: "warn", time: 2000, isMarkup: true));
+            var snapshot = log.Entries;
+            LogEntry old = snapshot[1];
+            log.Write("new");
+
+            Assert.Equal(1, old.LineIndex);
+            Assert.Contains("first", old.RichText!.ToMarkup());
+            Assert.Equal(("worker", "warn", "second", TimeSpan.FromSeconds(2)), (old.Tag, old.Level, old.Text, old.Time));
+            LogEntry kept = log.Entries[0];
+            Assert.Equal(0, kept.LineIndex);
+            Assert.DoesNotContain("first", kept.RichText!.ToMarkup());
+            Assert.Equal(new[] { "first", "second" }, snapshot.Select(entry => entry.Text));
+            Assert.Equal(new[] { "second", "new" }, log.Entries.Select(entry => entry.Text));
+        }
+
+        [Fact]
         public void FilterShowsOneTagMinimumLevelOrTextAndClearingItRestoresHiddenHistory() {
             var log = new LogViewport("Log") { Height = 8, ShowElapsed = false, Border = BoxStyle.None };
             log.Write("index build 40%", tag: "sql-index");

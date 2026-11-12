@@ -125,6 +125,59 @@ namespace ConsoleMonster.Tests.Live {
                 }
             }
         }
+
+        [Fact]
+        public async Task FullQueue_RejectsAndCountsCapturedConsoleLines() {
+            TaskCompletionSource<bool> entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (ManualResetEventSlim release = new ManualResetEventSlim()) {
+                FakeLogTarget log = new FakeLogTarget();
+                log.Applying = e => {
+                    if (e.Text == "block") {
+                        entered.TrySetResult(true);
+                        if (!release.Wait(TimeSpan.FromSeconds(30))) { throw new TimeoutException("Blocked apply watchdog expired."); }
+                    }
+                };
+                LiveSessionOptions options = LiveSessionTests.Options(new FakeOutput(false));
+                options.CaptureConsole = true;
+                options.MaxQueuedEvents = 100;
+                using (LiveSession session = new LiveSession(log, options)) {
+                    session.Start();
+                    try {
+                        Console.WriteLine("block");
+                        await Observed(entered.Task);
+                        for (int i = 0; i < 150; i++) { Console.WriteLine("flood-" + i); }
+                        Assert.Equal(1 + 100, session.EventsPosted);
+                        Assert.Equal(50, session.EventsDropped);
+                    } finally { release.Set(); }
+                    session.Stop();
+                    Assert.Equal(Enumerable.Range(0, 100).Select(i => "flood-" + i), log.Events.Where(e => e.Text != "block").Select(e => e.Text));
+                }
+            }
+        }
+
+        // A captured line whose publishing fails (here: the session clock throws) must not keep its queue slot.
+        [Fact]
+        public void CapturedLine_ReleasesItsQueueSlotWhenPublishingFails() {
+            int caller = Environment.CurrentManagedThreadId;
+            bool failClock = false;
+            FakeLogTarget log = new FakeLogTarget();
+            LiveSessionOptions options = LiveSessionTests.Options(new FakeOutput(false));
+            options.CaptureConsole = true;
+            options.MaxQueuedEvents = 1;
+            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+            options.Clock = () => Volatile.Read(ref failClock) && Environment.CurrentManagedThreadId == caller ? throw new InvalidOperationException("clock") : watch.Elapsed;
+            using (LiveSession session = new LiveSession(log, options)) {
+                session.Start();
+                Volatile.Write(ref failClock, true);
+                Assert.Throws<InvalidOperationException>(() => Console.WriteLine("lost"));
+                Volatile.Write(ref failClock, false);
+                Console.WriteLine("kept");
+                session.Stop();
+                Assert.Equal(0, session.EventsDropped);
+                Assert.Equal(new[] { "kept" }, log.Events.Select(e => e.Text));
+            }
+        }
+
         private static async Task Observed(Task task) {
             Assert.Same(task, await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))));
             await task;

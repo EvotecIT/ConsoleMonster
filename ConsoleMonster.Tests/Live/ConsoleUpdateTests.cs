@@ -42,6 +42,10 @@ namespace ConsoleMonster.Tests.Live {
                 session.Stop();
                 Assert.Equal(0, session.ApplyErrors);
                 Assert.Contains("alice 40%", Terminal.RenderText(phases, ConsoleMonster.Capabilities.TerminalProfile.Fixed(80, 20)));
+                // The inserted phase took its position, and the item queued for it was applied: the ledger lists pending items.
+                Assert.Equal(new[] { "verify", "migrate" }, phases.Items.Select(item => item.Key));
+                phases.StepCounter = true;
+                Assert.Contains("carol", Terminal.RenderText(phases, ConsoleMonster.Capabilities.TerminalProfile.Fixed(80, 20)));
             }
         }
 
