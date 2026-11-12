@@ -28,8 +28,7 @@ StatusKind[] states =
 };
 
 // Layout: a compact map provides the overview; a table explains exceptions.
-Table map = Ui.Table().Border(TableBorder.None);
-map.AddColumn(" ");
+Table map = Ui.Table().Border(TableBorder.None).AddColumn(" ");
 foreach (string port in ports)
 {
     map.AddColumn(port);
@@ -49,16 +48,16 @@ StatusList exceptions = Ui.StatusList()
     .Add("api-01 → SQL 5432", StatusKind.Fail,
         "Connection refused · check listener and access policy")
     .Add("api-01 → Cache 6379", StatusKind.Warn, "180 ms · expected under 50 ms");
-Rows report = Ui.Rows().Gap(1).Content(c2 =>
+Rows report = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Rule("[accent bold]Application connectivity[/] [muted]· core services[/]");
-    c2.Add(map);
-    c2.Add(legend);
-    c2.Panel(p => p.Title("Exceptions to investigate").Content(c =>
+    rowsContent.Rule("[accent bold]Application connectivity[/] [muted]· core services[/]");
+    rowsContent.Add(map);
+    rowsContent.Add(legend);
+    rowsContent.Panel(p => p.Title("Exceptions to investigate").Content(panelContent =>
     {
-        c.Add(exceptions);
+        panelContent.Add(exceptions);
     }));
-    c2.Markup("[muted]Skipped cells are ports that host does not need.[/]");
+    rowsContent.Markup("[muted]Skipped cells are ports that host does not need.[/]");
 });
 
 // Behaviour: print the collected observations once; collectors belong before the layout.

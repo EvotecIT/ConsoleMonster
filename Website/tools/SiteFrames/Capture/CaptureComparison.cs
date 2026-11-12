@@ -371,6 +371,8 @@ namespace SiteFrames.Capture {
                     if (cell.IsContinuation && (cell.Glyph.Length != 0 || x == 0 || frame[x - 1, y].Width != 2)) { yield return "orphan wide-cell continuation at " + x + "," + y; }
                     if (!Segments(cell, out int up, out int right, out int down, out int left)) { continue; }
                     if (x + 1 < frame.Width && Segments(frame[x + 1, y], out int nu, out int nr, out int nd, out int nl) && (right > 0) != (nl > 0) &&
+                        // BarDrawer's half-filled cell deliberately ends before its light track begins.
+                        !(cell.Glyph == "╸" && frame[x + 1, y].Glyph == "─") &&
                         !(up > 0 && down > 0 && right == 0 && left == 0) && !(nu > 0 && nd > 0 && nr == 0 && nl == 0)) {
                         yield return "disconnected horizontal border from " + x + "," + y + " (" + cell.Glyph + ") to " + (x + 1) + "," + y + " (" + frame[x + 1, y].Glyph + ")";
                     }

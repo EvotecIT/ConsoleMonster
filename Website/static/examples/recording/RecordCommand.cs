@@ -3,7 +3,7 @@ using ConsoleMonster.Sessions;
 
 var options = new SessionRecordingOptions
 {
-    Path = "command-review.cast",
+    RecordingPath = "command-review.cast",
     Shell = "pwsh",
     Width = 88,
     Height = 10
@@ -18,7 +18,7 @@ using (var recorder = SessionRecorder.Start(options, Console.Write))
     recorder.WaitForExit();
 }
 
-var recording = SessionRecording.Read(options.Path);
+var recording = SessionRecording.Read(options.RecordingPath);
 var export = new RecordingExportOptions
 {
     WindowChrome = true,

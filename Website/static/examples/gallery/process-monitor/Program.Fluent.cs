@@ -28,34 +28,34 @@ IWidget Frame(int tick)
         .Column("CPU %", row => row.Cpu)
         .Column("Memory MiB", row => row.Memory)
         .Expand();
-    LineChart history = (LineChart)Ui.Chart().Type(ChartType.Line).Height(4).Unit("%").Build();
+    LineChart history = Ui.LineChart().Height(4).Unit("%");
     history.AddSeries("CPU %", ThemeToken.Accent);
     foreach (double value in cpuHistory.Concat(new[] { 56.0 + tick * 5 }))
         history.Add("CPU %", value);
-    return Ui.Rows().Gap(1).Content(c2 =>
+    return Ui.Rows().Gap(1).Content(rowsContent2 =>
     {
-        c2.Rule("[accent bold]Process monitor[/] [muted]· refresh 1s[/]");
-        c2.Facts(facts => facts.Add(new ViewFact($"{56 + tick * 5}%", default, "CPU", default,
-            ThemeToken.Accent))
+        rowsContent2.Rule("[accent bold]Process monitor[/] [muted]· refresh 1s[/]");
+        rowsContent2.Facts(facts => facts.Add(new ViewFact($"{56 + tick * 5}%", default, "CPU",
+            default, ThemeToken.Accent))
             .Add(new ViewFact($"{1640 + tick * 64:N0} MiB", default, "Memory"))
             .Add(4, "processes"));
-        c2.Add(table);
-        c2.Panel(p => p.Title("CPU history").Content(c =>
+        rowsContent2.Add(table);
+        rowsContent2.Panel(p => p.Title("CPU history").Content(panelContent =>
         {
-            c.Rows(rows => rows.Content(content =>
+            panelContent.Rows(r => r.Content(rowsContent =>
             {
-                content.Markup("[muted]CPU %[/]");
-                content.Add(history);
+                rowsContent.Markup("[muted]CPU %[/]");
+                rowsContent.Add(history);
             }));
         }));
-        c2.Markup("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]");
+        rowsContent2.Markup("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]");
     });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = Ui.Region("processes").Content(c =>
+RegionWidget screen = Ui.Region("processes").Content(regionWidgetContent =>
 {
-    c.Add(Frame(0));
+    regionWidgetContent.Add(Frame(0));
 });
 using LiveSession session = screen.CreateSession();
 try

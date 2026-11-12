@@ -20,7 +20,7 @@ string[] times = new string[p50.Length];
 for (int i = 0; i < p50.Length; i++) { times[i] = $"{13 + (i * 5 / 60):D2}:{i * 5 % 60:D2}"; }
 
 // Layout: construct the widgets shown on screen.
-LineChart chart = (LineChart)Ui.Chart().Type(ChartType.Line).Unit(" ms").Build();
+LineChart chart = Ui.LineChart().Unit(" ms");
 for (int i = 0; i < p50.Length; i++) { chart.Add("p50", p50[i]); }
 for (int i = 0; i < p95.Length; i++) { chart.Add("p95", p95[i]); }
 Grid samples = Ui.Grid()
@@ -42,33 +42,33 @@ IWidget latency = Ui.Splitter()
     .Key("Panes")
     .Ratio(0.4)
     .Fill();
-Collapsible check = ((Collapsible)Ui.Collapsible().Key("Check").Content(Ui.Rows().Content(c =>
+Collapsible check = Ui.Collapsible().Key("Check").Content(Ui.Rows().Content(rowsContent =>
 {
-    c.Toggle(toggle => toggle.Key("Dashboards")
+    rowsContent.Toggle(toggle => toggle.Key("Dashboards")
         .Value(true)
         .Label("Error rate confirmed")
         .OnText("Done")
         .OffText("To do"));
-    c.Toggle(toggle => toggle.Key("Deploys")
+    rowsContent.Toggle(toggle => toggle.Key("Deploys")
         .Value(true)
         .Label("Deploy at 13:40 matches the spike")
         .OnText("Done")
         .OffText("To do"));
-})).Expanded().Build());
-Collapsible mitigate = ((Collapsible)Ui.Collapsible().Key("Mitigate").Content(Ui.Rows().Content(c =>
+})).Expanded().Build();
+Collapsible mitigate = Ui.Collapsible().Key("Mitigate").Content(Ui.Rows().Content(rowsContent =>
 {
-    c.Toggle(toggle => toggle.Key("Rollback")
+    rowsContent.Toggle(toggle => toggle.Key("Rollback")
         .Value(false)
         .Label("Roll back api-gateway to 4.12.1")
         .OnText("Done")
         .OffText("To do"));
-    c.Toggle(toggle => toggle.Key("Drain")
+    rowsContent.Toggle(toggle => toggle.Key("Drain")
         .Value(false)
         .Label("Drain the eu-west-2 pool")
         .OnText("Done")
         .OffText("To do"));
-})).Build());
-Collapsible verify = ((Collapsible)Ui.Collapsible()
+})).Build();
+Collapsible verify = Ui.Collapsible()
     .Key("Verify")
     .Content(((Toggle)Ui.Toggle()
         .Key("P95Normal")
@@ -77,23 +77,23 @@ Collapsible verify = ((Collapsible)Ui.Collapsible()
         .OnText("Done")
         .OffText("To do")
         .Build()))
-    .Build());
+    .Build();
 Outline steps = ((Outline)Ui.Outline()
     .Key("Steps")
     .Build()).AddItem(new OutlineItem("Check").Target(check))
     .AddItem(new OutlineItem("Mitigate").Target(mitigate))
     .AddItem(new OutlineItem("Verify").Target(verify))
     .SelectedIndex(0);
-IWidget runbook = Ui.Splitter().First(steps).Second(Ui.Accordion().Content(c =>
+IWidget runbook = Ui.Splitter().First(steps).Second(Ui.Accordion().Content(accordionContent =>
 {
-    c.Add(check);
-    c.Add(mitigate);
-    c.Add(verify);
+    accordionContent.Add(check);
+    accordionContent.Add(mitigate);
+    accordionContent.Add(verify);
 })).Ratio(0.22).Fill();
-Rows layout = Ui.Rows().Content(c =>
+Rows layout = Ui.Rows().Content(rowsContent =>
 {
-    c.HeaderBar(headerBar => headerBar.Title("Incident 4127 · api-gateway latency"));
-    c.Tabs(tabs => tabs.Key("View").Add("Latency", latency).Add("Runbook", runbook));
+    rowsContent.HeaderBar(headerBar => headerBar.Title("Incident 4127 · api-gateway latency"));
+    rowsContent.Tabs(tabs => tabs.Key("View").Add("Latency", latency).Add("Runbook", runbook));
 });
 
 // Behaviour: click or arrow through samples and the chart follows; drag the divider, scroll the

@@ -28,32 +28,35 @@ IWidget Results(string query)
         .Column(row => row.Role)
         .Column(row => row.Site)
         .Column(row => row.Status, column => column.Presenter(CellPresenters.StatusWord));
-    Rows result = Ui.Rows().Content(c =>
+    Rows result = Ui.Rows().Content(rowsContent =>
     {
-        c.Markup(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of "
-            + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + " hosts");
-        c.Add(table);
+        rowsContent.Markup(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            + " hosts");
+        rowsContent.Add(table);
     });
     if (rows.Length == 0)
         result.Add(Ui.Markup("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
     return result;
 }
 
-Rows layout = Ui.Rows().Gap(1).Content(c2 =>
+Rows layout = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Markup("[accent bold]Fleet health[/] [muted]· production inventory[/]");
-    c2.Panel(p => p.Title("Fleet summary").Content(c =>
+    rowsContent.Markup("[accent bold]Fleet health[/] [muted]· production inventory[/]");
+    rowsContent.Panel(p => p.Title("Fleet summary").Content(panelContent =>
     {
-        c.Facts(facts => facts.Add(2, "healthy", ThemeToken.Pass)
-            .Add(1, "warning", ThemeToken.Warn).Add(1, "offline", ThemeToken.Fail)
+        panelContent.Facts(facts => facts.Add(2, "healthy", ThemeToken.Pass)
+            .Add(1, "warning", ThemeToken.Warn)
+            .Add(1, "offline", ThemeToken.Fail)
             .Add(1, "running", ThemeToken.Running));
     }));
-    c2.TextInput(textInput => textInput.Key("Query")
+    rowsContent.TextInput(textInput => textInput.Key("Query")
         .Value(string.Empty)
         .Label("Filter")
         .Placeholder("Host, role, site or status"));
-    c2.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
-        "Query", string.Empty))));
+    rowsContent.Binding(
+        binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
+            "Query", string.Empty))));
 });
 
 // Behaviour: edit controls to update the view; Escape exits the app.

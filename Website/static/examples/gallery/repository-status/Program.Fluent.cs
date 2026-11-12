@@ -27,13 +27,13 @@ StatusList next = Ui.StatusList()
     .Add("orbit-cli", StatusKind.Warn, "Working tree clean; inspect four incoming commits")
     .Add("orbit-docs", StatusKind.Info, "Two local edits need review")
     .Add("orbit-tests", StatusKind.Pass, "Clean and up to date");
-Rows report = Ui.Rows().Gap(1).Content(c2 =>
+Rows report = Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Rule("[accent bold]Repository workspace[/] [muted]· ./work[/]");
-    c2.Add(table);
-    c2.Panel(p => p.Title("Suggested next steps").Content(c =>
+    rowsContent.Rule("[accent bold]Repository workspace[/] [muted]· ./work[/]");
+    rowsContent.Add(table);
+    rowsContent.Panel(p => p.Title("Suggested next steps").Content(panelContent =>
     {
-        c.Add(next);
+        panelContent.Add(next);
     }));
 });
 

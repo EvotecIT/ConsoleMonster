@@ -20,26 +20,26 @@ IWidget Frame(int tick)
         checklist.Add(Ui.Markup("[" + status + "]" + stages[index] + "[/]  " + label));
     }
 
-    return Ui.Rows().Gap(1).Content(c2 =>
+    return Ui.Rows().Gap(1).Content(rowsContent =>
     {
-        c2.Markup("[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
-        c2.Panel(p => p.Title("Release checklist").Content(c =>
+        rowsContent.Markup("[accent bold]Build pipeline[/] [muted]· Orbit.Tools[/]");
+        rowsContent.Panel(p => p.Title("Release checklist").Content(panelContent =>
         {
-            c.Add(checklist);
+            panelContent.Add(checklist);
         }));
-        c2.Progress(progress => progress.Label("Overall").Value(tick).Total(4));
-        c2.KeyValue(kv => kv.Add("Project", "Orbit.Tools")
+        rowsContent.ProgressBar(progressBar => progressBar.Label("Overall").Value(tick).Total(4));
+        rowsContent.KeyValue(kv => kv.Add("Project", "Orbit.Tools")
             .Add("Version", "1.2.0")
             .Add("Artifacts", "./artifacts/")
             .Add("Publish", "manual approval"));
-        c2.Markup("[muted]Ctrl+C stops the live run.[/]");
+        rowsContent.Markup("[muted]Ctrl+C stops the live run.[/]");
     });
 }
 
 // Behaviour: update each frame in a bounded live run.
-RegionWidget screen = Ui.Region("demo").Content(c =>
+RegionWidget screen = Ui.Region("demo").Content(regionWidgetContent =>
 {
-    c.Add(Frame(0));
+    regionWidgetContent.Add(Frame(0));
 });
 using LiveSession session = screen.CreateSession();
 try

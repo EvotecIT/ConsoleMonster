@@ -1,21 +1,27 @@
 {
   "version": 1,
-  "producer": "macos",
+  "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "demos",
-  "filters": {
-    "SITEFRAMES_DEMOS": "logging"
-  },
+  "requestedSet": "benchmarks",
+  "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "demos/logging.cast": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "b82d21e1e63ecfd49cc8d3785c528b1486e23754e55afddd5242f830cccf3509",
+    "benchmarks/benchmarks.windows.cast": {
+      "platform": "windows",
+      "category": "measurements",
+      "comparison": {
+        "class": "live-measured",
+        "reason": "Actual event-apply throughput, rendering rates and durations measured by the benchmark program.",
+        "minFrames": 2,
+        "maxFrames": 100,
+        "minDurationSeconds": 0.05,
+        "maxDurationSeconds": 10
+      },
+      "sha256": "9df371cc8ae8c92c32d807e6c2f98f0eb7b2eab51a8b9aafc47046757b836149",
       "screen": "dark",
       "width": 110,
-      "height": 30
+      "height": 20
     }
   }
 }

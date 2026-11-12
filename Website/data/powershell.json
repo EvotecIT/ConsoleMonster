@@ -820,9 +820,9 @@
           "url": "/powershell/commands/show-consolereplay/"
         },
         {
-          "name": "Show-ConsoleSettings",
+          "name": "Show-ConsoleSetting",
           "synopsis": "Chooses ConsoleMonster's settings in the terminal with a live preview.",
-          "url": "/powershell/commands/show-consolesettings/"
+          "url": "/powershell/commands/show-consolesetting/"
         },
         {
           "name": "Show-ConsoleStatusLine",
