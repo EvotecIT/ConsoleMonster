@@ -141,10 +141,8 @@ namespace ConsoleMonster.Widgets {
                     i++;
                     continue;
                 }
-                // Alignment is optional: values and branch details keep the space they would have without padding.
-                int contentWidth = value == null ? 0 : 2 + Math.Max(4, value.Width);
-                if (!string.IsNullOrEmpty(note)) contentWidth += 2 + Math.Max(4, DisplayWidth.Measure(note!));
-                x += Math.Min(padding, Math.Max(0, region.Width - x - contentWidth));
+                // An aligned sibling group keeps its key column: a long value is shortened inside the value column instead.
+                x += Math.Min(padding, Math.Max(0, region.Width - x));
                 if (value != null) {
                     if (region.Width - x - 2 >= 4) {
                         x = region.Write(x + 2, i, TextWrapper.Truncate(value, region.Width - x - 2, context.Ellipsis));
