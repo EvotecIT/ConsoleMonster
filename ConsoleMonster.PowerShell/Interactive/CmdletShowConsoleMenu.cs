@@ -62,7 +62,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessRecord() {
             if (!(PSText.Unwrap(Menu) is Menu current)) {
-                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleMenu needs a menu from New-ConsoleMenu. To pick pipeline objects, use: Get-Service | Read-ConsoleSelect"), "ExpectedConsoleMenu", ErrorCategory.InvalidArgument, Menu));
+                ThrowTerminatingError(new ErrorRecord(new ArgumentException("Show-ConsoleMenu needs a menu from New-ConsoleMenu. To pick pipeline objects, use: Get-Process | Read-ConsoleSelect"), "ExpectedConsoleMenu", ErrorCategory.InvalidArgument, Menu));
                 return;
             }
             MenuOptions options = new MenuOptions {

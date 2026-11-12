@@ -33,10 +33,10 @@ Embed an empty listing in an application
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Services -InputObject (Get-Service) -Property Name, Status, StartType -Height 12 }
+Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Processes -InputObject (Get-Process) -Property Name, Id, CPU -Height 12 }
 ```
 
-List services with three columns
+List processes with three columns
 
 ## PARAMETERS
 

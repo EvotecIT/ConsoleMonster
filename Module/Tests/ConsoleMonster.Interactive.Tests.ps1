@@ -260,7 +260,7 @@ catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0]) message=$($_.Exception.Mes
 "errors=$($Error.Count)"
 '@
             $text | Should -Match 'id=ExpectedConsoleMenu'
-            $text | Should -Match 'Get-Service \| Read-ConsoleSelect'
+            $text | Should -Match 'Get-Process \| Read-ConsoleSelect'
             $text | Should -Match 'errors=1'
         }
 
