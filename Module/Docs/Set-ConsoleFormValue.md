@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/set-consoleformvalue/
 schema: 2.0.0
 ---
 # Set-ConsoleFormValue
