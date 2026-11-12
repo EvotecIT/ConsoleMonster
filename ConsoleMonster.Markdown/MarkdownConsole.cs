@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using ConsoleMonster.Interactive;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 using OfficeIMO.Markdown;
@@ -11,15 +12,19 @@ using OfficeIMO.Markdown;
 namespace ConsoleMonster.Markdown {
     /// <summary>Reads CommonMark through OfficeIMO and composes native console widgets without executing document content.</summary>
     public static class MarkdownConsole {
-        /// <summary>Parses CommonMark with pipe tables into a reusable, width-responsive console document.</summary>
+        /// <summary>Parses CommonMark with GitHub pipe tables, task lists and alerts into a reusable, width-responsive console document.</summary>
         /// <param name="content">The complete source, including any reference-link definitions.</param>
         /// <returns>A view that can be written, composed, exported or passed to <see cref="WidgetPager"/>.</returns>
         /// <exception cref="ArgumentNullException">The source is null.</exception>
-        /// <remarks>Raw HTML stays literal. Images become labelled links; destinations are never fetched.</remarks>
+        /// <remarks>Raw HTML stays literal. Images become labelled links; destinations are never fetched. Leading YAML front matter is metadata and is not displayed.</remarks>
         public static MarkdownView Parse(string content) {
             if (content == null) { throw new ArgumentNullException(nameof(content)); }
             MarkdownReaderOptions options = MarkdownReaderOptions.CreateCommonMarkProfile();
             options.Tables = true;
+            options.TaskLists = true;
+            options.FrontMatter = true; // Document blocks exclude the front matter, so metadata never prints as body text.
+            options.Callouts = true;
+            MarkdownReaderBuiltInExtensions.AddCallouts(options); // The CommonMark profile carries no block extensions.
             // Keep destinations visible. ConsoleMonster's capability and hyperlink policy own OSC 8 emission.
             options.DisallowScriptUrls = false;
             options.DisallowFileUrls = false;
@@ -64,6 +69,9 @@ namespace ConsoleMonster.Markdown {
                     case QuoteBlock quote:
                         view.AddQuote(ConvertBlocks(quote.ChildBlocks));
                         break;
+                    case CalloutBlock callout:
+                        AddCallout(view, callout);
+                        break;
                     case OrderedListBlock ordered:
                         AddList(view, ordered.Items, ordered.Start);
                         break;
@@ -90,7 +98,33 @@ namespace ConsoleMonster.Markdown {
         }
 
         private static void AddList(MarkdownView view, List<ListItem> items, int? start) =>
-            view.AddList(items.Select(item => ConvertBlocks(item.ChildBlocks)), start, !items.Any(item => item.ForceLoose));
+            view.AddList(items.Select(item => ConvertBlocks(item.ChildBlocks)).ToList(),
+                items.Select(item => item.IsTask ? item.Checked : (bool?)null).ToList(), start, !items.Any(item => item.ForceLoose));
+
+        private static void AddCallout(MarkdownView view, CalloutBlock callout) {
+            string kind = (callout.Kind ?? string.Empty).Trim().ToLowerInvariant();
+            ThemeToken role = kind switch {
+                "important" => ThemeToken.Accent,
+                "warning" => ThemeToken.Warn,
+                "caution" => ThemeToken.Fail,
+                _ => ThemeToken.Info
+            };
+            // GitHub alerts carry no title of their own; a Docs-style "[!KIND] Title" keeps the author's title.
+            RichText title = callout.TitleInlines != null && !string.IsNullOrWhiteSpace(callout.Title)
+                ? MarkdownInlines.Read(callout.TitleInlines)
+                : RichText.Plain(Label(kind));
+            view.AddCallout(ConvertBlocks(callout.ChildBlocks), title, role);
+        }
+
+        // GitHub's five alert kinds have localised titles; any other kind keeps its own word.
+        private static string Label(string kind) => kind switch {
+            "note" => MarkdownMessages.Get("CalloutNote"),
+            "tip" => MarkdownMessages.Get("CalloutTip"),
+            "important" => MarkdownMessages.Get("CalloutImportant"),
+            "warning" => MarkdownMessages.Get("CalloutWarning"),
+            "caution" => MarkdownMessages.Get("CalloutCaution"),
+            _ => kind.Length == 0 ? MarkdownMessages.Get("CalloutNote") : char.ToUpperInvariant(kind[0]) + kind.Substring(1)
+        };
 
         private static void AddTable(MarkdownView view, TableBlock table) {
             RichText[] headers = table.HeaderInlines.Select(MarkdownInlines.Read).ToArray();

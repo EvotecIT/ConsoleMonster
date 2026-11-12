@@ -6,6 +6,11 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
   <data name="Title" xml:space="preserve"><value>Markdown</value></data>
   <data name="Image" xml:space="preserve"><value>[Image: {0}]</value></data>
+  <data name="CalloutNote" xml:space="preserve"><value>Note</value></data>
+  <data name="CalloutTip" xml:space="preserve"><value>Tip</value></data>
+  <data name="CalloutImportant" xml:space="preserve"><value>Important</value></data>
+  <data name="CalloutWarning" xml:space="preserve"><value>Warning</value></data>
+  <data name="CalloutCaution" xml:space="preserve"><value>Caution</value></data>
   <data name="UnsupportedBlock" xml:space="preserve"><value>Unsupported Markdown block: {0}</value></data>
   <data name="UnsupportedInline" xml:space="preserve"><value>Unsupported Markdown inline: {0}</value></data>
 </root>
