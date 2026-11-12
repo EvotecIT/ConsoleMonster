@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -18,7 +19,25 @@ using Xunit;
 namespace SiteFrames.Tests {
     /// <summary>Exercises the published single-file gallery programs through their actual app and capture paths.</summary>
     [Collection("Interactive process defaults")]
-    public sealed class GalleryContracts {
+    public sealed class GalleryContracts : IDisposable {
+        private readonly CultureInfo _culture = CultureInfo.CurrentCulture;
+        private readonly CultureInfo _uiCulture = CultureInfo.CurrentUICulture;
+        private readonly CultureInfo? _defaultCulture = CultureInfo.DefaultThreadCurrentCulture;
+        private readonly CultureInfo? _defaultUICulture = CultureInfo.DefaultThreadCurrentUICulture;
+
+        // The programs format numbers with the current culture, and render runs them under the site's en-US culture; the
+        // collection runs alone, so the process defaults (for the programs' own threads) can be pinned for each test.
+        public GalleryContracts() => UseCulture(Site.Culture, Site.Culture, Site.Culture, Site.Culture);
+
+        public void Dispose() => UseCulture(_culture, _uiCulture, _defaultCulture, _defaultUICulture);
+
+        private static void UseCulture(CultureInfo culture, CultureInfo uiCulture, CultureInfo? defaultCulture, CultureInfo? defaultUICulture) {
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = uiCulture;
+            CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = defaultUICulture;
+        }
+
         private static Site Repository() {
             DirectoryInfo? root = new DirectoryInfo(AppContext.BaseDirectory);
             while (root != null && !File.Exists(Path.Combine(root.FullName, "ConsoleMonster.sln"))) root = root.Parent;
