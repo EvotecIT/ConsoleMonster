@@ -31,14 +31,15 @@ namespace ConsoleMonster.Extensions.NLog {
         /// <summary>An explicit output writer, or null for the terminal. The caller retains ownership.</summary>
         public ITerminalWriter? Writer { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>Initializes the NLog target and resolves its value formatter before processing events.</summary>
         protected override void InitializeTarget() {
             base.InitializeTarget();
             // Resolve services before logging: NLog prohibits service lookup in a log-event callback.
             _valueFormatter = (IValueFormatter)LoggingConfiguration.LogFactory.ServiceRepository.GetService(typeof(IValueFormatter));
         }
 
-        /// <inheritdoc />
+        /// <summary>Renders an enabled NLog event with its template arguments, properties and exception through ConsoleMonster.</summary>
+        /// <param name="logEvent">The event to render; events at the Off level produce no output.</param>
         protected override void Write(LogEventInfo logEvent) {
             if (logEvent.Level == LogLevel.Off) { return; }
             List<LogProperty> properties = new List<LogProperty>();

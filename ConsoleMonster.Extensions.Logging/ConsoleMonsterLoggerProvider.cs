@@ -26,10 +26,13 @@ namespace ConsoleMonster.Extensions.Logging {
         /// <summary>The options.</summary>
         public ConsoleMonsterLoggerOptions Options { get; }
 
-        /// <inheritdoc />
+        /// <summary>Gets or creates a logger for the supplied category, using this provider's rendering options and scopes.</summary>
+        /// <param name="categoryName">The category included with messages when category display is enabled.</param>
+        /// <returns>The cached logger for this category.</returns>
         public ILogger CreateLogger(string categoryName) => _loggers.GetOrAdd(categoryName ?? string.Empty, name => new ConsoleMonsterLogger(name, this));
 
-        /// <inheritdoc />
+        /// <summary>Uses the supplied external scope provider for messages created by this provider's loggers.</summary>
+        /// <param name="scopeProvider">The scope provider; null selects a new default scope provider.</param>
         public void SetScopeProvider(IExternalScopeProvider scopeProvider) {
             _scopes = scopeProvider ?? new LoggerExternalScopeProvider();
         }
