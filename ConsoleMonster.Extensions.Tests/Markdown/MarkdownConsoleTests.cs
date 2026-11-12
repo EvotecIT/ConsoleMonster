@@ -68,6 +68,17 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             if (tier == GlyphTier.Ascii) Assert.All(text, c => Assert.InRange((int)c, 0, 127));
         }
 
+        // Indented code that shows front matter or alert syntax stays code: neither block is metadata nor an alert.
+        [Fact]
+        public void IndentedFrontMatterAndAlertExamplesStayCode() {
+            const string source = "    ---\n    title: example\n    ---\n\nVisible\n\n    > [!NOTE]\n    > example\n";
+            string text = Render(source, 60).ToPlainText();
+            Assert.Contains("title: example", text);
+            Assert.Contains("Visible", text);
+            Assert.Contains("> [!NOTE]", text);
+            Assert.DoesNotContain(text.Split('\n'), row => row.Trim() == "Note");
+        }
+
         [Fact]
         public void ParsedMarkdownComposesBetweenLiteralWidgets() {
             Rows composed = Ui.Rows().Content(content => {

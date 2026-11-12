@@ -22,9 +22,14 @@ namespace ConsoleMonster.Markdown {
             MarkdownReaderOptions options = MarkdownReaderOptions.CreateCommonMarkProfile();
             options.Tables = true;
             options.TaskLists = true;
-            options.FrontMatter = true; // Document blocks exclude the front matter, so metadata never prints as body text.
-            options.Callouts = true;
-            MarkdownReaderBuiltInExtensions.AddCallouts(options); // The CommonMark profile carries no block extensions.
+            // Document blocks exclude front matter, so metadata never prints as body text. OfficeIMO also accepts an
+            // indented "---" and an indented "> [!KIND]", which CommonMark reads as code, so both extensions are
+            // enabled only when the source uses them at the left margin.
+            options.FrontMatter = StartsWithFrontMatter(content);
+            if (!HasIndentedAlertHeader(content)) {
+                options.Callouts = true;
+                MarkdownReaderBuiltInExtensions.AddCallouts(options); // The CommonMark profile carries no block extensions.
+            }
             // Keep destinations visible. ConsoleMonster's capability and hyperlink policy own OSC 8 emission.
             options.DisallowScriptUrls = false;
             options.DisallowFileUrls = false;
@@ -49,6 +54,37 @@ namespace ConsoleMonster.Markdown {
             if (!paging || !WidgetPager.TryShow(view, MarkdownMessages.Get("Title"), cancellationToken: cancellationToken)) {
                 Terminal.Write(view);
             }
+        }
+
+        // True when the first line (after an optional byte order mark) is "---" at the left margin.
+        private static bool StartsWithFrontMatter(string content) {
+            int start = content.Length > 0 && content[0] == '﻿' ? 1 : 0;
+            int end = content.IndexOf('\n', start);
+            string first = end < 0 ? content.Substring(start) : content.Substring(start, end - start);
+            return first.TrimEnd('\r', ' ', '\t') == "---";
+        }
+
+        // True when a "> [!KIND]" line outside fenced code is indented, which OfficeIMO would still read as an alert.
+        private static bool HasIndentedAlertHeader(string content) {
+            string? fence = null;
+            foreach (string raw in content.Split('\n')) {
+                string line = raw.TrimEnd('\r');
+                int indent = 0;
+                while (indent < line.Length && (line[indent] == ' ' || line[indent] == '\t')) { indent++; }
+                string rest = line.Substring(indent);
+                if (fence != null) {
+                    if (indent < 4 && rest.StartsWith(fence, StringComparison.Ordinal)) { fence = null; }
+                    continue;
+                }
+                if (indent < 4 && (rest.StartsWith("```", StringComparison.Ordinal) || rest.StartsWith("~~~", StringComparison.Ordinal))) {
+                    fence = rest.Substring(0, 3);
+                    continue;
+                }
+                if (indent > 0 && rest.StartsWith(">", StringComparison.Ordinal) && rest.Substring(1).TrimStart(' ', '\t').StartsWith("[!", StringComparison.Ordinal)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static MarkdownView ConvertBlocks(IEnumerable<IMarkdownBlock> blocks) {
