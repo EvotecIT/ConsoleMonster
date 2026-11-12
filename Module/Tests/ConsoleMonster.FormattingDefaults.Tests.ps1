@@ -131,4 +131,60 @@ if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'Progress was
 '@
         $result | Should -Match 'PARTIAL_INSTALL_RESTORED'
     }
+
+    It 'returns the -NoProfile exit code for commands the console host runs after the profile enables formatting' {
+        # The host appends Out-Default to each command it runs and turns $? into the -Command exit code.
+        # Unix pwsh reads $PROFILE under XDG_CONFIG_HOME. Windows has no profile override, so there the host
+        # reads the commands from standard input, which runs each line as its own pipeline with Out-Default.
+        $work = Join-Path ([IO.Path]::GetTempPath()) ('cm-exit-' + [guid]::NewGuid().ToString('N'))
+        $null = New-Item -ItemType Directory -Path (Join-Path $work 'powershell') -Force
+        try {
+            $plain = Join-Path $work 'plain.ps1'
+            Set-Content -LiteralPath $plain -Value 'exit 1'
+            $enable = "Import-Module '$script:ModulePath'; Enable-ConsoleFormatting; 'SHIM=' + (Get-Command Out-Default).CommandType"
+            Set-Content -LiteralPath (Join-Path $work 'powershell/Microsoft.PowerShell_profile.ps1') -Value $enable
+            $windows = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
+            $commands = @(". '$plain'", "& '$plain'", $(if ($windows) { 'cmd /c exit 7' } else { "sh -c 'exit 7'" }),
+                'exit 1', "Get-Item -LiteralPath '$(Join-Path $work 'missing')'", "'done'")
+            $cases = @(foreach ($command in $commands) {
+                if ($windows) { @{ Name = $command; Arguments = '-NoLogo -NoProfile -NonInteractive -Command -'; Input = $command } }
+                else { @{ Name = $command; Arguments = @('-NoLogo', '-Command', $command) } }
+            })
+            if (-not $windows) { $cases += @{ Name = '-File plain.ps1'; Arguments = @('-NoLogo', '-File', $plain) } }
+
+            function Invoke-HostCase([hashtable] $Case, [bool] $Formatting) {
+                $info = [System.Diagnostics.ProcessStartInfo]::new($script:Runtime)
+                if ($Case.Arguments -is [string]) { $info.Arguments = $Case.Arguments }
+                else {
+                    if (-not $Formatting) { $info.ArgumentList.Add('-NoProfile') }
+                    foreach ($argument in $Case.Arguments) { $info.ArgumentList.Add($argument) }
+                }
+                if (-not $windows) { $info.Environment['XDG_CONFIG_HOME'] = $work }
+                $info.UseShellExecute = $false
+                $info.CreateNoWindow = $true
+                $info.RedirectStandardInput = $true
+                $info.RedirectStandardOutput = $true
+                $info.RedirectStandardError = $true
+                $process = [System.Diagnostics.Process]::Start($info)
+                try {
+                    $stdout = $process.StandardOutput.ReadToEndAsync()
+                    $stderr = $process.StandardError.ReadToEndAsync()
+                    if ($Case.Input) { $process.StandardInput.Write($(if ($Formatting) { "$enable`n" }) + "$($Case.Input)`n") }
+                    $process.StandardInput.Close()
+                    if (-not $process.WaitForExit(120000)) { Stop-TestChildProcess -Process $process; throw "'$($Case.Name)' did not finish." }
+                    $process.WaitForExit()
+                    if ($Formatting -and $stdout.Result -notmatch 'SHIM=Function') {
+                        throw "'$($Case.Name)' ran without the Out-Default shim:`n$($stdout.Result)`n$($stderr.Result)"
+                    }
+                    '{0} -> {1}' -f $Case.Name, $process.ExitCode
+                } finally { $process.Dispose() }
+            }
+
+            $native = @(foreach ($case in $cases) { Invoke-HostCase $case $false })
+            @($native | Where-Object { $_ -notmatch ' -> 0$' }).Count | Should -BeGreaterThan 3 -Because 'the cases must include host-reported failures'
+            @(foreach ($case in $cases) { Invoke-HostCase $case $true }) | Should -Be $native
+        } finally {
+            Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
 }
