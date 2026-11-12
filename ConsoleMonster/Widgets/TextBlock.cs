@@ -23,7 +23,7 @@ namespace ConsoleMonster.Widgets {
         /// <returns>A text block that interprets markup tags.</returns>
         public static TextBlock FromMarkup(string markup) => new TextBlock(markup) { IsMarkup = true };
 
-        /// <summary>The content (markup unless <see cref="IsMarkup"/> is false).</summary>
+        /// <summary>Literal text, interpreted as markup only when <see cref="IsMarkup"/> is true.</summary>
         public string Content { get; set; }
 
         /// <summary>Whether <see cref="Content"/> is markup (default false).</summary>
