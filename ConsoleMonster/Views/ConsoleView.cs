@@ -31,7 +31,7 @@ namespace ConsoleMonster.Views {
         /// <summary>Objects of one shape as cards, one per object.</summary>
         Cards,
 
-        /// <summary>Hierarchical objects (a child collection of the same type) as a tree.</summary>
+        /// <summary>Hierarchical objects (a child collection of the same type) as a tree; found automatically only for containers whose other fields are just a name.</summary>
         Tree,
 
         /// <summary>A numeric series as a bar chart.</summary>
@@ -144,7 +144,8 @@ namespace ConsoleMonster.Views {
             if (present.All(IsScalar)) {
                 return ConsoleViewKind.Text;
             }
-            string? childProperty = options.ChildrenProperty ?? FindChildProperty(present[0], options);
+            // Found automatically, children make a tree only of containers: records with fields of their own show those.
+            string? childProperty = options.ChildrenProperty ?? FindChildProperty(present[0], options, containersOnly: true);
             if (childProperty != null && options.ChildrenProperty != null) {
                 return ConsoleViewKind.Tree;
             }
@@ -276,7 +277,7 @@ namespace ConsoleMonster.Views {
 
         // The label of a tree node: a Name-like member when there is one, otherwise the first text member, otherwise the value.
         private static string Label(object item, List<InspectMember> members, string? child) {
-            foreach (string preferred in new[] { "Name", "Title", "DisplayName", "Label", "Key", "Id" }) {
+            foreach (string preferred in LabelMembers) {
                 InspectMember? member = members.FirstOrDefault(m => string.Equals(m.Name, preferred, StringComparison.OrdinalIgnoreCase));
                 if (member != null && SafeRead(member) is object value && IsScalar(value)) {
                     return Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
@@ -290,26 +291,56 @@ namespace ConsoleMonster.Views {
             return Convert.ToString(item, CultureInfo.CurrentCulture) ?? string.Empty;
         }
 
-        // A member holding a collection whose items have the same type as the object: its children.
-        private static string? FindChildProperty(object item, ConsoleViewOptions options) {
+        private static readonly string[] LabelMembers = { "Name", "Title", "DisplayName", "Label", "Key", "Id" };
+
+        // A member holding a collection whose items have the same type as the object: its children. With containersOnly,
+        // an object with a field of its own beyond its label has none: a record (a release with its assets, a property
+        // bag whose nested bags share its type name) shows its fields, and its collections as summaries.
+        private static string? FindChildProperty(object item, ConsoleViewOptions options, bool containersOnly = false) {
             if (IsScalar(item) || item is IEnumerable) {
                 return null;
             }
             string type = TypeName(item, options);
+            string? found = null;
             // Looking for a child collection must not read every member of a remote object: slow getters are skipped once
             // their stalls use up the budget.
             Values.ShapeBudget budget = new Values.ShapeBudget(TimeSpan.FromSeconds(2), int.MaxValue);
             foreach (InspectMember member in Members(item, options)) {
-                if (budget.Guard(member.Name, () => SafeRead(member)) is IEnumerable sequence && !(sequence is string) && !(sequence is IDictionary)) {
-                    foreach (object? first in sequence) {
-                        if (first != null && string.Equals(TypeName(first, options), type, StringComparison.Ordinal)) {
-                            return member.Name;
-                        }
-                        break;
+                object? value = budget.Guard(member.Name, () => SafeRead(member));
+                if (found == null && IsChildren(value, type, options)) {
+                    found = member.Name;
+                    if (!containersOnly) {
+                        return found;
                     }
+                } else if (containersOnly && !IsEmpty(value) && !LabelMembers.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) {
+                    return null;
                 }
             }
-            return null;
+            return found;
+        }
+
+        private static bool IsChildren(object? value, string type, ConsoleViewOptions options) {
+            if (value is IEnumerable sequence && !(sequence is string) && !(sequence is IDictionary)) {
+                foreach (object? first in sequence) {
+                    return first != null && string.Equals(TypeName(first, options), type, StringComparison.Ordinal);
+                }
+            }
+            return false;
+        }
+
+        private static bool IsEmpty(object? value) {
+            if (value == null || value is string text && text.Length == 0) {
+                return true;
+            }
+            if (value is IEnumerable sequence && !(value is string) && !(value is IDictionary)) {
+                IEnumerator items = sequence.GetEnumerator();
+                try {
+                    return !items.MoveNext();
+                } finally {
+                    (items as IDisposable)?.Dispose();
+                }
+            }
+            return false;
         }
 
         private static IEnumerable<InspectMember> Members(object item, ConsoleViewOptions options) {

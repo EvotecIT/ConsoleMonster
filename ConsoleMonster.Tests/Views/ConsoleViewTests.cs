@@ -49,6 +49,13 @@ namespace ConsoleMonster.Tests.Views {
             public List<Folder> Children { get; } = new List<Folder>();
         }
 
+        // A record with fields of its own and a collection of the same type: a release and its assets read as bags.
+        public sealed class Release {
+            public string Name { get; set; } = string.Empty;
+            public string Tag { get; set; } = string.Empty;
+            public List<Release> Assets { get; } = new List<Release>();
+        }
+
         public sealed class Other {
             public int Value { get; set; }
         }
@@ -59,6 +66,8 @@ namespace ConsoleMonster.Tests.Views {
         public void Decide_PicksTheViewForEachShape() {
             Folder root = new Folder { Name = "root" };
             root.Children.Add(new Folder { Name = "a" });
+            Release release = new Release { Name = "v1.0", Tag = "v1.0" };
+            release.Assets.Add(new Release { Name = "setup.zip" });
             List<KeyValuePair<string, IReadOnlyList<object?>>> shapes = new List<KeyValuePair<string, IReadOnlyList<object?>>> {
                 Shape("nothing"),
                 Shape("plain strings", "alpha", "beta"),
@@ -71,7 +80,9 @@ namespace ConsoleMonster.Tests.Views {
                 Shape("objects of one shape", Srv("srv01", ServiceState.Running), Srv("srv02", ServiceState.Stopped)),
                 Shape("objects of two shapes", Srv("srv01", ServiceState.Running), new Other()),
                 Shape("hierarchy", root),
-                Shape("hierarchies", root, new Folder { Name = "other" })
+                Shape("hierarchies", root, new Folder { Name = "other" }),
+                Shape("record with children", release),
+                Shape("records with children", release, new Release { Name = "v0.9", Tag = "v0.9" })
             };
             StringBuilder table = new StringBuilder();
             foreach (KeyValuePair<string, IReadOnlyList<object?>> shape in shapes) {
