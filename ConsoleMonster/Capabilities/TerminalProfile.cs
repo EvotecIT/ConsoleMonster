@@ -103,7 +103,8 @@ namespace ConsoleMonster.Capabilities {
             ThemePreference = themePreference;
             Culture = culture;
             _supportsHyperlinks = supportsHyperlinks ?? (kind == TerminalKind.WindowsTerminal || kind == TerminalKind.VisualStudioCode
-                || kind == TerminalKind.ITerm2 || kind == TerminalKind.WezTerm);
+                || kind == TerminalKind.ITerm2 || kind == TerminalKind.WezTerm
+                || kind == TerminalKind.Kitty || kind == TerminalKind.Ghostty);
         }
 
         /// <summary>Colour fidelity.</summary>

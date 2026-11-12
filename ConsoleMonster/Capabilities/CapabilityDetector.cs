@@ -466,6 +466,15 @@ namespace ConsoleMonster.Capabilities {
             if (Equal(Get("TERM_PROGRAM"), "WezTerm")) {
                 return TerminalKind.WezTerm;
             }
+            if (Equal(Get("TERM_PROGRAM"), "ghostty") || Contains(Get("TERM"), "ghostty")) {
+                return TerminalKind.Ghostty;
+            }
+            if (Contains(Get("TERM"), "kitty") || Get("KITTY_WINDOW_ID").Length > 0) {
+                return TerminalKind.Kitty;
+            }
+            if (Equal(Get("TERM_PROGRAM"), "Apple_Terminal")) {
+                return TerminalKind.AppleTerminal;
+            }
             if (Get("KONSOLE_VERSION").Length > 0) {
                 return TerminalKind.Konsole;
             }

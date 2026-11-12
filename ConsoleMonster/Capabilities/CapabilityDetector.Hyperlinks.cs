@@ -7,6 +7,7 @@ namespace ConsoleMonster.Capabilities {
         private bool DetectHyperlinks(TerminalKind kind, List<string> decisions) {
             bool supported = kind == TerminalKind.WindowsTerminal || kind == TerminalKind.VisualStudioCode
                 || kind == TerminalKind.ITerm2 || kind == TerminalKind.WezTerm
+                || kind == TerminalKind.Kitty || kind == TerminalKind.Ghostty
                 || (kind == TerminalKind.Vte && VersionAtLeast("VTE_VERSION", 5000))
                 || (kind == TerminalKind.Konsole && VersionAtLeast("KONSOLE_VERSION", 220400));
             string value = Get("CONSOLEMONSTER_HYPERLINKS");

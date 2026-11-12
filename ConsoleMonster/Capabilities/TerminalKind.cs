@@ -36,6 +36,15 @@ namespace ConsoleMonster.Capabilities {
         Vte = 9,
 
         /// <summary>KDE Konsole (KONSOLE_VERSION).</summary>
-        Konsole = 10
+        Konsole = 10,
+
+        /// <summary>Kitty (TERM=xterm-kitty or KITTY_WINDOW_ID).</summary>
+        Kitty = 11,
+
+        /// <summary>Ghostty (TERM_PROGRAM=ghostty or TERM=xterm-ghostty).</summary>
+        Ghostty = 12,
+
+        /// <summary>macOS Terminal.app (TERM_PROGRAM=Apple_Terminal), which has no OSC 8 links.</summary>
+        AppleTerminal = 13
     }
 }
