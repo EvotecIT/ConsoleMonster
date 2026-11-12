@@ -326,7 +326,9 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        internal static IWidget BuildList(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool showEmpty, int depth, string? title, CultureInfo? culture = null, PSCmdlet? cmdlet = null) {
+        // summarizeNested is the automatic view: nested records and collections of records become one summary line each
+        // instead of an expanded block, and hidden empty fields and fields past the limit are counted.
+        internal static IWidget BuildList(IReadOnlyList<PSObject> items, object[]? property, object? groupBy, bool showEmpty, int depth, string? title, CultureInfo? culture = null, PSCmdlet? cmdlet = null, bool summarizeNested = false) {
             if (cmdlet != null) { ConsoleModuleViews.Discover(cmdlet); }
             CultureInfo resolved = ResolveCulture(culture);
             ShapeOptions shape = PSShaping.Options(culture);
@@ -346,8 +348,10 @@ namespace ConsoleMonster.PowerShell {
             List<IReadOnlyList<PSObject>> runs = property != null && property.Length > 0 ? new List<IReadOnlyList<PSObject>> { expanded } : Runs(expanded, shape);
             foreach (IReadOnlyList<PSObject> run in runs) {
                 object[]? specs = property;
+                int omitted = 0;
                 if (specs == null || specs.Length == 0) {
-                    specs = ColumnResolver.Resolve(run, cmdlet, shape, out _);
+                    // A list has vertical room: objects listed by their own fields keep more of them than a table does.
+                    specs = ColumnResolver.Resolve(run, cmdlet, shape, Math.Max(shape.MaxFields, ListFields), out _, out omitted);
                 }
                 IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(run, specs, shape, cmdlet);
                 // The heading comes from a name-like column (Name, DisplayName, ...) with an Id column after it; that column is
@@ -358,7 +362,7 @@ namespace ConsoleMonster.PowerShell {
                     foreach (KeyValuePair<string, IReadOnlyList<PSObject>> group in GroupBinder.Group(run, groupBy, true, shape)) {
                         view.AddSection(Text.Markup.Escape(group.Key));
                         foreach (PSObject item in group.Value) {
-                            AddRecord(view, columns, key, item, 1, depth, true, shape, budget);
+                            AddRecord(view, columns, key, item, 1, depth, true, shape, budget, summarizeNested, omitted);
                         }
                     }
                 } else {
@@ -367,7 +371,7 @@ namespace ConsoleMonster.PowerShell {
                     // key's value).
                     bool lone = expanded.Count == 1 && title == null && ValueShaper.Prepare(run[0], shape) is System.Collections.IDictionary;
                     foreach (PSObject item in run) {
-                        AddRecord(view, columns, key, item, 0, depth, (expanded.Count > 1 || title == null) && !lone, shape, budget);
+                        AddRecord(view, columns, key, item, 0, depth, (expanded.Count > 1 || title == null) && !lone, shape, budget, summarizeNested, omitted);
                     }
                 }
             }
@@ -551,7 +555,9 @@ namespace ConsoleMonster.PowerShell {
         internal static IWidget Combine(IReadOnlyList<IWidget> widgets) =>
             widgets.Count == 1 ? widgets[0] : new Rows(widgets.ToArray()) { Gap = 1 };
 
-        private static void AddRecord(RecordView view, IReadOnlyList<BoundColumn> columns, int key, PSObject item, int level, int depth, bool heading, ShapeOptions shape, ShapeBudget budget) {
+        private const int ListFields = 30;
+
+        private static void AddRecord(RecordView view, IReadOnlyList<BoundColumn> columns, int key, PSObject item, int level, int depth, bool heading, ShapeOptions shape, ShapeBudget budget, bool summarizeNested = false, int omitted = 0) {
             int fieldLevel = level;
             // Cell text and titles get an allowance per record; slow getters are guarded across the whole list.
             ShapeBudget record = ShapeBudget.For(shape);
@@ -590,6 +596,10 @@ namespace ConsoleMonster.PowerShell {
                     continue;
                 }
                 object? prepared = ValueShaper.Prepare(value, shape);
+                if (summarizeNested && prepared != null && column.Presenter == null && NeedsNesting(prepared, shape)) {
+                    view.AddFieldAt(fieldLevel, label, new TableCell(NestedSummary(value!, prepared, shape, record)));
+                    continue;
+                }
                 if (depth > 0 && prepared != null && column.Presenter == null && NeedsNesting(prepared, shape)) {
                     view.AddHeading(Text.Markup.Escape(label), fieldLevel);
                     view.AddWidgetAt(fieldLevel + 1, InspectorBody(value!, depth));
@@ -605,7 +615,34 @@ namespace ConsoleMonster.PowerShell {
             } else if (visible == 0 && view.HideEmpty) {
                 // Every field is empty: the record still shows (its heading would otherwise vanish with its empty fields).
                 view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]all empty[/]"));
+            } else if (summarizeNested) {
+                // Nothing leaves the automatic view without a trace: hidden empty fields and fields past the limit are counted.
+                List<string> notes = new List<string>();
+                if (view.HideEmpty && shown > visible) { notes.Add("+" + (shown - visible).ToString("N0", CultureInfo.InvariantCulture) + " empty"); }
+                if (omitted > 0) { notes.Add("+" + omitted.ToString("N0", CultureInfo.InvariantCulture) + (omitted == 1 ? " more field" : " more fields")); }
+                // A dim line at the key column, as the tree ends a record with its empty count.
+                if (notes.Count > 0) { view.AddWidgetAt(fieldLevel, TextBlock.FromMarkup("[muted]" + string.Join("  ", notes) + "[/]")); }
             }
+        }
+
+        // One line for a nested record in the automatic view: its identity and how many more fields it has; a collection
+        // of records as its item count.
+        private static string NestedSummary(object value, object prepared, ShapeOptions shape, ShapeBudget budget) {
+            if (!ValueShaper.IsStructural(prepared) && ValueShaper.TryGetItems(prepared, out System.Collections.IEnumerable? items)) {
+                int count = 0;
+                foreach (object? _ in items!) { count++; }
+                return "[muted]" + count.ToString("N0", CultureInfo.InvariantCulture) + (count == 1 ? " item" : " items") + "[/]";
+            }
+            int fields = ValueShaper.Fields(prepared, shape).Count;
+            HashSet<string> identity = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string title = PSShaping.IdentityTitle(PSObject.AsPSObject(value), shape, budget, identity);
+            // The same identity rule as nested labels in trees: a Key alone does not name a nested object.
+            if (!InspectIdentity.IsIdentity(identity)) { identity.Clear(); }
+            int more = Math.Max(0, fields - identity.Count);
+            string text = more.ToString("N0", CultureInfo.InvariantCulture) + (more == 1 ? " field" : " fields");
+            return identity.Count == 0
+                ? "[muted]" + text + "[/]"
+                : Text.Markup.Escape(title) + (more > 0 ? "  [muted]+" + text + "[/]" : string.Empty);
         }
 
         private static object? IdValue(IReadOnlyList<BoundColumn> columns, int key, object?[] values) {

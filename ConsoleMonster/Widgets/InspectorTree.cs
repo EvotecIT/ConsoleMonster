@@ -42,10 +42,10 @@ namespace ConsoleMonster.Widgets {
         private static void Fill(TreeNode parent, InspectNode node) {
             switch (node) {
                 case InspectObject obj:
-                    int keyWidth = Math.Min(16, obj.Members.Where(member => member.TypeName != "InspectionEmptySummary")
-                        .Select(member => DisplayWidth.Measure(member.Name ?? string.Empty)).DefaultIfEmpty().Max());
+                    int[] keyWidths = obj.Members.Where(member => member.TypeName != "InspectionEmptySummary")
+                        .Select(member => DisplayWidth.Measure(member.Name ?? string.Empty)).ToArray();
                     foreach (InspectNode member in obj.Members) {
-                        AddNode(parent, member, member.Name ?? string.Empty, keyWidth: member.TypeName == "InspectionEmptySummary" ? 0 : keyWidth);
+                        AddNode(parent, member, member.Name ?? string.Empty, keyWidths: member.TypeName == "InspectionEmptySummary" ? null : keyWidths);
                     }
                     break;
                 case InspectCollection collection:
@@ -63,16 +63,21 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private static void AddNode(TreeNode parent, InspectNode node, string name, bool collectionItem = false, int keyWidth = 0) {
+        private static void AddNode(TreeNode parent, InspectNode node, string name, bool collectionItem = false, IReadOnlyList<int>? keyWidths = null) {
             string label = Markup.Escape(name);
             TreeNode Add(Styling.StatusKind? status = null, string? detail = null) {
                 TreeNode child = parent.Add(label, status, detail);
-                child.LabelPadding = Math.Max(0, keyWidth - DisplayWidth.Measure(name));
+                child.KeyWidths = keyWidths;
                 return child;
             }
             switch (node) {
                 case InspectObject obj:
-                    Fill(Add(detail: obj.TypeName), obj);
+                    // A nested object reads by its identity (in the value column), or its field count rather than a generic type.
+                    string? identity = InspectIdentity.Label(obj, out string? fieldCount);
+                    bool typed = identity == obj.TypeName;
+                    TreeNode objectNode = Add(detail: typed ? identity : fieldCount);
+                    if (!typed && identity != null) { objectNode.Value = new TableCell(Markup.Escape(identity)); }
+                    Fill(objectNode, obj);
                     break;
                 case InspectCollection collection:
                     int count = collection.Count ?? collection.Items.Count;

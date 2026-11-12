@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// }
     /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     ///     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    ///     New-ConsoleField Path 'Folder' -Kind Path -Kind Folder -MustExist -Page Basics -ParameterName Path
+    ///     New-ConsoleField Path 'Folder' -Kind Path -PathKind Folder -MustExist -Page Basics -ParameterName Path
     ///     New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly
     /// }</code>
     /// </example>

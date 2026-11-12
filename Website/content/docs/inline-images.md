@@ -2,8 +2,8 @@
 title: Inline images
 description: Show PNG, JPEG and chart renders in the terminal with Kitty, iTerm2 or Sixel pixels, half blocks or a placeholder.
 slug: inline-images
-order: 18
-group: apps
+order: 26
+group: build
 card: inline-images-60
 chips: [PowerShell, Graphics, Kitty, iTerm2, Sixel]
 apis: [Show-ConsoleImage, New-ConsoleImage, ConsoleImage, ImageProtocol]
@@ -124,3 +124,9 @@ Terminal.Write(new Panel(new ConsoleImage(png) { Width = 40 }, "Requests"));
 - Detection over SSH relies on the environment. `TERM` and `LC_TERMINAL` are forwarded, `WT_SESSION` and `TERM_PROGRAM` usually aren't; use `-Protocol` there.
 - Windows Terminal before 1.22 has no Sixel and leaves the rows empty; use `-Protocol HalfBlock` there.
 - An image starts on a new line: after `Write-Host -NoNewline`, end the line first.
+
+## Next
+
+- [Compare text and files](/docs/text-diff/): changed lines and words between two versions.
+- [Charts from the pipeline](/docs/pipeline-charts/): charts drawn in cells instead of pixels.
+- [Add-ons](/docs/add-ons/): what the Graphics package adds and what it brings with it.

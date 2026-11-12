@@ -63,6 +63,7 @@ namespace ConsoleMonster.Live {
         private bool _cleanupDeferred; // Protected by _lifecycle, including the final render-thread handoff.
         private bool _restored;
         private bool _finishing;
+        private volatile bool _interrupted; // Ctrl+C or Cancel before the session stopped: the last frame says it was stopped.
         private long _eventsPosted;
         private int _queued;
         private long _eventsApplied;
@@ -429,7 +430,8 @@ namespace ConsoleMonster.Live {
         private void Fail(Exception error) {
             Interlocked.CompareExchange(ref _failure, error, null);
             Error(error);
-            RequestCancellation();
+            // A failure is reported as an error, not as a stop the user asked for.
+            RequestCancellation(true, interrupted: false);
         }
 
         private void CloseAdmission() {

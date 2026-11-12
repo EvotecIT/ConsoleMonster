@@ -222,6 +222,8 @@ namespace ConsoleMonster.Tests.Values {
             Assert.Equal("web01", ValueShaper.Title(new FlagFirst()));
             Assert.Equal("Hashtable", ValueShaper.Title(new Hashtable { ["Enabled"] = true, ["Count"] = 2 }));
             Assert.Equal("alpha", ValueShaper.Title(new Hashtable { ["Name"] = "alpha", ["Enabled"] = false }));
+            // An account record (a GitHub user) is known by its login, with its id after it.
+            Assert.Equal("daxian-dbw (127450)", ValueShaper.Title(new Dictionary<string, object?> { ["id"] = 127450, ["login"] = "daxian-dbw", ["type"] = "User" }));
             Assert.Equal(1, ValueShaper.TitleIndex(new[] { "Id", "ProcessName", "Handles" }));
             Assert.Equal(-1, ValueShaper.TitleIndex(new[] { "Enabled", "Count" }));
         }

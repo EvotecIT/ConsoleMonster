@@ -2,7 +2,7 @@
 title: Three ways to write it
 description: "Translate the same widgets between PowerShell parameters, C# initializers and C# fluent calls."
 slug: csharp-styles
-order: 2
+order: 4
 group: start
 card: three-fluent
 chips: [PowerShell, C#, C# fluent]
@@ -22,11 +22,16 @@ A parameter keeps its domain name: `-Title 'Build'` becomes `Title = "Build"` or
 
 Callback properties use `.Configure(item => item.Action = callback)`. C# treats `.Action(...)` as invoking the delegate property, so a property-named extension cannot assign it. Configure returns the same object and runs the assignments in order; it does not invoke the callback. The generated mapping notes show this exception for each affected parameter.
 
+<div class="cm-lang" data-lang="powershell">
+
 ```powershell
 New-ConsolePanel -Title 'Build' -Border Rounded -Content {
     New-ConsoleText 'All checks passed'
 } | Show-Console
 ```
+
+</div>
+<div class="cm-lang" data-lang="csharp">
 
 ```csharp
 var panel = new Panel {
@@ -37,6 +42,9 @@ var panel = new Panel {
 Terminal.Write(panel);
 ```
 
+</div>
+<div class="cm-lang" data-lang="csharp-fluent">
+
 ```csharp
 Ui.Panel()
     .Title("Build")
@@ -44,6 +52,8 @@ Ui.Panel()
     .Content(c => c.Text("All checks passed"))
     .Show();
 ```
+
+</div>
 
 The C# snippets use `ConsoleMonster`, `ConsoleMonster.Layout`, `ConsoleMonster.Glyphs` and `ConsoleMonster.Widgets`. `.Content(widget)` attaches an existing widget; `.Content(c => …)` builds nested content, like PowerShell's `-Content { … }`. Rows, Columns, Stack, LayoutGrid, Panel and dashboard regions use the same grammar.
 
@@ -55,6 +65,12 @@ PowerShell switches name the non-default behavior: `-NoMouse` maps to `Mouse = f
 
 Use initializers for several settings, named variables and rows filled in a loop. Use fluent calls when one expression makes the layout easier to follow. Both mutate the same object and return the same widget types. Configure a widget before starting a live session; once the session owns it, use its update API.
 
-Fluent methods are generated at build time from public properties. They use no runtime reflection and retain the receiver's derived type. Immutable values such as TerminalProfile keep their existing copy semantics and `With*` methods. The fluent entry point is `Ui`: `New-ConsolePanel` maps to `Ui.Panel()`, and a nested panel maps to `c.Panel(p => p.Title("Build").Content(...))`. Factories start empty; named calls configure them. The initializer tab keeps `new Panel(...)`. Text, rule titles, row collections and live identities are the documented primary-input exceptions. Chart/progress and kind-selected inputs use the same typed options and `Build()` factories as PowerShell; content builders materialize these definitions after their configuration lambda.
+Fluent methods are generated at build time from public properties. They use no runtime reflection and retain the receiver's derived type. Immutable values such as TerminalProfile keep their copy semantics and `With*` methods. The fluent entry point is `Ui`: `New-ConsolePanel` maps to `Ui.Panel()`, and a nested panel maps to `c.Panel(p => p.Title("Build").Content(...))`. Factories start empty; named calls configure them. The initializer tab keeps `new Panel(...)`. Text, rule titles, row collections and live identities are the documented primary-input exceptions. Chart/progress and kind-selected inputs use the same typed options and `Build()` factories as PowerShell; content builders materialize these definitions after their configuration lambda.
 
 The [gallery](/demos/) checks all three maintained programs across every recorded state. The [API reference](/api/) shows property and fluent configuration forms together; the [parity contract](/docs/api-parity/) lists host and C#-only exceptions.
+
+## Next
+
+- [PowerShell conventions](/docs/powershell-conventions/): the command verbs and parameter names every widget shares.
+- [Themes](/docs/themes/): the colour roles widgets draw with.
+- [PowerShell and C# API parity](/docs/api-parity/): every mapping and C#-only member.

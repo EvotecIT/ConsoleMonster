@@ -275,6 +275,8 @@ namespace ConsoleMonster.PowerShell {
                 return;
             }
             _finished = true;
+            // A stopped pipeline (Ctrl+C) leaves a final frame that says so, whichever handler saw the key first.
+            if (_stopping) { _session?.Cancel(); }
             _host?.Dispose();
             _session?.Stop();
             _session?.Dispose();

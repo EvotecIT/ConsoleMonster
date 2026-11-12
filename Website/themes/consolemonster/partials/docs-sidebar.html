@@ -1,12 +1,38 @@
+{{~ ## The contents in reading order: the docs groups, the guides groups, then the reference. Navigation items carry a page's
+     order but not its group, so a group here is a band of orders: from its `from` (data/copy.json docsCatalog.groups and
+     guidesCatalog.groups) up to the next group's. A page's `order` must fall in the band of its `group`; the catalogues
+     on /docs/ and /guides/ place pages by `group`. layouts/docs.html builds Previous and Next from the same bands. ## ~}}
+{{~ sb_sections = []
+    for sb_src in [["docs", data.copy.docsCatalog.groups], ["guides", data.copy.guidesCatalog.groups]]
+      sb_menu = pf.menu sb_src[0]; sb_groups = sb_src[1]
+      for g in sb_groups
+        sb_upper = 1000000; if for.index < sb_groups.size - 1; sb_upper = sb_groups[for.index + 1].from; end
+        sb_items = []
+        if sb_menu; for it in sb_menu.items; w = it.weight ?? 0
+          if w >= g.from && w < sb_upper; sb_items[sb_items.size] = it; end
+        end; end
+        sb_sections[sb_sections.size] = { id: g.id, title: g.title, items: sb_items }
+      end
+    end ~}}
 <nav class="cm-docs__nav" aria-label="Documentation">
   <details class="cm-docs__menu" open>
     <summary>Contents</summary>
-    <h2>Documentation</h2>
-    {{ pf.menu_tree "docs" 2 }}
-    <h2>Guides</h2>
-    {{ pf.menu_tree "guides" 2 }}
-    <h2>Reference</h2>
+    {{~ sb_reference = null
+        for s in sb_sections
+          if s.id == "reference"; sb_reference = s; continue; end
+          if s.items.size == 0; continue; end ~}}
+    <h2>{{ s.title | html.escape }}</h2>
     <ul>
+      {{~ for it in s.items ~}}
+      <li{{ if it.is_active }} class="is-active"{{ end }}><a href="{{ it.url }}"{{ if it.is_active }} aria-current="page"{{ end }}>{{ it.title | html.escape }}</a></li>
+      {{~ end ~}}
+    </ul>
+    {{~ end ~}}
+    <h2>{{ if sb_reference }}{{ sb_reference.title | html.escape }}{{ else }}Reference{{ end }}</h2>
+    <ul>
+      {{~ if sb_reference; for it in sb_reference.items ~}}
+      <li{{ if it.is_active }} class="is-active"{{ end }}><a href="{{ it.url }}"{{ if it.is_active }} aria-current="page"{{ end }}>{{ it.title | html.escape }}</a></li>
+      {{~ end; end ~}}
       <li><a href="/api/">.NET API reference</a></li>
       <li><a href="/powershell/commands/">PowerShell commands</a></li>
       <li><a href="/benchmarks/">Benchmarks</a></li>

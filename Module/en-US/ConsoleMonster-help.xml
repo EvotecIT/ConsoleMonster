@@ -7350,10 +7350,10 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pes
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>Show-ConsoleApp -Content {
                 New-ConsoleAccordion -Content {
-                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
+                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
                     New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-                        'Get-Service -Name win*'
-                        'Get-Service | Where-Object Status -eq Running'
+                        'Get-Process -Name pwsh'
+                        'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
                     }
                 }
             }</dev:code>
@@ -10272,10 +10272,10 @@ Show-ConsoleApp -Content {
         <maml:title>EXAMPLE 1</maml:title>
         <dev:code>Show-ConsoleApp -Content {
                 New-ConsoleAccordion -Content {
-                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
+                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
                     New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-                        'Get-Service -Name win*'
-                        'Get-Service | Where-Object Status -eq Running'
+                        'Get-Process -Name pwsh'
+                        'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
                     }
                 }
             }</dev:code>
@@ -11923,9 +11923,9 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Services -InputObject (Get-Service) -Property Name, Status, StartType -Height 12 }</dev:code>
+        <dev:code>Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Processes -InputObject (Get-Process) -Property Name, Id, CPU -Height 12 }</dev:code>
         <dev:remarks>
-          <maml:para>List services with three columns</maml:para>
+          <maml:para>List processes with three columns</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -15751,7 +15751,7 @@ Show-ConsoleApp -Content {
 }
 $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    New-ConsoleField Path 'Folder' -Kind Path -Kind Folder -MustExist -Page Basics -ParameterName Path
+    New-ConsoleField Path 'Folder' -Kind Path -PathKind Folder -MustExist -Page Basics -ParameterName Path
     New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly
 }</dev:code>
         <dev:remarks>

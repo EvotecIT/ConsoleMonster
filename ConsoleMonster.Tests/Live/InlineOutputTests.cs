@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
@@ -128,6 +129,39 @@ namespace ConsoleMonster.Tests.Live {
             Assert.StartsWith("Build", rows[2]);
             Assert.Contains("4/4", rows[2]);
             Assert.Equal(string.Empty, rows[3]);
+        }
+
+        // The last frame stays in the scrollback: nothing reads Ctrl+C any more, and a cancelled run must not look unfinished.
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void InlineDashboard_FinalFrameDropsKeyHintsAndMarksACancelledRun(bool cancel) {
+            StringTerminalWriter writer = new StringTerminalWriter();
+            TerminalProfile profile = TerminalProfile.Fixed(60, 30, ColorDepth.None);
+            Dashboard dashboard = new Dashboard("Deploy", new Rows(new ProgressBar("Overall", "overall") { Total = 4 })) { MinimumSize = new Size(20, 4) };
+            LiveSessionOptions options = new LiveSessionOptions {
+                Mode = LiveMode.Inline,
+                Output = new InlineOutput(writer, profile, false),
+                Profile = profile,
+                HandleCancelKey = false,
+                StopOnCancellation = false,
+                InlineHeightFraction = 1,
+                FramesPerSecond = 60,
+                WindowSource = () => new[] { 0, 0, 60, 30 }
+            };
+            using (LiveSession session = new LiveSession(dashboard, options)) {
+                session.Start();
+                session.Post(new LiveEvent("overall", "advance", value: 1));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("ctrl+c"), 3000));
+                if (cancel) { session.Cancel(); }
+                session.Stop();
+            }
+            FakeVtScreen screen = new FakeVtScreen(60, 30, DisplayWidth.Measure);
+            screen.Feed(writer.ToString());
+            string text = string.Join("\n", Enumerable.Range(0, 30).Select(screen.Row));
+            Assert.DoesNotContain("ctrl+c", text);
+            Assert.Contains("1/4", text);
+            Assert.Equal(cancel, text.Contains("stopped"));
         }
 
         [Fact]

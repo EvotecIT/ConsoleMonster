@@ -2,7 +2,8 @@
 title: Coming from Show-Command
 description: Replace Windows command dialogs with explicit terminal forms, validated answers and command previews.
 slug: show-command
-order: 6
+order: 7
+group: from
 toc: false
 card: migration-form
 ---
@@ -74,7 +75,7 @@ if ($null -ne $answers) {
 
 The right-hand example deliberately models one read-only command parameter. `Get-Service` itself is Windows-only in modern PowerShell, so run that last call on Windows; forms are cross-platform, target commands may not be. To use a cross-platform target, replace the command and fields with those of your own inventory function.
 
-## 2. Preview a command without executing it
+## 2. Choose from your own data and preview the command
 
 <div class="cm-migration">
 <div>
@@ -83,7 +84,7 @@ The right-hand example deliberately models one read-only command parameter. `Get
 
 ```powershell
 # Show-Command returns command text instead of running it.
-$command = Show-Command -Name Get-Service -PassThru
+$command = Show-Command -Name Test-Connection -PassThru
 ```
 
 </div>
@@ -92,11 +93,12 @@ $command = Show-Command -Name Get-Service -PassThru
 **ConsoleMonster**
 
 ```powershell
-$form = New-ConsoleForm -Title 'Service inventory' -Command 'Get-Service' -Content {
-    New-ConsoleField -Key Name -Label 'Service name' -Kind Text `
-        -Required -ParameterName Name
+$form = New-ConsoleForm -Title 'Reachability check' -Command 'Test-Connection' -Content {
+    New-ConsoleField -Key Target -Label 'Server' -Kind Select -Choices $servers `
+        -Display Name -GroupBy Site -CommandValue Name -ParameterName ComputerName
+    New-ConsoleField -Key Count -Label 'Echo requests' -Kind Number -Integer `
+        -Minimum 1 -Maximum 10 -Default 4 -ParameterName Count
 }
-Set-ConsoleFormValue -Form $form -Values @{ Name = 'WinRM' }
 $result = $form | Read-ConsoleForm -PassThru
 if ($result.Submitted) {
     Write-ConsoleText -Text $result.CommandLine
@@ -106,9 +108,9 @@ if ($result.Submitted) {
 </div>
 </div>
 
-The initial WinRM value is applied explicitly. Form command previews omit values equal to a field default, so use field defaults only when omitting that parameter has the same meaning for the target command.
+Show-Command offers a free-text box for every parameter. Here the server is picked from the `$servers` rows, grouped by site, and the count is a bounded whole number, so the form cannot submit a value the command would reject. `-PassThru` returns a structured result rather than text: `Submitted`, the `Values` and the `CommandLine` preview, such as `Test-Connection -ComputerName SQL01`. The preview leaves out a value equal to its field's default, so `-Count 4` appears only when changed; give a field a default only when omitting the parameter means the same thing to the target command.
 
-`-PassThru` has different return types: Show-Command returns command text, while Read-ConsoleForm returns a structured result. Keep that result test separate from an execution decision. Never feed preview text to `Invoke-Expression`; call the command with a reviewed splat.
+Keep the result test separate from any decision to execute. Never feed preview text to `Invoke-Expression`; call the command with a reviewed splat.
 
 ## 3. Build a reviewable invocation from selected rows
 
@@ -145,7 +147,7 @@ The right side previews the selected arguments as a record. Forms provide copyab
 - Field `Key` identifies stored answers, `Label` is visible text and `ParameterName` controls command preview binding. They need not be identical.
 - Form review and validation are task-specific. Show-Command discovers parameter sets dynamically; ConsoleMonster expects you to define the supported operation.
 - Persistence is explicit through form options. Do not enable remembered answers for secrets just to imitate a dialog.
-- Previewing a command does not validate authorization, reachability or target-platform support, and does not execute the command. The calling script owns that decision.
+- Previewing a command does not validate authorisation, reachability or target-platform support, and does not execute the command. The calling script owns that decision.
 
 ## See a complete form
 

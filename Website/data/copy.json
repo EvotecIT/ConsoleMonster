@@ -942,59 +942,63 @@
       {
         "id": "start",
         "title": "Get started",
-        "body": "Install, the three ways to write C#, what gets detected, and how to pin or theme it.",
-        "key": 1
+        "body": "Install ConsoleMonster, learn how it adapts to each terminal and how its cmdlets and C# styles read, then choose a theme, colours and accessibility.",
+        "key": 1,
+        "from": 1
+      },
+      {
+        "id": "build",
+        "title": "Build output",
+        "body": "Layouts, facts, charts, Markdown, diagrams, images, diffs and object views that you print once.",
+        "key": 6,
+        "from": 20
       },
       {
         "id": "live",
         "title": "Live output",
-        "body": "Dashboards, runs that redraw, and recordings you can replay.",
-        "key": 2
+        "body": "Dashboards and runs that redraw in place from any thread, followed logs, hosted dashboards, and recordings to replay or present.",
+        "key": 2,
+        "from": 30
       },
       {
         "id": "apps",
         "title": "Applications",
-        "body": "Help, errors, progress, logging and a template to start from.",
-        "key": 5
+        "body": "Interactive apps and their parts, forms and dialogs, help and error views, logging, a project template and headless tests.",
+        "key": 5,
+        "from": 40
       },
       {
-        "id": "hosts",
-        "title": "Hosts and shells",
-        "body": "Unix terminals over SSH, and the grammar of the PowerShell module.",
-        "key": 3
+        "id": "shells",
+        "title": "PowerShell, CI and hosts",
+        "body": "What ConsoleMonster writes in CI, jobs, remoting, transcripts and over SSH, views for your own commands, and a login overview.",
+        "key": 3,
+        "from": 50
+      },
+      {
+        "id": "reference",
+        "title": "Reference",
+        "body": "How each cmdlet parameter maps to its C# property and fluent call.",
+        "key": 4,
+        "from": 90
       }
     ]
   },
-  "guidesIndex": [
-    {
-      "title": "Coming from another tool",
-      "url": "/guides/coming-from/",
-      "body": "Choose Spectre.Console, PwshSpectreConsole, Microsoft grid tools, Show-Command or System.CommandLine.Rendering."
-    },
-    {
-      "title": "Everyday PowerShell output",
-      "url": "/guides/everyday-powershell/",
-      "body": "Enable-ConsoleFormatting before and after: files, processes, dictionaries, arrays in cells and groups."
-    },
-    {
-      "title": "Coming from Write-Color",
-      "url": "/guides/write-color/",
-      "body": "How Write-Color's parameters map to Write-ConsoleText, and where the two differ."
-    },
-    {
-      "title": "Coming from Spectre.Console",
-      "url": "/guides/spectre-console/",
-      "body": "C# widgets, markup, prompts, charts and live output, with side-by-side examples and known gaps."
-    },
-    {
-      "title": "Coming from Format-Table",
-      "url": "/guides/format-table/",
-      "body": "Show-ConsoleTable, Show-Console -View List and Show-Console -View Tree beside the built-in Format cmdlets."
-    },
-    {
-      "title": "Hosts, CI and transcripts",
-      "url": "/guides/hosts-and-ci/",
-      "body": "What ConsoleMonster writes in CI, jobs, remoting, the ISE, transcripts and with NO_COLOR."
-    }
-  ]
+  "guidesCatalog": {
+    "groups": [
+      {
+        "id": "from",
+        "title": "Coming from another tool",
+        "body": "Move scripts and programs from Spectre.Console, PwshSpectreConsole, Write-Color, Format-Table, the Microsoft grid tools, Show-Command or System.CommandLine.Rendering.",
+        "key": 4,
+        "from": 1
+      },
+      {
+        "id": "tasks",
+        "title": "Do a task",
+        "body": "One job from start to finish, with the code to paste at each step.",
+        "key": 1,
+        "from": 10
+      }
+    ]
+  }
 }

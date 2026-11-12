@@ -2,7 +2,7 @@
 title: dotnet new template
 description: "dotnet new consolemonster: a console app with a menu, a status report, logging, the hosting dashboard and native AOT."
 slug: template
-order: 14
+order: 45
 group: apps
 card: template
 apis: [dotnet new]
@@ -44,6 +44,9 @@ The recording runs the template's own `Program.cs`, built against the ConsoleMon
 
 The app uses a `Menu` with pages, a `Table` with status cells, [logging](/docs/logging/) through `ConsoleMonster.Extensions.Logging` and the [hosting dashboard](/docs/hosting/).
 
-## Related
+For what else a menu can open, see [menus, forms and apps](/interactive/).
 
-The app uses two packages: [logging](/docs/logging/) and the [hosting dashboard](/docs/hosting/). For what else a menu can open, see [menus, forms and apps](/interactive/).
+## Next
+
+- [Test, record and drive apps](/docs/testing/): test the app on a headless terminal.
+- [Logging](/docs/logging/) and the [hosting dashboard](/docs/hosting/): the two packages the app uses.

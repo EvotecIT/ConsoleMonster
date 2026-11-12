@@ -113,6 +113,15 @@ namespace ConsoleMonster {
 
         internal static bool DetectLight(TerminalProfile profile) =>
             profile.Mode == OutputMode.Interactive && Output.TerminalBackground.TryDetect(out Output.TerminalBackgroundInfo info) && info.IsLight;
+
+        // Output that never reads keys (a table, a list, a chart) would otherwise never ask the terminal for its background,
+        // so a light terminal got the dark palette. Ask once, outside Gate, only when the automatic choice depends on it.
+        private static void ProbeBackground(TerminalProfile profile) {
+            if (profile.Mode != OutputMode.Interactive || profile.ColorDepth == ColorDepth.None || profile.IsContinuousIntegration
+                || (profile.ThemePreference != ThemePreference.Auto && profile.ThemePreference != ThemePreference.ColorBlind)) { return; }
+            if (Output.TerminalBackground.ProbeForOutput()) { RefreshBackground(); }
+        }
+
         /// <summary>The active theme: the target's (see <see cref="Target"/>), or the console's.</summary>
         public static ITheme Theme {
             get {
@@ -128,6 +137,7 @@ namespace ConsoleMonster {
                 // A catalogue choice or theme file; resolved outside Gate because the loader can read a file.
                 ITheme? fromSettings = ConsoleSettings.ThemeFromSetting();
                 if (fromSettings != null) return fromSettings;
+                ProbeBackground(ApplyProfilePolicy(Profile));
                 lock (Gate) {
                     if (_theme != null) return _theme;
                     profile = Profile;

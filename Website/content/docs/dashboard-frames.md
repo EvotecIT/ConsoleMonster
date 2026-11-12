@@ -2,8 +2,8 @@
 title: Dashboard frames
 description: Build a dashboard frame with facts, meters, attention items and sections in PowerShell or C#, laid out for the terminal's width.
 slug: dashboard-frames
-order: 15
-group: apps
+order: 35
+group: live
 summary: "One frame for a summary: facts, meters, needs attention, sections, legend and footer."
 apis: [New-ConsoleDashboardFrame, DashboardFrame, Ui.DashboardFrame, Meter, AttentionItem, FrameSection]
 chips: [Reports, Width tiers, PowerShell, C#]
@@ -22,29 +22,63 @@ The estate and its numbers are fictional and nothing is queried. The three progr
 
 Each part is a record in PowerShell and an object in C#. Meters pick their kind from the fields they carry: `Healthy` with `Warning` and `Failing` is a composition bar, `Healthy` with `Whole` is a ratio, a number `Value` is a count and a text `Value` is a fact.
 
+<div class="cm-lang" data-lang="powershell">
+
 ```powershell
-New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -Meter @(
-    @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
-    @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
-    Title = 'Sites'; Content = { $sites | New-ConsoleTable }
-} | Show-Console
+$frame = @{
+    Title = 'Server estate'
+    Fact = 'contoso.example', '48 servers'
+    Meter = @(
+        [pscustomobject]@{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
+        [pscustomobject]@{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
+    )
+    Attention = [pscustomobject]@{
+        State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%'
+    }
+    Noun = 'server'
+    OutOf = 48
+    Section = [pscustomobject]@{ Title = 'Sites'; Content = { $sites | New-ConsoleTable } }
+}
+New-ConsoleDashboardFrame @frame | Show-Console
 ```
 
-The fluent builder names the same parts:
+</div>
+<div class="cm-lang" data-lang="csharp">
 
 ```csharp
-Terminal.Write(Ui.DashboardFrame("Server estate")
+var frame = new DashboardFrame("Server estate");
+frame.Header.Facts.Add("contoso.example");
+frame.Header.Facts.Add("48 servers");
+frame.Meters.Add(Meter.Composition("Servers healthy", 44, 3, 1));
+frame.Meters.Add(Meter.Ratio("Backups current", 46, 48));
+frame.Attention.Noun = "server";
+frame.Attention.OutOf = 48;
+frame.Attention.Items.Add(new AttentionItem(HealthState.Failing, "SQL-03", "Disk D: 97% full") {
+    Values = { "97%" }
+});
+frame.Sections.Add(new FrameSection("Sites", context => siteTable));
+Terminal.Write(frame);
+```
+
+</div>
+<div class="cm-lang" data-lang="csharp-fluent">
+
+```csharp
+Ui.DashboardFrame("Server estate")
     .Fact("contoso.example", "48 servers")
     .Meter(Meter.Composition("Servers healthy", 44, 3, 1))
+    .Meter(Meter.Ratio("Backups current", 46, 48))
     .AttentionOf("server", 48)
     .Attention(HealthState.Failing, "SQL-03", "Disk D: 97% full", "97%")
-    .Section("Sites", c => c.Add(sites)));
+    .Section("Sites", c => c.Add(siteTable))
+    .Show();
 ```
+
+</div>
 
 - **Title line.** Facts follow the title and states (`State`, `Count`, `Word`) sit at the right edge. When every state counts zero and nothing needs attention, the line says "all healthy". `-ObservedAt` adds how long ago the data was taken.
 - **Meters** print in the order given; a narrow row keeps the first ones.
-- **Needs attention** prints first in the summary rows whenever it has items, worst state first, then by `Order`, with "3 of 48 servers" from `-AttentionNoun` and `-AttentionOutOf`.
+- **Needs attention** prints first in the summary rows whenever it has items, worst state first, then by `Order`, with "3 of 48 servers" from `-Noun` and `-OutOf`.
 - **Sections** build their content once. Summary sections pack side by side while their minimum widths fit, and a later one drops into the shortest column; `Placement = 'Detail'` prints a section below at full width. `MinWidth`, `MaxWidth`, `Grow` and `FullWidth` shape the row.
 - **Legend and footer.** The legend lists the states you name; the footer prints the counts. A frame the script builds has no footer hint; module views use `EveryRow` ("pipe to Format-Table for every row").
 
@@ -58,10 +92,10 @@ The same program at 60 columns: the facts move under the title, meters stack two
 - On the ASCII tier every cell inside the frame, including your own widgets, is folded to printable ASCII without changing the layout.
 - A module that owns summary objects declares its frame in C#, next to its data model, and registers it as their default display; `DashboardFrame.Compact` then gives it a narrow view of its own below 80 columns.
 
-## Related
-
-The [server estate demo](/demos/server-estate/) is the program above with its download and run lines, and the [readiness report](/demos/readiness-report/) builds a similar summary from ordinary widgets. [Tables](/tables/) covers the tables inside the sections.
+The [server estate demo](/demos/server-estate/) is the program above with its download and run lines, and the [readiness report](/demos/readiness-report/) builds a similar summary from ordinary widgets.
 
 ## Next
 
-[Pipeline charts](/docs/pipeline-charts/) draws numeric properties as charts you can put in a section, and [host overview](/docs/host-overview/) is a finished read-only summary for a login.
+- [Hosting dashboard](/docs/hosting/): a live dashboard for a .NET generic host.
+- [Charts from the pipeline](/docs/pipeline-charts/): numeric properties as charts you can put in a section.
+- [Host overview](/docs/host-overview/): a finished read-only summary for a login.

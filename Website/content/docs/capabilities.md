@@ -2,7 +2,7 @@
 title: Capability detection
 description: ConsoleMonster detects VT support, colour depth, the glyphs the font can draw, size, redirection, CI and the background, and records why.
 slug: capabilities
-order: 3
+order: 8
 group: start
 card: profile-detected
 apis: [TerminalProfile, Get-ConsoleCapability]
@@ -22,7 +22,7 @@ Detection runs once and produces a `TerminalProfile`: the output mode, the colou
 - **Glyph tier.** Full, Basic or ASCII. On conhost the console font is read to choose; in stream and CI output the tier is Basic. The tier changes only ConsoleMonster's own borders, markers and spinners; your text keeps its emoji and symbols on every tier.
 - **Size.** The visible window, not the screen buffer, so nothing is written past the window or into its bottom-right cell.
 - **Widths.** Display widths come from Unicode 17 tables, with emoji and ambiguous widths that can be overridden. A width probe reads the console screen buffer and never reads input.
-- **Links.** Clickable OSC 8 links for URLs and file paths in Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole; never in redirected, CI, stream or plain output, where a link prints its target after the text as `text (url)`. `CONSOLEMONSTER_HYPERLINKS` overrides it (see [Environment overrides](/docs/environment/#clickable-links)).
+- **Links.** Clickable OSC 8 links for URLs and file paths in Windows Terminal, VS Code, iTerm2, WezTerm, Kitty and Ghostty (outside tmux, screen and Zellij panes), VTE terminals and Konsole; never in redirected, CI, stream or plain output, where a link prints its target after the text as `text (url)`. `CONSOLEMONSTER_HYPERLINKS` overrides it (see [Environment overrides](/docs/environment/#clickable-links)).
 - **Background.** In conhost, `auto` reads the console background colour to choose the light or dark theme. Windows Terminal does not expose its colour scheme to console programs, so there `CONSOLEMONSTER_THEME=light` selects the light theme.
 
 {{< cm-frame id="profile-ci" script="false" caption="With `CI=true` and `NO_COLOR=1`: stream mode, no colour, Basic glyphs and no width probing." >}}
@@ -70,6 +70,8 @@ Terminal.Write(rule, TerminalProfile.Fixed(40, 10, ColorDepth.Ansi16, GlyphTier.
 
 In conhost, the console font is polled about once a second; a new face or size re-derives the glyph tier and the emoji and ambiguous widths. In Windows Terminal, widths are measured again after every resize, which also covers zooming with Ctrl+= and Ctrl+0. Print-once output reads the window size on every write, so output printed after a resize uses the new width.
 
-## Related
+## Next
 
-Every variable is listed in [environment overrides](/docs/environment/). For the light and dark choice see [themes](/docs/themes/), and for the output each host gets, [hosts, CI and transcripts](/guides/hosts-and-ci/).
+- [Environment overrides](/docs/environment/): every variable that pins a decision.
+- [Accessibility](/docs/accessibility/): screen readers, high contrast and reduced motion.
+- [Hosts and CI](/docs/hosts-and-ci/): what each host, CI system and transcript gets.

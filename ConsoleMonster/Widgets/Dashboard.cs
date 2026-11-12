@@ -43,7 +43,8 @@ namespace ConsoleMonster.Widgets {
         /// <summary>The key hints in the footer when <see cref="Footer"/> is not set (default: ctrl+c stop).</summary>
         public IList<KeyHint> FooterHints { get; } = new List<KeyHint> { new KeyHint("ctrl+c", Localization.WidgetLabels.Current.Stop) };
 
-        private bool HasFooter => !string.IsNullOrEmpty(Footer) || FooterHints.Count > 0;
+        // A stopped session's last frame keeps the footer text but not the key hints.
+        private bool HasFooter(RenderContext context) => !string.IsNullOrEmpty(Footer) || (FooterHints.Count > 0 && !context.FinalFrame);
 
         /// <summary>Whether the elapsed clock is shown in the header (default true).</summary>
         public bool ShowElapsed { get; set; } = true;
@@ -96,7 +97,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int chrome = 1 + (HasFooter ? 1 : 0);
+            int chrome = 1 + (HasFooter(context) ? 1 : 0);
             Size body = Content.Measure(constraints.Shrink(0, chrome + 1), context);
             int height = body.Height + chrome + 1;
             return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
@@ -108,7 +109,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             DrawHeader(region.Sub(0, 0, region.Width, 1), context);
-            bool footer = HasFooter && region.Height > 3;
+            bool footer = HasFooter(context) && region.Height > 3;
             int bodyHeight = region.Height - 2 - (footer ? 1 : 0);
             if (bodyHeight > 0) {
                 BodyForRegion().Render(region.Sub(0, 2, region.Width, bodyHeight), context);
@@ -135,7 +136,7 @@ namespace ConsoleMonster.Widgets {
         }
 
         private void DrawFooter(Region bar, RenderContext context) {
-            FooterBar footer = new FooterBar(FooterHints);
+            FooterBar footer = new FooterBar(context.FinalFrame ? null : FooterHints);
             if (!string.IsNullOrEmpty(Footer)) {
                 footer.Message = context.Markup(Footer!).Lines[0].WithBaseStyle(context.Style(ThemeToken.Muted));
             }

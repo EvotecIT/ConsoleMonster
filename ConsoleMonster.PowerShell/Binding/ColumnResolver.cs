@@ -28,7 +28,19 @@ namespace ConsoleMonster.PowerShell.Binding {
         /// <param name="options">Shape options.</param>
         /// <param name="view">The registered view that supplied the columns, or null.</param>
         /// <returns>Property names and calculated-property hashtables.</returns>
-        internal static object[] Resolve(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet, ShapeOptions options, out ConsoleViewRegistration? view) {
+        internal static object[] Resolve(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet, ShapeOptions options, out ConsoleViewRegistration? view) =>
+            Resolve(items, cmdlet, options, options.MaxFields, out view, out _);
+
+        /// <summary>The columns for a run of objects, with the field limit for objects listed by their own fields.</summary>
+        /// <param name="items">The objects.</param>
+        /// <param name="cmdlet">The calling cmdlet, or null.</param>
+        /// <param name="options">Shape options.</param>
+        /// <param name="maxFields">The most fields taken from the objects themselves.</param>
+        /// <param name="view">The registered view that supplied the columns, or null.</param>
+        /// <param name="omitted">Fields left out by that limit.</param>
+        /// <returns>Property names and calculated-property hashtables.</returns>
+        internal static object[] Resolve(IReadOnlyList<PSObject> items, PSCmdlet? cmdlet, ShapeOptions options, int maxFields, out ConsoleViewRegistration? view, out int omitted) {
+            omitted = 0;
             if (cmdlet != null) { ConsoleModuleViews.Discover(cmdlet); }
             view = null;
             List<PSObject> present = items.Where(item => item != null).ToList();
@@ -54,7 +66,7 @@ namespace ConsoleMonster.PowerShell.Binding {
             }
             object? prepared = ValueShaper.Prepare(first, options);
             if (prepared != null && !(prepared is PSObject) && ValueShaper.IsStructural(prepared)) {
-                columns.AddRange(FieldNames(present, options, Math.Max(options.MaxFields, 30)));
+                columns.AddRange(FieldNames(present, options, Math.Max(maxFields, 30), out omitted));
                 return columns.ToArray();
             }
             object[]? format = FormatViews.TableColumns(first, cmdlet);
@@ -71,12 +83,12 @@ namespace ConsoleMonster.PowerShell.Binding {
                 }
                 return columns.ToArray();
             }
-            columns.AddRange(FieldNames(present, options, options.MaxFields));
+            columns.AddRange(FieldNames(present, options, maxFields, out omitted));
             return columns.ToArray();
         }
 
         // The union of the fields of up to SampleSize objects, in order of first appearance, plumbing left out.
-        private static IEnumerable<string> FieldNames(IReadOnlyList<PSObject> items, ShapeOptions options, int max) {
+        private static IEnumerable<string> FieldNames(IReadOnlyList<PSObject> items, ShapeOptions options, int max, out int omitted) {
             List<string> names = new List<string>();
             int sampled = 0;
             foreach (PSObject item in items) {
@@ -93,7 +105,9 @@ namespace ConsoleMonster.PowerShell.Binding {
                     }
                 }
             }
-            return names.Take(Math.Max(1, max));
+            int taken = Math.Min(names.Count, Math.Max(1, max));
+            omitted = names.Count - taken;
+            return names.Take(taken);
         }
 
         /// <summary>A key that tells runs apart: consecutive objects with the same key share one table (Format-Table splits on type changes too).</summary>

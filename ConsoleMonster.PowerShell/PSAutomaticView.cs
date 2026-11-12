@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
             }
             ConsoleViewKind kind = ConsoleView.Decide(values, options);
             if (kind == ConsoleViewKind.Inspector && items.Count == 1) {
-                return PSFormatting.BuildList(items, property, null, false, 1, title, null, cmdlet);
+                return PSFormatting.BuildList(items, property, null, false, 1, title, null, cmdlet, summarizeNested: true);
             }
             if (kind == ConsoleViewKind.Table || kind == ConsoleViewKind.Cards || kind == ConsoleViewKind.Inspector) {
                 bool first = true;

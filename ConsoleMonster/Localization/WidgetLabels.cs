@@ -189,6 +189,9 @@ namespace ConsoleMonster.Localization {
         /// <summary>The dashboard footer hint for Ctrl+C.</summary>
         public string Stop { get; set; } = "stop";
 
+        /// <summary>The dashboard status after Ctrl+C stopped its run.</summary>
+        public string Stopped { get; set; } = "stopped";
+
         /// <summary>An inner exception heading.</summary>
         public string CausedBy { get; set; } = "Caused by";
 

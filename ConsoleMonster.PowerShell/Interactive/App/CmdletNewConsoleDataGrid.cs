@@ -11,8 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <code>Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid 'Inventory' -Height 18 }</code>
     /// </example>
     /// <example>
-    /// <para>List services with three columns</para>
-    /// <code>Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Services -InputObject (Get-Service) -Property Name, Status, StartType -Height 12 }</code>
+    /// <para>List processes with three columns</para>
+    /// <code>Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Processes -InputObject (Get-Process) -Property Name, Id, CPU -Height 12 }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDataGrid", DefaultParameterSetName = GridSet, HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledatagrid/")]
     [OutputType(typeof(DataGrid))]

@@ -1,7 +1,7 @@
 ---
 title: Large runs
 slug: large-runs
-order: 10
+order: 32
 description: Stream finished work into scrollback while a bounded dashboard keeps active items and problems visible.
 summary: Follow hundreds of checks, files or deployments without fitting every finished item on one screen.
 group: live
@@ -38,6 +38,15 @@ The larger previews below show 214 illustrative checks with eight active workers
 
 {{< cm-frame ids="large-run-120,large-run-60" >}}
 
+## Which run API?
+
+| | `Invoke-ConsoleRun`, `ConsoleRun.ForEachAsync` | `Start-ConsoleRun`, `LiveRun` |
+|---|---|---|
+| Who runs the work | ConsoleMonster runs your script block or async body for each item, with throttling, timeouts and retries | Your script or application schedules it; ConsoleMonster only monitors and never changes results |
+| Finished items | Stay on one screen as cells; failures are listed when the run ends | Print once into scrollback above a dashboard of bounded height |
+| Use it for | Running a script block over many items, one at a time or in parallel | Work already running elsewhere (jobs, worker threads, your own scheduler), or runs too long to keep on one screen |
+| Pages | [Live runs](/docs/live-runs/) | [Large runs](/docs/large-runs/) |
+
 ## Height, output and controls
 
 The header shows the progress bar, counts, elapsed time, smoothed ETA and throughput. Running rows show names, targets, phases and elapsed time. The next queued items and optional groups use spare height. Warnings and failures stay pinned. In a short terminal, groups disappear first, queued rows collapse to a count, and active rows collapse to the worker count.
@@ -50,6 +59,8 @@ Background workers can call `$run.Started($index, $phase)` and `$run.Finished($i
 
 `-InteractiveKeys` enables `p` to pause/resume completion lines, `f` to filter new log lines to problems, `g` to show/hide groups, and `?` for key help. Work and dashboard counts continue while the log is paused. Held lines flush on resume or completion. `-ShowTrend` adds a throughput sparkline when width permits. Without keyboard input these controls are omitted.
 
-## Related
+## Next
 
-For scheduling work directly, see [live runs](/docs/live-runs/). For building your own composition, see [live sessions](/docs/live-sessions/).
+- [Threads and concurrency](/docs/threads/): report from worker threads and runspaces safely.
+- [Live log tails](/docs/live-tails/): follow a file or event log beside a run.
+- [Live runs](/docs/live-runs/): let ConsoleMonster run the items for you.

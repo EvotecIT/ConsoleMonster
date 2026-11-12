@@ -20,6 +20,7 @@
 - `MarkdownConsole` reads GitHub READMEs: `> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]` alerts render with their title and a bar in the alert's colour, task items show `✓`/`○` (`[x]`/`[ ]` on ASCII) with checked items in the pass colour, and YAML front matter is no longer printed as a rule and heading. Markdown and frame exports show the same text.
 
 #### Fixed
+- With `Enable-ConsoleFormatting` in the profile, `pwsh -Command` and `powershell.exe -Command` returned exit code 0 after a failing script or native command, because the `Out-Default` shim reset `$?` after the command finished. The shim now hands the command's status back, so the exit code (and `$?` at an interactive prompt) matches a session without ConsoleMonster ([#155](https://github.com/EvotecIT/ConsoleMonster/issues/155)).
 - Re-adding an existing `Phases` step (the live `add` operation) changed it back to pending; it now changes only the label, so a running step can be retitled.
 - `Rows` measured a fraction row before the auto rows after it, so under a height limit a long step list took all the height and the rows below it got none. Fraction rows are now measured after the fixed and auto rows, as documented.
 - The step ledger separated details from times with ` · ` on every glyph tier; the ASCII tier now uses ` - `, like its other separators.
@@ -28,6 +29,11 @@
 - The Spectre.Console guide said `:emoji:` shortcodes are not supported; `Markup.Shortcodes = true` expands them.
 - Timed-out Windows recordings cancel a stuck output-pipe read before closing its handle, so cleanup can finalize the recording and report the session timeout. Queued output still drains before the reader finishes.
 - Theme checking and verdicts use only the cached terminal palette, without starting OSC probes. Invalid `BaseTheme` errors include `Terminal` among the accepted presets.
+- Light Unix terminals got the dark palette for tables, lists and charts because the background was only queried before keyboard input. With the automatic theme, output now asks an interactive terminal once (OSC 11 fenced by a device-attributes request, at most 250 ms), never when output is redirected, in CI, with colour off, with `COLORFGBG` or a chosen theme, or while keys are waiting. Keys typed during the query go back to the terminal for the shell; Linux kernels that refuse that (`dev.tty.legacy_tiocsti=0`) skip the query, and the answer from a later keyboard prompt is reused.
+- Kitty and Ghostty were detected as `Xterm` without clickable links. `TerminalKind` adds `Kitty`, `Ghostty` and `AppleTerminal`; Kitty and Ghostty get OSC 8 links, except in a tmux, screen or Zellij pane they started; Terminal.app keeps the text fallback.
+- An inline dashboard's final frame kept the `ctrl+c stop` hint, and one stopped with Ctrl+C looked unfinished. The frame left in the scrollback drops key hints, and a cancelled session's dashboard header says `stopped`.
+- `Show-Console -View Tree` showed `Name TableCell` for files and folders on macOS and Linux; the tree now shows the name.
+- The `New-ConsoleCollapsible`, `New-ConsoleAccordion` and `New-ConsoleDataGrid` help examples and the `Show-ConsoleMenu` error suggestion use `Get-Process` instead of the Windows-only `Get-Service`.
 - Words log markers omit the repeated level word. Adjacent identical composition fills have a one-cell gap, legends fit each column's labels, and cut flow edges show their failure indicator once.
 - Words markers no longer overwrite lane labels or adjacent calendar dates, and status cells omit a repeated status word. Running and Pending retain their own meanings in inferred status columns.
 - Comparison distributions keep block fills without tracks. Composition bars retain problem colours, and bars and legend swatches omit text decorations. Full Line bars keep the existing half-cell cap and rounding; ASCII keeps its previous fill calculation.

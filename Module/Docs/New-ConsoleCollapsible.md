@@ -23,10 +23,10 @@ A section is a focusable header row with its content below. Enter, Space, Left/R
 ```powershell
 Show-ConsoleApp -Content {
     New-ConsoleAccordion -Content {
-        New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
+        New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
         New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-            'Get-Service -Name win*'
-            'Get-Service | Where-Object Status -eq Running'
+            'Get-Process -Name pwsh'
+            'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
         }
     }
 }

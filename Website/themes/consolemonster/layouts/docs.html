@@ -23,18 +23,19 @@
       show_toc = toc_count >= 4 && text_size > 5000
       if page.meta.toc == true; show_toc = toc != ""; end
       if page.meta.toc == false; show_toc = false; end ~}}
-  {{~ ## Previous and next follow the documentation order, then the guides: the order of the sidebar. Items are appended
+  {{~ ## Previous and next follow the sidebar: the partial groups the pages (sb_sections, an include shares this scope),
+       and the pager walks those groups in the order the sidebar shows them, with the reference last. Items are appended
        in place: array.add copies the list each time, which reached the engine's iteration limit at about 45 pages. ## ~}}
-  {{~ seq = []; for m in ["docs", "guides"]; mt = pf.menu m; for it in mt.items
-        if it.url != "/docs/" && it.url != "/guides/"; seq[seq.size] = it; end
-        for ch in it.items; seq[seq.size] = ch; end
-      end; end
+  {{~ capture sidebar_html; include "docs-sidebar"; end
+      seq = []
+      for s in sb_sections; if s.id != "reference"; for it in s.items; seq[seq.size] = it; end; end; end
+      for s in sb_sections; if s.id == "reference"; for it in s.items; seq[seq.size] = it; end; end; end
       at = -1; for it in seq; if it.is_active; at = for.index; end; end
       prev = null; next = null
       if at > 0; prev = seq[at - 1]; end
       if at >= 0 && at < seq.size - 1; next = seq[at + 1]; end ~}}
   <div class="cm-wrap cm-docs{{ if !show_toc }} cm-docs--wide{{ end }}">
-    {{ include "docs-sidebar" }}
+    {{ sidebar_html }}
     <article class="cm-docs__article">
       <div class="cm-prose">
 {{ content }}

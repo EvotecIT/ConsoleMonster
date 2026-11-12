@@ -74,6 +74,15 @@ namespace ConsoleMonster.Canvas {
         /// <summary>Time since the session started.</summary>
         public TimeSpan Elapsed { get; }
 
+        // The frame a live session leaves behind when it stops: nothing reads keys any more, so key hints are left out.
+        internal bool FinalFrame { get; private set; }
+
+        internal RenderContext AsFinalFrame() {
+            RenderContext final = WithClock(_tick, Elapsed);
+            final.FinalFrame = true;
+            return final;
+        }
+
         /// <summary>The ellipsis for this glyph tier.</summary>
         public string Ellipsis => Glyphs.Get(Glyph.Ellipsis);
 

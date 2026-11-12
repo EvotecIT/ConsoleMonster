@@ -200,9 +200,10 @@ namespace ConsoleMonster.Live {
 
         private void RequestCancellation() => RequestCancellation(true);
 
-        private void RequestCancellation(bool stop) {
+        private void RequestCancellation(bool stop, bool interrupted = true) {
             lock (_lifecycle) {
                 if (_state >= 2) { return; }
+                if (interrupted) { _interrupted = true; }
                 if (stop) {
                     CloseAdmission();
                     Volatile.Write(ref _state, 2);
@@ -273,6 +274,7 @@ namespace ConsoleMonster.Live {
                 Attempt(() => RecordSlotSnapshots(true), fatal: RecordingRequired);
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;
+                if (drawn && _interrupted) { Attempt(MarkStopped); }
                 if (drawn) { Attempt(() => RenderFinal(finalState: true), fatal: true); }
                 Attempt(RestoreTerminal, fatal: true);
                 if (_taskbarUsed) {
@@ -289,7 +291,7 @@ namespace ConsoleMonster.Live {
                     // User rendering can resolve a profile, write a late block or request Snapshot. Keep it outside the
                     // physical output lock; ownership and the closing queue remain in place until the final flush ends.
                     if (summary != null) {
-                        Attempt(() => summaryFrame = FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed)), fatal: true);
+                        Attempt(() => summaryFrame = FrameComposer.RenderBlock(summary, _context.Profile.Width, _context.WithClock(FramesRendered, Elapsed).AsFinalFrame()), fatal: true);
                     }
                 }
                 lock (_outputGate) {
@@ -318,6 +320,23 @@ namespace ConsoleMonster.Live {
                     _outputStopped.TrySetResult(true);
                 }
             }
+        }
+
+        // A run stopped part-way must not leave a frame that looks like work in progress: the dashboard header says stopped.
+        private void MarkStopped() {
+            if (_context == null || !(FindDashboard(_root) is Widgets.Dashboard dashboard)) { return; }
+            dashboard.Status = Styling.StatusKind.Warn;
+            dashboard.Detail = Markup.Escape(_context.Labels.Stopped);
+        }
+
+        private static Widgets.Dashboard? FindDashboard(IWidget widget) {
+            if (widget is Widgets.Dashboard dashboard) { return dashboard; }
+            if (widget is IContainer container) {
+                foreach (IWidget child in container.Children) {
+                    if (FindDashboard(child) is Widgets.Dashboard found) { return found; }
+                }
+            }
+            return null;
         }
 
         private void Attempt(Action action, bool fatal = false) {

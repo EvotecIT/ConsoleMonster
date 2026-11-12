@@ -47,11 +47,18 @@ process {
     }
 }
 end {
+    # The host appends Out-Default to each command it runs and then reads $? (pwsh -Command turns it into the
+    # exit code). Upstream has finished here, so $? is still the caller's status, but every statement below
+    # resets it. Hand a failure back with an error that is neither shown nor recorded.
+    $cmSucceeded = $?
     try {
         if ($null -ne $cmDisplaySession) { . $cmDispatch ($cmDisplaySession.Complete()) }
         if ($null -ne $cmNativePipeline) { $cmNativePipeline.End() }
     } finally {
         if ($null -ne $cmDisplaySession) { $cmDisplaySession.Dispose() }
         if ($null -ne $cmNativePipeline) { $cmNativePipeline.Dispose() }
+    }
+    if (-not $cmSucceeded) {
+        Microsoft.PowerShell.Utility\Write-Error -Message 'The command before Out-Default failed.' -ErrorAction Ignore
     }
 }

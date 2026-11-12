@@ -102,6 +102,24 @@ $item | Show-Console -View Tree -Depth 1  -AsWidget | Export-ConsoleFrame -Forma
         $text | Should -Not -Match 'Extra\s+hidden'
     }
 
+    It 'shows file and folder names in the Unix file view tree' -Skip:$IsWindows {
+        $folder = Join-Path ([IO.Path]::GetTempPath()) ("cm-tree-" + [guid]::NewGuid().ToString('N'))
+        $null = New-Item -ItemType Directory -Path $folder
+        try {
+            Set-Content -LiteralPath (Join-Path $folder 'tree-file.txt') -Value 'x'
+            $text = Invoke-FormatChild -Script @"
+Get-Item -LiteralPath '$folder' | Show-Console -View Tree -Depth 1 -AsWidget | Export-ConsoleFrame -Format Text
+Get-Item -LiteralPath '$(Join-Path $folder 'tree-file.txt')' | Show-Console -View Tree -Depth 1 -AsWidget | Export-ConsoleFrame -Format Text
+"@
+            # The registered view's Name column returns a table cell; the tree shows the name, never the cell's members.
+            $text | Should -Match ('(?m)^' + [regex]::Escape((Split-Path $folder -Leaf)) + '\s*$') -Because $text
+            $text | Should -Match '(?m)^tree-file\.txt\s*$' -Because $text
+            $text | Should -Not -Match 'TableCell|Markup|HasValue|\[accent\]' -Because $text
+        } finally {
+            Remove-Item -LiteralPath $folder -Recurse -Force
+        }
+    }
+
     It 'does not evaluate calculated fields or unrelated getters when excluding members' {
         $text = Invoke-FormatChild -Script @'
 $script:reads = 0

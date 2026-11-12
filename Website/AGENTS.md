@@ -194,15 +194,21 @@ to run.
 ## Pages
 
 - `content/pages/`: home, widgets, tables, live, interactive, powershell, benchmarks, 404 and the two chrome pages.
-- `content/docs/` and `content/guides/`: reference topics and migration guides. Frames go in with the `cm-frame`
+- `content/docs/` and `content/guides/`: docs say what a feature does and its options; guides do one task from start to
+  finish, or move a reader from another tool. Docs groups and their `order` bands: `start` (Get started, 1-19), `build`
+  (Build output, 20-29), `live` (Live output, 30-39), `apps` (Applications, 40-49), `shells` (PowerShell, CI and hosts,
+  50-89), `reference` (90 and up); guides: `from` (Coming from another tool, 1-9) and `tasks` (Do a task, 10 and up).
+  Each page has a `group` and a unique `order` inside its group's band. The catalogues on `/docs/` and `/guides/` place
+  pages by `group`; the sidebar and the Previous/Next pager place them by `order`, because navigation items carry the
+  order but not the group, so a page whose order is outside its band shows up in the wrong sidebar section. Frames go in with the `cm-frame`
   shortcode, which reads `data/figures.json` (`id`, `ids` for several, `script="true"` to add the PowerShell that
   produced it).
 - A page that walks through a program has one **Try it** block (`cm-try` shortcode, `partials/try.html`): `ids` for
   one example or `scenarios="Label:id,id|Label:id"` for several (real scenarios only), `project` for the C# project
-  name. It shows the PowerShell | C# | C# fluent switch (PowerShell by default; the reader's choice is kept in `<html data-lang>` and guarded localStorage), the
+  name. It shows the PowerShell | C# | C# fluent switch (PowerShell by default, or the page's `lang: csharp` front matter for a C#-only page such as a Spectre.Console migration; once the reader picks a language, that choice wins, kept in `<html data-lang>` and guarded localStorage), the
   install line, the program with Copy and Download, a muted Run line and the output under the code. Pages follow
-  lead, Try it, how it works (quote the 3 to 8 lines that matter, never the whole program again), variations, related.
-  All three variants are present in the initial DOM: `<div class="cm-lang" data-lang="powershell">`, `csharp` and `fluent`, which
+  lead, Try it, how it works (quote the 3 to 8 lines that matter, never the whole program again), variations, then `## Next` with 2 to 4 links in reading order.
+  All three variants are present in the initial DOM: `<div class="cm-lang" data-lang="powershell">`, `csharp` and `csharp-fluent`, adjacent in that order, which
   site.js puts under one switch. Generate How it maps notes from the parity catalog; do not write separate mappings by hand. Fence `dotnet` commands (and the `cd` beside them) as `terminal` (labelled Terminal); a block that
   holds only a run command fails the render (`CodeGuard.Presentation`).
 - Example C# keeps lines within 100 columns (`tools/SiteFrames/Capture/SourceLayout.cs`): a long line breaks at its
@@ -218,7 +224,9 @@ to run.
   the template gets every page as `items`. Each page's front matter names its `group` (one of `docsCatalog.groups` in
   `data/copy.json`), a `summary`, `apis` (shown as code) and `chips` (topics), and a `card`: a figure or demo id whose
   miniature `tools/SiteFrames` (`Pages/DocCards.cs`) writes to `static/site/cards/` and lists in `data/visuals.json`. A
-  page without a known group or card fails the render. The guides index still takes its cards from `data/copy.json`.
+  page without a known group or card fails the render. The guides index (`layouts/guidesindex.html`, from the section
+  `content/guides/_index.md`) groups the guides the same way by `guidesCatalog.groups`, showing each guide's `summary`
+  or description. Each group's `from` in `data/copy.json` is the first order of its band in the sidebar.
   Quote a front matter value that contains `: `.
 
 ## Validation

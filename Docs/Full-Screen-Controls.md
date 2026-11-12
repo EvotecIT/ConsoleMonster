@@ -171,8 +171,8 @@ folds them all, and the footer lists both keys.
 
 ```powershell
 New-ConsoleAccordion -Content {
-    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
-    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content { 'Get-Service -Name win*' }
+    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
+    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content { 'Get-Process -Name pwsh' }
 }
 ```
 

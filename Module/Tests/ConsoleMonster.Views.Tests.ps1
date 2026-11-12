@@ -45,6 +45,18 @@
         ($text -split '== cards')[1] | Should -Match 'Count\s+1'
     }
 
+    It 'keeps every field of one record in the automatic view, nested objects as one summary line' {
+        # A GitHub release asset: fourteen fields in name order, so the nested uploader and the url come after the twelfth.
+        $text = Invoke-ViewChild -Script @'
+'{"browser_download_url":"https://example.test/b.zip","content_type":"application/zip","created_at":"2024-11-07T18:00:00Z","digest":"sha256:00","download_count":5,"id":200,"label":"","name":"b.zip","node_id":"RA_1","size":1024,"state":"uploaded","updated_at":"2024-11-07T18:00:00Z","uploader":{"login":"daxian-dbw","id":127450,"type":"User","site_admin":false},"url":"https://api.example.test/assets/200"}' | ConvertFrom-Json | Show-Console -Width 100
+'@
+        $text | Should -Match 'uploader\s+daxian-dbw \(127450\)\s+\+2 fields'
+        $text | Should -Match 'url\s+https://api\.example\.test/assets/200'
+        # The count sits at the key column, under the last field's key.
+        $text | Should -Match '(?m)^(\s+)url\s.*\n\1\+1 empty'
+        $text | Should -Not -Match '(?m)^\s+login\s'
+    }
+
     It 'leaves redirected output, pipelines and Out-String unchanged and Disable removes the Out-Default function' {
         $text = Invoke-ViewChild -Script @'
 $before = Get-Item $PSHOME | Out-String
