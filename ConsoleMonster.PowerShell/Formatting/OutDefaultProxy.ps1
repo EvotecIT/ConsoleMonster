@@ -12,4 +12,13 @@ begin {
     $cmPipeline.Begin($PSCmdlet)
 }
 process { $cmPipeline.Process($InputObject) }
-end { $cmPipeline.End() }
+end {
+    # The host appends Out-Default to each command it runs and then reads $? (pwsh -Command turns it into the
+    # exit code; prompts show it). Upstream has finished here, so $? is still the caller's status, but every
+    # statement in this block resets it. Hand a failure back with an error that is neither shown nor recorded.
+    $cmSucceeded = $?
+    $cmPipeline.End()
+    if (-not $cmSucceeded) {
+        Microsoft.PowerShell.Utility\Write-Error -Message 'The command before Out-Default failed.' -ErrorAction Ignore
+    }
+}
