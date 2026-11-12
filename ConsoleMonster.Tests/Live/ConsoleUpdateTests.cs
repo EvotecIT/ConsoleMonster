@@ -31,6 +31,8 @@ namespace ConsoleMonster.Tests.Live {
                     session.Region("slot").Set(phases);
                 }
                 handle.Item("migrate", "alice", StatusKind.Running, "40%");
+                session.Post(new LiveEvent("phases", "insert", "verify", "Verify"));
+                handle.Item("verify", "carol", StatusKind.Pending);
                 long accepted = session.EventsPosted;
                 Assert.Equal(0, session.EventsApplied);
                 var error = Assert.Throws<ConsoleUpdateException>(() => handle.Item("unknown", "bob", StatusKind.Pass));

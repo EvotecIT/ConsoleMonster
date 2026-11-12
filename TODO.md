@@ -16,20 +16,19 @@ The review's high findings and M1-M4, M6 and M7 were fixed. Recheck these histor
   bounded sample, then render and emit in bands; or cap rows with a warning.
 - L1: the width re-probe after a resize or font change overwrites explicit `CONSOLEMONSTER_*_WIDTH` values and skips
   the ambiguous-width glyph downgrade; route it through the same method as the start-up probe.
-- L2: detection enables VT processing on stdout and never restores the mode the module found.
 - L3: live sessions without an explicit culture use the render thread's culture; capture the caller's culture and add
   `Invoke-ConsoleDashboard -Culture`.
-- L5: with `-Parallel`, host writes from the main runspace draw over the live frame; without `-Parallel`, piped input
-  is ignored silently.
-- L6: unbounded buffers (the live queue, the capture writer's partial line, runspace stream collections, dashboard
-  output, log entry length); cap them or document the limits.
+- L5: with `-Parallel`, host writes made by upstream pipeline commands in the main runspace still reach the host
+  directly and draw over the live frame (writes that go through `HostOutput` or `LiveSession.WriteOutside` no longer
+  do); without `-Parallel`, piped input is ignored silently.
+- `HostQueueWriter` (stream-mode dashboards outside a console) queues lines for the pipeline thread without a limit.
 - L7: `TreeNode.Add` accepts cycles and `Tree` recurses into them (stack overflow).
 - L8: `Table.Distribute` shrinks one cell per pass; subtract the needed amount in one step.
 - L9: `TextWrapper.Truncate` measures the ellipsis with the default width profile instead of the given one.
 - L10: a custom glyph set with empty spinner frames divides by zero; `CellBuffer` width times height is unchecked;
   tabs in cell text are dropped.
 - L11: calculated-property errors (`BoundColumn.LastError`) are never shown; warn once per failing column.
-- Rows measures auto-sized children without a height limit but lays them out with the remaining height, so a log region with fewer entries than `PreferredHeight` takes extra blank rows in print-once layouts (live dashboards rely on the stable height).
+- A log region with fewer entries than `PreferredHeight` still takes `PreferredHeight` rows in bounded layouts unless `FitToEntries` is set; decide whether print-once layouts should fit by default (live dashboards rely on the stable height).
 - L13: brace-less bodies in `Binding/PSObjectMemberSource.cs` and `Binding/PropertyBinder.cs`; three-part
   `COLORFGBG` values are rejected.
 

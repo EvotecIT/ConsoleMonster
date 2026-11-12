@@ -29130,6 +29130,14 @@
     },
     {
       "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
+      "Member": "MaxQueuedEvents",
+      "CSharpTypeName": "System.Int32",
+      "Reason": "Native hosts can tune how many updates may wait for a blocked render thread. PowerShell commands keep the session default of 1,000,000 queued updates, far beyond any normal run.",
+      "Alternative": "Keep the default; a native host that posts unusual volumes sets LiveSessionOptions.MaxQueuedEvents, or 0 for no limit.",
+      "Disposition": "CSharpOnly"
+    },
+    {
+      "CSharpType": "ConsoleMonster.Live.LiveSessionOptions",
       "Member": "StopTimeout",
       "CSharpTypeName": "System.TimeSpan",
       "Reason": "Native hosts set the render-thread join timeout. PowerShell commands retain the session's bounded two-second stop wait and own their finally/disposal path.",

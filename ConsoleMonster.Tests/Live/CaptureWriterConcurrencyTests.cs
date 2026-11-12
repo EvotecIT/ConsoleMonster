@@ -25,6 +25,20 @@ namespace ConsoleMonster.Tests.Live {
             }
         }
 
+        // A producer that never ends its line (a progress bar redrawn with backspaces, binary output) is written in
+        // bounded pieces; no text is lost and a surrogate pair is never split.
+        [Fact]
+        public void AnUnfinishedLine_IsWrittenInBoundedPiecesWithoutLosingText() {
+            ConcurrentQueue<string> lines = new ConcurrentQueue<string>();
+            CaptureWriter writer = new CaptureWriter(lines.Enqueue, TextWriter.Null);
+            string text = new string('a', CaptureWriter.MaxPartialLine - 1) + "\U0001F600" + new string('b', CaptureWriter.MaxPartialLine + 10);
+            writer.Write(text);
+            Assert.All(lines, line => Assert.InRange(line.Length, 1, CaptureWriter.MaxPartialLine + 1));
+            Assert.Equal(2, lines.Count);
+            writer.Complete();
+            Assert.Equal(text, string.Concat(lines));
+            Assert.All(lines, line => Assert.False(char.IsHighSurrogate(line[line.Length - 1])));
+        }
         [Fact]
         public async Task Complete_FlushesEveryProducerTailExactlyOnce() {
             ConcurrentQueue<string> lines = new ConcurrentQueue<string>();

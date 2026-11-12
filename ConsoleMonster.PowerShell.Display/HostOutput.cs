@@ -7,14 +7,16 @@ using System.Reflection;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
+using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
-namespace ConsoleMonster.PowerShell {
+namespace ConsoleMonster.PowerShell.Display {
     /// <summary>
-    /// Where cmdlet output goes. On a real local interactive console it is drawn directly (colour, live dashboards).
-    /// Everywhere else (background and thread jobs, remoting, SSH, the ISE, redirected output, an active transcript) it is
-    /// written through the host on the pipeline thread, with cell colours mapped to the 16 console colours:
+    /// Writes ConsoleMonster output for a compiled cmdlet, choosing the route by the cmdlet's host. On a real local
+    /// interactive console it is drawn directly (colour, live dashboards). Everywhere else (background and thread jobs,
+    /// remoting, SSH, the ISE, redirected output, an active transcript) it is written through the host on the pipeline
+    /// thread, with cell colours mapped to the 16 console colours:
     /// <list type="bullet">
     /// <item>A real console with a transcript running, and the ISE: coloured runs through Host.UI.Write(foreground,
     /// background, text) and WriteLine; the transcript receives the same line as plain text.</item>
@@ -24,10 +26,52 @@ namespace ConsoleMonster.PowerShell {
     /// redirected files, transcripts and <c>6&gt;&amp;1</c> get whole lines.</item>
     /// </list>
     /// Like Write-Host, assigning the output to a variable captures nothing. NO_COLOR, CONSOLEMONSTER_COLOR=none and plain
-    /// mode use the plain route everywhere.
+    /// mode use the plain route everywhere. While a <see cref="LiveSession"/> draws on the console, host writes run through
+    /// <see cref="LiveSession.WriteOutside"/>, so they land above the live area instead of under it; direct writes go above
+    /// the area through the session. The ConsoleMonster module uses this class for its own commands. Call it on the
+    /// cmdlet's pipeline thread (from BeginProcessing, ProcessRecord or EndProcessing), as for any host write.
     /// </summary>
-    internal static class HostOutput {
+    public static class HostOutput {
         private static readonly string[] HostTags = { "PSHOST" };
+
+        /// <summary>Writes a widget once, through the route the cmdlet's host needs.</summary>
+        /// <param name="cmdlet">The calling cmdlet.</param>
+        /// <param name="widget">The widget.</param>
+        /// <param name="width">The width in cells, or 0 for the console or host width.</param>
+        /// <param name="theme">A theme, or null for the active terminal theme.</param>
+        public static void Write(PSCmdlet cmdlet, IWidget widget, int width = 0, ITheme? theme = null) {
+            if (cmdlet == null) { throw new ArgumentNullException(nameof(cmdlet)); }
+            if (widget == null) { throw new ArgumentNullException(nameof(widget)); }
+            TerminalProfile p = Terminal.GetCurrentProfile();
+            Write(cmdlet, widget, width > 0 ? p.WithSize(width, p.Height) : p, width > 0, theme);
+        }
+
+        /// <summary>
+        /// Runs host writes the cmdlet makes itself, such as <c>WriteWarning</c>, <c>WriteVerbose</c>,
+        /// <c>WriteInformation</c> or a <c>ShouldContinue</c> prompt, clear of a live area that is drawing on the console:
+        /// the area is cleared, <paramref name="write"/> runs synchronously (it may wait for an answer as long as it needs),
+        /// and the area comes back below what it wrote. Without a live session, or when the host does not write to this
+        /// console (jobs, remoting), it just runs <paramref name="write"/>.
+        /// </summary>
+        /// <param name="cmdlet">The calling cmdlet.</param>
+        /// <param name="write">The host writes.</param>
+        public static void Run(PSCmdlet cmdlet, Action write) {
+            if (cmdlet == null) { throw new ArgumentNullException(nameof(cmdlet)); }
+            if (write == null) { throw new ArgumentNullException(nameof(write)); }
+            Through(cmdlet, write);
+        }
+
+        /// <summary>
+        /// Whether a live session can draw on the console for this cmdlet: a local console host, interactive output that is
+        /// not redirected and no transcript. When false, write progress as lines (or a final summary) instead.
+        /// </summary>
+        /// <param name="cmdlet">The calling cmdlet.</param>
+        /// <returns>True when a live view can be shown.</returns>
+        public static bool CanRenderLive(PSCmdlet cmdlet) {
+            if (cmdlet == null) { throw new ArgumentNullException(nameof(cmdlet)); }
+            TerminalProfile profile = Terminal.GetCurrentProfile();
+            return profile.Mode == OutputMode.Interactive && Terminal.IsConsole(Terminal.Target) && !UseHost(cmdlet, profile);
+        }
 
         /// <summary>Writes a widget once for a cmdlet.</summary>
         /// <param name="cmdlet">The calling cmdlet (its pipeline thread writes host output).</param>
@@ -46,11 +90,25 @@ namespace ConsoleMonster.PowerShell {
             RenderContext context = Terminal.CreateContext(host, theme);
             ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
-            foreach (CellBuffer block in Terminal.RenderChunks(widget, host.Width, context)) {
-                for (int y = 0; y < block.Height; y++) {
-                    CollectRow(block, y, colors, segments);
-                    EmitLine(cmdlet, route, segments);
+            Through(cmdlet, () => {
+                foreach (CellBuffer block in Terminal.RenderChunks(widget, host.Width, context)) {
+                    for (int y = 0; y < block.Height; y++) {
+                        CollectRow(block, y, colors, segments);
+                        EmitLine(cmdlet, route, segments);
+                    }
                 }
+            });
+        }
+
+        // Host writes from a console host reach the console a live session may be drawing on; clear that session's area for
+        // them (the console owner, not the most recent session, which may draw on another target). Other hosts (jobs,
+        // remoting, dashboard runspaces) never write to this console.
+        private static void Through(PSCmdlet cmdlet, Action write) {
+            LiveSession? session = string.Equals(cmdlet.Host?.Name, "ConsoleHost", StringComparison.Ordinal) ? Terminal.ConsoleOwner : null;
+            if (session == null) {
+                write();
+            } else {
+                session.WriteOutside(write);
             }
         }
 
@@ -90,11 +148,13 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        /// <summary>Writes one line of markup for a cmdlet.</summary>
+        /// <summary>Writes markup (one line, or several separated by newlines) through the route the cmdlet's host needs.</summary>
         /// <param name="cmdlet">The calling cmdlet.</param>
         /// <param name="markup">The markup.</param>
         /// <param name="newLine">Whether to end the last line (false: -NoNewline).</param>
-        internal static void WriteMarkup(PSCmdlet cmdlet, string markup, bool newLine = true) {
+        public static void WriteMarkup(PSCmdlet cmdlet, string markup, bool newLine = true) {
+            if (cmdlet == null) { throw new ArgumentNullException(nameof(cmdlet)); }
+            if (markup == null) { throw new ArgumentNullException(nameof(markup)); }
             TerminalProfile p = Terminal.GetCurrentProfile();
             if (!UseHost(cmdlet, p)) {
                 Terminal.WriteMarkup(markup, newLine, p, null);
@@ -106,16 +166,18 @@ namespace ConsoleMonster.PowerShell {
             ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             List<Segment> segments = new List<Segment>();
             IReadOnlyList<StyledLine> lines = context.Markup(markup).Lines;
-            for (int i = 0; i < lines.Count; i++) {
-                segments.Clear();
-                foreach (TextSpan span in lines[i]) {
-                    string text = Clean(span.Text);
-                    if (text.Length > 0) {
-                        segments.Add(new Segment(text, colors.Foreground(span.Style.Color), colors.Background(span.Style.BackgroundColor)));
+            Through(cmdlet, () => {
+                for (int i = 0; i < lines.Count; i++) {
+                    segments.Clear();
+                    foreach (TextSpan span in lines[i]) {
+                        string text = Clean(span.Text);
+                        if (text.Length > 0) {
+                            segments.Add(new Segment(text, colors.Foreground(span.Style.Color), colors.Background(span.Style.BackgroundColor)));
+                        }
                     }
+                    EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
                 }
-                EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
-            }
+            });
         }
 
         /// <summary>
@@ -141,10 +203,12 @@ namespace ConsoleMonster.PowerShell {
             ConsoleColorMap colors = new ConsoleColorMap(context, route != HostRoute.Plain);
             IReadOnlyList<StyledLine> lines = build(context, host.Width);
             List<Segment> segments = new List<Segment>();
-            for (int i = 0; i < lines.Count; i++) {
-                CollectSpans(lines[i], colors, segments);
-                EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
-            }
+            Through(cmdlet, () => {
+                for (int i = 0; i < lines.Count; i++) {
+                    CollectSpans(lines[i], colors, segments);
+                    EmitLine(cmdlet, route, segments, i < lines.Count - 1 || newLine);
+                }
+            });
         }
 
         // Spans whose colours map to the same console colours become one segment; spaces join the current run.
@@ -233,6 +297,10 @@ namespace ConsoleMonster.PowerShell {
         /// <param name="line">The line.</param>
         /// <param name="endLine">Whether the line ends (false leaves it open, like -NoNewline).</param>
         internal static void WriteHostLine(PSCmdlet cmdlet, string line, bool endLine = true) {
+            Through(cmdlet, () => WriteHostRecord(cmdlet, line, endLine));
+        }
+
+        private static void WriteHostRecord(PSCmdlet cmdlet, string line, bool endLine) {
             cmdlet.WriteInformation(new HostInformationMessage { Message = line, NoNewLine = !endLine }, HostTags);
             Transcribe(cmdlet, line);
         }
@@ -277,7 +345,7 @@ namespace ConsoleMonster.PowerShell {
                     foreach (Segment segment in segments) {
                         line.Append(segment.Text);
                     }
-                    WriteHostLine(cmdlet, line.ToString(), endLine);
+                    WriteHostRecord(cmdlet, line.ToString(), endLine);
                     break;
             }
         }
@@ -316,7 +384,7 @@ namespace ConsoleMonster.PowerShell {
         // One line as coloured segments, as Write-Host -ForegroundColor -NoNewline writes them; the last segment ends the line.
         private static void WriteSegments(PSCmdlet cmdlet, List<Segment> segments, bool endLine = true) {
             if (segments.Count == 0) {
-                WriteHostLine(cmdlet, string.Empty, endLine);
+                WriteHostRecord(cmdlet, string.Empty, endLine);
                 return;
             }
             System.Text.StringBuilder line = new System.Text.StringBuilder();

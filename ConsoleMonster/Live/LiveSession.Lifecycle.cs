@@ -259,7 +259,7 @@ namespace ConsoleMonster.Live {
                 while (Volatile.Read(ref _admission) != int.MinValue) { producers.SpinOnce(); }
                 Attempt(RestoreCapture, fatal: true);
                 // A failed event must not abandon later accepted events or their flush waiters during shutdown.
-                while (_queue.TryDequeue(out LiveEvent? pending)) { Attempt(() => ApplyOne(pending), fatal: true); }
+                while (TryDequeue(out LiveEvent pending)) { Attempt(() => ApplyOne(pending), fatal: true); }
                 Attempt(() => RecordSlotSnapshots(true), fatal: RecordingRequired);
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;

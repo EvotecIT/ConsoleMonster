@@ -6,7 +6,7 @@
     <!-- The display ABI epoch is an explicit assembly attribute, independent of package-version overrides. -->
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>Optional type-scoped, runspace-owned default display adapter for ConsoleMonster.</Description>
+    <Description>ConsoleMonster for compiled PowerShell modules: host-aware output from cmdlets (console, transcript, ISE, jobs, remoting, live sessions) and an optional runspace-owned default display adapter.</Description>
     <Title>ConsoleMonster.PowerShell.Display</Title>
     <PackageId>ConsoleMonster.PowerShell.Display</PackageId>
     <PackageTags>console;terminal;powershell;formatting;display;consolemonster</PackageTags>

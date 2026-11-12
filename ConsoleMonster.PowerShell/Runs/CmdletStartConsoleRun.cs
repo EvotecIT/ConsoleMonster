@@ -5,6 +5,7 @@ using System.Management.Automation;
 using ConsoleMonster.Live;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Rendering;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Starts a bounded run dashboard for work scheduled by your script.</summary>

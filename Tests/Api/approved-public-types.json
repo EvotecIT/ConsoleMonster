@@ -829,6 +829,7 @@
     "ConsoleMonster.PowerShell.Display.DefaultDisplaySource",
     "ConsoleMonster.PowerShell.Display.DefaultDisplayStream",
     "ConsoleMonster.PowerShell.Display.DefaultDisplayStreaming",
+    "ConsoleMonster.PowerShell.Display.HostOutput",
     "ConsoleMonster.PowerShell.Display.IDefaultDisplayNativeSink",
     "ConsoleMonster.PowerShell.Display.ModuleLease"
   ],

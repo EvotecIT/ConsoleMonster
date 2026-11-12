@@ -31,6 +31,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Rows requested when measured without a height limit (default 8).</summary>
         public int PreferredHeight { get; set; } = 8;
 
+        /// <summary>
+        /// Takes only the rows its newest entries need, up to <see cref="PreferredHeight"/>, under a height limit too, and
+        /// no rows while it is empty, so a message area in an inline live view appears and grows as messages arrive. Off by
+        /// default: a dashboard keeps a stable <see cref="PreferredHeight"/> (and an empty log panel keeps a blank row).
+        /// </summary>
+        public bool FitToEntries { get; set; }
+
         /// <summary>Whether entries show their session time (default true).</summary>
         public bool ShowElapsed { get; set; } = true;
 
@@ -112,8 +119,21 @@ namespace ConsoleMonster.Widgets {
 
         internal void WriteLiteral(string text, string level, TimeSpan time, DateTimeOffset? timestamp, string? tag) {
             foreach (string line in (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
-                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    "), timestamp, tag));
+                Append(new LogEntry(time, Level(level ?? "info"), Limit(line.Replace("\t", "    ")), timestamp, tag));
             }
+        }
+
+        /// <summary>
+        /// The most characters a literal entry keeps (16,384). A longer line ends with an ellipsis: no row can show it, and
+        /// <see cref="Capacity"/> bounds the number of entries, not their size.
+        /// </summary>
+        public const int MaxLineLength = 16384;
+
+        private static string Limit(string line) {
+            if (line.Length <= MaxLineLength) { return line; }
+            int keep = MaxLineLength - 1;
+            if (char.IsHighSurrogate(line[keep - 1])) { keep--; }
+            return line.Substring(0, keep) + "\u2026";
         }
 
         /// <summary>Appends rich text as separate lines, preserving styles across line breaks. Malformed markup is literal.</summary>
@@ -133,11 +153,76 @@ namespace ConsoleMonster.Widgets {
                 WriteLiteral(literal.ToString(), level, time, null, tag);
                 return;
             }
+            string limited = LimitMarkup(markup, Math.Max(1, Capacity));
+            if (!ReferenceEquals(limited, markup)) {
+                if (!Markup.Validate(limited, out _)) {
+                    // A cut that leaves a tag without its text (an implicit link) keeps the lines as literal text instead.
+                    WriteLiteral(Markup.Strip(markup), level, time, null, tag);
+                    return;
+                }
+                text = RichText.FromMarkup(limited);
+                markup = limited;
+            }
             string[] lines = Markup.Strip(markup).Split('\n');
             for (int i = 0; i < lines.Length; i++) {
                 // Keep one complete source: the parser must resolve spanning tags and implicit links before slicing.
                 Append(new LogEntry(time, Level(level ?? "info"), text, lines[i], i, string.IsNullOrWhiteSpace(tag) ? null : tag!.Trim()));
             }
+        }
+
+        // Every line of a rich write keeps the one shared source, so bound that source as literal entries are bounded: a line
+        // longer than MaxLineLength ends with an ellipsis, and lines this write pushes out of Capacity keep no text. Tags
+        // and line breaks are all kept, so styles and line indexes stay as they were. Returns the markup itself when
+        // nothing is cut.
+        private static string LimitMarkup(string markup, int capacity) {
+            List<int> lengths = new List<int>();
+            ScanMarkup(markup, null, lengths, 0);
+            int first = Math.Max(0, lengths.Count - capacity);
+            if (first == 0 && lengths.TrueForAll(length => length <= MaxLineLength)) { return markup; }
+            System.Text.StringBuilder output = new System.Text.StringBuilder();
+            ScanMarkup(markup, output, lengths, first);
+            return output.ToString();
+        }
+
+        // Walks valid markup. Without output it records each line's length; with output it copies tags and line breaks,
+        // drops the text of lines before 'first' and cuts lines longer than MaxLineLength.
+        private static void ScanMarkup(string markup, System.Text.StringBuilder? output, List<int> lengths, int first) {
+            int line = 0;
+            int count = 0;
+            bool cut = false;
+            for (int i = 0; i < markup.Length; i++) {
+                char c = markup[i];
+                if (c == '[' && i + 1 < markup.Length && markup[i + 1] != '[') {
+                    int close = markup.IndexOf(']', i);
+                    if (close > i) {
+                        output?.Append(markup, i, close - i + 1);
+                        i = close;
+                        continue;
+                    }
+                }
+                if (c == '\r' || c == '\n') {
+                    if (c == '\r' && i + 1 < markup.Length && markup[i + 1] == '\n') { i++; }
+                    if (output == null) { lengths.Add(count); } else { output.Append('\n'); }
+                    line++;
+                    count = 0;
+                    cut = false;
+                    continue;
+                }
+                bool escaped = (c == '[' || c == ']') && i + 1 < markup.Length && markup[i + 1] == c;
+                int units = escaped || (char.IsHighSurrogate(c) && i + 1 < markup.Length && char.IsLowSurrogate(markup[i + 1])) ? 2 : 1;
+                int cells = escaped ? 1 : c == '\t' ? 4 : units;
+                if (output != null && line >= first) {
+                    if (lengths[line] <= MaxLineLength || count + cells <= MaxLineLength - 1) {
+                        output.Append(markup, i, units);
+                    } else if (!cut) {
+                        output.Append('…');
+                        cut = true;
+                    }
+                }
+                count += cells;
+                i += units - 1;
+            }
+            if (output == null) { lengths.Add(count); }
         }
 
         private void Append(LogEntry entry) {
@@ -207,8 +292,13 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int height = constraints.IsHeightUnbounded ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : Math.Min(PreferredHeight, constraints.MaxHeight);
-            return new Size(constraints.MaxWidth, Math.Max(1, height));
+            // A log that fits its entries takes no rows while it has nothing to show, so an empty message area holds no blank line.
+            if (FitToEntries && VisibleEntries().Length == 0) {
+                return new Size(constraints.MaxWidth, 0);
+            }
+            int height = constraints.IsHeightUnbounded || FitToEntries ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : PreferredHeight;
+            height = Math.Max(1, height);
+            return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         // Rows the newest entries need without a height limit: one each, or their wrapped rows when Wrap is on.

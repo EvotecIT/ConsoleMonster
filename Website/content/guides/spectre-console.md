@@ -30,7 +30,8 @@ Keep your inventory collection and application logic, then replace the rendering
 | `Grid`, `Columns`, `Rows` | `ConsoleMonster.Layout.LayoutGrid`, `Columns`, `Rows` | Grid layout is distinct from the interactive grid. |
 | `Layout` | `Dashboard`, `Rows`, `Columns`, `RegionWidget` | Compose the layout explicitly; no named split-tree API clone. |
 | `Calendar` | `ConsoleMonster.Widgets.Calendar` | Month and year views with dated outcomes, culture-aware labels and ISO weeks. See the [operations calendar](/demos/operations-calendar/). |
-| Emoji shortcodes, `Spectre.Console.Cli` | No direct equivalent | Use literal Unicode for emoji; keep a separate command-line parser. |
+| Emoji shortcodes | `Markup.Shortcodes = true`, `Shortcodes.Replace` | Off by default, so colons in data stay literal; `Shortcodes.Register` adds names. |
+| `Spectre.Console.Cli` | No direct equivalent | Keep a separate command-line parser, such as System.CommandLine. |
 
 </div>
 
@@ -73,7 +74,7 @@ Terminal.Write(new Logo("Ops"));
 </div>
 </div>
 
-`Logo` is an alternative heading style, not a Figlet font interpreter. ConsoleMonster supports `[[`/`]]`, nested tags, hex/rgb colors and theme roles. Unknown tags are lenient by default; set `Markup.Strict = true` for exceptions or use `Markup.Validate`. `:emoji:` shortcodes are not expanded. OSC 8 links depend on terminal support.
+`Logo` is an alternative heading style, not a Figlet font interpreter. ConsoleMonster supports `[[`/`]]`, nested tags, hex/rgb colors and theme roles. Unknown tags are lenient by default; set `Markup.Strict = true` for exceptions or use `Markup.Validate`. `:emoji:` shortcodes are expanded only after `Markup.Shortcodes = true`, so colons in collected data stay literal. OSC 8 links depend on terminal support.
 
 ## 2. A table, a panel and a tree
 

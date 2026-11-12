@@ -10,6 +10,7 @@ using ConsoleMonster.PowerShell.Binding;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Values;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Options for building tables (PSFormatting.BuildTable and BuildTables) beyond the columns.</summary>

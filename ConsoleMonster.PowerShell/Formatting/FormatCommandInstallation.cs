@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
@@ -79,7 +78,7 @@ namespace ConsoleMonster.PowerShell {
         private static FormatCommandInstallation InstallCommands(PSCmdlet cmdlet, string[] names, string resource, Func<string, CommandInfo> resolve) {
             FormatCommandInstallation installation = new FormatCommandInstallation(cmdlet.SessionState, cmdlet.MyInvocation.MyCommand.Module);
             try {
-                string body = ReadResource(resource);
+                string body = PSScriptResources.Read(resource);
                 foreach (string name in names) {
                     ScriptBlock? existing = GlobalFunction(cmdlet.SessionState, name);
                     installation._saved.Add(name, existing);
@@ -95,12 +94,6 @@ namespace ConsoleMonster.PowerShell {
                 installation.Restore();
                 throw;
             }
-        }
-
-        internal static string ReadResource(string resource) {
-            using (Stream stream = typeof(FormatCommandInstallation).Assembly.GetManifestResourceStream("ConsoleMonster.PowerShell." + resource)
-                ?? throw new InvalidOperationException("The native command resource is missing: " + resource))
-            using (StreamReader reader = new StreamReader(stream)) { return reader.ReadToEnd(); }
         }
 
         internal static void RemoveHelp(FormattingSessionState state) {

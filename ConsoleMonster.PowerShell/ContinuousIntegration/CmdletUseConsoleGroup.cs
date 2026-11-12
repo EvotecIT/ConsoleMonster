@@ -1,5 +1,6 @@
 using System;
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a script inside a collapsible CI log group or beneath a muted terminal heading.</summary>

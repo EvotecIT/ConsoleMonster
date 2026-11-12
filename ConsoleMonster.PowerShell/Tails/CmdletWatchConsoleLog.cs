@@ -5,6 +5,7 @@ using System.Threading;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Live.Tails;
 using ConsoleMonster.Output;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Follows a log file or a local Windows event log with a live, scrollable log view.</summary>

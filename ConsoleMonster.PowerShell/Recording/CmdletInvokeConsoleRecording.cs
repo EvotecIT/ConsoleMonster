@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using System.Text;
+using System.Text.RegularExpressions;
 using ConsoleMonster.Export;
 using ConsoleMonster.Sessions;
 
@@ -72,7 +73,10 @@ namespace ConsoleMonster.PowerShell {
             } else {
                 string executable = System.IO.Path.GetFileNameWithoutExtension(options.Shell!);
                 if (!executable.Equals("pwsh", StringComparison.OrdinalIgnoreCase) && !executable.Equals("powershell", StringComparison.OrdinalIgnoreCase)) { throw new ArgumentException("Invoke-ConsoleRecording requires a PowerShell shell. Use Invoke-ConsoleRecording -Interactive for other shells."); }
-                string script = "$ErrorActionPreference = 'Stop'; Import-Module '" + ModuleImportPath.Replace("'", "''") + "'; & {\n" + ScriptBlock + "\n}";
+                // EncodedCommand has no separate argument channel. Keep the source in its original child scope,
+                // and replace both tokens in one pass so inserted paths/source cannot become template tokens.
+                string script = Regex.Replace(PSScriptResources.Read("Recording.RecordScript.ps1"), "__CONSOLE_RECORDING_(MODULE_PATH|SOURCE)__",
+                    match => match.Groups[1].Value == "MODULE_PATH" ? "'" + ModuleImportPath.Replace("'", "''") + "'" : ScriptBlock.ToString());
                 options.Arguments.Add("-NoLogo"); options.Arguments.Add("-NoProfile"); options.Arguments.Add("-EncodedCommand");
                 options.Arguments.Add(Convert.ToBase64String(Encoding.Unicode.GetBytes(script)));
                 cast = Run(options, false);

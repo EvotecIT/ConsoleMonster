@@ -4,6 +4,7 @@ using System.Management.Automation;
 using System.Management.Automation.Host;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>

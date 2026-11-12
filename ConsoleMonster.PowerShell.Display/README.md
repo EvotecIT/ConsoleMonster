@@ -1,5 +1,19 @@
-# Optional PowerShell default display
+# ConsoleMonster for compiled PowerShell modules
 
+`ConsoleMonster.PowerShell.Display` serves binary PowerShell modules that use ConsoleMonster without importing the ConsoleMonster command module. It holds two things: `HostOutput`, which writes ConsoleMonster output from a compiled cmdlet through the route its host needs, and an optional runspace-owned default display broker.
+
+## Host output from a cmdlet
+
+```csharp
+HostOutput.Write(this, table);                                   // a widget
+HostOutput.WriteMarkup(this, "[pass]Build finished[/] in 16s");  // markup
+HostOutput.Run(this, () => WriteWarning("Two analyzers were skipped."));
+if (HostOutput.CanRenderLive(this)) { /* start a LiveSession */ }
+```
+
+A real local console is drawn directly with colour. An active transcript and the ISE get coloured `Host.UI` writes and the transcript records the plain line; jobs and remoting get `PSHOST`-tagged information records with colours; redirected output and other hosts get one plain line per row. While a `LiveSession` draws on the console, every host write goes through `LiveSession.WriteOutside`, so it lands above the live area, and `Run` does the same for the cmdlet's own `WriteWarning`, `WriteVerbose` or `ShouldContinue`. Call these methods on the cmdlet's pipeline thread. The ConsoleMonster module uses the same class for its own commands.
+
+# Optional PowerShell default display
 `ConsoleMonster.PowerShell.Display` provides a runspace-owned default display broker without importing the ConsoleMonster command module. It targets .NET Framework 4.7.2, .NET 8 and .NET 10. Its ABI epoch is 1 (`AssemblyVersion` 1.0.0.0); package versions move independently.
 
 The CLR identity is declared in `AssemblyInfo.cs`, with SDK assembly-version generation disabled. Package publisher version overrides therefore cannot change the ABI epoch's assembly identity. The package first shipped in 2.1.0 and is versioned with the other ConsoleMonster packages in every release.

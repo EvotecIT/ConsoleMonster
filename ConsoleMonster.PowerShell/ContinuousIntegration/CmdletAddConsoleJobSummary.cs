@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
 using ConsoleMonster.Export;
 
 namespace ConsoleMonster.PowerShell {

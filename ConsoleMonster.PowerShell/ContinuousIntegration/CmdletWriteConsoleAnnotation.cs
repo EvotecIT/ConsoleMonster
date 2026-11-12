@@ -1,4 +1,5 @@
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Writes a CI error, warning or notice, or a styled terminal status line.</summary>

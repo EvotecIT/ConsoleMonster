@@ -3,6 +3,7 @@ using System.Management.Automation;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a console dashboard live while a script does the work.</summary>

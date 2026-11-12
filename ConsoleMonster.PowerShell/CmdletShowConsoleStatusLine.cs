@@ -5,6 +5,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 
 using ConsoleMonster.Output;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Shows one status line that updates in place, with an optional spinner, clock and elapsed time.</summary>

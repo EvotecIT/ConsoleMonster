@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a script and shows its Write-Progress calls as an inline progress area.</summary>
@@ -31,34 +32,9 @@ namespace ConsoleMonster.PowerShell {
     [Cmdlet(VerbsOther.Use, "ConsoleProgress", HelpUri = "https://consolemonster.dev/powershell/commands/use-consoleprogress/")]
     [OutputType(typeof(object))]
     public sealed class CmdletUseConsoleProgress : NoPipelineInputCmdlet {
-        private const string ProgressProxy = @"
-[CmdletBinding()]
-param(
-    [Parameter(Position = 0)][string] $Activity,
-    [Parameter(Position = 1)][string] $Status,
-    [Parameter(Position = 2)][int] $Id = 0,
-    [int] $PercentComplete = -1,
-    [int] $SecondsRemaining = -1,
-    [string] $CurrentOperation,
-    [int] $ParentId = -1,
-    [switch] $Completed,
-    [int] $SourceId
-)
-if ($ProgressPreference -eq 'SilentlyContinue' -or $ProgressPreference -eq 'Ignore') { return }
-$text = if ($CurrentOperation) { if ($Status) { $Status + ' - ' + $CurrentOperation } else { $CurrentOperation } } else { $Status }
-$__cmProgressBridge.Progress($Id, $ParentId, $Activity, $text, $PercentComplete, $SecondsRemaining, $Completed.IsPresent)
-";
+        private static readonly string ProgressProxy = PSScriptResources.Read("ProgressProxy.ps1");
 
-        internal const string HostProxy = @"
-param(
-    [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)][object[]] $Object,
-    [switch] $NoNewline,
-    [object] $Separator = ' ',
-    [System.ConsoleColor] $ForegroundColor,
-    [System.ConsoleColor] $BackgroundColor
-)
-$__cmProgressBridge.Host((@($Object | ForEach-Object { if ($_ -is [System.Collections.IEnumerable] -and $_ -isnot [string]) { $_ -join $Separator } else { ""$_"" } }) -join $Separator), $NoNewline.IsPresent, $PSBoundParameters['ForegroundColor'], $PSBoundParameters['BackgroundColor'])
-";
+        internal static readonly string HostProxy = PSScriptResources.Read("HostProxy.ps1");
 
         /// <summary><para type="description">The work to run while native Write-Progress calls update the inline progress area.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]

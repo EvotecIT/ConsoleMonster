@@ -86,6 +86,13 @@ Invoke-ConsoleDashboard $d {
 
 A recording keeps the text form of row values; region swaps carry in-process widgets and are not replayed.
 
+## Step ledgers
+
+For a list of build steps, `Phases` with `StepCounter = true` draws one numbered row per step. A running step spins and shows its latest detail and how long it has been running; a finished step keeps the time it took after its detail. A group step lists its items under it, and an item can list sub-items (`SetSubItem`), so a step, its stages and their packages nest; items keep their own time the same way. A step planned after the run started goes in at its place with `Insert`, and re-adding a step changes only its label, so a running step can be retitled. When the list is taller than an inline area, finished groups fold into their row (`149/149 · 40s`), so finished rows never push the running step off the screen. If it still does not fit, it shows whole steps around the furthest step that has started, with the next step below it, running steps above pinned under `+N earlier`, and `+N more` for the rest. The window only moves forward, and the final printed ledger lists every item. To keep a current-work line and a message log under the ledger, put the ledger in `Rows` as a fraction row (fraction rows are measured after the auto rows below them) and set `LogRegion.FitToEntries`, so the log takes no rows until messages arrive. `LiveTable.MaxRows` keeps only the newest rows and removes older ones, so it suits a recent-items list rather than a ledger.
+
+## Host output while a session runs
+
+A PowerShell warning, a verbose line or a prompt does not pass through the session. `session.WriteOutside(action)` clears an inline area (a full-screen session leaves the alternate screen), runs the action on the calling thread for as long as it needs, then starts the area again below what it wrote, so later frames never draw over it. Nothing is drawn while the action runs, and updates are still applied. Compiled cmdlets use `HostOutput.Run`, described under [add-ons](/docs/add-ons/#powershell-output-from-your-own-cmdlets).
 ## Resizing and small windows
 
 A size change clears the screen and redraws it; while a window is dragged, redraws are coalesced to at most one every 100 ms. Narrower panels drop optional parts first, table columns hide by priority and tables turn into cards. When the window is smaller than the dashboard's `MinimumSize`, it keeps its highest-priority panels, and when even those do not fit, it shows one status line.

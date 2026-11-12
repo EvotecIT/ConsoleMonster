@@ -6,6 +6,7 @@ using System.Threading;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a script block again and again and shows its latest output as a live view.</summary>
