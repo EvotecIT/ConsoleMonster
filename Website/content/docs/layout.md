@@ -94,7 +94,7 @@ New-ConsolePanel -Title 'Load' -Content {
 ```csharp
 Sparkline load = new Sparkline { Height = 3, ShowLatest = false }
     .AddRange(new double[] { 12, 18, 26, 31, 40, 47, 55, 64, 73, 79 });
-Align badge = new Align(new TextBlock("[pass] LIVE [/]"), HorizontalAlignment.Right);
+Align badge = new Align(TextBlock.FromMarkup("[pass] LIVE [/]"), HorizontalAlignment.Right);
 Terminal.Write(new Panel(new Stack(load, badge), "Load"));
 ```
 
