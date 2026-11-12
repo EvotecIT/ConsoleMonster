@@ -49,7 +49,8 @@ namespace ConsoleMonster.Tests.Widgets {
         [Theory]
         [InlineData(80)]
         [InlineData(120)]
-        public void Render_AlignsEachObjectsKeysByDisplayCellsWithoutPaddingPastSixteen(int width) {
+        public void Render_AlignsSiblingKeysToTheWidestAndPutsValuesOfKeysPastTheCapBelow(int width) {
+            string beyondCap = new string('k', width);
             InspectScalar Scalar(string name, string value) => new InspectScalar(name, "String", "$." + name, value);
             var nested = new InspectObject("Nested", "Child", "$.Nested", new InspectNode[] {
                 Scalar("Alpha", "child-first"), Scalar("B", "child-second"),
@@ -57,7 +58,7 @@ namespace ConsoleMonster.Tests.Widgets {
             });
             var root = new InspectObject(null, "Record", "$", new InspectNode[] {
                 Scalar("短", "root-first"), Scalar("e\u0301", "root-second"),
-                Scalar("LongPropertyNameBeyondTheCap", "long-value"), nested
+                Scalar("received_events_url", "url-value"), Scalar(beyondCap, "long-value"), nested
             });
             Tree tree = InspectorTree.Build(root);
             Assert.Equal("短", tree.Root.Children[0].Label);
@@ -67,11 +68,18 @@ namespace ConsoleMonster.Tests.Widgets {
                 string row = Assert.Single(rows, line => line.Contains(marker));
                 return DisplayWidth.Measure(row.Substring(0, row.IndexOf(marker, StringComparison.Ordinal)));
             }
+            // Siblings share the column of their widest key that fits the cap (two fifths of the room after the guides).
             Assert.Equal(ValueColumn("root-first"), ValueColumn("root-second"));
-            Assert.Equal(22, ValueColumn("root-first"));
+            Assert.Equal(ValueColumn("root-first"), ValueColumn("url-value"));
+            Assert.Equal(4 + "received_events_url".Length + 2, ValueColumn("root-first"));
             Assert.Equal(ValueColumn("child-first"), ValueColumn("child-second"));
             Assert.Equal(15, ValueColumn("child-first"));
-            Assert.Contains(rows, row => row.Contains("LongPropertyNameBeyondTheCap  long-value"));
+            // A key past the cap keeps its full name; its value starts on the next line in the shared value column.
+            int keyRow = Array.FindIndex(rows, row => row.Contains(beyondCap.Substring(0, width - 8)));
+            Assert.DoesNotContain("long-value", rows[keyRow]);
+            Assert.Contains("long-value", rows[keyRow + 1]);
+            Assert.Equal(ValueColumn("root-first"), ValueColumn("long-value"));
+            Assert.StartsWith("│", rows[keyRow + 1]);
         }
     }
 }

@@ -68,8 +68,9 @@ namespace ConsoleMonster.Widgets {
         }
         private string? _note;
 
-        // Inspection key alignment belongs to terminal layout, not the semantic label used by exports.
-        internal int LabelPadding { get; set; }
+        // Inspection key alignment belongs to terminal layout, not the semantic label used by exports: the key widths of
+        // this node's aligned sibling group, from which the tree picks a column for the width it draws at.
+        internal IReadOnlyList<int>? KeyWidths { get; set; }
 
         internal Func<Localization.WidgetLabels, string>? LocalizedLabel { get; set; }
         internal Func<Localization.WidgetLabels, string?>? LocalizedNote { get; set; }

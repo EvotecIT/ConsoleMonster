@@ -78,10 +78,19 @@ namespace ConsoleMonster.Widgets {
             if (rows.Exists(row => row.Reference != TreeReferenceKind.None)) return WidgetLines.Measure(ColumnLines(constraints.MaxWidth, context), constraints);
             Presenters.PresenterContext presenter = Presentation.CreateContext(context);
             int width = 0;
+            int lines = 0;
             foreach (TreeRow row in rows) {
-                width = Math.Max(width, row.Width(context) + ValueWidth(row.Node, presenter));
+                int padding = KeyPadding(row, constraints.MaxWidth, context, out int valueColumn);
+                int value = ValueWidth(row.Node, presenter);
+                if (valueColumn > 0) {
+                    width = Math.Max(width, Math.Max(row.Width(context), valueColumn + value));
+                    lines += 2;
+                } else {
+                    width = Math.Max(width, row.Width(context) + padding + value);
+                    lines++;
+                }
             }
-            int height = constraints.IsHeightUnbounded ? rows.Count : Math.Min(rows.Count, constraints.MaxHeight);
+            int height = constraints.IsHeightUnbounded ? lines : Math.Min(lines, constraints.MaxHeight);
             return new Size(Math.Min(width, constraints.MaxWidth), height);
         }
 
@@ -104,8 +113,10 @@ namespace ConsoleMonster.Widgets {
             Presenters.PresenterContext presenter = Presentation.CreateContext(context);
             Style guide = context.Style(ThemeToken.Border);
             Style muted = context.Style(ThemeToken.Muted);
-            for (int i = 0; i < rows.Count && i < region.Height; i++) {
-                TreeRow row = rows[i];
+            int i = 0;
+            foreach (TreeRow row in rows) {
+                if (i >= region.Height) break;
+                int padding = KeyPadding(row, region.Width, context, out int valueColumn);
                 int x = region.Write(0, i, row.Prefix, guide);
                 TreeNode node = row.Node;
                 string? marker = node.MarkerFor(context);
@@ -117,10 +128,23 @@ namespace ConsoleMonster.Widgets {
                 x = region.Write(x, i, label);
                 StyledLine? value = node.Value == null ? null : CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines[0];
                 string? note = row.NoteFor(context);
+                if (valueColumn > 0 && value != null) {
+                    // A key longer than its group's capped column: the value continues on the next line in that column.
+                    if (!string.IsNullOrEmpty(note) && region.Width - x - 2 >= 4) {
+                        region.Write(x + 2, i, FitNote(StyledLine.From(note!, muted), region.Width - x - 2, context));
+                    }
+                    if (++i >= region.Height) break;
+                    region.Write(0, i, TextWrapper.Truncate(StyledLine.From(ContinuationGuide(row, context), guide), valueColumn, string.Empty));
+                    if (region.Width - valueColumn >= 4) {
+                        region.Write(valueColumn, i, TextWrapper.Truncate(value, region.Width - valueColumn, context.Ellipsis));
+                    }
+                    i++;
+                    continue;
+                }
                 // Alignment is optional: values and branch details keep the space they would have without padding.
                 int contentWidth = value == null ? 0 : 2 + Math.Max(4, value.Width);
                 if (!string.IsNullOrEmpty(note)) contentWidth += 2 + Math.Max(4, DisplayWidth.Measure(note!));
-                x += Math.Min(node.LabelPadding, Math.Max(0, region.Width - x - contentWidth));
+                x += Math.Min(padding, Math.Max(0, region.Width - x - contentWidth));
                 if (value != null) {
                     if (region.Width - x - 2 >= 4) {
                         x = region.Write(x + 2, i, TextWrapper.Truncate(value, region.Width - x - 2, context.Ellipsis));
@@ -130,7 +154,41 @@ namespace ConsoleMonster.Widgets {
                 if (!string.IsNullOrEmpty(note) && noteSpace >= 4) {
                     region.Write(x + 2, i, FitNote(StyledLine.From(note!, muted), noteSpace, context));
                 }
+                i++;
             }
+        }
+
+        // Aligned inspection keys share one column per sibling group: the widest key within two fifths of the room after
+        // the guides. Returns the padding after the label; a longer key returns 0 and, when the node has a value, the
+        // cell where that value starts on the next line.
+        private static int KeyPadding(TreeRow row, int width, RenderContext context, out int valueColumn) {
+            valueColumn = 0;
+            TreeNode node = row.Node;
+            if (node.KeyWidths == null || node.KeyWidths.Count == 0) return 0;
+            int start = DisplayWidth.Measure(row.Prefix);
+            string? marker = node.MarkerFor(context);
+            if (!string.IsNullOrEmpty(marker)) start += DisplayWidth.Measure(marker!) + 1;
+            int cap = Math.Max(8, (width - start) * 2 / 5);
+            int column = 0;
+            foreach (int key in node.KeyWidths) {
+                if (key <= cap) column = Math.Max(column, key);
+            }
+            if (column == 0) column = cap;
+            int label = context.Markup(node.LabelFor(context)).Width;
+            if (label <= column) return column - label;
+            if (node.Value != null) valueColumn = start + column + 2;
+            return 0;
+        }
+
+        // The guide drawn on a node's continuation lines: its ancestors' verticals, and its own when siblings follow.
+        private string ContinuationGuide(TreeRow row, RenderContext context) {
+            string continuation = row.Prefix;
+            if (row.Node.Bare || continuation.Length == 0) return continuation;
+            int branchWidth = CompactGuides ? 3 : context.Glyphs.Get(Glyph.TreeBranch).Length;
+            string tail = continuation.Substring(Math.Max(0, continuation.Length - branchWidth));
+            bool last = tail.StartsWith("└", StringComparison.Ordinal) || tail.StartsWith("`", StringComparison.Ordinal);
+            return continuation.Substring(0, Math.Max(0, continuation.Length - branchWidth))
+                + (last ? new string(' ', branchWidth) : (context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "|" : "│") + new string(' ', branchWidth - 1));
         }
 
         /// <summary>Culture, clock and time zone for node values.</summary>
@@ -219,8 +277,8 @@ namespace ConsoleMonster.Widgets {
                 return string.Join(" ", parts);
             }
 
-            public int Width(RenderContext context, bool includePadding = true) {
-                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width + (includePadding ? Node.LabelPadding : 0);
+            public int Width(RenderContext context) {
+                int width = DisplayWidth.Measure(Prefix) + context.Markup(Node.LabelFor(context)).Width;
                 string? marker = Node.MarkerFor(context);
                 if (!string.IsNullOrEmpty(marker)) {
                     width += DisplayWidth.Measure(marker!) + 1;
