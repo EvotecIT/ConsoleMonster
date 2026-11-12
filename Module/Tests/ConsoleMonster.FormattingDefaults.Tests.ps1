@@ -169,8 +169,14 @@ if ((Get-Command Write-Progress).CommandType -ne 'Cmdlet') { throw 'Progress was
                 try {
                     $stdout = $process.StandardOutput.ReadToEndAsync()
                     $stderr = $process.StandardError.ReadToEndAsync()
-                    if ($Case.Input) { $process.StandardInput.Write($(if ($Formatting) { "$enable`n" }) + "$($Case.Input)`n") }
-                    $process.StandardInput.Close()
+                    # Write raw UTF-8 bytes: Windows PowerShell's StandardInput writer can lead with a BOM, which
+                    # turns the first command into an unknown '﻿Import-Module'.
+                    $stdin = $process.StandardInput.BaseStream
+                    if ($Case.Input) {
+                        $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($(if ($Formatting) { "$enable`n" }) + "$($Case.Input)`n")
+                        $stdin.Write($bytes, 0, $bytes.Length)
+                    }
+                    $stdin.Close()
                     if (-not $process.WaitForExit(120000)) { Stop-TestChildProcess -Process $process; throw "'$($Case.Name)' did not finish." }
                     $process.WaitForExit()
                     if ($Formatting -and $stdout.Result -notmatch 'SHIM=Function') {
