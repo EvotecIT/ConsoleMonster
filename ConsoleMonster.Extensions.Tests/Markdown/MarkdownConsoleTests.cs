@@ -72,11 +72,15 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [Fact]
         public void IndentedFrontMatterAndAlertExamplesStayCode() {
             const string source = "    ---\n    title: example\n    ---\n\nVisible\n\n    > [!NOTE]\n    > example\n";
-            string text = Render(source, 60).ToPlainText();
-            Assert.Contains("title: example", text);
-            Assert.Contains("Visible", text);
-            Assert.Contains("> [!NOTE]", text);
-            Assert.DoesNotContain(text.Split('\n'), row => row.Trim() == "Note");
+            MarkdownView view = MarkdownConsole.Parse(source);
+            Assert.Equal(3, view.Children.Count);
+            Assert.IsType<CodeView>(view.Children[0]);
+            Assert.IsType<CodeView>(view.Children[2]);
+            string[] rows = Render(source, 60).ToPlainText().Split('\n');
+            Assert.Contains(rows, row => row.StartsWith("│ title: example", StringComparison.Ordinal));
+            Assert.Contains(rows, row => row.StartsWith("│ > [!NOTE]", StringComparison.Ordinal));
+            Assert.Contains(rows, row => row.Trim() == "Visible");
+            Assert.DoesNotContain(rows, row => row.Trim() == "Note");
         }
 
         [Fact]
