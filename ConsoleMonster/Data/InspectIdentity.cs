@@ -25,7 +25,7 @@ namespace ConsoleMonster.Data {
             }
             var identity = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string title = values.Count == 0 ? string.Empty : ValueShaper.Title(values, null, null, true, identity);
-            if (identity.Count > 0 && title.Length > 0) {
+            if (IsIdentity(identity) && title.Length > 0) {
                 return title;
             }
             if (!IsGeneric(record.TypeName)) {
@@ -38,6 +38,15 @@ namespace ConsoleMonster.Data {
             fieldCount = count.ToString("N0", CultureInfo.InvariantCulture) + (count == 1 ? " field" : " fields");
             return null;
         }
+
+        /// <summary>
+        /// Whether the fields behind a title identify a nested object. A Key alone names a dictionary entry, not the
+        /// object (a certificate's Key is its algorithm), so a nested object titled only by it reads by its fields instead.
+        /// </summary>
+        /// <param name="identity">The fields the shared title rule used.</param>
+        /// <returns>True for an identity.</returns>
+        internal static bool IsIdentity(ICollection<string> identity) =>
+            identity.Count > 0 && !(identity.Count == 1 && identity.Contains("Key"));
 
         private static bool IsGeneric(string typeName) {
             string name = typeName ?? string.Empty;

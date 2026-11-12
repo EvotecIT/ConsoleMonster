@@ -94,8 +94,15 @@ namespace ConsoleMonster.Tests.Widgets {
                 Scalar("login", "daxian-dbw"), Scalar("id", 127450), Scalar("type", "User") });
             var pool = new InspectObject("pool", "PSCustomObject", "$.pool", new InspectNode[] { Scalar("min", 2), Scalar("max", 20), Scalar("idle", 300) });
             var typed = new InspectObject("owner", "Account", "$.owner", new InspectNode[] { Scalar("enabled", true) });
-            var root = new InspectObject(null, "PSCustomObject", "$", new InspectNode[] { uploader, pool, typed });
+            // A certificate in a chain: its Key is an algorithm, not its name, so the item reads by its field count.
+            var chain = new InspectCollection("Chain", "Object[]", "$.Chain", new InspectNode[] {
+                new InspectObject(null, "PSCustomObject", "$.Chain[0]", new InspectNode[] {
+                    Scalar("Subject", "CN=ISRG Root X1"),
+                    Scalar("Key", "ECDSA P-256"), Scalar("Revoked", false) })
+            }, 1, 0, null, 0);
+            var root = new InspectObject(null, "PSCustomObject", "$", new InspectNode[] { uploader, pool, typed, chain });
             string tree = TestTerminal.RenderText(InspectorTree.Build(root, "asset"), width);
+            Assert.Contains(tree.Split('\n'), row => row.Contains("[0]") && row.TrimEnd().EndsWith("3 fields", StringComparison.Ordinal));
             Assert.Contains(tree.Split('\n'), row => row.Contains("uploader") && row.TrimEnd().EndsWith("daxian-dbw (127450)", StringComparison.Ordinal));
             Assert.Contains(tree.Split('\n'), row => row.Contains("pool") && row.TrimEnd().EndsWith("3 fields", StringComparison.Ordinal));
             Assert.Contains(tree.Split('\n'), row => row.Contains("owner") && row.TrimEnd().EndsWith("Account", StringComparison.Ordinal));

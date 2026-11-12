@@ -636,6 +636,8 @@ namespace ConsoleMonster.PowerShell {
             int fields = ValueShaper.Fields(prepared, shape).Count;
             HashSet<string> identity = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string title = PSShaping.IdentityTitle(PSObject.AsPSObject(value), shape, budget, identity);
+            // The same identity rule as nested labels in trees: a Key alone does not name a nested object.
+            if (!InspectIdentity.IsIdentity(identity)) { identity.Clear(); }
             int more = Math.Max(0, fields - identity.Count);
             string text = more.ToString("N0", CultureInfo.InvariantCulture) + (more == 1 ? " field" : " fields");
             return identity.Count == 0
