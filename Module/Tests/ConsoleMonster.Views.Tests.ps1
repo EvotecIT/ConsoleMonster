@@ -57,6 +57,22 @@
         $text | Should -Not -Match '(?m)^\s+login\s'
     }
 
+    It 'previews long multi-line text in the automatic record view and keeps it whole in List' {
+        # Release notes: a 12-line body would push the record's other fields off the screen.
+        $text = Invoke-ViewChild -Script @'
+$release = [pscustomobject]@{ tag_name = 'v1.0'; body = (1..12 | ForEach-Object { "note $_" }) -join "`r`n"; draft = $false }
+'== auto'
+$release | Show-Console -Width 80
+'== list'
+$release | Show-Console -View List -Width 80
+'@
+        $auto = ($text -split '== list')[0]
+        $auto | Should -Match 'body\s+note 1\s*\n\s+note 2\s*\n\s+note 3\s*\n\s+\+9 lines'
+        $auto | Should -Not -Match 'note 4'
+        $auto | Should -Match 'draft'
+        ($text -split '== list')[1] | Should -Match 'note 12'
+    }
+
     It 'leaves redirected output, pipelines and Out-String unchanged and Disable removes the Out-Default function' {
         $text = Invoke-ViewChild -Script @'
 $before = Get-Item $PSHOME | Out-String

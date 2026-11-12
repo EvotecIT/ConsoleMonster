@@ -600,6 +600,10 @@ namespace ConsoleMonster.PowerShell {
                     view.AddFieldAt(fieldLevel, label, new TableCell(NestedSummary(value!, prepared, shape, record)));
                     continue;
                 }
+                if (summarizeNested && column.Presenter == null && prepared is string text && TextPreview(text) is string preview) {
+                    view.AddFieldAt(fieldLevel, label, new TableCell(preview));
+                    continue;
+                }
                 if (depth > 0 && prepared != null && column.Presenter == null && NeedsNesting(prepared, shape)) {
                     view.AddHeading(Text.Markup.Escape(label), fieldLevel);
                     view.AddWidgetAt(fieldLevel + 1, InspectorBody(value!, depth));
@@ -623,6 +627,19 @@ namespace ConsoleMonster.PowerShell {
                 // A dim line at the key column, as the tree ends a record with its empty count.
                 if (notes.Count > 0) { view.AddWidgetAt(fieldLevel, TextBlock.FromMarkup("[muted]" + string.Join("  ", notes) + "[/]")); }
             }
+        }
+
+        private const int PreviewLines = 3;
+
+        // Long multi-line text (release notes, a script, a log) in the automatic view: its first lines and a count of the
+        // rest, so one field cannot push the record off the screen. Null when the text is short enough to show whole.
+        private static string? TextPreview(string text) {
+            string[] lines = text.TrimEnd('\r', '\n').Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+            if (lines.Length <= PreviewLines + 1) {
+                return null;
+            }
+            int more = lines.Length - PreviewLines;
+            return Text.Markup.Escape(string.Join("\n", lines, 0, PreviewLines)) + "\n[muted]+" + more.ToString("N0", CultureInfo.InvariantCulture) + " lines[/]";
         }
 
         // One line for a nested record in the automatic view: its identity and how many more fields it has; a collection

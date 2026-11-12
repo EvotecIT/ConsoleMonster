@@ -523,6 +523,19 @@ namespace ConsoleMonster.Tests.Rendering {
             Assert.Empty(ambient.Text);
         }
 
+        // Text from APIs and files carries invisible format characters: a byte order mark (GitHub release notes start with
+        // one), zero-width spaces, joiners and word joiners. They take no cell, so no tier may turn them into a visible '?'.
+        [Theory]
+        [InlineData(GlyphTier.Full)]
+        [InlineData(GlyphTier.Basic)]
+        [InlineData(GlyphTier.Ascii)]
+        public void RepertoireConversion_DropsZeroWidthFormatCharacters(GlyphTier tier) {
+            CellBuffer output = TestTerminal.Render(new TextBlock("﻿## v7 a​b‌c‍d⁠e"), 20, glyphs: tier);
+            string row = string.Concat(output.GetRowText(0).Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.Format));
+            Assert.Equal("## v7 abcde", row.TrimEnd());
+            Assert.Equal(20, DisplayWidth.Measure(output.GetRowText(0)));
+        }
+
         [Theory]
         [InlineData("→")]
         [InlineData("…")]

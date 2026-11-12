@@ -134,7 +134,13 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
 
 ## Platform ownership and comparison
 
-Neutral fixtures keep their existing paths. Host-dependent terminal profiles,
+Neutral fixtures keep their existing paths, so refreshing one on the other
+platform rewrites its bytes without changing its cells: ConPTY positions the
+cursor over blank runs, while openpty keeps the program's line-by-line output.
+`capture` also writes the local `pwsh` version into `hosts.json`, which the
+site shows. Keep the committed files unless their source stamp changed or
+`render` reports them; `render` checks either version against the same C# frame.
+Host-dependent terminal profiles,
 stress and benchmark recordings add `.windows`, `.macos` or `.linux` before the
 extension. Historical unqualified host-dependent files are Windows captures.
 Rendering chooses its default explicitly rather than using the build host's OS.

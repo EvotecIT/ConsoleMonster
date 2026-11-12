@@ -19,11 +19,27 @@ namespace ConsoleMonster.Glyphs {
                 string glyph = text.Substring(cluster.Start, cluster.Length);
                 bool allowed = true;
                 foreach (char c in glyph) if (!Allowed(c, tier)) { allowed = false; break; }
-                string replacement = allowed ? glyph : TryGet(glyph, tier, out string fallback) ? Safe(fallback, tier)
-                    : tier == GlyphTier.Ascii ? Transliterate(glyph) : "?";
-                result.Append(replacement);
+                if (allowed) { result.Append(glyph); continue; }
+                if (TryGet(glyph, tier, out string fallback)) { result.Append(Safe(fallback, tier)); continue; }
+                // Invisible format characters (a byte order mark, zero-width spaces and joiners) take no cell: drop them
+                // rather than show a '?' for something the source never displayed.
+                string visible = WithoutFormatCharacters(glyph);
+                if (visible.Length == 0) continue;
+                allowed = true;
+                foreach (char c in visible) if (!Allowed(c, tier)) { allowed = false; break; }
+                result.Append(allowed ? visible : tier == GlyphTier.Ascii ? Transliterate(visible) : "?");
             }
             return result.ToString();
+        }
+
+        private static string WithoutFormatCharacters(string glyph) {
+            StringBuilder? kept = null;
+            for (int i = 0; i < glyph.Length; i++) {
+                bool format = glyph[i] != '\u00AD' && CharUnicodeInfo.GetUnicodeCategory(glyph[i]) == UnicodeCategory.Format; // a soft hyphen keeps its cell
+                if (format && kept == null) kept = new StringBuilder(glyph, 0, i, glyph.Length);
+                else if (!format) kept?.Append(glyph[i]);
+            }
+            return kept?.ToString() ?? glyph;
         }
 
         private static string Transliterate(string glyph) {

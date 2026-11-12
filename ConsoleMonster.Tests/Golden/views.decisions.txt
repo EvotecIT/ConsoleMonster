@@ -10,3 +10,5 @@ objects of one shape    Table
 objects of two shapes   Inspector
 hierarchy               Tree
 hierarchies             Tree
+record with children    Inspector
+records with children   Table
