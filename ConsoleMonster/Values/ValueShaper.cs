@@ -51,7 +51,7 @@ namespace ConsoleMonster.Values {
         };
 
         private static readonly string[] TitleNames = { "Name", "DisplayName" };
-        private static readonly string[] TitleFallbackNames = { "Title", "Label", "Caption", "Key", "Id", "Identity" };
+        private static readonly string[] TitleFallbackNames = { "Title", "Label", "Caption", "Login", "Key", "Id", "Identity" };
         private static readonly string[] IdNames = { "Id", "ProcessId", "PID", "Key" };
         private static readonly HashSet<string> NotTitleNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
             "FullName", "TypeName", "MachineName", "PSComputerName", "UserName", "ModuleName", "HostName", "BaseName", "DomainName"
