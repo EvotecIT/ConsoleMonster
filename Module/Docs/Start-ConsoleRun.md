@@ -1,16 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/start-consolerun/
 schema: 2.0.0
 ---
 # Start-ConsoleRun
 ## SYNOPSIS
 Starts a bounded run dashboard for work scheduled by your script.
-
-In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.
-
-Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -19,8 +15,6 @@ Start-ConsoleRun -InputObject <psobject[]> [-Title <string>] [-Label <Object>] [
 ```
 
 ## DESCRIPTION
-Starts a bounded run dashboard for work scheduled by your script.
-
 In GitHub Actions, Azure Pipelines and GitLab CI, each completed item is written inside one collapsible log group. Groups enclose completion output rather than overlapping worker lifetimes. CONSOLEMONSTER_CI=none disables provider groups.
 
 Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.
@@ -80,7 +74,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 40
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -112,7 +106,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -144,7 +138,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -160,7 +154,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -176,7 +170,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 25
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -192,7 +186,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -208,7 +202,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -240,7 +234,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -272,7 +266,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: Run
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -282,7 +276,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -290,4 +284,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/start-consolerun/](https://consolemonster.dev/powershell/commands/start-consolerun/)

@@ -1,10 +1,10 @@
 // Stress test: thirty-two workers, fast handles, session telemetry and captured tool output.
 using System.Globalization;
+using ConsoleMonster;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
-using ConsoleMonster;
 
 // Data: synthetic telemetry samples; no machine counters, services or files are read.
 const int Workers = 32;
@@ -64,48 +64,40 @@ IWidget Frame(int tick)
                     CultureInfo.InvariantCulture) + "% of 8 cores")
         .Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture))
         .Add("Dropped / errors", "0 / 0");
-    Sparkline rate = (Sparkline)Ui.Chart()
-        .Type(ChartType.Sparkline)
-        .WidgetId("rate")
-        .Height(3)
-        .Unit("/s")
-        .Build();
+    Sparkline rate = Ui.Sparkline("rate").Height(3).Unit("/s");
     rate.AddRange(sampleRates.Take(samples));
-    LineChart cpu = (LineChart)Ui.Chart()
-        .Type(ChartType.Line)
-        .WidgetId("cpu")
-        .Height(6)
-        .Minimum(0)
-        .Unit("%")
-        .Build();
+    LineChart cpu = Ui.LineChart("cpu").Height(6).Minimum(0).Unit("%");
     cpu.AddSeries("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples))
         cpu.Add("cpu", value);
-    LogRegion output = Ui.LogRegion().PreferredHeight(12).ShowElapsed(false).Wrap(true);
+    LogRegion output = Ui.LogRegion().PreferredHeight(12).ShowElapsed(false).Wrap();
     for (int i = 0; i < tick * 4; i++)
         output.Write("stray-" + i % 4 + "-" + i + ": FakeLib: " + messages[i % 5],
             i % 7 == 0 ? "err" : "info");
-    Columns body = Ui.Columns()
-        .Add(Ui.Panel().Title("Workers").Content(c => c.Add(lanes)), LayoutSize.Fraction(2.2))
-        .Add(Ui.Rows()
-            .Add(Ui.Panel().Title("Session").Content(c2 =>
-            {
-                c2.Rows(r => r.Content(c =>
-                {
-                    c.Add(stats);
-                    c.Rule("updates/s");
-                    c.Add(rate);
-                    c.Rule("CPU % (100% = one core)");
-                    c.Add(cpu);
-                }));
-            }))
-            .Add(Ui.Panel().Title("Captured output").Content(c => c.Add(output)),
-                LayoutSize.Fraction()));
-    Dashboard dashboard = Ui.Dashboard()
-        .Content(c =>
+    Columns body = Ui.Columns().Add(Ui.Panel().Title("Workers").Content(panelContent =>
+    {
+        panelContent.Add(lanes);
+    }), LayoutSize.Fraction(2.2)).Add(Ui.Rows().Content(rowsContent2 =>
+    {
+        rowsContent2.Panel(p => p.Title("Session").Content(panelContent =>
         {
-            c.Rows(rows => rows
-                .Add(body, LayoutSize.Fraction())
+            panelContent.Rows(r => r.Content(rowsContent =>
+            {
+                rowsContent.Add(stats);
+                rowsContent.Rule("updates/s");
+                rowsContent.Add(rate);
+                rowsContent.Rule("CPU % (100% = one core)");
+                rowsContent.Add(cpu);
+            }));
+        }));
+    }).Add(Ui.Panel().Title("Captured output").Content(panelContent =>
+    {
+        panelContent.Add(output);
+    }), LayoutSize.Fraction()));
+    Dashboard dashboard = Ui.Dashboard()
+        .Content(dashboardContent =>
+        {
+            dashboardContent.Rows(r => r.Add(body, LayoutSize.Fraction())
                 .Add(Ui.Facts().Add(32, "workers").Add(15, "frames/s").Add("Ctrl+C stop")));
         })
         .Title("[accent bold]Stress test[/]")
@@ -116,9 +108,9 @@ IWidget Frame(int tick)
 }
 
 // Behaviour: show seven samples through the ordinary live session.
-RegionWidget screen = Ui.Region("stress").Content(c =>
+RegionWidget screen = Ui.Region("stress").Content(regionWidgetContent =>
 {
-    c.Add(Frame(0));
+    regionWidgetContent.Add(Frame(0));
 });
 using LiveSession session = screen.CreateSession();
 try

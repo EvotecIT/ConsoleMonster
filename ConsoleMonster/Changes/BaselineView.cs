@@ -65,9 +65,9 @@ namespace ConsoleMonster.Changes {
             if (Comparison.HiddenMatchingCount > 0) {
                 footer += ", " + WidgetLabels.Format(labels.ChangesMatchingHidden, Comparison.HiddenMatchingCount.ToString(CultureInfo.InvariantCulture));
             }
-            var parts = new List<IWidget> { table, new TextBlock("[muted]" + Markup.Escape(footer) + "[/]") };
+            var parts = new List<IWidget> { table, TextBlock.FromMarkup("[muted]" + Markup.Escape(footer) + "[/]") };
             if (Comparison.NotCompared.Count > 0) {
-                parts.Add(new TextBlock("[warn]" + Markup.Escape(WidgetLabels.Format(labels.ChangesNotCompared,
+                parts.Add(TextBlock.FromMarkup("[warn]" + Markup.Escape(WidgetLabels.Format(labels.ChangesNotCompared,
                     Comparison.NotCompared.Count.ToString(CultureInfo.InvariantCulture))) + "[/]"));
             }
             return new Rows(parts.ToArray());

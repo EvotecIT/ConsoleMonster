@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolescrollview/
 schema: 2.0.0
 ---
 # New-ConsoleScrollView
 ## SYNOPSIS
 Creates a clipped vertical viewport for a small widget tree inside an app.
-
-Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, grids and logs keep their own row windows for large data.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleScrollView [[-Content] <Object>] [-ScrollOffset <int>] [-MaxContentHe
 ```
 
 ## DESCRIPTION
-Creates a clipped vertical viewport for a small widget tree inside an app.
-
 Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, grids and logs keep their own row windows for large data.
 
 ## EXAMPLES
@@ -31,6 +27,15 @@ New-ConsoleScrollView -Content {
 ```
 
 Build a scrollable detail pane
+
+### EXAMPLE 2
+```powershell
+New-ConsoleScrollView -Height 4 -Content {
+                foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') { New-ConsoleText $server }
+            } | Show-Console
+```
+
+Compose an inventory scroll view
 
 ## PARAMETERS
 
@@ -61,7 +66,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -77,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -93,7 +98,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 16384
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -109,7 +114,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -125,7 +130,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -143,4 +148,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolescrollview/](https://consolemonster.dev/powershell/commands/new-consolescrollview/)

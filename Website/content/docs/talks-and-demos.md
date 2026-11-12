@@ -159,7 +159,7 @@ var demo = DemoScript.Read("demo.ps1");
 var options = new DemoOptions {
     Seed = 42,
     Recording = new SessionRecordingOptions {
-        Path = "talk.cast", Shell = "pwsh", Width = 100, Height = 28
+        RecordingPath = "talk.cast", Shell = "pwsh", Width = 100, Height = 28
     },
     Output = Console.Write
 };

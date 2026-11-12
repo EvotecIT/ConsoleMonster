@@ -155,6 +155,53 @@ namespace ConsoleMonster.Tests.Live {
             Assert.Contains("38;2;255;0;0", output.Substring(Math.Max(0, alert - 30), 30));
         }
 
+        // A host warning or a prompt written while an inline area is drawn: nothing is drawn while it waits, the text stays
+        // above the area afterwards, and later frames (including the final state) never draw over it.
+        [Fact]
+        public void WriteOutside_KeepsHostOutputAboveTheAreaAndDrawsNothingWhileItWaits() {
+            StringTerminalWriter writer = new StringTerminalWriter();
+            TerminalProfile profile = TerminalProfile.Fixed(40, 10, ColorDepth.None);
+            LiveSessionOptions options = new LiveSessionOptions {
+                Mode = LiveMode.Inline,
+                Output = new InlineOutput(writer, profile, false),
+                Profile = profile,
+                HandleCancelKey = false,
+                CaptureConsole = false,
+                FramesPerSecond = 60,
+                WindowSource = () => new[] { 0, 0, 40, 10 }
+            };
+            using (LiveSession session = new LiveSession(new Rows(new ProgressBar("Build", "build") { Total = 4 }, new TextBlock("second row")), options))
+            using (ManualResetEventSlim waiting = new ManualResetEventSlim())
+            using (ManualResetEventSlim answered = new ManualResetEventSlim()) {
+                session.Start();
+                session.Post(new LiveEvent("build", "advance", value: 1));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("1/4"), 3000));
+                Thread prompt = new Thread(() => session.WriteOutside(() => {
+                    writer.Write("WARNING: Continue?\r\n");
+                    waiting.Set();
+                    answered.Wait(TimeSpan.FromSeconds(10));
+                })) { IsBackground = true };
+                prompt.Start();
+                Assert.True(waiting.Wait(TimeSpan.FromSeconds(10)));
+                string during = writer.ToString();
+                session.Post(new LiveEvent("build", "advance", value: 1));
+                Thread.Sleep(250);
+                Assert.Equal(during, writer.ToString());
+                answered.Set();
+                Assert.True(prompt.Join(TimeSpan.FromSeconds(10)));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Length > during.Length && writer.ToString().Substring(during.Length).Contains("2/4"), 3000));
+                session.Post(new LiveEvent("build", "advance", value: 2));
+                Assert.True(SpinWait.SpinUntil(() => writer.ToString().Contains("4/4"), 3000));
+                session.Stop();
+            }
+            FakeVtScreen screen = new FakeVtScreen(40, 10, DisplayWidth.Measure);
+            screen.Feed(writer.ToString());
+            Assert.Equal("WARNING: Continue?", screen.Row(0));
+            Assert.StartsWith("Build", screen.Row(1));
+            Assert.Contains("4/4", screen.Row(1));
+            Assert.Equal("second row", screen.Row(2));
+            Assert.Equal(string.Empty, screen.Row(3));
+        }
         [Fact]
         public void OneShotWrites_WhileASessionOwnsTheConsole_GoAboveTheArea() {
             StringTerminalWriter writer = new StringTerminalWriter();

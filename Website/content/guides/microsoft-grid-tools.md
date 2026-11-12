@@ -156,7 +156,7 @@ $servers | Out-ConsoleGridView -Filter 'SQL' -OutputMode Single
 **ConsoleMonster**
 
 ```powershell
-$servers | Show-ConsoleGrid -Filter 'SQL' -SortBy Pending -Descending -OutputMode Single
+$servers | Show-ConsoleGrid -Filter 'SQL' -SortColumn Pending -Descending -OutputMode Single
 ```
 
 </div>

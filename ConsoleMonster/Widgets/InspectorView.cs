@@ -87,7 +87,7 @@ namespace ConsoleMonster.Widgets {
                 string name = member.Name ?? string.Empty;
                 switch (member) {
                     case InspectObject obj:
-                        view.AddHeading(Markup.Escape(name), level, null, obj.TypeName);
+                        view.AddHeading(Markup.Escape(name), level, null, NoteOf(obj));
                         AddMembers(view, obj.Members, level + 1, labels);
                         break;
                     case InspectCollection collection:
@@ -109,7 +109,7 @@ namespace ConsoleMonster.Widgets {
                 foreach (InspectNode item in collection.Items) {
                     string label = "[" + index.ToString(CultureInfo.InvariantCulture) + "]";
                     if (item is InspectObject obj) {
-                        view.AddHeading(Markup.Escape(label), level, null, obj.TypeName);
+                        view.AddHeading(Markup.Escape(label), level, null, NoteOf(obj));
                         AddMembers(view, obj.Members, level + 1, labels);
                     } else if (item is InspectCollection inner) {
                         view.AddHeading(Markup.Escape(label), level, null, SummaryOf(inner, labels));
@@ -165,9 +165,12 @@ namespace ConsoleMonster.Widgets {
                 case InspectCollection collection:
                     return SummaryOf(collection, labels);
                 default:
-                    return node.TypeName;
+                    return node is InspectObject record ? NoteOf(record) : node.TypeName;
             }
         }
+
+        // A nested object's identity, or its field count rather than a generic type name.
+        private static string NoteOf(InspectObject record) => InspectIdentity.Label(record, out string? fieldCount) ?? fieldCount!;
 
         private static TableCell CellFor(InspectNode node) {
             switch (node) {

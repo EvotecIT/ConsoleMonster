@@ -112,7 +112,7 @@ namespace ConsoleMonster.Capabilities {
             try { inputRedirected = Console.IsInputRedirected; } catch (Exception) { }
             IntPtr handle = WindowsConsole.StandardOutput;
             bool console = WindowsConsole.TryGetMode(handle, out uint mode);
-            bool? vt = console ? WindowsConsole.TrySetMode(handle, mode | WindowsConsole.EnableVirtualTerminalProcessing) : (bool?)null;
+            bool? vt = console ? DetectionOutputMode.Enable(handle, mode) : (bool?)null;
             WindowsConsole.TryGetFont(handle, out string? face, out bool raster);
             TerminalSize.TryGet(out int width, out int height);
             return new TerminalEnvironment(WindowsAccessibility.HighContrastEnabled(), variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height, inputRedirected);

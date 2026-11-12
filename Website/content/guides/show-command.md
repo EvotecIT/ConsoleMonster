@@ -60,7 +60,7 @@ Show-Command -Name Get-Service
 
 ```powershell
 $form = New-ConsoleForm -Title 'Service inventory' -Command 'Get-Service' -Content {
-    New-ConsoleField -Key Name -Label 'Service name' -Type Text `
+    New-ConsoleField -Key Name -Label 'Service name' -Kind Text `
         -Required -ParameterName Name
 }
 Set-ConsoleFormValue -Form $form -Values @{ Name = 'WinRM' }
@@ -94,9 +94,9 @@ $command = Show-Command -Name Test-Connection -PassThru
 
 ```powershell
 $form = New-ConsoleForm -Title 'Reachability check' -Command 'Test-Connection' -Content {
-    New-ConsoleField -Key Target -Label 'Server' -Type Select -Choices $servers `
+    New-ConsoleField -Key Target -Label 'Server' -Kind Select -Choices $servers `
         -Display Name -GroupBy Site -CommandValue Name -ParameterName ComputerName
-    New-ConsoleField -Key Count -Label 'Echo requests' -Type Number -Integer `
+    New-ConsoleField -Key Count -Label 'Echo requests' -Kind Number -Integer `
         -Minimum 1 -Maximum 10 -Default 4 -ParameterName Count
 }
 $result = $form | Read-ConsoleForm -PassThru

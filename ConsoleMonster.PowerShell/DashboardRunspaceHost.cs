@@ -56,7 +56,7 @@ namespace ConsoleMonster.PowerShell {
                 shell.Runspace = runspace;
                 shell.AddScript(script);
                 AddArguments(shell, arguments);
-                Invocation invocation = new Invocation(shell, new PowerShellStreamCapture(shell, _session));
+                Invocation invocation = new Invocation(shell, new PowerShellStreamCapture(shell, _session, releaseDelivered: true));
                 invocation.Async = shell.BeginInvoke();
                 Complete(invocation, cancelled);
             }
@@ -86,7 +86,7 @@ namespace ConsoleMonster.PowerShell {
             shell.RunspacePool = _pool;
             shell.AddScript(script).AddArgument(item);
             AddArguments(shell, arguments);
-            Invocation invocation = new Invocation(shell, new PowerShellStreamCapture(shell, _session, isolateProgress: true));
+            Invocation invocation = new Invocation(shell, new PowerShellStreamCapture(shell, _session, isolateProgress: true, releaseDelivered: true));
             invocation.Async = shell.BeginInvoke();
             _running.Add(invocation);
             CollectFinished(cancelled, false);

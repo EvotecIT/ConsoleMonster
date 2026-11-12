@@ -38,11 +38,11 @@ foreach (var task in tasks)
 Rows layout = new Rows(
     new Rule(($"[accent bold]Everyday formatting[/] [muted]{separator} same objects, clearer "
         + $"output[/]")),
-    new TextBlock($"[bold]Before[/] [muted]{separator} plain text[/]"),
-    new TextBlock(baseline),
-    new TextBlock($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]"),
+    TextBlock.FromMarkup($"[bold]Before[/] [muted]{separator} plain text[/]"),
+    TextBlock.FromMarkup(baseline),
+    TextBlock.FromMarkup($"[bold]After[/] [muted]{separator} ConsoleMonster table[/]"),
     table,
-    new TextBlock("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]"))
+    TextBlock.FromMarkup("[muted]Three tasks. Aligned columns and right-aligned numbers.[/]"))
 {
     Gap = 1
 };

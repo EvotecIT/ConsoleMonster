@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/EvotecIT/PSPublishModule/main/Schemas/powerforge.web.enginelock.schema.json",
   "repository": "EvotecIT/PSPublishModule",
-  "ref": "5767e6953d1f9839244c90faa0f8f96934f8ad92",
+  "ref": "df478a7a984f80c18c4ec51f16f8c00e9a61408d",
   "channel": "next",
-  "updatedUtc": "2026-10-26T10:02:09.479921+00:00"
+  "updatedUtc": "2026-11-12T08:28:03.927980+00:00"
 }

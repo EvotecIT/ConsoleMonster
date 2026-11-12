@@ -15,7 +15,7 @@ A theme restyles every widget at once. Widgets never name colours directly; they
 
 ## Choosing the theme
 
-- `Show-ConsoleSettings`, or `Set-ConsoleSetting Theme ... -Save`, for every session (below).
+- `Show-ConsoleSetting`, or `Set-ConsoleSetting Theme ... -Save`, for every session (below).
 - `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code.
 - `auto` reads the console background colour in conhost. In Windows Terminal, which does not report its scheme to console programs, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light` for a light scheme.
 - `Set-ConsoleTheme` in PowerShell, `LiveSessionOptions.Theme` for one session.
@@ -40,7 +40,7 @@ using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
 
 Terminal.Theme = Theme.Light;                                   // every write from here on
-Terminal.Write(new TextBlock("[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]"));
+Terminal.Write(TextBlock.FromMarkup("[pass]√ 412 passed[/]  [warn]▲ 51 warnings[/]  [fail]✗ 23 failed[/]"));
 Terminal.Theme = Theme.HighContrast;
 Terminal.Write(new Rule("[bold]High contrast[/]"));
 ```
@@ -62,7 +62,7 @@ Ui.Rule("[bold]High contrast[/]").Show();
 
 ## Follow your terminal
 
-Choose **Terminal (follow my terminal)** in the Theme list in `Show-ConsoleSettings`, or use:
+Choose **Terminal (follow my terminal)** in the Theme list in `Show-ConsoleSetting`, or use:
 
 ```powershell
 Set-ConsoleTheme Terminal -Save
@@ -112,7 +112,7 @@ In C#, use `TerminalScheme.Load(path)` and `Theme.FromScheme(scheme, accessible:
 
 ## Keep a theme for every session
 
-`Show-ConsoleSettings` opens a picker with a preview that redraws as you move through the themes, glyph sets, colour depths and the other settings, so you can compare them before choosing. Save keeps the choices for every session; Escape leaves everything as it was. Without the picker, `-Save` does the same:
+`Show-ConsoleSetting` opens a picker with a preview that redraws as you move through the themes, glyph sets, colour depths and the other settings, so you can compare them before choosing. Save keeps the choices for every session; Escape leaves everything as it was. Without the picker, `-Save` does the same:
 
 ```powershell
 Set-ConsoleTheme ColorBlindSafe -Save       # or: Set-ConsoleSetting Theme ColorBlindSafe -Save
@@ -138,7 +138,7 @@ Set-ConsoleSetting Density Compact -Save
 Set-ConsoleSetting StatusMarkers Words -Save
 ```
 
-`Show-ConsoleSettings` previews these choices. A widget that asks for its own frame (`New-ConsolePanel -Border Double`) keeps
+`Show-ConsoleSetting` previews these choices. A widget that asks for its own frame (`New-ConsolePanel -Border Double`) keeps
 it, and the ASCII glyph tier still draws ASCII. `CONSOLEMONSTER_BORDER`, `CONSOLEMONSTER_DENSITY` and `CONSOLEMONSTER_STATUS_MARKERS` set them
 for one run; in C#, `Theme.WithAppearance` gives a theme its style and `TerminalProfile.WithBorder` and
 `WithDensity` and `WithStatusMarkers` override it.
@@ -267,7 +267,7 @@ using ConsoleMonster.Widgets;
 
 Theme team = ThemeFile.Load("team-dark.json").ToTheme();
 Terminal.Theme = team;
-Terminal.Write(new TextBlock("[pass]Deployment ready[/]"));
+Terminal.Write(TextBlock.FromMarkup("[pass]Deployment ready[/]"));
 ThemeFile.FromTheme(team).Save("team-snapshot.json");
 ```
 

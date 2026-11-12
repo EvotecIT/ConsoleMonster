@@ -146,7 +146,7 @@ session.Run(s =>
 
 The dashboard owns the screen only while the work runs:
 
-- **When the work ends**, the screen is restored and the dashboard's final state is printed to the scrollback, so the result stays readable after the run. `-Summary` prints a widget of your own instead, and `-Transient` leaves nothing behind.
+- **When the work ends**, the screen is restored and the dashboard's final state is printed to the scrollback, so the result stays readable after the run. `-Summary` prints a widget of your own instead, and `-PrintFinalState:$false` leaves nothing behind.
 - **Ctrl+C** stops the script and always restores the terminal, then prints the final state as above. In C#, the first Ctrl+C cancels `session.Cancellation`; check it in long loops (`s.Cancellation.ThrowIfCancellationRequested()`) so the work stops promptly.
 - **Errors** in the script restore the terminal too, and problems such as an update for a name the dashboard does not have are reported once the screen is back.
 - **`-Inline`** draws the dashboard below the cursor instead of on its own screen, with output scrolling above it.

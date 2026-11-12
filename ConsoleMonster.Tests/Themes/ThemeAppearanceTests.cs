@@ -110,7 +110,7 @@ namespace ConsoleMonster.Tests.Themes {
             public void Current_DrawsTheThemeInUseOnTheBackgroundItIsMadeFor() {
                 try {
                     Terminal.Theme = Theme.ColorBlindSafeLight;
-                    string html = ConsoleExporter.ToHtml(new TextBlock("[pass]ok[/]"), new ExportOptions { Theme = ExportTheme.Current, Width = 20 });
+                    string html = ConsoleExporter.ToHtml(TextBlock.FromMarkup("[pass]ok[/]"), new ExportOptions { Theme = ExportTheme.Current, Width = 20 });
                     string pass = Theme.ColorBlindSafeLight.Get(ThemeToken.Pass).Color!.Value.TrueColor.ToString().ToLowerInvariant();
                     Assert.Contains(pass, html.ToLowerInvariant());
                     Assert.Contains(ExportPalette.Light.Background, html);

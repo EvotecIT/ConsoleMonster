@@ -757,7 +757,7 @@
     "ConsoleMonster.PowerShell.CmdletShowConsoleOverview",
     "ConsoleMonster.PowerShell.CmdletShowConsolePresentation",
     "ConsoleMonster.PowerShell.CmdletShowConsoleReplay",
-    "ConsoleMonster.PowerShell.CmdletShowConsoleSettings",
+    "ConsoleMonster.PowerShell.CmdletShowConsoleSetting",
     "ConsoleMonster.PowerShell.CmdletShowConsoleStatusLine",
     "ConsoleMonster.PowerShell.CmdletShowConsoleTable",
     "ConsoleMonster.PowerShell.CmdletStartConsoleRun",
@@ -829,6 +829,7 @@
     "ConsoleMonster.PowerShell.Display.DefaultDisplaySource",
     "ConsoleMonster.PowerShell.Display.DefaultDisplayStream",
     "ConsoleMonster.PowerShell.Display.DefaultDisplayStreaming",
+    "ConsoleMonster.PowerShell.Display.HostOutput",
     "ConsoleMonster.PowerShell.Display.IDefaultDisplayNativeSink",
     "ConsoleMonster.PowerShell.Display.ModuleLease"
   ],
@@ -850,6 +851,7 @@
     "ConsoleMonster.Graphics.GraphicsFluent",
     "ConsoleMonster.Graphics.GraphicsFormat",
     "ConsoleMonster.Graphics.GraphicsPreset",
+    "ConsoleMonster.Graphics.ImageComposition",
     "ConsoleMonster.Graphics.PngFrameExportProvider"
   ],
   "ConsoleMonster.Hosting": [

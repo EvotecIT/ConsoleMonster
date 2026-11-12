@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoletreeselect/
 schema: 2.0.0
 ---
 # New-ConsoleTreeSelect
 ## SYNOPSIS
 Creates an embeddable, lazy object tree for Show-ConsoleApp.
-
-Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleTreeSelect [-Key] <string> [[-Label] <string>] -InputObject <psobject
 ```
 
 ## DESCRIPTION
-Creates an embeddable, lazy object tree for Show-ConsoleApp.
-
 Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.
 
 ## EXAMPLES
@@ -30,6 +26,14 @@ Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $conf
 ```
 
 Browse a nested configuration
+
+### EXAMPLE 2
+```powershell
+$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
+New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console
+```
+
+Compose an inventory tree select
 
 ## PARAMETERS
 
@@ -44,7 +48,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -60,7 +64,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -76,7 +80,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 20
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -140,7 +144,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 100
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -156,7 +160,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 5000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -188,7 +192,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $x
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -204,7 +208,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -238,4 +242,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoletreeselect/](https://consolemonster.dev/powershell/commands/new-consoletreeselect/)

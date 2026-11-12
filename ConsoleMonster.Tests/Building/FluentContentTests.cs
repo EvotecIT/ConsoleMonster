@@ -11,6 +11,16 @@ using Xunit;
 namespace ConsoleMonster.Tests.Building {
     public sealed class FluentContentTests {
         [Fact]
+        public void TextConstructionIsLiteralUnlessMarkupIsExplicit() {
+            const string input = "[bold]Ready[/]";
+            Assert.Equal(input, ConsoleExporter.ToText(new TextBlock(input)).TrimEnd());
+            Assert.Equal(input, ConsoleExporter.ToText(Ui.Text(input)).TrimEnd());
+            Assert.Equal("Ready", ConsoleExporter.ToText(TextBlock.FromMarkup(input)).TrimEnd());
+            Assert.Equal("Ready", ConsoleExporter.ToText(Ui.Markup(input)).TrimEnd());
+            Assert.Equal(input, ConsoleExporter.ToText(Ui.Rows().Content(content => content.Text(input))).TrimEnd());
+        }
+
+        [Fact]
         public void BooleanSwitchOverloadsAndContentHelpersKeepTheirMeaning() {
             var table = new Table().Expand();
             Assert.True(table.Expand);

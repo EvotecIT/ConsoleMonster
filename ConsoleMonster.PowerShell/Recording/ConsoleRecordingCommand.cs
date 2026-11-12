@@ -21,31 +21,38 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Local asciicast v2 output; omitted names are timestamped.</para></summary>
         [Parameter(ParameterSetName = "Script")]
         [Parameter(ParameterSetName = "Headless")] public string? RecordingPath { get; set; }
-        /// <summary><para type="description">Recording title.</para></summary>
-        [Parameter] public string Title { get; set; } = "Console session";
+        /// <summary><para type="description">Title stored with the cast and shown by exported recording players.</para></summary>
+        [Parameter] [PSDefaultValue(Help = "Console session")]
+        public string Title { get; set; } = "Console session";
         /// <summary><para type="description">Shell executable. The default is the current PowerShell executable. Not used with -Headless.</para></summary>
         [Parameter] public string? Shell { get; set; }
         /// <summary><para type="description">Initial terminal width in cells.</para></summary>
-        [Parameter] [ValidateRange(0, 1000)] public int Width { get; set; }
+        [Parameter] [ValidateRange(0, 1000)] [PSDefaultValue(Help = "0")]
+        public int Width { get; set; }
         /// <summary><para type="description">Initial terminal height in cells.</para></summary>
-        [Parameter] [ValidateRange(2, 1000)] public int Height { get; set; } = 30;
+        [Parameter] [ValidateRange(2, 1000)] [PSDefaultValue(Help = "30")]
+        public int Height { get; set; } = 30;
         /// <summary><para type="description">Additional regular expressions to redact from recorded output.</para></summary>
         [Parameter] public string[] Redact { get; set; } = Array.Empty<string>();
         /// <summary><para type="description">Visible replacement for matched output (default [REDACTED]). No control characters.</para></summary>
         [Parameter, PSDefaultValue(Value = "[REDACTED]")] public string RedactionText { get; set; } = "[REDACTED]";
         /// <summary><para type="description">Maximum cast bytes. At the cap recording stops with a warning.</para></summary>
-        [Parameter] [ValidateRange(1024, long.MaxValue)] public long MaxBytes { get; set; } = 64 * 1024 * 1024;
+        [Parameter] [ValidateRange(1024, long.MaxValue)] [PSDefaultValue(Help = "67108864")]
+        public long MaxBytes { get; set; } = 64 * 1024 * 1024;
         /// <summary><para type="description">Asciicast player idle-limit hint in seconds. Source timestamps are always preserved; zero disables the hint.</para></summary>
-        [Parameter] [ValidateRange(0, 86400)] public double IdleLimitSeconds { get; set; } = 2;
+        [Parameter] [ValidateRange(0, 86400)] [PSDefaultValue(Help = "2")]
+        public double IdleLimitSeconds { get; set; } = 2;
         /// <summary><para type="description">Explicit limited fallback: PowerShell host output in this process; no native terminal capture. Not used with -Headless.</para></summary>
-        [Parameter] public SwitchParameter InProcess { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter InProcess { get; set; }
         /// <summary><para type="description">Maximum child lifetime in seconds. Not used with -Headless, where the script runs in this session.</para></summary>
-        [Parameter] [ValidateRange(0.01, 604800)] public double TimeoutSeconds { get; set; } = 86400;
+        [Parameter] [ValidateRange(0.01, 604800)] [PSDefaultValue(Help = "86400")]
+        public double TimeoutSeconds { get; set; } = 86400;
 
         /// <summary>Maps PowerShell paths and arguments into the shared recording API.</summary>
         protected SessionRecordingOptions Options() {
             SessionRecordingOptions options = new SessionRecordingOptions {
-                Path = RecordingPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath),
+                RecordingPath = RecordingPath == null ? null : SessionState.Path.GetUnresolvedProviderPathFromPSPath(RecordingPath),
                 Title = Title, Shell = Shell ?? System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName, RedactionText = RedactionText,
                 Width = Width, Height = Height, MaxBytes = MaxBytes, IdleLimit = TimeSpan.FromSeconds(IdleLimitSeconds),
                 WorkingDirectory = SessionState.Path.CurrentFileSystemLocation.Path, InProcess = InProcess.IsPresent, Timeout = TimeSpan.FromSeconds(TimeoutSeconds)

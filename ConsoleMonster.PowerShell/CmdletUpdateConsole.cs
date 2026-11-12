@@ -8,10 +8,8 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Updates a live widget or a caller-managed run through one validated operation.</para>
-    /// <para type="description">WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.</para>
-    /// </summary>
+    /// <summary>Updates a live widget or a caller-managed run through one validated operation.</summary>
+    /// <remarks><para>WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.</para></remarks>
     /// <example>
     /// <para>Advance a progress widget and change its label</para>
     /// <code>$dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleProgress -WidgetId build -Total 20 }
@@ -33,7 +31,7 @@ namespace ConsoleMonster.PowerShell {
     /// Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'
     /// Complete-ConsoleRun $run</code>
     /// </example>
-    [Cmdlet(VerbsData.Update, "Console", DefaultParameterSetName = "Fields")]
+    [Cmdlet(VerbsData.Update, "Console", DefaultParameterSetName = "Fields", HelpUri = "https://consolemonster.dev/powershell/commands/update-console/")]
     public sealed class CmdletUpdateConsole : PSCmdlet {
         /// <summary>Unsupported pipeline input for update modes that do not take rows or content.</summary>
         [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Fields")]
@@ -91,7 +89,7 @@ namespace ConsoleMonster.PowerShell {
         [AllowNull]
         public object? Label { get; set; }
 
-        /// <summary><para type="description">The replacement detail.</para></summary>
+        /// <summary><para type="description">Detail text replacing the current message on the addressed live item.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
         [Parameter(ParameterSetName = "Run")]
         [AllowNull]
@@ -105,13 +103,15 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The planned total; zero means unknown.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
+        [PSDefaultValue(Help = "0")]
         public double Total { get; set; }
 
         /// <summary><para type="description">The additive change; cannot be combined with Value.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
+        [PSDefaultValue(Help = "0")]
         public double Increment { get; set; }
 
-        /// <summary><para type="description">The new state.</para></summary>
+        /// <summary><para type="description">The replacement live status, such as Running, Pass, Warn or Fail.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
         [Parameter(ParameterSetName = "Cells", Mandatory = true)]
         [Parameter(ParameterSetName = "AppendCells")]
@@ -120,6 +120,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(ParameterSetName = "FlowEdge", Mandatory = true)]
         [Binding.StatusKindTransformation]
         [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
+        [PSDefaultValue(Help = "Pending")]
         public StatusKind Status { get; set; }
 
         /// <summary><para type="description">The flow node whose status changes.</para></summary>
@@ -132,12 +133,14 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Severs the edge; Cut:$false reconnects it. Omission preserves connectivity.</para></summary>
         [Parameter(ParameterSetName = "FlowEdge")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Cut { get; set; }
 
         /// <summary><para type="description">The result of completed lane steps.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
         [Binding.StatusKindTransformation]
         [ArgumentCompleter(typeof(Binding.StatusKindCompleter))]
+        [PSDefaultValue(Help = "Pending")]
         public StatusKind Result { get; set; }
 
         /// <summary><para type="description">The parent activity key, or the phase an item belongs to in a phase strip (Key is then the item).</para></summary>
@@ -146,6 +149,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">The estimated remaining time, in seconds.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
+        [PSDefaultValue(Help = "0")]
         public double RemainingSeconds { get; set; }
 
         /// <summary><para type="description">Summary labels mapped to nonnegative integer counts.</para></summary>
@@ -154,14 +158,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Restarts an indeterminate progress indicator.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Restart { get; set; }
 
         /// <summary><para type="description">Finishes the activity or lane.</para></summary>
         [Parameter(ParameterSetName = "Fields")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Complete { get; set; }
 
         /// <summary><para type="description">Appends Value as a chart sample.</para></summary>
         [Parameter(ParameterSetName = "Append", Mandatory = true)]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Append { get; set; }
 
         /// <summary><para type="description">A record with the live table's column properties (keyed by its KeyProperty), or a Key and Values descriptor that retains typed cells.</para></summary>
@@ -170,10 +177,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Removes the row addressed by Key.</para></summary>
         [Parameter(ParameterSetName = "RemoveRow", Mandatory = true)]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter RemoveRow { get; set; }
 
         /// <summary><para type="description">Clears all live table rows.</para></summary>
         [Parameter(ParameterSetName = "ClearRows", Mandatory = true)]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter ClearRows { get; set; }
 
         /// <summary><para type="description">Zero-based cells; the Run set requires exactly one index.</para></summary>
@@ -183,14 +192,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Appends outcome cells.</para></summary>
         [Parameter(ParameterSetName = "AppendCells", Mandatory = true)]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AppendCells { get; set; }
 
         /// <summary><para type="description">The number of appended cells; default one.</para></summary>
         [Parameter(ParameterSetName = "AppendCells")]
+        [PSDefaultValue(Help = "1")]
         public int Count { get; set; } = 1;
 
         /// <summary><para type="description">The new cell count, at least one.</para></summary>
         [Parameter(ParameterSetName = "ResizeCells", Mandatory = true)]
+        [PSDefaultValue(Help = "0")]
         public int CellCount { get; set; }
 
         /// <summary><para type="description">The replacement widget or a script block producing widgets; null clears the region.</para></summary>

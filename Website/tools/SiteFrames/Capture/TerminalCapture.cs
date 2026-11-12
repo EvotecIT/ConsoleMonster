@@ -18,7 +18,7 @@ namespace SiteFrames.Capture {
             Directory.CreateDirectory(folder);
             var options = new SessionRecordingOptions {
                 Shell = executable, Width = width, Height = height, WorkingDirectory = workingDirectory,
-                Timeout = timeout, SessionTimeout = timeout, Path = Path.Combine(folder, "capture.cast"), RespondToCursorQueries = true
+                Timeout = timeout, SessionTimeout = timeout, RecordingPath = Path.Combine(folder, "capture.cast"), RespondToCursorQueries = true
             };
             foreach (string argument in arguments) { options.Arguments.Add(argument); }
             foreach (var entry in environment) { options.Environment[entry.Key] = entry.Value; }
@@ -43,9 +43,9 @@ namespace SiteFrames.Capture {
                     if (interrupt.HasValue) { recorder.WaitForExitWithInterrupt(interrupt.Value); }
                     else { recorder.WaitForExit(); }
                     if (interrupt.HasValue && !recorder.Interrupted) { throw new InvalidOperationException("Capture exited before Ctrl+C: " + executable); }
-                    List<OutputChunk> native = Read(options.Path);
+                    List<OutputChunk> native = Read(options.RecordingPath);
                     if (recorder.ExitCode != 0) { throw new InvalidOperationException("Capture process exited with code " + recorder.ExitCode + ": " + executable + "\n" + Encoding.UTF8.GetString(PowerShellRunner.Bytes(native))); }
-                    string recordedPath = hostedOutput ? hostedPath : options.Path;
+                    string recordedPath = hostedOutput ? hostedPath : options.RecordingPath;
                     if (!File.Exists(recordedPath)) { throw new InvalidDataException("The capture worker did not finalize its hosted recording."); }
                     List<OutputChunk> chunks = Normalize(Read(recordedPath), width, height);
                     CaptureRun.Observe(PowerShellRunner.Bytes(chunks), width, height);
@@ -55,12 +55,12 @@ namespace SiteFrames.Capture {
                     return chunks;
                 }
             } catch (TimeoutException error) {
-                string output = File.Exists(options.Path) ? Encoding.UTF8.GetString(PowerShellRunner.Bytes(Read(options.Path))) : string.Empty;
+                string output = File.Exists(options.RecordingPath) ? Encoding.UTF8.GetString(PowerShellRunner.Bytes(Read(options.RecordingPath))) : string.Empty;
                 if (output.Length > 8000) { output = output[^8000..]; }
                 throw new TimeoutException(error.Message + " Child: " + executable + "\n" + output, error);
             } finally {
                 try {
-                    string retainedPath = hostedOutput && File.Exists(hostedPath) ? hostedPath : options.Path;
+                    string retainedPath = hostedOutput && File.Exists(hostedPath) ? hostedPath : options.RecordingPath;
                     // Failed captures retain their original bytes for diagnostics; they never receive a success receipt.
                     if (!captureWritten && capturePath != null && File.Exists(retainedPath)) { File.WriteAllBytes(capturePath, PowerShellRunner.Bytes(Read(retainedPath))); }
                 } finally { Site.RemoveTemporary(folder); }

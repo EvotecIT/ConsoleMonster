@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/watch-consolelog/
 schema: 2.0.0
 ---
 # Watch-ConsoleLog
 ## SYNOPSIS
 Follows a log file or a local Windows event log with a live, scrollable log view.
-
-File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows interactively until q, Escape or Ctrl+C and reads one snapshot without a user. Capacity bounds retained history. The default interval is 0.25 seconds.
 
 ## SYNTAX
 ### Path (Default)
@@ -22,8 +20,6 @@ Watch-ConsoleLog -LogName <string> [-Tail <int>] [-Count <long>] [-PollIntervalS
 ```
 
 ## DESCRIPTION
-Follows a log file or a local Windows event log with a live, scrollable log view.
-
 File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows interactively until q, Escape or Ctrl+C and reads one snapshot without a user. Capacity bounds retained history. The default interval is 0.25 seconds.
 
 ## EXAMPLES
@@ -64,7 +60,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -80,7 +76,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -96,7 +92,7 @@ Possible values: unknown, string, unicode, bigendianunicode, utf8, utf8BOM, utf8
 
 Required: False
 Position: named
-Default value: None
+Default value: utf8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -176,7 +172,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -208,7 +204,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0.25
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -224,7 +220,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -258,4 +254,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/watch-consolelog/](https://consolemonster.dev/powershell/commands/watch-consolelog/)

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolediagramlink/
 schema: 2.0.0
 ---
 # New-ConsoleDiagramLink
 ## SYNOPSIS
 Connects two diagram components.
-
-From and To identify nodes by their label or explicit Id. The containing diagram creates undeclared endpoints. Labels are literal, Status uses the shared ConsoleMonster health states, and Both adds an arrow at each end.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleDiagramLink [-From] <string> [-To] <string> [-Label <string>] [-Statu
 ```
 
 ## DESCRIPTION
-Connects two diagram components.
-
 From and To identify nodes by their label or explicit Id. The containing diagram creates undeclared endpoints. Labels are literal, Status uses the shared ConsoleMonster health states, and Both adds an arrow at each end.
 
 ## EXAMPLES
@@ -29,6 +25,17 @@ New-ConsoleDiagramLink 'File server' Backup -Label nightly -Status Fail -Style D
 ```
 
 A failing backup connection.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDiagram -Title 'Service dependencies' -Content {
+                New-ConsoleDiagramNode -Id api -Label API
+                New-ConsoleDiagramNode -Id db -Label Database
+                New-ConsoleDiagramLink -From api -To db -Label SQL
+            } | Show-Console
+```
+
+Compose an inventory diagram link
 
 ## PARAMETERS
 
@@ -43,7 +50,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -65,7 +72,7 @@ Accept wildcard characters: False
 ```
 
 ### -Label
-The connection text.
+Label displayed beside the connection between the two diagram nodes.
 
 ```yaml
 Type: String
@@ -107,7 +114,7 @@ Possible values: Solid, Dashed, Dotted
 
 Required: False
 Position: named
-Default value: None
+Default value: Solid
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -141,4 +148,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolediagramlink/](https://consolemonster.dev/powershell/commands/new-consolediagramlink/)

@@ -3,57 +3,25 @@
   "producer": "windows",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "starter",
+  "requestedSet": "benchmarks",
   "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "docs/how-it-works-dark-80.ps5.ansi": {
+    "benchmarks/benchmarks.windows.cast": {
       "platform": "windows",
-      "category": "neutral",
-      "sha256": "4d56e9fe9ef34b7bd5b43f29f5816629cdc4c1a9f455b7dc8085529dea3d410e",
+      "category": "measurements",
+      "comparison": {
+        "class": "live-measured",
+        "reason": "Actual event-apply throughput, rendering rates and durations measured by the benchmark program.",
+        "minFrames": 2,
+        "maxFrames": 100,
+        "minDurationSeconds": 0.05,
+        "maxDurationSeconds": 10
+      },
+      "sha256": "9df371cc8ae8c92c32d807e6c2f98f0eb7b2eab51a8b9aafc47046757b836149",
       "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "docs/how-it-works-dark-80.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "4d56e9fe9ef34b7bd5b43f29f5816629cdc4c1a9f455b7dc8085529dea3d410e",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "docs/layout-dark-80.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "fa3a1722af511a4d5c335a7e9bea1a187feef12c4e75408fb498ae698a2f5359",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "docs/layout-dark-80.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "fa3a1722af511a4d5c335a7e9bea1a187feef12c4e75408fb498ae698a2f5359",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "guides/first-report-dark-80.ps5.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "ccf6f3cc5cef53a062cd16d63ecfbd81f30fdd0505504aeea4407ff40ef8d4fc",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "guides/first-report-dark-80.ps7.ansi": {
-      "platform": "windows",
-      "category": "neutral",
-      "sha256": "ccf6f3cc5cef53a062cd16d63ecfbd81f30fdd0505504aeea4407ff40ef8d4fc",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
+      "width": 110,
+      "height": 20
     }
   }
 }

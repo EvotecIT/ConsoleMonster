@@ -41,9 +41,10 @@ IWidget Frame(int tick)
         new Panel()
         {
             Title = "CPU history",
-            Content = new Rows(new TextBlock("[muted]CPU %[/]"), history)
+            Content = new Rows(TextBlock.FromMarkup("[muted]CPU %[/]"), history)
         },
-        new TextBlock("[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))
+        TextBlock.FromMarkup(
+            "[muted]Ctrl+C stops monitoring. Final counters stay in scrollback.[/]"))
     {
         Gap = 1
     };

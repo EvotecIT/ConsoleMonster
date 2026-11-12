@@ -9,14 +9,14 @@ using ConsoleMonster;
 string[] tasks = { "Health report", "Inspect queue", "Preview cleanup" };
 
 // Layout: construct the widgets shown on screen.
-Rows layout = Ui.Rows().Gap(1).Content(c3 =>
+Rows layout = Ui.Rows().Gap(1).Content(rowsContent2 =>
 {
-    c3.Markup("[accent bold]Server toolbox[/] [muted]· operations[/]");
-    c3.Select(select => select.Key("Task")
+    rowsContent2.Markup("[accent bold]Server toolbox[/] [muted]· operations[/]");
+    rowsContent2.Select(select => select.Key("Task")
         .AddChoices(tasks.Select(task => new Choice(task)))
         .Label("Task")
         .Value(tasks[0]));
-    c3.Binding(binding => binding.Configure(o => o.Content = state =>
+    rowsContent2.Binding(binding => binding.Configure(o => o.Content = state =>
     {
         string task = state.Get<string>("Task", tasks[0]);
         string[] lines = task == tasks[0] ? new[]
@@ -31,14 +31,14 @@ Rows layout = Ui.Rows().Gap(1).Content(c3 =>
             "[warn]3 artifacts eligible[/]",
             "Eligible artifacts: build-cache, test-output, old-logs."
         };
-        return Ui.Panel().Title("Preview").Content(c2 =>
+        return Ui.Panel().Title("Preview").Content(panelContent =>
         {
-            c2.Rows(r => r.Content(c =>
+            panelContent.Rows(r => r.Content(rowsContent =>
             {
-                foreach (var cWidget in (lines.Select(line => Ui.Markup(line))
+                foreach (var rowsContentWidget in (lines.Select(line => Ui.Markup(line))
                     .ToArray() ?? Array.Empty<IWidget>()))
                 {
-                    c.Add(cWidget);
+                    rowsContent.Add(rowsContentWidget);
                 }
             }));
         });

@@ -95,7 +95,7 @@ In C#, `terminal.WaitForText` waits for a screen, and `GoldenFile.Match("picked.
 `Invoke-ConsolePester` takes the parameters of `Invoke-Pester` and shows the run while it happens: totals and the clock, one lane per test file with passed, failed and skipped counts, and the running test. `-FullScreen` adds the failures with expected and actual values, the slowest tests and a histogram of durations. When the run ends, a table of results by file and the failures stay in the scrollback. In CI logs and redirected output it writes one line per failure and a summary instead.
 
 ```powershell
-Invoke-ConsolePester -Path ./Tests -FullScreen -ReportPath ./pester-report.html
+Invoke-ConsolePester -Path ./Tests -FullScreen -ExportHtml ./pester-report.html
 ```
 
 ## Recording what the user sees

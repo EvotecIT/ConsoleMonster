@@ -6,10 +6,8 @@ using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.</para>
-    /// <para type="description">Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para>
-    /// </summary>
+    /// <summary>Creates a console tree from nested Label/Children records calls, hierarchical objects or nested hashtables.</summary>
+    /// <remarks><para>Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para></remarks>
     /// <example>
     ///   <para>A mail domain with records and their state</para>
     ///   <code>
@@ -43,7 +41,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A DNS delegation from nested hashtables</para>
     ///   <code>New-ConsoleTree -Title 'evotec.xyz' -InputObject ([ordered] @{ NS = @('dana.ns.cloudflare.com', 'kirk.ns.cloudflare.com'); MX = [ordered] @{ 'mail.protection.outlook.com' = '52.101.68.17' } }) | Show-Console</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleTree", DefaultParameterSetName = NodesSet)]
+    [Cmdlet(VerbsCommon.New, "ConsoleTree", DefaultParameterSetName = NodesSet, HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletree/")]
     [OutputType(typeof(Tree))]
     public partial class CmdletNewConsoleTree : PSCmdlet {
         private const string NodesSet = "Nodes";
@@ -85,20 +83,25 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Levels of children to follow: New-ConsoleTree defaults to 5. Show-Console -View Tree defaults to 3 for object graphs, or one for wide .NET objects when Depth is omitted.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
+        [PSDefaultValue(Help = "5")]
         public int Depth { get; set; } = 5;
 
         /// <summary><para type="description">The most children listed per node, and objects listed at the top, before "+N more" (default 25; 0 lists all).</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
+        [PSDefaultValue(Help = "25")]
         public int MaxItems { get; set; } = 25;
 
         /// <summary><para type="description">The most nodes the tree may grow to (default 5000; 0 for no limit); beyond it a "node limit reached" note ends the walk.</para></summary>
         [Parameter(ParameterSetName = ObjectsSet)]
+        [PSDefaultValue(Help = "5000")]
         public int MaxNodes { get; set; } = 5000;
 
         /// <summary><para type="description">Wraps node labels and values with hanging indentation.</para></summary>
-        [Parameter] public SwitchParameter WrapLabels { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter WrapLabels { get; set; }
         /// <summary><para type="description">Hides the default-on root when a title was supplied.</para></summary>
-        [Parameter] public SwitchParameter NoRoot { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoRoot { get; set; }
         /// <summary><para type="description">Typed culture, time-zone and value presentation configuration.</para></summary>
         [Parameter] public Presenters.PresentationOptions? Presentation { get; set; }
 

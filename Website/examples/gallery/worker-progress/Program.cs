@@ -32,11 +32,11 @@ IWidget Frame(int tick)
     };
     trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return new Rows(
-        new TextBlock("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]"),
+        TextBlock.FromMarkup("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]"),
         new Columns(
             new Panel() { Title = "Workers", Content = workers },
             new Panel() { Title = "Session", Content = new Rows(stats, trend) }),
-        new TextBlock("[muted]Ctrl+C stops the live run.[/]"))
+        TextBlock.FromMarkup("[muted]Ctrl+C stops the live run.[/]"))
     {
         Gap = 1
     };

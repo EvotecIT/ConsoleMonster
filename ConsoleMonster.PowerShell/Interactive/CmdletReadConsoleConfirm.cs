@@ -4,10 +4,8 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Asks a yes/no question and returns $true or $false.</para>
-    /// <para type="description">Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.</para>
-    /// </summary>
+    /// <summary>Asks a yes/no question and returns $true or $false.</summary>
+    /// <remarks><para>Shows the question with the answers inline (the default focused); Y and N answer at once, arrows move, Enter takes the focused answer and Esc answers no. With -TypedConfirmation the user must type a text (a server name, a domain) before a destructive action; Esc then returns $false. In remoting and the ISE the host asks (PromptForChoice); without a user the default is returned.</para></remarks>
     /// <example>
     ///   <para>A question with a default</para>
     ///   <code>if (Read-ConsoleConfirm 'Inspect the current process?' -Default $false) { Get-Process -Id $PID }</code>
@@ -16,15 +14,16 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A typed confirmation before deleting</para>
     ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { Write-Host 'Would remove servers from the inventory' }</code>
     /// </example>
-    [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm")]
+    [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleconfirm/")]
     [OutputType(typeof(bool))]
     public sealed class CmdletReadConsoleConfirm : NonSelectionPromptCmdlet {
-        /// <summary><para type="description">The default answer.</para></summary>
+        /// <summary><para type="description">The answer initially selected; pressing Enter accepts this value.</para></summary>
         [Parameter]
         public bool? Default { get; set; }
 
         /// <summary><para type="description">Marks the question as destructive (a warning mark; No is focused unless -Default says otherwise).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Destructive { get; set; }
 
         /// <summary><para type="description">The text the user must type to confirm.</para></summary>

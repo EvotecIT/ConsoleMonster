@@ -161,7 +161,8 @@ Generated methods configure the same objects; no runtime reflection or analyzer 
 Tables negotiate their width instead of overflowing it:
 
 - Each column can set a `Priority`, `MinWidth`/`MaxWidth` and an `Overflow`: `Wrap` (with `MaxLines`), `Truncate`,
-  `TruncateMiddle` (paths, DNS names) or `Never`.
+  `TruncateMiddle` (paths, DNS names) or `Never`. A wrapped value uses at most three lines unless its column sets `MaxLines`
+  (`TableColumn.Unlimited` for every line) or the table sets `WrapLines` (0 = no limit).
 - An expanded table (`-Expand`) shares its spare width among the text columns in proportion to their widths; numbers,
   dates and status words keep their natural width. A column's `Weight` (or `Flexible`) takes the share instead, and
   `Width` or `MaxWidth` holds.
@@ -500,10 +501,10 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
 
 ```powershell
 $form = New-ConsoleForm 'Install agent' -Command 'Install-Agent' -Content {
-    New-ConsoleField Path 'Install folder' -Type Path -Kind Folder -Default 'C:\Program Files\Agent' -Page Location -ParameterName Path
-    New-ConsoleField Region 'Region' -Type Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
-    New-ConsoleField Server 'Server' -Type Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -ParameterName Server
-    New-ConsoleField Proxy 'Use a proxy' -Type Toggle -Page Connection -ParameterName UseProxy
+    New-ConsoleField Path 'Install folder' -Kind Path -PathKind Folder -Default 'C:\Program Files\Agent' -Page Location -ParameterName Path
+    New-ConsoleField Region 'Region' -Kind Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
+    New-ConsoleField Server 'Server' -Kind Select -DependsOn Region -LoadChoices { param($Values) Get-AgentServer -Region $Values.Region } -Page Connection -ParameterName Server
+    New-ConsoleField Proxy 'Use a proxy' -Kind Toggle -Page Connection -ParameterName UseProxy
     New-ConsoleField ProxyAddress 'Proxy address' -VisibleWhen { $Values.Proxy } -Page Connection -ParameterName Proxy
 }
 $answers = Read-ConsoleForm $form -AppName 'Agent setup' -RememberLastChoices
@@ -524,7 +525,7 @@ A live session can draw inline instead of on the alternate screen: an area as ta
 cursor, output and log lines scroll above it, and the final state stays in the scrollback.
 
 ```powershell
-Invoke-ConsoleDashboard $dashboard -Inline { ... }          # -Transient leaves nothing behind
+Invoke-ConsoleDashboard $dashboard -Inline { ... }          # -PrintFinalState:$false leaves nothing behind
 Use-ConsoleProgress { foreach ($i in 1..50) { Write-Progress -Activity 'Copying' -PercentComplete ($i * 2) } }
 ```
 
@@ -542,6 +543,103 @@ using (LiveSession session = new LiveSession(new Rows(progress, lanes), new Live
 - `Use-ConsoleProgress` runs an existing script unchanged, with the caller's variables. Its own `Write-Progress` and
   `Write-Host` calls are drawn inline, and its output is returned at the end. Commands inside other modules keep their
   own `Write-Progress`, which PowerShell shows as usual.
+
+### Writing around a running live area
+
+Output the session does not draw, such as a PowerShell host writing a warning, or a prompt that waits for an answer
+(`ShouldContinue`, `-WarningAction Inquire`), goes through `session.WriteOutside(action)`. The session writes the
+console lines it captured so far, clears an inline area (a full-screen session leaves the alternate screen) and shows
+the cursor. Then the action runs on the calling thread, for as long as it needs. Afterwards the area starts again
+below what the action wrote, so later frames never draw over it.
+
+```csharp
+session.WriteOutside(() => cmdlet.WriteWarning("The certificate expires in 5 days."));
+```
+
+- No frame is drawn while the action runs. Updates keep being applied, so the next frame is current.
+- Calls from several threads take turns. A call made inside the action, or from a render callback, just runs.
+- What the calling thread writes to `Console.Out` during the action goes to the console, not to the session log.
+- Append-only (stream) sessions and stopped sessions run the action directly; their lines are not redrawn.
+- PowerShell cmdlets use `HostOutput.Run` (below), which finds the running session itself.
+
+### Step ledgers
+
+For a list of build steps, use `Phases` with `StepCounter = true`: one numbered row per step with its status. A
+running step spins and shows its latest detail (`PhasesHandle.Detail`) with the time it has been running; a finished
+step keeps the time it took (taken from its `state` events, so it stays fixed) after its detail. Child rows of a group
+step are its items (`PhasesHandle.Item(phase, key, status, detail)`), listed under it, and an item can have sub-items
+(`SetSubItem(phase, item, key, ...)`, or an `item` event keyed phase, item and sub-item joined by U+001F) for a step,
+its stages and their packages. Items have their own clock in the same way. A step planned after the run started goes in
+at its place with `Insert(index, key, ...)` (the `insert` operation, Value = position), and re-adding a step that exists
+changes only its label, so a running step can be retitled. The separator before a time is a middle dot, or a hyphen on
+the ASCII tier.
+
+When the ledger is taller than its space, for example in an inline area:
+
+- Finished steps fold their items into their own row (`149/149 · 40s`), and running steps keep only their running,
+  failed and warning items, so finished rows cannot push the running step off the screen. A finished item with
+  sub-items folds the same way into one row under its running step.
+- If it still does not fit, it shows whole steps around the furthest step that has started, with the next step below
+  it and `+N earlier` / `+N more` rows for the rest. Every running step above that window stays pinned under
+  `+N earlier`. The window only moves forward: while step 7 is about to start, step 6 stays in view.
+- The final printed state is rendered without a height limit, so it lists every step and every item.
+
+```csharp
+Phases steps = new Phases("steps") { StepCounter = true };
+foreach (string name in plan) { steps.Set(name, StatusKind.Pending); }
+using (LiveSession session = new LiveSession(steps, new LiveSessionOptions { Mode = LiveMode.Inline })) {
+    session.Start();
+    PhasesHandle ledger = steps.Handle(session);
+    ledger.Start("Restore");
+    ledger.Complete("Restore");   // shows the time it took, such as "2.1s"
+}
+```
+
+To put a current-work line and a message log under the ledger in one inline area, add the ledger to `Rows` as a fraction
+row and the rest as auto rows: fraction rows are measured after the others, so the ledger takes only the rows left.
+Set `LogRegion.FitToEntries` on the log so it takes no rows while empty and then only the rows its messages need, up to
+`PreferredHeight`.
+
+```csharp
+Rows view = new Rows().Add(steps, LayoutSize.Fraction()).Add(currentLine).Add(new LogRegion("messages") { FitToEntries = true, PreferredHeight = 6 });
+```
+
+`LiveTable.MaxRows` is a different tool: it keeps only the most recent rows and removes older ones.
+
+## Output from your own compiled cmdlets
+
+A binary module that is not ConsoleMonster's PowerShell module can still write ConsoleMonster output the way its
+commands do. Reference the `ConsoleMonster.PowerShell.Display` package (it brings `ConsoleMonster`) and call
+`HostOutput` from the cmdlet's pipeline thread. Importing the ConsoleMonster module is not needed.
+
+```csharp
+using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
+using ConsoleMonster.Widgets;
+
+[Cmdlet(VerbsLifecycle.Invoke, "Build")]
+public sealed class InvokeBuildCommand : PSCmdlet {
+    protected override void EndProcessing() {
+        Table table = new Table().AddColumn("Step").AddColumn("Took");
+        table.AddRow("Restore", "2.1s").AddRow("Build", "14s");
+        HostOutput.Write(this, table);
+        HostOutput.WriteMarkup(this, "[pass]Build finished[/] in [bold]16s[/]");
+        HostOutput.Run(this, () => WriteWarning("Two analyzers were skipped."));
+    }
+}
+```
+
+- `HostOutput.Write(cmdlet, widget, width, theme)` and `HostOutput.WriteMarkup(cmdlet, markup, newLine)` pick the
+  route by the cmdlet's host. A real local console is drawn directly, with colour. An active transcript and the ISE
+  get coloured `Host.UI` writes, and the transcript records the plain line. Jobs and remoting get `PSHOST`-tagged
+  information records with colours, as `Write-Host` writes them. Redirected output and other hosts get one plain
+  line per row. `NO_COLOR` and plain mode use plain lines everywhere.
+- `HostOutput.Run(cmdlet, action)` runs host writes (`WriteWarning`, `WriteVerbose`, `ShouldContinue`) clear of a
+  live area that is drawing on the console. `Write` and `WriteMarkup` already do this for their own host writes.
+- `HostOutput.CanRenderLive(cmdlet)` says whether a live session can draw for this cmdlet: a local console host,
+  interactive output, nothing redirected and no transcript. When it is false, write progress as lines instead.
+- The package targets .NET Framework 4.7.2, .NET 8 and .NET 10, and works in Windows PowerShell 5.1 and PowerShell 7.
+  Ship every ConsoleMonster assembly at the same version (see [Versions in products](#versions-in-products)).
 
 ### Progress columns
 
@@ -582,7 +680,8 @@ the changed cells are redrawn. Live widgets inside the new content (lanes, logs,
 their names right away.
 
 `LiveTable` is a table whose rows change: rows have stable keys and are added, updated, removed or cleared. Column
-widths only grow, so rows never jitter; `MaxRows` keeps only the most recent rows, and `SortColumn` keeps them sorted.
+widths only grow, so rows never jitter; `MaxRows` keeps only the most recent rows (older rows are removed, not
+scrolled; a step list belongs in a [step ledger](#step-ledgers)), and `SortColumn` keeps them sorted.
 In stream mode each added or updated row prints as a line.
 
 ```csharp
@@ -693,7 +792,7 @@ Highlighters.Register(new RegexHighlighter("ini2").Rule(@"^\s*;.*$", HighlightRo
 
 ```powershell
 $reason = Read-ConsoleText 'Change reason' -Multiline -MaxLines 10
-New-ConsoleField Reason 'Change reason' -Type Text -Multiline -MaxLines 10
+New-ConsoleField Reason 'Change reason' -Kind Text -Multiline -MaxLines 10
 ```
 
 `TextAreaPrompt` and `TextAreaField` take notes and change reasons: soft wrap, Enter for a new line, Ctrl+Enter (or
@@ -773,7 +872,7 @@ Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Title Services
 For a hotkey, custom prompt, arguments or module imports, create one command:
 
 ```powershell
-$restart = New-ConsoleCommand -Key Restart -Label Restart -Hotkey F5 `
+$restart = New-ConsoleCommand -Key Restart -Label Restart -Shortcut F5 `
     -ConfirmPrompt 'Restart selected services?' -ImportModule Microsoft.PowerShell.Management `
     -ScriptBlock { param($Row) Restart-Service -Name $Row.Name -ErrorAction Stop; "Restarted $($Row.Name)" }
 Get-Service | Show-ConsoleGrid -Property Name, Status, StartType -Command $restart
@@ -818,13 +917,13 @@ same action path. It never restarts a local service.
 ## Comparing objects and previewing changes
 
 ```powershell
-Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Property SamAccountName -Ignore 'Last*'
-if (Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $members -DifferenceObject $planned -Property SamAccountName -Title 'Domain Admins') {
+Compare-ConsoleObject (Import-Csv .\before.csv) (Import-Csv .\after.csv) -Key SamAccountName -Ignore 'Last*'
+if (Compare-ConsoleObject -Question 'Apply these changes?' -ReferenceObject $members -DifferenceObject $planned -Key SamAccountName -Title 'Domain Admins') {
     Set-GroupMembers $planned
 }
 ```
 
-`Compare-ConsoleObject` follows Compare-Object (`-ReferenceObject`, `-DifferenceObject`, `-Property` as the matching
+`Compare-ConsoleObject` follows Compare-Object (`-ReferenceObject`, `-DifferenceObject`, `-Key` as the matching
 key) and shows what was added, removed and changed, property by property, with nested objects by path
 (`Address.City`): added in the pass tone, removed in the fail tone, changed in the warn tone, long and multi-line values
 as line diffs. An added or removed object lists its compared properties one per line, up to six lines, then "+N more"
@@ -834,7 +933,7 @@ as line diffs. An added or removed object lists its compared properties one per 
 
 Keys and string values use ordinal case-insensitive comparison by default. `-CaseSensitive` applies to both.
 Case-only differences stay visible in every view and in `ObjectChange.Properties` with `IsCaseOnly = true`;
-the object remains `Unchanged` unless another property differs. They are listed even without `-IncludeEqual`,
+the object remains `Unchanged` unless another property differs. They are listed even without `-IncludeUnchanged`,
 and the summary reports their count separately. In C#, use `DiffOptions.CaseSensitive` and `ChangeSet.CaseOnly`.
 `PropertyChange.HasBefore` and `HasAfter` distinguish missing properties from present null or empty values.
 Missing values render as `(missing)` using the current language's `WidgetLabels.ChangesMissing` label.
@@ -850,19 +949,19 @@ $controllers = @(
     [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $false; DnsEnabled = $true; Security = @{ Signing = 'Negotiate' } }
     [pscustomobject]@{ Name = 'dc04'; Site = 'Branch'; LdapPort = 389; GlobalCatalog = $true; Security = @{ Signing = 'Required' } }
 )
-$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc01 -Ignore Name -Title 'Domain controller drift'
+$controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc01 -Ignore Name -Title 'Domain controller drift'
 ```
 
 The matrix has one row per property path and one column per input object. The first object is the reference by
 default; `-Baseline dc02` selects a name and `-Baseline 1` selects the second column. Numeric strings are names,
 and duplicate names require an integer index. Names follow `-CaseSensitive`. `-Name First,Second,Third,Fourth`
-supplies explicit headings; otherwise `-NameProperty`, `-Property`, or the usual key discovery supplies them.
+supplies explicit headings; otherwise `-Key`, `-Property`, or the usual key discovery supplies them.
 `-Ignore Name` omits the identifier from the compared rows while retaining it in the headings.
-Equal rows are hidden unless `-IncludeEqual` is set. Changed cells use the warning tone, properties absent on
+Equal rows are hidden unless `-IncludeUnchanged` is set. Changed cells use the warning tone, properties absent on
 the reference use the added tone, and missing cells use the removed tone. The status says `same`, `differs`,
 `case only`, or `missing on N`; a row that differs and has missing values reports both. Status words use their
 matching tones, while the reference column uses accent and bold emphasis. The footer counts the property rows
-shown and matching rows hidden by default, with `-IncludeEqual` as the hint to show them. In C#,
+shown and matching rows hidden by default, with `-IncludeUnchanged` as the hint to show them. In C#,
 `BaselineComparison.HiddenMatchingCount` provides the hidden count. Narrow widths use the standard table
 wrapping and record-card fallback.
 `-PassThru` returns `BaselineRow` records with `Path`, ordered `Cells`, `MissingCount`, `HasDifferences`, and
@@ -900,7 +999,7 @@ $normalizers = @{
     ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' }
     'Metadata.CheckedAt' = { $null }
 }
-Compare-ConsoleObject $before $after -Property Name -Normalize $normalizers
+Compare-ConsoleObject $before $after -Key Name -Normalize $normalizers
 $controllers | Compare-ConsoleObject -View Baseline -Normalize $normalizers -Ignore Name
 ```
 
@@ -930,7 +1029,7 @@ honours the caller's `-WhatIf` (preview only, `$false`) and `-Confirm:$false` or
 ```powershell
 Invoke-ConsoleDashboard $dashboard -AutoRecord 10 { ... }           # keep the last ten runs
 Show-ConsoleReplay $dashboard                                       # rewind the newest one
-Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -Paused
+Show-ConsoleReplay $dashboard .\deploy.jsonl -Inline -AutoPlay:$false
 $ConsoleSession.Mark('Wave 2')                                    # a marker while recording
 ```
 

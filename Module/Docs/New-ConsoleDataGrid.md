@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoledatagrid/
 schema: 2.0.0
 ---
 # New-ConsoleDataGrid
 ## SYNOPSIS
 Creates a named, embeddable data grid for Show-ConsoleApp.
-
-The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.
 
 ## SYNTAX
 ### Grid (Default)
@@ -22,8 +20,6 @@ New-ConsoleDataGrid [-Key] <string> [[-Label] <string>] -InputObject <psobject[]
 ```
 
 ## DESCRIPTION
-Creates a named, embeddable data grid for Show-ConsoleApp.
-
 The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.
 
 ## EXAMPLES
@@ -55,7 +51,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -87,7 +83,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 20
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -167,7 +163,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -215,7 +211,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -249,4 +245,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoledatagrid/](https://consolemonster.dev/powershell/commands/new-consoledatagrid/)

@@ -67,21 +67,21 @@ string action = expired
     ? "Renew the intermediate; serve the full chain."
     : "No repair needed; keep expiry monitoring on.";
 int exitCode = expired ? 1 : 0;
-Ui.Rows().Gap(1).Content(c2 =>
+Ui.Rows().Gap(1).Content(rowsContent =>
 {
-    c2.Markup("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]");
-    c2.Panel(p => p.Title("Connection ledger").Content(c =>
+    rowsContent.Markup("[bold accent]TLS verdict[/]  [muted]Follow the chain. Verify the trust.[/]");
+    rowsContent.Panel(p => p.Title("Connection ledger").Content(panelContent =>
     {
-        c.Add(phases);
+        panelContent.Add(phases);
     }));
-    c2.Add(facts);
-    c2.Add(flow);
-    c2.Rule("Trust decision");
-    c2.Panel(p => p.Content(content =>
+    rowsContent.Add(facts);
+    rowsContent.Add(flow);
+    rowsContent.Rule("Trust decision");
+    rowsContent.Panel(p => p.Content(content =>
     {
         content.Markup(expired ? "Chain validation failed." : "Chain validation passed.");
     }).Title(verdict).Verdict().Status(chainStatus));
-    c2.KeyValue(kv => kv.KeyRole(ThemeToken.Muted)
+    rowsContent.KeyValue(kv => kv.KeyRole(ThemeToken.Muted)
         .Add("Cause",
             expired ? "Expired intermediate certificate." : "Trusted root and complete chain.")
         .Add("Proof", proof)

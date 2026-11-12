@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoleimage/
 schema: 2.0.0
 ---
 # New-ConsoleImage
 ## SYNOPSIS
 Creates an image to place inside panels, columns and dashboards.
-
-Inside layouts and live dashboards the image is drawn with half blocks on terminals with 256 colours or more, so it redraws cleanly with the rest of the screen; redirected and no-colour output gets [image: name WxH]. To print an image on its own with the terminal's real pixels, use Show-ConsoleImage.
 
 ## SYNTAX
 ### Path (Default)
@@ -22,8 +20,6 @@ New-ConsoleImage -Bytes <Object> [-Label <string>] [-Width <int>] [-Height <int>
 ```
 
 ## DESCRIPTION
-Creates an image to place inside panels, columns and dashboards.
-
 Inside layouts and live dashboards the image is drawn with half blocks on terminals with 256 colours or more, so it redraws cleanly with the rest of the screen; redirected and no-colour output gets [image: name WxH]. To print an image on its own with the terminal's real pixels, use Show-ConsoleImage.
 
 ## EXAMPLES
@@ -71,7 +67,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -119,7 +115,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -129,7 +125,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -137,4 +133,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleimage/](https://consolemonster.dev/powershell/commands/new-consoleimage/)

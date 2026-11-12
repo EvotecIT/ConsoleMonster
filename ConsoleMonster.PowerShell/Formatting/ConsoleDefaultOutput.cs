@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Views;
 using ConsoleMonster.Widgets;

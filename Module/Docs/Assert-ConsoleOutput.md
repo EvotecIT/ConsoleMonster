@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/assert-consoleoutput/
 schema: 2.0.0
 ---
 # Assert-ConsoleOutput
 ## SYNOPSIS
 Compares console output with a golden file (for Pester and other tests).
-
-Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Assert-ConsoleOutput [-InputObject] <Object> [-GoldenPath] <string> [-Width <int
 ```
 
 ## DESCRIPTION
-Compares console output with a golden file (for Pester and other tests).
-
 Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.
 
 ## EXAMPLES
@@ -36,6 +32,14 @@ Renders a widget at a fixed width, glyph tier and culture (invariant by default)
 ```
 
 Compare a table with an existing Pester golden file
+
+### EXAMPLE 2
+```powershell
+$view = New-ConsolePanel 'Inventory' -Content { New-ConsoleText 'web01: Pass' }
+Assert-ConsoleOutput -InputObject $view -GoldenPath ./inventory.txt -PassThru
+```
+
+Check an inventory panel against an existing baseline
 
 ## PARAMETERS
 
@@ -66,13 +70,13 @@ Possible values: Ascii, Basic, Full
 
 Required: False
 Position: named
-Default value: None
+Default value: Full
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -GoldenPath
-The golden file.
+Path to the expected plain-text rendering used for the comparison.
 
 ```yaml
 Type: String
@@ -98,7 +102,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -130,7 +134,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -146,7 +150,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -164,4 +168,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/assert-consoleoutput/](https://consolemonster.dev/powershell/commands/assert-consoleoutput/)

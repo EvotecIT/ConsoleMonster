@@ -21,7 +21,7 @@ public sealed class ConsoleViewIntegrationTests {
         RenderContext context = Context();
         string markup = DisplayText.Status(status, label, context);
         Assert.True(Markup.Validate(markup, out string? error), error);
-        string text = TestTerminal.RenderText(new TextBlock(markup), 80, glyphs: GlyphTier.Ascii);
+        string text = TestTerminal.RenderText(TextBlock.FromMarkup(markup), 80, glyphs: GlyphTier.Ascii);
         Assert.Contains(context.Glyphs.StatusMarker(status), text);
         Assert.Contains(label, text);
     }

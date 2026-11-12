@@ -26,7 +26,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
                     // Publishing the control early would capture one X here, before the summary carries the second X.
                     SpinWait.SpinUntil(() => session.FramesRendered > frame, TimeSpan.FromSeconds(2));
                 }
-                return new ConsoleMonster.Widgets.TextBlock("Summary: " + value);
+                return ConsoleMonster.Widgets.TextBlock.FromMarkup("Summary: " + value);
             });
             ConsoleAppOptions options = AppTestHarness.Options("\"X\"", out ScreenCapture capture);
             ScriptedInput input = (ScriptedInput)options.Interactive!.Input!;
@@ -213,7 +213,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void StaticSnapshot_RendersInitializedStateWithoutInput() {
             TextInput query = new TextInput("query", "seed");
-            AppBinding summary = new AppBinding(state => new ConsoleMonster.Widgets.TextBlock("Query: " + state.Get<string>("query")));
+            AppBinding summary = new AppBinding(state => ConsoleMonster.Widgets.TextBlock.FromMarkup("Query: " + state.Get<string>("query")));
             ConsoleAppOptions options = AppTestHarness.Options("\"unused\"", out ScreenCapture capture);
             ScriptedInput input = (ScriptedInput)options.Interactive!.Input!;
             int remaining = input.Remaining;

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/watch-console/
 schema: 2.0.0
 ---
 # Watch-Console
 ## SYNOPSIS
 Runs a script block again and again and shows its latest output as a live view.
-
-Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Without an interactive console (redirected output, CI, a job), the current view is printed once by default; an explicit finite -Count prints that many runs. Piped output is append-only; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Watch-Console [-ScriptBlock] <scriptblock> [-PollIntervalSeconds <double>] [-Cou
 ```
 
 ## DESCRIPTION
-Runs a script block again and again and shows its latest output as a live view.
-
 Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Without an interactive console (redirected output, CI, a job), the current view is printed once by default; an explicit finite -Count prints that many runs. Piped output is append-only; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.
 
 ## EXAMPLES
@@ -57,7 +53,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -73,7 +69,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -89,7 +85,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -105,7 +101,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 2
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -121,13 +117,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -ScriptBlock
-The script block to run.
+The script evaluated on each refresh to produce the next displayed value.
 
 ```yaml
 Type: ScriptBlock
@@ -171,4 +167,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/watch-console/](https://consolemonster.dev/powershell/commands/watch-console/)

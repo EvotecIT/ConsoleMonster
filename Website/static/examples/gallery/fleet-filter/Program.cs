@@ -29,17 +29,18 @@ IWidget Results(string query)
     .Column(row => row.Status, column => column.Presenter = CellPresenters.StatusWord);
 
     Rows result = new Rows(
-        new TextBlock(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        TextBlock.FromMarkup(rows.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
             + " of " + hosts.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
             + " hosts"),
         table);
     if (rows.Length == 0)
-        result.Add(new TextBlock("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
+        result.Add(
+            TextBlock.FromMarkup("[muted]No matching hosts. Backspace to broaden the filter.[/]"));
     return result;
 }
 
 Rows layout = new Rows(
-    new TextBlock("[accent bold]Fleet health[/] [muted]· production inventory[/]"),
+    TextBlock.FromMarkup("[accent bold]Fleet health[/] [muted]· production inventory[/]"),
     new Panel()
     {
         Title = "Fleet summary",

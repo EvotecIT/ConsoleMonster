@@ -35,7 +35,7 @@ namespace ConsoleMonster.PowerShell {
             string symbol = outcome == ThemeCheckOutcome.Unknown ? (context.Profile.Glyphs == GlyphTier.Ascii ? "?" : "○")
                 : context.Glyphs.StatusSymbol(outcome == ThemeCheckOutcome.Fail ? StatusKind.Fail : StatusKind.Pass);
             string role = outcome == ThemeCheckOutcome.Unknown ? "muted" : outcome == ThemeCheckOutcome.Fail ? "fail" : "pass";
-            return new TextBlock("[" + role + "]" + Markup.Escape(symbol) + "[/] " + Markup.Escape(detail));
+            return TextBlock.FromMarkup("[" + role + "]" + Markup.Escape(symbol) + "[/] " + Markup.Escape(detail));
         }
     }
 }

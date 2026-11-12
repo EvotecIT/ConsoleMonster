@@ -2,12 +2,16 @@ using System;
 using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Removes registered ConsoleMonster views and value shapers.</para>
-    /// <para type="description">Names the registered types directly or reads their names from a validated data-only .consoleviews.psd1 file. Does not remove or execute the file.</para>
-    /// </summary>
+    /// <summary>Removes registered ConsoleMonster views and value shapers.</summary>
+    /// <remarks><para>Names the registered types directly or reads their names from a validated data-only .consoleviews.psd1 file. Does not remove or execute the file.</para></remarks>
     /// <example><para>Remove a custom result view.</para><code>Unregister-ConsoleView -TypeName 'Contoso.Server'</code></example>
-    [Cmdlet(VerbsLifecycle.Unregister, "ConsoleView", DefaultParameterSetName = "Type", SupportsShouldProcess = true)]
+    /// <example>
+    /// <para>Preview removing a registered inventory view</para>
+    /// <code>Unregister-ConsoleView -TypeName 'Inventory.Server' -WhatIf
+    /// Get-ConsoleFormatting
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsLifecycle.Unregister, "ConsoleView", DefaultParameterSetName = "Type", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/unregister-consoleview/")]
     public sealed class CmdletUnregisterConsoleView : NoPipelineInputCmdlet {
         /// <summary><para type="description">Type names whose registrations should be removed.</para></summary>
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = "Type")]

@@ -21,7 +21,7 @@ namespace ConsoleMonster.Tests.Building {
                 content.Table(table => table.AddColumn("Name").AddRow("API"));
             });
             Assert.Equal(ConsoleExporter.ToText(expected), ConsoleExporter.ToText(actual));
-            Assert.Equal(ConsoleExporter.ToText(new TextBlock("[pass]Ready[/]")), ConsoleExporter.ToText(Ui.Text().Content("[pass]Ready[/]").Markup()));
+            Assert.Equal(ConsoleExporter.ToText(TextBlock.FromMarkup("[pass]Ready[/]")), ConsoleExporter.ToText(Ui.Text().Content("[pass]Ready[/]").Markup()));
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace ConsoleMonster.Tests.Building {
             Assert.Throws<InvalidOperationException>(() => Ui.Grid().Show(_ => throw new InvalidOperationException("before input")));
             Assert.Equal("literal [bold]text[/]", ConsoleExporter.ToText(Ui.Text("literal [bold]text[/]")).Trim());
             Assert.Equal("text", ConsoleExporter.ToText(Ui.Markup("[bold]text[/]")).Trim());
-            Assert.Equal(ConsoleExporter.ToText(new Rows(new TextBlock("[bold]text[/]"))), ConsoleExporter.ToText(Ui.Rows().Content(content => content.Markup("[bold]text[/]"))));
+            Assert.Equal(ConsoleExporter.ToText(new Rows(TextBlock.FromMarkup("[bold]text[/]"))), ConsoleExporter.ToText(Ui.Rows().Content(content => content.Markup("[bold]text[/]"))));
             Assert.False(Ui.Markup("[bold]text[/]").Markup(false).IsMarkup);
         }
 

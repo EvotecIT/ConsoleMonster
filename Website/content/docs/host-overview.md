@@ -61,7 +61,7 @@ if ([Environment]::UserInteractive -and -not [Console]::IsOutputRedirected) {
 
 ## What it reads, and how long it may take
 
-The overview waits at most 750 ms by default; `-BudgetSeconds` sets another limit up to 0.9 seconds. A section still collecting at the deadline shows `…` (`...` in ASCII). It starts no other programs and changes nothing on the machine.
+The default collection budget is 750 ms; `-BudgetSeconds` accepts 0.001–0.9 seconds. A section still collecting at the deadline shows `…` (`...` in ASCII). Each probe receives a cancellation token with a timeout of at most two seconds. The waiting budget excludes OS scheduling and terminal rendering. Built-ins launch no child processes. Repeated calls share any in-flight provider, so a blocked native call cannot create another copy on each login.
 
 | System | What it shows |
 |---|---|

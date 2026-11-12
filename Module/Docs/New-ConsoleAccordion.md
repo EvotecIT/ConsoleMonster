@@ -1,7 +1,7 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoleaccordion/
 schema: 2.0.0
 ---
 # New-ConsoleAccordion
@@ -34,6 +34,15 @@ Show-ConsoleApp -Content {
 
 Fold long sections of a help page and keep one open at a time.
 
+### EXAMPLE 2
+```powershell
+New-ConsoleAccordion -Content {
+                New-ConsoleCollapsible -Key network -Label Network -Expanded -Content { New-ConsoleText 'DNS reachable' -Role Pass }
+            } | Show-Console
+```
+
+Compose an inventory accordion
+
 ## PARAMETERS
 
 ### -Content
@@ -65,4 +74,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleaccordion/](https://consolemonster.dev/powershell/commands/new-consoleaccordion/)

@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoleflow/
 schema: 2.0.0
 ---
 # New-ConsoleFlow
 ## SYNOPSIS
 Builds a native flow strip of nodes, labelled edges and one side branch.
-
-Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From->To. Labels are literal. The strip becomes vertical in a narrow terminal.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleFlow [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject 
 ```
 
 ## DESCRIPTION
-Builds a native flow strip of nodes, labelled edges and one side branch.
-
 Plain strings are steps, connected in order. Emit nodes first, then edges and an optional branch. Pipeline rows use Kind (Node, Edge or Branch), Key, Label, Status, and the edge/branch From and To fields. Kind can be left out for nodes and for edges with From and To; a node's Key defaults to its Label and an edge's Key to From->To. Labels are literal. The strip becomes vertical in a narrow terminal.
 
 ## EXAMPLES
@@ -86,7 +82,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: flow
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -104,4 +100,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleflow/](https://consolemonster.dev/powershell/commands/new-consoleflow/)

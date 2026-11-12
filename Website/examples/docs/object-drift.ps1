@@ -25,5 +25,5 @@ $controllers = @(
 )
 
 # dc01 is the reference; each SPN is compared without its host name, so only real drift remains.
-$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc01 -Ignore Name `
+$controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc01 -Ignore Name `
     -Normalize @{ Spn = { $_ -replace '/[^.]+', '/HOST' } } -Title 'Domain controller drift'

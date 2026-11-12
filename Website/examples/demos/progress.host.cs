@@ -30,7 +30,7 @@ public sealed class ProgressExample : PSCmdlet {
         }
         Write-Progress -Id 2 -Activity 'Servers' -Completed
         Write-Progress -Id 1 -Activity 'Collecting inventory' -Completed
-        } -Keep
+        } -PrintFinalState
         Write-ConsoleText 'Inventory collected: 36 servers across 3 sites.'"); }
         finally { ConsoleHostFormatting.Disable(
             this,

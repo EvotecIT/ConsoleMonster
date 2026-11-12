@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/set-consolesetting/
 schema: 2.0.0
 ---
 # Set-ConsoleSetting
 ## SYNOPSIS
 Changes a ConsoleMonster setting for this session, and with -Save for every session.
-
-Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,9 +15,7 @@ Set-ConsoleSetting [-Name] <string> [-Value] <string> [-Save] [-WhatIf] [-Confir
 ```
 
 ## DESCRIPTION
-Changes a ConsoleMonster setting for this session, and with -Save for every session.
-
-Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSettings chooses settings with a live preview.
+Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSetting chooses settings with a live preview.
 
 ## EXAMPLES
 
@@ -81,7 +77,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -107,7 +103,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -115,4 +111,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/set-consolesetting/](https://consolemonster.dev/powershell/commands/set-consolesetting/)

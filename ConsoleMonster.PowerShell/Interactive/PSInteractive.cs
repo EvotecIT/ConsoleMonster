@@ -15,6 +15,7 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>

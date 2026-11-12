@@ -77,7 +77,7 @@ namespace ConsoleMonster.Tests.Sessions {
         private static void WithRecording(SessionRecordingOptions options, Action<SessionRecorder, Func<string>> check) {
             string directory = Path.Combine(Path.GetTempPath(), "ConsoleMonster-Tty-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(directory);
-            options.Path = Path.Combine(directory, "session.cast"); options.Timeout = TimeSpan.FromSeconds(5);
+            options.RecordingPath = Path.Combine(directory, "session.cast"); options.Timeout = TimeSpan.FromSeconds(5);
             StringBuilder output = new StringBuilder();
             try {
                 using (SessionRecorder recorder = SessionRecorder.Start(options, text => { lock (output) { output.Append(text); } })) {

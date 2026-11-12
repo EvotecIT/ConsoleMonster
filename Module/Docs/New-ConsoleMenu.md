@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolemenu/
 schema: 2.0.0
 ---
 # New-ConsoleMenu
 ## SYNOPSIS
 Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
-
-The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenu -Preset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleMenu [-Title] <string> [[-Content] <scriptblock>] [-InputObject <psob
 ```
 
 ## DESCRIPTION
-Creates a menu from items (New-ConsoleMenuItem) for Show-ConsoleMenu.
-
 The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenu -Preset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.
 
 ## EXAMPLES
@@ -27,7 +23,7 @@ The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, 
 ```powershell
 $settings = New-ConsoleForm 'Settings' -Content {
     New-ConsoleField Target 'Target' -Default Weekly
-    New-ConsoleField Compress 'Compress' -Type Toggle -Default $true
+    New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
 }
 $menu = New-ConsoleMenu 'Backup helper' -Content {
     New-ConsoleMenuItem 'Preview backup' -Hotkey b -Action {
@@ -49,7 +45,7 @@ Build a small script menu
 ```powershell
 $settings = New-ConsoleForm 'Settings' -Content {
     New-ConsoleField Target 'Target' -Default Weekly
-    New-ConsoleField Compress 'Compress' -Type Toggle -Default $true
+    New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
 }
 $menu = New-ConsoleMenu 'Backup helper' -Content {
     [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
@@ -123,7 +119,7 @@ Possible values: Auto, Classic, Shell, Inline
 
 Required: False
 Position: named
-Default value: None
+Default value: Auto
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -189,4 +185,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolemenu/](https://consolemonster.dev/powershell/commands/new-consolemenu/)

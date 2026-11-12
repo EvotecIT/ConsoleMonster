@@ -4,10 +4,8 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Makes a line chart explorable inside Show-ConsoleApp.</para>
-    /// <para type="description">Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.</para>
-    /// </summary>
+    /// <summary>Makes a line chart explorable inside Show-ConsoleApp.</summary>
+    /// <remarks><para>Left/Right or a click moves a crosshair along X, and the row above the plot reads every shown series at that point; the app footer repeats it for screen readers. A number key or a click on a legend entry hides or shows a series. + and - or the wheel zoom along X, Shift+Left/Right or a drag pans, and Home shows everything. The state holds the index of the point under the crosshair. Give New-ConsoleDataGrid the same -LinkKey to link a table: selecting a row moves the crosshair and moving the crosshair selects the row. -Chart takes a Line or Scatter chart from New-ConsoleChart, or a ChartForgeX line chart, whose zoom uses ChartForgeX's prepared X levels.</para></remarks>
     /// <example>
     /// <para>Explore CPU and memory samples next to the table they came from</para>
     /// <code>
@@ -20,13 +18,21 @@ namespace ConsoleMonster.PowerShell {
     /// }
     /// </code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleChartView")]
+    /// <example>
+    /// <para>Compose an inventory chart view</para>
+    /// <code>Show-ConsoleApp -Content {
+    ///     New-ConsoleChartView -Key cpu -Chart (New-ConsoleChart -Type Line -Series @{ Key = 'cpu'; Values = 12, 25, 18, 31 })
+    /// }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleChartView", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolechartview/")]
     [OutputType(typeof(ChartView))]
     public sealed class CmdletNewConsoleChartView : AppInputCmdlet {
         /// <summary><para type="description">A Line or Scatter chart from New-ConsoleChart, a ChartForgeX line chart with numeric X, or a ChartPlot.</para></summary>
         [Parameter(Mandatory = true)] public object Chart { get; set; } = null!;
         /// <summary><para type="description">Rows for the readout and the plot, legend included.</para></summary>
-        [Parameter, ValidateRange(4, 1000)] public int Height { get; set; } = 10;
+        [Parameter, ValidateRange(4, 1000)] [PSDefaultValue(Help = "10")]
+        public int Height { get; set; } = 10;
         /// <summary><para type="description">Labels for the points along X, such as times, read out with their values.</para></summary>
         [Parameter] public string[]? PointLabels { get; set; }
         /// <summary><para type="description">The state key shared with linked controls (New-ConsoleDataGrid, New-ConsoleSelect, another chart): the index of the point under the crosshair. A position it cannot show is ignored.</para></summary>

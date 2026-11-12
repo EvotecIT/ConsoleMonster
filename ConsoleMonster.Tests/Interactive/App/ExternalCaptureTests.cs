@@ -25,7 +25,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void RecordingTranscriptRetainsPrintedCellsAndStylesSeparatelyFromScreens() {
             var target = new RecordingTarget(ConsoleMonster.Capabilities.TerminalProfile.Fixed(40, 12));
-            using (Terminal.Use(target)) { Terminal.Write(new ConsoleMonster.Widgets.TextBlock("[fail]sample[/]")); }
+            using (Terminal.Use(target)) { Terminal.Write(ConsoleMonster.Widgets.TextBlock.FromMarkup("[fail]sample[/]")); }
             string output = target.Output;
             var frame = target.Transcript();
             Assert.Equal("sample", frame.GetRowText(0).TrimEnd());

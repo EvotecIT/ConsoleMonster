@@ -3,10 +3,8 @@ using System.Management.Automation;
 using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Layers console widgets on top of each other in the same space.</para>
-    /// <para type="description">Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</para>
-    /// </summary>
+    /// <summary>Layers console widgets on top of each other in the same space.</summary>
+    /// <remarks><para>Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</para></remarks>
     /// <example>
     ///   <para>A chart with a status badge in its top-right corner</para>
     ///   <code>
@@ -15,7 +13,14 @@ namespace ConsoleMonster.PowerShell {
     ///     New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleStack")]
+    /// <example>
+    /// <para>Compose an inventory stack</para>
+    /// <code>New-ConsoleStack -Height 6 -Content {
+    ///     New-ConsolePanel -Title Inventory -Content { New-ConsoleText 'web01: Online' }
+    /// } | Show-Console
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleStack", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolestack/")]
     [OutputType(typeof(IWidget))]
     public sealed class CmdletNewConsoleStack : ContainerCmdlet {
         /// <summary><para type="description">Scriptblock that emits the layers, bottom first.</para></summary>
@@ -25,14 +30,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Share of the width (in columns) or height (in a live dashboard) this widget takes.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public double Weight { get; set; }
 
         /// <summary><para type="description">Fixed height in rows.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary><para type="description">Take the remaining height of a live dashboard.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Fill { get; set; }
 
         /// <inheritdoc />

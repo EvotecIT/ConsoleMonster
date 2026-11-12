@@ -36,7 +36,7 @@ Rows report = new Rows(
         Title = "Renewal policy",
         Content = new Rows(
             renewals,
-            new TextBlock("[muted]Urgent: 7 days or fewer · due soon: 30 days or fewer[/]"))
+            TextBlock.FromMarkup("[muted]Urgent: 7 days or fewer · due soon: 30 days or fewer[/]"))
     })
 {
     Gap = 1

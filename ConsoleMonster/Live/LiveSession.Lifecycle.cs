@@ -27,8 +27,8 @@ namespace ConsoleMonster.Live {
                 lock (_lifecycle) {
                     if (_state == 1) { return; }
                     if (_state != 0) { throw new InvalidOperationException("A live session cannot be restarted."); }
-                    if (_options.RecordPath != null && _options.RecordWriter != null) {
-                        throw new ArgumentException("Specify RecordPath or RecordWriter, not both.");
+                    if (_options.RecordingPath != null && _options.RecordWriter != null) {
+                        throw new ArgumentException("Specify RecordingPath or RecordWriter, not both.");
                     }
                     try {
                         // Capability detection can enable Windows VT mode. Save the caller's mode before resolving
@@ -73,8 +73,8 @@ namespace ConsoleMonster.Live {
                         _guardRegistration = _guard.Cancellation.Register(() => RequestCancellation(_options.StopOnCancellation));
                         _guard.Cancellation.ThrowIfCancellationRequested();
                         if (_options.RecordWriter != null) { _recorder = new LiveRecorder(_options.RecordWriter); }
-                        else if (_options.RecordPath != null) {
-                            StreamWriter writer = OpenRecording(_options.RecordPath);
+                        else if (_options.RecordingPath != null) {
+                            StreamWriter writer = OpenRecording(_options.RecordingPath);
                             try { _recorder = new LiveRecorder(writer, false); }
                             catch { writer.Dispose(); throw; }
                         } else if (_options.AutoRecord > 0) {
@@ -218,8 +218,18 @@ namespace ConsoleMonster.Live {
         }
 
         private void CaptureLine(string line, string level) {
-            // Capture owns its own admission during shutdown, until both partial buffers have been flushed.
-            Enqueue(new LiveEvent("$log", "write", text: line, status: level));
+            // Capture owns its own admission during shutdown, until both partial buffers have been flushed, but its lines
+            // are log updates and obey MaxQueuedEvents like any other.
+            LiveEvent liveEvent = new LiveEvent("$log", "write", text: line, status: level);
+            if (!TryReserve(liveEvent)) { Interlocked.Increment(ref _eventsDropped); return; }
+            bool published = false;
+            try {
+                Publish(liveEvent);
+                published = true;
+            } finally {
+                // A clock that throws must hand back the slot reserved for the line, as TryPost does.
+                if (!published) { Interlocked.Decrement(ref _queued); }
+            }
         }
 
         private void RestoreCapture() {
@@ -259,7 +269,7 @@ namespace ConsoleMonster.Live {
                 while (Volatile.Read(ref _admission) != int.MinValue) { producers.SpinOnce(); }
                 Attempt(RestoreCapture, fatal: true);
                 // A failed event must not abandon later accepted events or their flush waiters during shutdown.
-                while (_queue.TryDequeue(out LiveEvent? pending)) { Attempt(() => ApplyOne(pending), fatal: true); }
+                while (TryDequeue(out LiveEvent pending)) { Attempt(() => ApplyOne(pending), fatal: true); }
                 Attempt(() => RecordSlotSnapshots(true), fatal: RecordingRequired);
                 // A start that failed before BeginLive never owned the screen: no final frame, no summary.
                 bool drawn = _began && _output != null && _context != null;

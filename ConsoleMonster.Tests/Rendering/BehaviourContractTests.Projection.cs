@@ -74,7 +74,7 @@ namespace ConsoleMonster.Tests.Rendering {
         public void PrintedLinks_PreserveTheDestinationInReducedTiers(string entry, bool addressLabel, GlyphTier tier, string address, string encoded) {
             string label = addressLabel ? address : "Straße";
             var rich = new RichTextBuilder().AppendLink(label, address).Build();
-            IWidget widget = entry == "markup" ? new TextBlock("[link=" + address + "]" + label + "[/]")
+            IWidget widget = entry == "markup" ? TextBlock.FromMarkup("[link=" + address + "]" + label + "[/]")
                 : entry == "rich" ? rich
                 : entry == "presenter" ? new Table().AddColumn(new TableColumn("Resource") { Presenter = new LinkPresenter(_ => label) }).AddValues(address)
                 : new MarkdownText(rich);

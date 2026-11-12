@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Lets PowerShell fit its evaluated wide records, including its native autosize and ellipsis rules.</summary>

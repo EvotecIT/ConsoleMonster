@@ -132,7 +132,7 @@ under the three simulations, statuses distinguishable without colour. Its result
 
 - that every catalogue scheme's accessible variant passes everything, and what its faithful form falls short on;
 - what `Import-ConsoleTheme` reports about a user's scheme (it imports anyway and lists what fails);
-- what `Show-ConsoleSettings` shows next to a scheme while it is highlighted.
+- what `Show-ConsoleSetting` shows next to a scheme while it is highlighted.
 
 ## 5. The catalogue
 
@@ -183,7 +183,7 @@ pass the checker; its faithful form keeps its reported failures. Adding a scheme
 - **Theme setting and `Set-ConsoleTheme`:** values become the built-in presets, `Terminal`, and the catalogue names,
   with `-Accessible` as a switch (`Set-ConsoleTheme Dracula -Accessible -Save`); the Theme setting stores
   `Dracula · accessible`.
-- **`Show-ConsoleSettings`:** the Theme list groups Built in, Follow my terminal, Schemes and Your files; the preview
+- **`Show-ConsoleSetting`:** the Theme list groups Built in, Follow my terminal, Schemes and Your files; the preview
   already redraws per highlight, lists each scheme with its accessible variant beside it, and gains the checker line
 ("statuses apart for colour-blind users: yes / no", "status text below 4.5:1").
 - **The site:** a scheme gallery page, every catalogue scheme rendering the same summary faithfully and accessibly,

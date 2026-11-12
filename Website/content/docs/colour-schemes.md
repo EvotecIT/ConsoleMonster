@@ -33,7 +33,7 @@ Set-ConsoleTheme 'Catppuccin Latte' -Save       # one variant, whatever the back
 Test-ConsoleTheme -Detailed                     # every measurement of the active theme
 ```
 
-`Show-ConsoleSettings` lists the schemes in their own group, each family with its variants and an accessible entry
+`Show-ConsoleSetting` lists the schemes in their own group, each family with its variants and an accessible entry
 beside each, and redraws the preview on that scheme's background as you move through them. A family name
 ([Solarized](#solarized), [Gruvbox](#gruvbox), [Catppuccin](#catppuccin), [Tokyo Night](#tokyo-night)) picks the variant
 for your terminal's background (dark when it cannot tell); a variant name such as `Gruvbox Light` or `Tokyo Night Dark`

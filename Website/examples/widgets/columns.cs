@@ -3,10 +3,10 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
 
 Panel results = new Panel(
-    new TextBlock("[pass]√[/] 412 passed\n[warn]▲[/] 51 warnings"),
+    TextBlock.FromMarkup("[pass]√[/] 412 passed\n[warn]▲[/] 51 warnings"),
     "Results");
 Panel problems = new Panel(
-    new TextBlock("[fail]✗[/] 23 failed\n[muted]-[/] 14 skipped"),
+    TextBlock.FromMarkup("[fail]✗[/] 23 failed\n[muted]-[/] 14 skipped"),
     "Problems");
 Terminal.Write(new Rows()
     .Add(new Columns(results, problems))

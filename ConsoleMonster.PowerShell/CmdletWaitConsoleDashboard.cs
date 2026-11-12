@@ -3,10 +3,8 @@ using System.Management.Automation;
 using ConsoleMonster.Live;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Pauses dashboard work, or captures its next checkpoint during a recording.</para>
-    /// <para type="description">Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</para>
-    /// </summary>
+    /// <summary>Pauses dashboard work, or captures its next checkpoint during a recording.</summary>
+    /// <remarks><para>Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</para></remarks>
     /// <example>
     /// <para>Update progress between cancellable pauses</para>
     /// <code>
@@ -20,7 +18,17 @@ namespace ConsoleMonster.PowerShell {
     ///     }
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsLifecycle.Wait, "ConsoleDashboard")]
+    /// <example>
+    /// <para>Pause briefly between live server updates</para>
+    /// <code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleLanes -WidgetId servers }
+    /// Invoke-ConsoleDashboard $dashboard {
+    ///     Update-Console servers -Key web01 -Status Running
+    ///     Wait-ConsoleDashboard -Seconds 0.1
+    ///     Update-Console servers -Key web01 -Status Pass -Complete
+    /// }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsLifecycle.Wait, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/wait-consoledashboard/")]
     public sealed class CmdletWaitConsoleDashboard : NoPipelineLiveCmdlet {
         private volatile LiveSession? _waitingSession;
         private volatile bool _stopping;
@@ -28,6 +36,7 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The pause in seconds, fractions allowed (0.25 is a quarter second); zero captures a checkpoint without waiting.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]
         [ValidateRange(0, 2147483.0)]
+        [PSDefaultValue(Help = "0")]
         public double Seconds { get; set; }
 
         /// <inheritdoc />

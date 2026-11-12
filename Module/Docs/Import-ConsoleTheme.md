@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/import-consoletheme/
 schema: 2.0.0
 ---
 # Import-ConsoleTheme
 ## SYNOPSIS
 Imports a terminal colour scheme as a version 3 ConsoleMonster theme.
-
-Reads a single Windows Terminal scheme object (or a settings.json with one schemes entry), an XML iTerm2 .itermcolors file, or a flat base16 YAML scheme. The generated JSON embeds the scheme so its roles are derived when loaded. Accessible first chooses status colours from the palette, then adjusts OKLCH lightness where needed. The command writes the file and returns Test-ConsoleTheme's report and verdict lines, including adjusted tokens; failing checks never prevent import. It does not change the active theme or settings.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Import-ConsoleTheme [-Path] <string> [-Accessible] [-OutFile <string>] [-WhatIf]
 ```
 
 ## DESCRIPTION
-Imports a terminal colour scheme as a version 3 ConsoleMonster theme.
-
 Reads a single Windows Terminal scheme object (or a settings.json with one schemes entry), an XML iTerm2 .itermcolors file, or a flat base16 YAML scheme. The generated JSON embeds the scheme so its roles are derived when loaded. Accessible first chooses status colours from the palette, then adjusts OKLCH lightness where needed. The command writes the file and returns Test-ConsoleTheme's report and verdict lines, including adjusted tokens; failing checks never prevent import. It does not change the active theme or settings.
 
 ## EXAMPLES
@@ -53,7 +49,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -95,7 +91,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -103,4 +99,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/import-consoletheme/](https://consolemonster.dev/powershell/commands/import-consoletheme/)

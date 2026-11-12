@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoleregion/
 schema: 2.0.0
 ---
 # New-ConsoleRegion
 ## SYNOPSIS
 Creates a named region whose content can be replaced while a dashboard runs.
-
-Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleRegion [[-WidgetId] <string>] [[-Content] <Object>] [-Weight <double>
 ```
 
 ## DESCRIPTION
-Creates a named region whose content can be replaced while a dashboard runs.
-
 Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.
 
 ## EXAMPLES
@@ -66,7 +62,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -82,7 +78,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -98,7 +94,7 @@ Possible values: Left, Center, Right
 
 Required: False
 Position: named
-Default value: None
+Default value: Left
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -130,7 +126,7 @@ Possible values: Top, Middle, Bottom
 
 Required: False
 Position: named
-Default value: None
+Default value: Top
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -146,7 +142,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -180,4 +176,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoleregion/](https://consolemonster.dev/powershell/commands/new-consoleregion/)

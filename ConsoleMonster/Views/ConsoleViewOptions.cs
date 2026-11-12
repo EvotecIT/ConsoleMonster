@@ -22,7 +22,7 @@ namespace ConsoleMonster.Views {
         public string? Title { get; set; }
 
         /// <summary>The deepest level a tree or inspector shows (default 3).</summary>
-        public int Depth { get; set; } = 3;
+        public int MaxDepth { get; set; } = 3;
         /// <summary>The code language, or Auto.</summary>
         public string Language { get; set; } = "Auto";
 

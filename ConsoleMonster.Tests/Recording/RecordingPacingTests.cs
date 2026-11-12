@@ -181,7 +181,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Directory.CreateDirectory(folder);
             try {
                 string path = Path.Combine(folder, "hold.cast");
-                using (SessionRecorder recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = path, Width = 80, Height = 4, InProcess = true })) {
+                using (SessionRecorder recorder = SessionRecorder.Start(new SessionRecordingOptions { RecordingPath = path, Width = 80, Height = 4, InProcess = true })) {
                     recorder.CapturePowerShellOutput("Before\n");
                     recorder.AddMarker(TimeSpan.FromSeconds(3));
                     recorder.SetPace(RecordingPace.Slow);
@@ -209,7 +209,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 string sequence = SessionRecorder.MarkerSequence(TimeSpan.FromSeconds(3), "Results");
                 for (int split = 0; split <= sequence.Length; split++) {
                     string path = Path.Combine(folder, split + ".cast");
-                    using (SessionCastWriter writer = new SessionCastWriter(new SessionRecordingOptions { Path = path }, "test")) {
+                    using (SessionCastWriter writer = new SessionCastWriter(new SessionRecordingOptions { RecordingPath = path }, "test")) {
                         string output = writer.Append("Before" + sequence.Substring(0, split));
                         output += writer.Append(sequence.Substring(split) + "After\n");
                         Assert.Equal("BeforeAfter\n", output);
@@ -337,7 +337,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Directory.CreateDirectory(folder);
             try {
                 string path = Path.Combine(folder, "chapters.cast");
-                using (SessionRecorder recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = path, InProcess = true })) {
+                using (SessionRecorder recorder = SessionRecorder.Start(new SessionRecordingOptions { RecordingPath = path, InProcess = true })) {
                     recorder.AddMarker(TimeSpan.FromSeconds(3), "Results");
                     recorder.AddMarker(TimeSpan.FromSeconds(3));
                 }

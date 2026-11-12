@@ -23,7 +23,7 @@ $separator = if ((Get-ConsoleCapability).Glyphs -eq 'Ascii') { '|' } else { '·'
 
 # Layout: compose the screen from the data above.
 $screen = New-ConsoleRows -Gap 1 -Content {
-    New-ConsoleLogo -Text 'HELLO' -Subtitle '[muted]A little context before your next command.[/]'
+    New-ConsoleLogo -Text 'HELLO' -Tagline '[muted]A little context before your next command.[/]'
     New-ConsolePanel -Title 'Host summary' -HeaderRight 'local workspace' -Content {
         New-ConsoleKeyValue -InputObject $hostSummary
     }

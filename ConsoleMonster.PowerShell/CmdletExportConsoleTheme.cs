@@ -4,10 +4,8 @@ using System.Management.Automation;
 using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Exports the current ConsoleMonster theme as a starting file for a user or team.</para>
-    /// <para type="description">Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.</para>
-    /// </summary>
+    /// <summary>Exports the current ConsoleMonster theme as a starting file for a user or team.</summary>
+    /// <remarks><para>Writes every semantic token, foreground/background colour, explicit fallback tier and decoration as JSON or restricted PowerShell data. The current theme is unchanged. The file extension selects the format; the parent directory must already exist. JSON is UTF-8 without a BOM; PSD1 uses a UTF-8 BOM for Windows PowerShell 5.1.</para></remarks>
     /// <example>
     /// <para>Preview exporting the current theme.</para>
     /// <code>Export-ConsoleTheme -Path ./team-theme.json -WhatIf</code>
@@ -16,7 +14,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Preview exporting a PowerShell data file.</para>
     /// <code>Export-ConsoleTheme -Path ./accessible.psd1 -WhatIf</code>
     /// </example>
-    [Cmdlet(VerbsData.Export, "ConsoleTheme", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsData.Export, "ConsoleTheme", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/export-consoletheme/")]
     [OutputType(typeof(FileInfo))]
     public sealed class CmdletExportConsoleTheme : NoPipelineInputCmdlet {
         /// <summary><para type="description">The literal .json or .psd1 destination. An existing file is replaced after validation and ShouldProcess approval.</para></summary>
@@ -26,6 +24,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns the written file as a FileInfo. Without this switch the command produces no pipeline output.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <inheritdoc />

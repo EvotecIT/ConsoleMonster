@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/write-consoleannotation/
 schema: 2.0.0
 ---
 # Write-ConsoleAnnotation
 ## SYNOPSIS
 Writes a CI error, warning or notice, or a styled terminal status line.
-
-GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Write-ConsoleAnnotation -Level <AnnotationLevel> -Message <string> [-Title <stri
 ```
 
 ## DESCRIPTION
-Writes a CI error, warning or notice, or a styled terminal status line.
-
 GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.
 
 ## EXAMPLES
@@ -29,6 +25,14 @@ Write-ConsoleAnnotation -Level Error -Message 'Missing configuration' -File ./bu
 ```
 
 Point to a build error
+
+### EXAMPLE 2
+```powershell
+$result = [pscustomobject]@{ Name = 'Inventory'; Detail = 'Two servers need an update' }
+Write-ConsoleAnnotation -Level Warning -Title $result.Name -Message $result.Detail
+```
+
+Highlight an inventory warning in a CI log
 
 ## PARAMETERS
 
@@ -75,7 +79,7 @@ Possible values: Error, Warning, Notice
 
 Required: True
 Position: named
-Default value: None
+Default value: Error
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -133,7 +137,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -141,4 +145,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/write-consoleannotation/](https://consolemonster.dev/powershell/commands/write-consoleannotation/)

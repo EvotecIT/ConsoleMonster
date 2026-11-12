@@ -41,20 +41,20 @@ foreach (var group in upcoming)
         items.Add(day.Label, day.Status);
     }
 
-    events.Add(Ui.Padding().Left(2).Top(0).Right(0).Bottom(1).Content(c =>
+    events.Add(Ui.Padding().Left(2).Top(0).Right(0).Bottom(1).Content(paddingContent =>
     {
-        c.Add(items);
+        paddingContent.Add(items);
     }));
 }
 
-Ui.Columns().Content(c2 =>
+Ui.Columns().Content(columnsContent =>
 {
-    c2.Panel(p => p.Title("Operations").Content(c =>
+    columnsContent.Panel(p => p.Title("Operations").Content(panelContent =>
     {
-        c.Add(calendar);
+        panelContent.Add(calendar);
     }));
-    c2.Panel(p => p.Title("Upcoming · next 14 days").Content(c =>
+    columnsContent.Panel(p => p.Title("Upcoming · next 14 days").Content(panelContent =>
     {
-        c.Add(events);
+        panelContent.Add(events);
     }));
 }).Show();

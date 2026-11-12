@@ -32,14 +32,15 @@ IWidget Summary(IReadOnlyList<RunResult<string, string>> outcomes)
                 : TableCell.FromValue(row.Result),
             column => column.Presenter(CellPresenters.StatusWord));
     IWidget summary = outcomes.Count > 0
-        ? Ui.Facts().Add(outcomes.Count(result => result.Succeeded), "passed", ThemeToken.Pass)
+        ? Ui.Facts()
+            .Add(outcomes.Count(result => result.Succeeded), "passed", ThemeToken.Pass)
             .Add(outcomes.Count(result => !result.Succeeded), "retry needed", ThemeToken.Warn)
         : Ui.Markup("[muted]Ctrl+C cancels active work.[/]");
-    return Ui.Rows().Gap(1).Content(c =>
+    return Ui.Rows().Gap(1).Content(rowsContent =>
     {
-        c.Markup("[accent bold]Parallel patch run[/] [muted]· throttle 3[/]");
-        c.Add(table);
-        c.Add(summary);
+        rowsContent.Markup("[accent bold]Parallel patch run[/] [muted]· throttle 3[/]");
+        rowsContent.Add(table);
+        rowsContent.Add(summary);
     });
 }
 

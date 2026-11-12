@@ -26,18 +26,11 @@ namespace ConsoleMonster.Widgets {
                 prefix.AddRange(TextWrapper.Truncate(marker, markerWidth, string.Empty));
                 StyledLine firstPrefix = new StyledLine(prefix);
                 int indent = firstPrefix.Width;
-                string continuation = row.Prefix;
-                if (!node.Bare && continuation.Length > 0) {
-                    int branchWidth = CompactGuides ? 3 : context.Glyphs.Get(Glyphs.Glyph.TreeBranch).Length;
-                    string tail = continuation.Substring(Math.Max(0, continuation.Length - branchWidth));
-                    bool last = tail.StartsWith("└", StringComparison.Ordinal) || tail.StartsWith("`", StringComparison.Ordinal);
-                    continuation = continuation.Substring(0, Math.Max(0, continuation.Length - branchWidth))
-                        + (last ? new string(' ', branchWidth) : (context.Glyphs.Tier == Capabilities.GlyphTier.Ascii ? "|" : "│") + new string(' ', branchWidth - 1));
-                }
-                StyledLine continuationGuide = TextWrapper.Truncate(StyledLine.From(continuation, context.Style(ThemeToken.Border)), guideWidth, string.Empty);
+                StyledLine continuationGuide = TextWrapper.Truncate(StyledLine.From(ContinuationGuide(row, context), context.Style(ThemeToken.Border)), guideWidth, string.Empty);
                 List<TextSpan> content = new List<TextSpan>();
                 AddLines(content, context.Markup(node.LabelFor(context)).Lines);
-                if (node.LabelPadding > 0) { content.Add(new TextSpan(new string(' ', node.LabelPadding))); }
+                int padding = KeyPadding(row, width, context, out _);
+                if (padding > 0) { content.Add(new TextSpan(new string(' ', padding))); }
                 if (node.Value != null) {
                     content.Add(new TextSpan("  "));
                     AddLines(content, CellRendering.Content(node.Value, node.Presenter, null, presenter).Lines);

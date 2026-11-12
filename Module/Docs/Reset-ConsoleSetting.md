@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/reset-consolesetting/
 schema: 2.0.0
 ---
 # Reset-ConsoleSetting
 ## SYNOPSIS
 Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.
-
-Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Reset-ConsoleSetting [[-Name] <string[]>] [-Save] [-WhatIf] [-Confirm] [<CommonP
 ```
 
 ## DESCRIPTION
-Undoes Set-ConsoleSetting for this session, and with -Save removes the value from the settings file.
-
 Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.
 
 ## EXAMPLES
@@ -66,7 +62,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -84,4 +80,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/reset-consolesetting/](https://consolemonster.dev/powershell/commands/reset-consolesetting/)

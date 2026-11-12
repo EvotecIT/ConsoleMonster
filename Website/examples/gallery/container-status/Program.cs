@@ -112,7 +112,7 @@ IWidget Frame(int tick)
         memory.Add(row.Container, row.MemoryPercent);
     }
 
-    IWidget feed = new TextBlock("[muted]No restarts or memory warnings yet.[/]");
+    IWidget feed = TextBlock.FromMarkup("[muted]No restarts or memory warnings yet.[/]");
     if (events.Count > 0)
     {
         var list = new StatusList();

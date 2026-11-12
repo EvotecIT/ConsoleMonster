@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
@@ -30,6 +32,13 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Rows requested when measured without a height limit (default 8).</summary>
         public int PreferredHeight { get; set; } = 8;
+
+        /// <summary>
+        /// Takes only the rows its newest entries need, up to <see cref="PreferredHeight"/>, under a height limit too, and
+        /// no rows while it is empty, so a message area in an inline live view appears and grows as messages arrive. Off by
+        /// default: a dashboard keeps a stable <see cref="PreferredHeight"/> (and an empty log panel keeps a blank row).
+        /// </summary>
+        public bool FitToEntries { get; set; }
 
         /// <summary>Whether entries show their session time (default true).</summary>
         public bool ShowElapsed { get; set; } = true;
@@ -95,6 +104,7 @@ namespace ConsoleMonster.Widgets {
             if (entry == null) { throw new ArgumentNullException(nameof(entry)); }
             if (entry.IsLineSlice) {
                 Append(new LogEntry(entry.Time, Level(entry.Level), entry.RichText!, entry.Text, entry.LineIndex, entry.Tag));
+                DropEvictedLines();
             } else if (entry.RichText != null) {
                 WriteRich(entry.RichText, entry.Level, entry.Time, entry.Tag);
             } else {
@@ -112,8 +122,22 @@ namespace ConsoleMonster.Widgets {
 
         internal void WriteLiteral(string text, string level, TimeSpan time, DateTimeOffset? timestamp, string? tag) {
             foreach (string line in (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n')) {
-                Append(new LogEntry(time, Level(level ?? "info"), line.Replace("\t", "    "), timestamp, tag));
+                Append(new LogEntry(time, Level(level ?? "info"), Limit(line.Replace("\t", "    ")), timestamp, tag));
             }
+            DropEvictedLines();
+        }
+
+        /// <summary>
+        /// The most characters a literal entry keeps (16,384). A longer line ends with an ellipsis: no row can show it, and
+        /// <see cref="Capacity"/> bounds the number of entries, not their size.
+        /// </summary>
+        public const int MaxLineLength = 16384;
+
+        private static string Limit(string line) {
+            if (line.Length <= MaxLineLength) { return line; }
+            int keep = MaxLineLength - 1;
+            if (char.IsHighSurrogate(line[keep - 1])) { keep--; }
+            return line.Substring(0, keep) + "\u2026";
         }
 
         /// <summary>Appends rich text as separate lines, preserving styles across line breaks. Malformed markup is literal.</summary>
@@ -133,11 +157,192 @@ namespace ConsoleMonster.Widgets {
                 WriteLiteral(literal.ToString(), level, time, null, tag);
                 return;
             }
+            string original = markup;
+            string limited = LimitMarkup(markup, Math.Max(1, Capacity), out int removed);
+            if (!ReferenceEquals(limited, markup)) {
+                if (!Markup.Validate(limited, out _)) {
+                    // A cut that leaves a tag without its text (an implicit link) keeps the lines as literal text instead.
+                    WriteLiteral(Markup.Strip(markup), level, time, null, tag);
+                    return;
+                }
+                text = RichText.FromMarkup(limited);
+                markup = limited;
+            }
+            if (removed > 0) {
+                // Lines this write pushes straight out of Capacity are gone from the source, but they were still received:
+                // they pass through the region (and its tail model, whose text filter counts them) as literal entries that
+                // the kept lines evict before this write returns.
+                string[] gone = Markup.Strip(original).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+                for (int i = 0; i < removed; i++) {
+                    Append(new LogEntry(time, Level(level ?? "info"), i < gone.Length ? Limit(gone[i]) : string.Empty, null, tag));
+                }
+            }
             string[] lines = Markup.Strip(markup).Split('\n');
             for (int i = 0; i < lines.Length; i++) {
                 // Keep one complete source: the parser must resolve spanning tags and implicit links before slicing.
                 Append(new LogEntry(time, Level(level ?? "info"), text, lines[i], i, string.IsNullOrWhiteSpace(tag) ? null : tag!.Trim()));
             }
+            DropEvictedLines();
+        }
+
+        // Every line of a rich write keeps the one shared source, so bound that source as literal entries are bounded: a line
+        // longer than MaxLineLength ends with an ellipsis, and the lines this write pushes out of Capacity are removed
+        // ('removed' counts them). The kept lines start with the tags still open where they began, so their styles stay
+        // and their line indexes count from the first kept line. Returns the markup itself when nothing is cut.
+        private static string LimitMarkup(string markup, int capacity, out int removed) {
+            List<int> lengths = new List<int>();
+            ScanMarkup(markup, null, lengths, 0);
+            removed = Math.Max(0, lengths.Count - capacity);
+            if (removed == 0 && lengths.TrueForAll(length => length <= MaxLineLength)) { return markup; }
+            return KeepFrom(markup, lengths, removed);
+        }
+
+        private static string KeepFrom(string markup, List<int> lengths, int first) {
+            System.Text.StringBuilder output = new System.Text.StringBuilder();
+            ScanMarkup(markup, output, lengths, first);
+            return output.ToString();
+        }
+
+        // Rich sources whose leading lines were evicted during the current write.
+        private List<RichText>? _evictedSources;
+
+        // A rich source is shared by every line of its write, so once later writes evict its leading lines, the slices still
+        // kept move to a source that starts at the oldest of them, with the same tags still open there.
+        private void DropEvictedLines() {
+            if (_evictedSources == null) { return; }
+            List<RichText> sources = _evictedSources;
+            _evictedSources = null;
+            foreach (RichText source in sources) {
+                int first = int.MaxValue;
+                foreach (LogEntry entry in _entries) {
+                    if (ReferenceEquals(entry.RichText, source)) { first = Math.Min(first, entry.LineIndex); }
+                }
+                if (first == int.MaxValue || first == 0) { continue; }
+                string markup = source.ToMarkup();
+                List<int> lengths = new List<int>();
+                ScanMarkup(markup, null, lengths, 0);
+                string keptMarkup = KeepFrom(markup, lengths, first);
+                if (!Markup.Validate(keptMarkup, out _)) { continue; }
+                RichText kept = RichText.FromMarkup(keptMarkup);
+                foreach (LogEntry entry in _entries) {
+                    if (ReferenceEquals(entry.RichText, source)) { entry.Rebase(kept, entry.LineIndex - first); }
+                }
+            }
+        }
+
+        // Walks valid markup. Without output it records each line's length; with output it skips lines before 'first',
+        // keeping only the tags still open where line 'first' begins, copies the rest and cuts lines longer than
+        // MaxLineLength.
+        private static void ScanMarkup(string markup, System.Text.StringBuilder? output, List<int> lengths, int first) {
+            // Valid markup has only style tags and [/], which closes the innermost one. Before line 'first' the open tags'
+            // positions are tracked; from it on, 'reopened' tracks which open tags were written, so a reopened tag that had
+            // to be left out also leaves out the [/] that closes it.
+            List<int>? open = output != null && first > 0 ? new List<int>() : null;
+            List<bool>? reopened = null;
+            int line = 0;
+            int count = 0;
+            bool cut = false;
+            for (int i = 0; i < markup.Length; i++) {
+                char c = markup[i];
+                if (c == '[' && i + 1 < markup.Length && markup[i + 1] != '[') {
+                    int close = markup.IndexOf(']', i);
+                    if (close > i) {
+                        bool closing = close - i == 2 && markup[i + 1] == '/';
+                        if (open != null) {
+                            if (!closing) { open.Add(i); } else if (open.Count > 0) { open.RemoveAt(open.Count - 1); }
+                        } else if (output != null) {
+                            bool write = true;
+                            if (reopened != null) {
+                                if (!closing) { reopened.Add(true); }
+                                else if (reopened.Count > 0) { write = reopened[reopened.Count - 1]; reopened.RemoveAt(reopened.Count - 1); }
+                            }
+                            if (write) { output.Append(markup, i, close - i + 1); }
+                        }
+                        i = close;
+                        continue;
+                    }
+                }
+                if (c == '\r' || c == '\n') {
+                    if (c == '\r' && i + 1 < markup.Length && markup[i + 1] == '\n') { i++; }
+                    if (output == null) { lengths.Add(count); } else if (line >= first) { output.Append('\n'); }
+                    line++;
+                    count = 0;
+                    cut = false;
+                    if (open != null && line == first) {
+                        reopened = Reopen(markup, open, output!);
+                        open = null;
+                    }
+                    continue;
+                }
+                bool escaped = (c == '[' || c == ']') && i + 1 < markup.Length && markup[i + 1] == c;
+                int units = escaped || (char.IsHighSurrogate(c) && i + 1 < markup.Length && char.IsLowSurrogate(markup[i + 1])) ? 2 : 1;
+                int cells = escaped ? 1 : c == '\t' ? 4 : units;
+                if (output != null && line >= first) {
+                    if (lengths[line] <= MaxLineLength || count + cells <= MaxLineLength - 1) {
+                        output.Append(markup, i, units);
+                    } else if (!cut) {
+                        output.Append('…');
+                        cut = true;
+                    }
+                }
+                count += cells;
+                i += units - 1;
+            }
+            if (output == null) { lengths.Add(count); }
+        }
+
+        private static readonly Regex BareLinkWord = new Regex(@"(?<!\S)link(?!\S)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        // Writes the tags still open where the first kept line begins and returns which were written. A bare [link] takes
+        // its target from all the text it encloses, cut lines included, so it is reopened with that target written out,
+        // or without the link when Markup would give it none: the target cannot be written as link=, or an enclosing
+        // link already applies (a bare link never overrides one). A tag left with nothing to apply is not written.
+        private static List<bool> Reopen(string markup, List<int> open, System.Text.StringBuilder output) {
+            List<bool> written = new List<bool>(open.Count);
+            bool linked = false;
+            foreach (int start in open) {
+                int close = markup.IndexOf(']', start);
+                string tag = markup.Substring(start + 1, close - start - 1);
+                if (MarkupStyle.TryParse(tag, null, ColorDepth.TrueColor, out MarkupStyle style)) {
+                    if (style.LinkFromText) {
+                        string target = linked ? string.Empty : LinkTarget(markup, close + 1);
+                        string explicitTag = tag + " link=" + target;
+                        tag = target.Length > 0 && MarkupStyle.TryParse(explicitTag, null, ColorDepth.TrueColor, out MarkupStyle reopened)
+                            && string.Equals(reopened.Style.Link, target, StringComparison.Ordinal)
+                            ? explicitTag : BareLinkWord.Replace(tag, " ").Trim();
+                    }
+                    linked |= style.Style.Link != null;
+                }
+                written.Add(tag.Length > 0);
+                if (tag.Length > 0) { output.Append('[').Append(tag).Append(']'); }
+            }
+            return written;
+        }
+
+        // The text a bare [link] encloses, as Markup reads it for the target: escapes resolved, nested tags skipped, up to
+        // the [/] that closes it, trimmed.
+        private static string LinkTarget(string markup, int from) {
+            System.Text.StringBuilder text = new System.Text.StringBuilder();
+            int depth = 0;
+            for (int i = from; i < markup.Length; i++) {
+                char c = markup[i];
+                if ((c == '[' || c == ']') && i + 1 < markup.Length && markup[i + 1] == c) {
+                    text.Append(c);
+                    i++;
+                } else if (c == '[') {
+                    int close = markup.IndexOf(']', i);
+                    if (close - i == 2 && markup[i + 1] == '/') {
+                        if (depth == 0) { break; }
+                        depth--;
+                    } else {
+                        depth++;
+                    }
+                    i = close;
+                } else {
+                    text.Append(c);
+                }
+            }
+            return text.ToString().Trim();
         }
 
         private void Append(LogEntry entry) {
@@ -147,6 +352,8 @@ namespace ConsoleMonster.Widgets {
             while (_entries.Count > Math.Max(1, Capacity)) {
                 LogEntry evicted = _entries.Dequeue();
                 Evicted?.Invoke(evicted);
+                RichText? source = evicted.RichText;
+                if (source != null && (_evictedSources ??= new List<RichText>()).TrueForAll(s => !ReferenceEquals(s, source))) { _evictedSources.Add(source); }
             }
         }
 
@@ -207,8 +414,13 @@ namespace ConsoleMonster.Widgets {
 
         /// <inheritdoc />
         public override Size Measure(Constraints constraints, RenderContext context) {
-            int height = constraints.IsHeightUnbounded ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : Math.Min(PreferredHeight, constraints.MaxHeight);
-            return new Size(constraints.MaxWidth, Math.Max(1, height));
+            // A log that fits its entries takes no rows while it has nothing to show, so an empty message area holds no blank line.
+            if (FitToEntries && VisibleEntries().Length == 0) {
+                return new Size(constraints.MaxWidth, 0);
+            }
+            int height = constraints.IsHeightUnbounded || FitToEntries ? Math.Min(UnboundedRows(constraints.MaxWidth, context), PreferredHeight) : PreferredHeight;
+            height = Math.Max(1, height);
+            return new Size(constraints.MaxWidth, constraints.IsHeightUnbounded ? height : Math.Min(height, constraints.MaxHeight));
         }
 
         // Rows the newest entries need without a height limit: one each, or their wrapped rows when Wrap is on.

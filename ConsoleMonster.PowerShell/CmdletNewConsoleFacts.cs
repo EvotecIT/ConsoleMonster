@@ -3,15 +3,19 @@ using System.Management.Automation;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a facts line with bold counts, semantic colours and shared separators.</para>
-    /// <para type="description">Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.</para>
-    /// </summary>
+    /// <summary>Creates a facts line with bold counts, semantic colours and shared separators.</summary>
+    /// <remarks><para>Each fact is a value or a record with Value, Label, Caption, Presenter, Role and NewLine. Counts are bold, status words use the same colour, and neutral facts are muted. Facts wrap between items. ASCII uses | instead of the middle dot.</para></remarks>
     /// <example>
     /// <para>A report summary</para>
     /// <code>New-ConsoleFacts -Content { @{ Value = 3; Label = 'passed'; Role = 'Pass' }; @{ Value = 1; Label = 'warning'; Role = 'Warn' }; @{ Value = 5; Label = 'checks' } } | Show-Console</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleFacts")]
+    /// <example>
+    /// <para>Show the number of online servers</para>
+    /// <code>$summary = [pscustomobject]@{ Value = 4; Label = 'servers online'; Role = 'Pass' }
+    /// $summary | New-ConsoleFacts | Show-Console
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleFacts", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolefacts/")]
     [OutputType(typeof(ViewFacts))]
     public sealed class CmdletNewConsoleFacts : PSCmdlet {
         private readonly List<object> _items = new List<object>();

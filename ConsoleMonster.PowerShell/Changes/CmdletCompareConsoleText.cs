@@ -4,10 +4,8 @@ using System.Management.Automation;
 using ConsoleMonster.Changes;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Compares text or files with numbered lines, highlighted words and collapsed unchanged regions.</para>
-    /// <para type="description">Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceName and DifferenceName override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.</para>
-    /// </summary>
+    /// <summary>Compares text or files with numbered lines, highlighted words and collapsed unchanged regions.</summary>
+    /// <remarks><para>Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceLabel and DifferenceLabel override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.</para></remarks>
     /// <example>
     /// <para>Compare configuration strings with one line of context.</para>
     /// <code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -Context 1</code>
@@ -18,9 +16,9 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Return a unified diff with custom side names for storage or further processing.</para>
-    /// <code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified</code>
+    /// <code>Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceLabel 'Deployed' -DifferenceLabel 'Proposed' -AsUnified</code>
     /// </example>
-    [Cmdlet(VerbsData.Compare, "ConsoleText", DefaultParameterSetName = "Text")]
+    [Cmdlet(VerbsData.Compare, "ConsoleText", DefaultParameterSetName = "Text", HelpUri = "https://consolemonster.dev/powershell/commands/compare-consoletext/")]
     [OutputType(typeof(string))]
     public sealed class CmdletCompareConsoleText : NoPipelineInputCmdlet {
         /// <summary><para type="description">The original text. Empty strings and null represent an empty document.</para></summary>
@@ -48,24 +46,27 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The original-text heading in the widget and unified output. Overrides the resolved reference filename for files or Before for text. Control characters are replaced by spaces.</para></summary>
         [Parameter]
         [ValidateNotNullOrEmpty]
-        public string? ReferenceName { get; set; }
+        public string? ReferenceLabel { get; set; }
 
         /// <summary><para type="description">The new-text heading in the widget and unified output. Overrides the resolved difference filename for files or After for text. Control characters are replaced by spaces.</para></summary>
         [Parameter]
         [ValidateNotNullOrEmpty]
-        public string? DifferenceName { get; set; }
+        public string? DifferenceLabel { get; set; }
 
         /// <summary><para type="description">The nonnegative number of unchanged lines shown before and after each change. Default three; zero shows changes only.</para></summary>
         [Parameter]
         [ValidateRange(0, int.MaxValue)]
+        [PSDefaultValue(Help = "3")]
         public int Context { get; set; } = 3;
 
         /// <summary><para type="description">Ignores Unicode whitespace within lines. Line boundaries and a missing final newline are still compared.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter IgnoreWhitespace { get; set; }
 
         /// <summary><para type="description">Returns a single plain unified diff string with LF separators and hunk ranges. Equal texts return an empty string. Without this switch, writes a widget to the host and returns no objects.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter AsUnified { get; set; }
 
         /// <inheritdoc />
@@ -85,8 +86,8 @@ namespace ConsoleMonster.PowerShell {
                     return;
                 }
             }
-            if (ReferenceName != null) { options.ReferenceLabel = ReferenceName; }
-            if (DifferenceName != null) { options.DifferenceLabel = DifferenceName; }
+            if (ReferenceLabel != null) { options.ReferenceLabel = ReferenceLabel; }
+            if (DifferenceLabel != null) { options.DifferenceLabel = DifferenceLabel; }
             TextDiffResult comparison = TextDiff.Compare(before, after, options);
             if (AsUnified.IsPresent) {
                 WriteObject(comparison.ToUnifiedText());

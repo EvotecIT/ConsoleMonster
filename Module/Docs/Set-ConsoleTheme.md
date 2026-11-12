@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/set-consoletheme/
 schema: 2.0.0
 ---
 # Set-ConsoleTheme
 ## SYNOPSIS
 Selects the theme used by every ConsoleMonster widget.
-
-Select a built-in preset or catalogue scheme, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Catalogue schemes use upstream colours faithfully by default; -Accessible chooses colours that pass ThemeCheck. The saved accessible name is Dracula · accessible, for example. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ## SYNTAX
 ### Name (Default)
@@ -22,9 +20,7 @@ Set-ConsoleTheme -Path <string> [-Save] [-Accessible] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Selects the theme used by every ConsoleMonster widget.
-
-Select a built-in preset or catalogue scheme, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Catalogue schemes use upstream colours faithfully by default; -Accessible chooses colours that pass ThemeCheck. The saved accessible name is Dracula · accessible, for example. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSettings previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
+Select a built-in preset or catalogue scheme, follow your terminal with Terminal, or load a validated JSON/PSD1 theme. Catalogue schemes use upstream colours faithfully by default; -Accessible chooses colours that pass ThemeCheck. The saved accessible name is Dracula · accessible, for example. Dark suits dark terminals, Light suits light backgrounds and HighContrast uses saturated primaries. ColorBlindSafe keeps pass, warning and fail distinct with red-green colour blindness (blue, yellow and underlined rose) and picks its light variant when it detects a light background; where the background cannot be detected (for example in Windows Terminal) it uses the dark variant, so choose ColorBlindSafeLight there. ColorBlindSafeLight and ColorBlindSafeDark choose one explicitly. To keep a theme in every session, add -Save: it is written to the settings file, which every session and every tool built on ConsoleMonster reads (Set-ConsoleSetting Theme does the same, and Show-ConsoleSetting previews themes before choosing). CONSOLEMONSTER_THEME, for example colorblind, still overrides the file. Files use the built-in token names. PSD1 files are imported as restricted data and never executed. Invalid files leave the current theme unchanged.
 
 ## EXAMPLES
 
@@ -77,7 +73,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -109,7 +105,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -125,7 +121,7 @@ Possible values:
 
 Required: True
 Position: 0
-Default value: None
+Default value: Dark
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -135,7 +131,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -143,4 +139,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/set-consoletheme/](https://consolemonster.dev/powershell/commands/set-consoletheme/)

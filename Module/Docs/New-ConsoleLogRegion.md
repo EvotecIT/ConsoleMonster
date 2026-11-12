@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolelogregion/
 schema: 2.0.0
 ---
 # New-ConsoleLogRegion
 ## SYNOPSIS
 Creates a log region: the newest lines of a log, bottom-aligned.
-
-Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleLogRegion [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputOb
 ```
 
 ## DESCRIPTION
-Creates a log region: the newest lines of a log, bottom-aligned.
-
 Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.
 
 ## EXAMPLES
@@ -65,7 +61,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 1000
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -113,7 +109,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -177,7 +173,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -209,7 +205,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: log
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -225,7 +221,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -244,4 +240,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolelogregion/](https://consolemonster.dev/powershell/commands/new-consolelogregion/)

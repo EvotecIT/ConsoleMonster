@@ -103,26 +103,27 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     IWidget failureContent = failures.Items.Count == 0
         ? Ui.Markup("[muted]No failures recorded[/]")
         : failures;
-    return Ui.Rows().Gap(1).Content(c2 =>
+    return Ui.Rows().Gap(1).Content(rowsContent =>
     {
-        c2.Rule("[accent bold]Patching the web farm[/]");
-        c2.Facts(facts => facts.Add(40, "hosts")
+        rowsContent.Rule("[accent bold]Patching the web farm[/]");
+        rowsContent.Facts(facts => facts.Add(40, "hosts")
             .Add(new ViewFact(8, default, "throttle"))
             .Add(new ViewFact("4s", default, "per-host timeout")));
-        c2.Add(summary);
-        c2.Panel(p => p.Title("Host outcomes").Content(c =>
+        rowsContent.Add(summary);
+        rowsContent.Panel(p => p.Title("Host outcomes").Content(panelContent =>
         {
-            c.Add(map);
+            panelContent.Add(map);
         }));
-        c2.Panel(p => p.Title(finished ? "Last eight hosts" : "Worker lanes").Content(c =>
+        rowsContent.Panel(p => p.Title(finished ? "Last eight hosts" : "Worker lanes")
+            .Content(panelContent =>
+            {
+                panelContent.Add(lanes);
+            }));
+        rowsContent.Panel(p => p.Title("Retained failures").Content(panelContent =>
         {
-            c.Add(lanes);
+            panelContent.Add(failureContent);
         }));
-        c2.Panel(p => p.Title("Retained failures").Content(c =>
-        {
-            c.Add(failureContent);
-        }));
-        c2.Markup(finished
+        rowsContent.Markup(finished
             ? "[bold]Wave finished[/] · failed hosts remain available for a separate retry"
             : "[muted]Ctrl+C cancels active work and skips queued hosts[/]");
     });

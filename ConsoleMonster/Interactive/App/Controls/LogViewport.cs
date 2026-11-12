@@ -88,7 +88,7 @@ namespace ConsoleMonster.Interactive {
         public string CopyText() => Read(() => string.Join(System.Environment.NewLine, _tail.Region.Entries.Select(entry => entry.Text)));
 
         /// <summary>A detached entry snapshot.</summary>
-        public IReadOnlyList<LogEntry> Entries => Read(() => (IReadOnlyList<LogEntry>)new List<LogEntry>(_tail.Region.Entries));
+        public IReadOnlyList<LogEntry> Entries => Read(() => (IReadOnlyList<LogEntry>)_tail.Region.Entries.Select(entry => new LogEntry(entry)).ToArray());
 
         /// <summary>Appends bounded literal text from any thread. Markup is never interpreted.</summary>
         /// <param name="text">The message; line breaks create several entries.</param>

@@ -34,8 +34,8 @@ namespace ConsoleMonster.TestHost {
                     if (next.IsText) { input += next.Char; }
                 }
                 File.WriteAllText(receipt + ".value", text + "|" + input);
-                File.WriteAllText(receipt + ".svg", ConsoleExporter.ToSvg(new TextBlock("[pass]pass[/]"), new ExportOptions { Theme = ExportTheme.Current, Width = 20 }));
-                using (SessionRecorder recording = SessionRecorder.Start(new SessionRecordingOptions { InProcess = true, Path = receipt + ".cast", Width = 20, Height = 5 })) { recording.CaptureOutput("\u001b[32mpass\u001b[0m"); }
+                File.WriteAllText(receipt + ".svg", ConsoleExporter.ToSvg(TextBlock.FromMarkup("[pass]pass[/]"), new ExportOptions { Theme = ExportTheme.Current, Width = 20 }));
+                using (SessionRecorder recording = SessionRecorder.Start(new SessionRecordingOptions { InProcess = true, RecordingPath = receipt + ".cast", Width = 20, Height = 5 })) { recording.CaptureOutput("\u001b[32mpass\u001b[0m"); }
                 File.WriteAllText(receipt + ".recording.svg", SessionRecording.Read(receipt + ".cast").Export(ExportFormat.Svg));
                 File.WriteAllText(receipt + ".theme.json", ThemeFile.FromTheme(Terminal.Theme).ToJson());
                 File.WriteAllText(receipt + ".decision", string.Join("\n", Terminal.Profile.Decisions));

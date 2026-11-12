@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolelanes/
 schema: 2.0.0
 ---
 # New-ConsoleLanes
 ## SYNOPSIS
 Creates a lanes widget: one row per worker, server or item of a parallel workload.
-
-Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Declare lanes with names or Key/Label/Total records emitted by Content or the pipeline. Records can include progress, status and counts. A lane can also appear on its first Update-Console call in a live dashboard.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleLanes [[-WidgetId] <string>] [[-Content] <scriptblock>] [-InputObject
 ```
 
 ## DESCRIPTION
-Creates a lanes widget: one row per worker, server or item of a parallel workload.
-
 Each lane shows a status marker (a spinner while running), a progress bar, pass/fail/warning counts and what it is doing now. Declare lanes with names or Key/Label/Total records emitted by Content or the pipeline. Records can include progress, status and counts. A lane can also appear on its first Update-Console call in a live dashboard.
 
 ## EXAMPLES
@@ -54,7 +50,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -86,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -150,7 +146,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -166,7 +162,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -198,7 +194,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 28
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -214,7 +210,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -230,7 +226,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -262,7 +258,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 10
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -278,7 +274,7 @@ Possible values: Block, Line
 
 Required: False
 Position: named
-Default value: None
+Default value: Line
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -294,13 +290,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Transient
-The display disappears once every lane has finished (with Invoke-ConsoleDashboard -Transient nothing is left).
+The display disappears once every lane has finished (with Invoke-ConsoleDashboard -PrintFinalState:$false nothing is left).
 
 ```yaml
 Type: SwitchParameter
@@ -310,7 +306,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -326,7 +322,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: lanes
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -344,4 +340,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolelanes/](https://consolemonster.dev/powershell/commands/new-consolelanes/)

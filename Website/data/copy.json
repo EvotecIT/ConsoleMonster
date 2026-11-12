@@ -356,7 +356,7 @@
       "title": "Recorded once, replayed exactly",
       "body": "This program runs no rules: it replays a recording of {events} events into a dashboard that knows nothing about the recording, because every update is addressed to a widget by name. The same dashboard could be fed by a live run.",
       "recordTitle": "The recording",
-      "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordPath or RecordWriter, and Invoke-ConsoleDashboard with -RecordPath.",
+      "recordBody": "LiveRecorder writes one JSON object per applied event: the time in milliseconds, the target, the operation, the key and the values. LiveRecordingReader reads it back with no dependencies. Live sessions record with RecordingPath or RecordWriter, and Invoke-ConsoleDashboard with -RecordingPath.",
       "layoutTitle": "The program",
       "layoutBody": "Phases, lanes for twelve targets, a stacked bar and a key/value list, a braille line chart, a histogram, a bar chart and a log region, replayed from the file at the speed you give. Below 60×20 the dashboard shows one status line plus the phases and the lanes that fit."
     },
@@ -712,7 +712,7 @@
     },
     "record": {
       "title": "Record, replay, export",
-      "body": "One script: a dashboard defined once, a run recorded with -RecordPath, the recording played back at twice the speed into the same dashboard, and a page with a player saved next to it.",
+      "body": "One script: a dashboard defined once, a run recorded with -RecordingPath, the recording played back at twice the speed into the same dashboard, and a page with a player saved next to it.",
       "label": "A deploy dashboard run, then its recording replayed at twice the speed",
       "try": {
         "run": ". ./record.ps1",

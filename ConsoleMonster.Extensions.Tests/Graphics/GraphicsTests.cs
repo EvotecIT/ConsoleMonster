@@ -48,7 +48,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 int characters = 0;
                 using (var terminal = new ConsoleMonster.Rendering.VtOutput(sink, ConsoleMonster.Capabilities.TerminalProfile.Fixed(120, 40))) {
                     terminal.BeginLive();
-                    using (var recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = path, Width = 120, Height = 40, InProcess = true })) {
+                    using (var recorder = SessionRecorder.Start(new SessionRecordingOptions { RecordingPath = path, Width = 120, Height = 40, InProcess = true })) {
                         for (int index = 0; index < 16; index++) {
                             string title = "Capture " + index.ToString("D2");
                             var dashboard = Ui.Dashboard().Title(title).Content(Ui.Text().Markup().Content(string.Join("\n", Enumerable.Range(0, 34)

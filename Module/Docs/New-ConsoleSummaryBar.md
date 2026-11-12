@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consolesummarybar/
 schema: 2.0.0
 ---
 # New-ConsoleSummaryBar
 ## SYNOPSIS
 Creates a summary bar: one line with progress, done of total, the time left and result counters.
-
-The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ New-ConsoleSummaryBar [[-WidgetId] <string>] [[-Value] <double>] [[-Total] <doub
 ```
 
 ## DESCRIPTION
-Creates a summary bar: one line with progress, done of total, the time left and result counters.
-
 The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.
 
 ## EXAMPLES
@@ -29,6 +25,13 @@ New-ConsoleSummaryBar -Value 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered]
 ```
 
 A run three quarters through
+
+### EXAMPLE 2
+```powershell
+New-ConsoleSummaryBar -Total 12 -Value 9 -Counter ([ordered]@{ passed = 8; warnings = 1 }) | Show-Console
+```
+
+Summarize completed inventory checks
 
 ## PARAMETERS
 
@@ -43,7 +46,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 20
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -107,7 +110,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -123,13 +126,13 @@ Possible values:
 
 Required: False
 Position: 2
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Value
-Items done.
+Initial number of completed items, displayed relative to Total.
 
 ```yaml
 Type: Double
@@ -139,7 +142,7 @@ Possible values:
 
 Required: False
 Position: 1
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -155,7 +158,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: None
+Default value: summary
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -173,4 +176,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consolesummarybar/](https://consolemonster.dev/powershell/commands/new-consolesummarybar/)

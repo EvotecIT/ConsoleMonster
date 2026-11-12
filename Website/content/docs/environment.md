@@ -9,7 +9,7 @@ apis: [NO_COLOR, CONSOLEMONSTER_*]
 summary: "NO_COLOR and the CONSOLEMONSTER_* variables."
 ---
 
-Variables are read when the profile is detected. They take precedence over the [settings file](/docs/themes/#keep-a-theme-for-every-session) that `Show-ConsoleSettings` and `Set-ConsoleSetting -Save` write, and `Get-ConsoleSetting` shows which one each value came from. An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect. `CONSOLEMONSTER_NOW` is the exception: it is read each time a date is shown, and an invalid value falls back to the clock without a note.
+Variables are read when the profile is detected. They take precedence over the [settings file](/docs/themes/#keep-a-theme-for-every-session) that `Show-ConsoleSetting` and `Set-ConsoleSetting -Save` write, and `Get-ConsoleSetting` shows which one each value came from. An invalid value is ignored and noted in the profile's decisions, so `Get-ConsoleCapability` shows why it had no effect. `CONSOLEMONSTER_NOW` is the exception: it is read each time a date is shown, and an invalid value falls back to the clock without a note.
 
 | Variable | Values | Effect |
 |---|---|---|

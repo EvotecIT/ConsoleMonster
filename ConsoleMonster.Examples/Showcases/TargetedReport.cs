@@ -43,7 +43,7 @@ namespace ConsoleMonster.Examples.Showcases {
 
             StringWriter log = new StringWriter();
             new HealthReport(new WriterTarget(log, width: 60)).Run(servers, TimeSpan.Zero);
-            Terminal.Write(new Layout.Panel(new TextBlock(Markup.Escape(log.ToString().TrimEnd())), "What a WriterTarget(log, width: 60) received"));
+            Terminal.Write(new Layout.Panel(TextBlock.FromMarkup(Markup.Escape(log.ToString().TrimEnd())), "What a WriterTarget(log, width: 60) received"));
         }
     }
 }

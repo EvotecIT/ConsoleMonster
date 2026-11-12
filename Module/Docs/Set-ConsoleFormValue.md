@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/set-consoleformvalue/
 schema: 2.0.0
 ---
 # Set-ConsoleFormValue
 ## SYNOPSIS
 Sets field values of a form, whether or not it is shown.
-
-Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Set-ConsoleFormValue [-Form] <Form> [-Values] <Object> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Sets field values of a form, whether or not it is shown.
-
 Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.
 
 ## EXAMPLES
@@ -27,7 +23,7 @@ Each named field takes its value and shows it at once, text and number boxes inc
 ```powershell
 $form = New-ConsoleForm 'Connection' -Content {
     New-ConsoleField Domain 'Domain'
-    New-ConsoleField Parallel 'Parallel workers' -Type Number -Integer -Minimum 1
+    New-ConsoleField Parallel 'Parallel workers' -Kind Number -Integer -Minimum 1
 }
 Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }
 Read-ConsoleForm $form
@@ -94,4 +90,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/set-consoleformvalue/](https://consolemonster.dev/powershell/commands/set-consoleformvalue/)

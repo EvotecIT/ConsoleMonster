@@ -8,17 +8,22 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Views;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.</para>
-    /// <para type="description">For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.</para>
-    /// </summary>
+    /// <summary>Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.</summary>
+    /// <remarks><para>For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.</para></remarks>
     /// <example><para>A small estate summary.</para><code>New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
     ///     @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
     ///     @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-    /// ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{
+    /// ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
     ///     Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
     /// } | Show-Console</code></example>
-    [Cmdlet(VerbsCommon.New, "ConsoleDashboardFrame")]
+    /// <example>
+    /// <para>Compose an inventory dashboard frame</para>
+    /// <code>New-ConsoleDashboardFrame -Title 'Fleet checks' -Fact '12 servers inspected' -Meter @{
+    ///     Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
+    /// } | Show-Console
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsCommon.New, "ConsoleDashboardFrame", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledashboardframe/")]
     [OutputType(typeof(DashboardFrame))]
     public sealed class CmdletNewConsoleDashboardFrame : NoPipelineInputCmdlet {
         /// <summary><para type="description">The literal title, usually the view name.</para></summary>
@@ -34,9 +39,10 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Needs-attention items: records with State, Identity, Reason, and optionally Order (worst first when given) and Values (short values beside the item).</para></summary>
         [Parameter] public object[]? Attention { get; set; }
         /// <summary><para type="description">What the attention list counts, in the singular, as in '3 of 48 servers' (default item).</para></summary>
-        [Parameter, ValidateNotNullOrEmpty] public string? AttentionNoun { get; set; }
+        [Parameter, ValidateNotNullOrEmpty] public string? Noun { get; set; }
         /// <summary><para type="description">The total the attention list counts against.</para></summary>
-        [Parameter, ValidateRange(0, long.MaxValue)] public long AttentionOutOf { get; set; }
+        [Parameter, ValidateRange(0, long.MaxValue)] [PSDefaultValue(Help = "0")]
+        public long OutOf { get; set; }
         /// <summary><para type="description">Sections: records with Title and Content (widgets, text or a script block), and optionally Placement (Summary or Detail), Facts, Meta, States, MinWidth, MaxWidth, Grow and FullWidth.</para></summary>
         [Parameter] public object[]? Section { get; set; }
         /// <summary><para type="description">Legend entries: an ordered dictionary of state to word, or records with State and Word.</para></summary>
@@ -44,9 +50,11 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Counts in the footer, such as '48 servers'.</para></summary>
         [Parameter] public string[]? FooterCount { get; set; }
         /// <summary><para type="description">The footer hint: None (default, for a frame the script builds), EveryRow or EveryProperty (for frames shown for pipeline objects).</para></summary>
-        [Parameter] public FrameHint FooterHint { get; set; } = FrameHint.None;
+        [Parameter] [PSDefaultValue(Help = "None")]
+        public FrameHint FooterHint { get; set; } = FrameHint.None;
         /// <summary><para type="description">An explicit length (Summary, Standard or Full); without it the session preference or Standard.</para></summary>
-        [Parameter] public ConsoleViewLength Length { get; set; } = ConsoleViewLength.Standard;
+        [Parameter] [PSDefaultValue(Help = "Standard")]
+        public ConsoleViewLength Length { get; set; } = ConsoleViewLength.Standard;
 
         /// <inheritdoc />
         protected override void EndProcessing() {
@@ -59,8 +67,8 @@ namespace ConsoleMonster.PowerShell {
             }
             frame.Header.ObservedAt = ObservedAt;
             foreach (object item in Records(Meter)) { frame.Meters.Add(ToMeter(item)); }
-            if (AttentionNoun != null) { frame.Attention.Noun = AttentionNoun; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(AttentionOutOf))) { frame.Attention.OutOf = AttentionOutOf; }
+            if (Noun != null) { frame.Attention.Noun = Noun; }
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(OutOf))) { frame.Attention.OutOf = OutOf; }
             foreach (object item in Records(Attention)) {
                 PSItems.RecordFields(item, "State Identity Reason Order Values");
                 object? order = PSItems.Field(item, "Order");

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace ConsoleMonster.Layout {
     /// <summary>
     /// Distributes a length (width for columns, height for rows) between tracks with <see cref="LayoutSize"/>
-    /// specifications. Fixed tracks first, then auto tracks in order, then fractions share what is left. When the
+    /// specifications. Fixed tracks first, then auto tracks in order, then fractions share what is left (measured like
+    /// auto tracks, after them, when fractions take their natural size). When the
     /// space is too small, fractions shrink to their minimum, then auto tracks shrink from the last one.
     /// </summary>
     internal static class TrackAllocator {
@@ -22,13 +23,17 @@ namespace ConsoleMonster.Layout {
                     used += sizes[i];
                 }
             }
-            for (int i = 0; i < count; i++) {
-                LayoutSize spec = specs[i];
-                if (spec.Kind == LayoutSizeKind.Auto || (fractionsAsAuto && spec.Kind == LayoutSizeKind.Fraction)) {
-                    int remaining = Math.Max(0, space - used);
-                    int desired = Math.Max(spec.Min, measureAuto(i, remaining));
-                    sizes[i] = Math.Min(desired, Math.Max(remaining, spec.Min));
-                    used += sizes[i];
+            // Auto tracks first; fractions measured as auto come after them, so a fraction never starves a later auto track.
+            for (int pass = 0; pass < (fractionsAsAuto ? 2 : 1); pass++) {
+                LayoutSizeKind kind = pass == 0 ? LayoutSizeKind.Auto : LayoutSizeKind.Fraction;
+                for (int i = 0; i < count; i++) {
+                    LayoutSize spec = specs[i];
+                    if (spec.Kind == kind) {
+                        int remaining = Math.Max(0, space - used);
+                        int desired = Math.Max(spec.Min, measureAuto(i, remaining));
+                        sizes[i] = Math.Min(desired, Math.Max(remaining, spec.Min));
+                        used += sizes[i];
+                    }
                 }
             }
             if (!fractionsAsAuto) {

@@ -14,4 +14,5 @@ using ConsoleMonster.Widgets;
 };
 LogViewport log = new LogViewport("deploy.log") { ShowElapsed = false, Height = 8 };
 foreach ((string level, string message) in lines) { log.Write(message, level); }
-ConsoleApp.Run(new Rows(new TextBlock("[bold]Deploy 4.12.2[/] [muted]· / finds text[/]"), log));
+ConsoleApp.Run(new Rows(TextBlock.FromMarkup("[bold]Deploy 4.12.2[/] [muted]· / finds text[/]"),
+    log));

@@ -35,8 +35,8 @@ $frame = @{
     Attention = [pscustomobject]@{
         State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%'
     }
-    AttentionNoun = 'server'
-    AttentionOutOf = 48
+    Noun = 'server'
+    OutOf = 48
     Section = [pscustomobject]@{ Title = 'Sites'; Content = { $sites | New-ConsoleTable } }
 }
 New-ConsoleDashboardFrame @frame | Show-Console
@@ -78,7 +78,7 @@ Ui.DashboardFrame("Server estate")
 
 - **Title line.** Facts follow the title and states (`State`, `Count`, `Word`) sit at the right edge. When every state counts zero and nothing needs attention, the line says "all healthy". `-ObservedAt` adds how long ago the data was taken.
 - **Meters** print in the order given; a narrow row keeps the first ones.
-- **Needs attention** prints first in the summary rows whenever it has items, worst state first, then by `Order`, with "3 of 48 servers" from `-AttentionNoun` and `-AttentionOutOf`.
+- **Needs attention** prints first in the summary rows whenever it has items, worst state first, then by `Order`, with "3 of 48 servers" from `-Noun` and `-OutOf`.
 - **Sections** build their content once. Summary sections pack side by side while their minimum widths fit, and a later one drops into the shortest column; `Placement = 'Detail'` prints a section below at full width. `MinWidth`, `MaxWidth`, `Grow` and `FullWidth` shape the row.
 - **Legend and footer.** The legend lists the states you name; the footer prints the counts. A frame the script builds has no footer hint; module views use `EveryRow` ("pipe to Format-Table for every row").
 

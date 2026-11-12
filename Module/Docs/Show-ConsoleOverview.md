@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/show-consoleoverview/
 schema: 2.0.0
 ---
 # Show-ConsoleOverview
 ## SYNOPSIS
 Shows a compact, read-only summary of the local host.
-
-Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.
 
 ## SYNTAX
 ### Render (Default)
@@ -22,8 +20,6 @@ Show-ConsoleOverview [[-Section] <string[]>] [-AsObject] [-BudgetSeconds <double
 ```
 
 ## DESCRIPTION
-Shows a compact, read-only summary of the local host.
-
 Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.
 
 ## EXAMPLES
@@ -62,7 +58,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -78,13 +74,13 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -BudgetSeconds
-The caller's collection budget in milliseconds, from 1 to 900; default 750. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.
+The caller's collection budget in seconds, from 0.001 to 0.9; default 0.75. Slow sections become pending markers. Native scheduling and rendering time are outside this waiting budget.
 
 ```yaml
 Type: Double
@@ -94,7 +90,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0.75
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -126,7 +122,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -145,4 +141,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consoleoverview/](https://consolemonster.dev/powershell/commands/show-consoleoverview/)

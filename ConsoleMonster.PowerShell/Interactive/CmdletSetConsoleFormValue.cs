@@ -3,15 +3,13 @@ using System.Management.Automation;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Sets field values of a form, whether or not it is shown.</para>
-    /// <para type="description">Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.</para>
-    /// </summary>
+    /// <summary>Sets field values of a form, whether or not it is shown.</summary>
+    /// <remarks><para>Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.</para></remarks>
     /// <example>
     /// <para>Apply a preset before showing a form</para>
     /// <code>$form = New-ConsoleForm 'Connection' -Content {
     ///     New-ConsoleField Domain 'Domain'
-    ///     New-ConsoleField Parallel 'Parallel workers' -Type Number -Integer -Minimum 1
+    ///     New-ConsoleField Parallel 'Parallel workers' -Kind Number -Integer -Minimum 1
     /// }
     /// Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }
     /// Read-ConsoleForm $form</code>
@@ -25,7 +23,7 @@ namespace ConsoleMonster.PowerShell {
     ///     Read-ConsoleForm $form
     /// }</code>
     /// </example>
-    [Cmdlet(VerbsCommon.Set, "ConsoleFormValue")]
+    [Cmdlet(VerbsCommon.Set, "ConsoleFormValue", HelpUri = "https://consolemonster.dev/powershell/commands/set-consoleformvalue/")]
     public sealed class CmdletSetConsoleFormValue : PSCmdlet {
         /// <summary><para type="description">The form from New-ConsoleForm.</para></summary>
         [Parameter(Mandatory = true, Position = 0)]

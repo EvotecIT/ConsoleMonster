@@ -134,7 +134,7 @@ namespace ConsoleMonster.Widgets {
                         count = 0;
                         hasGroup = true;
                         previousCells = null;
-                        if (active.Length > 0) yield return FrameComposer.RenderBlock(new TextBlock("[bold]" + Markup.Escape(active) + "[/]") { Role = Border == TableBorder.Rule ? ThemeToken.Strong : ThemeToken.Accent }, width, context);
+                        if (active.Length > 0) yield return FrameComposer.RenderBlock(new TextBlock("[bold]" + Markup.Escape(active) + "[/]") { IsMarkup = true, Role = Border == TableBorder.Rule ? ThemeToken.Strong : ThemeToken.Accent }, width, context);
                     }
                     state = _aggregate(state, entry.Item);
                     count++;

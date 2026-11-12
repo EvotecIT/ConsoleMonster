@@ -25,9 +25,9 @@ Import-Module ConsoleMonster
 
 $form = New-ConsoleForm -Title 'Share plan' -Content {
     New-ConsoleField -Key Name -Label 'Share name' -Required -Default 'reports'
-    New-ConsoleField -Key Size -Label 'Quota (GB)' -Type Number -Integer -Minimum 1 -Maximum 500 -Default 50
-    New-ConsoleField -Key Site -Label 'Site' -Type Select -Choices 'Warsaw', 'Dublin' -Default 'Warsaw'
-    New-ConsoleField -Key ReadOnly -Label 'Read only' -Type Toggle
+    New-ConsoleField -Key Size -Label 'Quota (GB)' -Kind Number -Integer -Minimum 1 -Maximum 500 -Default 50
+    New-ConsoleField -Key Site -Label 'Site' -Kind Select -Choices 'Warsaw', 'Dublin' -Default 'Warsaw'
+    New-ConsoleField -Key ReadOnly -Label 'Read only' -Kind Toggle
 }
 $answers = Read-ConsoleForm $form
 if ($answers) { "Creating $($answers.Name) in $($answers.Site)" }
@@ -57,7 +57,7 @@ if (result.Submitted) {
 
 </div>
 
-Arrows and Tab move between fields, Enter edits one, choice fields open a list that filters as you type, and Escape cancels; a cancelled form returns nothing in PowerShell and `Submitted = false` in C#. `-Type` is `Text` (the default; `-Multiline` or `-AsSecret` for those), `Number`, `Toggle`, `Select` (`-Multiple` for several) or `Path` (`-Kind File` or `Folder`, `-MustExist`).
+Arrows and Tab move between fields, Enter edits one, choice fields open a list that filters as you type, and Escape cancels; a cancelled form returns nothing in PowerShell and `Submitted = false` in C#. `-Kind` is `Text` (the default; `-Multiline` or `-AsSecret` for those), `Number`, `Toggle`, `Select` (`-Multiple` for several) or `Path` (`-PathKind File` or `Folder`, `-MustExist`).
 
 ## Wizards and the review page
 
@@ -65,10 +65,10 @@ Fields with `-Page` are grouped into pages in the order the names first appear, 
 
 ```powershell
 $form = New-ConsoleForm 'Install agent' -Command 'Install-Agent' -Content {
-    New-ConsoleField Region 'Region' -Type Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
-    New-ConsoleField Proxy 'Use a proxy' -Type Toggle -Page Connection -ParameterName UseProxy
+    New-ConsoleField Region 'Region' -Kind Select -Choices 'eu', 'us' -Page Connection -ParameterName Region
+    New-ConsoleField Proxy 'Use a proxy' -Kind Toggle -Page Connection -ParameterName UseProxy
     New-ConsoleField ProxyAddress 'Proxy address' -VisibleWhen { $Values.Proxy } -Page Connection -ParameterName Proxy
-    New-ConsoleField Path 'Install folder' -Type Path -Kind Folder -Page Location -ParameterName Path
+    New-ConsoleField Path 'Install folder' -Kind Path -PathKind Folder -Page Location -ParameterName Path
 }
 $answers = Read-ConsoleForm $form -AppName 'Agent setup' -RememberLastChoices
 ```
@@ -85,7 +85,7 @@ $answers = Read-ConsoleForm $form -AppName 'Agent setup' -RememberLastChoices
 ```powershell
 $form = New-ConsoleForm 'Connection' -Content {
     New-ConsoleField Domain 'Domain' -Default 'lab.example.test'
-    New-ConsoleField Parallel 'Parallel workers' -Type Number -Integer -Minimum 1
+    New-ConsoleField Parallel 'Parallel workers' -Kind Number -Integer -Minimum 1
 }
 Set-ConsoleFormValue -Form $form -Values @{ Domain = 'corp.example.test'; Parallel = 2 }
 $last = Read-ConsoleForm $form -PassThru

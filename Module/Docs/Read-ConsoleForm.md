@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/read-consoleform/
 schema: 2.0.0
 ---
 # Read-ConsoleForm
 ## SYNOPSIS
 Shows a form or wizard and returns the answers.
-
-The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\<app>. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.
 
 ## SYNTAX
 ### __AllParameterSets
@@ -17,8 +15,6 @@ Read-ConsoleForm [[-Form] <psobject>] [-AppName <string>] [-RememberLastChoices]
 ```
 
 ## DESCRIPTION
-Shows a form or wizard and returns the answers.
-
 The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\<app>. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.
 
 ## EXAMPLES
@@ -31,6 +27,16 @@ if ($answers) { Write-Host "Selected $($answers.Name)" }
 ```
 
 Run a wizard and use the answers
+
+### EXAMPLE 2
+```powershell
+$form = New-ConsoleForm 'Inspect inventory' -Content {
+    New-ConsoleField Server 'Server name' -Default web01 -Required
+}
+Read-ConsoleForm $form | Show-ConsoleTable
+```
+
+Collect a server name and display the submitted values
 
 ## PARAMETERS
 
@@ -61,7 +67,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -93,7 +99,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -125,7 +131,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -157,7 +163,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -192,4 +198,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/read-consoleform/](https://consolemonster.dev/powershell/commands/read-consoleform/)

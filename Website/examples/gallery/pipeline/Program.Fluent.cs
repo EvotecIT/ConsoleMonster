@@ -90,13 +90,11 @@ KeyValueList module = Ui.KeyValue("module")
     .Add(
         "Elapsed",
         completed == 0 ? "-" : Duration(steps.Take(completed).Sum(item => item.Seconds)));
-ProgressBar progress = (ProgressBar)Ui.Progress()
+ProgressBar progress = Ui.ProgressBar("overall")
     .Label("Overall")
-    .WidgetId("overall")
     .Total(steps.Length)
     .Value(completed)
-    .LabelWidth(8)
-    .Build();
+    .LabelWidth(8);
 Lanes compilers = Ui.Lanes("compilers");
 for (int i = 0; i < compilerNames.Length; i++)
 {
@@ -121,34 +119,38 @@ foreach (BuildStep item in steps.Take(completed))
                 : item.Result == StatusKind.Skip ? "skip" : "info");
 if (completed < steps.Length)
     log.Write(PathText(steps[completed].Label) + "...");
-Rows body = Ui.Rows().Content(c3 =>
+Rows body = Ui.Rows().Content(rowsContent2 =>
 {
-    c3.Padding(padding => padding.Bottom(1).Right(1).Top(0).Left(1).Content(c =>
-    {
-        c.Add(phases);
-    }));
-    c3.Columns(columns => columns.Add(Ui.Panel().Title("Steps").Content(c =>
-    {
-        c.Add(status);
-    }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Module").Content(c2 =>
-    {
-        c2.Rows(r => r.Content(c =>
+    rowsContent2.Padding(padding => padding.Bottom(1)
+        .Right(1)
+        .Top(0)
+        .Left(1)
+        .Content(paddingContent =>
         {
-            c.Add(module);
-            c.Rule();
-            c.Add(progress);
-            c.Rule("Compiler workers");
-            c.Add(compilers);
+            paddingContent.Add(phases);
+        }));
+    rowsContent2.Columns(columns => columns.Add(Ui.Panel().Title("Steps").Content(panelContent =>
+    {
+        panelContent.Add(status);
+    }), LayoutSize.Fraction(1.5)).Add(Ui.Panel().Title("Module").Content(panelContent =>
+    {
+        panelContent.Rows(r => r.Content(rowsContent =>
+        {
+            rowsContent.Add(module);
+            rowsContent.Rule();
+            rowsContent.Add(progress);
+            rowsContent.Rule("Compiler workers");
+            rowsContent.Add(compilers);
         }));
     })));
-}).Add(Ui.Panel().Title("Output").Content(c =>
+}).Add(Ui.Panel().Title("Output").Content(panelContent =>
 {
-    c.Add(log);
+    panelContent.Add(log);
 }), LayoutSize.Fraction());
 Dashboard dashboard = Ui.Dashboard()
-    .Content(c =>
+    .Content(dashboardContent =>
     {
-        c.Add(body);
+        dashboardContent.Add(body);
     })
     .Title("[accent bold]Module build[/]")
     .Subtitle("Build-Module ConsoleMonster")

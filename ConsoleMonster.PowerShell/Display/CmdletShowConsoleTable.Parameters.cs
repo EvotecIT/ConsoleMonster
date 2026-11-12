@@ -32,6 +32,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Layout width; zero resolves the terminal with a 100-cell fallback.</para></summary>
         [Parameter, ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public override int Width { get; set; }
 
         /// <summary><para type="description">The culture used for values.</para></summary>
@@ -40,30 +41,37 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns the original input after display.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter PassThru { get; set; }
 
         /// <summary><para type="description">Shows a totals row for numeric columns.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter ShowTotals { get; set; }
 
         /// <summary><para type="description">Maximum displayed rows or chart groups; zero shows all.</para></summary>
         [Parameter, ValidateRange(0, int.MaxValue)]
+        [PSDefaultValue(Help = "0")]
         public override int MaxRows { get; set; }
 
         /// <summary><para type="description">Table border style; default Rounded.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Rounded")]
         public override TableBorder Border { get; set; } = TableBorder.Rounded;
 
         /// <summary><para type="description">Table card breakpoint; default 60 cells.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "60")]
         public override int CardsBelow { get; set; } = 60;
 
         /// <summary><para type="description">Underlines headers rather than drawing a separator.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter NoHeaderSeparator { get; set; }
 
         /// <summary><para type="description">Expands a table to the available width.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter Expand { get; set; }
 
         /// <summary><para type="description">The property shown through the status presenter.</para></summary>
@@ -72,14 +80,17 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Keeps the grouped property in table rows.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter ShowGroupColumn { get; set; }
 
         /// <summary><para type="description">Preserves the input order of groups.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter NoSort { get; set; }
 
         /// <summary><para type="description">Wraps long table values or code lines.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter Wrap { get; set; }
 
         /// <summary><para type="description">Optional title indentation in cells.</para></summary>
@@ -88,34 +99,42 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Wraps column headings.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter WrapHeaders { get; set; }
 
         /// <summary><para type="description">Renders consecutive grids when all columns cannot fit.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter KeepAllColumns { get; set; }
 
         /// <summary><para type="description">Renders group headings as full-width rows.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter GroupHeadersAsRows { get; set; }
 
         /// <summary><para type="description">Uses labelled records at or below this row count; zero disables.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "1")]
         public override int RecordViewRows { get; set; } = 1;
 
         /// <summary><para type="description">Repeats the full key in record and card layouts.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter ShowKeyField { get; set; }
 
         /// <summary><para type="description">Suppresses the default-on hidden-column footer.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter NoHiddenColumns { get; set; }
 
         /// <summary><para type="description">Allows column widths to shrink between renders.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter NoStableWidths { get; set; }
 
         /// <summary><para type="description">Suppresses the default-on header row.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter NoHeader { get; set; }
 
         /// <summary><para type="description">Optional per-row titles for record and card views.</para></summary>
@@ -124,6 +143,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Shows group subtotals.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "$false")]
         public override SwitchParameter ShowSubtotals { get; set; }
 
         /// <summary><para type="description">Text for the totals row.</para></summary>
@@ -132,6 +152,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Maximum wrapped lines per value; zero has no limit.</para></summary>
         [Parameter(DontShow = true)]
+        [PSDefaultValue(Help = "3")]
         public override int WrapLines { get; set; } = 3;
 
         /// <summary><para type="description">Total count when the input contains a subset.</para></summary>

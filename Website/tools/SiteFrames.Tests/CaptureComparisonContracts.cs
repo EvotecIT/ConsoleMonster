@@ -343,6 +343,8 @@ namespace SiteFrames.Tests {
         [Theory]
         [InlineData("│─", false)]
         [InlineData("─\n│", false)]
+        [InlineData("━╸──", false)]
+        [InlineData("╸┐", true)]
         [InlineData("┌─┐\n└─┘\n┌─┐\n└─┘", false)]
         [InlineData("┌─┐\n┘─└", true)]
         public void BorderQualityDistinguishesSeparateLinesAndReportsExactBrokenEdge(string text, bool broken) {
@@ -351,7 +353,7 @@ namespace SiteFrames.Tests {
             for (int row = 0; row < rows.Length; row++) { frame.Write(0, row, rows[row], Style.Plain); }
             string[] problems = CaptureComparison.Quality(frame).ToArray();
             Assert.Equal(broken, problems.Length > 0);
-            if (broken) { Assert.Contains(problems, p => p.Contains("from 0,1 (┘) to 1,1 (─)", StringComparison.Ordinal)); }
+            if (broken && text.Contains('┘')) { Assert.Contains(problems, p => p.Contains("from 0,1 (┘) to 1,1 (─)", StringComparison.Ordinal)); }
         }
 
         private string Run(string name, string platform, string text, string file = "sample.ansi") {

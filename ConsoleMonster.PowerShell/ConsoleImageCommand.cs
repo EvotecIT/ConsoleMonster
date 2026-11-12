@@ -32,10 +32,12 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Width in cells. Without -Width or -Height the image takes one cell per 10 pixels, up to the window width.</para></summary>
         [Parameter, ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">Height in cells. With -Width as well, the image fits inside that box; the aspect ratio is always kept.</para></summary>
         [Parameter, ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Height { get; set; }
 
         /// <summary>Reads the image for this record, or writes a non-terminating error and returns null.</summary>

@@ -85,8 +85,14 @@ namespace ConsoleMonster.Live {
             } else {
                 fragment.CarriageReturn = false;
                 fragment.Buffer.Append(value);
+                // A writer that never ends its line must not grow the buffer without limit: past MaxPartialLine
+                // characters the text so far becomes its own line (never between the halves of a surrogate pair).
+                if (fragment.Buffer.Length >= MaxPartialLine && !char.IsHighSurrogate(value)) { Emit(fragment); }
             }
         }
+
+        /// <summary>The longest unfinished line kept per thread (65,536 characters) before it is written as a line of its own.</summary>
+        internal const int MaxPartialLine = 65536;
 
         private void Emit(Fragment fragment) {
             string line = fragment.Buffer.ToString();

@@ -227,7 +227,7 @@ In C#, use `RecordingExportOptions.Pace`, `IdleLimit`, `ChapterHold`, `TrimStart
 
 ### Record dashboard updates
 
-A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordingPath` in PowerShell, or `LiveSessionOptions.RecordPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
+A live dashboard can record the widget updates it applies instead of terminal bytes. Use `Invoke-ConsoleDashboard -RecordingPath` in PowerShell, or `LiveSessionOptions.RecordingPath` / `RecordWriter` in C#. Replay into the same dashboard with `Show-ConsoleReplay -PlaybackMode Automatic`, `Show-ConsoleReplay` or `LiveSession.Replay`. Dashboard recordings use JSON lines and export to asciicast v3; whole terminal sessions use asciicast v2.
 
 {{< cm-demo id="record" heading="h4" >}}
 
@@ -241,7 +241,7 @@ using ConsoleMonster.Sessions;
 var options = new SessionRecordingOptions {
     Shell = "pwsh",
     Arguments = { "-NoLogo", "-NoProfile", "-Command", "[Console]::WriteLine('READY'); [Console]::WriteLine([Console]::ReadLine())" },
-    Path = "scripted.cast",
+    RecordingPath = "scripted.cast",
     Width = 80,
     Height = 20,
     Timeout = TimeSpan.FromSeconds(30),

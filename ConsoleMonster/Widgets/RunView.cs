@@ -62,7 +62,7 @@ namespace ConsoleMonster.Widgets {
         public IWidget Build(RunSnapshot snapshot, RenderContext context) {
             List<IWidget> rows = new List<IWidget>();
             if (!string.IsNullOrEmpty(Title)) {
-                rows.Add(new TextBlock(Title!));
+                rows.Add(TextBlock.FromMarkup(Title!));
             }
             Localization.WidgetLabels labels = context.Labels;
             SummaryBar summary = new SummaryBar("run-summary") { Elapsed = snapshot.Elapsed };

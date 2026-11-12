@@ -46,7 +46,7 @@ namespace ConsoleMonster {
 
         /// <summary>Markup text, matching New-ConsoleText -Markup.</summary>
         /// <param name="markup">The markup input.</param><returns>The markup text widget.</returns>
-        public static TextBlock Markup(string markup) => new TextBlock(markup);
+        public static TextBlock Markup(string markup) => TextBlock.FromMarkup(markup);
 
         /// <summary>Horizontal rule with an optional primary title.</summary>
         /// <param name="title">The primary input.</param>

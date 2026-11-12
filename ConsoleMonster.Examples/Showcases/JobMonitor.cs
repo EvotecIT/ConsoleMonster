@@ -76,7 +76,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 }
             });
             screens.Add(new AppScreen("settings", "Settings", new Rows(
-                new AppBinding(_ => new TextBlock("[muted]Settings for[/] [bold]" + Selected().Name + "[/]")),
+                new AppBinding(_ => TextBlock.FromMarkup("[muted]Settings for[/] [bold]" + Selected().Name + "[/]")),
                 schedule, notify, save)));
             save.Clicked += (_, __) => {
                 Selected().Schedule = (string?)schedule.Value ?? "Nightly";
@@ -115,7 +115,7 @@ namespace ConsoleMonster.Examples.Showcases {
             lock (gate) {
                 foreach (Job job in jobs) { list.Add($"[bold]{job.Number,2}[/]  {job.Name}", job.State, Chain(job)); }
             }
-            return new Rows(new TextBlock("[muted]Type a job's number to open it; two digits open 10 to 12.[/]"), list) { Gap = 1 };
+            return new Rows(TextBlock.FromMarkup("[muted]Type a job's number to open it; two digits open 10 to 12.[/]"), list) { Gap = 1 };
         }
 
         private static IWidget Detail(Job job, string view, object gate) {
@@ -127,14 +127,14 @@ namespace ConsoleMonster.Examples.Showcases {
                         flow.Node(Phases[i], Phases[i] + (i == job.Phase && job.State == StatusKind.Running ? " " + job.Percent + "%" : ""), PhaseState(job, i));
                         if (i > 0) { flow.Edge(Phases[i - 1], Phases[i]); }
                     }
-                    return new Rows(new TextBlock("[bold]" + job.Name + "[/] · diagram view  " + facts), flow) { Gap = 1 };
+                    return new Rows(TextBlock.FromMarkup("[bold]" + job.Name + "[/] · diagram view  " + facts), flow) { Gap = 1 };
                 }
                 Columns cards = new Columns { Gap = 1 };
                 for (int i = 0; i < Phases.Length; i++) {
                     StatusKind state = PhaseState(job, i);
-                    cards.Add(new Panel(new TextBlock(state == StatusKind.Running ? job.Percent + "% done" : state.ToString()), Phases[i]) { Status = state });
+                    cards.Add(new Panel(TextBlock.FromMarkup(state == StatusKind.Running ? job.Percent + "% done" : state.ToString()), Phases[i]) { Status = state });
                 }
-                return new Rows(new TextBlock("[bold]" + job.Name + "[/] · card view  " + facts), cards) { Gap = 1 };
+                return new Rows(TextBlock.FromMarkup("[bold]" + job.Name + "[/] · card view  " + facts), cards) { Gap = 1 };
             }
         }
 

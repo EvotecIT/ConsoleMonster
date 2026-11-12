@@ -1,24 +1,20 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/new-consoledashboardframe/
 schema: 2.0.0
 ---
 # New-ConsoleDashboardFrame
 ## SYNOPSIS
 Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.
 
-For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.
-
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-New-ConsoleDashboardFrame [-Title] <string> [-Fact <string[]>] [-State <Object[]>] [-ObservedAt <DateTimeOffset>] [-Meter <Object[]>] [-Attention <Object[]>] [-AttentionNoun <string>] [-AttentionOutOf <long>] [-Section <Object[]>] [-Legend <Object>] [-FooterCount <string[]>] [-FooterHint <FrameHint>] [-Length <ConsoleViewLength>] [<CommonParameters>]
+New-ConsoleDashboardFrame [-Title] <string> [-Fact <string[]>] [-State <Object[]>] [-ObservedAt <DateTimeOffset>] [-Meter <Object[]>] [-Attention <Object[]>] [-Noun <string>] [-OutOf <long>] [-Section <Object[]>] [-Legend <Object>] [-FooterCount <string[]>] [-FooterHint <FrameHint>] [-Length <ConsoleViewLength>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.
-
 For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.
 
 ## EXAMPLES
@@ -28,12 +24,21 @@ For a script that builds its own summary. The frame prints once and lays itself 
 New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
                 @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
                 @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -AttentionNoun server -AttentionOutOf 48 -Section @{
+            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
                 Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
             } | Show-Console
 ```
 
 A small estate summary.
+
+### EXAMPLE 2
+```powershell
+New-ConsoleDashboardFrame -Title 'Fleet checks' -Fact '12 servers inspected' -Meter @{
+                Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
+            } | Show-Console
+```
+
+Compose an inventory dashboard frame
 
 ## PARAMETERS
 
@@ -42,38 +47,6 @@ Needs-attention items: records with State, Identity, Reason, and optionally Orde
 
 ```yaml
 Type: Object[]
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AttentionNoun
-What the attention list counts, in the singular, as in '3 of 48 servers' (default item).
-
-```yaml
-Type: String
-Parameter Sets: __AllParameterSets
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AttentionOutOf
-The total the attention list counts against.
-
-```yaml
-Type: Int64
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -160,7 +133,7 @@ Possible values: Summary, Standard, Full
 
 Required: False
 Position: named
-Default value: None
+Default value: Standard
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -170,6 +143,22 @@ Headline meters in priority order: records with Label and Kind (Composition, Rat
 
 ```yaml
 Type: Object[]
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Noun
+What the attention list counts, in the singular, as in '3 of 48 servers' (default item).
+
+```yaml
+Type: String
 Parameter Sets: __AllParameterSets
 Aliases: None
 Possible values:
@@ -193,6 +182,22 @@ Possible values:
 Required: False
 Position: named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OutOf
+The total the attention list counts against.
+
+```yaml
+Type: Int64
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -258,4 +263,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/new-consoledashboardframe/](https://consolemonster.dev/powershell/commands/new-consoledashboardframe/)

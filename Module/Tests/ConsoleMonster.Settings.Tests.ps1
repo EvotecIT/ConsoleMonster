@@ -129,7 +129,7 @@ Reset-ConsoleSetting Density
 $setting = Get-ConsoleSetting Density -WarningVariable problems -WarningAction SilentlyContinue
 "density=$($setting.Value)/$($setting.Source)"
 "problem=$($problems -match 'CONSOLEMONSTER_DENSITY.*bogus')"
-$screen = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings -WarningAction SilentlyContinue }
+$screen = Invoke-ConsoleHeadless -Width 110 -Height 30 -InputScript 'Escape' { Show-ConsoleSetting -WarningAction SilentlyContinue }
 "picker=$($screen.Text -match 'Density.*Comfortable \(default\)')/$($screen.Text -match 'bogus')"
 '@
         $text | Should -Match 'density=Comfortable/Default'
@@ -146,7 +146,7 @@ Set-ConsoleSetting Glyphs Full
 Set-ConsoleSetting Density Comfortable
 foreach (`$theme in 'Dark', 'ColorBlindSafeDark') {
     Set-ConsoleTheme `$theme
-    `$screen = Invoke-ConsoleHeadless -Width $Width -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+    `$screen = Invoke-ConsoleHeadless -Width $Width -Height 30 -InputScript 'Escape' { Show-ConsoleSetting }
     `$lines = `$screen.Text -split "``n"
     `$panel = `$lines | Where-Object { `$_ -match '^╭─ Settings' } | Select-Object -First 1
     `$boundary = `$panel.IndexOf('╮') + 1
@@ -156,7 +156,7 @@ foreach (`$theme in 'Dark', 'ColorBlindSafeDark') {
     "`$theme/labels=`$(`$screen.Text -match 'Density.*Comfortable \(default\)')"
     "`$theme/verdict=`$(`$screen.Text -match 'deuteranopia')/`$(`$screen.Text -match 'Pending text too faint: 4.0:1')/`$(`$screen.Text -match '(Statuses apart.*|Colour-blind: )yes')"
 }
-`$narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSettings }
+`$narrow = Invoke-ConsoleHeadless -Width 38 -Height 30 -InputScript 'Escape' { Show-ConsoleSetting }
 "narrow=`$(`$narrow.Text -match 'Density')/`$(`$narrow.Text -match 'Comfortable \(default\)')"
 "@
         foreach ($theme in 'Dark', 'ColorBlindSafeDark') {
@@ -172,10 +172,10 @@ foreach (`$theme in 'Dark', 'ColorBlindSafeDark') {
 
     It 'saves what is chosen in the settings picker, and Escape changes nothing' {
         $text = Invoke-SettingsChild -File $script:File -Script @'
-$null = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Escape' { Show-ConsoleSettings }
+$null = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Escape' { Show-ConsoleSetting }
 "cancelled=$(Test-Path $env:CONSOLEMONSTER_SETTINGS)/$((Get-ConsoleSetting Theme).Value)"
 # Theme list: Auto, Dark, Light. Twelve settings, then Save.
-$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSettings }
+$screen = Invoke-ConsoleHeadless -Width 100 -Height 24 -InputScript 'Enter Down Down Enter Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Enter' { Show-ConsoleSetting }
 "saved=$((Get-ConsoleSetting Theme).Value)/$((Get-ConsoleSetting Theme).Source)"
 '@
         $text | Should -Match 'cancelled=False/Auto'

@@ -1,30 +1,26 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/compare-consoletext/
 schema: 2.0.0
 ---
 # Compare-ConsoleText
 ## SYNOPSIS
 Compares text or files with numbered lines, highlighted words and collapsed unchanged regions.
 
-Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceName and DifferenceName override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.
-
 ## SYNTAX
 ### Text (Default)
 ```powershell
-Compare-ConsoleText [-ReferenceText] <string> [-DifferenceText] <string> [-ReferenceName <string>] [-DifferenceName <string>] [-Context <int>] [-IgnoreWhitespace] [-AsUnified] [<CommonParameters>]
+Compare-ConsoleText [-ReferenceText] <string> [-DifferenceText] <string> [-ReferenceLabel <string>] [-DifferenceLabel <string>] [-Context <int>] [-IgnoreWhitespace] [-AsUnified] [<CommonParameters>]
 ```
 
 ### Path
 ```powershell
-Compare-ConsoleText -ReferencePath <string> -DifferencePath <string> [-ReferenceName <string>] [-DifferenceName <string>] [-Context <int>] [-IgnoreWhitespace] [-AsUnified] [<CommonParameters>]
+Compare-ConsoleText -ReferencePath <string> -DifferencePath <string> [-ReferenceLabel <string>] [-DifferenceLabel <string>] [-Context <int>] [-IgnoreWhitespace] [-AsUnified] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Compares text or files with numbered lines, highlighted words and collapsed unchanged regions.
-
-Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceName and DifferenceName override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.
+Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceLabel and DifferenceLabel override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.
 
 ## EXAMPLES
 
@@ -44,7 +40,7 @@ Compare strings while ignoring whitespace within lines.
 
 ### EXAMPLE 3
 ```powershell
-Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceName 'Deployed' -DifferenceName 'Proposed' -AsUnified
+Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceLabel 'Deployed' -DifferenceLabel 'Proposed' -AsUnified
 ```
 
 Return a unified diff with custom side names for storage or further processing.
@@ -62,7 +58,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -78,12 +74,12 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 3
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -DifferenceName
+### -DifferenceLabel
 The new-text heading in the widget and unified output. Overrides the resolved difference filename for files or After for text. Control characters are replaced by spaces.
 
 ```yaml
@@ -142,12 +138,12 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReferenceName
+### -ReferenceLabel
 The original-text heading in the widget and unified output. Overrides the resolved reference filename for files or Before for text. Control characters are replaced by spaces.
 
 ```yaml
@@ -208,4 +204,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/compare-consoletext/](https://consolemonster.dev/powershell/commands/compare-consoletext/)

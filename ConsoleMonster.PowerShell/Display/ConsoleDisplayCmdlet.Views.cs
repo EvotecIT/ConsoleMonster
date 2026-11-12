@@ -22,7 +22,7 @@ namespace ConsoleMonster.PowerShell {
                 case "tree": specific = "Property Depth MaxItems MaxNodes Exclude"; break;
                 case "code": specific = "Path Language LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
                 case "json": specific = "Path Depth LineNumbers FirstLine MaxLines Highlight Wrap NoTitle"; break;
-                case "error": specific = "ShowFrameworkFrames MaxStackFrames NoStack ErrorLayout MaxInner NoSource"; break;
+                case "error": specific = "ShowFrameworkFrames MaxFrames NoStack ErrorLayout MaxInner NoSource"; break;
                 case "markdown": specific = "Path NoPager"; break;
                 default: throw new PSArgumentException("Unknown View '" + view + "'.");
             }
@@ -56,13 +56,13 @@ namespace ConsoleMonster.PowerShell {
                 View = json ? Views.ConsoleViewKind.Json : Views.ConsoleViewKind.Code,
                 Language = Language, Path = Path, LineNumbers = LineNumbers.IsPresent, FirstLine = FirstLine,
                 Wrap = Wrap.IsPresent, MaxLines = MaxLines, Title = PSText.Markup(Title), NoTitle = NoTitle.IsPresent,
-                Highlight = Highlight, Depth = Depth, Shape = Binding.PSShaping.Options()
+                Highlight = Highlight, MaxDepth = Depth, Shape = Binding.PSShaping.Options()
             });
 
         private IWidget BuildErrorView(IReadOnlyList<PSObject> items) => Views.ConsoleView.BuildErrors(
             items.Select(item => (object?)PSErrors.Describe(PSText.Unwrap(item)!, !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase))).ToArray(),
             new Views.ConsoleViewOptions {
-                ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = MaxStackFrames,
+                ShowFrameworkFrames = ShowFrameworkFrames.IsPresent, MaxFrames = MaxFrames,
                 ShowStack = !NoStack.IsPresent && !string.Equals(ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase), MaxInner = MaxInner, ShowSource = !NoSource.IsPresent,
                 Compact = !string.Equals(ErrorLayout, "Standard", StringComparison.OrdinalIgnoreCase),
                 DetailsHint = string.Equals(ErrorLayout, "Compact", StringComparison.OrdinalIgnoreCase) && InvokeCommand.GetCommand("Get-Error", CommandTypes.Cmdlet) != null

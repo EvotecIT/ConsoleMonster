@@ -27,7 +27,7 @@ namespace ConsoleMonster.Tests.Live {
             var target = new RecordingTarget(TerminalProfile.Fixed(40, 8)) { SkipDelays = true, CaptureViewport = true };
             using (Terminal.Use(target))
             using (var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(5))) {
-                Assert.Equal(3, ConsoleWatch.Run(i => new TextBlock("value " + i), new WatchOptions {
+                Assert.Equal(3, ConsoleWatch.Run(i => TextBlock.FromMarkup("value " + i), new WatchOptions {
                     Count = 3, PollInterval = TimeSpan.FromHours(1),
                     Session = new LiveSessionOptions { HandleCancelKey = false, CaptureConsole = false }
                 }, deadline.Token));
@@ -42,7 +42,7 @@ namespace ConsoleMonster.Tests.Live {
             using (var stop = new CancellationTokenSource()) {
                 Assert.Equal(1, ConsoleWatch.Run(i => {
                     stop.CancelAfter(TimeSpan.FromMilliseconds(100));
-                    return new TextBlock("value " + i);
+                    return TextBlock.FromMarkup("value " + i);
                 }, new WatchOptions {
                     PollInterval = TimeSpan.FromHours(1),
                     Session = new LiveSessionOptions { HandleCancelKey = false, CaptureConsole = false }
@@ -53,7 +53,7 @@ namespace ConsoleMonster.Tests.Live {
         [Fact]
         public void Run_WithoutAConsole_PrintsEveryRunUpToTheCount() {
             List<string> printed = new List<string>();
-            int runs = ConsoleWatch.Run(i => new TextBlock("value " + i), new WatchOptions {
+            int runs = ConsoleWatch.Run(i => TextBlock.FromMarkup("value " + i), new WatchOptions {
                 Count = 3,
                 Live = false,
                 Title = "demo",
@@ -91,7 +91,7 @@ namespace ConsoleMonster.Tests.Live {
                     if (i == 2) {
                         stop.Cancel();
                     }
-                    return new TextBlock("run " + i);
+                    return TextBlock.FromMarkup("run " + i);
                 }, new WatchOptions { Count = 5, Live = false, Print = widget => { }, Delay = (interval, token) => { } }, stop.Token);
                 Assert.Equal(2, runs);
             }
@@ -112,9 +112,9 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         private static CellBuffer RenderTwice(WatchView view, RenderContext context, string before, string after) {
-            view.Update(new TextBlock(before), 1);
+            view.Update(TextBlock.FromMarkup(before), 1);
             view.Render(new Region(new CellBuffer(30, 2)), context);
-            view.Update(new TextBlock(after), 2);
+            view.Update(TextBlock.FromMarkup(after), 2);
             CellBuffer second = new CellBuffer(30, 2);
             view.Render(new Region(second), context);
             return second;

@@ -57,7 +57,7 @@ var report = new Rows(
         "[accent bold]Microsoft 365 licenses[/] [muted]· adatum.example.test · October 2026[/]"),
     new Columns(new Panel(bars, "Assigned of purchased"), new Panel(savings, "Reclaim first")),
     table,
-    new TextBlock(
+    TextBlock.FromMarkup(
         ($"[warn]${monthlyWaste:N0} a month[/] pays for {unusedSeats} unassigned seats. "
             + $"[muted]Reclaim before the renewal date.[/]")))
 {

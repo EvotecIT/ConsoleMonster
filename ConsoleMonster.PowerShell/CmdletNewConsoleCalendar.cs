@@ -7,10 +7,8 @@ using ConsoleMonster.Widgets;
 using Calendar = ConsoleMonster.Widgets.Calendar;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a month or year calendar with dated operational outcomes.</para>
-    /// <para type="description">Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</para>
-    /// </summary>
+    /// <summary>Creates a month or year calendar with dated operational outcomes.</summary>
+    /// <remarks><para>Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</para></remarks>
     /// <example>
     /// <para>Display backup outcomes for October</para>
     /// <code>$backups = @(
@@ -27,24 +25,30 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Build a year view with Monday-first weeks</para>
     /// <code>New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday</code>
     /// </example>
-    [Cmdlet(VerbsCommon.New, "ConsoleCalendar")]
+    [Cmdlet(VerbsCommon.New, "ConsoleCalendar", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecalendar/")]
     [OutputType(typeof(Calendar))]
     public sealed class CmdletNewConsoleCalendar : PSCmdlet {
         private readonly List<CalendarMark> _marks = new List<CalendarMark>();
         /// <summary><para type="description">Gregorian year to display; default the current year (or the year of Today).</para></summary>
-        [Parameter] [ValidateRange(1, 9999)] public int Year { get; set; }
+        [Parameter] [ValidateRange(1, 9999)] [PSDefaultValue(Help = "0")]
+        public int Year { get; set; }
         /// <summary><para type="description">Gregorian month for Month view; without Year and Month the current month is shown.</para></summary>
-        [Parameter] [ValidateRange(1, 12)] public int Month { get; set; }
+        [Parameter] [ValidateRange(1, 12)] [PSDefaultValue(Help = "0")]
+        public int Month { get; set; }
         /// <summary><para type="description">Month (default) or Year.</para></summary>
-        [Parameter] public CalendarView View { get; set; }
+        [Parameter] [PSDefaultValue(Help = "Month")]
+        public CalendarView View { get; set; }
         /// <summary><para type="description">Rows to mark, retaining their original values for day details.</para></summary>
         [Parameter(ValueFromPipeline = true)] public PSObject[]? InputObject { get; set; }
         /// <summary><para type="description">Date member (default Date). Convert timestamps to your business time zone before binding.</para></summary>
-        [Parameter] [ValidateNotNullOrEmpty] public string DateProperty { get; set; } = "Date";
+        [Parameter] [ValidateNotNullOrEmpty] [PSDefaultValue(Help = "Date")]
+        public string DateProperty { get; set; } = "Date";
         /// <summary><para type="description">Semantic outcome member (default Status).</para></summary>
-        [Parameter] [ValidateNotNullOrEmpty] public string StatusProperty { get; set; } = "Status";
+        [Parameter] [ValidateNotNullOrEmpty] [PSDefaultValue(Help = "Status")]
+        public string StatusProperty { get; set; } = "Status";
         /// <summary><para type="description">Description member (default Label).</para></summary>
-        [Parameter] [ValidateNotNullOrEmpty] public string LabelProperty { get; set; } = "Label";
+        [Parameter] [ValidateNotNullOrEmpty] [PSDefaultValue(Help = "Label")]
+        public string LabelProperty { get; set; } = "Label";
         /// <summary><para type="description">Override the culture's first weekday.</para></summary>
         [Parameter] public DayOfWeek? FirstDayOfWeek { get; set; }
         /// <summary><para type="description">Culture for month and weekday labels and the default week start.</para></summary>
@@ -52,7 +56,8 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">Civil date to emphasize as today, useful with a fixed report clock.</para></summary>
         [Parameter] public DateTime? Today { get; set; }
         /// <summary><para type="description">Omit the status symbol legend.</para></summary>
-        [Parameter] public SwitchParameter NoLegend { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter NoLegend { get; set; }
 
         /// <inheritdoc />
         protected override void ProcessRecord() {

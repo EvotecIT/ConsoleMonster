@@ -49,7 +49,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void ScrollViewBar_DragToTheBottomShowsTheEnd() {
-            ScrollView scroll = new ScrollView(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
+            ScrollView scroll = new ScrollView(TextBlock.FromMarkup(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
             using AppController app = new AppController(new Rows().Add(scroll, LayoutSize.Fixed(8)).Add(new TextInput("query"), LayoutSize.Fixed(3)), new AppState(), Context, 60);
             app.PrepareFrame(60, 14);
             app.Handle(InputEvent.Mouse(59, 0), true);
@@ -62,7 +62,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void ScrollViewBar_DragReachesTheEndWhenTheLayoutIsFittedToTheWindow() {
             // The view takes the rest of a window too short for its content, so the app fits the layout after measuring it.
-            ScrollView scroll = new ScrollView(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
+            ScrollView scroll = new ScrollView(TextBlock.FromMarkup(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
             using AppController app = new AppController(new Rows().Add(new TextInput("query"), LayoutSize.Fixed(3)).Add(scroll, LayoutSize.Fraction()), new AppState(), Context, 60);
             app.PrepareFrame(80, 24);
             app.Handle(InputEvent.Mouse(79, 4), true);
@@ -256,7 +256,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void PagerFooter_ClickAndWheelPageLikeTheirKeys() {
-            WidgetPagerView pager = new WidgetPagerView(new TextBlock(string.Join("\n", Enumerable.Range(0, 60).Select(i => "row " + i))), "Doc", new PromptLabels());
+            WidgetPagerView pager = new WidgetPagerView(TextBlock.FromMarkup(string.Join("\n", Enumerable.Range(0, 60).Select(i => "row " + i))), "Doc", new PromptLabels());
             string[] rows = Rows(FrameComposer.Compose(pager.BuildFrame(new ViewFrame(Context, 60, 12, false, TimeSpan.Zero)), 60, 12, Context));
             int page = rows[11].IndexOf("pgup/pgdn", StringComparison.Ordinal);
             pager.Handle(InputEvent.Mouse(page, 11));
@@ -382,7 +382,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             int refreshed = 0;
             ConsoleAppOptions options = new ConsoleAppOptions();
             options.KeyBindings.Add(new KeyBinding("refresh", () => refreshed++, new KeyChord(ConsoleKey.R, KeyModifiers.Control)));
-            ScrollView scroll = new ScrollView(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
+            ScrollView scroll = new ScrollView(TextBlock.FromMarkup(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))));
             TextInput query = new TextInput("query");
             using AppController app = new AppController(new Rows().Add(query, LayoutSize.Fixed(3)).Add(scroll, LayoutSize.Fixed(8)), new AppState(), Context, 60, options);
             string[] rows = Rows(app.PrepareFrame(60, 14));
@@ -508,7 +508,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void ScrollViewBar_KeepsAManualPositionWhenFocusIsInsideTheView() {
             TextInput inside = new TextInput("inside");
-            ScrollView scroll = new ScrollView(new Rows().Add(inside, LayoutSize.Fixed(3)).Add(new TextBlock(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))), LayoutSize.Fixed(40)));
+            ScrollView scroll = new ScrollView(new Rows().Add(inside, LayoutSize.Fixed(3)).Add(TextBlock.FromMarkup(string.Join("\n", Enumerable.Range(0, 40).Select(i => "line " + i))), LayoutSize.Fixed(40)));
             using AppController app = new AppController(new Rows().Add(TextBlock.Plain("heading\nsecond\nthird"), LayoutSize.Fixed(3)).Add(scroll, LayoutSize.Fraction()), new AppState(), Context, 60);
             app.PrepareFrame(80, 24);
             Assert.True(inside.Focused);

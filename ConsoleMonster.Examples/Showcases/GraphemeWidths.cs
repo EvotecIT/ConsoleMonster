@@ -34,7 +34,7 @@ namespace ConsoleMonster.Examples.Showcases {
             // Detecting the terminal first applies explicit CONSOLEMONSTER_*_WIDTH settings to measurement.
             string terminal = Terminal.Profile.ToString();
             Terminal.Write(new Rows(
-                new TextBlock("[bold]Printed once[/] [muted](measured with " + DisplayWidth.Profile + ")[/]"),
+                TextBlock.FromMarkup("[bold]Printed once[/] [muted](measured with " + DisplayWidth.Profile + ")[/]"),
                 BuildTable()));
             KeyValueList facts = new KeyValueList("facts")
                 .Add("Terminal", terminal)

@@ -162,6 +162,35 @@ namespace ConsoleMonster.Rendering {
             _invalidated = true;
         }
 
+        // Clears the area and leaves a visible cursor at its first row, so other code can write there. The session keeps
+        // drawing paused until Unpark; the last frame is kept for Redraw.
+        internal void Park() {
+            if (!_live) {
+                return;
+            }
+            _sb.Clear();
+            ClearArea();
+            _sb.Append('\r').Append(Esc).Append("?25h");
+            _invalidated = true;
+            Emit();
+        }
+
+        // The area starts again where the cursor is now (on a new line when the other output left the cursor mid-line), so
+        // the next frame is drawn below that output and no later frame can move over it.
+        internal void Unpark(bool newLine) {
+            if (!_live) {
+                return;
+            }
+            _sb.Clear();
+            if (newLine) {
+                _sb.Append("\r\n");
+            }
+            _sb.Append(Esc).Append("?25l");
+            _drawn = 0;
+            _invalidated = true;
+            Emit();
+        }
+
         /// <inheritdoc />
         public void EndLive() {
             if (!_live) {

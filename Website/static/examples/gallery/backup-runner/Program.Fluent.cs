@@ -44,11 +44,12 @@ IWidget Summary()
                 .Add(completed.Count, "passed", ThemeToken.Pass)
                 .Add(recovered, "recovered on retry", ThemeToken.Accent)
                 .Add("retention: 14 days");
-    return Ui.Rows().Gap(1).Content(c =>
+    return Ui.Rows().Gap(1).Content(rowsContent =>
     {
-        c.Rule("[accent bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]");
-        c.Add(table);
-        c.Add(summary);
+        rowsContent.Rule(
+            "[accent bold]Nightly backup[/] [muted]· throttle 2 · maximum 2 attempts[/]");
+        rowsContent.Add(table);
+        rowsContent.Add(summary);
     });
 }
 

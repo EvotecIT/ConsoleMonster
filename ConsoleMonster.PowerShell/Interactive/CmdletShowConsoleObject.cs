@@ -7,14 +7,12 @@ using ConsoleMonster.Interactive;
 using ConsoleMonster.Widgets;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Explores an object's members with the keyboard.</para>
-    /// <para type="description">Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.</para>
-    /// </summary>
+    /// <summary>Explores an object's members with the keyboard.</summary>
+    /// <remarks><para>Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.</para></remarks>
     /// <example><para>Browse a nested configuration</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject</code></example>
     /// <example><para>Return a selected member value</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -PassThru</code></example>
     /// <example><para>Return its PowerShell path</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -RootPath '$config' -PassThru Path</code></example>
-    [Cmdlet(VerbsCommon.Show, "ConsoleObject")]
+    [Cmdlet(VerbsCommon.Show, "ConsoleObject", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoleobject/")]
     [OutputType(typeof(object), typeof(string))]
     public sealed class CmdletShowConsoleObject : PSCmdlet {
         private readonly CancellationTokenSource _stop = new CancellationTokenSource();
@@ -27,35 +25,42 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Returns the selected value after F10 or Ctrl+Enter. Add the positional word Path to return its expression instead.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter PassThru { get; set; }
 
         /// <summary><para type="description">Value (default) or Path. The positional form supports -PassThru Path.</para></summary>
         [Parameter(Position = 0)]
         [ValidateSet("Value", "Path")]
+        [PSDefaultValue(Help = "Value")]
         public string SelectionOutput { get; set; } = "Value";
 
         /// <summary><para type="description">The variable expression at the start of returned paths; default $x. It is displayed, never evaluated.</para></summary>
         [Parameter]
         [ValidateNotNullOrEmpty]
+        [PSDefaultValue(Help = "$x")]
         public string RootPath { get; set; } = "$x";
 
-        /// <summary><para type="description">The screen title.</para></summary>
+        /// <summary><para type="description">The heading above the object browser and its current property path.</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Object explorer")]
         public string Title { get; set; } = "Object explorer";
 
         /// <summary><para type="description">Maximum member depth below the root; default 8.</para></summary>
         [Parameter]
         [ValidateRange(0, 64)]
+        [PSDefaultValue(Help = "8")]
         public int Depth { get; set; } = 8;
 
         /// <summary><para type="description">Maximum items read from each collection (default 100).</para></summary>
         [Parameter]
         [ValidateRange(1, 10000)]
+        [PSDefaultValue(Help = "100")]
         public int MaxItems { get; set; } = 100;
 
         /// <summary><para type="description">Maximum visible members in an expansion; default 5000.</para></summary>
         [Parameter]
         [ValidateRange(1, 100000)]
+        [PSDefaultValue(Help = "5000")]
         public int MaxNodes { get; set; } = 5000;
 
         /// <summary><para type="description">Member names to include, supporting wildcards.</para></summary>

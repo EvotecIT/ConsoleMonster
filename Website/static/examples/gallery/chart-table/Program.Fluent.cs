@@ -19,15 +19,18 @@ string[] times = new string[cpu.Length];
 for (int i = 0; i < cpu.Length; i++) { times[i] = $"{9 + (i * 5 / 60):D2}:{i * 5 % 60:D2}"; }
 
 // Layout: construct the widgets shown on screen.
-LineChart chart = (LineChart)Ui.Chart().Type(ChartType.Line).Unit("%").Build();
+LineChart chart = Ui.LineChart().Unit("%");
 for (int i = 0; i < cpu.Length; i++) { chart.Add("cpu", cpu[i]); }
 for (int i = 0; i < memory.Length; i++) { chart.Add("memory", memory[i]); }
 Grid samples = Ui.Grid().Title("Samples").AddColumn("Time").AddColumn("Cpu").AddColumn("Memory");
 for (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }
-Rows layout = Ui.Rows().Content(c =>
+Rows layout = Ui.Rows().Content(rowsContent =>
 {
-    c.DataGrid(grid => grid.Key("Samples").Grid(samples).Height(7).LinkKey("Sample"));
-    c.ChartView(view => view.Key("Load").Chart(chart).LinkKey("Sample").PointLabels(times));
+    rowsContent.DataGrid(grid => grid.Key("Samples").Grid(samples).Height(7).LinkKey("Sample"));
+    rowsContent.ChartView(view => view.Key("Load")
+        .Chart(chart)
+        .LinkKey("Sample")
+        .PointLabels(times));
 });
 
 // Behaviour: Up/Down picks a sample and the crosshair follows; in the chart, Left/Right picks a

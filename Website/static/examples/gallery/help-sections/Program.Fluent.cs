@@ -6,28 +6,32 @@ using ConsoleMonster.Widgets;
 using ConsoleMonster;
 
 // Layout: construct the widgets shown on screen.
-Splitter layout = Ui.Splitter().First(Ui.Accordion().Content(c2 =>
+Splitter layout = Ui.Splitter().First(Ui.Accordion().Content(accordionContent =>
 {
-    c2.Collapsible(collapsible => collapsible.Key("Synopsis")
-        .Content(Ui.Markup("Lists servers and their roles from an inline inventory."))
+    accordionContent.Collapsible(collapsible => collapsible.Key("Synopsis")
+        .Content(Ui.Text("Lists servers and their roles from an inline inventory."))
         .Expanded());
-    c2.Collapsible(collapsible => collapsible.Key("Parameters").Content(Ui.Rows().Content(c =>
-    {
-        c.Markup("-Name    server name or wildcard");
-        c.Markup("-Role    web, db or cache");
-        c.Markup("-Online  only servers that answer");
-    })).Summary("(3)"));
-    c2.Collapsible(collapsible => collapsible.Key("Examples").Content(Ui.Rows().Content(c =>
-    {
-        c.Markup("Get-Inventory -Role web");
-        c.Markup("Get-Inventory -Name db* -Online");
-    })).Summary("(2)"));
-})).Second(Ui.Panel().Title("Related").Content(c2 =>
+    accordionContent.Collapsible(collapsible => collapsible.Key("Parameters")
+        .Content(Ui.Rows().Content(rowsContent =>
+        {
+            rowsContent.Text("-Name    server name or wildcard");
+            rowsContent.Text("-Role    web, db or cache");
+            rowsContent.Text("-Online  only servers that answer");
+        }))
+        .Summary("(3)"));
+    accordionContent.Collapsible(collapsible => collapsible.Key("Examples")
+        .Content(Ui.Rows().Content(rowsContent =>
+        {
+            rowsContent.Text("Get-Inventory -Role web");
+            rowsContent.Text("Get-Inventory -Name db* -Online");
+        }))
+        .Summary("(2)"));
+})).Second(Ui.Panel().Title("Related").Content(panelContent =>
 {
-    c2.Rows(r => r.Content(c =>
+    panelContent.Rows(r => r.Content(rowsContent =>
     {
-        c.Markup("Get-Service");
-        c.Markup("Test-Connection");
+        rowsContent.Text("Get-Service");
+        rowsContent.Text("Test-Connection");
     }));
 })).Key("Panes").Ratio(0.6);
 

@@ -32,11 +32,11 @@ var trends = new Rows(
     }));
 
 Terminal.Write(new Rows(
-    new TextBlock("[bold]CPU time - highest first[/]"),
+    TextBlock.FromMarkup("[bold]CPU time - highest first[/]"),
     cpu,
     TextBlock.Plain(string.Empty),
-    new TextBlock("[bold]Response-time distribution[/]"),
+    TextBlock.FromMarkup("[bold]Response-time distribution[/]"),
     latency,
     TextBlock.Plain(string.Empty),
-    new TextBlock("[bold]Latency over time (ms) - one line per host[/]"),
+    TextBlock.FromMarkup("[bold]Latency over time (ms) - one line per host[/]"),
     trends));

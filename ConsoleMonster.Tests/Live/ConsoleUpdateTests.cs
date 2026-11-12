@@ -31,6 +31,8 @@ namespace ConsoleMonster.Tests.Live {
                     session.Region("slot").Set(phases);
                 }
                 handle.Item("migrate", "alice", StatusKind.Running, "40%");
+                session.Post(new LiveEvent("phases", "insert", "verify", "Verify"));
+                handle.Item("verify", "carol", StatusKind.Pending);
                 long accepted = session.EventsPosted;
                 Assert.Equal(0, session.EventsApplied);
                 var error = Assert.Throws<ConsoleUpdateException>(() => handle.Item("unknown", "bob", StatusKind.Pass));
@@ -40,6 +42,10 @@ namespace ConsoleMonster.Tests.Live {
                 session.Stop();
                 Assert.Equal(0, session.ApplyErrors);
                 Assert.Contains("alice 40%", Terminal.RenderText(phases, ConsoleMonster.Capabilities.TerminalProfile.Fixed(80, 20)));
+                // The inserted phase took its position, and the item queued for it was applied: the ledger lists pending items.
+                Assert.Equal(new[] { "verify", "migrate" }, phases.Items.Select(item => item.Key));
+                phases.StepCounter = true;
+                Assert.Contains("carol", Terminal.RenderText(phases, ConsoleMonster.Capabilities.TerminalProfile.Fixed(80, 20)));
             }
         }
 

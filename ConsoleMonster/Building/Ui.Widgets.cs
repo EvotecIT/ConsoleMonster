@@ -72,8 +72,8 @@ namespace ConsoleMonster {
         /// <returns>The empty footer bar.</returns>
         public static FooterBar FooterBar() => new FooterBar();
 
-        /// <summary>Empty logo; configure Title and Subtitle in the chain.</summary>
-        /// <returns>The empty logo; configure Title and Subtitle in the chain.</returns>
+        /// <summary>Empty logo; configure Text and Tagline in the chain.</summary>
+        /// <returns>The empty logo; configure Text and Tagline in the chain.</returns>
         public static Logo Logo() => new Logo(string.Empty);
 
         /// <summary>Empty status list.</summary><param name="widgetId">The optional primary live identity.</param><returns>The status list.</returns>
@@ -87,6 +87,40 @@ namespace ConsoleMonster {
         /// <summary>Calendar view; configure its date, view and marks in the chain.</summary>
         /// <returns>The calendar view; configure its date, view and marks in the chain.</returns>
         public static Calendar Calendar() => new Calendar(DateTime.Today.Year, DateTime.Today.Month);
+
+        /// <summary>Creates a BarChart with typed fluent configuration.</summary>
+        /// <param name="widgetId">The live identity retained by this widget.</param>
+        /// <returns>The concrete widget, ready to configure or compose.</returns>
+        public static BarChart BarChart(string widgetId = "bars") => new BarChart(widgetId);
+
+        /// <summary>Creates a LineChart with typed fluent configuration.</summary>
+        /// <param name="widgetId">The live identity retained by this widget.</param>
+        /// <returns>The concrete widget, ready to configure or compose.</returns>
+        public static LineChart LineChart(string widgetId = "chart") => new LineChart(widgetId);
+
+        /// <summary>Creates a Sparkline with typed fluent configuration.</summary>
+        /// <param name="widgetId">The live identity retained by this widget.</param>
+        /// <returns>The concrete widget, ready to configure or compose.</returns>
+        public static Sparkline Sparkline(string widgetId = "sparkline") => new Sparkline(widgetId);
+
+        /// <summary>Creates a StackedBar with typed fluent configuration.</summary>
+        /// <param name="widgetId">The live identity retained by this widget.</param>
+        /// <returns>The concrete widget, ready to configure or compose.</returns>
+        public static StackedBar StackedBar(string widgetId = "stacked") => new StackedBar(widgetId);
+
+        /// <summary>Creates a ProgressBar with typed fluent configuration.</summary>
+        /// <param name="widgetId">The live identity retained by this widget.</param>
+        /// <returns>The concrete widget, ready to configure or compose.</returns>
+        public static ProgressBar ProgressBar(string widgetId = "progress") => new ProgressBar(widgetId: widgetId);
+
+        /// <summary>Creates a Spinner with typed fluent configuration.</summary>
+        /// <param name="widgetId">The live identity retained by this widget.</param>
+        /// <returns>The concrete widget, ready to configure or compose.</returns>
+        public static Spinner Spinner(string widgetId = "spinner") => new Spinner(widgetId: widgetId);
+
+        /// <summary>Creates a composable Markdown document from semantic blocks.</summary>
+        /// <returns>The empty document; use ConsoleMonster.Markdown to parse Markdown source.</returns>
+        public static MarkdownView Markdown() => new MarkdownView();
 
         /// <summary>Numeric chart definition; Build delegates to Chart.Create.</summary>
         /// <returns>The numeric chart definition; Build delegates to Chart.Create.</returns>

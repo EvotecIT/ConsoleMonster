@@ -35,9 +35,9 @@ namespace SiteFrames.Tests {
             Assert.True(Array.IndexOf(ordered, "New-ConsoleFacts") < Array.IndexOf(ordered, "New-ConsoleRows"));
             var process = GalleryPage.Read(site).Single(demo => demo.Slug == "process-monitor");
             var chart = Assert.Single(ApiMappingNotes.ForPair(site, process.CSharp, process.CSharpFluent, process.PowerShell),
-                row => row!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.Chart")!;
+                row => row!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Ui.LineChart")!;
             Assert.Equal("New-ConsoleChart -Type Line", chart["powershell"]!.GetValue<string>());
-            Assert.Equal("Ui.Chart().Type(ChartType.Line)", chart["fluent"]!.GetValue<string>());
+            Assert.Equal("Ui.LineChart()", chart["fluent"]!.GetValue<string>());
             Assert.Equal("new LineChart(…)", chart["csharp"]!.GetValue<string>());
         }
 

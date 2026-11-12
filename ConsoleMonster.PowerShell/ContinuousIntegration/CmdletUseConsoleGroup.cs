@@ -1,13 +1,19 @@
 using System;
 using System.Management.Automation;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a script inside a collapsible CI log group or beneath a muted terminal heading.</para>
-    /// <para type="description">Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.</para>
-    /// </summary>
+    /// <summary>Runs a script inside a collapsible CI log group or beneath a muted terminal heading.</summary>
+    /// <remarks><para>Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.</para></remarks>
     /// <example><para>Group a build log</para><code>Use-ConsoleGroup 'Build' { dotnet build }</code></example>
-    [Cmdlet(VerbsOther.Use, "ConsoleGroup")]
+    /// <example>
+    /// <para>Group a sample inventory in a CI log</para>
+    /// <code>Use-ConsoleGroup 'Check sample inventory' {
+    ///     [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable
+    /// }
+    /// </code>
+    /// </example>
+    [Cmdlet(VerbsOther.Use, "ConsoleGroup", HelpUri = "https://consolemonster.dev/powershell/commands/use-consolegroup/")]
     [OutputType(typeof(object))]
     public sealed class CmdletUseConsoleGroup : NoPipelineInputCmdlet {
         /// <summary><para type="description">The literal log heading.</para></summary>

@@ -66,7 +66,7 @@ namespace ConsoleMonster.PowerShell {
             // Priority 1: a narrow terminal drops the date rather than wrapping it under each name.
             tree.ValueColumns.Add(new TableColumn("LastWriteTime") { Presenter = CellPresenters.Date, Priority = 1 });
             foreach (Entry child in Ordered(top.Children)) { tree.Root.Add(Node(child)); }
-            return new Rows(new TextBlock(" Directory: " + Markup.Escape(root)) { Role = ThemeToken.Title, Overflow = TextOverflow.Ellipsis }, tree);
+            return new Rows(new TextBlock(" Directory: " + Markup.Escape(root)) { IsMarkup = true, Role = ThemeToken.Title, Overflow = TextOverflow.Ellipsis }, tree);
         }
 
         private static TreeNode Node(Entry entry) {

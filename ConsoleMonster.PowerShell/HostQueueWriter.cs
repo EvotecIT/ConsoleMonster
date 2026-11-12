@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Management.Automation;
 using System.Text;
 using ConsoleMonster.Output;
+using ConsoleMonster.PowerShell.Display;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>

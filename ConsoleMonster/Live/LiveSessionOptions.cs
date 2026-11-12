@@ -97,14 +97,14 @@ namespace ConsoleMonster.Live {
         public bool NotifyOnFinish { get; set; }
 
         /// <summary>UTF-8 recording destination, mutually exclusive with RecordWriter.</summary>
-        public string? RecordPath { get; set; }
+        public string? RecordingPath { get; set; }
 
         /// <summary>Borrowed recording writer; flushed but left open at shutdown.</summary>
         public TextWriter? RecordWriter { get; set; }
 
         /// <summary>
         /// An in-process <see cref="Sessions.SessionRecorder"/> that receives exactly what this session draws, frame by frame:
-        /// the whole composed screen with its log panel, footer, dialogs and prompts, which <see cref="RecordPath"/> (widget
+        /// the whole composed screen with its log panel, footer, dialogs and prompts, which <see cref="RecordingPath"/> (widget
         /// updates replayed into the same definition) cannot hold for an interactive app. The recording follows the window
         /// size. The caller owns the recorder and disposes it after the session ends; export it with
         /// <see cref="Sessions.SessionRecording"/> or <c>Export-ConsoleRecording</c> to HTML, SVG, GIF or APNG.
@@ -116,7 +116,7 @@ namespace ConsoleMonster.Live {
         private long _autoRecordMaxBytes = 50L * 1024 * 1024;
 
         /// <summary>
-        /// Opt-in automatic recording: when above zero and neither <see cref="RecordPath"/> nor <see cref="RecordWriter"/> is
+        /// Opt-in automatic recording: when above zero and neither <see cref="RecordingPath"/> nor <see cref="RecordWriter"/> is
         /// set, the session records itself to <see cref="AutoRecordFolder"/> and keeps only this many recordings with its
         /// <see cref="RecordingName"/> (the newest ones; other files are never removed), so the last runs can be rewound with
         /// <c>Show-ConsoleReplay</c>. Default 0 (off).
@@ -181,6 +181,26 @@ namespace ConsoleMonster.Live {
         /// prompts then behave as if no dashboard were running.
         /// </summary>
         public bool Discoverable { get; set; } = true;
+
+        /// <summary>The default for <see cref="MaxQueuedEvents"/>: 1,000,000 widget updates.</summary>
+        public const int DefaultMaxQueuedEvents = 1000000;
+
+        private int _maxQueuedEvents = DefaultMaxQueuedEvents;
+
+        /// <summary>
+        /// The most widget and log updates, captured console lines included, waiting for the render thread (default
+        /// <see cref="DefaultMaxQueuedEvents"/>; 0 removes the limit). Posting never waits: while the queue is full, new
+        /// updates are rejected and counted in <see cref="LiveSession.EventsDropped"/>. The queue only fills when updates arrive faster than they can be applied
+        /// for a long time, for example while a widget callback blocks the render thread. One-shot console writes and the
+        /// session's own control events are not limited.
+        /// </summary>
+        public int MaxQueuedEvents {
+            get => _maxQueuedEvents;
+            set {
+                if (value < 0) { throw new ArgumentOutOfRangeException(nameof(value)); }
+                _maxQueuedEvents = value;
+            }
+        }
 
         /// <summary>Maximum render-thread join wait; defaults to two seconds. Must be between zero and Int32.MaxValue milliseconds.</summary>
         public TimeSpan StopTimeout {

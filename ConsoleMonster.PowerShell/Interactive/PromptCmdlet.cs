@@ -13,9 +13,10 @@ namespace ConsoleMonster.PowerShell {
     public abstract class PromptCmdlet : PSCmdlet {
         private CancellationTokenSource? _stop;
 
-        /// <summary><para type="description">The question.</para></summary>
+        /// <summary><para type="description">The prompt displayed above the input control.</para></summary>
         [Parameter(Position = 0)]
 
+        [PSDefaultValue(Help = "Enter a value")]
         public string Title { get; set; } = "Enter a value";
 
         /// <summary><para type="description">Help text under the question.</para></summary>

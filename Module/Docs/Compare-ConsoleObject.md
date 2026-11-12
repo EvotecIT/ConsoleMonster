@@ -1,35 +1,31 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/compare-consoleobject/
 schema: 2.0.0
 ---
 # Compare-ConsoleObject
 ## SYNOPSIS
 Compares object sets or shows property drift across a baseline matrix.
 
-ReferenceObject and DifferenceObject are matched by Property (or Id, Key, Name and similar members), then compared by nested property path. Keys and string values compare case-insensitively by default; CaseSensitive applies to both. Case-only differences remain visible with IsCaseOnly and do not increase changed counts. Missing properties use a localized marker, distinct from present null or empty values. Normalize maps exact paths to scriptblocks receiving $_ or $PSItem; comparison uses their results while display retains the originals. Full, Summary, Table, SideBySide and Unified show two-set comparisons, including line diffs of long values. InputObject selects a baseline matrix with one property per row and one object per column. Baseline chooses a column by name or zero-based integer index; Name or NameProperty sets headings. Equal rows are hidden unless IncludeEqual is set; case-only rows remain visible. PassThru returns ObjectChange records or BaselineRow records without drawing. AsWidget returns an IWidget for Show-ConsoleApp layouts and Export-ConsoleFrame.
-
 ## SYNTAX
 ### Compare (Default)
 ```powershell
-Compare-ConsoleObject [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> [-CaseSensitive] [-Normalize <hashtable>] [-AsWidget] [-Property <string[]>] [-CompareProperty <string[]>] [-Ignore <string[]>] [-Depth <int>] [-IncludeEqual] [-View <ChangeViewMode>] [-Title <Object>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
+Compare-ConsoleObject [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> [-CaseSensitive] [-Normalize <hashtable>] [-AsWidget] [-Key <string[]>] [-CompareProperty <string[]>] [-Ignore <string[]>] [-Depth <int>] [-IncludeUnchanged] [-View <ChangeViewMode>] [-Title <Object>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Confirm
 ```powershell
-Compare-ConsoleObject [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> -Question <string> [-CaseSensitive] [-Normalize <hashtable>] [-Property <string[]>] [-CompareProperty <string[]>] [-Ignore <string[]>] [-Depth <int>] [-IncludeEqual] [-View <ChangeViewMode>] [-Title <Object>] [-TypedConfirmation <string>] [-Force] [-NoTypedWhenDestructive] [-WhatIf] [-Confirm] [<CommonParameters>]
+Compare-ConsoleObject [-ReferenceObject] <Object[]> [-DifferenceObject] <Object[]> -Question <string> [-CaseSensitive] [-Normalize <hashtable>] [-Key <string[]>] [-CompareProperty <string[]>] [-Ignore <string[]>] [-Depth <int>] [-IncludeUnchanged] [-View <ChangeViewMode>] [-Title <Object>] [-TypedConfirmation <string>] [-Force] [-NoTypedWhenDestructive] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Baseline
 ```powershell
-Compare-ConsoleObject -InputObject <Object[]> [-Name <string[]>] [-NameProperty <string>] [-Baseline <Object>] [-CaseSensitive] [-Normalize <hashtable>] [-AsWidget] [-Property <string[]>] [-CompareProperty <string[]>] [-Ignore <string[]>] [-Depth <int>] [-IncludeEqual] [-View <ChangeViewMode>] [-Title <Object>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
+Compare-ConsoleObject -InputObject <Object[]> [-Name <string[]>] [-Baseline <Object>] [-CaseSensitive] [-Normalize <hashtable>] [-AsWidget] [-Key <string[]>] [-CompareProperty <string[]>] [-Ignore <string[]>] [-Depth <int>] [-IncludeUnchanged] [-View <ChangeViewMode>] [-Title <Object>] [-PassThru] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Compares object sets or shows property drift across a baseline matrix.
-
-ReferenceObject and DifferenceObject are matched by Property (or Id, Key, Name and similar members), then compared by nested property path. Keys and string values compare case-insensitively by default; CaseSensitive applies to both. Case-only differences remain visible with IsCaseOnly and do not increase changed counts. Missing properties use a localized marker, distinct from present null or empty values. Normalize maps exact paths to scriptblocks receiving $_ or $PSItem; comparison uses their results while display retains the originals. Full, Summary, Table, SideBySide and Unified show two-set comparisons, including line diffs of long values. InputObject selects a baseline matrix with one property per row and one object per column. Baseline chooses a column by name or zero-based integer index; Name or NameProperty sets headings. Equal rows are hidden unless IncludeEqual is set; case-only rows remain visible. PassThru returns ObjectChange records or BaselineRow records without drawing. AsWidget returns an IWidget for Show-ConsoleApp layouts and Export-ConsoleFrame.
+ReferenceObject and DifferenceObject are matched by Key (or Id, Key, Name and similar members), then compared by nested property path. Keys and string values compare case-insensitively by default; CaseSensitive applies to both. Case-only differences remain visible with IsCaseOnly and do not increase changed counts. Missing properties use a localized marker, distinct from present null or empty values. Normalize maps exact paths to scriptblocks receiving $_ or $PSItem; comparison uses their results while display retains the originals. Full, Summary, Table, SideBySide and Unified show two-set comparisons, including line diffs of long values. InputObject selects a baseline matrix with one property per row and one object per column. Baseline chooses a column by name or zero-based integer index; Name or Key sets headings. Equal rows are hidden unless IncludeUnchanged is set; case-only rows remain visible. PassThru returns ObjectChange records or BaselineRow records without drawing. AsWidget returns an IWidget for Show-ConsoleApp layouts and Export-ConsoleFrame.
 
 ## EXAMPLES
 
@@ -37,7 +33,7 @@ ReferenceObject and DifferenceObject are matched by Property (or Id, Key, Name a
 ```powershell
 $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
 $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name
+Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name
 ```
 
 Compare two small inventories
@@ -46,7 +42,7 @@ Compare two small inventories
 ```powershell
 $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
 $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-$accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Question 'Accept these changes?'
+$accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Question 'Accept these changes?'
 $accepted
 ```
 
@@ -59,7 +55,7 @@ $controllers = @(
     [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }
     [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }
 )
-$controllers | Compare-ConsoleObject -View Baseline -NameProperty Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'
+$controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'
 ```
 
 Compare three domain controller settings against dc02.
@@ -67,7 +63,7 @@ Compare three domain controller settings against dc02.
 ### EXAMPLE 4
 ```powershell
 $normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
-$widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Property Name -Normalize $normalizers -AsWidget
+$widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Normalize $normalizers -AsWidget
 $widget | Export-ConsoleFrame -Format Html -Width 120 -Path ./comparison.html
 ```
 
@@ -86,7 +82,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -118,7 +114,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -150,7 +146,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 3
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -182,7 +178,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -203,7 +199,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -IncludeEqual
+### -IncludeUnchanged
 Lists unchanged objects or baseline rows too. Case-only differences are always visible.
 
 ```yaml
@@ -214,7 +210,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -235,12 +231,12 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### -Name
-One explicit column name per input object.
+### -Key
+The properties that identify an object (matching key). Default: Id, Key, Name and similar members.
 
 ```yaml
 Type: String[]
-Parameter Sets: Baseline
+Parameter Sets: Compare, Confirm, Baseline
 Aliases: None
 Possible values:
 
@@ -251,11 +247,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -NameProperty
-The property supplying column names. Defaults to Property or the normal Id, Key, Name discovery.
+### -Name
+One explicit column name per input object.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: Baseline
 Aliases: None
 Possible values:
@@ -294,7 +290,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -310,23 +306,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Property
-The properties that identify an object (matching key). Default: Id, Key, Name and similar members.
-
-```yaml
-Type: String[]
-Parameter Sets: Compare, Confirm, Baseline
-Aliases: None
-Possible values:
-
-Required: False
-Position: named
-Default value: None
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -406,7 +386,7 @@ Possible values: Full, Summary, Table, SideBySide, Unified, Baseline
 
 Required: False
 Position: named
-Default value: None
+Default value: Full
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -428,4 +408,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/compare-consoleobject/](https://consolemonster.dev/powershell/commands/compare-consoleobject/)

@@ -8,21 +8,26 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
-    /// Text with Spectre-compatible markup (<c>[bold]</c>, <c>[pass]</c>, <c>[#ff8800]</c>), wrapped or truncated to its
+    /// Literal text or explicit Spectre-compatible markup (<c>[bold]</c>, <c>[pass]</c>, <c>[#ff8800]</c>), wrapped or truncated to its
     /// width and aligned left, centre or right.
     /// </summary>
     public sealed class TextBlock : IWidget {
-        /// <summary>Creates a text block from markup.</summary>
-        /// <param name="markup">The markup.</param>
-        public TextBlock(string markup) {
-            Content = markup ?? string.Empty;
+        /// <summary>Creates a text block from literal text; brackets are displayed unchanged.</summary>
+        /// <param name="text">The literal text.</param>
+        public TextBlock(string text) {
+            Content = text ?? string.Empty;
         }
 
-        /// <summary>The content (markup unless <see cref="IsMarkup"/> is false).</summary>
+        /// <summary>Creates text from explicit Spectre-compatible markup.</summary>
+        /// <param name="markup">The markup source.</param>
+        /// <returns>A text block that interprets markup tags.</returns>
+        public static TextBlock FromMarkup(string markup) => new TextBlock(markup) { IsMarkup = true };
+
+        /// <summary>Literal text, interpreted as markup only when <see cref="IsMarkup"/> is true.</summary>
         public string Content { get; set; }
 
-        /// <summary>Whether <see cref="Content"/> is markup (default true).</summary>
-        public bool IsMarkup { get; set; } = true;
+        /// <summary>Whether <see cref="Content"/> is markup (default false).</summary>
+        public bool IsMarkup { get; set; }
 
         /// <summary>A theme role layered under the text, or <c>null</c>.</summary>
         public ThemeToken? Role { get; set; }

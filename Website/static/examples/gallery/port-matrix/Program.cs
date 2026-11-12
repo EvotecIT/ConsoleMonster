@@ -54,7 +54,7 @@ Rows report = new Rows(
     map,
     legend,
     new Panel() { Title = "Exceptions to investigate", Content = exceptions },
-    new TextBlock("[muted]Skipped cells are ports that host does not need.[/]"))
+    TextBlock.FromMarkup("[muted]Skipped cells are ports that host does not need.[/]"))
 {
     Gap = 1
 };

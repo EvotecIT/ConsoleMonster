@@ -96,6 +96,7 @@ namespace ConsoleMonster.Live {
             }
             if (target is Phases phases) {
                 if (u.Has(nameof(u.Label)) && !u.Has(nameof(u.ParentKey))) { throw new ArgumentException("Label updates a phase item: give the phase as ParentKey."); }
+                if (!u.Has(nameof(u.ParentKey)) && u.Key!.IndexOf(Phases.ItemSeparator) >= 0) { throw new ArgumentException("A phase Key cannot contain U+001F, which separates phase and item keys."); }
                 if (u.Has(nameof(u.ParentKey))) {
                     if (string.IsNullOrWhiteSpace(u.ParentKey) || u.ParentKey!.IndexOf(Phases.ItemSeparator) >= 0 || u.Key!.IndexOf(Phases.ItemSeparator) >= 0) { throw new ArgumentException("ParentKey and Key must be nonempty phase and item keys."); }
                     if (!(phaseKeys?.Contains(u.ParentKey!) ?? phases.Items.Any(phase => phase.Key == u.ParentKey))) { throw new ConsoleUpdateException("ConsoleMonsterUnknownItem", "Unknown phase ParentKey '" + u.ParentKey + "'."); }

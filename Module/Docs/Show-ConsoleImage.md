@@ -1,14 +1,12 @@
 ---
 external help file: ConsoleMonster-help.xml
 Module Name: ConsoleMonster
-online version: https://consolemonster.dev/
+online version: https://consolemonster.dev/powershell/commands/show-consoleimage/
 schema: 2.0.0
 ---
 # Show-ConsoleImage
 ## SYNOPSIS
 Shows an image in the console, at the size you ask for in cells.
-
-Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel). Other terminals with 256 colours or more get half blocks. Redirected, CI, remote, 16-colour and no-colour output, the ISE and sessions with a transcript running get one line, [image: name WxH]. Get-ConsoleCapability shows the protocol in ImageProtocol. The aspect ratio is always kept. To put an image inside a panel or dashboard, use New-ConsoleImage.
 
 ## SYNTAX
 ### Path (Default)
@@ -22,8 +20,6 @@ Show-ConsoleImage -Bytes <Object> [-Protocol <ImageProtocol>] [-Label <string>] 
 ```
 
 ## DESCRIPTION
-Shows an image in the console, at the size you ask for in cells.
-
 Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel). Other terminals with 256 colours or more get half blocks. Redirected, CI, remote, 16-colour and no-colour output, the ISE and sessions with a transcript running get one line, [image: name WxH]. Get-ConsoleCapability shows the protocol in ImageProtocol. The aspect ratio is always kept. To put an image inside a panel or dashboard, use New-ConsoleImage.
 
 ## EXAMPLES
@@ -92,7 +88,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -156,7 +152,7 @@ Possible values:
 
 Required: False
 Position: named
-Default value: None
+Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -166,7 +162,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-- `System.Management.Automation.PSObject`
+- `None`
 
 ## OUTPUTS
 
@@ -174,4 +170,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-- None
+- [https://consolemonster.dev/powershell/commands/show-consoleimage/](https://consolemonster.dev/powershell/commands/show-consoleimage/)

@@ -6,10 +6,8 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Output;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.</para>
-    /// <para type="description">Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.</para>
-    /// </summary>
+    /// <summary>Runs a script block with ConsoleMonster output going somewhere else: a file, a text writer, any target, or a string.</summary>
+    /// <remarks><para>Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-ConsoleTable, Write-ConsoleText -Markup, live dashboards, prompts) writes to the target instead of the console. With -Path the output goes to a UTF-8 file, with -Writer to a TextWriter, with -Target to a target object (ConsoleMonster.Output.ITerminalTarget); with none of them it is returned as one string. -Width, -Glyphs and -ColorDepth lay the output out for the file or string; prompts there have nobody to answer and use their defaults. The script block's own output is passed through.</para></remarks>
     /// <example>
     ///   <para>Capture a report as plain text</para>
     ///   <code>Use-ConsoleTarget -Width 120 { Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }</code>
@@ -18,7 +16,7 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Capture a table as a string</para>
     ///   <code>$text = Use-ConsoleTarget -Width 80 { Get-Process | Select-Object -First 5 | Show-ConsoleTable }</code>
     /// </example>
-    [Cmdlet(VerbsOther.Use, "ConsoleTarget", DefaultParameterSetName = "String")]
+    [Cmdlet(VerbsOther.Use, "ConsoleTarget", DefaultParameterSetName = "String", HelpUri = "https://consolemonster.dev/powershell/commands/use-consoletarget/")]
     public sealed class CmdletUseConsoleTarget : NoPipelineInputCmdlet {
         /// <summary><para type="description">The commands whose output goes to the target.</para></summary>
         [Parameter(Position = 0, Mandatory = true)]
@@ -30,6 +28,7 @@ namespace ConsoleMonster.PowerShell {
 
         /// <summary><para type="description">Appends to the file instead of replacing it.</para></summary>
         [Parameter(ParameterSetName = "Path")]
+        [PSDefaultValue(Help = "$false")]
         public SwitchParameter Append { get; set; }
 
         /// <summary><para type="description">A TextWriter to write to (it stays open).</para></summary>
@@ -43,14 +42,17 @@ namespace ConsoleMonster.PowerShell {
         /// <summary><para type="description">The width in cells for -Path, -Writer or the string (default 0: terminal width, falling back to 100).</para></summary>
         [Parameter]
         [ValidateRange(0, 1000)]
+        [PSDefaultValue(Help = "0")]
         public int Width { get; set; }
 
         /// <summary><para type="description">The glyph tier for -Path, -Writer or the string (default Ascii).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "Ascii")]
         public GlyphTier Glyphs { get; set; } = GlyphTier.Ascii;
 
         /// <summary><para type="description">The colour depth for -Path, -Writer or the string (default None: plain text).</para></summary>
         [Parameter]
+        [PSDefaultValue(Help = "None")]
         public ColorDepth ColorDepth { get; set; } = ColorDepth.None;
 
         /// <inheritdoc />

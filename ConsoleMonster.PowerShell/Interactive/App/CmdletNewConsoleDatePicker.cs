@@ -4,19 +4,18 @@ using ConsoleMonster.Dates;
 using ConsoleMonster.Interactive;
 
 namespace ConsoleMonster.PowerShell {
-    /// <summary>
-    /// <para type="synopsis">Creates a persistent civil-date or inclusive range picker.</para>
-    /// <para type="description">Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.</para>
-    /// </summary>
+    /// <summary>Creates a persistent civil-date or inclusive range picker.</summary>
+    /// <remarks><para>Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.</para></remarks>
     /// <example><para>Choose a maintenance range.</para><code>New-ConsoleDatePicker -Key Window -Range -Value ([datetime]'2026-10-08')</code></example>
     /// <example><para>Configure today and the first weekday with a hashtable.</para><code>New-ConsoleDatePicker -Key Window -Range -Selection @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }</code></example>
-    [Cmdlet(VerbsCommon.New, "ConsoleDatePicker")]
+    [Cmdlet(VerbsCommon.New, "ConsoleDatePicker", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledatepicker/")]
     [OutputType(typeof(DatePicker))]
     public sealed class CmdletNewConsoleDatePicker : AppInputCmdlet {
         /// <summary><para type="description">Initial DateTime or DateRange; a scalar range default means Start=End.</para></summary>
         [Parameter, AllowNull] public object? Value { get; set; }
         /// <summary><para type="description">Commits one inclusive DateRange.</para></summary>
-        [Parameter] public SwitchParameter Range { get; set; }
+        [Parameter] [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Range { get; set; }
         /// <summary><para type="description">Shared bounds, culture, today and marked-day model. Supply a hashtable such as @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }; PowerShell converts its entries to the shared selection model.</para></summary>
         [Parameter] public DateSelectionOptions Selection { get; set; } = new DateSelectionOptions();
         /// <inheritdoc />

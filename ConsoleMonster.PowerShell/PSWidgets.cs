@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
                 return widget;
             }
             if (raw is string text) {
-                return new TextBlock(text);
+                return TextBlock.FromMarkup(text);
             }
             return null;
         }

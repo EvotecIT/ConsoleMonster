@@ -2,7 +2,7 @@ using System;
 using System.Management.Automation.Host;
 using ConsoleMonster.Capabilities;
 
-namespace ConsoleMonster.PowerShell {
+namespace ConsoleMonster.PowerShell.Display {
     /// <summary>
     /// The width rule for PowerShell output without an explicit -Width: <c>COLUMNS</c> when output is redirected and it is
     /// set (files, pipes, CI logs), otherwise the width the PowerShell host reports (the console window, the ISE, a
