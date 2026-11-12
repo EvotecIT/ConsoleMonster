@@ -10,6 +10,8 @@ namespace ConsoleMonster.Output {
     // One startup exchange owner for OSC 4/10/11. Call only inside ConsoleInput.BeforeFirstRead.
     // With fence, a primary device attributes request (CSI c, which every VT terminal answers) follows the query and the
     // read waits for its reply, so a terminal that ignores the query never leaves a late reply in the input buffer.
+    // The fenced read runs while nobody reads the keyboard, so keys typed during it go back into the terminal's input
+    // queue for the shell (callers check UnixInputNative.CanReturnInput first).
     internal static class TerminalColorQuery {
         internal static void Read(string query, Func<string, bool> consume, Func<bool> complete, bool fence = false) {
             string? term = Environment.GetEnvironmentVariable("TERM");
@@ -52,7 +54,11 @@ namespace ConsoleMonster.Output {
                 }
             } finally {
                 if (changed) { UnixInputNative.SetAttributes(0, 0, saved); }
-                foreach (char value in received.ToString()) { UnixInputNative.PendingInput.Enqueue((byte)value); }
+                string left = received.ToString();
+                int returned = 0;
+                // Restored first, so the shell's line discipline handles the returned keys as if they were typed now.
+                while (fence && returned < left.Length && UnixInputNative.ReturnInput((byte)left[returned])) { returned++; }
+                for (int i = returned; i < left.Length; i++) { UnixInputNative.PendingInput.Enqueue((byte)left[i]); }
                 Marshal.FreeHGlobal(raw); Marshal.FreeHGlobal(saved);
             }
         }

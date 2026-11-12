@@ -1,5 +1,6 @@
 """Run PowerShell on a real Unix terminal; --submissions uses automatic host output.
---light-background answers the background query (OSC 11) with white and device attributes (CSI c) as a light terminal does."""
+--light-background answers the background query (OSC 11) with white and device attributes (CSI c) as a light terminal does;
+--type-during-probe also types "q" between the query and its replies."""
 import errno
 import fcntl
 import os
@@ -16,6 +17,7 @@ timeout_seconds = float(sys.argv[4]) if len(sys.argv) > 4 else 30
 width = int(sys.argv[5]) if len(sys.argv) > 5 else 120
 submissions = "--submissions" in sys.argv[6:]
 light_background = "--light-background" in sys.argv[6:]
+type_during_probe = "--type-during-probe" in sys.argv[6:]
 input_file = os.open(script, os.O_RDONLY) if submissions else None
 pid, master = pty.fork()
 if pid == 0:
@@ -47,6 +49,9 @@ try:
                 break
             data.extend(chunk)
             if light_background and b"\x1b]11;?" in chunk:
+                if type_during_probe:
+                    os.write(master, b"q")
+                    time.sleep(0.02)
                 os.write(master, b"\x1b]11;rgb:ffff/ffff/ffff\x07")
             if light_background and b"\x1b[c" in chunk:
                 os.write(master, b"\x1b[?62;22c")

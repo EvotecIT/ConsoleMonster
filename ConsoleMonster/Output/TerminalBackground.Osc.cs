@@ -23,12 +23,16 @@ namespace ConsoleMonster.Output {
 
         /// <summary>
         /// Queries the background once for output that never reads keys (tables, lists, charts) when the automatic theme
-        /// needs it and no other signal answered. Only on an interactive Unix terminal whose input nobody is reading; the
-        /// exchange is fenced and bounded, so an unanswered query costs at most one short wait per process.
+        /// needs it and no other signal answered. Only on an interactive Unix terminal whose input nobody is reading and
+        /// that can take typed keys back; the exchange is fenced and bounded, so an unanswered query costs at most one short
+        /// wait per process.
         /// </summary>
         /// <returns>Whether this call learned the background.</returns>
         internal static bool ProbeForOutput() {
             if (ConsoleMonster.Interop.WindowsConsole.IsWindows || _oscAttempted || TryParseColorFgbg(Environment.GetEnvironmentVariable("COLORFGBG"), out _)) { return false; }
+            // Keys typed during the exchange must reach the shell. Where the terminal can't take them back, only the key
+            // reader asks (it owns the input), and later output reuses its answer.
+            if (!ConsoleMonster.Interop.UnixInputNative.CanReturnInput()) { return false; }
             bool learned = false;
             ConsoleInput.BeforeFirstRead(() => {
                 if (_oscAttempted) { return; }

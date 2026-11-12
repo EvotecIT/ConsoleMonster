@@ -2,6 +2,8 @@
     BeforeAll {
         $script:Module = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../ConsoleMonster.psd1'))
         $script:Runtime = [Diagnostics.Process]::GetCurrentProcess().Path
+        # Linux kernels with dev.tty.legacy_tiocsti=0 can't take typed keys back, so static output doesn't ask there.
+        $script:ProbesStaticOutput = -not (Test-Path '/proc/sys/dev/tty/legacy_tiocsti') -or (Get-Content '/proc/sys/dev/tty/legacy_tiocsti' -Raw).Trim() -eq '1'
     }
 
     It 'uses Unix host views with directory size placeholders, link sizes and explicit property overrides' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
@@ -73,6 +75,24 @@ Start-Sleep -Milliseconds 300
         & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --light-background
         $LASTEXITCODE | Should -Be 0
         $text = [IO.File]::ReadAllText($capture)
-        $text | Should -Match 'theme=Light pending=False' -Because $text
+        $text | Should -Match 'pending=False' -Because $text
+        if ($script:ProbesStaticOutput) { $text | Should -Match 'theme=Light pending' -Because $text }
+    }
+
+    It 'hands a key typed during the background query to the next reader' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
+        $source = @'
+Import-Module '__MODULE__'
+[pscustomobject]@{ Check = 'SPF'; Status = 'Pass' } | Show-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
+Start-Sleep -Milliseconds 300
+$typed = if ([Console]::KeyAvailable) { [Console]::ReadKey($true).KeyChar } else { 'none' }
+"typed=$typed pending=$([Console]::KeyAvailable)"
+'@
+        $file = Join-Path $TestDrive 'typed-table.ps1'
+        $capture = Join-Path $TestDrive 'typed-table.ansi'
+        [IO.File]::WriteAllText($file, $source.Replace('__MODULE__', $script:Module.Replace("'", "''")))
+        & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --light-background --type-during-probe
+        $LASTEXITCODE | Should -Be 0
+        $text = [IO.File]::ReadAllText($capture)
+        $text | Should -Match 'typed=q pending=False' -Because $text
     }
 }
