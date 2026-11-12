@@ -2,8 +2,8 @@
 title: Compare text and files
 description: Compare configuration strings or files with line numbers, changed words and a plain unified export.
 slug: text-diff
-order: 16
-group: apps
+order: 27
+group: build
 summary: "Numbered lines, word highlights, collapsed context and unified output from strings or files."
 apis: [Compare-ConsoleText, TextDiff, TextDiffView]
 chips: [Files, Unified diff]
@@ -53,7 +53,7 @@ $report = Use-ConsoleTarget -Width 120 {
 
 The unified string has reference and difference headers, hunk ranges and `-`/`+` lines, with LF separators and a marker for a missing final newline. Equal inputs return an empty string, and no terminal styling or markup is added. Normal rendering writes to the host and returns no comparison objects.
 
-## In a C# layout
+## In C#
 
 `TextDiffView` is an ordinary widget, so a comparison composes with the rest of a layout. This complete program puts it in a panel with its own headings:
 
@@ -74,8 +74,11 @@ var view = new Panel(new TextDiffView(comparison))
 Terminal.Write(view);
 ```
 
-`TextDiffResult.Lines` exposes the original line text, change kind, source line numbers and final-newline state. Comparison uses linear auxiliary memory and a bounded amount of alignment work. If a large changed region exceeds that budget, it is emitted as removals and additions; the result still describes the change, but it may contain more edits than a minimal diff.
+`TextDiffResult.Lines` exposes the original line text, change kind, source line numbers and final-newline state. A very large changed region can come out as plain removals and additions: the result still describes the change, with more edits than the smallest possible diff.
 
-## Related
+The [Compare-ConsoleText reference](/powershell/commands/compare-consoletext/) lists every parameter.
 
-The [Compare-ConsoleText reference](/powershell/commands/compare-consoletext/) lists every parameter, [PowerShell conventions](/docs/powershell-conventions/) covers composing ConsoleMonster output, and `Compare-ConsoleObject` compares object collections property by property.
+## Next
+
+- [Compare several objects](/docs/object-drift/): property-by-property drift against a baseline.
+- [Explore an object](/docs/object-explorer/): navigate nested members and search their values.

@@ -2,14 +2,14 @@
 title: PowerShell conventions
 description: "One grammar for every widget: containers take script blocks, items are records with shared property names, and .NET methods still work."
 slug: powershell-conventions
-order: 15
-group: hosts
+order: 5
+group: start
 card: shaping
 chips: [Cmdlets, Script blocks]
 summary: "One grammar for every widget, and each widget's .NET methods."
 ---
 
-I use the same vocabulary in PowerShell and C#, with small translations where the hosts differ. A command should tell me whether it creates a definition, shows it, asks a question or runs work.
+PowerShell and C# share one vocabulary, with small translations where the hosts differ. A command's verb says whether it creates a definition, shows it, asks a question or runs work.
 
 ## Commands by job
 
@@ -87,7 +87,7 @@ Watch-ConsoleLog -Path ./service.log -Count 1 -PollIntervalSeconds 0.25 -NoLive
 
 The native progress adapter keeps `Activity`, `Status`, `Id`, `ParentId`, `PercentComplete`, `SecondsRemaining`, `CurrentOperation`, `Completed` and `SourceId` exactly as PowerShell defines them. Its `Id` is never a `WidgetId`, and its native descriptive `Status` is the explicit exception to semantic outcomes. Native `Write-Host`/`Format-*` integration likewise preserves native binding. `NoNewLine` follows the familiar PowerShell spelling.
 
-##region Using the object directly
+## Using the object directly
 
 Builders return ordinary typed objects, so their methods remain available. C# uses American API spelling, including `Color`, `Center`, `PromptCanceledException` and `IsCanceled`. `RegionWidget` names a replaceable region, `MenuRunResult` names a menu result, and numeric ranges use `Minimum`/`Maximum`.
 
@@ -102,6 +102,10 @@ $profile = $profileType::Fixed(100, 24)
 #endregion
 ```
 
-Prefer cmdlets for ordinary scripts. Configure headings and footers on `New-ConsoleDashboard` or `Show-ConsoleApp`; pass records to numeric-column format parameters. `New-ConsoleRegion -Horizontal Center -Padding 1` aligns and pads content. `New-ConsoleStatusList -Layout Strip` builds a phase strip. Canvas remains a C# capability. Recording JSONL keeps its existing `target` and `state` wire keys while the public API uses `WidgetId` and `Status`.
+Prefer cmdlets for ordinary scripts. Configure headings and footers on `New-ConsoleDashboard` or `Show-ConsoleApp`; pass records to numeric-column format parameters. `New-ConsoleRegion -Horizontal Center -Padding 1` aligns and pads content. `New-ConsoleStatusList -Layout Strip` builds a phase strip. Canvas is available in C# only.
 
-Try [live sessions](/docs/live-sessions/) next.
+## Next
+
+- [Themes](/docs/themes/): the colour roles every widget draws with, and how to switch them.
+- [Colour schemes](/docs/colour-schemes/): popular terminal schemes, checked for accessibility.
+- [Live sessions](/docs/live-sessions/): dashboards that any thread can update.

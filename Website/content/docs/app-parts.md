@@ -2,7 +2,7 @@
 title: App parts, one by one
 description: Explore panes, folding sections, outlines, tabs, linked charts, trees and searchable logs in small PowerShell, C# and C# fluent apps.
 slug: app-parts
-order: 12
+order: 41
 group: apps
 summary: "Panes, folding sections, outlines, tabs, linked charts, trees and the find bar, each on its own."
 apis: [New-ConsoleSplitter, New-ConsoleAccordion, New-ConsoleCollapsible, New-ConsoleOutline, New-ConsoleBreadcrumb, New-ConsoleTabs, New-ConsoleChartView, New-ConsoleTreeSelect, New-ConsoleLogRegion]
@@ -106,10 +106,10 @@ Inside `Show-ConsoleApp` content, `New-ConsoleLogRegion` makes the retained, scr
 - Read the parts from code: each `Key` is a field of `$State` in a binding or callback, so a line can follow the selected tab, outline entry or tree node.
 - Turn the mouse off for one app with `Show-ConsoleApp -NoMouse`; every pointer action still has its key.
 
-## Related
-
-[Interactive apps](/docs/interactive-apps/) covers app state, bindings and screens. The [log tail demo](/demos/log-tail/) uses the text input's find bar after a live run, and [test, record and drive apps](/docs/testing/) runs any of these on a headless terminal.
+Put the parts together in the [incident workbench](/demos/incident-workbench/), [chart and table](/demos/chart-table/), [help sections](/demos/help-sections/) and [settings tabs](/demos/settings-tabs/) demos. The [log tail demo](/demos/log-tail/) uses the text input's find bar after a live run.
 
 ## Next
 
-Put the parts together in the [incident workbench](/demos/incident-workbench/), the [chart and table](/demos/chart-table/), [help sections](/demos/help-sections/) and [settings tabs](/demos/settings-tabs/) demos, then drive a tree, a grid and a wizard by keys and clicks on [prompts, menus and forms](/interactive/).
+- [Forms and dialogs](/docs/forms-and-dialogs/): ask several questions at once and confirm before acting.
+- [Help, errors and progress](/docs/help-and-defaults/): PowerShell help, errors and progress drawn by ConsoleMonster.
+- [Test, record and drive apps](/docs/testing/): run any of these parts on a headless terminal.

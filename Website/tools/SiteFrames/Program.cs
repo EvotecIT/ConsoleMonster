@@ -275,6 +275,7 @@ namespace SiteFrames {
                 if (Wants(only, "docs") || Wants(only, "markdown")) { MarkdownFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "app-parts")) { AppPartFigures.Capture(site); }
                 if (Wants(only, "docs") || Wants(only, "headless")) { DocProgramFigures.Capture(site); }
+                if (Wants(only, "docs") || Wants(only, "starter")) { StarterFigures.Capture(site); }
                 if (Wants(only, "interactive")) {
                     InteractivePage.Capture(site);
                 }
@@ -326,6 +327,7 @@ namespace SiteFrames {
             ExplorerFigures.Render(site);
             AppPartFigures.Render(site);
             DocProgramFigures.Render(site);
+            StarterFigures.Render(site);
             LargeRunFigures.Render(site);
             HomePage.Render(site, hosts);
             TailsPage.Render(site);

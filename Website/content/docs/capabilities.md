@@ -2,7 +2,7 @@
 title: Capability detection
 description: ConsoleMonster detects VT support, colour depth, the glyphs the font can draw, size, redirection, CI and the background, and records why.
 slug: capabilities
-order: 3
+order: 8
 group: start
 card: profile-detected
 apis: [TerminalProfile, Get-ConsoleCapability]
@@ -70,6 +70,8 @@ Terminal.Write(rule, TerminalProfile.Fixed(40, 10, ColorDepth.Ansi16, GlyphTier.
 
 In conhost, the console font is polled about once a second; a new face or size re-derives the glyph tier and the emoji and ambiguous widths. In Windows Terminal, widths are measured again after every resize, which also covers zooming with Ctrl+= and Ctrl+0. Print-once output reads the window size on every write, so output printed after a resize uses the new width.
 
-## Related
+## Next
 
-Every variable is listed in [environment overrides](/docs/environment/). For the light and dark choice see [themes](/docs/themes/), and for the output each host gets, [hosts, CI and transcripts](/guides/hosts-and-ci/).
+- [Environment overrides](/docs/environment/): every variable that pins a decision.
+- [Accessibility](/docs/accessibility/): screen readers, high contrast and reduced motion.
+- [Hosts and CI](/docs/hosts-and-ci/): what each host, CI system and transcript gets.

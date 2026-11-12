@@ -2,14 +2,14 @@
 title: Live sessions
 description: A live session redraws about 15 times a second while any thread posts updates, captures console output and handles resizes and small windows.
 slug: live-sessions
-order: 6
+order: 30
 group: live
 card: size-100x30
 apis: [LiveSession, MinimumSize]
 summary: "Dashboards updated from any thread, inline areas and windows that are too small."
 ---
 
-`LiveSession` owns the screen while work runs. Updates are `LiveEvent`s addressed to widgets by WidgetId; they go into a lock-free queue and are applied on the render thread, which composes the tree, diffs it against the previous frame and writes only the cells that changed, about 15 times a second.
+A live session keeps a dashboard on screen while your work runs. Any thread can update a widget by its `WidgetId`, the screen redraws about 15 times a second with only the cells that changed, and the terminal is restored when the work ends. In PowerShell the session is `Invoke-ConsoleDashboard`; in C# it is `LiveSession`.
 
 {{< cm-demo id="session" heading="h2" >}}
 
@@ -20,11 +20,11 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 - **Threads.** Handles (`lanes.Handle(session)`) post events from any thread. An ambient `TerminalScope` lets deep code report status without passing the session around. [Threads and concurrency](/docs/threads/) explains the model and what is safe from which thread.
 - **Console output.** `Console.Out` and `Console.Error` are captured into the log region while the session runs (`CaptureConsole`, on by default). In PowerShell, `Invoke-ConsoleDashboard` runs the script in a runspace whose `Write-Host`, warnings, errors and verbose output land there too.
 - **The end.** The screen is restored, also on Ctrl+C and exceptions, and the final state (or `LiveSessionOptions.Summary`) is printed to the scrollback.
-- **Problems.** Updates for unknown widget identifiers, failed updates and frames that could not be laid out are counted (`GetCounters()`) and reported once the screen is restored.
+- **Problems.** Updates for an unknown `WidgetId`, failed updates and frames that could not be laid out are counted (`GetCounters()`) and reported once the screen is restored.
 
 ## Inline areas and Write-Progress
 
-`LiveMode.Inline` (`Invoke-ConsoleDashboard -Inline`) draws an area as tall as its content below the cursor; output scrolls above it and the final state stays in the scrollback, or nothing with `-Transient`. `Write-Progress` in a dashboard script shows as nested activities, and `Use-ConsoleProgress` renders an existing script's `Write-Progress` inline without changing it.
+`LiveMode.Inline` (`Invoke-ConsoleDashboard -Inline`) draws an area as tall as its content below the cursor; output scrolls above it and the final state stays in the scrollback, or nothing with `-PrintFinalState:$false`. `Write-Progress` in a dashboard script shows as nested activities, and `Use-ConsoleProgress` renders an existing script's `Write-Progress` inline without changing it.
 
 ## Progress columns
 
@@ -35,8 +35,12 @@ The [live dashboards page](/live/) shows larger programs built the same way, rec
 ```powershell
 Import-Module ConsoleMonster
 
-@{ Key = 'DC01'; Total = 40 }, @{ Key = 'DC02'; Total = 40 } | New-ConsoleLanes -WidgetId servers -HideCompleted -Column Standard, Rate | Show-Console
-New-ConsoleProgress -Label 'Upload' -Total 500MB -Column Description, Bar, Percent, ByteRate, Remaining | Show-Console
+$servers = @(
+    [pscustomobject]@{ Key = 'dc01'; Label = 'DC01'; Total = 40 }
+    [pscustomobject]@{ Key = 'dc02'; Label = 'DC02'; Total = 40 }
+)
+$servers | New-ConsoleLanes -WidgetId servers -HideCompleted -Columns Standard, Rate | Show-Console
+New-ConsoleProgress -Label 'Upload' -Total 500MB -Columns Description, Bar, Percent, ByteRate, Remaining | Show-Console
 ```
 
 </div>
@@ -57,12 +61,30 @@ Terminal.Write(lanes);
 ```
 
 </div>
+<div class="cm-lang" data-lang="csharp-fluent">
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+IList<ProgressColumn> columns = ProgressColumns.Standard();     // spinner, description, bar, %, count, elapsed, ETA, status
+columns.Insert(7, ProgressColumns.Rate(unit: "files"));         // "12 files/s"; Rate(bytes: true) shows "1.5 MB/s"
+Lanes lanes = Ui.Lanes()
+    .Columns(columns)
+    .AddColumn(ProgressColumns.Custom("Phase", row => row.IsFinished ? "verified" : "copying"))
+    .HideCompleted();                                           // finished lanes leave; the summary line counts them
+lanes.Add("dc01", "DC01", 40);
+lanes.Add("dc02", "DC02", 40);
+lanes.Show();
+```
+
+</div>
 
 Rate and remaining time are smoothed over a moving window (10 seconds by default), so a stalled task's rate falls instead of freezing. When the region is too narrow, the lowest-priority columns go first, and in stream mode the heartbeat line summarises the running lanes through the same columns.
 
 ## Replaceable regions and live tables
 
-A `RegionWidget` is a named region whose widget is replaced while the session runs; the swap goes through the update queue, so it is thread-safe and lands between frames. `LiveTable` is a table whose rows have stable keys and are added, updated, removed or cleared; its column widths only grow, `MaxRows` keeps the most recent rows and `SortColumn` keeps them sorted.
+A `RegionWidget` is a named region whose widget is replaced while the session runs; the swap is safe from any thread and lands between frames. `LiveTable` is a table whose rows have stable keys and are added, updated, removed or cleared; its column widths only grow, `MaxRows` keeps the most recent rows and `SortColumn` keeps them sorted.
 
 ```powershell
 Import-Module ConsoleMonster
@@ -95,7 +117,7 @@ For a list of build steps, `Phases` with `StepCounter = true` draws one numbered
 A PowerShell warning, a verbose line or a prompt does not pass through the session. `session.WriteOutside(action)` clears an inline area (a full-screen session leaves the alternate screen), runs the action on the calling thread for as long as it needs, then starts the area again below what it wrote, so later frames never draw over it. Nothing is drawn while the action runs, and updates are still applied. Compiled cmdlets use `HostOutput.Run`, described under [add-ons](/docs/add-ons/#powershell-output-from-your-own-cmdlets).
 ## Resizing and small windows
 
-A size change clears the screen and redraws it; while a window is dragged, redraws are coalesced to at most one every 100 ms. Narrower panels drop optional parts first, table columns hide by priority and tables turn into cards. When the window is smaller than the dashboard's `MinimumSize`, it keeps its highest-priority panels, and when even those do not fit, it shows one status line.
+A size change clears the screen and redraws it, also while the window is being dragged. Narrower panels drop optional parts first, table columns hide by priority and tables turn into cards. When the window is smaller than the dashboard's `MinimumSize`, it keeps its highest-priority panels, and when even those do not fit, it shows one status line.
 
 {{< cm-frame ids="size-100x30,size-64x20,size-50x12" caption="The replay program from the live dashboards page (`dotnet run -- assessment-run.jsonl 2`, with the recording offered there) halfway through, in windows of 100×30, 64×20 and 50×12. Its `MinimumSize` is 60×20." >}}
 
@@ -103,6 +125,8 @@ A size change clears the screen and redraws it; while a window is dragged, redra
 
 In CI, with redirected output and in stream mode, a session narrates append-only lines instead of redrawing, with `[mm:ss]` prefixes when a CI system is detected. Plain mode does the same in ASCII without colour, and text that reaches stream and plain output is stripped of escape sequences and control characters.
 
-## Related
+## Next
 
-[Threads and concurrency](/docs/threads/) explains what is safe from which thread, [recording and replay](/docs/recording/) saves a session's updates, and the [live dashboards page](/live/) shows larger programs.
+- [Live runs](/docs/live-runs/): run a script block for many items in parallel with a live view.
+- [Threads and concurrency](/docs/threads/): what is safe from which thread.
+- [Recording and replay](/docs/recording/): save a session's updates and replay them.

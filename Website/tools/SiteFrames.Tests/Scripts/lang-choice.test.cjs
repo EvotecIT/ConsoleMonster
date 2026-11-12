@@ -61,16 +61,19 @@ check('all three styles honor the remembered choice', () => {
     same(langChoice('csharp-fluent', ['powershell', 'csharp']).lang, 'powershell', 'fallback keeps PowerShell first');
 });
 
-check('the first paint defaults to PowerShell when storage is empty, corrupt or denied', () => {
+check('the first paint uses the page default when storage is empty, corrupt or denied', () => {
     const head = fs.readFileSync(path.join(website, 'themes', 'consolemonster', 'partials', 'head.html'), 'utf8');
     const preload = head.match(/<script>([\s\S]*?)<\/script>/)[1];
-    for (const saved of [null, 'invalid', 'csharp-fluent', 'denied']) {
-        const root = { classList: { add() {} }, dataset: {} };
-        vm.runInNewContext(preload, {
-            document: { documentElement: root }, matchMedia: () => ({ matches: false }),
-            localStorage: { getItem() { if (saved === 'denied') throw new Error('Storage denied'); return saved; } }
-        });
-        same(root.dataset.lang, saved === 'csharp-fluent' ? saved : 'powershell', 'initial style for ' + saved);
+    // The page's default comes from its front matter (lang: csharp on C#-only pages), PowerShell otherwise.
+    for (const fallback of ['powershell', 'csharp']) {
+        for (const saved of [null, 'invalid', 'csharp-fluent', 'denied']) {
+            const root = { classList: { add() {} }, dataset: {} };
+            vm.runInNewContext(preload.replace('{{ page_lang }}', fallback), {
+                document: { documentElement: root }, matchMedia: () => ({ matches: false }),
+                localStorage: { getItem() { if (saved === 'denied') throw new Error('Storage denied'); return saved; } }
+            });
+            same(root.dataset.lang, saved === 'csharp-fluent' ? saved : fallback, 'initial style for ' + saved + ' on a ' + fallback + ' page');
+        }
     }
 });
 

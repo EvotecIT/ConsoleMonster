@@ -2,7 +2,7 @@
 title: Colour schemes
 description: Dracula, Nord, Solarized, Gruvbox, Catppuccin and Tokyo Night, drawn faithfully and accessibly, with what the theme checker says about each.
 slug: colour-schemes
-order: 4
+order: 7
 group: start
 card: scheme-dracula
 apis: [Set-ConsoleTheme, Theme.FromScheme, Test-ConsoleTheme]

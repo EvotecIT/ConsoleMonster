@@ -2,7 +2,7 @@
 title: Environment overrides
 description: NO_COLOR and the CONSOLEMONSTER_* variables pin what detection would otherwise decide, for CI, tests, screenshots and accessibility.
 slug: environment
-order: 5
+order: 9
 group: start
 card: overrides-plain
 apis: [NO_COLOR, CONSOLEMONSTER_*]
@@ -84,7 +84,7 @@ Remove-Item Env:CONSOLEMONSTER_HYPERLINKS
 Get-ConsoleCapability -Refresh | Select-Object Kind, SupportsHyperlinks
 ```
 
-## In code
+## In C#
 
 The same choices are available without the environment: `TerminalProfile.Fixed(width, height, colors, glyphs)` for a profile with no detection, and `WithCulture`, `WithThemePreference`, `WithSize`, `WithColorDepth` and `WithMode` to change one value. Live sessions take `LiveSessionOptions.Profile`, `Theme` and `Culture`.
 
@@ -101,6 +101,8 @@ Terminal.Write(facts, Terminal.Profile.WithMode(OutputMode.Plain));
 
 In PowerShell, `Get-ConsoleCapability` shows the profile these variables produced, with the reason for each value.
 
-## Related
+## Next
 
-What each variable overrides is explained in [capability detection](/docs/capabilities/). Without any of them, [hosts, CI and transcripts](/guides/hosts-and-ci/) shows what each environment gets.
+- [Accessibility](/docs/accessibility/): settings for screen readers, high contrast and reduced motion.
+- [Capability detection](/docs/capabilities/): what each variable overrides.
+- [Hosts and CI](/docs/hosts-and-ci/): what each environment gets without any of them.

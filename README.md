@@ -147,7 +147,7 @@ Describe networks, application flows and team hierarchies with the core `Diagram
 use cases. Object initializers, `Ui.Diagram("Title")` and `New-ConsoleDiagram` configure the same model.
 The dependency-free core draws a grouped tree with connection labels and status text:
 
-<!-- example: Website/content/docs/topology.md#2 -->
+<!-- example: Website/content/docs/topology.md#4 -->
 ```csharp
 using ConsoleMonster;
 using ConsoleMonster.Widgets;
@@ -157,7 +157,7 @@ var diagram = Ui.Diagram("Home network")
     .Node("Router", n => n.Kind(DiagramNodeKind.Gateway)
         .Subtitle("192.168.1.1").Value("1 ms"))
     .Link("Laptop", "Router", l => l.Label("Wi-Fi"));
-Terminal.Write(diagram);
+diagram.Show();
 ```
 
 For boxes, routed connections, keyboard navigation and use case playback, add the optional `ConsoleMonster.Graphics`
@@ -170,7 +170,7 @@ reference ChartForgeX.
 
 The PowerShell module bundles Graphics and registers it for diagram commands:
 
-<!-- example: Website/content/docs/topology.md#3 -->
+<!-- example: Website/content/docs/topology.md#2 -->
 ```powershell
 Import-Module ConsoleMonster
 
@@ -315,7 +315,7 @@ $dashboard = New-ConsoleDashboard -Title 'Workers' -Content {
   ([trimming notes](https://consolemonster.dev/docs/install/)).
 - **Consoles** are [detected](https://consolemonster.dev/docs/capabilities/) (colour, glyphs, size, CI, redirection);
   `NO_COLOR` and [`CONSOLEMONSTER_*`](https://consolemonster.dev/docs/environment/) override it
-  ([hosts and CI](https://consolemonster.dev/guides/hosts-and-ci/)).
+  ([hosts and CI](https://consolemonster.dev/docs/hosts-and-ci/)).
 
 [Benchmarks](https://consolemonster.dev/benchmarks/) ·
 [Changelog](https://github.com/EvotecIT/ConsoleMonster/blob/master/CHANGELOG.MD) ·

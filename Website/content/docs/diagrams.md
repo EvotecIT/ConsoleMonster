@@ -2,8 +2,8 @@
 title: Diagrams, zero to hero
 description: Draw terminal diagrams in C#, fluent C# or PowerShell, one idea at a time, from three boxes to live values, request walkthroughs, hierarchies and Mermaid.
 slug: diagrams
-order: 18
-group: apps
+order: 24
+group: build
 summary: "Nine steps from three boxes and two arrows to groups, status, data, live values, walkthroughs, hierarchies and Mermaid."
 apis: [Diagram, Ui.Diagram, New-ConsoleDiagram, New-ConsoleDiagramNode, New-ConsoleDiagramLink, New-ConsoleDiagramGroup, Show-ConsoleDiagram]
 chips: [Diagrams, Mermaid, C#, PowerShell]
@@ -46,7 +46,7 @@ You rarely type every link. Nodes you never declared are created from the links,
 
 ## 6. Live values
 
-Give the diagram a widget id and update it while it shows; values and statuses change, the layout stays put. This frame is one moment of a ping monitor. The live version wraps the same diagram in a dashboard:
+Give the diagram a `WidgetId` and update it while it shows; values and statuses change, the layout stays put. This frame is one moment of a ping monitor. The live version wraps the same diagram in a dashboard:
 
 ```powershell
 $diagram = New-ConsoleDiagram -WidgetId ping -Title 'Ping monitor · every 5 s' { <# the nodes above #> }
@@ -93,4 +93,6 @@ Flowcharts (`flowchart` and `graph`, with subgraphs as groups), `classDiagram`, 
 
 ## Next
 
-[Architecture diagrams](/docs/topology/) loads ChartForgeX architecture files and plays their use cases, and [live dashboards](/live/) shows how a diagram becomes part of a running dashboard.
+- [Architecture diagrams](/docs/topology/): load ChartForgeX architecture files and play their use cases.
+- [Inline images](/docs/inline-images/): chart renders and pictures in terminal pixels.
+- [Live sessions](/docs/live-sessions/): how a diagram becomes part of a running dashboard.

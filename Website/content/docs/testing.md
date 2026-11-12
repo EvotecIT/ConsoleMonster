@@ -3,9 +3,9 @@ title: Test, record and drive apps
 description: Run any app, prompt or dashboard on a headless terminal to test it against golden files, record it, show it in a browser or let an agent drive it.
 slug: testing
 toc: true
-order: 19
+order: 46
 group: apps
-card: app
+card: headless-app
 chips: [Headless terminal, Golden files, Browser host, Debug socket]
 summary: "Headless tests, golden files, recordings, a browser view and a debug socket for agents."
 ---
@@ -25,6 +25,8 @@ ConsoleMonster draws through a console driver: something that takes its output, 
 
 A golden file is the reviewed text of what a widget draws. The check renders at a fixed width, glyph tier and culture (invariant by default), so the result is the same on every machine. The first run writes the file and fails so you can review it; a later difference fails with the first differing line, both versions and the column where they part. Set `CONSOLEMONSTER_UPDATE_GOLDEN=1` to rewrite the files after an intended change.
 
+<div class="cm-lang" data-lang="powershell">
+
 ```powershell
 It 'renders the server summary' {
     $summary = @(
@@ -35,6 +37,9 @@ It 'renders the server summary' {
 }
 ```
 
+</div>
+<div class="cm-lang" data-lang="csharp">
+
 ```csharp
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
@@ -44,6 +49,22 @@ var table = new Table().AddColumn("Name").AddColumn("Status")
     .AddValues("db-01", "Degraded");
 GoldenFile.Match("Golden/summary.txt", TestTerminal.RenderText(table, width: 80));
 ```
+
+</div>
+<div class="cm-lang" data-lang="csharp-fluent">
+
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Testing;
+using ConsoleMonster.Widgets;
+
+Table table = Ui.Table().AddColumn("Name").AddColumn("Status")
+    .AddValues("web-01", "Ready")
+    .AddValues("db-01", "Degraded");
+GoldenFile.Match("Golden/summary.txt", TestTerminal.RenderText(table, width: 80));
+```
+
+</div>
 
 `TestTerminal` also drives prompts, menus and forms with scripted keys and captures the screens they draw, in any test framework.
 
@@ -122,4 +143,6 @@ The socket listens on 127.0.0.1, writes a discovery file with its port and a ran
 
 ## Next
 
-The [app parts](/docs/app-parts/) are small apps to drive this way, [recording and replay](/docs/recording/) turns a run into a player or a GIF, and [the prompts, menus and forms](/interactive/) page shows apps driven by scripted keys and clicks.
+- [CI integration](/docs/ci-integration/): groups, annotations and job summaries in CI logs.
+- [App parts, one by one](/docs/app-parts/): small apps to drive this way.
+- [Recording and replay](/docs/recording/): turn a run into a player or a GIF.

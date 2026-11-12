@@ -2,7 +2,7 @@
 title: Help, errors and progress
 description: Show PowerShell help, errors, progress and native stream colours with ConsoleMonster.
 slug: help-and-defaults
-order: 10
+order: 43
 group: apps
 card: help
 apis: [Show-ConsoleHelp]
@@ -113,7 +113,7 @@ With the default `Errors` feature, errors that reach the console use the same vi
 
 {{< cm-demo id="progress" heading="h2" >}}
 
-The default keeps `Write-Progress` native and styles it through `Streams`, preserving its View and restoring exact owned colors on disable. With `-Include Progress`, `Write-Progress` uses the native-metadata ConsoleMonster function adapter for the session, so existing loops get ConsoleMonster's progress area: one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
+By default `Write-Progress` stays PowerShell's own bar, coloured by the theme through `Streams`. With `-Include Progress`, `Write-Progress` draws ConsoleMonster's progress area for the rest of the session, so existing loops get one row per activity below the cursor, nested with `-ParentId`, with a bar, the percentage, the status and the elapsed time. Output written in between appears above the area, and the area disappears when every activity completes. `$ProgressPreference` is honoured. Progress written by compiled cmdlets such as `Copy-Item` is still drawn by PowerShell.
 
 ## Warning, verbose and debug colours
 
@@ -136,13 +136,13 @@ Enable-ConsoleFormatting -Include Prompt -ProfileSnippet  # prints profile lines
 
 The prompt shows the shortened path, git branch with `*` for index or working-tree changes, and a success or failure mark. A completed command taking **more than two seconds** also shows its duration, using PowerShell's own history timestamps. An old nonzero native exit code does not mark a later successful PowerShell command as failed. PSReadLine handlers and key bindings stay as they are.
 
-Git is optional: one asynchronous probe runs per session, with a 100 ms child-process budget and a five-second cache. The prompt never waits for it. The first prompt can omit git until the next prompt; changed state can take five seconds to appear. Missing git, an unavailable repository or an expired probe omits that segment. Submodule contents are not scanned.
+Git is optional and the prompt never waits for it: the first prompt can omit the branch, and a change can take up to five seconds to appear. Missing git, an unavailable repository or an expired probe omits that segment. Submodule contents are not scanned.
 
 An existing oh-my-posh or Starship prompt is kept. Use `Enable-ConsoleFormatting -Include Prompt -Force` to replace it explicitly. Other custom prompts are backed up, including their closure scope. `Disable-ConsoleFormatting -Feature Prompt`, disabling all enabled features without a feature argument, or `Remove-Module ConsoleMonster` restores the original. A prompt you install later is kept.
 
 Only the top-level local console prompt is themed. Assigned, piped, redirected, transcribed, recorded, job, remote and nested prompt calls use the original prompt. Native output, error records, preferences, `$?` and `$LASTEXITCODE` retain their behavior. Engines whose status or transcription state cannot be checked keep native output.
 
-### The same renderer in .NET
+### In C#
 
 This complete C# program calls the renderer the PowerShell prompt uses, with a fixed illustrative path, branch and finished commands; the PowerShell feature collects the live session's data instead.
 
@@ -162,11 +162,13 @@ is required by ConsoleMonster.
 
 `HelpCommand` describes commands and optional groups. `HelpValue` describes literal value IDs, descriptions and optional
 muted notes. `HelpSyntaxParameter.Named = false` and `HelpParameter.Named = false` describe positional arguments.
-The existing parameter convention omits one renderer-added dash: use `Name = "-output"` for `--output`, while aliases
+The renderer adds one dash to a parameter name: use `Name = "-output"` for `--output`. Aliases
 such as `-o` are literal. Labels follow the render profile's language; set `ValuesHeading` only for a custom heading.
 
 {{< cm-frame ids="cli-help-120,cli-help-60" caption="The complete .NET example compiles against ConsoleMonster and renders at 120 and 60 columns in both themes." >}}
 
-## Related
+## Next
 
-[Choose a theme](/docs/themes/) or [format everyday PowerShell output](/guides/everyday-powershell/).
+- [Logging](/docs/logging/): Microsoft.Extensions.Logging, Serilog and NLog with ConsoleMonster's level tags.
+- [dotnet new template](/docs/template/): a console app with a menu, a report, logging and the hosting dashboard.
+- [Format everyday PowerShell output](/guides/everyday-powershell/): turn the formatting on for every session.

@@ -2,7 +2,7 @@
 title: Accessibility
 description: Accessible output, reduced motion, high-contrast and colour-blind palettes, and meaning that never depends on colour alone.
 slug: accessibility
-order: 6
+order: 10
 group: start
 summary: "One switch for accessible output, reduced motion on its own, named palettes and status that never relies on colour."
 chips: [Accessible, Reduced motion, No colour]
@@ -53,4 +53,6 @@ Live sessions in accessible mode write one line per change, the same narration t
 
 ## Next
 
-[Environment overrides](/docs/environment/) lists every variable, and [themes](/docs/themes/) shows the palettes and theme files.
+- [Layout](/docs/layout/): how widgets share the width and height they get.
+- [Environment overrides](/docs/environment/): every variable, for CI, tests and screenshots.
+- [Themes](/docs/themes/): the palettes and theme files.

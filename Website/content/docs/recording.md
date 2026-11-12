@@ -3,9 +3,9 @@ title: Recording and replay
 description: Record a whole terminal session, including native commands, to asciicast v2 and export an HTML player, animated SVG, text, Markdown or a final frame.
 slug: recording
 toc: false
-order: 8
+order: 37
 group: live
-card: app
+card: record
 chips: [Terminal sessions, Chapters, Export]
 summary: "Whole-session recording, dashboard replay and local exports."
 ---
@@ -37,7 +37,7 @@ Invoke-ConsoleRecording {
 
 `-Path` selects the export and saves the original cast alongside it. Markers become named chapters in the HTML player. Its chapter menu and on-track ticks seek to a chapter; hover or focus a tick to see its name. **?** opens keyboard help for Space, the arrow keys and number-key chapter shortcuts.
 
-In C#, `SessionRecorder.Start` owns the child, `AddMarker` adds a chapter, and `WaitForExit` drains output and finalizes the cast. `SessionRecording.Read` loads it for the existing exporter. `SendInput` forwards input without storing it; `Resize` records terminal size changes. `Stop` or disposal stops that recorder's child.
+In C#, `SessionRecorder.Start` owns the child, `AddMarker` adds a chapter, and `WaitForExit` drains output and finalizes the cast. `SessionRecording.Read` loads it for export. `SendInput` forwards input without storing it; `Resize` records terminal size changes. `Stop` or disposal stops that recorder's child.
 
 Windows uses ConPTY and needs Windows 10 version 1809 or later. Linux and macOS use `openpty` with a controlling terminal. The library also targets .NET Standard 2.0 and .NET Framework 4.7.2; the example's recorder API is the same on those targets.
 
@@ -80,7 +80,7 @@ Export-ConsoleRecording -RecordingPath ./command-review.cast -Path ./command-rev
     -FinalFrame -Theme Light -ChromeStyle Windows
 ```
 
-`-Format PlayerData` writes JSON for embedding the same player. `-Theme Dark` or `Light` uses the existing exporter palette. Animated SVG uses CSS keyframes; the final-frame SVG is static. Text and Markdown include the main screen's scrollback. Whole-session casts remain asciicast v2, including output, marker and resize events. In C#, `ExportFinalSvg` writes a static frame and `FinalFrame` returns a `CellBuffer` for the existing exporter.
+`-Format PlayerData` writes JSON for embedding the same player. `-Theme Dark` or `Light` uses the exporter's dark or light palette. Animated SVG uses CSS keyframes; the final-frame SVG is static. Text and Markdown include the main screen's scrollback. Whole-session casts remain asciicast v2, including output, marker and resize events. In C#, `ExportFinalSvg` writes a static frame and `FinalFrame` returns a `CellBuffer` for the exporter.
 
 ### Redact values and bound a recording
 
@@ -96,9 +96,7 @@ Invoke-ConsoleRecording {
 
 Resolving the default recording folder does not check Documents access. An explicit destination can record without touching that folder.
 
-Redaction runs before writing the cast or chapter metadata, including secrets split across reads or colour codes. Long lines and cursor-positioned repaints stream without a 64 KiB record cutoff. The recorder keeps raw and visible overlap for built-in credentials and custom patterns whose maximum match span can be proved, up to 8,192 UTF-16 characters. Rules match the original output, so overlapping patterns cannot hide a secret by replacing part of it first. Chapter markers and resizes preserve their ordering without breaking redaction across them. Playback honours synchronized redraw boundaries, keeping completed frames within the export frame budget. When redraws arrive together, it spaces them at the requested frame rate and moves later frames and chapters with them; the final hold stays intact.
-
-Patterns with unbounded quantifiers, anchors, lookarounds, backreferences or unsupported syntax use complete-record matching. A record ends at a newline, carriage return, stop control or end of capture. If uncommitted redaction or terminal context reaches 1,048,576 UTF-16 characters, the cast shows an explicit omission message and resumes after the next line break. A pattern timeout also fails closed with a visible message. The companion `.cast.json` counts these cases in `redactionFallbacks`. This buffer safeguard is separate from `-MaxBytes`, which caps the total cast bytes. Review a recording before sharing it because patterns cannot recognize every secret.
+Redaction runs before the cast or chapter metadata is written, and also catches secrets split across reads or colour codes. When a pattern cannot be applied safely, the cast shows a visible omission message instead of the raw text. Review a recording before sharing it because patterns cannot recognize every secret.
 
 `-RedactionText` chooses a replacement such as seven bullets; the default is `[REDACTED]`. Match only the value when surrounding context should stay visible. Replacement text cannot contain control characters. In C#, set `SessionRecordingOptions.RedactionText`.
 
@@ -182,21 +180,16 @@ File.WriteAllText("build.svg", ConsoleExporter.ToSvg(TextBlock.Plain("8 of 8 che
 
 ## Make it readable
 
-Pacing is applied when exporting, so the same cast can produce a quick preview and a readable presentation without another recording. `-Pace Normal` is the default. New visible text is counted across a burst of output, then the settled screen gets a bounded reading budget:
+Pacing is applied when exporting, so the same cast can produce a quick preview and a readable presentation without another recording. After each burst of output, the settled screen is held long enough to read the new text. `-Pace` sets how long:
 
-| Pace | Screen min–max | Per character | Per line |
-|---|---:|---:|---:|
-| Slow | 2–16 s | 35.71 ms | 140 ms |
-| Normal | 1.2–8 s | 23.81 ms | 80 ms |
-| Fast | 0.55–4 s | 13.89 ms | 40 ms |
+| Pace | Use it for |
+|---|---|
+| `Slow` | Slides and talks, where people read along |
+| `Normal` | The default; documentation and walkthroughs |
+| `Fast` | Quick previews |
+| `Source` | The cast's own timing, with no reading holds |
 
-The budget is the new visible character count times its per-character time, plus the allowance for each changed line, bounded by the minimum and maximum. Slow gives about 1.5–2× Normal's reading time; Fast uses about half. The text rates (28 / 42 / 72 characters per second), line allowances and minimum holds follow ChartForgeX's terminal playback presets. The larger whole-screen maximum keeps Slow distinct on dense output.
-
-Source time already spent on the settled frame counts towards its budget; export adds only the missing reading time. Speed and per-chapter speed scale this budget. Explicit marker, chapter and final holds are additional and keep their durations. Colour-only changes add no reading time. These ratios describe reading budgets; a recording's total duration also includes its source timing and explicit holds.
-
-For 225 new characters on three lines, the reading budgets are 8.456 / 5.597 / 3.245 seconds for Slow / Normal / Fast, matching ChartForgeX's terminal typing and line timing for the same text. `Source` adds no reading time; combine it with `-IdleLimitSeconds 0` to keep all source gaps.
-
-In the pipeline recording used to check these presets, the same cast exports to a 1920×1080 GIF lasting 15.51 seconds at Source, 19.51 at Fast, 23.51 at Normal and 31.51 at Slow. These exports disable idle capping and include a two-second final hold and the playable cadence for retained instantaneous redraws. The preset changes the delays, without dropping screens or rerecording the demo.
+The preset changes the delays only: no screen is dropped and nothing is recorded again. Combine `Source` with `-IdleLimitSeconds 0` to keep every source gap.
 
 ```powershell
 Export-ConsoleRecording ./run.cast -Path ./run.gif -Preset Slide16x9 -Pace Normal
@@ -216,7 +209,7 @@ Add-ConsoleRecordingMarker -HoldSeconds 3
 Add-ConsoleRecordingMarker 'Results' -HoldSeconds 3
 ```
 
-A hold freezes the screen as it was when the marker arrived, including when later output has the same timestamp. It adds time during export and does not wait during recording. The cast stores these instructions as `cm` metadata events alongside ordinary `m` chapter events; reading and writing a cast preserves both, with no sidecar required. Other asciicast players may ignore the extra metadata.
+A hold freezes the screen as it was when the marker arrived, including when later output has the same timestamp. It adds time during export and does not wait during recording. Other asciicast players may ignore holds.
 
 Trim with source positions, or with unique chapter labels. The start is included and the end is excluded. `-TrimEndChapter Cleanup` stops before that chapter and its hold. Earlier output is still replayed to reconstruct the screen at the new start.
 
@@ -267,6 +260,10 @@ Enable `RespondToCursorQueries` for unattended Unix captures: the recorder answe
 
 C# hosts can use `SessionRecordingOptions.InProcess` with `SessionRecorder.CaptureOutput` to record VT they emit themselves. This records output before a terminal can combine repaints; it does not intercept `Console` writes or capture input. `CapturePowerShellOutput` remains available for existing PowerShell host adapters.
 
-## Related
+All parameters are in the [Invoke-ConsoleRecording](/powershell/commands/invoke-consolerecording/) and [Export-ConsoleRecording](/powershell/commands/export-consolerecording/) references.
 
-[Live sessions](/docs/live-sessions/) explain dashboard updates and targets. The [live dashboards page](/live/) shows a longer dashboard recording. See the [recording cmdlet reference](/powershell/commands/invoke-consolerecording/) and [export reference](/powershell/commands/export-consolerecording/) for all parameters.
+## Next
+
+- [Talks and demos](/docs/talks-and-demos/): type a script into a recorded terminal and export slides.
+- [Live sessions](/docs/live-sessions/): the dashboard updates a dashboard recording replays.
+- [Interactive apps](/docs/interactive-apps/): full-screen applications you can record the same way.

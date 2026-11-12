@@ -2,8 +2,8 @@
 title: Charts from the pipeline
 description: Build numeric charts from pipeline properties, records and samples with New-ConsoleChart.
 slug: pipeline-charts
-order: 15
-group: hosts
+order: 22
+group: build
 card: pipeline-charts-60
 chips: [PowerShell, Bars, Histograms, Trends]
 apis: [New-ConsoleChart, Chart, ChartOptions]
@@ -79,9 +79,26 @@ $latencies | New-ConsoleChart -Type Sparkline -Unit ' ms' | Export-ConsoleFrame 
 
 Chart values must be finite numbers. Property binding reports invalid samples; use `-ErrorAction Stop` when they should stop construction. Constructors collect their input before returning a widget.
 
-## C#
+## In C#
 
-C# uses the same validated factory and kind-specific options:
+C# uses the same validated factory and kind-specific options. These are the bar chart and histogram from above, built from fixed values:
+
+<div class="cm-lang" data-lang="powershell">
+
+```powershell
+Import-Module ConsoleMonster
+
+$items = @(
+    [pscustomobject]@{ Label = 'web'; Value = 34 }
+    [pscustomobject]@{ Label = 'jobs'; Value = 72 }
+    [pscustomobject]@{ Label = 'api'; Value = 18 }
+)
+$items | New-ConsoleChart -Type Bar -Unit ' s' | Show-Console
+New-ConsoleChart -Type Histogram -Edges 0, 10, 20, 30 -Values 12, 18, 25 | Show-Console
+```
+
+</div>
+<div class="cm-lang" data-lang="csharp">
 
 ```csharp
 using ConsoleMonster;
@@ -101,6 +118,32 @@ var histogram = Chart.Create(new ChartOptions {
 Terminal.Write(histogram);
 ```
 
-## Related
+</div>
+<div class="cm-lang" data-lang="csharp-fluent">
 
-[Compose widgets in the gallery](/widgets/), [choose a theme](/docs/themes/), or read the [New-ConsoleChart reference](/powershell/commands/new-consolechart/).
+```csharp
+using ConsoleMonster;
+using ConsoleMonster.Widgets;
+
+Ui.Chart().Type(ChartType.Bar).Unit(" s")
+    .AddItem("web", 34)
+    .AddItem("jobs", 72)
+    .AddItem("api", 18)
+    .Show();
+
+Ui.Chart()
+    .Type(ChartType.Histogram)
+    .Edges(new double[] { 0, 10, 20, 30 })
+    .Values(new double[] { 12, 18, 25 })
+    .Show();
+```
+
+</div>
+
+All parameters are in the [New-ConsoleChart reference](/powershell/commands/new-consolechart/).
+
+## Next
+
+- [Markdown display and export](/docs/markdown/): documents and exports built from the same widgets.
+- [Facts, bars and hierarchy](/docs/facts-and-bars/): what each bar shape means in a report.
+- [Dashboard frames](/docs/dashboard-frames/): put a chart in a summary section.

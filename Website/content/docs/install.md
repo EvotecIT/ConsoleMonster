@@ -29,7 +29,7 @@ Enable-ConsoleFormatting
 Get-ChildItem
 ```
 
-The module ships net472 and net8.0 payloads for Windows PowerShell 5.1 and PowerShell 7. On PowerShell 7 it loads in its own assembly load context. Version 2 replaces the Spectre.Console and Terminal.Gui based 0.0.x module, whose functions (`New-SpectreImage`, `New-SpectreRule`, `New-Terminal*`) are removed; 0.0.4 stays available on the PowerShell Gallery.
+The module runs on Windows PowerShell 5.1 and PowerShell 7. Coming from the 0.0.x module: its `New-SpectreImage`, `New-SpectreRule` and `New-Terminal*` functions are gone, and 0.0.4 stays on the PowerShell Gallery if a script still needs them.
 
 ## Three ways to use ConsoleMonster output
 
@@ -111,15 +111,7 @@ Terminal.Write(Table.For(artifacts)
 
 This uses the fluent style. The same table can be written with object initializers or PowerShell parameters; [Three ways to write it](/docs/csharp-styles/) shows the translation.
 
-The package targets netstandard2.0, net472, net8.0 and net10.0 and has no package dependencies. The net8.0 and net10.0 targets are marked AOT-compatible; the object inspector's reflection member source is marked `RequiresUnreferencedCode`, and `InspectorOptions.UseReflection = false` keeps trimmed builds safe.
-
-Native AOT applications can use typed tables and the rendering and export APIs. For inspection, use dictionary,
-JSON or custom member sources with reflection disabled, or explicitly preserve the properties you inspect. The
-general inspection API still reports a trimming warning at the call site; suppress it only after checking those
-conditions. Inferred property columns use alphabetical order when native metadata tokens are unavailable.
-
-This AOT support applies to applications consuming the .NET library. The PowerShell module runs inside Windows
-PowerShell or PowerShell 7 and is not itself a standalone native executable.
+The package targets netstandard2.0, net472, net8.0 and net10.0 and has no package dependencies. Native AOT applications can use typed tables, rendering and export; to inspect objects in a trimmed build, set `InspectorOptions.UseReflection = false` and use dictionary, JSON or custom member sources.
 
 ## Optional add-ons and dependencies
 
@@ -135,13 +127,13 @@ The PowerShell module includes the Markdown and Graphics bridges and loads them 
 
 ## One version per session
 
-Windows PowerShell 5.1 loads only one version of an assembly per session, so two modules that need different ConsoleMonster versions cannot both load there; PowerShell 7 isolates binary modules in their own load context. Products that use ConsoleMonster ship and require the same, current version.
+Windows PowerShell 5.1 loads only one version of ConsoleMonster per session, so two modules that need different versions cannot both load there. PowerShell 7 keeps them apart. Keep the modules that use ConsoleMonster on the same, current version.
+
+Every type and cmdlet is in the [.NET API reference](/api/) and the [PowerShell command reference](/powershell/commands/), and the [widget gallery](/widgets/) shows every widget with its source.
 
 ## Next
 
-- [Coming from another tool](/guides/coming-from/) maps familiar APIs and commands to ConsoleMonster.
-
-- [Widgets](/widgets/) shows every widget with its PowerShell and C# source.
-- [Three ways to write it](/docs/csharp-styles/) compares PowerShell, C# initializers and C# fluent calls.
-- [Capability detection](/docs/capabilities/) explains what ConsoleMonster decides about your console.
-- The [.NET API reference](/api/) and the [PowerShell command reference](/powershell/commands/) list every type and cmdlet.
+- [Add-ons](/docs/add-ons/): the optional Markdown, graphics, hosting and logging packages.
+- [How it works](/docs/how-it-works/): what ConsoleMonster detects and how it draws.
+- [Three ways to write it](/docs/csharp-styles/): PowerShell, C# initializers and C# fluent calls side by side.
+- [Coming from another tool](/guides/coming-from/): familiar APIs and commands mapped to ConsoleMonster.
