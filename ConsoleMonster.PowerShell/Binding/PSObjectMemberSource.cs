@@ -83,6 +83,10 @@ namespace ConsoleMonster.PowerShell.Binding {
                     yield return new InspectMember(captured.Name, () => {
                         object? result = captured.GetValue(item);
                         if (result is FieldError error) { throw new InvalidOperationException(error.Message); }
+                        // A view column can return a table cell (the Unix file name colours folders); the tree shows its content.
+                        if ((result is PSObject wrapped ? wrapped.BaseObject : result) is Widgets.TableCell cell) {
+                            return cell.HasValue ? Nested(cell.Value) : Text.RichText.FromMarkup(cell.Markup);
+                        }
                         return Nested(result);
                     });
                 }

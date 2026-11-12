@@ -9,10 +9,10 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. New-ConsoleAccordion groups sections so that opening one folds the others.</para></remarks>
     /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>Show-ConsoleApp -Content {
     ///     New-ConsoleAccordion -Content {
-    ///         New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
+    ///         New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
     ///         New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-    ///             'Get-Service -Name win*'
-    ///             'Get-Service | Where-Object Status -eq Running'
+    ///             'Get-Process -Name pwsh'
+    ///             'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
     ///         }
     ///     }
     /// }</code></example>

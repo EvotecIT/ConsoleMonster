@@ -9,10 +9,10 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Content emits New-ConsoleCollapsible sections. Opening one folds the others; while a header has focus, + expands every section for reading and - folds them all. Each section keeps its own key and state.</para></remarks>
     /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>Show-ConsoleApp -Content {
     ///     New-ConsoleAccordion -Content {
-    ///         New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the services on a computer.' }
+    ///         New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
     ///         New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-    ///             'Get-Service -Name win*'
-    ///             'Get-Service | Where-Object Status -eq Running'
+    ///             'Get-Process -Name pwsh'
+    ///             'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
     ///         }
     ///     }
     /// }</code></example>

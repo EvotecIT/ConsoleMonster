@@ -30,7 +30,7 @@ Variables are read when the profile is detected. They take precedence over the [
 | `CONSOLEMONSTER_ACCESSIBLE` | `1` | Numbered prompts, static apps, menus and grids, and append-only live narration. Status symbols stay visible and reduced motion is implied. |
 | `CONSOLEMONSTER_MOTION` | `reduced` | Keeps the normal layout with static spinners and at most one redraw per second. |
 | `CONSOLEMONSTER_NOMOUSE` | `1` | Prompts, menus, pagers, the object explorer and apps leave the mouse to the terminal, for its own selection and scrollback. Every action keeps its key. |
-| `CONSOLEMONSTER_HYPERLINKS` | `on`, `off`, `auto` (also `true`/`1`, `false`/`0`) | Clickable OSC 8 links for URLs and file paths. Detection turns them on in Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole; redirected, CI, stream and plain output never get them and print the target after the text instead, as `text (url)`. |
+| `CONSOLEMONSTER_HYPERLINKS` | `on`, `off`, `auto` (also `true`/`1`, `false`/`0`) | Clickable OSC 8 links for URLs and file paths. Detection turns them on in Windows Terminal, VS Code, iTerm2, WezTerm, Kitty and Ghostty (outside tmux, screen and Zellij panes), VTE terminals and Konsole; redirected, CI, stream and plain output never get them and print the target after the text instead, as `text (url)`. |
 | `CONSOLEMONSTER_NOW` | an ISO 8601 time with `Z` or an offset, such as `2026-10-21T12:00:00Z` | The "now" that relative dates (`3 h ago`) are counted from, for recordings and tests. Read each time a value is shown; unset or invalid uses the clock. |
 | `CONSOLEMONSTER_SETTINGS` | a file path, or `none` | The settings file to read and save instead of `settings.json` in `%APPDATA%\ConsoleMonster` or `~/.config/ConsoleMonster`; `none` ignores it, for tests and recordings that need fixed output. |
 | `CONSOLEMONSTER_UPDATE_GOLDEN` | `1` | `GoldenFile` rewrites golden files instead of comparing. |
@@ -69,7 +69,7 @@ In bash, set it for one command: `NO_COLOR=1 pwsh -File ./format-consoletable.ps
 
 ## Clickable links
 
-In Windows Terminal, VS Code, iTerm2, WezTerm, VTE terminals and Konsole, URLs and file paths in tables, lists and log lines become OSC 8 links. Elsewhere they stay text. A column can ask for it with the `Link` presenter; `Write-ConsoleText -Link` and `New-ConsoleText -Link` give a link its own label:
+In Windows Terminal, VS Code, iTerm2, WezTerm, Kitty and Ghostty (outside tmux, screen and Zellij panes), VTE terminals and Konsole, URLs and file paths in tables, lists and log lines become OSC 8 links. Elsewhere they stay text. A column can ask for it with the `Link` presenter; `Write-ConsoleText -Link` and `New-ConsoleText -Link` give a link its own label:
 
 ```powershell
 Import-Module ConsoleMonster

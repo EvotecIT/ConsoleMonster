@@ -1,5 +1,8 @@
 namespace ConsoleMonster.Capabilities {
     public sealed partial class CapabilityDetector {
+        // The marker of a multiplexer between us and the terminal, or empty. Panes inherit the outer terminal's markers.
+        private string Multiplexer() => Get("TMUX").Length > 0 ? "TMUX" : Get("STY").Length > 0 ? "STY" : Get("ZELLIJ").Length > 0 ? "ZELLIJ" : string.Empty;
+
         // The terminal's image protocol from its environment, and where it came from. TerminalProfile applies the output, CI,
         // mode, VT and colour guards and writes the images: decision from the same resolution.
         // iTerm2 also accepts Kitty graphics but asks the user before showing them, so iTerm2 keeps its own protocol.
@@ -7,7 +10,7 @@ namespace ConsoleMonster.Capabilities {
             string term = Get("TERM");
             string program = Get("TERM_PROGRAM");
             ImageProtocol protocol;
-            string multiplexer = Get("TMUX").Length > 0 ? "TMUX" : Get("STY").Length > 0 ? "STY" : Get("ZELLIJ").Length > 0 ? "ZELLIJ" : string.Empty;
+            string multiplexer = Multiplexer();
             if (multiplexer.Length > 0) {
                 // Multiplexers don't pass Kitty graphics through and redraw panes over Sixel, so images would vanish or smear.
                 protocol = ImageProtocol.HalfBlock;

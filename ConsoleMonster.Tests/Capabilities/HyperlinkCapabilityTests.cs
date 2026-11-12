@@ -20,11 +20,25 @@ namespace ConsoleMonster.Tests.Capabilities {
         [InlineData("KONSOLE_VERSION", "220400", TerminalKind.Konsole, true)]
         [InlineData("KONSOLE_VERSION", "240801", TerminalKind.Konsole, true)]
         [InlineData("KONSOLE_VERSION", "invalid", TerminalKind.Konsole, false)]
-        [InlineData("TERM_PROGRAM", "Apple_Terminal", TerminalKind.Xterm, false)]
+        [InlineData("KITTY_WINDOW_ID", "1", TerminalKind.Kitty, true)]
+        [InlineData("TERM_PROGRAM", "ghostty", TerminalKind.Ghostty, true)]
+        [InlineData("TERM_PROGRAM", "Apple_Terminal", TerminalKind.AppleTerminal, false)]
         public void Detect_HostAndVersion_ChooseSupport(string name, string value, TerminalKind kind, bool supported) {
             TerminalProfile profile = Detect(new Dictionary<string, string> { [name] = value });
             Assert.Equal(kind, profile.Kind);
             Assert.Equal(supported, profile.SupportsHyperlinks);
+        }
+
+        [Theory]
+        [InlineData("KITTY_WINDOW_ID", "1", "TMUX", "")]
+        [InlineData("TERM_PROGRAM", "ghostty", "TMUX", "")]
+        [InlineData("KITTY_WINDOW_ID", "1", "STY", "")]
+        [InlineData("TERM_PROGRAM", "ghostty", "TMUX", "on")]
+        public void Detect_MultiplexerPaneOfKittyOrGhostty_PrintsDestinations(string name, string value, string multiplexer, string setting) {
+            TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["TERM"] = "tmux-256color", [name] = value, [multiplexer] = "/tmp/tmux-501/default,1,0", ["CONSOLEMONSTER_HYPERLINKS"] = setting
+            })).Detect();
+            Assert.Equal(setting == "on", profile.SupportsHyperlinks);
         }
 
         [Theory]

@@ -215,6 +215,7 @@ namespace ConsoleMonster.Live {
                 _windowLeft = left;
                 _windowTop = top;
                 RenderContext context = _context.WithClock(FramesRendered, Elapsed);
+                if (finalState) { context = context.AsFinalFrame(); }
                 if (_output is InlineOutput) {
                     // Inline: output captured during the run goes above the area, and the area is as tall as its content.
                     FlushUnrouted();

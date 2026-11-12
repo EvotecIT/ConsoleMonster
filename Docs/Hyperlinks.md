@@ -59,6 +59,8 @@ the profile's decision notes. Enabling links still requires interactive VT outpu
 | VS Code integrated terminal | `TERM_PROGRAM=vscode` |
 | iTerm2 | `TERM_PROGRAM=iTerm.app` |
 | WezTerm | `TERM_PROGRAM=WezTerm` |
+| Kitty | `TERM` contains `kitty`, or `KITTY_WINDOW_ID` is present |
+| Ghostty | `TERM_PROGRAM=ghostty`, or `TERM` contains `ghostty` |
 | VTE terminals, including GNOME Terminal | `VTE_VERSION` is at least `5000` (0.50.0) |
 | Konsole | `KONSOLE_VERSION` is at least `220400` (22.04.0, the conservative detection floor) |
 
