@@ -1,6 +1,6 @@
 ---
 title: Everyday formatting
-description: "What Enable-ConsoleFormatting changes for each everyday command: files, processes, services, events, JSON and CSV, history, ACLs, certificates, network replies, Compare-Object and the Format commands."
+description: "What Enable-ConsoleFormatting changes for everyday commands: files, processes, services, events, JSON, CSV, certificates and the Format commands."
 slug: everyday-formatting
 group: shells
 order: 55

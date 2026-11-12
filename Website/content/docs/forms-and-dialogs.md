@@ -1,6 +1,6 @@
 ---
 title: Forms and dialogs
-description: "Ask for several answers at once with forms and wizards, pick dates, and add toggles, buttons and dialogs to an app; the same forms run unattended from their defaults."
+description: "Collect several answers with forms and wizards, pick dates, and add toggles, buttons and dialogs; the same forms run unattended from their defaults."
 slug: forms-and-dialogs
 order: 42
 group: apps

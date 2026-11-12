@@ -1,6 +1,6 @@
 ---
 title: CI integration
-description: "Collapsible log groups, error and warning annotations and Markdown job summaries on GitHub Actions, Azure Pipelines and GitLab CI, with readable output in an ordinary terminal."
+description: "Collapsible log groups, annotations and job summaries on GitHub Actions, Azure Pipelines and GitLab CI, with readable output in a terminal."
 slug: ci-integration
 order: 51
 group: shells

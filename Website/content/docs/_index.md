@@ -1,6 +1,6 @@
 ---
 title: Documentation
-description: Install ConsoleMonster and learn how it adapts to each terminal, then look up what every part does and its options, from printed reports to live dashboards, interactive apps, PowerShell and CI.
+description: "Install ConsoleMonster, see how it adapts to each terminal, and look up every part: reports, live dashboards, interactive apps, PowerShell and CI."
 slug: index
 card: size-100x30
 order: 0

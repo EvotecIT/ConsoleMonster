@@ -1,6 +1,6 @@
 ---
 title: Custom views
-description: "Register how a type is shown, draft a view from sample objects with ConvertTo-ConsoleView, and ship views with a module as a data file that needs no dependency on ConsoleMonster."
+description: "Register how a type is shown, draft a view from sample objects, and ship views with a module as a data file with no ConsoleMonster dependency."
 slug: custom-views
 order: 52
 group: shells
