@@ -21,6 +21,8 @@ namespace ConsoleMonster.Widgets {
             internal List<StyledLine>? Value;
             internal CellContent? Content;
             internal int VisualCells;
+            internal bool ValueBelow;
+            internal int ValueColumn;
             internal IWidget? Widget;
         }
 
@@ -41,6 +43,8 @@ namespace ConsoleMonster.Widgets {
                 StyledLine title = TextWrapper.Truncate(new StyledLine(spans), width, context.Ellipsis);
                 entries.Add(new Entry { Heading = title, Width = title.Width });
             }
+            CellContent?[] contents = new CellContent?[_items.Count];
+            List<int>[] labelWidths = SharedLabelWidths(contents, presenter);
             int i = 0;
             while (i < _items.Count) {
                 RecordItem item = _items[i];
@@ -62,7 +66,7 @@ namespace ConsoleMonster.Widgets {
                     while (end < _items.Count && _items[end].Kind == RecordItemKind.Field && _items[end].Level == item.Level) {
                         end++;
                     }
-                    AddFieldBlock(entries, i, end, indent, width, presenter, context);
+                    AddFieldBlock(entries, i, end, indent, width, contents, labelWidths[i], context);
                     i = end;
                 }
             }
@@ -87,44 +91,78 @@ namespace ConsoleMonster.Widgets {
             return new Entry { Indent = indent, Heading = line, Width = indent + line.Width, SpaceBefore = before, Height = 1 + before };
         }
 
-        private void AddFieldBlock(List<Entry> entries, int start, int end, int indent, int width, PresenterContext presenter, RenderContext context) {
-            List<RecordItem> fields = new List<RecordItem>();
-            List<CellContent> contents = new List<CellContent>();
-            int labelWidth = 0;
-            for (int i = start; i < end; i++) {
-                RecordItem item = _items[i];
-                CellContent content = CellRendering.Content(item.Cell!, item.Presenter, item.Rules, presenter);
-                if (HideEmpty && IsEmptyField(item, content)) {
+        // Fields at one level share one label column across their whole sibling group, fields after a nested block
+        // included, so a key that follows a nested object lines up with the keys before it. Each field gets the label
+        // widths of its group's visible fields.
+        private List<int>[] SharedLabelWidths(CellContent?[] contents, PresenterContext presenter) {
+            List<int>[] groups = new List<int>[_items.Count];
+            for (int i = 0; i < _items.Count; i++) {
+                if (groups[i] != null || _items[i].Kind != RecordItemKind.Field) {
                     continue;
                 }
-                fields.Add(item);
-                contents.Add(content);
-                labelWidth = Math.Max(labelWidth, DisplayWidth.Measure(item.Text));
+                int level = _items[i].Level;
+                List<int> widths = new List<int>();
+                for (int j = i; j < _items.Count && _items[j].Level >= level; j++) {
+                    RecordItem item = _items[j];
+                    if (item.Level != level || item.Kind != RecordItemKind.Field) {
+                        continue;
+                    }
+                    CellContent content = contents[j] ??= CellRendering.Content(item.Cell!, item.Presenter, item.Rules, presenter);
+                    groups[j] = widths;
+                    if (!(HideEmpty && IsEmptyField(item, content))) {
+                        widths.Add(DisplayWidth.Measure(item.Text));
+                    }
+                }
             }
+            return groups;
+        }
+
+        private void AddFieldBlock(List<Entry> entries, int start, int end, int indent, int width, CellContent?[] contents, List<int> group, RenderContext context) {
             int room = Math.Max(1, width - indent);
-            labelWidth = Math.Min(labelWidth, Math.Max(4, (int)(room * MaxLabelFraction)));
+            // The column is the widest label that fits the cap; longer labels put their values below instead.
+            int cap = Math.Max(4, (int)(room * MaxLabelFraction));
+            int labelWidth = 0;
+            foreach (int label in group) {
+                if (label <= cap) {
+                    labelWidth = Math.Max(labelWidth, label);
+                }
+            }
+            if (labelWidth == 0 && group.Exists(label => label > cap)) {
+                labelWidth = cap;
+            }
             int valueWidth = Math.Max(1, room - labelWidth - Gap);
-            for (int f = 0; f < fields.Count; f++) {
-                CellContent content = contents[f];
+            for (int i = start; i < end; i++) {
+                RecordItem field = _items[i];
+                CellContent content = contents[i]!;
+                if (HideEmpty && IsEmptyField(field, content)) {
+                    continue;
+                }
                 int textWidth = content.TextWidth;
                 int visual = CellRendering.VisualCells(content, valueWidth, Math.Min(textWidth, valueWidth - 4));
                 int textRoom = Math.Max(1, valueWidth - visual - (visual > 0 ? 1 : 0));
                 List<StyledLine> lines = content.Widget != null
                     ? content.LinesAtWidth(textRoom, context)
-                    : CellRendering.FitLines(content.Lines, textRoom, fields[f].Overflow, fields[f].MaxLines, context);
+                    : CellRendering.FitLines(content.Lines, textRoom, field.Overflow, field.MaxLines, context);
                 int used = 0;
                 foreach (StyledLine line in lines) {
                     used = Math.Max(used, line.Width);
                 }
+                // A label wider than the capped column keeps its text on its own line and its value starts on the next
+                // line in the shared value column, rather than pushing the column out or cutting the label.
+                int labelText = DisplayWidth.Measure(field.Text);
+                bool below = labelText > labelWidth;
+                int valueEnd = labelWidth + Gap + visual + (visual > 0 ? 1 : 0) + used;
                 entries.Add(new Entry {
                     Indent = indent,
-                    Label = fields[f].Text,
-                    LabelWidth = labelWidth,
+                    Label = field.Text,
+                    LabelWidth = below ? Math.Min(labelText, room) : labelWidth,
+                    ValueBelow = below,
+                    ValueColumn = labelWidth,
                     Value = lines,
                     Content = content,
                     VisualCells = visual,
-                    Height = lines.Count,
-                    Width = indent + labelWidth + Gap + visual + (visual > 0 ? 1 : 0) + used
+                    Height = lines.Count + (below ? 1 : 0),
+                    Width = indent + (below ? Math.Max(Math.Min(labelText, room), valueEnd) : valueEnd)
                 });
             }
         }
@@ -162,7 +200,10 @@ namespace ConsoleMonster.Widgets {
             }
             string label = TextWrapper.Truncate(entry.Label ?? string.Empty, entry.LabelWidth, context.Ellipsis);
             region.Write(entry.Indent, y, label, context.Style(ThemeToken.Muted));
-            int x = entry.Indent + entry.LabelWidth + Gap;
+            int x = entry.Indent + entry.ValueColumn + Gap;
+            if (entry.ValueBelow && ++y >= region.Height) {
+                return;
+            }
             if (entry.VisualCells > 0 && entry.Content?.Presented != null) {
                 CellRendering.DrawVisual(region, x, y, entry.VisualCells, entry.Content.Presented, context);
                 x += entry.VisualCells + 1;
