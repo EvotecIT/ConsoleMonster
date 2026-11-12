@@ -30,6 +30,18 @@ namespace ConsoleMonster.Tests.Capabilities {
         }
 
         [Theory]
+        [InlineData("KITTY_WINDOW_ID", "1", "TMUX", "")]
+        [InlineData("TERM_PROGRAM", "ghostty", "TMUX", "")]
+        [InlineData("KITTY_WINDOW_ID", "1", "STY", "")]
+        [InlineData("TERM_PROGRAM", "ghostty", "TMUX", "on")]
+        public void Detect_MultiplexerPaneOfKittyOrGhostty_PrintsDestinations(string name, string value, string multiplexer, string setting) {
+            TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
+                ["TERM"] = "tmux-256color", [name] = value, [multiplexer] = "/tmp/tmux-501/default,1,0", ["CONSOLEMONSTER_HYPERLINKS"] = setting
+            })).Detect();
+            Assert.Equal(setting == "on", profile.SupportsHyperlinks);
+        }
+
+        [Theory]
         [InlineData("on", true)]
         [InlineData("TRUE", true)]
         [InlineData("1", true)]
