@@ -72,7 +72,12 @@ namespace ConsoleMonster.Widgets {
             }
             switch (node) {
                 case InspectObject obj:
-                    Fill(Add(detail: obj.TypeName), obj);
+                    // A nested object reads by its identity (in the value column), or its field count rather than a generic type.
+                    string? identity = InspectIdentity.Label(obj, out string? fieldCount);
+                    bool typed = identity == obj.TypeName;
+                    TreeNode objectNode = Add(detail: typed ? identity : fieldCount);
+                    if (!typed && identity != null) { objectNode.Value = new TableCell(Markup.Escape(identity)); }
+                    Fill(objectNode, obj);
                     break;
                 case InspectCollection collection:
                     int count = collection.Count ?? collection.Items.Count;
