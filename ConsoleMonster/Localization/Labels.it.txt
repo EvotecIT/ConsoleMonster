@@ -197,6 +197,7 @@ Widget.Never = mai
 Widget.WindowTooSmall = finestra troppo piccola: {0}, servono {1}
 Widget.Needs = servono {0}
 Widget.Stop = ferma
+Widget.Stopped = fermato
 Widget.CausedBy = Causato da
 Widget.OneMoreFrame = + {0} altro frame
 Widget.ManyMoreFrames = + altri {0} frame
