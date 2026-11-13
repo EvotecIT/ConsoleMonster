@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Management.Automation;
 using System.Runtime.CompilerServices;
 using ConsoleMonster.Capabilities;
@@ -33,7 +34,7 @@ namespace ConsoleMonster.PowerShell {
         }
 
         /// <summary>Builds one completed run, or returns null so the caller uses the automatic view.</summary>
-        internal static IWidget? Build(Run run, IReadOnlyList<PSObject> rows, ExportOptions? export, PSCmdlet cmdlet) {
+        internal static IWidget? Build(Run run, IReadOnlyList<PSObject> rows, ExportOptions? export, PSCmdlet cmdlet, CultureInfo? culture = null) {
             DefaultDisplayRegistration view = run.View;
             // The broker's record ceiling applies to collected batches; a stream view renders any number of rows.
             if (view.Batch == DefaultDisplayBatch.Collect && rows.Count > view.Budget.Records) { return null; }
@@ -47,7 +48,8 @@ namespace ConsoleMonster.PowerShell {
                         if (bytes > view.Budget.Bytes) { return null; }
                     }
                 }
-                DefaultDisplayContext context = new DefaultDisplayContext(Profile(export), run.Scope, DefaultDisplayMode.Auto);
+                TerminalProfile profile = Profile(export);
+                DefaultDisplayContext context = new DefaultDisplayContext(culture == null ? profile : profile.WithCulture(culture), run.Scope, DefaultDisplayMode.Auto);
                 switch (view.Batch) {
                     case DefaultDisplayBatch.Stream:
                         // An export is a completed scope, so it takes the same builders as a stream that closes within its sample.

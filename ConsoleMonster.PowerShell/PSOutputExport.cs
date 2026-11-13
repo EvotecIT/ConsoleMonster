@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Management.Automation;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Export;
@@ -58,26 +59,41 @@ namespace ConsoleMonster.PowerShell {
             }
         }
 
-        internal static IWidget Widget(IReadOnlyList<object> items, PSCmdlet cmdlet, object[]? property = null, string? title = null, int depth = 3, ExportOptions? export = null, bool defaultViews = true) {
+        internal static IWidget Widget(IReadOnlyList<object> items, PSCmdlet cmdlet, object[]? property = null, string? title = null, int depth = 3, ExportOptions? export = null, bool defaultViews = true, CultureInfo? culture = null) {
+            ConsoleModuleViews.Discover(cmdlet);
+            List<PSObject> input = new List<PSObject>(items.Count);
+            foreach (object item in items) { input.Add(PSObject.AsPSObject(item)); }
+            IReadOnlyList<PSObject> expanded = input;
+            PSObject? resolved = null;
+            PSDefaultViews.Run? resolvedRun = null;
+            if (input.Count == 1 && !(input[0].BaseObject is IWidget) && !(input[0].BaseObject is CellBuffer) && !(input[0].BaseObject is LiveSession)) {
+                resolved = input[0];
+                resolvedRun = property == null && defaultViews ? PSDefaultViews.Find(resolved) : null;
+                // A collection with its own view stays one record. Other singleton collections use the shared shaping rules.
+                if (resolvedRun == null && (property != null || ConsoleFormatting.Find(resolved, false) == null)) {
+                    expanded = PSFormatting.Expand(input, Binding.PSShaping.Options(culture ?? export?.Culture));
+                }
+            }
             List<IWidget> widgets = new List<IWidget>();
             List<PSObject> rows = new List<PSObject>();
             PSDefaultViews.Run? run = null;
-            foreach (object item in items) {
+            foreach (PSObject item in expanded) {
                 object raw = PSObject.AsPSObject(item).BaseObject;
                 IWidget? widget = raw is IWidget w ? w : Frame(item) is CellBuffer frame ? new RenderedFrame(frame) : null;
                 if (widget != null) {
-                    Flush(rows, run, widgets, cmdlet, property, title, depth, export);
+                    Flush(rows, run, widgets, cmdlet, property, title, depth, export, culture);
                     widgets.Add(widget);
                     continue;
                 }
                 PSObject row = PSObject.AsPSObject(item);
                 // Explicit -Property columns replace any registered view.
-                PSDefaultViews.Run? next = property == null && defaultViews ? PSDefaultViews.Find(row) : null;
-                if (!Equals(next, run)) { Flush(rows, run, widgets, cmdlet, property, title, depth, export); }
+                PSDefaultViews.Run? next = null;
+                if (property == null && defaultViews) { next = ReferenceEquals(row, resolved) ? resolvedRun : PSDefaultViews.Find(row); }
+                if (!Equals(next, run)) { Flush(rows, run, widgets, cmdlet, property, title, depth, export, culture); }
                 run = next;
                 rows.Add(row);
             }
-            Flush(rows, run, widgets, cmdlet, property, title, depth, export);
+            Flush(rows, run, widgets, cmdlet, property, title, depth, export, culture);
             return PSFormatting.Combine(widgets);
         }
 
@@ -87,12 +103,16 @@ namespace ConsoleMonster.PowerShell {
                 ? session.Snapshot() ?? throw new PSInvalidOperationException("The session has not drawn a frame yet.") : null;
         }
 
-        private static void Flush(List<PSObject> rows, PSDefaultViews.Run? run, List<IWidget> widgets, PSCmdlet cmdlet, object[]? property, string? title, int depth, ExportOptions? export) {
+        private static void Flush(List<PSObject> rows, PSDefaultViews.Run? run, List<IWidget> widgets, PSCmdlet cmdlet, object[]? property, string? title, int depth, ExportOptions? export, CultureInfo? culture) {
             if (rows.Count == 0) {
                 return;
             }
-            IWidget? view = run == null ? null : PSDefaultViews.Build(run, rows, export, cmdlet);
-            widgets.Add(view ?? PSAutomaticView.Build(new List<PSObject>(rows), cmdlet, property, title, depth));
+            IWidget? view = run == null ? null : PSDefaultViews.Build(run, rows, export, cmdlet, culture);
+            List<PSObject> originals = new List<PSObject>(rows);
+            if (view != null && export == null) {
+                view = new PSDefaultViewFallback(view, PSAutomaticView.Build(originals, cmdlet, property, title, depth));
+            }
+            widgets.Add(view ?? PSAutomaticView.Build(originals, cmdlet, property, title, depth));
             rows.Clear();
         }
 

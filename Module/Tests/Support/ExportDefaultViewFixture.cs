@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.PowerShell.Display;
@@ -8,10 +9,21 @@ namespace ExportDefaultViews {
     public sealed class Record {
         public string Name { get; set; }
         public string Detail { get; set; }
+        public decimal Amount { get; set; }
     }
+
+    public sealed class RecordList : List<Record> { }
 
     // Product-shaped callbacks exercise the public registration and export boundaries.
     public static class Fixture {
+        public static ModuleLease RegisterCollection() {
+            ModuleLease lease = DefaultDisplay.RegisterModule("ExportCollection", new Version(1, 0), new[] { typeof(RecordList).FullName });
+            lease.Mode = DefaultDisplayMode.Auto;
+            lease.Register(typeof(RecordList).FullName, "ExportCollection.List", new Version(1, 0), DefaultDisplayBatch.Single,
+                null, (rows, context) => TextBlock.Plain("collection-marker"), runtimeType: typeof(RecordList));
+            return lease;
+        }
+
         public static ModuleLease Register(string batch, long bytes, string failure) {
             ModuleLease lease = DefaultDisplay.RegisterModule("ExportDefaultViews", new Version(1, 0), new[] { typeof(Record).FullName },
                 source: failure.StartsWith("resolve-") ? DefaultDisplaySource.CommandModule : DefaultDisplaySource.Product);
@@ -44,7 +56,7 @@ namespace ExportDefaultViews {
         private static IWidget Build(string failure) {
             if (failure == "builder") { throw new InvalidOperationException("application builder"); }
             if (failure == "output") { return TextBlock.Plain(new string('x', 2000)); }
-            if (failure == "measure" || failure == "render" || failure == "late-render") { return new FaultWidget(failure); }
+            if (failure == "measure" || failure == "render" || failure == "late-render" || failure == "cancel-render") { return new FaultWidget(failure); }
             return TextBlock.Plain("registered-marker");
         }
 
@@ -57,7 +69,8 @@ namespace ExportDefaultViews {
                 return new Size(20, 1);
             }
             public void Render(Region region, RenderContext context) {
-                if (_failure == "render" || ++_renders > 1) { throw new InvalidOperationException("application render"); }
+                if (++_renders > 1 && _failure == "cancel-render") { throw new OperationCanceledException("application rendering canceled"); }
+                if (_failure == "render" || _renders > 1) { throw new InvalidOperationException("application render"); }
                 TextBlock.Plain("partial-view-marker").Render(region, context);
             }
         }
