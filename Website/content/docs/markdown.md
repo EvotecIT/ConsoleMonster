@@ -4,13 +4,15 @@ description: Read Markdown in the terminal and export widgets, frames and record
 slug: markdown
 order: 23
 group: build
-summary: "Headings, lists, quotes, code and tables rendered as native console widgets."
+summary: "Headings, lists, task lists, quotes, alerts, code and tables rendered as native console widgets."
 apis: [Show-Console -View Markdown, MarkdownConsole, MarkdownView, WidgetPager]
-chips: [CommonMark, Tables, Pager]
+chips: [CommonMark, GitHub alerts, Task lists, Pager]
 card: markdown-120
 ---
 
-`Show-Console -View Markdown` reads CommonMark with pipe tables and renders through ConsoleMonster's own widgets. Headings use accent rules, lists keep hanging indents, quotes get a vertical bar, and fenced code uses the registered syntax highlighter with its language label.
+`Show-Console -View Markdown` reads CommonMark with GitHub pipe tables, task lists and alerts, and renders through ConsoleMonster's own widgets. Headings use accent rules, lists keep hanging indents, quotes get a vertical bar, and fenced code uses the registered syntax highlighter with its language label.
+
+GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]`) show their title above the body beside a bar in the alert's colour: info for notes and tips, accent for important, warning and failure for the last two. Task items replace the bullet with `✓` (pass colour) or a muted `○`; the ASCII tier writes `[x]` and `[ ]`. YAML front matter at the top of a file is metadata and is not displayed.
 
 Level-one headings use a double rule and level-two headings use a single rule. Lower headings have no rule and keep their level markers, so the hierarchy remains visible without colour. Level three is bold; levels four through six are bold and muted.
 

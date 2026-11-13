@@ -38,6 +38,51 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             Assert.All(text.Split('\n'), line => Assert.True(DisplayWidth.Measure(line) <= width));
         }
 
+        [Theory]
+        [InlineData(GlyphTier.Full)]
+        [InlineData(GlyphTier.Ascii)]
+        public void GitHubReadme_AlertsAndTasksUseRoleMarkersAndFrontMatterStaysHidden(GlyphTier tier) {
+            const string source = "---\ntitle: Sample module\ntags: [demo]\n---\n# Sample\n\n"
+                + "> [!NOTE]\n> Callout text.\n\n> [!TIP]\n> Tip text.\n\n> [!IMPORTANT]\n> Important text.\n\n"
+                + "> [!WARNING]\n> Warning text.\n\n> [!CAUTION]\n> Caution text.\n\n"
+                + "- [x] done item\n- [ ] open item\n- plain item\n\n2. [x] numbered done\n";
+            CellBuffer frame = Render(source, 80, tier: tier);
+            string text = frame.ToPlainText();
+            Golden.Match("markdown/github." + tier.ToString().ToLowerInvariant() + ".txt", text.TrimEnd() + "\n");
+            string[] rows = text.Split('\n');
+            void Role(string line, ThemeToken role) {
+                int y = Array.FindIndex(rows, row => row.Contains(line));
+                Assert.True(y >= 0, line);
+                Assert.Equal(Theme.Dark.Resolve(role, ColorDepth.TrueColor).Color, frame[0, y].Style.Color);
+            }
+            Role("Note", ThemeToken.Info);
+            Role("Callout text.", ThemeToken.Info);
+            Role("Tip", ThemeToken.Info);
+            Role("Important", ThemeToken.Accent);
+            Role("Warning", ThemeToken.Warn);
+            Role("Caution", ThemeToken.Fail);
+            Role("done item", ThemeToken.Pass);
+            Role("open item", ThemeToken.Muted);
+            int note = Array.FindIndex(rows, row => row.Contains("Note"));
+            Assert.True((frame[2, note].Style.Decoration & TextDecoration.Bold) != 0);
+            if (tier == GlyphTier.Ascii) Assert.All(text, c => Assert.InRange((int)c, 0, 127));
+        }
+
+        // Indented code that shows front matter or alert syntax stays code: neither block is metadata nor an alert.
+        [Fact]
+        public void IndentedFrontMatterAndAlertExamplesStayCode() {
+            const string source = "    ---\n    title: example\n    ---\n\nVisible\n\n    > [!NOTE]\n    > example\n";
+            MarkdownView view = MarkdownConsole.Parse(source);
+            Assert.Equal(3, view.Children.Count);
+            Assert.IsType<CodeView>(view.Children[0]);
+            Assert.IsType<CodeView>(view.Children[2]);
+            string[] rows = Render(source, 60).ToPlainText().Split('\n');
+            Assert.Contains(rows, row => row.StartsWith("│ title: example", StringComparison.Ordinal));
+            Assert.Contains(rows, row => row.StartsWith("│ > [!NOTE]", StringComparison.Ordinal));
+            Assert.Contains(rows, row => row.Trim() == "Visible");
+            Assert.DoesNotContain(rows, row => row.Trim() == "Note");
+        }
+
         [Fact]
         public void ParsedMarkdownComposesBetweenLiteralWidgets() {
             Rows composed = Ui.Rows().Content(content => {

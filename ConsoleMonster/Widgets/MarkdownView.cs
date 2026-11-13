@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
+using ConsoleMonster.Capabilities;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Highlighting;
 using ConsoleMonster.Layout;
@@ -64,14 +65,42 @@ namespace ConsoleMonster.Widgets {
             if (items == null) {
                 throw new ArgumentNullException(nameof(items));
             }
+            List<MarkdownView> list = new List<MarkdownView>(items);
+            return AddList(list, new bool?[list.Count], start, tight);
+        }
+
+        // Task items replace the bullet with a checked or open mark in the destination tier; null keeps the ordinary marker.
+        internal MarkdownView AddList(IReadOnlyList<MarkdownView> items, IReadOnlyList<bool?> tasks, int? start, bool tight) {
             Rows rows = new Rows { Gap = tight ? 0 : 1 };
             long number = start ?? 0;
-            foreach (MarkdownView item in items) {
+            for (int i = 0; i < items.Count; i++) {
+                MarkdownView item = items[i];
                 RejectSelf(item);
                 string marker = start.HasValue ? (number++).ToString(CultureInfo.InvariantCulture) + ". " : "- ";
-                rows.Add(new MarkdownPrefix(item, marker));
+                bool? task = tasks[i];
+                if (task == null) {
+                    rows.Add(new MarkdownPrefix(item, marker));
+                } else {
+                    string prefix = start.HasValue ? marker : string.Empty;
+                    bool done = task.Value;
+                    rows.Add(new MarkdownPrefix(item, glyphs => prefix + TaskMark(glyphs, done) + " ", false, done ? ThemeToken.Pass : ThemeToken.Muted));
+                }
             }
             return AddBlock(rows);
+        }
+
+        private static string TaskMark(IGlyphSet glyphs, bool done) =>
+            glyphs.Tier == GlyphTier.Ascii ? (done ? "[x]" : "[ ]") : glyphs.Get(done ? Glyph.Check : Glyph.Pending);
+
+        // A GitHub alert: a bar and bold title in the alert's role, then the body blocks beside the same bar.
+        internal MarkdownView AddCallout(MarkdownView content, RichText title, ThemeToken role) {
+            RejectSelf(content);
+            if (title == null) {
+                throw new ArgumentNullException(nameof(title));
+            }
+            IWidget heading = new MarkdownText(title, new RichStyle(role, decoration: TextDecoration.Bold));
+            IWidget body = content.Children.Count == 0 ? heading : new Rows(heading, content);
+            return AddBlock(new MarkdownPrefix(body, MarkdownPrefix.Bar, true, role));
         }
 
         /// <summary>Adds literal code with a language label and the existing registered highlighter, when available.</summary>

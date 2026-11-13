@@ -1,0 +1,23 @@
+Sample
+════════════════════════════════════════════════════════════════════════════════
+
+│ Note
+│ Callout text.
+
+│ Tip
+│ Tip text.
+
+│ Important
+│ Important text.
+
+│ Warning
+│ Warning text.
+
+│ Caution
+│ Caution text.
+
+✓ done item
+○ open item
+- plain item
+
+2. ✓ numbered done
