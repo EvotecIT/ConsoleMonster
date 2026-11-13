@@ -72,7 +72,7 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$servers = @([pscustomobject]@{ Name = 'web01'; State = 'Pass' })
+        <dev:code>$servers = @([pscustomobject]@{ Name = 'web01'; State = 'Pass' })&#xD;
             $servers | New-ConsoleTable | Add-ConsoleJobSummary</dev:code>
         <dev:remarks>
           <maml:para>Add an inventory table to the CI summary</maml:para>
@@ -402,13 +402,13 @@
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code># Requires Pester and the reviewed Golden/report.txt snapshot beside the test file.
-            It 'renders the report table' {
-                $goldenPath = Join-Path $PSScriptRoot 'Golden/report.txt'
-                if (-not (Test-Path -LiteralPath $goldenPath -PathType Leaf)) { throw 'Provide a reviewed golden file before running this example.' }
-                if ($env:CONSOLEMONSTER_UPDATE_GOLDEN -eq '1') { throw 'Golden updates must be disabled for this comparison.' }
-                $rows = @([pscustomobject]@{ Name = 'web01'; Status = 'Pass' })
-                $rows | New-ConsoleTable | Assert-ConsoleOutput -GoldenPath $goldenPath -Width 80
+        <dev:code># Requires Pester and the reviewed Golden/report.txt snapshot beside the test file.&#xD;
+            It 'renders the report table' {&#xD;
+                $goldenPath = Join-Path $PSScriptRoot 'Golden/report.txt'&#xD;
+                if (-not (Test-Path -LiteralPath $goldenPath -PathType Leaf)) { throw 'Provide a reviewed golden file before running this example.' }&#xD;
+                if ($env:CONSOLEMONSTER_UPDATE_GOLDEN -eq '1') { throw 'Golden updates must be disabled for this comparison.' }&#xD;
+                $rows = @([pscustomobject]@{ Name = 'web01'; Status = 'Pass' })&#xD;
+                $rows | New-ConsoleTable | Assert-ConsoleOutput -GoldenPath $goldenPath -Width 80&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compare a table with an existing Pester golden file</maml:para>
@@ -416,7 +416,7 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$view = New-ConsolePanel 'Inventory' -Content { New-ConsoleText 'web01: Pass' }
+        <dev:code>$view = New-ConsolePanel 'Inventory' -Content { New-ConsoleText 'web01: Pass' }&#xD;
             Assert-ConsoleOutput -InputObject $view -GoldenPath ./inventory.txt -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Check an inventory panel against an existing baseline</maml:para>
@@ -1273,8 +1273,8 @@
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
-            $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
+        <dev:code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })&#xD;
+            $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })&#xD;
             Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name</dev:code>
         <dev:remarks>
           <maml:para>Compare two small inventories</maml:para>
@@ -1282,9 +1282,9 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
-            $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-            $accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Question 'Accept these changes?'
+        <dev:code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })&#xD;
+            $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })&#xD;
+            $accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Question 'Accept these changes?'&#xD;
             $accepted</dev:code>
         <dev:remarks>
           <maml:para>Ask before accepting a configuration change</maml:para>
@@ -1292,11 +1292,11 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$controllers = @(
-                [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389 }
-                [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }
-                [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }
-            )
+        <dev:code>$controllers = @(&#xD;
+                [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389 }&#xD;
+                [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }&#xD;
+                [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }&#xD;
+            )&#xD;
             $controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'</dev:code>
         <dev:remarks>
           <maml:para>Compare three domain controller settings against dc02.</maml:para>
@@ -1304,8 +1304,8 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
-            $widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Normalize $normalizers -AsWidget
+        <dev:code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }&#xD;
+            $widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Normalize $normalizers -AsWidget&#xD;
             $widget | Export-ConsoleFrame -Format Html -Width 120 -Path ./comparison.html</dev:code>
         <dev:remarks>
           <maml:para>Normalize host-specific noise while retaining the original displayed values.</maml:para>
@@ -1791,10 +1791,10 @@
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
-            $run = Start-ConsoleRun -InputObject $checks -Label Name -NoLive
-            Update-Console -Run $run -Index 0 -Status Fail -Detail 'Sample failure'
-            $summary = Complete-ConsoleRun $run -PassThru
+        <dev:code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })&#xD;
+            $run = Start-ConsoleRun -InputObject $checks -Label Name -NoLive&#xD;
+            Update-Console -Run $run -Index 0 -Status Fail -Detail 'Sample failure'&#xD;
+            $summary = Complete-ConsoleRun $run -PassThru&#xD;
             $summary.Items | Where-Object Status -eq Fail</dev:code>
         <dev:remarks>
           <maml:para>Return a structured summary of a completed run</maml:para>
@@ -1802,9 +1802,9 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$servers = @([pscustomobject]@{ Name = 'web01' })
-            $run = Start-ConsoleRun -InputObject $servers -Label Name -Title 'Inspect inventory'
-            try { Update-Console -Run $run -Index 0 -Status Pass -Detail 'Inventory read' }
+        <dev:code>$servers = @([pscustomobject]@{ Name = 'web01' })&#xD;
+            $run = Start-ConsoleRun -InputObject $servers -Label Name -Title 'Inspect inventory'&#xD;
+            try { Update-Console -Run $run -Index 0 -Status Pass -Detail 'Inventory read' }&#xD;
             finally { Complete-ConsoleRun -Run $run }</dev:code>
         <dev:remarks>
           <maml:para>Finish a run even when inspection fails</maml:para>
@@ -1939,7 +1939,7 @@
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Get-ChildItem -File | ConvertTo-ConsoleView -Register
+        <dev:code>Get-ChildItem -File | ConvertTo-ConsoleView -Register&#xD;
 Get-ChildItem -File</dev:code>
         <dev:remarks>
           <maml:para>Register the drafted columns and summary now, and return the compact script for later editing. The next listing uses this view when console formatting is enabled.</maml:para>
@@ -1947,7 +1947,7 @@ Get-ChildItem -File</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
+        <dev:code>Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8&#xD;
 Register-ConsoleView -Path ./Processes.consoleviews.psd1</dev:code>
         <dev:remarks>
           <maml:para>Save a data-only view and load it explicitly. Modules can ship a same-named file beside their manifest.</maml:para>
@@ -1955,17 +1955,17 @@ Register-ConsoleView -Path ./Processes.consoleviews.psd1</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$id = @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }
-$summary = {
-    param($items)
-    @{ Value = @($items).Count; Label = 'processes' }
-}
-$view = @{
-    TypeName = 'System.Diagnostics.Process'
-    Property = @('Name', $id, 'CPU', 'Handles', 'SI')
-    Summary = $summary
-}
-Register-ConsoleView @view
+        <dev:code>$id = @{ Name = 'Id'; Expression = 'Id'; Presenter = 'Identifier' }&#xD;
+$summary = {&#xD;
+    param($items)&#xD;
+    @{ Value = @($items).Count; Label = 'processes' }&#xD;
+}&#xD;
+$view = @{&#xD;
+    TypeName = 'System.Diagnostics.Process'&#xD;
+    Property = @('Name', $id, 'CPU', 'Handles', 'SI')&#xD;
+    Summary = $summary&#xD;
+}&#xD;
+Register-ConsoleView @view&#xD;
 Get-Process</dev:code>
         <dev:remarks>
           <maml:para>Keep a process draft in your profile. Plain columns remain names; the Id presenter and count summary are named variables. Remove the Summary entry to leave the count line out.</maml:para>
@@ -2412,7 +2412,7 @@ Get-Process</dev:code>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</maml:para>
+      <maml:para>Pipe any New-Console* widget (or New-ConsoleTable) and get a self-contained HTML page (inline CSS, selectable text, a dark and a light rendering that follow the viewer's prefers-color-scheme), an SVG image (box, block and braille characters drawn as shapes, selectable text, no external assets) or plain text. Cell geometry is kept exactly. OSC 8 links become links (web and mail links only; javascript: and other schemes are dropped). Markdown uses the bundled ConsoleMonster.Markdown add-on lazily: tables, records and trees retain their semantics; FencedText preserves the terminal layout. Other objects use their registered module view when available and otherwise use the automatic view. Several widgets are stacked. Without -Path the document is written to the pipeline.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -4322,7 +4322,7 @@ Get-Process</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code># Requires an existing session.cast recorded by Invoke-ConsoleRecording.
+        <dev:code># Requires an existing session.cast recorded by Invoke-ConsoleRecording.&#xD;
             Export-ConsoleRecording -RecordingPath ./session.cast -Format Text</dev:code>
         <dev:remarks>
           <maml:para>Return a text document from an existing terminal recording</maml:para>
@@ -4330,9 +4330,9 @@ Get-Process</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># Requires run.jsonl recorded with this dashboard definition.
-            $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-            Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Svg
+        <dev:code># Requires run.jsonl recorded with this dashboard definition.&#xD;
+            $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }&#xD;
+            Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Svg&#xD;
             Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Html -Width 120 -Height 36</dev:code>
         <dev:remarks>
           <maml:para>Return SVG and HTML from an existing matching dashboard recording</maml:para>
@@ -4854,7 +4854,7 @@ Get-Process</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code># Requires an existing Windows Terminal scheme JSON file.
+        <dev:code># Requires an existing Windows Terminal scheme JSON file.&#xD;
             Import-ConsoleTheme -Path ./my-scheme.json -OutFile ./my-theme.json</dev:code>
         <dev:remarks>
           <maml:para>Import a Windows Terminal scheme and inspect its verdict.</maml:para>
@@ -4862,8 +4862,8 @@ Get-Process</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># Requires an existing sRGB iTerm2 .itermcolors file.
-            Import-ConsoleTheme -Path ./my-scheme.itermcolors -Accessible -OutFile ./my-theme.json
+        <dev:code># Requires an existing sRGB iTerm2 .itermcolors file.&#xD;
+            Import-ConsoleTheme -Path ./my-scheme.itermcolors -Accessible -OutFile ./my-theme.json&#xD;
             Set-ConsoleTheme -Path ./my-theme.json</dev:code>
         <dev:remarks>
           <maml:para>Import an accessible variant, then use it.</maml:para>
@@ -5320,16 +5320,16 @@ Get-Process</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content {
-                New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }
-                New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
-            }
-            'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
-                param($Server)
-                Update-Console servers -Key $Server -Status Running -Total 5
-                1..5 | ForEach-Object { Update-Console servers -Key $Server -Result Pass }
-                Write-Host "$Server checked"
-                Update-Console servers -Key $Server -Complete
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content {&#xD;
+                New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }&#xD;
+                New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }&#xD;
+            }&#xD;
+            'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {&#xD;
+                param($Server)&#xD;
+                Update-Console servers -Key $Server -Status Running -Total 5&#xD;
+                1..5 | ForEach-Object { Update-Console servers -Key $Server -Result Pass }&#xD;
+                Write-Host "$Server checked"&#xD;
+                Update-Console servers -Key $Server -Complete&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Process three sample servers in parallel</maml:para>
@@ -5337,11 +5337,11 @@ Get-Process</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })
-            $dashboard = New-ConsoleDashboard -Title 'CPU samples' -Content { New-ConsoleChart -WidgetId cpu -Type Sparkline }
-            function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
-            Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame {
-                foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 }
+        <dev:code>$frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })&#xD;
+            $dashboard = New-ConsoleDashboard -Title 'CPU samples' -Content { New-ConsoleChart -WidgetId cpu -Type Sparkline }&#xD;
+            function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }&#xD;
+            Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame {&#xD;
+                foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Use caller data and a helper function in the dashboard</maml:para>
@@ -5513,12 +5513,12 @@ Get-Process</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {
-                Show-ConsoleApp -Content {
-                    New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01
-                    New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
-                }
-            }
+        <dev:code>$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {&#xD;
+                Show-ConsoleApp -Content {&#xD;
+                    New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01&#xD;
+                    New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }&#xD;
+                }&#xD;
+            }&#xD;
             $result.Text | Should -Match 'Picked FS01'</dev:code>
         <dev:remarks>
           <maml:para>Drive a list with a key and a click, then check the screen.</maml:para>
@@ -5526,8 +5526,8 @@ Get-Process</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Invoke-ConsoleHeadless -Width 60 -Height 12 -InputScript 'Enter' {
-                Read-ConsoleSelect -Title 'Server' -Choices web01, web02
+        <dev:code>Invoke-ConsoleHeadless -Width 60 -Height 12 -InputScript 'Enter' {&#xD;
+                Read-ConsoleSelect -Title 'Server' -Choices web01, web02&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Run a selection against scripted terminal input</maml:para>
@@ -6021,10 +6021,10 @@ Get-Process</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$configuration = @{
-    Run = @{ Path = './Tests'; PassThru = $true }
-    Filter = @{ Tag = 'Unit' }
-}
+        <dev:code>$configuration = @{&#xD;
+    Run = @{ Path = './Tests'; PassThru = $true }&#xD;
+    Filter = @{ Tag = 'Unit' }&#xD;
+}&#xD;
 Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pester.html -WhatIf</dev:code>
         <dev:remarks>
           <maml:para>Preview running a configured suite and exporting its report</maml:para>
@@ -6912,9 +6912,9 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pes
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {
-                Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }
-            }
+        <dev:code>Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {&#xD;
+                Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }&#xD;
+            }&#xD;
             Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif</dev:code>
         <dev:remarks>
           <maml:para>Preview recording an app driven by keys, then make a GIF of it</maml:para>
@@ -7266,9 +7266,9 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pes
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {
-    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
-    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
+        <dev:code>1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {&#xD;
+    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)&#xD;
+    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends</maml:para>
@@ -7348,14 +7348,14 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pes
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleAccordion -Content {
-                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
-                    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-                        'Get-Process -Name pwsh'
-                        'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
-                    }
-                }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleAccordion -Content {&#xD;
+                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }&#xD;
+                    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {&#xD;
+                        'Get-Process -Name pwsh'&#xD;
+                        'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'&#xD;
+                    }&#xD;
+                }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Fold long sections of a help page and keep one open at a time.</maml:para>
@@ -7363,8 +7363,8 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pes
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleAccordion -Content {
-                New-ConsoleCollapsible -Key network -Label Network -Expanded -Content { New-ConsoleText 'DNS reachable' -Role Pass }
+        <dev:code>New-ConsoleAccordion -Content {&#xD;
+                New-ConsoleCollapsible -Key network -Label Network -Expanded -Content { New-ConsoleText 'DNS reachable' -Role Pass }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory accordion</maml:para>
@@ -7509,11 +7509,11 @@ Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pes
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }
-Invoke-ConsoleDashboard $dashboard {
-    Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'
-    Start-Sleep -Seconds 1
-    Update-Console -WidgetId running -Key 1 -Complete
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }&#xD;
+Invoke-ConsoleDashboard $dashboard {&#xD;
+    Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'&#xD;
+    Start-Sleep -Seconds 1&#xD;
+    Update-Console -WidgetId running -Key 1 -Complete&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>The checks running on four workers</maml:para>
@@ -7521,10 +7521,10 @@ Invoke-ConsoleDashboard $dashboard {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleActivityList -MaxVisible 3 }
-            Invoke-ConsoleDashboard $dashboard {
-                Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50
-                Wait-ConsoleDashboard -Seconds 0.2
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleActivityList -MaxVisible 3 }&#xD;
+            Invoke-ConsoleDashboard $dashboard {&#xD;
+                Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50&#xD;
+                Wait-ConsoleDashboard -Seconds 0.2&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Limit the number of visible live activities</maml:para>
@@ -7628,8 +7628,8 @@ Invoke-ConsoleDashboard $dashboard {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleBinding -WidgetId selection -Content { New-ConsoleText 'Choose a server to inspect' }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleBinding -WidgetId selection -Content { New-ConsoleText 'Choose a server to inspect' }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory binding</maml:para>
@@ -7897,10 +7897,10 @@ Invoke-ConsoleDashboard $dashboard {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1
-Show-ConsoleApp -Content {
-    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections
-    $sections
+        <dev:code>$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1&#xD;
+Show-ConsoleApp -Content {&#xD;
+    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections&#xD;
+    $sections&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Show where the reader is in an outline.</maml:para>
@@ -8155,8 +8155,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleButton -Key inspect -Label 'Inspect inventory' -OnClick { Write-ConsoleLogEntry 'Inspection requested' }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleButton -Key inspect -Label 'Inspect inventory' -OnClick { Write-ConsoleLogEntry 'Inspection requested' }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory button</maml:para>
@@ -8501,10 +8501,10 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$backups = @(
-                [pscustomobject]@{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'Backup verified' }
-                [pscustomobject]@{ Date = [datetime]'2026-10-02'; Status = 'Warn'; Label = 'Backup delayed' }
-            )
+        <dev:code>$backups = @(&#xD;
+                [pscustomobject]@{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'Backup verified' }&#xD;
+                [pscustomobject]@{ Date = [datetime]'2026-10-02'; Status = 'Warn'; Label = 'Backup delayed' }&#xD;
+            )&#xD;
             $backups | New-ConsoleCalendar -Year 2026 -Month 10 | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Display backup outcomes for October</maml:para>
@@ -8845,7 +8845,7 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
+        <dev:code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4&#xD;
 New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Forty items part-way through a run</maml:para>
@@ -9991,12 +9991,12 @@ New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }
-$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
-    @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
-Show-ConsoleApp -Content {
-    New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -LinkKey Minute
+        <dev:code>$samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }&#xD;
+$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(&#xD;
+    @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })&#xD;
+Show-ConsoleApp -Content {&#xD;
+    New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute&#xD;
+    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -LinkKey Minute&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Explore CPU and memory samples next to the table they came from</maml:para>
@@ -10004,8 +10004,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleChartView -Key cpu -Chart (New-ConsoleChart -Type Line -Series @{ Key = 'cpu'; Values = 12, 25, 18, 31 })
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleChartView -Key cpu -Chart (New-ConsoleChart -Type Line -Series @{ Key = 'cpu'; Values = 12, 25, 18, 31 })&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory chart view</maml:para>
@@ -10270,14 +10270,14 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleAccordion -Content {
-                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
-                    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-                        'Get-Process -Name pwsh'
-                        'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
-                    }
-                }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleAccordion -Content {&#xD;
+                    New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }&#xD;
+                    New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {&#xD;
+                        'Get-Process -Name pwsh'&#xD;
+                        'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'&#xD;
+                    }&#xD;
+                }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Fold long sections of a help page and keep one open at a time.</maml:para>
@@ -10285,8 +10285,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleCollapsible -Key servers -Label 'Checked servers' -Expanded -Content {
-                [pscustomobject]@{ Name = 'web01'; State = 'Pass' } | Show-Console -AsWidget -View List
+        <dev:code>New-ConsoleCollapsible -Key servers -Label 'Checked servers' -Expanded -Content {&#xD;
+                [pscustomobject]@{ Name = 'web01'; State = 'Pass' } | Show-Console -AsWidget -View List&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory collapsible</maml:para>
@@ -10492,10 +10492,10 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {
-    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Property 'Server', 'Check' }
-    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Property 'Check', 'Took' }
-    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }
+        <dev:code>New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {&#xD;
+    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Property 'Server', 'Check' }&#xD;
+    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Property 'Check', 'Took' }&#xD;
+    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells</maml:para>
@@ -10736,10 +10736,10 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Shortcut Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {
-                param($Row)
-                $Row | Select-Object Name, Id
-            }
+        <dev:code>$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Shortcut Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {&#xD;
+                param($Row)&#xD;
+                $Row | Select-Object Name, Id&#xD;
+            }&#xD;
             Get-Process | Select-Object -First 8 | Show-ConsoleGrid -Command $inspect</dev:code>
         <dev:remarks>
           <maml:para>Confirm before inspecting a selected object</maml:para>
@@ -10747,9 +10747,9 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$refresh = New-ConsoleCommand -Key refresh -Label 'Refresh inventory' -Shortcut F5 -ScriptBlock {
-                Write-ConsoleLogEntry 'Inventory refreshed' -Level Info
-            }
+        <dev:code>$refresh = New-ConsoleCommand -Key refresh -Label 'Refresh inventory' -Shortcut F5 -ScriptBlock {&#xD;
+                Write-ConsoleLogEntry 'Inventory refreshed' -Level Info&#xD;
+            }&#xD;
             Show-ConsoleApp -Command $refresh -Content { New-ConsoleText 'Press F5 to refresh' }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory command</maml:para>
@@ -11073,8 +11073,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDashboard -Title 'Inventory' -Content {
-                New-ConsolePanel -Title 'Result' -Content { New-ConsoleText '2 servers online' -Role Pass }
+        <dev:code>New-ConsoleDashboard -Title 'Inventory' -Content {&#xD;
+                New-ConsolePanel -Title 'Result' -Content { New-ConsoleText '2 servers online' -Role Pass }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory dashboard</maml:para>
@@ -11455,11 +11455,11 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
-                @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
-                @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
-                Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
+        <dev:code>New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(&#xD;
+                @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }&#xD;
+                @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }&#xD;
+            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{&#xD;
+                Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A small estate summary.</maml:para>
@@ -11467,8 +11467,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDashboardFrame -Title 'Fleet checks' -Fact '12 servers inspected' -Meter @{
-                Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
+        <dev:code>New-ConsoleDashboardFrame -Title 'Fleet checks' -Fact '12 servers inspected' -Meter @{&#xD;
+                Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory dashboard frame</maml:para>
@@ -12808,8 +12808,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDiagram -Title 'Production services' -Content {
-                New-ConsoleDiagramGroup -Label Production -Content { New-ConsoleDiagramNode -Id api -Label 'Orders API' }
+        <dev:code>New-ConsoleDiagram -Title 'Production services' -Content {&#xD;
+                New-ConsoleDiagramGroup -Label Production -Content { New-ConsoleDiagramNode -Id api -Label 'Orders API' }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory diagram group</maml:para>
@@ -13047,10 +13047,10 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDiagram -Title 'Service dependencies' -Content {
-                New-ConsoleDiagramNode -Id api -Label API
-                New-ConsoleDiagramNode -Id db -Label Database
-                New-ConsoleDiagramLink -From api -To db -Label SQL
+        <dev:code>New-ConsoleDiagram -Title 'Service dependencies' -Content {&#xD;
+                New-ConsoleDiagramNode -Id api -Label API&#xD;
+                New-ConsoleDiagramNode -Id db -Label Database&#xD;
+                New-ConsoleDiagramLink -From api -To db -Label SQL&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory diagram link</maml:para>
@@ -13334,8 +13334,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDiagram -Title 'Request path' -Content {
-                New-ConsoleDiagramNode -Id api -Label 'Orders API' -Kind Service
+        <dev:code>New-ConsoleDiagram -Title 'Request path' -Content {&#xD;
+                New-ConsoleDiagramNode -Id api -Label 'Orders API' -Kind Service&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory diagram node</maml:para>
@@ -13577,12 +13577,12 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDiagram -Title 'Checkout' -Content {
-                New-ConsoleDiagramNode -Id api -Label API
-                New-ConsoleDiagramNode -Id db -Label Database
-                New-ConsoleDiagramUseCase -Id order -Label 'Save order' -Content {
-                    New-ConsoleDiagramStep -From api -To db -Label 'Insert order'
-                }
+        <dev:code>New-ConsoleDiagram -Title 'Checkout' -Content {&#xD;
+                New-ConsoleDiagramNode -Id api -Label API&#xD;
+                New-ConsoleDiagramNode -Id db -Label Database&#xD;
+                New-ConsoleDiagramUseCase -Id order -Label 'Save order' -Content {&#xD;
+                    New-ConsoleDiagramStep -From api -To db -Label 'Insert order'&#xD;
+                }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory diagram step</maml:para>
@@ -13788,10 +13788,10 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleDiagram -Title 'Order processing' -Content {
-                New-ConsoleDiagramNode -Id api -Label API
-                New-ConsoleDiagramNode -Id db -Label Database
-                New-ConsoleDiagramUseCase -Id save -Label 'Save order' -Content { New-ConsoleDiagramStep -From api -To db -Label Insert }
+        <dev:code>New-ConsoleDiagram -Title 'Order processing' -Content {&#xD;
+                New-ConsoleDiagramNode -Id api -Label API&#xD;
+                New-ConsoleDiagramNode -Id db -Label Database&#xD;
+                New-ConsoleDiagramUseCase -Id save -Label 'Save order' -Content { New-ConsoleDiagramStep -From api -To db -Label Insert }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory diagram use case</maml:para>
@@ -14045,8 +14045,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleDialog -Title 'Inventory result' -Content { New-ConsoleText 'All checks passed' -Role Pass }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleDialog -Title 'Inventory result' -Content { New-ConsoleText 'All checks passed' -Role Pass }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory dialog</maml:para>
@@ -14156,7 +14156,7 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$summary = [pscustomobject]@{ Value = 4; Label = 'servers online'; Role = 'Pass' }
+        <dev:code>$summary = [pscustomobject]@{ Value = 4; Label = 'servers online'; Role = 'Pass' }&#xD;
             $summary | New-ConsoleFacts | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Show the number of online servers</maml:para>
@@ -15237,14 +15237,14 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Server selection' -Content {
-                New-ConsoleField Site 'Site' -Kind Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
-                New-ConsoleField Server 'Server' -Kind Select -DependsOn Site -LoadChoices {
-                    param($Values)
-                    [pscustomobject]@{ Name = "$($Values.Site)-web01" }
-                    [pscustomobject]@{ Name = "$($Values.Site)-web02" }
-                } -Display Name -ParameterName Server
-            }
+        <dev:code>$form = New-ConsoleForm 'Server selection' -Content {&#xD;
+                New-ConsoleField Site 'Site' -Kind Select -Choices 'Warsaw', 'Berlin' -Default Warsaw&#xD;
+                New-ConsoleField Server 'Server' -Kind Select -DependsOn Site -LoadChoices {&#xD;
+                    param($Values)&#xD;
+                    [pscustomobject]@{ Name = "$($Values.Site)-web01" }&#xD;
+                    [pscustomobject]@{ Name = "$($Values.Site)-web02" }&#xD;
+                } -Display Name -ParameterName Server&#xD;
+            }&#xD;
             Read-ConsoleForm $form</dev:code>
         <dev:remarks>
           <maml:para>Load dependent choices from the selected site</maml:para>
@@ -15252,10 +15252,10 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Notifications' -Content {
-                New-ConsoleField Notify 'Send an email' -Kind Toggle
-                New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
-            }
+        <dev:code>$form = New-ConsoleForm 'Notifications' -Content {&#xD;
+                New-ConsoleField Notify 'Send an email' -Kind Toggle&#xD;
+                New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }&#xD;
+            }&#xD;
             Read-ConsoleForm $form</dev:code>
         <dev:remarks>
           <maml:para>Show a field only when a toggle is enabled</maml:para>
@@ -15263,12 +15263,12 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Servers' -Content {
-                New-ConsoleField Servers 'Servers' -Kind Select -Multiple -ParameterName ComputerName -LoadChoices {
-                    [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
-                    [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
-                } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
-            }
+        <dev:code>$form = New-ConsoleForm 'Servers' -Content {&#xD;
+                New-ConsoleField Servers 'Servers' -Kind Select -Multiple -ParameterName ComputerName -LoadChoices {&#xD;
+                    [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }&#xD;
+                    [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }&#xD;
+                } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }&#xD;
+            }&#xD;
             Read-ConsoleForm $form</dev:code>
         <dev:remarks>
           <maml:para>Group loaded choices, disable unavailable ones and select defaults by property</maml:para>
@@ -15276,10 +15276,10 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$checks = @(
-                [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }
-                [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }
-            )
+        <dev:code>$checks = @(&#xD;
+                [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }&#xD;
+                [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }&#xD;
+            )&#xD;
             New-ConsoleField Checks 'Checks' -Kind Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</dev:code>
         <dev:remarks>
           <maml:para>Return choice identifiers and show a duration badge</maml:para>
@@ -15413,10 +15413,10 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleFlow -Content {
-    [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'Leaf'; Status = 'Pass' }
-    [pscustomobject] @{ Kind = 'Node'; Key = 'issuer'; Label = 'Intermediate'; Status = 'Fail' }
-    [pscustomobject] @{ Kind = 'Edge'; Key = 'chain'; From = 'leaf'; To = 'issuer'; Label = 'expired'; Status = 'Fail'; Cut = $true }
+        <dev:code>New-ConsoleFlow -Content {&#xD;
+    [pscustomobject] @{ Kind = 'Node'; Key = 'leaf'; Label = 'Leaf'; Status = 'Pass' }&#xD;
+    [pscustomobject] @{ Kind = 'Node'; Key = 'issuer'; Label = 'Intermediate'; Status = 'Fail' }&#xD;
+    [pscustomobject] @{ Kind = 'Edge'; Key = 'chain'; From = 'leaf'; To = 'issuer'; Label = 'expired'; Status = 'Fail'; Cut = $true }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A certificate path with a broken connection</maml:para>
@@ -15745,14 +15745,14 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>function New-SharePlan {
-    param([string]$Name, [string]$Path, [switch]$ReadOnly)
-    [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
-}
-$form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
-    New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    New-ConsoleField Path 'Folder' -Kind Path -PathKind Folder -MustExist -Page Basics -ParameterName Path
-    New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly
+        <dev:code>function New-SharePlan {&#xD;
+    param([string]$Name, [string]$Path, [switch]$ReadOnly)&#xD;
+    [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }&#xD;
+}&#xD;
+$form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {&#xD;
+    New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name&#xD;
+    New-ConsoleField Path 'Folder' -Kind Path -PathKind Folder -MustExist -Page Basics -ParameterName Path&#xD;
+    New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A two-page wizard</maml:para>
@@ -15760,14 +15760,14 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>function New-SharePlan {
-    param([string]$Name, [string]$Path, [switch]$ReadOnly)
-    [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
-}
-$form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
-    New-ConsoleField Name 'Share name' -Required -ParameterName Name
-    New-ConsoleField ReadOnly 'Read only' -Kind Toggle -ParameterName ReadOnly
-    [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
+        <dev:code>function New-SharePlan {&#xD;
+    param([string]$Name, [string]$Path, [switch]$ReadOnly)&#xD;
+    [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }&#xD;
+}&#xD;
+$form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
+    New-ConsoleField Name 'Share name' -Required -ParameterName Name&#xD;
+    New-ConsoleField ReadOnly 'Read only' -Kind Toggle -ParameterName ReadOnly&#xD;
+    [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A form that comes with a preset</maml:para>
@@ -16345,10 +16345,10 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleKeyValue -Content {
-    [pscustomobject]@{ Key = 'Version'; Value = '0.0.4 [muted]→[/] [bold]2.0.0[/]'; Markup = $true }
-    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
-    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }
+        <dev:code>New-ConsoleKeyValue -Content {&#xD;
+    [pscustomobject]@{ Key = 'Version'; Value = '0.0.4 [muted]→[/] [bold]2.0.0[/]'; Markup = $true }&#xD;
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }&#xD;
+    [pscustomobject]@{ Key = 'Tests'; Value = '1 skipped on PowerShell 7'; Status = 'Warn' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Pairs with status marks</maml:para>
@@ -16356,8 +16356,8 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' }) -Content {
-    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
+        <dev:code>New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' }) -Content {&#xD;
+    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A hashtable and pairs together</maml:para>
@@ -16881,10 +16881,10 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleLanes -Content {
-    [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }
-    [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }
-    [pscustomobject]@{ Key = 'DC03'; Total = 40 }
+        <dev:code>New-ConsoleLanes -Content {&#xD;
+    [pscustomobject]@{ Key = 'DC01'; Total = 40; Status = 'Pass'; Passed = 40; Value = 40 }&#xD;
+    [pscustomobject]@{ Key = 'DC02'; Total = 40; Status = 'Running'; Passed = 21; Warned = 1; Detail = 'replication'; Value = 22 }&#xD;
+    [pscustomobject]@{ Key = 'DC03'; Total = 40 }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Lanes at different points, printed once</maml:para>
@@ -17090,9 +17090,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleLayoutGrid -Columns 2 -Content {
-                New-ConsolePanel 'Inventory' -Content { New-ConsoleText '2 servers' }
-                New-ConsolePanel 'Status' -Content { New-ConsoleText 'Online' -Role Pass }
+        <dev:code>New-ConsoleLayoutGrid -Columns 2 -Content {&#xD;
+                New-ConsolePanel 'Inventory' -Content { New-ConsoleText '2 servers' }&#xD;
+                New-ConsolePanel 'Status' -Content { New-ConsoleText 'Online' -Role Pass }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Arrange an inventory count beside its status</maml:para>
@@ -17601,10 +17601,10 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleLogRegion -Height 5 -Content {
-    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
-    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }
-    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
+        <dev:code>New-ConsoleLogRegion -Height 5 -Content {&#xD;
+    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }&#xD;
+    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }&#xD;
+    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A short log printed once</maml:para>
@@ -17619,10 +17619,10 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>New-ConsoleLogRegion -Tag 'sql-index' -Level Warn -NoElapsed -Content {
-    @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }
-    @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }
-    @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }
+        <dev:code>New-ConsoleLogRegion -Tag 'sql-index' -Level Warn -NoElapsed -Content {&#xD;
+    @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }&#xD;
+    @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }&#xD;
+    @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Only warnings and errors from one job</maml:para>
@@ -17857,21 +17857,21 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$settings = New-ConsoleForm 'Settings' -Content {
-                New-ConsoleField Target 'Target' -Default Weekly
-                New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
-            }
-            $menu = New-ConsoleMenu 'Backup helper' -Content {
-                New-ConsoleMenuItem 'Preview backup' -Hotkey b -Action {
-                    $dashboard = New-ConsoleDashboard -Title 'Backup preview' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Inspect plan' } }
-                    $null = $MenuContext.Run($dashboard, {
-                        Update-Console steps -Key 'Inspect plan' -Status Pass
-                        @{ Title = 'Backup preview'; Status = 'Pass'; Summary = 'No files were copied.' }
-                    })
-                }
-                New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
-                New-ConsoleMenuItem -Exit
-            }
+        <dev:code>$settings = New-ConsoleForm 'Settings' -Content {&#xD;
+                New-ConsoleField Target 'Target' -Default Weekly&#xD;
+                New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true&#xD;
+            }&#xD;
+            $menu = New-ConsoleMenu 'Backup helper' -Content {&#xD;
+                New-ConsoleMenuItem 'Preview backup' -Hotkey b -Action {&#xD;
+                    $dashboard = New-ConsoleDashboard -Title 'Backup preview' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Inspect plan' } }&#xD;
+                    $null = $MenuContext.Run($dashboard, {&#xD;
+                        Update-Console steps -Key 'Inspect plan' -Status Pass&#xD;
+                        @{ Title = 'Backup preview'; Status = 'Pass'; Summary = 'No files were copied.' }&#xD;
+                    })&#xD;
+                }&#xD;
+                New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
+                New-ConsoleMenuItem -Exit&#xD;
+            }&#xD;
             Show-ConsoleMenu $menu -Layout Classic</dev:code>
         <dev:remarks>
           <maml:para>Build a small script menu</maml:para>
@@ -17879,16 +17879,16 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$settings = New-ConsoleForm 'Settings' -Content {
-                New-ConsoleField Target 'Target' -Default Weekly
-                New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
-            }
-            $menu = New-ConsoleMenu 'Backup helper' -Content {
-                [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
-                New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
-                New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
-                New-ConsoleMenuItem -Exit
-            }
+        <dev:code>$settings = New-ConsoleForm 'Settings' -Content {&#xD;
+                New-ConsoleField Target 'Target' -Default Weekly&#xD;
+                New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true&#xD;
+            }&#xD;
+            $menu = New-ConsoleMenu 'Backup helper' -Content {&#xD;
+                [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }&#xD;
+                New-ConsoleMenuItem 'Presets' -Hotkey p -Presets&#xD;
+                New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings&#xD;
+                New-ConsoleMenuItem -Exit&#xD;
+            }&#xD;
             Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <dev:remarks>
           <maml:para>Offer a preset for a menu form</maml:para>
@@ -19277,8 +19277,8 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
         <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Review</maml:name>
           <maml:description>
-            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
+            <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
 Description and RunText.</maml:para>
           </maml:description>
           <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
@@ -19995,8 +19995,8 @@ Description and RunText.</maml:para>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Review</maml:name>
         <maml:description>
-          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the
-equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,
+          <maml:para>A review built each time it shows: a hashtable with Rows (an ordered hashtable of label = value), Command (the&#xD;
+equivalent command line), Problems (strings that block running), Run (a scriptblock) and optionally Title,&#xD;
 Description and RunText.</maml:para>
         </maml:description>
         <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
@@ -20083,14 +20083,14 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$tasks = @(
-                [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }
-                [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
-            )
-            $menu = New-ConsoleMenu 'Tasks' -Content {
-                New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Selected { $_.Enabled }
-                New-ConsoleMenuItem -Exit
-            }
+        <dev:code>$tasks = @(&#xD;
+                [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }&#xD;
+                [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }&#xD;
+            )&#xD;
+            $menu = New-ConsoleMenu 'Tasks' -Content {&#xD;
+                New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Selected { $_.Enabled }&#xD;
+                New-ConsoleMenuItem -Exit&#xD;
+            }&#xD;
             Show-ConsoleMenu $menu</dev:code>
         <dev:remarks>
           <maml:para>Build a multiple-choice item with an initial selection</maml:para>
@@ -20098,15 +20098,15 @@ Description and RunText.</maml:para>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$menu = New-ConsoleMenu 'Inventory' -Content {
-                New-ConsoleMenuItem 'Preview refresh' -Action {
-                    if ($MenuContext.Confirm('Preview an inventory refresh?')) {
-                        $MenuContext.Toast('Preview ready')
-                        $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
-                    }
-                }
-                New-ConsoleMenuItem -Exit
-            }
+        <dev:code>$menu = New-ConsoleMenu 'Inventory' -Content {&#xD;
+                New-ConsoleMenuItem 'Preview refresh' -Action {&#xD;
+                    if ($MenuContext.Confirm('Preview an inventory refresh?')) {&#xD;
+                        $MenuContext.Toast('Preview ready')&#xD;
+                        $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })&#xD;
+                    }&#xD;
+                }&#xD;
+                New-ConsoleMenuItem -Exit&#xD;
+            }&#xD;
             Show-ConsoleMenu $menu</dev:code>
         <dev:remarks>
           <maml:para>Confirm an action and return a result record</maml:para>
@@ -20299,12 +20299,12 @@ Description and RunText.</maml:para>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
-$dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
-Show-ConsoleApp -Content {
-    New-ConsoleSplitter -Ratio 0.3 -First {
-        New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
-    } -Second { $proxy; $dns }
+        <dev:code>$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }&#xD;
+$dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }&#xD;
+Show-ConsoleApp -Content {&#xD;
+    New-ConsoleSplitter -Ratio 0.3 -First {&#xD;
+        New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })&#xD;
+    } -Second { $proxy; $dns }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Jump between the sections of a settings page.</maml:para>
@@ -20881,8 +20881,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsolePanel -Title 'Inventory result' -Content {
-                [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget
+        <dev:code>New-ConsolePanel -Title 'Inventory result' -Content {&#xD;
+                [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Frame an inventory record with a heading</maml:para>
@@ -21837,9 +21837,9 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleRows -Gap 1 -Content {
-                New-ConsoleText 'Inventory' -Decoration Bold
-                New-ConsoleText 'web01 and web02 are online' -Role Pass
+        <dev:code>New-ConsoleRows -Gap 1 -Content {&#xD;
+                New-ConsoleText 'Inventory' -Decoration Bold&#xD;
+                New-ConsoleText 'web01 and web02 are online' -Role Pass&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Stack an inventory heading and result</maml:para>
@@ -22079,9 +22079,9 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleRows -Content {
-                New-ConsoleRule 'Inventory'
-                New-ConsoleText '2 servers checked' -Role Pass
+        <dev:code>New-ConsoleRows -Content {&#xD;
+                New-ConsoleRule 'Inventory'&#xD;
+                New-ConsoleText '2 servers checked' -Role Pass&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory rule</maml:para>
@@ -22226,20 +22226,20 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$servers = @(
-                [pscustomobject]@{ Name = 'web01'; Role = 'Web'; Status = 'Pass' }
-                [pscustomobject]@{ Name = 'sql01'; Role = 'Database'; Status = 'Fail' }
-            )
-            Show-ConsoleApp -Title Servers -Content {
-                New-ConsoleScreen -Key list -Title Servers -KeyBinding ([ordered]@{
-                    '1-2' = 'open', { param($Number, $State) $State.Server = $Number; $State.Screen = 'server' }
-                }) -Content {
-                    'Type a number to open a server.'
-                    $servers | New-ConsoleTable -Property Name, Role, Status -StatusProperty Status
-                }
-                New-ConsoleScreen -Key server -Title { $servers[$State.Server - 1].Name } -Content {
-                    New-ConsoleBinding -Content { $servers[$State.Server - 1] | New-ConsoleKeyValue }
-                }
+        <dev:code>$servers = @(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Role = 'Web'; Status = 'Pass' }&#xD;
+                [pscustomobject]@{ Name = 'sql01'; Role = 'Database'; Status = 'Fail' }&#xD;
+            )&#xD;
+            Show-ConsoleApp -Title Servers -Content {&#xD;
+                New-ConsoleScreen -Key list -Title Servers -KeyBinding ([ordered]@{&#xD;
+                    '1-2' = 'open', { param($Number, $State) $State.Server = $Number; $State.Screen = 'server' }&#xD;
+                }) -Content {&#xD;
+                    'Type a number to open a server.'&#xD;
+                    $servers | New-ConsoleTable -Property Name, Role, Status -StatusProperty Status&#xD;
+                }&#xD;
+                New-ConsoleScreen -Key server -Title { $servers[$State.Server - 1].Name } -Content {&#xD;
+                    New-ConsoleBinding -Content { $servers[$State.Server - 1] | New-ConsoleKeyValue }&#xD;
+                }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Open a server from a numbered list, and go back with Escape</maml:para>
@@ -22247,8 +22247,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleScreen -Key inventory -Title Inventory -Content { New-ConsoleText 'web01: Online' }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleScreen -Key inventory -Title Inventory -Content { New-ConsoleText 'web01: Online' }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Place an inventory page inside an application</maml:para>
@@ -22447,8 +22447,8 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleScrollView -Content {
-                1..20 | ForEach-Object { New-ConsoleText "Detail line $_" }
+        <dev:code>New-ConsoleScrollView -Content {&#xD;
+                1..20 | ForEach-Object { New-ConsoleText "Detail line $_" }&#xD;
             } -Height 12</dev:code>
         <dev:remarks>
           <maml:para>Build a scrollable detail pane</maml:para>
@@ -22456,8 +22456,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleScrollView -Height 4 -Content {
-                foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') { New-ConsoleText $server }
+        <dev:code>New-ConsoleScrollView -Height 4 -Content {&#xD;
+                foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') { New-ConsoleText $server }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory scroll view</maml:para>
@@ -22854,7 +22854,7 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$servers = @([pscustomobject]@{ Name = 'web01' }, [pscustomobject]@{ Name = 'web02' })
+        <dev:code>$servers = @([pscustomobject]@{ Name = 'web01' }, [pscustomobject]@{ Name = 'web02' })&#xD;
             Show-ConsoleApp -Content { New-ConsoleSelect -Key server -Choices $servers -Display Name }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory select</maml:para>
@@ -23095,12 +23095,12 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleSplitter -Key Panes -Ratio 0.35 -Fill -First {
-                    New-ConsoleSelect -Key Server -Choices 'web-01', 'web-02', 'db-01'
-                } -Second {
-                    New-ConsoleBinding -Content { param($State) "Details for $($State.Server)" }
-                }
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleSplitter -Key Panes -Ratio 0.35 -Fill -First {&#xD;
+                    New-ConsoleSelect -Key Server -Choices 'web-01', 'web-02', 'db-01'&#xD;
+                } -Second {&#xD;
+                    New-ConsoleBinding -Content { param($State) "Details for $($State.Server)" }&#xD;
+                }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Show a list beside its details and let the reader widen either side.</maml:para>
@@ -23108,8 +23108,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleSplitter -Key inventory -First { New-ConsoleText 'web01' } -Second {
-                New-ConsoleText 'State: Online' -Role Pass
+        <dev:code>New-ConsoleSplitter -Key inventory -First { New-ConsoleText 'web01' } -Second {&#xD;
+                New-ConsoleText 'State: Online' -Role Pass&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory splitter</maml:para>
@@ -23260,9 +23260,9 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStack -Content {
-    New-ConsoleChart -WidgetId latency -Type Line
-    New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
+        <dev:code>New-ConsoleStack -Content {&#xD;
+    New-ConsoleChart -WidgetId latency -Type Line&#xD;
+    New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>A chart with a status badge in its top-right corner</maml:para>
@@ -23270,8 +23270,8 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleStack -Height 6 -Content {
-                New-ConsolePanel -Title Inventory -Content { New-ConsoleText 'web01: Online' }
+        <dev:code>New-ConsoleStack -Height 6 -Content {&#xD;
+                New-ConsolePanel -Title Inventory -Content { New-ConsoleText 'web01: Online' }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory stack</maml:para>
@@ -23509,11 +23509,11 @@ Show-ConsoleApp -Content {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleStatusList -Content {
-    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }
-    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }
-    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }
-    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }
+        <dev:code>New-ConsoleStatusList -Content {&#xD;
+    [pscustomobject]@{ Label = 'Restore NuGet packages'; Status = 'Pass'; Detail = '1.6 s' }&#xD;
+    [pscustomobject]@{ Label = 'Compile ConsoleMonster'; Status = 'Pass'; Detail = '4.7 s' }&#xD;
+    [pscustomobject]@{ Label = 'Run Pester on PowerShell 7'; Status = 'Warn'; Detail = '1 skipped' }&#xD;
+    [pscustomobject]@{ Label = 'Pack ConsoleMonster.2.0.0.nupkg'; Status = 'Running' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A build checklist</maml:para>
@@ -23535,7 +23535,7 @@ Show-ConsoleApp -Content {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>$steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
+        <dev:code>$steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status&#xD;
 Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</dev:code>
         <dev:remarks>
           <maml:para>A live checklist: items start pending and are updated from the dashboard script</maml:para>
@@ -23543,10 +23543,10 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 5</maml:title>
-        <dev:code>New-ConsoleStatusList -Layout Strip -StepCounter -Content {
-                @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
-                @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
-                @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
+        <dev:code>New-ConsoleStatusList -Layout Strip -StepCounter -Content {&#xD;
+                @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }&#xD;
+                @{ Key = 'build'; Label = 'Build'; Status = 'Running' }&#xD;
+                @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Show build phases as a compact strip</maml:para>
@@ -23554,13 +23554,13 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 6</maml:title>
-        <dev:code>New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
-                @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
-                @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
-                @{ Key = 'verify'; Label = 'Verify' }
-                'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
-                @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
-                @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
+        <dev:code>New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {&#xD;
+                @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }&#xD;
+                @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }&#xD;
+                @{ Key = 'verify'; Label = 'Verify' }&#xD;
+                'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }&#xD;
+                @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }&#xD;
+                @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }&#xD;
             } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>The running phase fans out to the users it is migrating</maml:para>
@@ -23568,14 +23568,14 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 7</maml:title>
-        <dev:code>$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {
-                @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
-                @{ Key = 'build'; Label = 'Build'; Status = $Build }
-                @{ Key = 'test'; Label = 'Test' }
-            } }
-            @(
-                [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = &amp; $stages 'Running' }
-                [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = &amp; $stages 'Fail' }
+        <dev:code>$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {&#xD;
+                @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }&#xD;
+                @{ Key = 'build'; Label = 'Build'; Status = $Build }&#xD;
+                @{ Key = 'test'; Label = 'Test' }&#xD;
+            } }&#xD;
+            @(&#xD;
+                [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = &amp; $stages 'Running' }&#xD;
+                [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = &amp; $stages 'Fail' }&#xD;
             ) | Show-ConsoleTable</dev:code>
         <dev:remarks>
           <maml:para>Pipeline stages as one line in a table column</maml:para>
@@ -24796,9 +24796,9 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>@(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
+        <dev:code>@(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }&#xD;
+                [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }&#xD;
             ) | New-ConsoleTable -Property Name, Status, Region -StatusProperty Status -Title 'Servers' | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Build a table with a status column</maml:para>
@@ -24806,13 +24806,13 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$items = @(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
-            )
-            Show-ConsoleApp -Content {
-                New-ConsoleTextInput -Key Query
-                New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status
+        <dev:code>$items = @(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }&#xD;
+                [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }&#xD;
+            )&#xD;
+            Show-ConsoleApp -Content {&#xD;
+                New-ConsoleTextInput -Key Query&#xD;
+                New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Filter objects from current application state</maml:para>
@@ -24987,11 +24987,11 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Show-ConsoleApp -Mode Snapshot -Content {
-                New-ConsoleTabs -Key Page -Content ([ordered]@{
-                    Search = { New-ConsoleTextInput -Key Query }
-                    About = { New-ConsoleText 'Inventory browser' }
-                })
+        <dev:code>Show-ConsoleApp -Mode Snapshot -Content {&#xD;
+                New-ConsoleTabs -Key Page -Content ([ordered]@{&#xD;
+                    Search = { New-ConsoleTextInput -Key Query }&#xD;
+                    About = { New-ConsoleText 'Inventory browser' }&#xD;
+                })&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose two retained pages.</maml:para>
@@ -24999,9 +24999,9 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>New-ConsoleTabs -Key inventory -Content ([ordered]@{
-                Servers = { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget }
-                Summary = { New-ConsoleText 'One server online' -Role Pass }
+        <dev:code>New-ConsoleTabs -Key inventory -Content ([ordered]@{&#xD;
+                Servers = { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget }&#xD;
+                Summary = { New-ConsoleText 'One server online' -Role Pass }&#xD;
             }) | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose two retained inventory pages</maml:para>
@@ -25378,12 +25378,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>@(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Fail' }
-            ) | Show-ConsoleTable -Property Name, @{
-                Name = 'Status'
-                Expression = { New-ConsoleText $_.Status -Role $_.Status -Decoration Bold }
+        <dev:code>@(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }&#xD;
+                [pscustomobject]@{ Name = 'web02'; Status = 'Fail' }&#xD;
+            ) | Show-ConsoleTable -Property Name, @{&#xD;
+                Name = 'Status'&#xD;
+                Expression = { New-ConsoleText $_.Status -Role $_.Status -Decoration Bold }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Build status cells from a calculated property</maml:para>
@@ -25967,8 +25967,8 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleTextInput -Key filter -Placeholder 'Server name' -Value web
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleTextInput -Key filter -Placeholder 'Server name' -Value web&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory text input</maml:para>
@@ -26240,8 +26240,8 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Content {
-                New-ConsoleToggle -Key includeOffline -Label 'Include offline servers'
+        <dev:code>Show-ConsoleApp -Content {&#xD;
+                New-ConsoleToggle -Key includeOffline -Label 'Include offline servers'&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory toggle</maml:para>
@@ -26683,15 +26683,15 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {
-        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
-    }) }
-    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(&amp; {
-        'include:spf.protection.outlook.com'
-        'include:_spf.salesforce.com'
-    }) }
-    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
+        <dev:code>New-ConsoleTree '[bold]evotec.xyz[/]' -Content {&#xD;
+    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {&#xD;
+        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }&#xD;
+    }) }&#xD;
+    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(&amp; {&#xD;
+        'include:spf.protection.outlook.com'&#xD;
+        'include:_spf.salesforce.com'&#xD;
+    }) }&#xD;
+    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }&#xD;
 } | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>A mail domain with records and their state</maml:para>
@@ -26706,12 +26706,12 @@ Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps 
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$groups = @(
-    [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(
-        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }
-        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }
-    ) }
-)
+        <dev:code>$groups = @(&#xD;
+    [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(&#xD;
+        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }&#xD;
+        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }&#xD;
+    ) }&#xD;
+)&#xD;
 $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusProperty Health -DetailProperty Note | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Hierarchical objects with a status per node</maml:para>
@@ -27055,7 +27055,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
+        <dev:code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }&#xD;
             Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $config }</dev:code>
         <dev:remarks>
           <maml:para>Browse a nested configuration</maml:para>
@@ -27063,7 +27063,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
+        <dev:code>$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }&#xD;
             New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Compose an inventory tree select</maml:para>
@@ -27645,7 +27645,7 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$date = Read-ConsoleDate -Title 'Next maintenance date' -Default '2030-06-15'
+        <dev:code>$date = Read-ConsoleDate -Title 'Next maintenance date' -Default '2030-06-15'&#xD;
             Write-ConsoleText "Maintenance: $date"</dev:code>
         <dev:remarks>
           <maml:para>Choose a maintenance date</maml:para>
@@ -27935,8 +27935,8 @@ $groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusP
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }
-$answers = Read-ConsoleForm $form
+        <dev:code>$form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }&#xD;
+$answers = Read-ConsoleForm $form&#xD;
 if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
         <dev:remarks>
           <maml:para>Run a wizard and use the answers</maml:para>
@@ -27944,9 +27944,9 @@ if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Inspect inventory' -Content {
-                New-ConsoleField Server 'Server name' -Default web01 -Required
-            }
+        <dev:code>$form = New-ConsoleForm 'Inspect inventory' -Content {&#xD;
+                New-ConsoleField Server 'Server name' -Default web01 -Required&#xD;
+            }&#xD;
             Read-ConsoleForm $form | Show-ConsoleTable</dev:code>
         <dev:remarks>
           <maml:para>Collect a server name and display the submitted values</maml:para>
@@ -28285,7 +28285,7 @@ if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$count = Read-ConsoleNumber -Title 'Servers per batch' -Default 5 -Minimum 1 -Maximum 20
+        <dev:code>$count = Read-ConsoleNumber -Title 'Servers per batch' -Default 5 -Minimum 1 -Maximum 20&#xD;
             Write-ConsoleText "Batch size: $count"</dev:code>
         <dev:remarks>
           <maml:para>Choose a bounded batch size</maml:para>
@@ -28629,7 +28629,7 @@ if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$path = Read-ConsolePath -Title 'Inventory folder' -Default . -Kind Directory -MustExist
+        <dev:code>$path = Read-ConsolePath -Title 'Inventory folder' -Default . -Kind Directory -MustExist&#xD;
             Write-ConsoleText "Inventory folder: $path"</dev:code>
         <dev:remarks>
           <maml:para>Select an existing inventory directory</maml:para>
@@ -29302,10 +29302,10 @@ if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$servers = @(
-                [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
-                [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
-            )
+        <dev:code>$servers = @(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }&#xD;
+                [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }&#xD;
+            )&#xD;
             $server = $servers | Read-ConsoleSelect 'Server to inspect' -Display Name -Describe Status -GroupBy Region</dev:code>
         <dev:remarks>
           <maml:para>Pick an object from a small inventory</maml:para>
@@ -30040,9 +30040,9 @@ if ($answers) { Write-Host "Selected $($answers.Name)" }</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Shaper</maml:name>
           <maml:description>
-            <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
-ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
-Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
+            <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an&#xD;
+ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,&#xD;
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type&#xD;
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -30055,9 +30055,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Summary</maml:name>
           <maml:description>
-            <maml:para>A script block that sums up the objects shown together, under the view on the console ($_ and the first argument
-are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before
-it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing
+            <maml:para>A script block that sums up the objects shown together, under the view on the console ($_ and the first argument&#xD;
+are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before&#xD;
+it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing&#xD;
 when there is nothing worth saying, for example for one or two objects.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -30189,9 +30189,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Shaper</maml:name>
         <maml:description>
-          <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an
-ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,
-Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type
+          <maml:para>A script block that turns each object of the type into what is shown instead ($_ is the object), for example an&#xD;
+ordered dictionary of the fields worth showing. It applies in every command (Show-ConsoleTable, -List, -Tree,&#xD;
+Show-Console, Show-ConsoleGrid, Compare-ConsoleObject, Out-ConsoleDefault), also to deserialized objects whose type&#xD;
 names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group), only the shaper is registered.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -30204,9 +30204,9 @@ names match. Given alone (without -View, -Property, -GroupBy, -Title or -Group),
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Summary</maml:name>
         <maml:description>
-          <maml:para>A script block that sums up the objects shown together, under the view on the console ($_ and the first argument
-are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before
-it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing
+          <maml:para>A script block that sums up the objects shown together, under the view on the console ($_ and the first argument&#xD;
+are all of them). It returns facts: strings, or hashtables with Value, Label (after the value), Caption (before&#xD;
+it), Presenter (Bytes, Duration, Sparkline, Progress...) and Role (Pass, Warn, Fail, Muted...). Return nothing&#xD;
 when there is nothing worth saying, for example for one or two objects.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
@@ -30287,9 +30287,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Register-ConsoleView -TypeName 'Inventory.Server' -View Table -Property Name, State
-            $server = [pscustomobject]@{ Name = 'web01'; State = 'Online' }
-            $server.PSObject.TypeNames.Insert(0, 'Inventory.Server')
+        <dev:code>Register-ConsoleView -TypeName 'Inventory.Server' -View Table -Property Name, State&#xD;
+            $server = [pscustomobject]@{ Name = 'web01'; State = 'Online' }&#xD;
+            $server.PSObject.TypeNames.Insert(0, 'Inventory.Server')&#xD;
             $server | Show-Console</dev:code>
         <dev:remarks>
           <maml:para>Register a table for typed inventory records</maml:para>
@@ -30483,11 +30483,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Connection' -Content {
-                New-ConsoleField Domain 'Domain'
-                New-ConsoleField Parallel 'Parallel workers' -Kind Number -Integer -Minimum 1
-            }
-            Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }
+        <dev:code>$form = New-ConsoleForm 'Connection' -Content {&#xD;
+                New-ConsoleField Domain 'Domain'&#xD;
+                New-ConsoleField Parallel 'Parallel workers' -Kind Number -Integer -Minimum 1&#xD;
+            }&#xD;
+            Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }&#xD;
             Read-ConsoleForm $form</dev:code>
         <dev:remarks>
           <maml:para>Apply a preset before showing a form</maml:para>
@@ -30495,11 +30495,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$form = New-ConsoleForm 'Connection' -Content { New-ConsoleField Domain 'Domain' -Default 'lab.example.test' }
-            $last = Read-ConsoleForm $form -PassThru
-            if ($last) {
-                Set-ConsoleFormValue -Form $form -Values $last
-                Read-ConsoleForm $form
+        <dev:code>$form = New-ConsoleForm 'Connection' -Content { New-ConsoleField Domain 'Domain' -Default 'lab.example.test' }&#xD;
+            $last = Read-ConsoleForm $form -PassThru&#xD;
+            if ($last) {&#xD;
+                Set-ConsoleFormValue -Form $form -Values $last&#xD;
+                Read-ConsoleForm $form&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Start a form from the answers of its last run</maml:para>
@@ -30635,7 +30635,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code># Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
+        <dev:code># Requires an existing team-theme.json file, for example from Export-ConsoleTheme.&#xD;
             Set-ConsoleSetting Theme ./team-theme.json -Save</dev:code>
         <dev:remarks>
           <maml:para>Use a team theme file in every session</maml:para>
@@ -30829,7 +30829,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 5</maml:title>
-        <dev:code># Requires an existing team-theme.psd1 file. Changes the active session theme.
+        <dev:code># Requires an existing team-theme.psd1 file. Changes the active session theme.&#xD;
             Set-ConsoleTheme -Path ./team-theme.psd1</dev:code>
         <dev:remarks>
           <maml:para>Load an existing theme exported by Export-ConsoleTheme</maml:para>
@@ -32461,8 +32461,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>Show-Console -View Code -Language PowerShell -LineNumbers -Content {
-                'Get-Process | Select-Object -First 5'
+        <dev:code>Show-Console -View Code -Language PowerShell -LineNumbers -Content {&#xD;
+                'Get-Process | Select-Object -First 5'&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Show a PowerShell snippet with line numbers</maml:para>
@@ -32470,13 +32470,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 5</maml:title>
-        <dev:code>Show-Console -Content {
-                New-ConsolePanel -Title 'Build summary' -Content {
-                    New-ConsoleRows -Gap 1 -Content {
-                        New-ConsoleText 'All checks passed' -Role Pass
-                        New-ConsoleRule -Title 'Ready to review'
-                    }
-                }
+        <dev:code>Show-Console -Content {&#xD;
+                New-ConsolePanel -Title 'Build summary' -Content {&#xD;
+                    New-ConsoleRows -Gap 1 -Content {&#xD;
+                        New-ConsoleText 'All checks passed' -Role Pass&#xD;
+                        New-ConsoleRule -Title 'Ready to review'&#xD;
+                    }&#xD;
+                }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Compose a panel with native PowerShell script blocks</maml:para>
@@ -32484,8 +32484,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 6</maml:title>
-        <dev:code>Get-Process | Select-Object -First 3 |
-                Show-Console -View List -Property ProcessName, Id -AsWidget |
+        <dev:code>Get-Process | Select-Object -First 3 |&#xD;
+                Show-Console -View List -Property ProcessName, Id -AsWidget |&#xD;
                 Export-ConsoleFrame -Format Text</dev:code>
         <dev:remarks>
           <maml:para>Return a plain-text document for another pipeline command</maml:para>
@@ -33170,14 +33170,14 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$servers = @(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
-            )
-            Show-ConsoleApp -Content {
-                New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
-                New-ConsoleTable -Bind { $servers | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
-                New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
+        <dev:code>$servers = @(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }&#xD;
+                [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }&#xD;
+            )&#xD;
+            Show-ConsoleApp -Content {&#xD;
+                New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }&#xD;
+                New-ConsoleTable -Bind { $servers | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status&#xD;
+                New-ConsoleBinding -Content { "Edits: $($State.Edits)" }&#xD;
             } -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Filter application data without leaving PowerShell</maml:para>
@@ -33185,11 +33185,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleApp -Title Counter -KeyBinding ([ordered]@{
-                '+' = 'add', { param($State) $State.Count = 1 + $State.Count }
-                r = 'reset', { param($State) $State.Count = 0 }
-            }) -Content {
-                New-ConsoleBinding -Content { "Count: $([int] $State.Count)" }
+        <dev:code>Show-ConsoleApp -Title Counter -KeyBinding ([ordered]@{&#xD;
+                '+' = 'add', { param($State) $State.Count = 1 + $State.Count }&#xD;
+                r = 'reset', { param($State) $State.Count = 0 }&#xD;
+            }) -Content {&#xD;
+                New-ConsoleBinding -Content { "Count: $([int] $State.Count)" }&#xD;
             } -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Add app-wide keys; the footer lists them</maml:para>
@@ -33197,9 +33197,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Show-ConsoleApp -Mode Snapshot -Content {
-                New-ConsoleTextInput -Key Query -Value 'web'
-                New-ConsoleBinding -Content { "Query: $($State.Query)" }
+        <dev:code>Show-ConsoleApp -Mode Snapshot -Content {&#xD;
+                New-ConsoleTextInput -Key Query -Value 'web'&#xD;
+                New-ConsoleBinding -Content { "Query: $($State.Query)" }&#xD;
             } -PassThru</dev:code>
         <dev:remarks>
           <maml:para>Print initialized values without reading keyboard input</maml:para>
@@ -34678,10 +34678,10 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$servers = @(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
-            )
+        <dev:code>$servers = @(&#xD;
+                [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }&#xD;
+                [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }&#xD;
+            )&#xD;
             $servers | Show-ConsoleGrid -Property Name, Status, Region -Title 'Servers' -Command @{ Inspect = { param($Row) $Row | Select-Object Name, Status, Region } }</dev:code>
         <dev:remarks>
           <maml:para>Inspect selected objects with an embedded command</maml:para>
@@ -35422,10 +35422,10 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$menu = New-ConsoleMenu 'Server toolbox' -Content {
-                New-ConsoleMenuItem 'Current time' -Action { $MenuContext.Toast((Get-Date).ToString('u')) }
-                New-ConsoleMenuItem -Exit
-            }
+        <dev:code>$menu = New-ConsoleMenu 'Server toolbox' -Content {&#xD;
+                New-ConsoleMenuItem 'Current time' -Action { $MenuContext.Toast((Get-Date).ToString('u')) }&#xD;
+                New-ConsoleMenuItem -Exit&#xD;
+            }&#xD;
             Show-ConsoleMenu $menu -Layout Shell</dev:code>
         <dev:remarks>
           <maml:para>Run a menu as an application</maml:para>
@@ -35433,10 +35433,10 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$menu = New-ConsoleMenu -Title Inventory -Content {
-                New-ConsoleMenuItem 'List servers' -Action { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-ConsoleTable }
-                New-ConsoleMenuItem -Exit
-            }
+        <dev:code>$menu = New-ConsoleMenu -Title Inventory -Content {&#xD;
+                New-ConsoleMenuItem 'List servers' -Action { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-ConsoleTable }&#xD;
+                New-ConsoleMenuItem -Exit&#xD;
+            }&#xD;
             Show-ConsoleMenu $menu</dev:code>
         <dev:remarks>
           <maml:para>Choose an inventory action from a menu</maml:para>
@@ -36260,7 +36260,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code># WhatIf previews the operation without executing the script or writing the recording.
+        <dev:code># WhatIf previews the operation without executing the script or writing the recording.&#xD;
             Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./talk.cast -WhatIf</dev:code>
         <dev:remarks>
           <maml:para>Preview presenting and recording a demo script</maml:para>
@@ -36558,8 +36558,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code># Requires build.jsonl recorded with this dashboard definition.
-            $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+        <dev:code># Requires build.jsonl recorded with this dashboard definition.&#xD;
+            $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }&#xD;
             Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl</dev:code>
         <dev:remarks>
           <maml:para>Play an existing matching dashboard recording</maml:para>
@@ -36567,8 +36567,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># Requires build.jsonl recorded with this dashboard definition.
-            $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
+        <dev:code># Requires build.jsonl recorded with this dashboard definition.&#xD;
+            $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }&#xD;
             Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay:$false</dev:code>
         <dev:remarks>
           <maml:para>Start an existing recording inline and paused</maml:para>
@@ -36623,7 +36623,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Show-ConsoleSetting
+        <dev:code>Show-ConsoleSetting&#xD;
             Get-ConsoleSetting -Name Theme | Show-ConsoleTable</dev:code>
         <dev:remarks>
           <maml:para>Choose settings and inspect the resulting theme</maml:para>
@@ -37038,11 +37038,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$servers = 'web01', 'web02', 'sql01'
-            foreach ($server in $servers) {
-                Show-ConsoleStatusLine 'Checking ', $server -Color Gray, Cyan -Spinner -ShowElapsed
-                Start-Sleep -Milliseconds 100
-            }
+        <dev:code>$servers = 'web01', 'web02', 'sql01'&#xD;
+            foreach ($server in $servers) {&#xD;
+                Show-ConsoleStatusLine 'Checking ', $server -Color Gray, Cyan -Spinner -ShowElapsed&#xD;
+                Start-Sleep -Milliseconds 100&#xD;
+            }&#xD;
             Show-ConsoleStatusLine "Checked $($servers.Count) servers" -Status Pass -ShowElapsed -Complete</dev:code>
         <dev:remarks>
           <maml:para>Show progress through a sample inventory</maml:para>
@@ -37785,7 +37785,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Get-Process | Select-Object -First 8 |
+        <dev:code>Get-Process | Select-Object -First 8 |&#xD;
                 Show-ConsoleTable -Property ProcessName, Id, WorkingSet64 -Title 'Running processes'</dev:code>
         <dev:remarks>
           <maml:para>Show processes with the columns you need</maml:para>
@@ -37793,11 +37793,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$inventory = @(
-                [pscustomobject]@{ Site = 'East'; Server = 'WEB01'; Cores = 4 }
-                [pscustomobject]@{ Site = 'East'; Server = 'SQL01'; Cores = 8 }
-                [pscustomobject]@{ Site = 'West'; Server = 'WEB02'; Cores = 4 }
-            )
+        <dev:code>$inventory = @(&#xD;
+                [pscustomobject]@{ Site = 'East'; Server = 'WEB01'; Cores = 4 }&#xD;
+                [pscustomobject]@{ Site = 'East'; Server = 'SQL01'; Cores = 8 }&#xD;
+                [pscustomobject]@{ Site = 'West'; Server = 'WEB02'; Cores = 4 }&#xD;
+            )&#xD;
             $inventory | Show-ConsoleTable -Property Site, Server, Cores -GroupBy Site -ShowTotals</dev:code>
         <dev:remarks>
           <maml:para>Group a small inventory and total its numeric columns</maml:para>
@@ -37805,9 +37805,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>Get-Process | Select-Object -First 5 | Show-ConsoleTable -Property ProcessName, @{
-                Name = 'MemoryMB'
-                Expression = { [math]::Round($_.WorkingSet64 / 1MB, 1) }
+        <dev:code>Get-Process | Select-Object -First 5 | Show-ConsoleTable -Property ProcessName, @{&#xD;
+                Name = 'MemoryMB'&#xD;
+                Expression = { [math]::Round($_.WorkingSet64 / 1MB, 1) }&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Calculate a memory column in megabytes</maml:para>
@@ -37815,9 +37815,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 4</maml:title>
-        <dev:code>@(
-                [pscustomobject]@{ Task = 'Backup'; Notes = 'Verified the report and checked the retained files.' }
-                [pscustomobject]@{ Task = 'Review'; Notes = 'Ready for the next scheduled maintenance window.' }
+        <dev:code>@(&#xD;
+                [pscustomobject]@{ Task = 'Backup'; Notes = 'Verified the report and checked the retained files.' }&#xD;
+                [pscustomobject]@{ Task = 'Review'; Notes = 'Ready for the next scheduled maintenance window.' }&#xD;
             ) | Show-ConsoleTable -Property Task, Notes -Width 60 -CardsBelow 0 -Wrap</dev:code>
         <dev:remarks>
           <maml:para>Wrap long notes in a narrow report</maml:para>
@@ -37825,9 +37825,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 5</maml:title>
-        <dev:code>@(
-                [pscustomobject]@{ Check = 'Storage'; Status = 'Pass'; Detail = '42 GB free' }
-                [pscustomobject]@{ Check = 'Queue'; Status = 'Warn'; Detail = '12 items waiting' }
+        <dev:code>@(&#xD;
+                [pscustomobject]@{ Check = 'Storage'; Status = 'Pass'; Detail = '42 GB free' }&#xD;
+                [pscustomobject]@{ Check = 'Queue'; Status = 'Warn'; Detail = '12 items waiting' }&#xD;
             ) | Show-ConsoleTable -Property Check, Status, Detail -StatusProperty Status</dev:code>
         <dev:remarks>
           <maml:para>Give health states a visible status marker</maml:para>
@@ -37835,8 +37835,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 6</maml:title>
-        <dev:code>Get-Process | Select-Object -First 5 |
-                Show-ConsoleTable -Property ProcessName, Id -PassThru |
+        <dev:code>Get-Process | Select-Object -First 5 |&#xD;
+                Show-ConsoleTable -Property ProcessName, Id -PassThru |&#xD;
                 Measure-Object</dev:code>
         <dev:remarks>
           <maml:para>Display objects and keep them in the pipeline</maml:para>
@@ -38222,13 +38222,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$files = @(Get-ChildItem -File | Select-Object -First 5)
-            $run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName
-            try {
-                for ($i = 0; $i -lt $files.Count; $i++) {
-                    Update-Console -Run $run -Index $i -Status Running
-                    Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"
-                }
+        <dev:code>$files = @(Get-ChildItem -File | Select-Object -First 5)&#xD;
+            $run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName&#xD;
+            try {&#xD;
+                for ($i = 0; $i -lt $files.Count; $i++) {&#xD;
+                    Update-Console -Run $run -Index $i -Status Running&#xD;
+                    Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"&#xD;
+                }&#xD;
             } finally { Complete-ConsoleRun $run }</dev:code>
         <dev:remarks>
           <maml:para>Track file inspections without modifying the files</maml:para>
@@ -38236,9 +38236,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
-            $run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
-            Update-Console -Run $run -Index 0 -Status Pass
+        <dev:code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })&#xD;
+            $run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20&#xD;
+            Update-Console -Run $run -Index 0 -Status Pass&#xD;
             Complete-ConsoleRun $run</dev:code>
         <dev:remarks>
           <maml:para>Use append-only progress output in CI</maml:para>
@@ -38280,7 +38280,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Write-Host 'Deployment finished'
+        <dev:code>Write-Host 'Deployment finished'&#xD;
             Stop-ConsoleRecording</dev:code>
         <dev:remarks>
           <maml:para>Finish from inside the recorded child shell</maml:para>
@@ -38288,8 +38288,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># In a shell started with Invoke-ConsoleRecording -Interactive:
-            Write-ConsoleText 'Inspection complete' -Role Pass
+        <dev:code># In a shell started with Invoke-ConsoleRecording -Interactive:&#xD;
+            Write-ConsoleText 'Inspection complete' -Role Pass&#xD;
             Stop-ConsoleRecording</dev:code>
         <dev:remarks>
           <maml:para>End a recording from inside the recorded shell</maml:para>
@@ -38618,7 +38618,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Unregister-ConsoleView -TypeName 'Inventory.Server' -WhatIf
+        <dev:code>Unregister-ConsoleView -TypeName 'Inventory.Server' -WhatIf&#xD;
             Get-ConsoleFormatting</dev:code>
         <dev:remarks>
           <maml:para>Preview removing a registered inventory view</maml:para>
@@ -39867,7 +39867,7 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleProgress -WidgetId build -Total 20 }
+        <dev:code>$dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleProgress -WidgetId build -Total 20 }&#xD;
             Invoke-ConsoleDashboard $dashboard { Update-Console build -Value 5 -Total 20 -Label 'Compile' }</dev:code>
         <dev:remarks>
           <maml:para>Advance a progress widget and change its label</maml:para>
@@ -39875,11 +39875,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title Results -Content {
-                New-ConsoleTable -WidgetId results -Live -Property Server, State, Ms -KeyProperty Server
-            }
-            Invoke-ConsoleDashboard $dashboard {
-                Update-Console results -Row ([pscustomobject]@{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+        <dev:code>$dashboard = New-ConsoleDashboard -Title Results -Content {&#xD;
+                New-ConsoleTable -WidgetId results -Live -Property Server, State, Ms -KeyProperty Server&#xD;
+            }&#xD;
+            Invoke-ConsoleDashboard $dashboard {&#xD;
+                Update-Console results -Row ([pscustomobject]@{ Server = 'web01'; State = 'Pass'; Ms = 12 })&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Add or replace a live table row with an ordinary record</maml:para>
@@ -39887,9 +39887,9 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$items = @([pscustomobject]@{ Name = 'Report' })
-            $run = Start-ConsoleRun -InputObject $items -Label Name -NoLive
-            Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'
+        <dev:code>$items = @([pscustomobject]@{ Name = 'Report' })&#xD;
+            $run = Start-ConsoleRun -InputObject $items -Label Name -NoLive&#xD;
+            Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'&#xD;
             Complete-ConsoleRun $run</dev:code>
         <dev:remarks>
           <maml:para>Finish one caller-managed run item</maml:para>
@@ -39993,8 +39993,8 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Use-ConsoleGroup 'Check sample inventory' {
-                [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable
+        <dev:code>Use-ConsoleGroup 'Check sample inventory' {&#xD;
+                [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Group a sample inventory in a CI log</maml:para>
@@ -40163,11 +40163,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>Use-ConsoleProgress {
-    foreach ($i in 1..50) {
-        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
-        Start-Sleep -Milliseconds 50
-    }
+        <dev:code>Use-ConsoleProgress {&#xD;
+    foreach ($i in 1..50) {&#xD;
+        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)&#xD;
+        Start-Sleep -Milliseconds 50&#xD;
+    }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>An existing loop, unchanged</maml:para>
@@ -40175,11 +40175,11 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Use-ConsoleProgress -PrintFinalState:$false {
-                foreach ($server in 'web01', 'web02') {
-                    Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
-                    [pscustomobject]@{ Server = $server; Result = 'Pass' }
-                }
+        <dev:code>Use-ConsoleProgress -PrintFinalState:$false {&#xD;
+                foreach ($server in 'web01', 'web02') {&#xD;
+                    Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50&#xD;
+                    [pscustomobject]@{ Server = $server; Result = 'Pass' }&#xD;
+                }&#xD;
             } | Show-ConsoleTable</dev:code>
         <dev:remarks>
           <maml:para>Return server results and suppress the final progress area</maml:para>
@@ -40719,14 +40719,14 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
-    New-ConsoleProgress -WidgetId overall -Label Targets -Total 3
-}
-Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
-    foreach ($count in 1..3) {
-        Update-Console -WidgetId overall -Value $count
-        Wait-ConsoleDashboard -Seconds 0.25
-    }
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Scan' -Content {&#xD;
+    New-ConsoleProgress -WidgetId overall -Label Targets -Total 3&#xD;
+}&#xD;
+Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {&#xD;
+    foreach ($count in 1..3) {&#xD;
+        Update-Console -WidgetId overall -Value $count&#xD;
+        Wait-ConsoleDashboard -Seconds 0.25&#xD;
+    }&#xD;
 }</dev:code>
         <dev:remarks>
           <maml:para>Update progress between cancellable pauses</maml:para>
@@ -40734,11 +40734,11 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleLanes -WidgetId servers }
-            Invoke-ConsoleDashboard $dashboard {
-                Update-Console servers -Key web01 -Status Running
-                Wait-ConsoleDashboard -Seconds 0.1
-                Update-Console servers -Key web01 -Status Pass -Complete
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleLanes -WidgetId servers }&#xD;
+            Invoke-ConsoleDashboard $dashboard {&#xD;
+                Update-Console servers -Key web01 -Status Running&#xD;
+                Wait-ConsoleDashboard -Seconds 0.1&#xD;
+                Update-Console servers -Key web01 -Status Pass -Complete&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Pause briefly between live server updates</maml:para>
@@ -41436,7 +41436,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code># Requires an existing service.log file; reads two snapshots without changing the file.
+        <dev:code># Requires an existing service.log file; reads two snapshots without changing the file.&#xD;
             Watch-ConsoleLog -Path ./service.log -Highlight database -Count 2</dev:code>
         <dev:remarks>
           <maml:para>Inspect an existing log and highlight a component</maml:para>
@@ -41444,7 +41444,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code># Requires an existing service.log file.
+        <dev:code># Requires an existing service.log file.&#xD;
             Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1</dev:code>
         <dev:remarks>
           <maml:para>Return matching lines from an existing log as strings</maml:para>
@@ -41661,7 +41661,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$result = [pscustomobject]@{ Name = 'Inventory'; Detail = 'Two servers need an update' }
+        <dev:code>$result = [pscustomobject]@{ Name = 'Inventory'; Detail = 'Two servers need an update' }&#xD;
             Write-ConsoleAnnotation -Level Warning -Title $result.Name -Message $result.Detail</dev:code>
         <dev:remarks>
           <maml:para>Highlight an inventory warning in a CI log</maml:para>
@@ -41854,7 +41854,7 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
     <command:examples>
       <command:example>
         <maml:title>EXAMPLE 1</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }&#xD;
             Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn }</dev:code>
         <dev:remarks>
           <maml:para>Log a warning</maml:para>
@@ -41862,12 +41862,12 @@ Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Patching' -Content { New-ConsoleLogRegion -NoElapsed }
-            Invoke-ConsoleDashboard $dashboard {
-                foreach ($server in 'DC01', 'DC02', 'FS01') {
-                    Write-ConsoleLogEntry 'Installing KB5044284' -Tag $server
-                }
-                Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'
+        <dev:code>$dashboard = New-ConsoleDashboard -Title 'Patching' -Content { New-ConsoleLogRegion -NoElapsed }&#xD;
+            Invoke-ConsoleDashboard $dashboard {&#xD;
+                foreach ($server in 'DC01', 'DC02', 'FS01') {&#xD;
+                    Write-ConsoleLogEntry 'Installing KB5044284' -Tag $server&#xD;
+                }&#xD;
+                Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'&#xD;
             }</dev:code>
         <dev:remarks>
           <maml:para>Tag lines with the server they came from</maml:para>

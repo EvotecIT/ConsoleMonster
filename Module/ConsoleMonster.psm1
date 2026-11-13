@@ -5,860 +5,260 @@
 
 # PowerForge script preamble end
 
+$PowerForgeModuleName = 'ConsoleMonster'
 
-$UnregisterPowerForgeDesktopAssemblyResolver = $null
+$script:PowerForgeDesktopAssemblyResolver = $null
+$script:PowerForgeDependencyCheck = $null
 $PowerForgeModuleImportCompleted = $false
 try {
-$PowerForgeDevelopmentBinaryLoaded = $false
-# Source development binary loader
-$PowerForgeDevelopmentBinaryRoot = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, '..', 'ConsoleMonster.PowerShell', 'bin'))
-$PowerForgeDevelopmentBinaryMode = 'Auto'
-$PowerForgeDevelopmentBinaryEnvironmentVariable = 'CONSOLEMONSTER_USE_DEVELOPMENT_BINARIES'
-$PowerForgeDevelopmentConfigurationEnvironmentVariable = 'CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION'
-$PowerForgeDevelopmentCoreFrameworks = @('net8.0', 'net472')
-$PowerForgeDevelopmentDesktopFrameworks = @('net472', 'net8.0')
-$PowerForgeDevelopmentUseAssemblyLoadContext = $true
-$PowerForgeDevelopmentEnabled = $false
-if ($PowerForgeDevelopmentBinaryMode -eq 'Auto') {
-    $PowerForgeDevelopmentEnabled = $true
-} elseif ($PowerForgeDevelopmentBinaryMode -eq 'Environment') {
-    $PowerForgeDevelopmentRequestedValue = [Environment]::GetEnvironmentVariable($PowerForgeDevelopmentBinaryEnvironmentVariable)
-    $PowerForgeDevelopmentEnabled = [string]::Equals($PowerForgeDevelopmentRequestedValue, 'true', [StringComparison]::OrdinalIgnoreCase)
-}
+    # The loader runs in its own scope, so its working variables do not stay in the module.
+    & {
+        $PowerForgeDevelopmentBinaryLoaded = $false
+        # Source development binary loader
+        $PowerForgeDevelopmentBinaryRoot = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, '..', 'ConsoleMonster.PowerShell', 'bin'))
+        $PowerForgeDevelopmentBinaryMode = 'Auto'
+        $PowerForgeDevelopmentBinaryEnvironmentVariable = 'CONSOLEMONSTER_USE_DEVELOPMENT_BINARIES'
+        $PowerForgeDevelopmentConfigurationEnvironmentVariable = 'CONSOLEMONSTER_DEVELOPMENT_CONFIGURATION'
+        $PowerForgeDevelopmentCoreFrameworks = @('net8.0', 'net472')
+        $PowerForgeDevelopmentDesktopFrameworks = @('net472', 'net8.0')
+        $PowerForgeDevelopmentEnabled = $false
+        if ($PowerForgeDevelopmentBinaryMode -eq 'Auto') {
+            $PowerForgeDevelopmentEnabled = $true
+        } elseif ($PowerForgeDevelopmentBinaryMode -eq 'Environment') {
+            $PowerForgeDevelopmentRequestedValue = [Environment]::GetEnvironmentVariable($PowerForgeDevelopmentBinaryEnvironmentVariable)
+            $PowerForgeDevelopmentEnabled = [string]::Equals($PowerForgeDevelopmentRequestedValue, 'true', [StringComparison]::OrdinalIgnoreCase)
+        }
 
-if ($PowerForgeDevelopmentEnabled) {
-    $PowerForgeDevelopmentConfigurations = @()
-    $PowerForgeDevelopmentRequestedConfiguration = [Environment]::GetEnvironmentVariable($PowerForgeDevelopmentConfigurationEnvironmentVariable)
-    if (-not [string]::IsNullOrWhiteSpace($PowerForgeDevelopmentRequestedConfiguration)) {
-        $PowerForgeDevelopmentConfigurations += $PowerForgeDevelopmentRequestedConfiguration
-    }
-    $PowerForgeDevelopmentConfigurations += 'Debug'
-    $PowerForgeDevelopmentConfigurations += 'Release'
-    $PowerForgeDevelopmentConfigurations = @($PowerForgeDevelopmentConfigurations | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
-
-    $PowerForgeDevelopmentFrameworks = if ($PSEdition -eq 'Core') { $PowerForgeDevelopmentCoreFrameworks } else { $PowerForgeDevelopmentDesktopFrameworks }
-    $PowerForgeDevelopmentBinaryPath = $null
-    foreach ($PowerForgeDevelopmentConfiguration in $PowerForgeDevelopmentConfigurations) {
-        foreach ($PowerForgeDevelopmentFramework in $PowerForgeDevelopmentFrameworks) {
-            $PowerForgeDevelopmentCandidate = [IO.Path]::Combine($PowerForgeDevelopmentBinaryRoot, $PowerForgeDevelopmentConfiguration, $PowerForgeDevelopmentFramework, 'ConsoleMonster.PowerShell.dll')
-            if (Test-Path -LiteralPath $PowerForgeDevelopmentCandidate) {
-                $PowerForgeDevelopmentBinaryPath = $PowerForgeDevelopmentCandidate
-                break
+        if ($PowerForgeDevelopmentEnabled) {
+            $PowerForgeDevelopmentConfigurations = @()
+            $PowerForgeDevelopmentRequestedConfiguration = [Environment]::GetEnvironmentVariable($PowerForgeDevelopmentConfigurationEnvironmentVariable)
+            if (-not [string]::IsNullOrWhiteSpace($PowerForgeDevelopmentRequestedConfiguration)) {
+                $PowerForgeDevelopmentConfigurations += $PowerForgeDevelopmentRequestedConfiguration
             }
-        }
-        if ($PowerForgeDevelopmentBinaryPath) { break }
-    }
+            $PowerForgeDevelopmentConfigurations += 'Debug'
+            $PowerForgeDevelopmentConfigurations += 'Release'
+            $PowerForgeDevelopmentConfigurations = @($PowerForgeDevelopmentConfigurations | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique)
 
-    if ($PowerForgeDevelopmentBinaryPath) {
-        try {
-            $ImportModule = Get-Command -Name Import-Module -Module Microsoft.PowerShell.Core
-
-            if ($PSEdition -eq 'Core' -and $PowerForgeDevelopmentUseAssemblyLoadContext) {
-                if (-not ('ConsoleMonster.DevelopmentModuleLoadContext.ModuleAssemblyLoadContext' -as [type])) {
-                    Add-Type -TypeDefinition @'
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Loader;
-
-namespace ConsoleMonster.DevelopmentModuleLoadContext
-{
-    public sealed class ModuleAssemblyLoadContext : AssemblyLoadContext
-    {
-        private static readonly object Sync = new object();
-        private static readonly Dictionary<string, ModuleAssemblyLoadContext> Contexts = new Dictionary<string, ModuleAssemblyLoadContext>(StringComparer.OrdinalIgnoreCase);
-
-        private readonly string _assemblyDirectory;
-        private readonly string _moduleAssemblyPath;
-        private readonly AssemblyDependencyResolver _resolver;
-        private Assembly _moduleAssembly;
-
-        private ModuleAssemblyLoadContext(string moduleAssemblyPath, string contextName)
-            : base(contextName, isCollectible: false)
-        {
-            _moduleAssemblyPath = Path.GetFullPath(moduleAssemblyPath);
-            _assemblyDirectory = Path.GetDirectoryName(_moduleAssemblyPath) ?? string.Empty;
-            _resolver = TryCreateResolver(_moduleAssemblyPath);
-        }
-
-        public static Assembly LoadModule(string moduleAssemblyPath, string contextName)
-        {
-            if (string.IsNullOrWhiteSpace(moduleAssemblyPath))
-                throw new ArgumentException("Module assembly path is required.", nameof(moduleAssemblyPath));
-
-            var fullPath = Path.GetFullPath(moduleAssemblyPath);
-            if (!File.Exists(fullPath))
-                throw new FileNotFoundException("Module assembly was not found.", fullPath);
-
-            lock (Sync)
-            {
-                ModuleAssemblyLoadContext context;
-                if (!Contexts.TryGetValue(fullPath, out context))
-                {
-                    context = new ModuleAssemblyLoadContext(fullPath, string.IsNullOrWhiteSpace(contextName) ? Path.GetFileNameWithoutExtension(fullPath) : contextName);
-                    Contexts[fullPath] = context;
-                }
-
-                return context.LoadMainModule();
-            }
-        }
-
-        protected override Assembly Load(AssemblyName assemblyName)
-        {
-            if (assemblyName == null || string.IsNullOrWhiteSpace(assemblyName.Name))
-                return null;
-
-            // Cmdlet and attribute types must come from the PowerShell host. Development
-            // outputs can include SDK runtime copies that have a different ALC identity.
-            if (string.Equals(assemblyName.Name, "System.Management.Automation", StringComparison.OrdinalIgnoreCase))
-                return null;
-
-            var loaderAssembly = typeof(ModuleAssemblyLoadContext).Assembly.GetName();
-            if (AssemblyName.ReferenceMatchesDefinition(loaderAssembly, assemblyName))
-                return typeof(ModuleAssemblyLoadContext).Assembly;
-
-            var resolvedPath = _resolver?.ResolveAssemblyToPath(assemblyName);
-            if (!string.IsNullOrWhiteSpace(resolvedPath) && File.Exists(resolvedPath))
-                return LoadFromAssemblyPath(resolvedPath);
-
-            var assemblyPath = Path.Combine(_assemblyDirectory, assemblyName.Name + ".dll");
-            return File.Exists(assemblyPath) ? LoadFromAssemblyPath(assemblyPath) : null;
-        }
-
-        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
-        {
-            var resolvedPath = _resolver?.ResolveUnmanagedDllToPath(unmanagedDllName);
-            if (!string.IsNullOrWhiteSpace(resolvedPath) && File.Exists(resolvedPath))
-                return LoadUnmanagedDllFromPath(resolvedPath);
-
-            return IntPtr.Zero;
-        }
-
-        private static AssemblyDependencyResolver TryCreateResolver(string assemblyPath)
-        {
-            try
-            {
-                return new AssemblyDependencyResolver(assemblyPath);
-            }
-            catch (InvalidOperationException)
-            {
-                return null;
-            }
-        }
-
-        private Assembly LoadMainModule()
-        {
-            if (_moduleAssembly == null)
-                _moduleAssembly = LoadFromAssemblyPath(_moduleAssemblyPath);
-
-            return _moduleAssembly;
-        }
-    }
-}
-'@ -Language CSharp -ErrorAction Stop
-                }
-                $PowerForgeDevelopmentModuleAssembly = [ConsoleMonster.DevelopmentModuleLoadContext.ModuleAssemblyLoadContext]::LoadModule($PowerForgeDevelopmentBinaryPath, 'ConsoleMonster.Development')
-                $PowerForgeDevelopmentInnerModule = & $ImportModule -Assembly $PowerForgeDevelopmentModuleAssembly -Force -PassThru -ErrorAction Stop
-                $ModuleAssembly = $PowerForgeDevelopmentModuleAssembly
-                $LibFolder = [IO.Path]::GetDirectoryName($PowerForgeDevelopmentBinaryPath)
-                        # Type accelerator registration relies on $ModuleAssembly and $LibFolder from this ALC loader scope.
-                $RegisterPowerForgeAssemblyTypeAccelerators = {
-                    param(
-                        [Parameter(Mandatory = $true)][System.Reflection.Assembly] $ModuleAssembly,
-                        [Parameter(Mandatory = $true)][string] $LibFolder
-                    )
-
-                    $Mode = 'AllowList'
-                    $RequestedTypes = @('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth')
-                    $RequestedAssemblies = @()
-
-                    if ($null -eq $ModuleAssembly) {
-                        Write-Warning -Message 'Module assembly was not available. ALC dependency type exposure is disabled.'
-                        return
-                    }
-
-                    if ([string]::IsNullOrWhiteSpace($LibFolder)) {
-                        Write-Warning -Message 'Module library folder was not available. ALC dependency type exposure is disabled.'
-                        return
-                    }
-
-                    $PowerForgeAlcLibraryDirectory = $null
-                    if ([IO.Path]::IsPathRooted($LibFolder)) {
-                        $PowerForgeAlcLibraryDirectory = [IO.Path]::GetFullPath($LibFolder)
-                    } elseif ($LibFolder.Contains('..') -or $LibFolder.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) {
-                        Write-Warning -Message "Module library folder '$LibFolder' must be a simple folder name or a rooted development binary directory. ALC dependency type exposure is disabled."
-                        return
-                    } else {
-                        $PowerForgeAlcLibraryDirectory = [IO.Path]::Combine($PSScriptRoot, 'Lib', $LibFolder)
-                    }
-
-                    if ($Mode -eq 'AllowList' -and $RequestedTypes.Count -eq 0) {
-                        Write-Warning -Message 'AllowList type accelerator mode was configured without type names. No ALC dependency type accelerators will be registered.'
-                        return
-                    }
-
-                    if (($Mode -eq 'Assembly' -or $Mode -eq 'Enums') -and $RequestedAssemblies.Count -eq 0) {
-                        if ($RequestedTypes.Count -eq 0) {
-                            Write-Warning -Message "$Mode type accelerator mode was configured without assembly names or type names. No ALC dependency type accelerators will be registered."
-                            return
-                        }
-
-                        Write-Warning -Message "$Mode type accelerator mode was configured without assembly names. Only explicitly configured type names will be registered."
-                    }
-
-                    $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')
-                    if ($null -eq $TypeAccelerators) {
-                        Write-Warning -Message 'PowerShell type accelerator APIs are not available. ALC dependency type exposure is disabled.'
-                        return
-                    }
-
-                    $AddTypeAccelerator = $TypeAccelerators.GetMethod('Add', [type[]]@([string], [type]))
-                    $GetTypeAccelerators = $TypeAccelerators.GetProperty('Get', [System.Reflection.BindingFlags] 'Static,Public,NonPublic')
-                    if ($null -eq $AddTypeAccelerator -or $null -eq $GetTypeAccelerators) {
-                        Write-Warning -Message 'PowerShell type accelerator APIs are incomplete. ALC dependency type exposure is disabled.'
-                        return
-                    }
-
-                    $ModuleAlc = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext($ModuleAssembly)
-                    if ($null -eq $ModuleAlc) {
-                        Write-Warning -Message 'Unable to resolve the module AssemblyLoadContext. ALC dependency type exposure is disabled.'
-                        return
-                    }
-
-                    if ($null -eq $script:PowerForgeRegisteredAssemblyTypeAccelerators) {
-                        $script:PowerForgeRegisteredAssemblyTypeAccelerators = @{}
-                    }
-
-                    $ImportPowerForgeAlcAssembly = {
-                        param([Parameter(Mandatory = $true)][string] $AssemblyName)
-
-                        foreach ($Assembly in $ModuleAlc.Assemblies) {
-                            if ($Assembly.GetName().Name -eq $AssemblyName) {
-                                return $Assembly
-                            }
-                        }
-
-                        try {
-                            return $ModuleAlc.LoadFromAssemblyName([System.Reflection.AssemblyName]::new($AssemblyName))
-                        } catch {
-                            $AssemblyPath = [IO.Path]::Combine($PowerForgeAlcLibraryDirectory, $AssemblyName + '.dll')
-                            if (Test-Path -LiteralPath $AssemblyPath) {
-                                try {
-                                    $AssemblyNameObject = [System.Reflection.AssemblyName]::GetAssemblyName($AssemblyPath)
-                                    return $ModuleAlc.LoadFromAssemblyName($AssemblyNameObject)
-                                } catch {
-                                    Write-Warning -Message "Could not load ALC assembly '$AssemblyName' for type accelerator exposure: $($_.Exception.Message)"
-                                }
-                            }
-                        }
-
-                        return $null
-                    }
-
-                    $FindPowerForgeAlcType = {
-                        param([Parameter(Mandatory = $true)][string] $TypeName)
-
-                        foreach ($Assembly in $ModuleAlc.Assemblies) {
-                            $Type = $Assembly.GetType($TypeName, $false, $false)
-                            if ($null -ne $Type) {
-                                return $Type
-                            }
-                        }
-
-                        $LibDirectory = $PowerForgeAlcLibraryDirectory
-                        if (-not (Test-Path -LiteralPath $LibDirectory)) {
-                            return $null
-                        }
-
-                        foreach ($File in Get-ChildItem -LiteralPath $LibDirectory -File -ErrorAction SilentlyContinue | Where-Object Extension -IEQ '.dll') {
-                            try {
-                                $AssemblyName = [System.Reflection.AssemblyName]::GetAssemblyName($File.FullName)
-                                $Assembly = & $ImportPowerForgeAlcAssembly -AssemblyName $AssemblyName.Name
-                                if ($null -eq $Assembly) {
-                                    continue
-                                }
-
-                                $Type = $Assembly.GetType($TypeName, $false, $false)
-                                if ($null -ne $Type) {
-                                    return $Type
-                                }
-                            } catch {
-                                continue
-                            }
-                        }
-
-                        return $null
-                    }
-
-                    $AddPowerForgeTypeAccelerator = {
-                        param([Parameter(Mandatory = $true)][type] $Type)
-
-                        if ([string]::IsNullOrWhiteSpace($Type.FullName)) {
-                            return
-                        }
-
-                        $Name = $Type.FullName
-                        $Existing = $GetTypeAccelerators.GetValue($null)
-                        if ($Existing.ContainsKey($Name)) {
-                            $ExistingType = $Existing[$Name]
-                            if ([object]::ReferenceEquals($ExistingType, $Type)) {
-                                return
-                            } else {
-                                $ExistingAssemblyName = $ExistingType.Assembly.GetName()
-                                $TypeAssemblyName = $Type.Assembly.GetName()
-                                $ExistingLoadContext = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext($ExistingType.Assembly)
-                                $TypeLoadContext = [System.Runtime.Loader.AssemblyLoadContext]::GetLoadContext($Type.Assembly)
-                                if ([object]::ReferenceEquals($ExistingLoadContext, $TypeLoadContext) -and [object]::Equals($ExistingAssemblyName.FullName, $TypeAssemblyName.FullName)) {
-                                    Write-Verbose -Message "Type accelerator '$Name' already exists in the same AssemblyLoadContext from the same assembly identity. Keeping the existing accelerator and skipping the duplicate type from $($TypeAssemblyName.Name)."
-                                } else {
-                                    Write-Warning -Message "Type accelerator '$Name' already exists from $($ExistingAssemblyName.FullName). Keeping the existing accelerator and skipping the ALC type from $($TypeAssemblyName.FullName)."
-                                }
-                            }
-                            return
-                        }
-
-                        try {
-                            $AddTypeAccelerator.Invoke($null, @($Name, $Type)) | Out-Null
-                        } catch {
-                            Write-Warning -Message "Type accelerator '$Name' could not be registered from $($Type.Assembly.GetName().Name): $($_.Exception.Message)"
-                            return
-                        }
-
-                        $script:PowerForgeRegisteredAssemblyTypeAccelerators[$Name] = $Type
-                    }
-
-                    if ($Mode -eq 'Assembly' -or $Mode -eq 'Enums') {
-                        foreach ($AssemblyName in $RequestedAssemblies) {
-                            $Assembly = & $ImportPowerForgeAlcAssembly -AssemblyName $AssemblyName
-                            if ($null -eq $Assembly) {
-                                Write-Warning -Message "Assembly '$AssemblyName' was not found in the module AssemblyLoadContext. No type accelerators were registered for it."
-                                continue
-                            }
-
-                            try {
-                                $ExportedTypes = @($Assembly.GetExportedTypes())
-                            } catch {
-                                Write-Warning -Message "Could not enumerate exported types from assembly '$AssemblyName' for type accelerator exposure: $($_.Exception.Message)"
-                                continue
-                            }
-
-                            foreach ($Type in $ExportedTypes) {
-                                if ($Mode -eq 'Enums' -and -not $Type.IsEnum) {
-                                    continue
-                                }
-
-                                & $AddPowerForgeTypeAccelerator -Type $Type
-                            }
-                        }
-                    }
-
-                    foreach ($TypeName in $RequestedTypes) {
-                        $Type = & $FindPowerForgeAlcType -TypeName $TypeName
-                        if ($null -eq $Type) {
-                            Write-Warning -Message "Type '$TypeName' was not found in the module AssemblyLoadContext. No type accelerator was registered."
-                            continue
-                        }
-
-                        & $AddPowerForgeTypeAccelerator -Type $Type
-                    }
-
-                    if ($script:PowerForgeAssemblyTypeAcceleratorCleanupRegistered -ne $true) {
-                        $script:PowerForgeAssemblyTypeAcceleratorCleanupRegistered = $true
-                        $RegisteredPowerForgeTypeAccelerators = $script:PowerForgeRegisteredAssemblyTypeAccelerators
-                        $PreviousPowerForgeOnRemove = $ExecutionContext.SessionState.Module.OnRemove
-                        $ExecutionContext.SessionState.Module.OnRemove = {
-                            try {
-                                $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')
-                                if ($null -eq $TypeAccelerators -or $null -eq $RegisteredPowerForgeTypeAccelerators) {
-                                    return
-                                }
-
-                                $GetTypeAccelerators = $TypeAccelerators.GetProperty('Get', [System.Reflection.BindingFlags] 'Static,Public,NonPublic')
-                                $RemoveTypeAccelerator = $TypeAccelerators.GetMethod('Remove', [type[]]@([string]))
-                                if ($null -eq $GetTypeAccelerators -or $null -eq $RemoveTypeAccelerator) {
-                                    return
-                                }
-
-                                $Existing = $GetTypeAccelerators.GetValue($null)
-                                foreach ($Entry in @($RegisteredPowerForgeTypeAccelerators.GetEnumerator())) {
-                                    if ($Existing.ContainsKey($Entry.Key) -and [object]::ReferenceEquals($Existing[$Entry.Key], $Entry.Value)) {
-                                        $RemoveTypeAccelerator.Invoke($null, @($Entry.Key)) | Out-Null
-                                    }
-                                }
-                            } finally {
-                                if ($null -ne $PreviousPowerForgeOnRemove) {
-                                    & $PreviousPowerForgeOnRemove @args
-                                }
-                            }
-                        }.GetNewClosure()
+            $PowerForgeDevelopmentFrameworks = if ($PSEdition -eq 'Core') { $PowerForgeDevelopmentCoreFrameworks } else { $PowerForgeDevelopmentDesktopFrameworks }
+            $PowerForgeDevelopmentBinaryPath = $null
+            foreach ($PowerForgeDevelopmentConfiguration in $PowerForgeDevelopmentConfigurations) {
+                foreach ($PowerForgeDevelopmentFramework in $PowerForgeDevelopmentFrameworks) {
+                    $PowerForgeDevelopmentCandidate = [IO.Path]::Combine($PowerForgeDevelopmentBinaryRoot, $PowerForgeDevelopmentConfiguration, $PowerForgeDevelopmentFramework, 'ConsoleMonster.PowerShell.dll')
+                    if (Test-Path -LiteralPath $PowerForgeDevelopmentCandidate) {
+                        $PowerForgeDevelopmentBinaryPath = $PowerForgeDevelopmentCandidate
+                        break
                     }
                 }
+                if ($PowerForgeDevelopmentBinaryPath) { break }
+            }
 
-                # Type accelerator exposure is PowerShell Core-only because it depends on AssemblyLoadContext.
+            if ($PowerForgeDevelopmentBinaryPath) {
                 try {
-                    & $RegisterPowerForgeAssemblyTypeAccelerators -ModuleAssembly $ModuleAssembly -LibFolder $LibFolder
-                } catch {
-                    Write-Warning -Message "ALC type accelerator registration failed: $($_.Exception.Message)"
-                }
-                if ($PowerForgeDevelopmentInnerModule) {
-                    # Import-Module -Assembly loads the inner binary module into its own module object. PowerShell has no
-                    # public API to copy those exported cmdlets back to the script-module wrapper, so this uses the same
-                    # private PSModuleInfo hook used by community ALC loaders.
-                    $AddExportedCmdlet = [System.Management.Automation.PSModuleInfo].GetMethod(
-                        'AddExportedCmdlet',
-                        [System.Reflection.BindingFlags]'Instance, NonPublic'
-                    )
-                    $PowerForgeOuterModule = $ExecutionContext.SessionState.Module
-                    $PowerForgeIsModuleWrapper = $false
-                    if ($null -ne $PowerForgeOuterModule -and
-                        -not [string]::IsNullOrWhiteSpace($PowerForgeOuterModule.Path) -and
-                        -not [string]::IsNullOrWhiteSpace($PSCommandPath)) {
+                    # Load the precompiled PowerForge module loader built for this PowerShell edition.
+                    if (-not ('PowerForge.ModuleLoader.V1.SharedAssemblyPolicy' -as [type])) {
+                        $PowerForgeLoaderEdition = if ($PSEdition -eq 'Core') { 'Core' } else { 'Desktop' }
+                        $PowerForgeLoaderPath = [IO.Path]::Combine($PowerForgeDevelopmentBinaryRoot, 'PowerForge.ModuleLoader', $PowerForgeLoaderEdition, 'PowerForge.ModuleLoader.V1.dll')
                         try {
-                            [StringComparison] $PowerForgePathComparison = & {
-                                param([string] $PowerForgeProbePath)
+                            Add-Type -Path $PowerForgeLoaderPath -ErrorAction Stop
+                        } catch {
+                            # Another runspace can load the same loader between the probe and Add-Type.
+                            if (-not ('PowerForge.ModuleLoader.V1.SharedAssemblyPolicy' -as [type])) {
+                                throw
+                            }
+                        }
+                    }
 
-                                # Case behavior belongs to the containing filesystem. Windows can opt individual
-                                # directories into case sensitivity, while macOS volumes may be case-insensitive.
-                                # Inspect existing names without requiring write access; ambiguity fails closed.
-                                try {
-                                    $PowerForgeProbeDirectory = [IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($PowerForgeProbePath))
-                                    $PowerForgeNames = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
-                                    foreach ($PowerForgeEntry in [IO.Directory]::EnumerateFileSystemEntries($PowerForgeProbeDirectory)) {
-                                        [void] $PowerForgeNames.Add([IO.Path]::GetFileName($PowerForgeEntry))
-                                    }
+                    $ImportModule = Get-Command -Name Import-Module -Module Microsoft.PowerShell.Core
 
-                                    foreach ($PowerForgeName in $PowerForgeNames) {
-                                        foreach ($PowerForgeAlternateName in @($PowerForgeName.ToUpperInvariant(), $PowerForgeName.ToLowerInvariant())) {
-                                            if ([string]::Equals($PowerForgeName, $PowerForgeAlternateName, [StringComparison]::Ordinal) -or
-                                                $PowerForgeNames.Contains($PowerForgeAlternateName)) {
-                                                continue
+                    if ($PSEdition -eq 'Core') {
+                        $ModuleAssembly = [PowerForge.ModuleLoader.V1.ModuleAssemblyLoadContext]::LoadModuleFromGroup(
+                            [string[]]@($PowerForgeDevelopmentBinaryPath),
+                            $PowerForgeDevelopmentBinaryPath,
+                            'ConsoleMonster.Development',
+                            [string[]]@())
+                        # On a repeat import (Import-Module -Force, or after Remove-Module) PowerShell returns its cached module
+                        # for this assembly without importing the commands here. Drop the cached copy so they import again.
+                        foreach ($StaleModule in @(Get-Module -All | Where-Object { [object]::ReferenceEquals($_.ImplementingAssembly, $ModuleAssembly) })) {
+                            Remove-Module -ModuleInfo $StaleModule -Force -ErrorAction SilentlyContinue
+                        }
+                        $InnerModule = & $ImportModule -Assembly $ModuleAssembly -Force -PassThru -ErrorAction Stop
+                        # Type accelerators resolve from the module AssemblyLoadContext through the precompiled loader.
+                        try {
+                            $PowerForgeTypeAcceleratorRegistration = [PowerForge.ModuleLoader.V1.TypeAcceleratorRegistration]::RegisterFromLoadContext(
+                                $ModuleAssembly,
+                                [IO.Path]::GetDirectoryName($PowerForgeDevelopmentBinaryPath),
+                                'AllowList',
+                                [string[]]@('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth'),
+                                [string[]]@(),
+                                $PowerForgeModuleName,
+                                $PSScriptRoot)
+                            # Track the registration before writing messages: a warning that stops ($WarningPreference = Stop) must not
+                            # leave accelerators nobody releases. A failed import releases them in the bootstrapper.
+                            if ($null -eq $script:PowerForgeTypeAcceleratorRegistrations) {
+                                $script:PowerForgeTypeAcceleratorRegistrations = [System.Collections.Generic.List[object]]::new()
+                                $PowerForgeTypeAcceleratorRegistrations = $script:PowerForgeTypeAcceleratorRegistrations
+                                if ($null -ne $ExecutionContext.SessionState.Module) {
+                                    # Remove-Module releases this module's accelerators; names another PowerForge module still owns stay.
+                                    $PreviousPowerForgeOnRemove = $ExecutionContext.SessionState.Module.OnRemove
+                                    $ExecutionContext.SessionState.Module.OnRemove = {
+                                        try {
+                                            foreach ($PowerForgeTypeAcceleratorOwner in $PowerForgeTypeAcceleratorRegistrations) {
+                                                $PowerForgeTypeAcceleratorOwner.Unregister()
                                             }
-
-                                            $PowerForgeAlternatePath = [IO.Path]::Combine($PowerForgeProbeDirectory, $PowerForgeAlternateName)
-                                            if ([IO.File]::Exists($PowerForgeAlternatePath) -or [IO.Directory]::Exists($PowerForgeAlternatePath)) {
-                                                return [StringComparison]::OrdinalIgnoreCase
+                                        } finally {
+                                            if ($null -ne $PreviousPowerForgeOnRemove) {
+                                                & $PreviousPowerForgeOnRemove @args
                                             }
-
-                                            return [StringComparison]::Ordinal
                                         }
-                                    }
-                                } catch {
-                                    # Ordinal comparison prevents an uncertain probe from exporting into a caller.
-                                }
-
-                                return [StringComparison]::Ordinal
-                            } $PSCommandPath
-                            $PowerForgeIsModuleWrapper = [string]::Equals(
-                                [IO.Path]::GetFullPath($PowerForgeOuterModule.Path),
-                                [IO.Path]::GetFullPath($PSCommandPath),
-                                $PowerForgePathComparison
-                            )
-                        } catch {
-                            $PowerForgeIsModuleWrapper = $false
-                        }
-                    }
-                    if (-not $PowerForgeIsModuleWrapper) {
-                        # A Script/ScriptPacked entry point, including one dot-sourced by another module, must not mutate
-                        # that caller's export table. The imported inner module's commands remain available to this script.
-                    } elseif ($null -ne $AddExportedCmdlet) {
-                        foreach ($Cmd in $PowerForgeDevelopmentInnerModule.ExportedCmdlets.Values) {
-                            $AddExportedCmdlet.Invoke($PowerForgeOuterModule, @(, $Cmd)) | Out-Null
-                        }
-                        $AddExportedAlias = [System.Management.Automation.PSModuleInfo].GetMethod(
-                            'AddExportedAlias',
-                            [System.Reflection.BindingFlags]'Instance, NonPublic'
-                        )
-                        if ($null -ne $AddExportedAlias) {
-                            foreach ($Alias in $PowerForgeDevelopmentInnerModule.ExportedAliases.Values) {
-                                $AliasTarget = if ([string]::IsNullOrWhiteSpace($Alias.Definition)) { $Alias.ResolvedCommandName } else { $Alias.Definition }
-                                try {
-                                    # The alias must exist in this module scope before the private export table can reference it.
-                                    Set-Alias -Name $Alias.Name -Value $AliasTarget -Scope Local -Force -ErrorAction Stop
-                                    $ExportedAlias = $ExecutionContext.SessionState.InvokeCommand.GetCommand($Alias.Name, [System.Management.Automation.CommandTypes]::Alias)
-                                    if ($null -ne $ExportedAlias) {
-                                        $AddExportedAlias.Invoke($PowerForgeOuterModule, @(, $ExportedAlias)) | Out-Null
-                                    } else {
-                                        Write-Warning -Message "Alias '$($Alias.Name)' from ConsoleMonster.PowerShell was created but could not be resolved for export."
-                                    }
-                                } catch {
-                                    Write-Warning -Message "Alias '$($Alias.Name)' from ConsoleMonster.PowerShell could not be re-exported: $($_.Exception.Message)"
+                                    }.GetNewClosure()
                                 }
                             }
-                        } else {
-                            Write-Warning -Message "AddExportedAlias is not available on this PowerShell version. Aliases from ConsoleMonster.PowerShell will not be re-exported to the module scope."
+                            $script:PowerForgeTypeAcceleratorRegistrations.Add($PowerForgeTypeAcceleratorRegistration)
+                            foreach ($PowerForgeTypeAcceleratorMessage in $PowerForgeTypeAcceleratorRegistration.Warnings) {
+                                Write-Warning -Message $PowerForgeTypeAcceleratorMessage
+                            }
+                            foreach ($PowerForgeTypeAcceleratorMessage in $PowerForgeTypeAcceleratorRegistration.VerboseMessages) {
+                                Write-Verbose -Message $PowerForgeTypeAcceleratorMessage
+                            }
+                        } catch {
+                            Write-Warning -Message "ALC type accelerator registration failed: $($_.Exception.Message)"
+                        }
+                        if ($InnerModule) {
+                            # The loader runs in its own scope, where Import-Module leaves the imported module's aliases.
+                            # Define them on the module so its exports publish them.
+                            foreach ($ImportedAlias in @($InnerModule.ExportedAliases.Values)) {
+                                Set-Alias -Name $ImportedAlias.Name -Value $ImportedAlias.Definition -Scope Script -Force
+                            }
+                            # Import-Module -Assembly inside this script module imports the inner binary module as a nested module,
+                            # so its cmdlets and aliases are visible here and Export-ModuleMember can publish them on this module.
+                            $PowerForgeOuterModule = $ExecutionContext.SessionState.Module
+                            $PowerForgeIsModuleWrapper = $false
+                            if ($null -ne $PowerForgeOuterModule -and
+                                -not [string]::IsNullOrWhiteSpace($PowerForgeOuterModule.Path) -and
+                                -not [string]::IsNullOrWhiteSpace($PSCommandPath)) {
+                                try {
+                                    [StringComparison] $PowerForgePathComparison = & {
+                                        param([string] $PowerForgeProbePath)
+
+                                        # Case behavior belongs to the containing filesystem. Windows can opt individual
+                                        # directories into case sensitivity, while macOS volumes may be case-insensitive.
+                                        # Inspect existing names without requiring write access; ambiguity fails closed.
+                                        try {
+                                            $PowerForgeProbeDirectory = [IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($PowerForgeProbePath))
+                                            $PowerForgeNames = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+                                            foreach ($PowerForgeEntry in [IO.Directory]::EnumerateFileSystemEntries($PowerForgeProbeDirectory)) {
+                                                [void] $PowerForgeNames.Add([IO.Path]::GetFileName($PowerForgeEntry))
+                                            }
+
+                                            foreach ($PowerForgeName in $PowerForgeNames) {
+                                                foreach ($PowerForgeAlternateName in @($PowerForgeName.ToUpperInvariant(), $PowerForgeName.ToLowerInvariant())) {
+                                                    if ([string]::Equals($PowerForgeName, $PowerForgeAlternateName, [StringComparison]::Ordinal) -or
+                                                        $PowerForgeNames.Contains($PowerForgeAlternateName)) {
+                                                        continue
+                                                    }
+
+                                                    $PowerForgeAlternatePath = [IO.Path]::Combine($PowerForgeProbeDirectory, $PowerForgeAlternateName)
+                                                    if ([IO.File]::Exists($PowerForgeAlternatePath) -or [IO.Directory]::Exists($PowerForgeAlternatePath)) {
+                                                        return [StringComparison]::OrdinalIgnoreCase
+                                                    }
+
+                                                    return [StringComparison]::Ordinal
+                                                }
+                                            }
+                                        } catch {
+                                            # Ordinal comparison prevents an uncertain probe from exporting into a caller.
+                                        }
+
+                                        return [StringComparison]::Ordinal
+                                    } $PSCommandPath
+                                    $PowerForgeIsModuleWrapper = [string]::Equals(
+                                        [IO.Path]::GetFullPath($PowerForgeOuterModule.Path),
+                                        [IO.Path]::GetFullPath($PSCommandPath),
+                                        $PowerForgePathComparison
+                                    )
+                                } catch {
+                                    $PowerForgeIsModuleWrapper = $false
+                                }
+                            }
+                            if (-not $PowerForgeIsModuleWrapper) {
+                                # A Script/ScriptPacked entry point, including one dot-sourced by another module, must not mutate
+                                # that caller's export table. The imported inner module's commands remain available to this script.
+                            } else {
+                                Export-ModuleMember -Cmdlet ([string[]]@($InnerModule.ExportedCmdlets.Keys)) -Alias ([string[]]@($InnerModule.ExportedAliases.Keys))
+                            }
                         }
                     } else {
-                        Write-Warning -Message "AddExportedCmdlet is not available on this PowerShell version. Falling back to direct Import-Module; cmdlets from ConsoleMonster.PowerShell will load from the default context."
-                        & $ImportModule $PowerForgeDevelopmentBinaryPath -ErrorAction Stop
-                    }
-                }
-
-            } else {
-                $PowerForgeDevelopmentLoadedType = 'ConsoleMonster.PowerShell.Initialize' -as [type]
-                $PowerForgeDevelopmentLoadedAssembly = if ($PowerForgeDevelopmentLoadedType -and $PowerForgeDevelopmentLoadedType.Assembly) { $PowerForgeDevelopmentLoadedType.Assembly } else { $null }
-                $PowerForgeDevelopmentLoadedAssemblyPath = if ($PowerForgeDevelopmentLoadedAssembly -and -not [string]::IsNullOrWhiteSpace($PowerForgeDevelopmentLoadedAssembly.Location)) { [IO.Path]::GetFullPath($PowerForgeDevelopmentLoadedAssembly.Location) } else { $null }
-                $PowerForgeDevelopmentSelectedBinaryPath = [IO.Path]::GetFullPath($PowerForgeDevelopmentBinaryPath)
-                if ($PowerForgeDevelopmentLoadedAssembly -and [string]::Equals($PowerForgeDevelopmentLoadedAssemblyPath, $PowerForgeDevelopmentSelectedBinaryPath, [StringComparison]::OrdinalIgnoreCase)) {
-                    & $ImportModule -Assembly $PowerForgeDevelopmentLoadedType.Assembly -Force -ErrorAction Stop
-                } else {
-                    & $ImportModule $PowerForgeDevelopmentBinaryPath -ErrorAction Stop
-                }
-            }
-            if ($PSEdition -ne 'Core') {
-                # Desktop loads module dependencies into the default AppDomain, so expose the same configured scripting types as Core.
-                $RegisterPowerForgeDesktopAssemblyTypeAccelerators = {
-                    param([Parameter(Mandatory = $true)][string] $LibraryDirectory)
-
-                    $Mode = 'AllowList'
-                    $RequestedTypes = @('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth')
-                    $RequestedAssemblies = @()
-                    $IgnoredLibraryFileNames = @()
-
-                    if ([string]::IsNullOrWhiteSpace($LibraryDirectory) -or -not (Test-Path -LiteralPath $LibraryDirectory)) {
-                        Write-Warning -Message 'Module library directory was not available. Desktop dependency type exposure is disabled.'
-                        return
-                    }
-
-                    if ($Mode -eq 'AllowList' -and $RequestedTypes.Count -eq 0) {
-                        Write-Warning -Message 'AllowList type accelerator mode was configured without type names. No Desktop dependency type accelerators will be registered.'
-                        return
-                    }
-
-                    if (($Mode -eq 'Assembly' -or $Mode -eq 'Enums') -and $RequestedAssemblies.Count -eq 0) {
-                        if ($RequestedTypes.Count -eq 0) {
-                            Write-Warning -Message "$Mode type accelerator mode was configured without assembly names or type names. No Desktop dependency type accelerators will be registered."
-                            return
-                        }
-
-                        Write-Warning -Message "$Mode type accelerator mode was configured without assembly names. Only explicitly configured type names will be registered."
-                    }
-
-                    $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')
-                    if ($null -eq $TypeAccelerators) {
-                        Write-Warning -Message 'PowerShell type accelerator APIs are not available. Desktop dependency type exposure is disabled.'
-                        return
-                    }
-
-                    $AddTypeAccelerator = $TypeAccelerators.GetMethod('Add', [type[]]@([string], [type]))
-                    $GetTypeAccelerators = $TypeAccelerators.GetProperty('Get', [System.Reflection.BindingFlags] 'Static,Public,NonPublic')
-                    if ($null -eq $AddTypeAccelerator -or $null -eq $GetTypeAccelerators) {
-                        Write-Warning -Message 'PowerShell type accelerator APIs are incomplete. Desktop dependency type exposure is disabled.'
-                        return
-                    }
-
-                    if ($null -eq $script:PowerForgeRegisteredAssemblyTypeAccelerators) {
-                        $script:PowerForgeRegisteredAssemblyTypeAccelerators = @{}
-                    }
-
-                    $ResolvedPowerForgeDesktopAssemblies = @{}
-                    $FailedPowerForgeDesktopAssemblies = @{}
-                    $LibraryDirectoryFullPath = [IO.Path]::GetFullPath($LibraryDirectory)
-                    $LibraryDirectoryPrefix = $LibraryDirectoryFullPath.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-
-                    $TestPowerForgeDesktopIgnoredAssembly = {
-                        param([Parameter(Mandatory = $true)] $Assembly)
-
-                        return $IgnoredLibraryFileNames -contains ($Assembly.GetName().Name + '.dll')
-                    }
-
-                    $TestPowerForgeDesktopModuleAssembly = {
-                        param([Parameter(Mandatory = $true)] $Assembly)
-
-                        if ($Assembly.IsDynamic) {
-                            return $false
-                        }
-
-                        try {
-                            if ([string]::IsNullOrWhiteSpace($Assembly.Location)) {
-                                return $false
-                            }
-
-                            $AssemblyFullPath = [IO.Path]::GetFullPath($Assembly.Location)
-                            return $AssemblyFullPath.StartsWith($LibraryDirectoryPrefix, [StringComparison]::OrdinalIgnoreCase)
-                        } catch {
-                            return $false
-                        }
-                    }
-
-                    $TestPowerForgeDesktopAssemblyContentMatch = {
-                        param(
-                            [Parameter(Mandatory = $true)] $Assembly,
-                            [Parameter(Mandatory = $true)][string] $ExpectedPath
-                        )
-
-                        if ($Assembly.IsDynamic -or
-                            [string]::IsNullOrWhiteSpace($Assembly.Location) -or
-                            -not (Test-Path -LiteralPath $ExpectedPath)) {
-                            return $false
-                        }
-
-                        try {
-                            $ExpectedName = [Reflection.AssemblyName]::GetAssemblyName($ExpectedPath)
-                            if ($Assembly.GetName().FullName -ne $ExpectedName.FullName) {
-                                return $false
-                            }
-
-                            $LoadedPath = [IO.Path]::GetFullPath($Assembly.Location)
-                            $ExpectedFullPath = [IO.Path]::GetFullPath($ExpectedPath)
-                            if ([string]::Equals($LoadedPath, $ExpectedFullPath, [StringComparison]::OrdinalIgnoreCase)) {
-                                return $true
-                            }
-
-                            $ComputePowerForgeDesktopAssemblyHash = {
-                                param([Parameter(Mandatory = $true)][string] $Path)
-
-                                $Stream = $null
-                                $Hasher = $null
-                                try {
-                                    $Stream = [IO.File]::OpenRead($Path)
-                                    $Hasher = [Security.Cryptography.SHA256]::Create()
-                                    return [Convert]::ToBase64String($Hasher.ComputeHash($Stream))
-                                } finally {
-                                    if ($null -ne $Hasher) {
-                                        $Hasher.Dispose()
-                                    }
-                                    if ($null -ne $Stream) {
-                                        $Stream.Dispose()
-                                    }
-                                }
-                            }
-
-                            $LoadedHash = & $ComputePowerForgeDesktopAssemblyHash -Path $LoadedPath
-                            $ExpectedHash = & $ComputePowerForgeDesktopAssemblyHash -Path $ExpectedFullPath
-                            return $LoadedHash -eq $ExpectedHash
-                        } catch {
-                            return $false
-                        }
-                    }
-
-                    $ImportPowerForgeDesktopAssembly = {
-                        param([Parameter(Mandatory = $true)][string] $AssemblyName)
-
-                        $SimpleName = if ($AssemblyName.EndsWith('.dll', [StringComparison]::OrdinalIgnoreCase)) {
-                            [IO.Path]::GetFileNameWithoutExtension($AssemblyName)
+                        $PowerForgeDevelopmentLoadedType = 'ConsoleMonster.PowerShell.Initialize' -as [type]
+                        $PowerForgeDevelopmentLoadedAssembly = if ($PowerForgeDevelopmentLoadedType -and $PowerForgeDevelopmentLoadedType.Assembly) { $PowerForgeDevelopmentLoadedType.Assembly } else { $null }
+                        $PowerForgeDevelopmentLoadedAssemblyPath = if ($PowerForgeDevelopmentLoadedAssembly -and -not [string]::IsNullOrWhiteSpace($PowerForgeDevelopmentLoadedAssembly.Location)) { [IO.Path]::GetFullPath($PowerForgeDevelopmentLoadedAssembly.Location) } else { $null }
+                        $PowerForgeDevelopmentSelectedBinaryPath = [IO.Path]::GetFullPath($PowerForgeDevelopmentBinaryPath)
+                        $InnerModule = if ($PowerForgeDevelopmentLoadedAssembly -and [string]::Equals($PowerForgeDevelopmentLoadedAssemblyPath, $PowerForgeDevelopmentSelectedBinaryPath, [StringComparison]::OrdinalIgnoreCase)) {
+                            & $ImportModule -Assembly $PowerForgeDevelopmentLoadedType.Assembly -Force -PassThru -ErrorAction Stop
                         } else {
-                            $AssemblyName
+                            & $ImportModule $PowerForgeDevelopmentBinaryPath -PassThru -ErrorAction Stop
                         }
-                        $AssemblyFileName = $SimpleName + '.dll'
-                        if ($IgnoredLibraryFileNames -contains $AssemblyFileName) {
-                            $FailedPowerForgeDesktopAssemblies[$SimpleName] = $true
-                            return $null
-                        }
-
-                        if ($ResolvedPowerForgeDesktopAssemblies.ContainsKey($SimpleName)) {
-                            return $ResolvedPowerForgeDesktopAssemblies[$SimpleName]
-                        }
-                        if ($FailedPowerForgeDesktopAssemblies.ContainsKey($SimpleName)) {
-                            return $null
-                        }
-
-                        $AssemblyPath = [IO.Path]::Combine($LibraryDirectory, $AssemblyFileName)
-                        foreach ($Assembly in [AppDomain]::CurrentDomain.GetAssemblies()) {
-                            if ($Assembly.GetName().Name -eq $SimpleName) {
-                                if ((& $TestPowerForgeDesktopModuleAssembly -Assembly $Assembly) -or
-                                    (& $TestPowerForgeDesktopAssemblyContentMatch -Assembly $Assembly -ExpectedPath $AssemblyPath)) {
-                                    $ResolvedPowerForgeDesktopAssemblies[$SimpleName] = $Assembly
-                                    return $Assembly
-                                }
+                        if ($InnerModule) {
+                            # The loader runs in its own scope, where Import-Module leaves the imported module's aliases.
+                            # Define them on the module so its exports publish them.
+                            foreach ($ImportedAlias in @($InnerModule.ExportedAliases.Values)) {
+                                Set-Alias -Name $ImportedAlias.Name -Value $ImportedAlias.Definition -Scope Script -Force
                             }
                         }
-
-                        if (Test-Path -LiteralPath $AssemblyPath) {
-                            try {
-                                $LoadedAssembly = [System.Reflection.Assembly]::LoadFrom($AssemblyPath)
-                                if ((& $TestPowerForgeDesktopModuleAssembly -Assembly $LoadedAssembly) -or
-                                    (& $TestPowerForgeDesktopAssemblyContentMatch -Assembly $LoadedAssembly -ExpectedPath $AssemblyPath)) {
-                                    $ResolvedPowerForgeDesktopAssemblies[$SimpleName] = $LoadedAssembly
-                                    return $LoadedAssembly
-                                }
-
-                                $FailedPowerForgeDesktopAssemblies[$SimpleName] = $true
-                                Write-Warning -Message "Desktop assembly '$SimpleName' resolved outside the module library directory. Skipping type accelerator exposure to avoid registering the wrong assembly version."
-                                return $null
-                            } catch {
-                                $FailedPowerForgeDesktopAssemblies[$SimpleName] = $true
-                                Write-Warning -Message "Could not load Desktop assembly '$SimpleName' for type accelerator exposure: $($_.Exception.Message)"
-                                return $null
-                            }
-                        }
-
-                        foreach ($Assembly in [AppDomain]::CurrentDomain.GetAssemblies()) {
-                            if ($Assembly.GetName().Name -eq $SimpleName) {
-                                $ResolvedPowerForgeDesktopAssemblies[$SimpleName] = $Assembly
-                                return $Assembly
-                            }
-                        }
-
-                        $FailedPowerForgeDesktopAssemblies[$SimpleName] = $true
-                        return $null
                     }
-
-                    $FindPowerForgeDesktopType = {
-                        param([Parameter(Mandatory = $true)][string] $TypeName)
-
-                        foreach ($Assembly in [AppDomain]::CurrentDomain.GetAssemblies()) {
-                            if ((& $TestPowerForgeDesktopIgnoredAssembly -Assembly $Assembly) -or
-                                -not (& $TestPowerForgeDesktopModuleAssembly -Assembly $Assembly)) {
-                                continue
-                            }
-
-                            $Type = $Assembly.GetType($TypeName, $false, $false)
-                            if ($null -ne $Type) {
-                                return $Type
-                            }
-                        }
-
-                        foreach ($File in Get-ChildItem -LiteralPath $LibraryDirectory -File -ErrorAction SilentlyContinue | Where-Object Extension -IEQ '.dll') {
-                            if ($IgnoredLibraryFileNames -contains $File.Name) {
-                                continue
-                            }
-
-                            $Assembly = & $ImportPowerForgeDesktopAssembly -AssemblyName $File.BaseName
-                            if ($null -eq $Assembly) {
-                                continue
-                            }
-
-                            $Type = $Assembly.GetType($TypeName, $false, $false)
-                            if ($null -ne $Type) {
-                                return $Type
-                            }
-                        }
-
-                        foreach ($Assembly in [AppDomain]::CurrentDomain.GetAssemblies()) {
-                            if (& $TestPowerForgeDesktopIgnoredAssembly -Assembly $Assembly) {
-                                continue
-                            }
-
-                            $AssemblyFileName = $Assembly.GetName().Name + '.dll'
-                            if (Test-Path -LiteralPath ([IO.Path]::Combine($LibraryDirectory, $AssemblyFileName))) {
-                                # A module-owned assembly with this identity exists but could not be selected above. Do not
-                                # silently fall back to a globally loaded copy with a different location or version.
-                                continue
-                            }
-
-                            $Type = $Assembly.GetType($TypeName, $false, $false)
-                            if ($null -ne $Type) {
-                                return $Type
-                            }
-                        }
-
-                        return $null
-                    }
-
-                    $AddPowerForgeDesktopTypeAccelerator = {
-                        param([Parameter(Mandatory = $true)][type] $Type)
-
-                        if ([string]::IsNullOrWhiteSpace($Type.FullName)) {
-                            return
-                        }
-
-                        $Name = $Type.FullName
-                        $Existing = $GetTypeAccelerators.GetValue($null)
-                        if ($Existing.ContainsKey($Name)) {
-                            $ExistingType = $Existing[$Name]
-                            if ([object]::ReferenceEquals($ExistingType, $Type)) {
-                                return
-                            }
-
-                            Write-Warning -Message "Type accelerator '$Name' already exists from $($ExistingType.Assembly.GetName().FullName). Keeping it and skipping the Desktop type from $($Type.Assembly.GetName().FullName)."
-                            return
-                        }
-
+                    if ($PSEdition -ne 'Core') {
+                        # Desktop loads module dependencies into the default AppDomain, so expose the same configured scripting types as Core.
                         try {
-                            $AddTypeAccelerator.Invoke($null, @($Name, $Type)) | Out-Null
+                            $PowerForgeTypeAcceleratorRegistration = [PowerForge.ModuleLoader.V1.TypeAcceleratorRegistration]::RegisterFromDirectory(
+                                ([IO.Path]::GetDirectoryName($PowerForgeDevelopmentBinaryPath)),
+                                'AllowList',
+                                [string[]]@('ConsoleMonster.Terminal', 'ConsoleMonster.Layout.IWidget', 'ConsoleMonster.Styling.Color', 'ConsoleMonster.Styling.RichColor', 'ConsoleMonster.Styling.Style', 'ConsoleMonster.Styling.RichStyle', 'ConsoleMonster.Styling.Theme', 'ConsoleMonster.Styling.ThemeToken', 'ConsoleMonster.Styling.StatusKind', 'ConsoleMonster.Text.RichText', 'ConsoleMonster.Interactive.InteractionMode', 'ConsoleMonster.Interactive.CommandLine', 'ConsoleMonster.Live.SimulatedClock', 'ConsoleMonster.Live.LiveEvent', 'ConsoleMonster.Capabilities.GlyphTier', 'ConsoleMonster.Capabilities.ColorDepth'),
+                                [string[]]@(),
+                                [string[]]@(),
+                                $PowerForgeModuleName,
+                                $PSScriptRoot)
+                            # Track the registration before writing messages: a warning that stops ($WarningPreference = Stop) must not
+                            # leave accelerators nobody releases. A failed import releases them in the bootstrapper.
+                            if ($null -eq $script:PowerForgeTypeAcceleratorRegistrations) {
+                                $script:PowerForgeTypeAcceleratorRegistrations = [System.Collections.Generic.List[object]]::new()
+                                $PowerForgeTypeAcceleratorRegistrations = $script:PowerForgeTypeAcceleratorRegistrations
+                                if ($null -ne $ExecutionContext.SessionState.Module) {
+                                    # Remove-Module releases this module's accelerators; names another PowerForge module still owns stay.
+                                    $PreviousPowerForgeOnRemove = $ExecutionContext.SessionState.Module.OnRemove
+                                    $ExecutionContext.SessionState.Module.OnRemove = {
+                                        try {
+                                            foreach ($PowerForgeTypeAcceleratorOwner in $PowerForgeTypeAcceleratorRegistrations) {
+                                                $PowerForgeTypeAcceleratorOwner.Unregister()
+                                            }
+                                        } finally {
+                                            if ($null -ne $PreviousPowerForgeOnRemove) {
+                                                & $PreviousPowerForgeOnRemove @args
+                                            }
+                                        }
+                                    }.GetNewClosure()
+                                }
+                            }
+                            $script:PowerForgeTypeAcceleratorRegistrations.Add($PowerForgeTypeAcceleratorRegistration)
+                            foreach ($PowerForgeTypeAcceleratorMessage in $PowerForgeTypeAcceleratorRegistration.Warnings) {
+                                Write-Warning -Message $PowerForgeTypeAcceleratorMessage
+                            }
+                            foreach ($PowerForgeTypeAcceleratorMessage in $PowerForgeTypeAcceleratorRegistration.VerboseMessages) {
+                                Write-Verbose -Message $PowerForgeTypeAcceleratorMessage
+                            }
                         } catch {
-                            Write-Warning -Message "Type accelerator '$Name' could not be registered from $($Type.Assembly.GetName().Name): $($_.Exception.Message)"
-                            return
-                        }
-
-                        $script:PowerForgeRegisteredAssemblyTypeAccelerators[$Name] = $Type
-                    }
-
-                    if ($Mode -eq 'Assembly' -or $Mode -eq 'Enums') {
-                        foreach ($AssemblyName in $RequestedAssemblies) {
-                            $Assembly = & $ImportPowerForgeDesktopAssembly -AssemblyName $AssemblyName
-                            if ($null -eq $Assembly) {
-                                Write-Warning -Message "Assembly '$AssemblyName' was not found in the module library directory. No Desktop type accelerators were registered for it."
-                                continue
-                            }
-
-                            try {
-                                $ExportedTypes = @($Assembly.GetExportedTypes())
-                            } catch {
-                                Write-Warning -Message "Could not enumerate exported types from Desktop assembly '$AssemblyName' for type accelerator exposure: $($_.Exception.Message)"
-                                continue
-                            }
-
-                            foreach ($Type in $ExportedTypes) {
-                                if ($Mode -eq 'Enums' -and -not $Type.IsEnum) {
-                                    continue
-                                }
-
-                                & $AddPowerForgeDesktopTypeAccelerator -Type $Type
-                            }
+                            Write-Warning -Message "Desktop type accelerator registration failed: $($_.Exception.Message)"
                         }
                     }
-
-                    foreach ($TypeName in $RequestedTypes) {
-                        $Type = & $FindPowerForgeDesktopType -TypeName $TypeName
-                        if ($null -eq $Type) {
-                            Write-Warning -Message "Type '$TypeName' was not found in the module AppDomain. No Desktop type accelerator was registered."
-                            continue
-                        }
-
-                        & $AddPowerForgeDesktopTypeAccelerator -Type $Type
-                    }
-
-                    if ($script:PowerForgeAssemblyTypeAcceleratorCleanupRegistered -ne $true) {
-                        $script:PowerForgeAssemblyTypeAcceleratorCleanupRegistered = $true
-                        $RegisteredPowerForgeTypeAccelerators = $script:PowerForgeRegisteredAssemblyTypeAccelerators
-                        $PreviousPowerForgeOnRemove = $ExecutionContext.SessionState.Module.OnRemove
-                        $ExecutionContext.SessionState.Module.OnRemove = {
-                            try {
-                                $TypeAccelerators = [psobject].Assembly.GetType('System.Management.Automation.TypeAccelerators')
-                                if ($null -eq $TypeAccelerators -or $null -eq $RegisteredPowerForgeTypeAccelerators) {
-                                    return
-                                }
-
-                                $GetTypeAccelerators = $TypeAccelerators.GetProperty('Get', [System.Reflection.BindingFlags] 'Static,Public,NonPublic')
-                                $RemoveTypeAccelerator = $TypeAccelerators.GetMethod('Remove', [type[]]@([string]))
-                                if ($null -eq $GetTypeAccelerators -or $null -eq $RemoveTypeAccelerator) {
-                                    return
-                                }
-
-                                $Existing = $GetTypeAccelerators.GetValue($null)
-                                foreach ($Entry in @($RegisteredPowerForgeTypeAccelerators.GetEnumerator())) {
-                                    if ($Existing.ContainsKey($Entry.Key) -and [object]::ReferenceEquals($Existing[$Entry.Key], $Entry.Value)) {
-                                        $RemoveTypeAccelerator.Invoke($null, @($Entry.Key)) | Out-Null
-                                    }
-                                }
-                            } finally {
-                                if ($null -ne $PreviousPowerForgeOnRemove) {
-                                    & $PreviousPowerForgeOnRemove @args
-                                }
-                            }
-                        }.GetNewClosure()
-                    }
-                }
-
-                try {
-                    & $RegisterPowerForgeDesktopAssemblyTypeAccelerators -LibraryDirectory ([IO.Path]::GetDirectoryName($PowerForgeDevelopmentBinaryPath))
+                    $PowerForgeDevelopmentBinaryLoaded = $true
                 } catch {
-                    Write-Warning -Message "Desktop type accelerator registration failed: $($_.Exception.Message)"
+                    if ($ErrorActionPreference -eq 'Stop') {
+                        throw
+                    } else {
+                        Write-Warning -Message "Importing development binary $PowerForgeDevelopmentBinaryPath failed. Falling back to packaged loader when available. Error: $($_.Exception.Message)"
+                    }
                 }
-            }
-            $PowerForgeDevelopmentBinaryLoaded = $true
-        } catch {
-            if ($ErrorActionPreference -eq 'Stop') {
-                throw
-            } else {
-                Write-Warning -Message "Importing development binary $PowerForgeDevelopmentBinaryPath failed. Falling back to packaged loader when available. Error: $($_.Exception.Message)"
             }
         }
     }
-}
-
 # PowerForge script payload begin
 
 # PowerForge script payload end
@@ -869,8 +269,25 @@ $AliasesToExport = @()
 Export-ModuleMember -Function $FunctionsToExport -Alias $AliasesToExport -Cmdlet $CmdletsToExport
 # PowerForge exports end
     $PowerForgeModuleImportCompleted = $true
+} catch {
+    # Windows PowerShell: a library reused from another module can still lack a type this module needs.
+    # Report that as the same conflict the dependency check describes, not as a raw type-load error.
+    if ($null -ne $script:PowerForgeDependencyCheck) {
+        $PowerForgeLoadFailure = $script:PowerForgeDependencyCheck.ExplainLoadFailure($_.Exception)
+        if ($null -ne $PowerForgeLoadFailure) {
+            throw $PowerForgeLoadFailure
+        }
+    }
+    throw
 } finally {
-    if (-not $PowerForgeModuleImportCompleted -and $null -ne $UnregisterPowerForgeDesktopAssemblyResolver) {
-        & $UnregisterPowerForgeDesktopAssemblyResolver
+    if (-not $PowerForgeModuleImportCompleted -and $null -ne $script:PowerForgeDesktopAssemblyResolver) {
+        $script:PowerForgeDesktopAssemblyResolver.Unregister()
+    }
+    # A failed import never reaches OnRemove, so release the accelerators it registered here.
+    if (-not $PowerForgeModuleImportCompleted -and $null -ne $script:PowerForgeTypeAcceleratorRegistrations) {
+        foreach ($PowerForgeTypeAcceleratorOwner in $script:PowerForgeTypeAcceleratorRegistrations) {
+            $PowerForgeTypeAcceleratorOwner.Unregister()
+        }
+        $script:PowerForgeTypeAcceleratorRegistrations.Clear()
     }
 }

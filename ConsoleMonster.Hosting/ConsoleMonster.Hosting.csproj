@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-      <PackageVersion>2.4.0</PackageVersion>
+      <PackageVersion>2.4.1</PackageVersion>
         <Title>ConsoleMonster.Hosting</Title>
         <Description>
             A live ConsoleMonster dashboard for .NET generic host applications: services.AddConsoleDashboard() shows the
@@ -10,9 +10,9 @@
         <AssemblyName>ConsoleMonster.Hosting</AssemblyName>
         <AssemblyTitle>ConsoleMonster.Hosting</AssemblyTitle>
         <RootNamespace>ConsoleMonster.Hosting</RootNamespace>
-        <VersionPrefix>2.4.0</VersionPrefix>
-        <AssemblyVersion>2.4.0</AssemblyVersion>
-        <FileVersion>2.4.0</FileVersion>
+        <VersionPrefix>2.4.1</VersionPrefix>
+        <AssemblyVersion>2.4.1</AssemblyVersion>
+        <FileVersion>2.4.1</FileVersion>
         <TargetFrameworks>netstandard2.0;net472;net8.0;net10.0</TargetFrameworks>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageId>ConsoleMonster.Hosting</PackageId>

@@ -2,7 +2,7 @@
 Module Name: ConsoleMonster
 Module Guid: 7ef2133c-55a5-47e6-809e-6010f6e65e09
 Download Help Link: https://consolemonster.dev/
-Help Version: 2.4.0
+Help Version: 2.4.1
 Locale: en-US
 ---
 # ConsoleMonster Module
