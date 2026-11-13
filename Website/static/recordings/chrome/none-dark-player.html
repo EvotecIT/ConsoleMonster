@@ -43,7 +43,7 @@ body{padding:0}
 .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body kbd{font:11.5px monospace;padding:1px 3px;border:1px solid currentColor;border-radius:3px}
 .cm-export .cm-error{padding:12px;font:13px system-ui,sans-serif;color:var(--cm-player-ink)}
 .cm-player-host>.cm-window,.cm-player-host>.cm-player{max-width:100%}
-.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:border-box;max-width:100%;overflow-x:auto}
+.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:content-box;max-width:calc(100% - 2 * var(--cm-screen-padding,12px));overflow-x:auto}
 @media(max-width:600px){
  .cm-export.cm-player-host .cm-controls.cm-controls-v2{flex-direction:column;align-items:stretch;gap:4px;padding:8px 10px}
  .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport{flex:auto;width:100%}
@@ -71,7 +71,7 @@ body{padding:0}
 .cm-export .cm-screen .cm-input-caption{position:absolute;top:6px;right:8px;z-index:3;padding:2px 8px;border:1px solid #fff5;border-radius:5px;background:#141414e6;color:#fff;font:600 12px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;white-space:nowrap;box-shadow:0 2px 8px #0006}
 .cm-export .cm-screen .cm-input-caption::before{content:attr(data-label)}
 @media (prefers-reduced-motion:reduce){.cm-export .cm-screen .cm-pointer .cm-pointer-ring{animation:none!important;opacity:.8;transform:none}}
-.cm-export.cm-standalone{display:block;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;width:100%}.cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}.cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:16.8px}</style>
+.cm-export.cm-standalone{display:block;font-family:'Cascadia Mono', 'Cascadia Code', 'DejaVu Sans Mono', Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:14px;width:100%;max-width:100%}.cm-export.cm-player-host.cm-standalone>.cm-window,.cm-export.cm-player-host.cm-standalone>.cm-player{display:block;width:100%}.cm-export.cm-player-host.cm-standalone .cm-screen{width:100%;font-size:inherit;line-height:16.8px}</style>
 </head>
 <body>
 <div class="cm-recording cm-standalone" data-cm-recording="#cm-data" data-cm-autoplay></div>
@@ -191,6 +191,8 @@ body{padding:0}
         var screen = el('pre', 'cm-screen', frame);
         screen.setAttribute('role', 'img');
         screen.setAttribute('aria-label', data.title || 'Console recording');
+        // The screen keeps its recorded width plus padding; the stylesheet caps it to the host using this padding.
+        screen.style.setProperty('--cm-screen-padding', getComputedStyle(screen).paddingLeft || '12px');
         var scrollHint = null, sizeObserver = null;
         if (host.classList.contains('cm-standalone')) {
             scrollHint = el('p', 'cm-scroll-hint', frame);

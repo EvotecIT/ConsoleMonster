@@ -32,7 +32,7 @@
 .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-help-body kbd{font:11.5px monospace;padding:1px 3px;border:1px solid currentColor;border-radius:3px}
 .cm-export .cm-error{padding:12px;font:13px system-ui,sans-serif;color:var(--cm-player-ink)}
 .cm-player-host>.cm-window,.cm-player-host>.cm-player{max-width:100%}
-.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:border-box;max-width:100%;overflow-x:auto}
+.cm-export.cm-player-host>.cm-window>.cm-screen,.cm-export.cm-player-host>.cm-player>.cm-screen{box-sizing:content-box;max-width:calc(100% - 2 * var(--cm-screen-padding,12px));overflow-x:auto}
 @media(max-width:600px){
  .cm-export.cm-player-host .cm-controls.cm-controls-v2{flex-direction:column;align-items:stretch;gap:4px;padding:8px 10px}
  .cm-export.cm-player-host .cm-controls.cm-controls-v2 .cm-transport{flex:auto;width:100%}

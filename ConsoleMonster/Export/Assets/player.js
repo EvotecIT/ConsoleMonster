@@ -112,6 +112,8 @@
         var screen = el('pre', 'cm-screen', frame);
         screen.setAttribute('role', 'img');
         screen.setAttribute('aria-label', data.title || 'Console recording');
+        // The screen keeps its recorded width plus padding; the stylesheet caps it to the host using this padding.
+        screen.style.setProperty('--cm-screen-padding', getComputedStyle(screen).paddingLeft || '12px');
         var scrollHint = null, sizeObserver = null;
         if (host.classList.contains('cm-standalone')) {
             scrollHint = el('p', 'cm-scroll-hint', frame);
