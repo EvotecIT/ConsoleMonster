@@ -46,7 +46,8 @@ namespace ConsoleMonster.PowerShell {
                 default:
                     // `catch { $_ | Show-Console }` means the error, not the ErrorRecord's object graph.
                     if (items.Count > 0 && items.All(item => PSText.Unwrap(item) is ErrorRecord || PSText.Unwrap(item) is Exception)) { return BuildErrorView(items); }
-                    return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), Depth);
+                    return PSOutputExport.Widget(items.Cast<object>().ToList(), this, Property, PSText.Markup(Title), Depth,
+                        culture: PSFormatting.ResolveCulture(Culture));
             }
         }
 

@@ -20,6 +20,7 @@
 - `MarkdownConsole` reads GitHub READMEs: `> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]` and `[!CAUTION]` alerts render with their title and a bar in the alert's colour, task items show `✓`/`○` (`[x]`/`[ ]` on ASCII) with checked items in the pass colour, and YAML front matter is no longer printed as a rule and heading. Markdown and frame exports show the same text.
 
 #### Fixed
+- I've made frame exports use registered module views, with their input and output budgets and automatic fallback when a selector, builder or renderer fails.
 - With `Enable-ConsoleFormatting` in the profile, `pwsh -Command` and `powershell.exe -Command` returned exit code 0 after a failing script or native command, because the `Out-Default` shim reset `$?` after the command finished. The shim now hands the command's status back, so the exit code (and `$?` at an interactive prompt) matches a session without ConsoleMonster ([#155](https://github.com/EvotecIT/ConsoleMonster/issues/155)).
 - Re-adding an existing `Phases` step (the live `add` operation) changed it back to pending; it now changes only the label, so a running step can be retitled.
 - `Rows` measured a fraction row before the auto rows after it, so under a height limit a long step list took all the height and the rows below it got none. Fraction rows are now measured after the fixed and auto rows, as documented.

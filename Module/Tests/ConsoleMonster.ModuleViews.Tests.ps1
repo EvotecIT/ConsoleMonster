@@ -69,6 +69,32 @@ if (`$text -notmatch 'alpha' -or `$text -notmatch 'gamma') { throw 'A shared-gro
         ($result -join "`n") | Should -Match 'SHARED_VIEW_GROUP_OK'
     }
 
+    It 'exports objects through the default view registered for their type' {
+        $path = Join-Path $TestDrive 'ExportViews.consoleviews.psd1'
+        @'
+@{
+    SchemaVersion = 2
+    Views = @(
+        @{ TypeName = 'ExportViews.Server'; ViewId = 'ExportViews.Server'; View = 'Table'; Batch = 'Collect'
+           Property = @(@{ Name = 'Name'; Label = 'Server' }, @{ Name = 'State'; Label = 'Health' }) }
+    )
+}
+'@ | Set-Content -LiteralPath $path
+        $result = Invoke-TestChild -Runtime $script:ViewRuntime -Script @"
+`$ErrorActionPreference = 'Stop'
+Import-Module '$($script:ViewModule)'
+Add-Type -TypeDefinition 'namespace ExportViews { public sealed class Server { public string Name { get; set; } public string State { get; set; } public string HiddenDetail { get; set; } } }'
+Enable-ConsoleFormatting
+Register-ConsoleView -Path '$path'
+`$rows = 'alpha', 'beta' | ForEach-Object { [ExportViews.Server]@{ Name = `$_; State = 'Pass'; HiddenDetail = 'private-detail' } }
+`$text = `$rows | Export-ConsoleFrame -Format Text -Width 80
+if (`$text -notmatch 'Health' -or `$text -notmatch 'beta' -or `$text -match 'private-detail') { throw "The export ignored the registered view:`n`$text" }
+'EXPORT_DEFAULT_VIEW_OK'
+"@
+        $LASTEXITCODE | Should -Be 0
+        ($result -join "`n") | Should -Match 'EXPORT_DEFAULT_VIEW_OK'
+    }
+
     It 'rejects unsupported schema data' {
         $path = Join-Path $TestDrive 'invalid.consoleviews.psd1'
         "@{ SchemaVersion = 3; Views = @() }" | Set-Content -LiteralPath $path
