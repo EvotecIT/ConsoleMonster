@@ -27,9 +27,6 @@ namespace ConsoleMonster.PowerShell {
                 DefaultDisplayRegistration? view = DefaultDisplay.Resolve(value);
                 if (view == null) { return null; }
                 return new Run(view, view.ScopeSelector?.Invoke(value.BaseObject) ?? Scope(view, value.BaseObject));
-            } catch (Exception error) when (error is MemberAccessException || error is TypeLoadException) {
-                _internalsUnavailable = true;
-                return null;
             } catch (Exception error) when (!(error is PipelineStoppedException)) {
                 return null;
             }
@@ -43,18 +40,25 @@ namespace ConsoleMonster.PowerShell {
             object[] values = new object[rows.Count];
             for (int i = 0; i < rows.Count; i++) { values[i] = rows[i].BaseObject; }
             try {
+                if (view.Batch != DefaultDisplayBatch.Single) {
+                    long bytes = 0;
+                    foreach (object value in values) {
+                        bytes += Estimate(value, view.Budget.Bytes);
+                        if (bytes > view.Budget.Bytes) { return null; }
+                    }
+                }
                 DefaultDisplayContext context = new DefaultDisplayContext(Profile(export), run.Scope, DefaultDisplayMode.Auto);
                 switch (view.Batch) {
                     case DefaultDisplayBatch.Stream:
                         // An export is a completed scope, so it takes the same builders as a stream that closes within its sample.
-                        if (values.Length == 1 && view.SingleRecordBuilder != null) { return view.SingleRecordBuilder(values[0], context); }
-                        return view.CollectedBuilder != null ? view.CollectedBuilder(values, context) : StreamTable(view, context, values);
+                        if (values.Length == 1 && view.SingleRecordBuilder != null) { return Prepare(view.SingleRecordBuilder(values[0], context), context, view.Budget.Bytes); }
+                        return Prepare(view.CollectedBuilder != null ? view.CollectedBuilder(values, context) : StreamTable(view, context, values), context, view.Budget.Bytes);
                     case DefaultDisplayBatch.Single:
                         List<IWidget> each = new List<IWidget>(values.Length);
-                        foreach (object value in values) { each.Add(view.Build(new[] { value }, context)); }
+                        foreach (object value in values) { each.Add(Prepare(view.Build(new[] { value }, context), context, view.Budget.Bytes)); }
                         return PSFormatting.Combine(each);
                     default:
-                        return view.Build(values, context);
+                        return Prepare(view.Build(values, context), context, view.Budget.Bytes);
                 }
             } catch (Exception error) when (!(error is PipelineStoppedException)) {
                 cmdlet.WriteVerbose("ConsoleMonster view '" + view.ViewId + "' used the automatic view: " + error.Message);
@@ -63,7 +67,25 @@ namespace ConsoleMonster.PowerShell {
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static string Scope(DefaultDisplayRegistration view, object value) => DisplayData.Scope(value, view.ScopeKey);
+        private static string Scope(DefaultDisplayRegistration view, object value) {
+            try { return ReadScope(view, value); }
+            catch (Exception error) when (error is MemberAccessException || error is TypeLoadException) {
+                _internalsUnavailable = true;
+                throw;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static string ReadScope(DefaultDisplayRegistration view, object value) => DisplayData.Scope(value, view.ScopeKey);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static long Estimate(object value, long ceiling) => DisplayData.Estimate(value, ceiling);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static IWidget Prepare(IWidget widget, DefaultDisplayContext context, long maximumBytes) {
+            DefaultDisplayRenderer.Prepare(widget, context.Profile, maximumBytes);
+            return widget;
+        }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static IWidget StreamTable(DefaultDisplayRegistration view, DefaultDisplayContext context, object[] values) => DisplayStreamSample.BuildTable(view, context, values);

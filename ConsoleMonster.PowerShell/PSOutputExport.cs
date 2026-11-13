@@ -46,10 +46,19 @@ namespace ConsoleMonster.PowerShell {
             if (items.Count == 1 && Frame(items[0]) is CellBuffer frame) {
                 return IsMarkdown(format) ? MarkdownExportBridge.Frame(frame) : System.Text.Encoding.UTF8.GetString(FrameExporter.Export(frame, format, options));
             }
-            return Export(Widget(items, cmdlet, export: options), format, options);
+            return Prepare(items, options, cmdlet, widget => Export(widget, format, options));
         }
 
-        internal static IWidget Widget(IReadOnlyList<object> items, PSCmdlet cmdlet, object[]? property = null, string? title = null, int depth = 3, ExportOptions? export = null) {
+        /// <summary>Includes every exporter measurement and theme render in the registered-view fallback boundary.</summary>
+        internal static T Prepare<T>(IReadOnlyList<object> items, ExportOptions options, PSCmdlet cmdlet, Func<IWidget, T> render) {
+            try { return render(Widget(items, cmdlet, export: options)); }
+            catch (Exception error) when (!(error is PipelineStoppedException)) {
+                cmdlet.WriteVerbose("ConsoleMonster export used the automatic view: " + error.Message);
+                return render(Widget(items, cmdlet, export: options, defaultViews: false));
+            }
+        }
+
+        internal static IWidget Widget(IReadOnlyList<object> items, PSCmdlet cmdlet, object[]? property = null, string? title = null, int depth = 3, ExportOptions? export = null, bool defaultViews = true) {
             List<IWidget> widgets = new List<IWidget>();
             List<PSObject> rows = new List<PSObject>();
             PSDefaultViews.Run? run = null;
@@ -63,7 +72,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 PSObject row = PSObject.AsPSObject(item);
                 // Explicit -Property columns replace any registered view.
-                PSDefaultViews.Run? next = property == null ? PSDefaultViews.Find(row) : null;
+                PSDefaultViews.Run? next = property == null && defaultViews ? PSDefaultViews.Find(row) : null;
                 if (!Equals(next, run)) { Flush(rows, run, widgets, cmdlet, property, title, depth, export); }
                 run = next;
                 rows.Add(row);
