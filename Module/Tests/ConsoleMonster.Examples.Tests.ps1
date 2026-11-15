@@ -48,6 +48,8 @@ BeforeAll {
     . (Join-Path $PSScriptRoot 'Support/Stop-TestChildProcess.ps1')
     $script:ModulePath = Join-Path $script:RepositoryRoot 'Module\ConsoleMonster.psd1'
     $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+    # The loader resolves directory aliases; children must load the same physical assembly as this test host.
+    $script:ExpectedAssemblyPath = (Get-Command Show-Console -Module ConsoleMonster -ErrorAction Stop).DLL
 
 
     # Primary PowerShell examples are written in the cmdlet form. These patterns are the .NET form: type names, constructors,
@@ -554,7 +556,7 @@ foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONS
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
 `$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
 Import-Module ConsoleMonster -Force
-if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Show-Console).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
+if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not [string]::Equals((Get-Command Show-Console).DLL, '$($script:ExpectedAssemblyPath.Replace("'", "''"))', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $screen
 $keys
 $(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
