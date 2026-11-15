@@ -41,6 +41,7 @@ Invoke-Pester -Path ./Module/Tests                    # after building ConsoleMo
   `net8.0`. SDK pinned in `global.json` (10.0.100).
 - Warnings are errors (`Directory.Build.props`). Nullable is on, implicit
   usings are off.
+- Run ./.github/scripts/Initialize-PowerForgeLoader.ps1 in PowerShell 7 before importing development binaries from a fresh checkout. It copies the loader payload from the pinned PSPublishModule package.
 - Run Pester in both Windows PowerShell 5.1 and PowerShell 7. CI pins Pester
   6.1.0. The source module loads development binaries from
   `ConsoleMonster.PowerShell/bin`.
