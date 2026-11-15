@@ -41,6 +41,7 @@ Invoke-Pester -Path ./Module/Tests                    # after building ConsoleMo
   `net8.0`. SDK pinned in `global.json` (10.0.100).
 - Warnings are errors (`Directory.Build.props`). Nullable is on, implicit
   usings are off.
+- Run ./.github/scripts/Initialize-PowerForgeLoader.ps1 in PowerShell 7 before importing development binaries from a fresh checkout. It copies the loader payload from the pinned PSPublishModule package.
 - Run Pester in both Windows PowerShell 5.1 and PowerShell 7. CI pins Pester
   6.1.0. The source module loads development binaries from
   `ConsoleMonster.PowerShell/bin`.
@@ -80,3 +81,7 @@ Invoke-Pester -Path ./Module/Tests                    # after building ConsoleMo
   for reproducible output.
 - The .NET 8 and .NET 10 targets are AOT compatible; reflection-based
   inspection needs care when trimming (see `CONTRIBUTING.md`).
+
+## Test changes
+
+Before adding or changing tests, read the shared [test-audit authoring gate](skills/test-audit/SKILL.md#authoring-gate) and [contract-focused proof guidance](skills/contract-focused-tests/SKILL.md). Resolve these paths under CODEX_HOME, defaulting to ~/.codex. For deliberate pruning, also read [campaign mode](skills/test-audit/CAMPAIGN.md).

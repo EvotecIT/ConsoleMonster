@@ -49,7 +49,7 @@ namespace ConsoleMonster.Markdown {
         /// <returns>A document containing each distinct replayed frame.</returns>
         public static string ExportRecording(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
             if (root == null) { throw new ArgumentNullException(nameof(root)); }
-            MarkdownDoc document = MarkdownDoc.Create();
+            using MarkdownDocument document = MarkdownDocument.Create();
             foreach (RecordedFrame frame in Recording.CaptureFrames(root, events, options)) {
                 document.H3(TimeSpan.FromMilliseconds(frame.Start).ToString("c", System.Globalization.CultureInfo.InvariantCulture));
                 document.Code("text", ConsoleExporter.ToText(frame.Frame).TrimEnd('\n'));

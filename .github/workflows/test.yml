@@ -226,6 +226,9 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Prepare the PowerForge development loader
+        shell: pwsh
+        run: ./.github/scripts/Initialize-PowerForgeLoader.ps1
       - name: Build the module binaries (Debug, loaded by Module/ConsoleMonster.psm1 in development mode)
         run: dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug
 
@@ -407,6 +410,9 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Prepare the PowerForge development loader
+        shell: pwsh
+        run: ./.github/scripts/Initialize-PowerForgeLoader.ps1
       - name: Build the module binaries (Debug, net8.0)
         run: |
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0
@@ -512,6 +518,9 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Prepare the PowerForge development loader
+        shell: pwsh
+        run: ./.github/scripts/Initialize-PowerForgeLoader.ps1
       - name: Build the module binaries (Debug, net8.0)
         run: |
           dotnet build ConsoleMonster.PowerShell/ConsoleMonster.PowerShell.csproj --configuration Debug --framework net8.0

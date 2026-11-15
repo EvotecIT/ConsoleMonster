@@ -8,7 +8,8 @@ namespace ConsoleMonster.Markdown {
             if (text.Length == 0) { return "```text\n```\n"; }
             // ToText includes its final newline; Code adds the line ending before its closing fence.
             string content = text.EndsWith("\n", System.StringComparison.Ordinal) ? text.Substring(0, text.Length - 1) : text;
-            return MarkdownDoc.Create().Code("text", content).ToMarkdown().Replace("\r\n", "\n").TrimEnd('\n') + "\n";
+            using MarkdownDocument document = MarkdownDocument.Create();
+            return document.Code("text", content).ToMarkdown().Replace("\r\n", "\n").TrimEnd('\n') + "\n";
         }
     }
 }

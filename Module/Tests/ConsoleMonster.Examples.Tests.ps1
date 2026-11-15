@@ -48,6 +48,8 @@ BeforeAll {
     . (Join-Path $PSScriptRoot 'Support/Stop-TestChildProcess.ps1')
     $script:ModulePath = Join-Path $script:RepositoryRoot 'Module\ConsoleMonster.psd1'
     $script:Runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+    # Record the physical and linked names of the same module assembly file for the two PowerShell runtimes.
+    $script:ExpectedAssemblyPath = (Get-Command Show-Console -Module ConsoleMonster -ErrorAction Stop).DLL
 
 
     # Primary PowerShell examples are written in the cmdlet form. These patterns are the .NET form: type names, constructors,
@@ -470,6 +472,7 @@ Describe 'Examples run headless' -Tag 'Examples' {
         $null = New-Item -ItemType Directory -Path (Split-Path -Parent $script:LauncherProject) -Force
         Copy-Item (Join-Path $script:RepositoryRoot 'Module/Tests/Fixtures/ProjectLauncher/*') (Split-Path -Parent $script:LauncherProject)
         $script:ModuleLinkRoot = Join-Path ([IO.Path]::GetTempPath()) ('cm-example-modules-' + $PID + '-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+        $script:ExpectedLinkedAssemblyPath = Join-Path $script:ModuleLinkRoot $script:ExpectedAssemblyPath.Substring($script:RepositoryRoot.Length + 1)
         $script:ModuleLinks = @(
             @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster'; Target = Join-Path $script:RepositoryRoot 'Module' }
             @{ Path = Join-Path $script:ModuleLinkRoot 'ConsoleMonster.PowerShell'; Target = Join-Path $script:RepositoryRoot 'ConsoleMonster.PowerShell' }
@@ -554,7 +557,7 @@ foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONS
 `$ErrorActionPreference = '$(if ($case['ExpectErrors']) { 'Continue' } else { 'Stop' })'
 `$env:PSModulePath = '$($script:ModuleLinkRoot)' + [IO.Path]::PathSeparator + `$env:PSModulePath
 Import-Module ConsoleMonster -Force
-if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not (Get-Command Show-Console).DLL.StartsWith('$($script:ModuleLinkRoot)', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
+if (@(Get-Module ConsoleMonster).Count -ne 1 -or @('$($script:ExpectedAssemblyPath.Replace("'", "''"))', '$($script:ExpectedLinkedAssemblyPath.Replace("'", "''"))') -notcontains (Get-Command Show-Console).DLL) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }
 $screen
 $keys
 $(if ($case['Snapshot']) { '$env:CONSOLEMONSTER_SNAPSHOT = "1"' })
