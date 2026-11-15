@@ -19,7 +19,7 @@ namespace ConsoleMonster.Markdown {
         /// <remarks>Raw HTML stays literal. Images become labelled links; destinations are never fetched. Leading YAML front matter is metadata and is not displayed.</remarks>
         public static MarkdownView Parse(string content) {
             if (content == null) { throw new ArgumentNullException(nameof(content)); }
-            MarkdownReaderOptions options = MarkdownReaderOptions.CreateCommonMarkProfile();
+            MarkdownLoadOptions options = MarkdownLoadOptions.CreateCommonMarkProfile();
             options.Tables = true;
             options.TaskLists = true;
             // Document blocks exclude front matter, so metadata never prints as body text. OfficeIMO also accepts an
@@ -28,13 +28,14 @@ namespace ConsoleMonster.Markdown {
             options.FrontMatter = StartsWithFrontMatter(content);
             if (!HasIndentedAlertHeader(content)) {
                 options.Callouts = true;
-                MarkdownReaderBuiltInExtensions.AddCallouts(options); // The CommonMark profile carries no block extensions.
+                options.BlockParserExtensions.Add(MarkdownLoadOptions.CreateOfficeIMOProfile().BlockParserExtensions.Single(extension => extension.Name == "OfficeIMO.Callouts"));
             }
             // Keep destinations visible. ConsoleMonster's capability and hyperlink policy own OSC 8 emission.
             options.DisallowScriptUrls = false;
             options.DisallowFileUrls = false;
             options.RestrictUrlSchemes = false;
-            return ConvertBlocks(MarkdownReader.Parse(content, options).Blocks);
+            using MarkdownDocument document = MarkdownDocument.Parse(content, options);
+            return ConvertBlocks(document.Blocks);
         }
 
         /// <summary>Parses Markdown source and adds its semantic blocks to a content builder.</summary>
@@ -167,9 +168,9 @@ namespace ConsoleMonster.Markdown {
             IEnumerable<IReadOnlyList<RichText>> rows = table.RowInlines.Select(row =>
                 (IReadOnlyList<RichText>)row.Select(MarkdownInlines.Read).ToArray());
             HorizontalAlignment?[] alignments = table.Alignments.Select(alignment => alignment switch {
-                ColumnAlignment.Left => (HorizontalAlignment?)HorizontalAlignment.Left,
-                ColumnAlignment.Center => HorizontalAlignment.Center,
-                ColumnAlignment.Right => HorizontalAlignment.Right,
+                MarkdownColumnAlignment.Left => (HorizontalAlignment?)HorizontalAlignment.Left,
+                MarkdownColumnAlignment.Center => HorizontalAlignment.Center,
+                MarkdownColumnAlignment.Right => HorizontalAlignment.Right,
                 _ => null
             }).ToArray();
             view.AddTable(headers, rows, alignments);

@@ -80,3 +80,7 @@ Invoke-Pester -Path ./Module/Tests                    # after building ConsoleMo
   for reproducible output.
 - The .NET 8 and .NET 10 targets are AOT compatible; reflection-based
   inspection needs care when trimming (see `CONTRIBUTING.md`).
+
+## Test changes
+
+Before adding or changing tests, read the shared [test-audit authoring gate](skills/test-audit/SKILL.md#authoring-gate) and [contract-focused proof guidance](skills/contract-focused-tests/SKILL.md). Resolve these paths under CODEX_HOME, defaulting to ~/.codex. For deliberate pruning, also read [campaign mode](skills/test-audit/CAMPAIGN.md).
