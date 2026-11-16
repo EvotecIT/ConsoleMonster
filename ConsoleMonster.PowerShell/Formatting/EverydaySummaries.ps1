@@ -63,19 +63,24 @@
     }
 }
 
-# Get-WinEvent: events by level, the time they cover and when they happened.
+# Get-WinEvent and Get-EventLog: events by level, the time they cover and when they happened.
 @{
-    TypeName = 'System.Diagnostics.Eventing.Reader.EventLogRecord'
+    TypeName = @('System.Diagnostics.Eventing.Reader.EventLogRecord', 'System.Diagnostics.EventLogEntry')
     Summary = {
         param($items)
         if ($items.Count -lt 3) { return }
         $levels = [ordered]@{}
         $first = $null; $last = $null
+        # Get-EventLog entries have an entry type and TimeGenerated instead of a level name and TimeCreated.
+        $isEntry = { param($item) $null -ne $item.PSObject.Properties['EntryType'] }
+        $timeOf = { param($item) if (& $isEntry $item) { $item.TimeGenerated } else { $item.TimeCreated } }
         foreach ($item in $items) {
-            $level = [string] $item.LevelDisplayName
+            $level = if (& $isEntry $item) {
+                switch ([string] $item.EntryType) { 'SuccessAudit' { 'Audit success' } 'FailureAudit' { 'Audit failure' } { $_ -in '0', '' } { 'Information' } default { $_ } }
+            } else { [string] $item.LevelDisplayName }
             if (-not $level) { $level = 'Information' }
             if ($levels.Contains($level)) { $levels[$level]++ } else { $levels[$level] = 1 }
-            $time = $item.TimeCreated
+            $time = & $timeOf $item
             if ($time) {
                 if ($null -eq $first -or $time -lt $first) { $first = $time }
                 if ($null -eq $last -or $time -gt $last) { $last = $time }
@@ -104,8 +109,9 @@
             $slots = [Math]::Min(24, [Math]::Max(2, $items.Count))
             $counts = [double[]]::new($slots)
             foreach ($item in $items) {
-                if ($item.TimeCreated) {
-                    $slot = [int][Math]::Floor(($item.TimeCreated - $first).Ticks / ($span.Ticks / $slots))
+                $time = & $timeOf $item
+                if ($time) {
+                    $slot = [int][Math]::Floor(($time - $first).Ticks / ($span.Ticks / $slots))
                     $counts[[Math]::Min($slots - 1, $slot)]++
                 }
             }
@@ -335,5 +341,90 @@
         }
         @{ Value = $items.Count; Label = 'modules' }
         foreach ($repository in $repositories.Keys) { @{ Value = $repositories[$repository]; Label = $repository } }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_LogicalDisk'
+        'Microsoft.Management.Infrastructure.CimInstance#Win32_LogicalDisk'
+        'System.Management.ManagementObject#root\cimv2\Win32_LogicalDisk'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 3) { return }
+        [decimal] $size = 0
+        [decimal] $free = 0
+        $full = 0
+        foreach ($item in $items) {
+            $size += $item.Size
+            $free += $item.FreeSpace
+            if ($item.Size -gt 0 -and $item.FreeSpace -lt $item.Size * 0.1) { $full++ }
+        }
+        @{ Value = $items.Count; Label = 'drives' }
+        @{ Value = $size; Presenter = 'Bytes'; Label = 'total' }
+        @{ Value = $free; Presenter = 'Bytes'; Label = 'free' }
+        if ($full) { @{ Value = $full; Label = 'over 90% full'; Role = 'Warn' } }
+    }
+}
+@{
+    TypeName = @(
+        'System.Management.ManagementObject#root\cimv2\Win32_QuickFixEngineering'
+        'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_QuickFixEngineering'
+        'Microsoft.Management.Infrastructure.CimInstance#Win32_QuickFixEngineering'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 3) { return }
+        $security = 0
+        $latest = $null
+        foreach ($item in $items) {
+            if ([string] $item.Description -eq 'Security Update') { $security++ }
+            if ($item.InstalledOn -is [datetime] -and ($null -eq $latest -or $item.InstalledOn -gt $latest)) { $latest = $item.InstalledOn }
+        }
+        @{ Value = $items.Count; Label = 'updates' }
+        if ($security) { @{ Value = $security; Label = 'security' } }
+        if ($latest) { @{ Caption = 'latest'; Value = $latest; Presenter = 'DateRelative' } }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.Dism.Commands.BasicFeatureObject'
+        'Microsoft.Dism.Commands.AdvancedFeatureObject'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 3) { return }
+        $enabled = 0
+        $pending = 0
+        foreach ($item in $items) {
+            $state = [string] $item.State
+            if ($state -eq 'Enabled') { $enabled++ } elseif ($state -like '*Pending') { $pending++ }
+        }
+        @{ Value = $enabled; Label = 'enabled' }
+        @{ Value = ($items.Count - $enabled - $pending); Label = 'disabled' }
+        if ($pending) { @{ Value = $pending; Label = 'pending restart'; Role = 'Warn' } }
+    }
+}
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#root/standardcimv2/MSFT_NetFirewallRule'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_NetFirewallRule'
+    )
+    Summary = {
+        param($items)
+        if ($items.Count -lt 5) { return }
+        $enabled = 0
+        $inbound = 0
+        $block = 0
+        foreach ($item in $items) {
+            if ([string] $item.Enabled -eq 'True') { $enabled++ }
+            if ([string] $item.Direction -eq 'Inbound') { $inbound++ }
+            if ([string] $item.Action -eq 'Block') { $block++ }
+        }
+        @{ Value = $items.Count; Label = 'rules' }
+        @{ Value = $enabled; Label = 'enabled' }
+        @{ Value = $inbound; Label = 'inbound' }
+        @{ Value = ($items.Count - $inbound); Label = 'outbound' }
+        if ($block) { @{ Value = $block; Label = 'block' } }
     }
 }
