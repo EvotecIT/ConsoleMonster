@@ -350,7 +350,7 @@ Menu menu = Ui.Menu()
 MenuItem targetItem = Ui.MenuItem()
     .Label("Targets")
     .Hotkey('t')
-    .IconName(GlyphIcon.Targets)
+    .Icon(Icons.Targets)
     .Description("Inventory grouped by site; unavailable servers stay visible.")
     .Configure(configured => configured.LoadChoices = async (_, token) =>
     {
@@ -376,7 +376,7 @@ targetItem.Minimum(1).Configure(configured => configured.Preview = c =>
 MenuItem taskItem = Ui.MenuItem()
     .Label("Tasks")
     .Hotkey('k')
-    .IconName(GlyphIcon.Tasks)
+    .Icon(Icons.Tasks)
     .MultiSelect(catalog.Select(c => new Choice(c.Id, c.Name)
         .Group(c.Category)
         .Description(c.Description)
@@ -392,7 +392,7 @@ menu.Add(targetItem).Add(taskItem);
 MenuItem optionItem = Ui.MenuItem()
     .Label("Options")
     .Hotkey('o')
-    .IconName(GlyphIcon.Settings)
+    .Icon(Icons.Settings)
     .Form(options, (_, result) => ApplyOptions(result.Values));
 menu.Add(optionItem)
     .Preset(
@@ -410,11 +410,11 @@ menu.Add(optionItem)
             .Selection(
                 taskItem,
                 new object? [] { "EventErrors", "Services", "DiskSpace", "Uptime" }))
-    .Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets())
+    .Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Presets())
     .Separator()
     .Item("Review & run", i =>
     {
-        i.Hotkey('r').IconName(GlyphIcon.Run).Configure(configured2 => configured2.Review = _ =>
+        i.Hotkey('r').Icon(Icons.Run).Configure(configured2 => configured2.Review = _ =>
         {
             targets = inventory.Where(n => targetItem.GetSelection<Node>()
                 .Contains(n) && n.Offline == "")
@@ -450,7 +450,7 @@ menu.Add(optionItem)
     .Item("History", i =>
     {
         i.Hotkey('h')
-            .IconName(GlyphIcon.List)
+            .Icon(Icons.List)
             .Configure(configured => configured.Page = _ => History())
             .Configure(configured => configured.Detail = () => history.Count + " runs");
     })

@@ -137,7 +137,7 @@ public sealed class ConsoleViewLayoutTests {
         for (int i = 0; i < labels.Length; i++) matrix.Cell(i, i, null, diagonal: true);
         matrix.Cell(0, 1, StatusKind.Pass, "3m"); matrix.Cell(2, 4, StatusKind.Fail, "2d 4h");
         matrix.Cell(5, 2, StatusKind.Info, "query failed", marker: "?");
-        matrix.GetCell(5, 2)!.Tone = ThemeToken.Gap;
+        matrix.GetCell(5, 2)!.Tone = ThemeToken.Gap.ToTone();
         matrix.LegendLabels[StatusKind.Info] = "query failed"; matrix.LegendMarkers[StatusKind.Info] = "?";
         string text = TestTerminal.RenderText(ConsoleViewStyle.Wrap(matrix), width, glyphs: tier);
         Assert.Contains("query failed", text);

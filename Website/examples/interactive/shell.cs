@@ -69,7 +69,7 @@ Menu menu = new Menu("Server toolbox")
 MenuItem targets = new MenuItem("Targets")
 {
     Hotkey = 't',
-    IconName = GlyphIcon.Targets,
+    Icon = Icons.Targets,
     Description = ("Servers the tasks run on. The list is loaded from the inventory; offline servers "
         + "cannot be picked."),
     LoadChoices = (context, token) => LoadServersAsync(token)
@@ -78,7 +78,7 @@ targets.Minimum = 1;
 MenuItem tasks = new MenuItem("Tasks")
 {
     Hotkey = 'k',
-    IconName = GlyphIcon.Tasks,
+    Icon = Icons.Tasks,
     Description = ("What to run on every target. Tasks marked 'changes' modify the servers; the rest "
         + "only read.")
 }.MultiSelect(allTasks, t => t.Name, t => t.Category, TaskPreview);
@@ -100,7 +100,7 @@ Form options = OptionsForm();
 MenuItem optionsItem = new MenuItem("Options")
 {
     Hotkey = 'o',
-    IconName = GlyphIcon.Settings,
+    Icon = Icons.Settings,
     Description = "How the run behaves: parallelism, the report and notifications."
 }.Form(options, (context, result) => context.Toast("Options saved"));
 menu.Add(targets);
@@ -109,7 +109,7 @@ menu.Add(optionsItem);
 menu.Item("Presets", i =>
 {
     i.Hotkey = 'p';
-    i.IconName = GlyphIcon.Favorite;
+    i.Icon = Icons.Favorite;
     i.Description = "Saved combinations of targets, tasks and options. Save one from Review & run.";
     i.Presets();
 });
@@ -117,7 +117,7 @@ menu.Separator();
 menu.Item("Review & run", i =>
 {
     i.Hotkey = 'r';
-    i.IconName = GlyphIcon.Run;
+    i.Icon = Icons.Run;
     i.Review = Review;
 });
 menu.Item("History", i =>

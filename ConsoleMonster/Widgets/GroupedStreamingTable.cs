@@ -146,7 +146,7 @@ namespace ConsoleMonster.Widgets {
                         TableCell cell = entry.Cells[c];
                         TableCell? previous = previousCells == null ? null : previousCells[c];
                         bool repeats = previous != null && cell.HasValue == previous.HasValue && (cell.HasValue ? Equals(cell.Value, previous.Value) : cell.Markup == previous.Markup);
-                        cells[v] = _columns[c].DimRepeats && repeats ? cell.WithTone(ThemeToken.Muted) : cell;
+                        cells[v] = _columns[c].DimRepeats && repeats ? cell.WithTone(Tone.Muted) : cell;
                     }
                     previousCells = entry.Cells;
                     body.Row(cells);

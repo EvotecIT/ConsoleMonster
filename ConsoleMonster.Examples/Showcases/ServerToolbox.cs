@@ -61,12 +61,12 @@ namespace ConsoleMonster.Examples.Showcases
             MenuItem targets = new MenuItem("Targets")
             {
                 Hotkey = 't',
-                IconName = GlyphIcon.Targets,
+                Icon = Icons.Targets,
                 Description = "Servers the tasks run on. The list is loaded from the inventory; offline servers cannot be picked.",
                 LoadChoices = (context, token) => ToolboxData.LoadServersAsync(null, token)
             };
             targets.Minimum = 1;
-            MenuItem tasks = new MenuItem("Tasks").Hotkey('k').IconName(GlyphIcon.Tasks).Description("What to run on every target. Tasks marked 'changes' modify the servers; the rest only read.").MultiSelect(ToolboxData.Tasks, t => t.Name, t => t.Category, ToolboxData.TaskPreview);
+            MenuItem tasks = new MenuItem("Tasks").Hotkey('k').Icon(Icons.Tasks).Description("What to run on every target. Tasks marked 'changes' modify the servers; the rest only read.").MultiSelect(ToolboxData.Tasks, t => t.Name, t => t.Category, ToolboxData.TaskPreview);
             foreach (Choice c in tasks.Choices)
             {
                 ToolboxTask task = (ToolboxTask)c.Value!;
@@ -85,14 +85,14 @@ namespace ConsoleMonster.Examples.Showcases
             Form options = OptionsForm();
             menu.Add(targets);
             menu.Add(tasks);
-            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').IconName(GlyphIcon.Settings).Description("How the run behaves: parallelism, the report and notifications.").Form(options, (context, result) => context.Toast("Options saved"));
+            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').Icon(Icons.Settings).Description("How the run behaves: parallelism, the report and notifications.").Form(options, (context, result) => context.Toast("Options saved"));
             menu.Add(optionsItem);
-            menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Description("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
+            menu.Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Description("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
             menu.Separator();
             menu.Item("Review & run", i =>
             {
                 i.Hotkey = 'r';
-                i.IconName = GlyphIcon.Run;
+                i.Icon = Icons.Run;
                 i.Review = context => Review(context, targets, tasks, optionsItem, options);
             });
             menu.Item("History", i =>

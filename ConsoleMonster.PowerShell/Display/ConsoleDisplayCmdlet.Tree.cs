@@ -77,7 +77,7 @@ namespace ConsoleMonster.PowerShell {
 
         private static void MuteInspectionNotes(TreeNode target, InspectNode node) {
             if (node is InspectScalar scalar) {
-                if (scalar.TypeName == "InspectionUnavailable" && target.Value != null) { target.Value = target.Value.WithTone(ThemeToken.Muted); }
+                if (scalar.TypeName == "InspectionUnavailable" && target.Value != null) { target.Value = target.Value.WithTone(Tone.Muted); }
                 if (scalar.TypeName == "InspectionEmptySummary") { target.Label = "[muted]" + target.Label + "[/]"; }
             }
             IReadOnlyList<InspectNode>? children = node is InspectObject record ? record.Members : node is InspectCollection collection ? collection.Items : null;

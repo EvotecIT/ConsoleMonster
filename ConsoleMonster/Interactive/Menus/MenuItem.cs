@@ -34,12 +34,13 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The key that opens the item directly.</summary>
         public char? Hotkey { get; set; }
 
-        /// <summary>A short mark before the title (one or two cells), as free text. Setting it clears a preceding semantic IconName.</summary>
-        public string? Icon { get => _icon; set { _icon = value; IconName = null; } }
-        private string? _icon;
+        /// <summary>A short mark before the title (one or two cells), as free text. Setting it clears <see cref="Icon"/>.</summary>
+        public string? Mark { get => _mark; set { _mark = value; _icon = default; } }
+        private string? _mark;
 
-        /// <summary>A semantic icon resolved for the glyph tier (shapes in Full, WGL4 in Basic, ASCII in Ascii), or null.</summary>
-        public GlyphIcon? IconName { get; set; }
+        /// <summary>An icon catalog key (see <see cref="Icons"/>) resolved for the glyph tier (shapes in Full, WGL4 in Basic, ASCII in Ascii). Setting it clears <see cref="Mark"/>.</summary>
+        public Icon Icon { get => _icon; set { _icon = value; _mark = null; } }
+        private Icon _icon;
 
         /// <summary>What the item does.</summary>
         public MenuItemKind Kind { get; set; } = MenuItemKind.Action;
@@ -189,10 +190,10 @@ namespace ConsoleMonster.Interactive {
 
 
 
-        /// <summary>The icon text for a glyph set: the semantic icon in its tier, else the free text, else null.</summary>
+        /// <summary>The icon text for a glyph set: the icon in its tier, else the free-text mark, else null.</summary>
         /// <param name="glyphs">The glyph set.</param>
         /// <returns>The icon text, or null.</returns>
-        public string? IconText(IGlyphSet glyphs) => IconName.HasValue ? glyphs.Icon(IconName.Value) : (string.IsNullOrEmpty(Icon) ? null : Icon);
+        public string? IconText(IGlyphSet glyphs) => !Icon.IsEmpty ? glyphs.Icon(Icon) : (string.IsNullOrEmpty(Mark) ? null : Mark);
 
 
 

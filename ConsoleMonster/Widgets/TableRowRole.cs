@@ -7,7 +7,7 @@ namespace ConsoleMonster.Widgets {
     /// <summary>The tone, emphasis and optional literal marker of one table row.</summary>
     public sealed class TableRowRole {
         /// <summary>An optional theme role for every cell in the row.</summary>
-        public ThemeToken? Tone { get; set; }
+        public Tone Tone { get; set; }
 
         /// <summary>Mute every cell; an explicit <see cref="Tone"/> takes precedence.</summary>
         public bool Muted { get; set; }
@@ -22,10 +22,10 @@ namespace ConsoleMonster.Widgets {
         public string? AsciiMarker { get; set; }
 
         /// <summary>Optional marker-only role, without changing the rest of the row.</summary>
-        public ThemeToken? MarkerTone { get; set; }
+        public Tone MarkerTone { get; set; }
 
         internal Style Style(RenderContext context) {
-            ThemeToken? tone = Tone ?? (Muted ? ThemeToken.Muted : (ThemeToken?)null);
+            ThemeToken? tone = Tone.ToToken() ?? (Muted ? ThemeToken.Muted : (ThemeToken?)null);
             Style style = tone.HasValue ? context.Style(tone.Value) : Styling.Style.Plain;
             return Bold ? style.With(TextDecoration.Bold) : style;
         }

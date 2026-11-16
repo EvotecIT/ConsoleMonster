@@ -115,7 +115,7 @@ namespace ConsoleMonster.Widgets {
 
         // The row's tone (from a status cell or a status presenter) colours its card title.
         private ThemeToken? RowTone(TableCell[] row, PresenterContext[] contexts) {
-            if (row.Length > 0 && row[0].RowRole is TableRowRole role && (role.Tone.HasValue || role.Muted)) return role.Tone ?? ThemeToken.Muted;
+            if (row.Length > 0 && row[0].RowRole is TableRowRole role && (role.Tone != Tone.None || role.Muted)) return role.Tone.ToToken() ?? ThemeToken.Muted;
             for (int c = 0; c < _columns.Count; c++) {
                 if (row[c].Status.HasValue) {
                     return row[c].Status!.Value.ToToken();

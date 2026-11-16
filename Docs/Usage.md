@@ -476,7 +476,7 @@ menu.Run(new MenuOptions { Layout = MenuLayout.Shell, AppName = "Server toolbox"
 - Items run actions (scriptblocks run on the pipeline thread) or open a submenu, a form, a selection, a page, a review
   (summary, equivalent command, Run, Copy command, Save preset) or the presets list. They can have hotkeys, icons,
   badges, state text and a reason when unavailable. Icons are semantic names that follow the glyph tier
-  (`New-ConsoleMenuItem -IconName Targets`, `IconName(GlyphIcon.Targets)`: ● in modern fonts, o in ASCII), or free text.
+  (`New-ConsoleMenuItem -Icon targets`, `Icon(Icons.Targets)`: ● in modern fonts, o in ASCII), or free text.
 - The Shell layout shows a breadcrumb title bar, a sidebar, the content pane and a key footer. Below 84 columns the
   sidebar folds into the breadcrumb.
 - Keys: Esc goes back, Ctrl+Home goes home and Ctrl+Q leaves, asking first when a form has unsaved changes. `?` shows

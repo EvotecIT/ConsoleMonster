@@ -471,11 +471,11 @@ menu.Preset(
                 ["Servers"] = new[] { "WEB01" },
                 ["Checks"] = new[] { "CertExpiry", "CertChain", "ForwardRecord" }
             }))
-    .Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets())
+    .Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Presets())
     .Item(
         "New check",
         i => i.Hotkey('n')
-            .IconName(GlyphIcon.Run)
+            .Icon(Icons.Run)
             .Description("Choose a domain, servers and checks; review the command and run.")
             .Form(checkForm, (context, result) =>
             {
@@ -492,7 +492,7 @@ menu.Preset(
     .Item("History", i =>
     {
         i.Hotkey('h')
-            .IconName(GlyphIcon.List)
+            .Icon(Icons.List)
             .Configure(configured => configured.Page = _ => History())
             .Configure(configured => configured.Detail = () => history.Count + " runs");
     })

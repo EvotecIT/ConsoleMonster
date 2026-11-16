@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void WithTone_VendorSeverity_LeavesRawNumberAndOriginalCellIntactAndTonesTheBar() {
             TableCell original = TableCell.FromValue(1.1m);
-            TableCell critical = original.WithTone(ThemeToken.Fail);
+            TableCell critical = original.WithTone(Tone.Danger);
             Assert.NotSame(original, critical);
             Assert.Same(original.Value, critical.Value);
             Assert.Equal(1.1m, critical.Value);

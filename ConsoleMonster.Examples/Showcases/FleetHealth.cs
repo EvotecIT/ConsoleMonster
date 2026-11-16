@@ -80,8 +80,8 @@ namespace ConsoleMonster.Examples.Showcases
                 menu.Preset(scope.Name, preset => preset.Preview(FleetData.PresetPreview(scope)).Form(check, scope.Values()));
             }
 
-            menu.Item("Presets", item => item.Hotkey('p').IconName(GlyphIcon.Favorite).Description("Scopes for New check. Applying one fills in the form; the domain stays your choice.").Presets());
-            menu.Item("New check", item => item.Hotkey('n').IconName(GlyphIcon.Run).Description("Choose a domain, its servers and the checks, review the equivalent command, and run.").Form(check, (context, result) =>
+            menu.Item("Presets", item => item.Hotkey('p').Icon(Icons.Favorite).Description("Scopes for New check. Applying one fills in the form; the domain stays your choice.").Presets());
+            menu.Item("New check", item => item.Hotkey('n').Icon(Icons.Run).Description("Choose a domain, its servers and the checks, review the equivalent command, and run.").Form(check, (context, result) =>
             {
                 // The run draws its dashboard inside the app, then shows the results with next actions.
                 FleetJob job = new FleetJob(result.Values, settings);
@@ -91,7 +91,7 @@ namespace ConsoleMonster.Examples.Showcases
             menu.Item("History", item =>
             {
                 item.Hotkey = 'h';
-                item.IconName = GlyphIcon.List;
+                item.Icon = Icons.List;
                 item.Description = "Earlier runs, newest first.";
                 item.Page = context => history.Page();
                 item.Detail = () => history.Count.ToString(CultureInfo.InvariantCulture) + " runs";
