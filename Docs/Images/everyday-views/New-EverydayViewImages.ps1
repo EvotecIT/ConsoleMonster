@@ -35,7 +35,8 @@ function New-Record([string] $Type, [hashtable] $Data) {
 # A release folder with fixed sizes and times.
 $temp = if ($IsMacOS -or $IsLinux) { '/tmp' } else { $env:TEMP }
 $root = Join-Path $temp 'release'
-if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
+# The fixed path shows in the image; an existing folder is never deleted, so the script stops instead.
+if (Test-Path -LiteralPath $root) { throw "Remove '$root' before drawing the images. The script only deletes folders it created." }
 $files = [ordered] @{
     'bin/ConsoleMonster.dll' = 1048576; 'bin/ConsoleMonster.xml' = 262144; 'bin/runtimes/libcm.so' = 393216
     'docs/README.md' = 15360; 'docs/CHANGELOG.md' = 63488; 'install.ps1' = 2048
@@ -49,6 +50,27 @@ $stamp = [datetime] '2026-10-21 12:00'
 Get-ChildItem $root -Recurse -Force | ForEach-Object { $_.LastWriteTime = $stamp }
 (Get-Item -LiteralPath $root).LastWriteTime = $stamp
 Save-View 'files-tree' 'Get-ChildItem -Recurse' { Get-ChildItem -LiteralPath $root -Recurse } -Width 72
+Remove-Item -LiteralPath $root -Recurse -Force
+
+# A project folder with one file of each kind, so every name colour shows.
+$root = Join-Path $temp 'project'
+# The fixed path shows in the image; an existing folder is never deleted, so the script stops instead.
+if (Test-Path -LiteralPath $root) { throw "Remove '$root' before drawing the images. The script only deletes folders it created." }
+$null = New-Item -ItemType Directory -Path (Join-Path $root 'src'), (Join-Path $root 'assets') -Force
+$files = [ordered] @{
+    '.gitignore' = 120; 'build.ps1' = 4096; 'Program.cs' = 2210; 'release.zip' = 5242880; 'logo.png' = 48211
+    'debug.log' = 91234; 'README.md' = 15360; 'settings.json' = 512; 'setup.exe' = 3145728
+}
+foreach ($name in $files.Keys) { [System.IO.File]::WriteAllBytes((Join-Path $root $name), (New-Object byte[] $files[$name])) }
+if ($IsMacOS -or $IsLinux) { & chmod +x (Join-Path $root 'setup.exe') }
+Get-ChildItem $root -Force | ForEach-Object { $_.LastWriteTime = $stamp }
+# On macOS and Linux the listing shows the owner; the image shows an example name instead of whoever draws it.
+Save-View 'files' 'Get-ChildItem -Force' {
+    foreach ($type in 'System.IO.FileInfo', 'System.IO.DirectoryInfo') {
+        Update-TypeData -TypeName $type -MemberType ScriptProperty -MemberName User -Value { 'example' } -Force
+    }
+    Get-ChildItem -LiteralPath $root -Force
+} -Width 90
 Remove-Item -LiteralPath $root -Recurse -Force
 
 Save-View 'processes' 'Get-Process' {

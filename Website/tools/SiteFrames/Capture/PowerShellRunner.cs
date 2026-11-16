@@ -101,7 +101,11 @@ namespace SiteFrames.Capture {
             sb.Append("$env:PSModulePath = '").Append(modules.Replace("'", "''")).Append("' + [IO.Path]::PathSeparator + $env:PSModulePath\n");
             sb.Append("Import-Module ConsoleMonster -Force\n");
             sb.Append("$cmdlets = (Get-Command Show-Console -ErrorAction SilentlyContinue).DLL\n");
-            sb.Append("if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not $cmdlets -or -not $cmdlets.StartsWith('").Append(modules.Replace("'", "''")).Append("', [StringComparison]::OrdinalIgnoreCase)) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }\n");
+            // The module loader may report the binary through the link or by its real path in this checkout; both are this build.
+            string binaries = Path.GetFullPath(Path.Combine(site.Repository, "ConsoleMonster.PowerShell"));
+            sb.Append("if (@(Get-Module ConsoleMonster).Count -ne 1 -or -not $cmdlets -or -not ($cmdlets.StartsWith('").Append(modules.Replace("'", "''"))
+                .Append("', [StringComparison]::OrdinalIgnoreCase) -or $cmdlets.StartsWith('").Append(binaries.Replace("'", "''"))
+                .Append("', [StringComparison]::OrdinalIgnoreCase))) { throw 'ConsoleMonster did not load from this repository (build ConsoleMonster.PowerShell first)' }\n");
             sb.Append("Set-Location -LiteralPath '").Append(directory.Replace("'", "''")).Append("'\n");
             if (prompt != null) {
                 sb.Append("Write-Host '$ ").Append(prompt.Replace("'", "''")).Append("' -ForegroundColor Yellow\n");

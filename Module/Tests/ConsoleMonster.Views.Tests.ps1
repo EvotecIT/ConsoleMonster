@@ -101,6 +101,34 @@ Disable-ConsoleFormatting
         $text | Should -Not -Match '[┌╭]'
     }
 
+    It 'gives each file listing name the colour of its kind on this platform' {
+        $text = Invoke-ViewChild -Script @'
+$root = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString('n'))
+$null = New-Item -ItemType Directory -Path (Join-Path $root 'folder') -Force
+try {
+    foreach ($name in 'tool.exe', 'build.ps1', 'archive.zip', 'logo.png', 'debug.log', 'README.md', 'hidden.txt') { [IO.File]::WriteAllText((Join-Path $root $name), 'x') }
+    $hidden = Get-Item -LiteralPath (Join-Path $root 'hidden.txt')
+    $hidden.Attributes = $hidden.Attributes -bor [IO.FileAttributes]::Hidden
+    # The Name column of the file views calls the same type from its script.
+    $kinds = (Get-Command Enable-ConsoleFormatting).ImplementingType.Assembly.GetType('ConsoleMonster.PowerShell.FileKinds')
+    Get-ChildItem -LiteralPath $root -Force | Sort-Object Name | ForEach-Object { 'CELL ' + $kinds::Cell($_).Markup }
+} finally { Remove-Item -LiteralPath $root -Recurse -Force }
+'@
+        $text | Should -Match 'CELL \[accent\]folder\[/\]'
+        $text | Should -Match 'CELL \[series3\]build\.ps1\[/\]'
+        $text | Should -Match 'CELL \[series4\]archive\.zip\[/\]'
+        $text | Should -Match 'CELL \[series6\]logo\.png\[/\]'
+        $text | Should -Match 'CELL \[muted\]debug\.log\[/\]'
+        $text | Should -Match '(?m)^CELL README\.md$'
+        # The Hidden attribute and .exe are Windows cues; on Unix the execute bit and dot names decide.
+        if ([IO.Path]::DirectorySeparatorChar -eq '\') {
+            $text | Should -Match 'CELL \[pass\]tool\.exe\[/\]'
+            $text | Should -Match 'CELL \[muted\]hidden\.txt\[/\]'
+        } else {
+            $text | Should -Match '(?m)^CELL tool\.exe$'
+        }
+    }
+
     It 'renders versions through the built-in view while keeping captured values native' {
         $text = Invoke-ViewChild -Script @'
 $version = [version] '2.0.0'

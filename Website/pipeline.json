@@ -8,8 +8,18 @@
   "steps": [
     {
       "task": "exec",
+      "id": "prepare-module-loader",
+      "modes": ["ci"],
+      "command": "pwsh",
+      "argsList": ["-NoProfile", "-File", "../.github/scripts/Initialize-PowerForgeLoader.ps1"],
+      "workingDirectory": ".",
+      "timeoutSeconds": 120
+    },
+    {
+      "task": "exec",
       "id": "test-site-frames",
       "modes": ["ci"],
+      "dependsOn": "prepare-module-loader",
       "command": "dotnet",
       "argsList": ["test", "tools/SiteFrames.Tests/SiteFrames.Tests.csproj", "-c", "Release", "--nologo", "--logger", "trx;LogFileName=site-frames.trx", "--results-directory", "./_reports/tests"],
       "workingDirectory": ".",
