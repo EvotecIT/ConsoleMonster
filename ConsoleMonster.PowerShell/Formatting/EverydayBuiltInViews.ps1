@@ -720,7 +720,9 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
             $lines = [Collections.Generic.List[string]]::new()
             for ($i = 0; $i -lt $shown; $i++) {
                 $name = $names[$i]
-                $data = try { $key.GetValue($name, $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames) } catch { $null }
+                # Assigned inside try: a byte[] emitted from it would be enumerated into separate values.
+                $data = $null
+                try { $data = $key.GetValue($name, $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames) } catch { }
                 $text = if ($data -is [byte[]]) { (($data | Select-Object -First 16 | ForEach-Object { $_.ToString('x2') }) -join ' ') + $(if ($data.Length -gt 16) { ' …' }) }
                     elseif ($data -is [array]) { $data -join ', ' } else { [string] $data }
                 if ($text.Length -gt 80) { $text = $text.Substring(0, 79) + '…' }
@@ -754,7 +756,13 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
         @{ Label = 'Server'; Expression = { $_.Headers['Server'] -join ', ' } }
         @{ Label = 'Content'; Expression = {
             $content = $_.Content
-            if ($content -is [string]) { (@($content -split '\r?\n' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) | Select-Object -First 3) -join "`n" }
+            if ($content -is [string]) {
+                # Read only as far as the preview needs; a large body is not split or scanned.
+                $reader = [IO.StringReader]::new($content)
+                $lines = [Collections.Generic.List[string]]::new()
+                while ($lines.Count -lt 3 -and $null -ne ($line = $reader.ReadLine())) { if ($line.Trim()) { $lines.Add($line.Trim()) } }
+                $lines -join "`n"
+            }
         }; MaxLines = 3; Overflow = 'Truncate'; Priority = 7 }
     )
 }
@@ -768,7 +776,7 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
     Group = 'FileHash'
     Property = @(
         @{ Label = 'Algorithm'; Expression = 'Algorithm'; Presenter = 'Chip'; Priority = 6 }
-        @{ Label = 'Hash'; Expression = 'Hash'; Presenter = 'Identifier'; Priority = 10 }
+        @{ Label = 'Hash'; Expression = 'Hash'; Presenter = 'Identifier'; Priority = 10; MaxLines = 0 }
         @{ Label = 'Path'; Expression = {
             $path = [string] $_.Path
             if ($path -and $PWD.Provider.Name -eq 'FileSystem') {

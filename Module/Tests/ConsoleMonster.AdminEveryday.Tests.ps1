@@ -48,12 +48,14 @@ Describe 'Everyday administration command output' {
             New-ViewRow 'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_LogicalDisk' @{ DeviceID = 'C:'; VolumeName = 'System'; DriveType = [uint32] 3; FileSystem = 'NTFS'; Size = [uint64] 500GB; FreeSpace = [uint64] 20GB }
             New-ViewRow 'Microsoft.Management.Infrastructure.CimInstance#Win32_LogicalDisk' @{ DeviceID = 'D:'; VolumeName = 'Data'; DriveType = [uint32] 3; FileSystem = 'NTFS'; Size = [uint64] 1TB; FreeSpace = [uint64] 600GB }
             New-ViewRow 'System.Management.ManagementObject#root\cimv2\Win32_LogicalDisk' @{ DeviceID = 'Z:'; VolumeName = 'Share'; DriveType = [uint32] 4; FileSystem = 'NTFS'; Size = [uint64] 2TB; FreeSpace = [uint64] 1TB }
+            # Get-CimInstance -Property can leave FreeSpace out; an unknown drive is not counted as full.
+            New-ViewRow 'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_LogicalDisk' @{ DeviceID = 'Y:'; VolumeName = 'Unknown'; DriveType = [uint32] 3; FileSystem = 'NTFS'; Size = [uint64] 1TB; FreeSpace = $null }
         )
         $text = $rows | ConvertTo-TestEverydayText -Width 120
         $text | Should -Match 'C:\s+│\s+System\s+│\s+\[?Local\]?'
         $text | Should -Match 'Network'
         $text | Should -Match '96%'
-        $text | Should -Match '3 drives · 3.49 Ti?B total · 1.61 Ti?B free · 1 over 90% full'
+        $text | Should -Match '4 drives · 4.49 Ti?B total · 1.61 Ti?B free · 1 over 90% full'
     }
 
     It 'shows the operating system as one record with uptime and memory in use' {
@@ -102,16 +104,18 @@ Describe 'Everyday administration command output' {
     }
 
     It 'shows registry keys under their parent with the first values as name = data' {
-        $values = [ordered] @{ '' = 'default text'; Path = 'C:\[Tools]'; A = 1; B = 2; C = 3; D = 4; E = 5 }
+        $values = [ordered] @{ '' = 'default text'; Path = 'C:\[Tools]'; Data = [byte[]] (0xde, 0xad); A = 1; B = 2; C = 3; D = 4 }
         $key = New-ViewRow 'Microsoft.Win32.RegistryKey' @{
             PSChildName = 'Example'; PSParentPath = 'Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE'; SubKeyCount = 2
         }
         $key | Add-Member ScriptMethod GetValueNames { [string[]] $values.Keys }.GetNewClosure()
-        $key | Add-Member ScriptMethod GetValue { param($name, $default, $options) $values[$name] }.GetNewClosure()
+        # The leading comma returns a byte[] whole, as RegistryKey.GetValue does.
+        $key | Add-Member ScriptMethod GetValue { param($name, $default, $options) , $values[$name] }.GetNewClosure()
         $text = $key | ConvertTo-TestEverydayText
         $text | Should -Match 'Hive: HKEY_LOCAL_MACHINE\\SOFTWARE'
         $text | Should -Match 'Example\s+│\s+2\s+│\s+\(default\) = default text'
         $text | Should -Match '│\s+Path = C:\\\[Tools\]\s+│'
+        $text | Should -Match '│\s+Data = de ad\s+│'
         $text | Should -Match '\+2 more'
     }
 
@@ -138,5 +142,10 @@ Describe 'Everyday administration command output' {
         } finally { Pop-Location }
         $text | Should -Match ((Get-FileHash -LiteralPath $file).Hash)
         $text | Should -Match '│\s+hash-example\.txt\s+│'
+
+        # A SHA512 hash wraps in a narrow terminal but stays whole.
+        $long = Get-FileHash -LiteralPath $file -Algorithm SHA512
+        $narrow = $long | ConvertTo-TestEverydayText -Width 60
+        ($narrow -creplace '[^0-9A-F]', '') | Should -Match $long.Hash
     }
 }

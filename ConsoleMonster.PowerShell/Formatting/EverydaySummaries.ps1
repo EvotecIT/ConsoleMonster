@@ -358,7 +358,7 @@
         foreach ($item in $items) {
             $size += $item.Size
             $free += $item.FreeSpace
-            if ($item.Size -gt 0 -and $item.FreeSpace -lt $item.Size * 0.1) { $full++ }
+            if ($item.Size -gt 0 -and $null -ne $item.FreeSpace -and $item.FreeSpace -lt $item.Size * 0.1) { $full++ }
         }
         @{ Value = $items.Count; Label = 'drives' }
         @{ Value = $size; Presenter = 'Bytes'; Label = 'total' }
