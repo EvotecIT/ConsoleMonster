@@ -125,3 +125,90 @@ Save-View 'custom-summary' 'Register-ConsoleView -Summary' {
         New-Record 'Contoso.Server' @{ Name = $s[0]; State = $s[1]; Disk = $s[2] }
     }
 } -Width 60
+
+# Everyday administration commands.
+Save-View 'env-path' 'Get-ChildItem Env:PATH, Env:HOME' {
+    $separator = [IO.Path]::PathSeparator
+    # Two folders that exist on the machine drawing the image and two that do not.
+    $system = if ($IsMacOS -or $IsLinux) { '/usr/bin' } else { $env:SystemRoot }
+    $missing = if ($IsMacOS -or $IsLinux) { '/opt/old-tool/bin', '/usr/local/retired/scripts' } else { 'C:\Tools\OldTool\bin', 'C:\Retired\Scripts' }
+    $path = [Collections.DictionaryEntry]::new('PATH', (@($PSHOME, $missing[0], $system, $missing[1]) -join $separator))
+    $homeEntry = [Collections.DictionaryEntry]::new('HOME', '/home/example')
+    foreach ($entry in $path, $homeEntry) { $item = [psobject] $entry; $item | Add-Member PSDrive 'Env'; $item }
+} -Width 80
+
+Save-View 'event-log' 'Get-EventLog -LogName System -Newest 6' {
+    $now = [datetime] '2026-11-08 21:00'
+    $entries = @(('Error', 7034, 'The SQL Server (MSSQLSERVER) service terminated unexpectedly.'), ('Warning', 129, 'The time service has not synchronized the system time.'),
+        ('Information', 7036, 'The Windows Update service entered the running state.'), ('Information', 7040, 'The start type of the BITS service was changed.'),
+        ('Error', 7000, 'The Example Agent service failed to start.'), ('Information', 7036, 'The Print Spooler service entered the stopped state.'))
+    $i = 0
+    foreach ($e in $entries) {
+        $i++
+        New-Record 'System.Diagnostics.EventLogEntry' @{ TimeGenerated = $now.AddMinutes(-$i * $i * 7); InstanceId = [long] $e[1]; EntryType = $e[0]
+            Source = 'Service Control Manager'; Message = $e[2] }
+    }
+} -Width 120
+
+Save-View 'logical-disks' 'Get-CimInstance Win32_LogicalDisk' {
+    foreach ($d in @(('C:', 'System', 3, 512GB, 31GB), ('D:', 'Data', 3, 2TB, 1.2TB), ('E:', 'USB', 2, 64GB, 50GB), ('Z:', 'Team share', 4, 4TB, 0.9TB))) {
+        New-Record 'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_LogicalDisk' @{ DeviceID = $d[0]; VolumeName = $d[1]
+            DriveType = [uint32] $d[2]; FileSystem = 'NTFS'; Size = [uint64] $d[3]; FreeSpace = [uint64] $d[4] }
+    }
+} -Width 96
+
+Save-View 'operating-system' 'Get-CimInstance Win32_OperatingSystem' {
+    New-Record 'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_OperatingSystem' @{ Caption = 'Microsoft Windows 11 Pro'
+        Version = '10.0.26100'; OSArchitecture = '64-bit'; CSName = 'EXAMPLE-PC'; InstallDate = [datetime] '2025-03-14 10:12'
+        LastBootUpTime = (Get-Date).AddDays(-3).AddHours(-4); TotalVisibleMemorySize = [uint64] 33554432; FreePhysicalMemory = [uint64] 6291456 }
+} -Width 72
+
+Save-View 'hotfixes' 'Get-HotFix' {
+    $today = (Get-Date).Date
+    foreach ($h in @(('KB5048667', 'Security Update', 6), ('KB5046617', 'Update', 34), ('KB5044284', 'Security Update', 62), ('KB5043080', 'Security Update', 90))) {
+        New-Record 'System.Management.ManagementObject#root\cimv2\Win32_QuickFixEngineering' @{ HotFixID = $h[0]; Description = $h[1]
+            InstalledOn = $today.AddDays(-$h[2]); InstalledBy = 'NT AUTHORITY\SYSTEM'; CSName = 'EXAMPLE-PC' }
+    }
+} -Width 96
+
+Save-View 'optional-features' 'Get-WindowsOptionalFeature -Online' {
+    foreach ($f in @(('Microsoft-Windows-Subsystem-Linux', 'Enabled'), ('VirtualMachinePlatform', 'EnablePending'), ('TelnetClient', 'Disabled'),
+            ('Microsoft-Hyper-V-All', 'Enabled'), ('SMB1Protocol', 'DisabledWithPayloadRemoved'))) {
+        New-Record 'Microsoft.Dism.Commands.BasicFeatureObject' @{ FeatureName = $f[0]; State = $f[1] }
+    }
+} -Width 80
+
+Save-View 'firewall-rules' 'Get-NetFirewallRule' {
+    foreach ($r in @(('Remote Desktop - User Mode (TCP-In)', 'True', 'Inbound', 'Allow', 'Domain, Private', 'Remote Desktop'),
+            ('File and Printer Sharing (SMB-In)', 'False', 'Inbound', 'Allow', 'Private', 'File and Printer Sharing'),
+            ('Block legacy SMB', 'True', 'Inbound', 'Block', 'Any', ''), ('Example Agent (TCP-Out)', 'True', 'Outbound', 'Allow', 'Domain', 'Example Agent'),
+            ('Windows Remote Management (HTTP-In)', 'True', 'Inbound', 'Allow', 'Domain', 'Windows Remote Management'))) {
+        New-Record 'Microsoft.Management.Infrastructure.CimInstance#root/standardcimv2/MSFT_NetFirewallRule' @{ DisplayName = $r[0]; Enabled = $r[1]
+            Direction = $r[2]; Action = $r[3]; Profile = $r[4]; DisplayGroup = $r[5] }
+    }
+} -Width 120
+
+Save-View 'registry' 'Get-ChildItem HKLM:\SOFTWARE\Example' {
+    foreach ($k in @(('Agent', 2, [ordered] @{ '' = 'Example Agent'; InstallPath = 'C:\Program Files\Example\Agent'; Version = '4.2.1'; Port = 8443 }),
+            ('Updater', 0, [ordered] @{ Channel = 'stable'; LastCheck = '2026-11-08T06:00:00Z'; Enabled = 1; Proxy = ''; Retries = 3; Timeout = 30; Mirror = 'https://updates.example.com' }))) {
+        $values = $k[2]
+        $key = New-Record 'Microsoft.Win32.RegistryKey' @{ PSChildName = $k[0]; SubKeyCount = $k[1]
+            PSParentPath = 'Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Example' }
+        $key | Add-Member ScriptMethod GetValueNames { [string[]] $values.Keys }.GetNewClosure()
+        $key | Add-Member ScriptMethod GetValue { param($name, $default, $options) $values[$name] }.GetNewClosure()
+        $key
+    }
+} -Width 90
+
+Save-View 'web-request' 'Invoke-WebRequest https://example.com/status' {
+    $headers = [Collections.Generic.Dictionary[string, string[]]]::new()
+    $headers['Content-Type'] = @('application/json; charset=utf-8'); $headers['Server'] = @('nginx')
+    New-Record 'Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject' @{ StatusCode = 503; StatusDescription = 'Service Unavailable'
+        Headers = $headers; RawContentLength = [long] 214; Content = "{`n  `"status`": `"degraded`",`n  `"failing`": [`"database`"],`n  `"retryAfter`": 30`n}" }
+} -Width 80
+
+Save-View 'file-hash' 'Get-FileHash .\release.zip, .\install.ps1' {
+    foreach ($f in @(('release.zip', '9F2C4A1E7B3D5068C1A4E2F9B7D30C58A6E1F4B2D9C7A3E5F1B8D2C4A6E9F0B3'), ('install.ps1', '1B7E9C3A5D2F4086B1C3E5A7D9F2B4C6E8A1D3F5B7C9E2A4D6F8B1C3E5A7D9F2'))) {
+        New-Record 'Microsoft.PowerShell.Commands.FileHashInfo' @{ Algorithm = 'SHA256'; Hash = $f[1]; Path = Join-Path $PWD.ProviderPath $f[0] }
+    }
+} -Width 110

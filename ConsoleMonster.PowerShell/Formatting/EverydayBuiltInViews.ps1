@@ -587,7 +587,7 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
         @{ Label = 'Level'; Expression = {
             switch ([string] $_.EntryType) { 'SuccessAudit' { 'Audit success' } 'FailureAudit' { 'Audit failure' } { $_ -in '0', '' } { 'Information' } default { $_ } }
         }; Presenter = 'StatusWord'; Priority = 9 }
-        @{ Label = 'Source'; Expression = 'Source'; Priority = 6 }
+        @{ Label = 'Source'; Expression = 'Source'; Priority = 6; MaxLines = 1; Overflow = 'Truncate' }
         @{ Label = 'Message'; Expression = { if ($_.Message) { ($_.Message -split '\r?\n')[0] } }; Priority = 10 }
     )
 }
@@ -680,9 +680,7 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
             $text = if ($words.Count -gt 1) { $words[0] + ' ' + $words[1].ToLowerInvariant() } else { $state }
             if ($state -eq 'Enabled') { '[pass]' + $text + '[/]' } elseif ($state -like '*Pending') { '[warn]' + $text + '[/]' } else { '[muted]' + $text + '[/]' }
         }; Presenter = 'Markup'; Priority = 9 }
-        @{ Label = 'Name'; Expression = { $name = $_.PSObject.Properties['DisplayName']; if ($name) { $name.Value } }; Overflow = 'Truncate' }
     )
-    HideEmptyColumns = $true
 }
 
 # Get-NetFirewallRule: name, whether it is on, direction, action (allow in the pass colour, block in the fail colour) and profile.
