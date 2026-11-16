@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Data;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Changes {
     /// <summary>Options for <see cref="ObjectDiff"/>.</summary>
+    [Fluent]
     public sealed class DiffOptions {
         /// <summary>The members whose values identify an object (like Compare-Object -Property for matching). Empty: Id, Name, Key...</summary>
         public IList<string> Key { get; } = new List<string>();

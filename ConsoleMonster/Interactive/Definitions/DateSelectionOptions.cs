@@ -1,9 +1,11 @@
 using System;
 using System.Globalization;
 using ConsoleMonster.Dates;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Shared calendar data, civil-date bounds and culture for pickers and date questions.</summary>
+    [Fluent]
     public sealed class DateSelectionOptions {
         /// <summary>Earliest permitted date.</summary>
         public DateTime? Minimum { get; set; }

@@ -2,9 +2,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Configuration for an action whose identity and callback become immutable at Build.</summary>
+    [Fluent]
     public sealed class CommandOptions {
         /// <summary>The stable command key.</summary>
         public string Key { get; set; } = string.Empty;

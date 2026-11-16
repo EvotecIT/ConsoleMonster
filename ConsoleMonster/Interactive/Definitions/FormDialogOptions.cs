@@ -1,9 +1,11 @@
 using System;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A composed modal form definition whose result contains its named field values.</summary>
+    [Fluent]
     public sealed class FormDialogOptions : IContentOwner {
         /// <summary>The visible dialog heading.</summary>
         public string Title { get; set; } = string.Empty;

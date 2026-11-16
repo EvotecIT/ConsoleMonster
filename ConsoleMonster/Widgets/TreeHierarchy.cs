@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>Limits for <see cref="TreeHierarchy.Add{T}"/>: how deep, how wide and how large a tree built from objects may grow.</summary>
+    [Fluent]
     public sealed class TreeHierarchyOptions {
         /// <summary>How many levels of children are followed below each top-level item (default 5; 0 shows only the items).</summary>
         public int Depth { get; set; } = 5;

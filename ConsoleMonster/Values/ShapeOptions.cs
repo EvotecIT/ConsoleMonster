@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Data;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Values {
     /// <summary>Options for <see cref="ValueShaper"/>: how records are read and how values become text.</summary>
+    [Fluent]
     public sealed class ShapeOptions {
         /// <summary>Record adapters tried before the built-in ones (for example PowerShell objects).</summary>
         public IList<IMemberSource> Sources { get; } = new List<IMemberSource>();

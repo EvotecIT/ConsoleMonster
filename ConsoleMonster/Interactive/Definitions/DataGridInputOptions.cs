@@ -1,7 +1,9 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Named grid configuration shared by Ui.DataGrid and New-ConsoleDataGrid.</summary>
+    [Fluent]
     public sealed class DataGridInputOptions : AppInputOptions {
         /// <summary>Rows and columns, including original objects and stable identities.</summary>
         public Grid? Grid { get; set; }

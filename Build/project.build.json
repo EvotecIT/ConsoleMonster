@@ -35,7 +35,6 @@
     "ConsoleMonster.Examples",
     "ConsoleMonster.Examples.Extensions",
     "ConsoleMonster.Extensions.Tests",
-    "ConsoleMonster.Generators",
     "ConsoleMonster.PowerShell",
     "ConsoleMonster.Tests"
   ],

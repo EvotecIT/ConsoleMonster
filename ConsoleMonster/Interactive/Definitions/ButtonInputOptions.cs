@@ -1,7 +1,9 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Constructs an action button with the same callback names as New-ConsoleButton.</summary>
+    [Fluent]
     public sealed class ButtonInputOptions : AppInputOptions {
         /// <summary>An in-app command shared with shortcuts and the palette. Mutually exclusive with OnClick.</summary>
         public AppCommand? Command { get; set; }

@@ -1,5 +1,8 @@
+using PowerForge.Fluent;
+
 namespace ConsoleMonster.Interactive {
     /// <summary>Constructs a Boolean application input.</summary>
+    [Fluent]
     public sealed class ToggleInputOptions : AppInputOptions {
         /// <summary>The initial Boolean value.</summary>
         public bool Value { get; set; }

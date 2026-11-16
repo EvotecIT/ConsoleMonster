@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>An explorable chart shared by Ui.ChartView and New-ConsoleChartView.</summary>
+    [Fluent]
     public sealed class ChartViewInputOptions : AppInputOptions {
         /// <summary>The chart to explore: a <see cref="LineChart"/> (converted implicitly), or any other <see cref="ChartPlot"/>.</summary>
         public ChartPlot? Chart { get; set; }

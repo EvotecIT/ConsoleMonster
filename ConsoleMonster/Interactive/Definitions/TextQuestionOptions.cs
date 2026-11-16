@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>One validated definition for ordinary, multiline and secret text questions.</summary>
+    [Fluent]
     public sealed class TextQuestionOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal IEnumerable<string> Bound => _bound;

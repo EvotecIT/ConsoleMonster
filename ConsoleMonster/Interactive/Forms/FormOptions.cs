@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>How a form is shown on its own.</summary>
+    [Fluent]
     public sealed class FormOptions {
         /// <summary>Interaction settings (mode, input, profile, theme, labels).</summary>
         public InteractiveOptions? Interactive { get; set; }

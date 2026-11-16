@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A form field: a name (the key in <see cref="FormValues"/>), a label, help, a default, validation, a condition for
     /// showing it, the fields it depends on, and the command-line parameter it maps to for the equivalent command.
     /// </summary>
+    [Fluent]
     public abstract class Field {
         /// <summary>Creates a field.</summary>
         /// <param name="key">The key in the form values.</param>

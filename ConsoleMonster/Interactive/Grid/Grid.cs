@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>How many rows a grid returns.</summary>
@@ -22,6 +23,7 @@ namespace ConsoleMonster.Interactive {
     /// a row's details. It returns the original objects of the chosen rows. Columns use the table's width negotiation and
     /// presenters; the screen has the same header bar, panel and footer as menus and forms.
     /// </summary>
+    [Fluent]
     public sealed partial class Grid {
         private readonly List<TableColumn> _columns = new List<TableColumn>();
         private readonly List<GridRow> _rows = new List<GridRow>();
@@ -118,6 +120,7 @@ namespace ConsoleMonster.Interactive {
     }
 
     /// <summary>Options for <c>Grid.Show</c>.</summary>
+    [Fluent]
     public sealed partial class GridOptions {
         /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
         public IList<AppCommand> Command { get; } = new List<AppCommand>();

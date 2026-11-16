@@ -1,7 +1,9 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Display settings for a single-use <see cref="LiveRun"/>. Configure these before creating the run.</summary>
+    [Fluent]
     public sealed class LiveRunOptions {
         /// <summary>The literal run name.</summary>
         public string Title { get; set; } = "Run";

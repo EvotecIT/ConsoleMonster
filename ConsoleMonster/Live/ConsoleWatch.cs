@@ -3,9 +3,11 @@ using System.Threading;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Options for <see cref="ConsoleWatch.Run"/>.</summary>
+    [Fluent]
     public sealed class WatchOptions {
         private TimeSpan _interval = TimeSpan.FromSeconds(2);
 

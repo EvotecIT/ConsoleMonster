@@ -1,4 +1,5 @@
 using ConsoleMonster.Canvas;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Layout {
     /// <summary>
@@ -6,6 +7,7 @@ namespace ConsoleMonster.Layout {
     /// the same inputs always produce the same cells. Implement it to get theming, glyph tiers, layout, live updates and
     /// every output mode for free.
     /// </summary>
+    [Fluent]
     public interface IWidget {
         /// <summary>Returns the size the widget wants within the constraints.</summary>
         /// <param name="constraints">The space offered.</param>

@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>Shared construction options for known-total and indeterminate progress indicators.</summary>
+    [Fluent]
     public sealed class ProgressOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal IEnumerable<string> Bound => _bound;

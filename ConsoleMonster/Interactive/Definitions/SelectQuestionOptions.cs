@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>One definition for scalar and multiple-choice questions, retaining the original values.</summary>
+    [Fluent]
     public sealed class SelectQuestionOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal bool Has(string name) => _bound.Contains(name);

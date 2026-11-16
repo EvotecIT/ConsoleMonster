@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Export {
     /// <summary>Which colours an export uses.</summary>
@@ -46,6 +47,7 @@ namespace ConsoleMonster.Export {
     /// How a widget, a rendered frame or a live-session snapshot is exported to HTML, SVG or text: the size in cells, the
     /// theme, the font, and an optional window frame with a title bar.
     /// </summary>
+    [Fluent]
     public sealed class ExportOptions {
         /// <summary>
         /// The font stack. The first fonts draw box drawing and block characters on the cell grid; braille needs a font that

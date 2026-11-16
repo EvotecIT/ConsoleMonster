@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// What a review item shows: the app's current choices as label/value rows, the equivalent command line, problems that
     /// block running, and the run action. Built fresh each time the review is drawn, so it always matches the choices.
     /// </summary>
+    [Fluent]
     public sealed class ReviewModel {
         /// <summary>Creates a review.</summary>
         /// <param name="title">A heading, or null for the item title.</param>

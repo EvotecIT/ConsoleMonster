@@ -3,12 +3,14 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// Settings shared by prompts, menus and forms: how to interact (detected by default), where input comes from, the
     /// terminal profile, theme and labels. Every property is optional.
     /// </summary>
+    [Fluent]
     public sealed class InteractiveOptions {
         private static InteractiveOptions _default = new InteractiveOptions();
 

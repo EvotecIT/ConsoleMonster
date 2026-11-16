@@ -6,6 +6,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Where a live session draws.</summary>
@@ -21,6 +22,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>Configuration for a single-use live session. Set before starting the session.</summary>
+    [Fluent]
     public sealed class LiveSessionOptions {
         /// <summary>
         /// Full screen (default) or an inline area below the cursor. Without a VT console (CI, redirected output) both fall

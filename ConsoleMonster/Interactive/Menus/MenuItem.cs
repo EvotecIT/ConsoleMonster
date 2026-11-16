@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -12,6 +13,7 @@ namespace ConsoleMonster.Interactive {
     /// opens (an action, a submenu, a form, a selection, a page). Configure it with the chainable methods:
     /// <c>item.Hotkey('r').Form(form).Configure(value =&gt; value.Badge = () =&gt; RichText.Plain("24 tasks"))</c>.
     /// </summary>
+    [Fluent]
     public sealed class MenuItem {
         private readonly List<Choice> _choices = new List<Choice>();
         private bool _selectionInitialized;

@@ -1,5 +1,8 @@
+using PowerForge.Fluent;
+
 namespace ConsoleMonster.Interactive {
     /// <summary>Named scalar/range date input construction shared by Ui.DatePicker and PowerShell.</summary>
+    [Fluent]
     public sealed class DatePickerInputOptions : AppInputOptions {
         /// <summary>Whether Value is an inclusive DateRange.</summary>
         public bool Range { get; set; }

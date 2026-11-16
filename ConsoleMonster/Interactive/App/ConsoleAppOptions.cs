@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using ConsoleMonster.Live;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Input, live rendering and fallback settings for one application run.</summary>
+    [Fluent]
     public sealed class ConsoleAppOptions {
         /// <summary>Host navigation, cancellation and palette gestures. Set individual gestures to null to release them to the app registry.</summary>
         public AppHostKeys Keys { get; set; } = new AppHostKeys();

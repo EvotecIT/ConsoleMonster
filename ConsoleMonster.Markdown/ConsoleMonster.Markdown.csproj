@@ -18,7 +18,7 @@
     <PackageProjectUrl>https://consolemonster.dev/</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../ConsoleMonster.Generators/ConsoleMonster.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="PowerForge.Generators" Version="$(PowerForgeGeneratorsVersion)" PrivateAssets="all" />
     <ProjectReference Include="..\ConsoleMonster\ConsoleMonster.csproj" />
     <PackageReference Include="OfficeIMO.Markdown" Version="3.6.0" />
     <None Include="README.md" Pack="true" PackagePath="/" />

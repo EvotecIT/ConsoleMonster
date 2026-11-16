@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -8,6 +9,7 @@ namespace ConsoleMonster.Interactive {
     /// people save, marked as built in, and cannot be overwritten or deleted; applying it sets the fields the way a saved
     /// preset does.
     /// </summary>
+    [Fluent]
     public sealed class FormPreset {
         /// <summary>Creates a built-in preset.</summary>
         /// <param name="name">The name; a saved preset cannot take it.</param>

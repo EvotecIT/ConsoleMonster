@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>The numeric chart representation.</summary>
@@ -21,6 +22,7 @@ namespace ConsoleMonster.Widgets {
     }
 
     /// <summary>Presence-aware numeric chart configuration, shared by the C# factory and PowerShell.</summary>
+    [Fluent]
     public sealed class ChartOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal IEnumerable<string> Bound => _bound;

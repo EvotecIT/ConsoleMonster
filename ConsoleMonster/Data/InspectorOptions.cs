@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Data {
     /// <summary>Controls depth, collection, member filtering and member source selection.</summary>
+    [Fluent]
     public sealed class InspectorOptions {
         /// <summary>Maximum node depth below the root.</summary>
         public int MaxDepth { get; set; } = 4;

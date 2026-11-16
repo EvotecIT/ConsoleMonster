@@ -9,9 +9,11 @@ using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Options for <c>ConsoleRun.ForEachAsync</c> and <see cref="RunMonitor"/>.</summary>
+    [Fluent]
     public sealed class RunOptions {
         // Sequential PowerShell runs already enclose the body and completion in one scope.
         internal bool GroupCompletions { get; set; } = true;

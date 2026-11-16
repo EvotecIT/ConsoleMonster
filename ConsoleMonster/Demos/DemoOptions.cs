@@ -1,8 +1,10 @@
 using System;
 using ConsoleMonster.Sessions;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Demos {
     /// <summary>Settings for scripted or stage-driven PowerShell demos.</summary>
+    [Fluent]
     public sealed class DemoOptions {
         /// <summary>PTY, output path, dimensions, environment, redaction and idle limit. Shell defaults to pwsh.</summary>
         public SessionRecordingOptions Recording { get; set; } = new SessionRecordingOptions { Shell = "pwsh" };

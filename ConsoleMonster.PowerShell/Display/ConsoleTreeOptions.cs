@@ -1,7 +1,9 @@
 using System.Management.Automation;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Typed hierarchy binding for PowerShell records; traversal and rendering stay in the core hierarchy owner.</summary>
+    [Fluent]
     public sealed class ConsoleTreeOptions {
         /// <summary>The hierarchy root title, including rich text.</summary>
         public object? Title { get; set; }

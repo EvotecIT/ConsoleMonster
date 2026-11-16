@@ -1,6 +1,7 @@
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Output;
 using Microsoft.Extensions.Logging;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Extensions.Logging {
     /// <summary>How a category is shown in a log line.</summary>
@@ -16,6 +17,7 @@ namespace ConsoleMonster.Extensions.Logging {
     }
 
     /// <summary>Options for <see cref="ConsoleMonsterLoggerProvider"/>.</summary>
+    [Fluent]
     public sealed class ConsoleMonsterLoggerOptions {
         /// <summary>The lowest level written (default <see cref="LogLevel.Trace"/>; the logging builder's filters apply first).</summary>
         public LogLevel MinimumLevel { get; set; } = LogLevel.Trace;
