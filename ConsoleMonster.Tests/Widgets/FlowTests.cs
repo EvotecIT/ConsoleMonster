@@ -144,7 +144,7 @@ namespace ConsoleMonster.Tests.Widgets {
             foreach (string label in new[] { "client", "host:443", "leaf", "intermediate", "root" }) Assert.Contains(label, text);
             Assert.DoesNotContain("ConsoleMonster.Widgets.Flow", text);
             Assert.Contains(flow, table.Children);
-            string data = Recording.ExportPlayerData(new Panel(table), new[] {
+            string data = Recording.ToPlayerData(new Panel(table), new[] {
                 new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100),
                 new LiveEvent("chain", "cut", "issuer", status: "Fail", time: 200)
             }, new RecordingExportOptions { Width = width, Height = 80 });
@@ -167,7 +167,7 @@ namespace ConsoleMonster.Tests.Widgets {
             Assert.Contains("intermediate", text);
             var record = new RecordView("Trust").AddField("Path", footer);
             Assert.Contains(footer, record.Children);
-            Recording.ExportPlayerData(record, new[] { new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100) },
+            Recording.ToPlayerData(record, new[] { new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100) },
                 new RecordingExportOptions { Width = 48, Height = 80 });
             Assert.Equal(StatusKind.Fail, footer.Nodes[3].Status);
             var rich = RichText.Plain("label");

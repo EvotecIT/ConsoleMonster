@@ -71,7 +71,7 @@ namespace ConsoleMonster.Tests.Sessions {
             var recording = SessionRecording.Read(new StringReader(cast));
             var options = new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 };
             options.Markers.Add(new RecordingMarker(TimeSpan.FromMilliseconds(150), "Custom"));
-            var data = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ExportPlayerData(options))!;
+            var data = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ToPlayerData(options))!;
             var markers = (System.Collections.Generic.List<object?>)data["markers"]!;
             var custom = (System.Collections.Generic.List<object?>)markers[0]!;
             var ready = (System.Collections.Generic.List<object?>)markers[1]!;
@@ -90,7 +90,7 @@ namespace ConsoleMonster.Tests.Sessions {
             var recording = SessionRecording.Read(new StringReader(Header + Event(0.1, output) + (recorded ? "[0.1,\"m\",\"Completed\"]\n" : string.Empty)));
             var options = new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60, Speed = speed };
             if (!recorded) { options.Markers.Add(new RecordingMarker(TimeSpan.FromMilliseconds(100), "Completed")); }
-            var data = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ExportPlayerData(options))!;
+            var data = (System.Collections.Generic.Dictionary<string, object?>)ConsoleMonster.Serialization.MiniJson.Read(recording.ToPlayerData(options))!;
             var markers = (System.Collections.Generic.List<object?>)data["markers"]!;
             Assert.Equal(expected, ((System.Collections.Generic.List<object?>)markers[0]!)[0]);
         }
@@ -113,7 +113,7 @@ namespace ConsoleMonster.Tests.Sessions {
             string output = string.Concat(new[] { "One", "Two", "Three" }.Select(text =>
                 "\u001b[?2026h\u001b[2J\u001b[H" + text + "\u001b[?2026l")) + "\u001b[2J\u001b[HReady";
             var recording = SessionRecording.Read(new StringReader(Header + Event(3600, output)));
-            string svg = recording.Export(ExportFormat.Svg, new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 });
+            string svg = recording.Render(OutputFormat.Svg, new RecordingExportOptions { Pace = RecordingPace.Source, FramesPerSecond = 60 }).ToText();
             var matches = System.Text.RegularExpressions.Regex.Matches(svg, @"([0-9.]+)%\{transform:translateX");
             decimal[] positions = matches.Cast<System.Text.RegularExpressions.Match>().Select(match =>
                 decimal.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture)).ToArray();

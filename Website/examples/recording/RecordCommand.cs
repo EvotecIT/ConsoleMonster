@@ -24,4 +24,4 @@ var export = new RecordingExportOptions
     WindowChrome = true,
     Title = "Command review"
 };
-File.WriteAllText("command-review.html", recording.Export(ExportFormat.Html, export));
+File.WriteAllText("command-review.html", recording.Export(OutputFormat.Html, export));

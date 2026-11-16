@@ -84,10 +84,10 @@ namespace ConsoleMonster.PowerShell {
             if (!string.Equals(cast, destination, StringComparison.OrdinalIgnoreCase)) {
                 if (File.Exists(destination)) { throw new IOException("The export destination already exists: " + destination); }
                 SessionRecording recording = SessionRecording.Read(cast);
-                string document = FinalFrame.IsPresent ? recording.ExportFinalSvg(new ExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle })
-                    : extension == ".json" ? recording.ExportPlayerData(new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle })
+                string document = FinalFrame.IsPresent ? recording.ToFinalSvg(new ExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle })
+                    : extension == ".json" ? recording.ToPlayerData(new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle })
                     : PSOutputExport.IsMarkdown(PSOutputExport.FormatFor(null, destination)) ? MarkdownExportBridge.Recording(recording)
-                    : recording.Export(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle });
+                    : recording.Render(ConsoleExporter.FormatFor(destination), new RecordingExportOptions { Theme = Theme, Title = recording.Title, WindowChrome = ChromeStyle != WindowChromeStyle.None, ChromeStyle = ChromeStyle }).ToText();
                 File.WriteAllText(destination, document, new UTF8Encoding(false));
             }
             WriteObject(new FileInfo(destination));

@@ -99,7 +99,7 @@ namespace SiteFrames.Pages {
                         Width = 1, Height = 1, Padding = padding, Theme = theme, Title = options.Title, WindowChrome = true
                     };
                     LiveEvent[] events = { new LiveEvent("minimum", "write", text: "y", time: 200) };
-                    File.WriteAllText(path + "-animated.svg", Recording.Export(log, events, ExportFormat.Svg, recording));
+                    File.WriteAllText(path + "-animated.svg", Recording.Export(log, events, OutputFormat.Svg, recording));
                 }
             }
         }

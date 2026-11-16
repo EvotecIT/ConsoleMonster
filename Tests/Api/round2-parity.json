@@ -1697,7 +1697,7 @@
           "Argument": "format",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Export.ExportFormat"
+          "CSharpTypeName": "ConsoleMonster.Export.OutputFormat"
         },
         {
           "Parameter": "FramesPerSecond",

@@ -28,7 +28,7 @@ namespace ConsoleMonster.Tests.Sessions {
             var frames = recording.CaptureFrames(options);
             Assert.Equal(new[] { "One", "Two", "Ready" }, frames.Select(f => ConsoleExporter.ToText(f.Frame).Trim()).Where(t => t.Length > 0));
             Assert.Equal(3000, frames.Single(f => ConsoleExporter.ToText(f.Frame).Trim() == "One").ExplicitHold.TotalMilliseconds);
-            Assert.Contains("[100,\"Read One\"]", recording.ExportPlayerData(options));
+            Assert.Contains("[100,\"Read One\"]", recording.ToPlayerData(options));
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace ConsoleMonster.Tests.Sessions {
             options.TrimStartChapter = "Start"; options.TrimEndChapter = "End";
             var trimmed = recording.CaptureFrames(options);
             Assert.Equal(new[] { "One", "Two" }, trimmed.Select(f => ConsoleExporter.ToText(f.Frame).Trim()));
-            Assert.DoesNotContain("Three", recording.ExportPlayerData(options));
+            Assert.DoesNotContain("Three", recording.ToPlayerData(options));
         }
 
         [Theory]
@@ -66,7 +66,7 @@ namespace ConsoleMonster.Tests.Sessions {
             var frames = recording.CaptureFrames(options);
             Assert.Equal(34, Total(frames));
             Assert.All(frames, f => Assert.Equal(TimeSpan.Zero, f.ExplicitHold));
-            Assert.DoesNotContain("\"Before\"", recording.ExportPlayerData(options));
+            Assert.DoesNotContain("\"Before\"", recording.ToPlayerData(options));
         }
 
         [Fact]
@@ -86,10 +86,10 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(new[] { "A", "B", "C" }, frames.Select(frame => ConsoleExporter.ToText(frame.Frame).Trim()));
             Assert.Equal(new long[] { 4000, 3000, 3000 }, frames.Select(frame => frame.Duration));
             Assert.Equal(10000, Total(frames));
-            var player = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData(options))!;
+            var player = (Dictionary<string, object?>)MiniJson.Read(recording.ToPlayerData(options))!;
             Assert.Equal("10000", player["duration"]);
-            Assert.Contains("[4000,\"Results\"]", recording.ExportPlayerData(options));
-            Assert.Contains("animation:cm-play 10s", recording.Export(ExportFormat.Svg, options));
+            Assert.Contains("[4000,\"Results\"]", recording.ToPlayerData(options));
+            Assert.Contains("animation:cm-play 10s", recording.Render(OutputFormat.Svg, options).ToText());
             // Exporting must not replace source marker times or mutate the caller's settings.
             Assert.Empty(options.Markers);
             Assert.Equal(TimeSpan.FromSeconds(6), recording.Chapters[1].Time);
@@ -108,7 +108,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.All(frames, frame => Assert.DoesNotContain("Cleanup", ConsoleExporter.ToText(frame.Frame)));
             Assert.Contains("Install", ConsoleExporter.ToText(frames.Last().Frame));
             Assert.Contains("Results", ConsoleExporter.ToText(frames.Last().Frame));
-            Assert.DoesNotContain("Cleanup", recording.ExportPlayerData(options));
+            Assert.DoesNotContain("Cleanup", recording.ToPlayerData(options));
             options.TrimStart = TimeSpan.Zero;
             Assert.Throws<ArgumentException>(() => recording.CaptureFrames(options));
         }
@@ -225,7 +225,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void AChapterAtTheFractionalMillisecondSourceEndIsNotLost() {
             SessionRecording recording = Read(Event(0, "o", "Ready") + Event(0.012345, "m", "Results"));
-            Assert.Contains("Results", recording.ExportPlayerData(Source()));
+            Assert.Contains("Results", recording.ToPlayerData(Source()));
             Assert.Equal(12, Total(recording.CaptureFrames(Source())));
         }
 
@@ -265,7 +265,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 + Event(markerTime, "m", "Interactive"));
 
             Assert.Equal("Interactive", Assert.Single(recording.Markers).Label);
-            var player = Assert.IsType<Dictionary<string, object?>>(MiniJson.Read(recording.ExportPlayerData(Source())));
+            var player = Assert.IsType<Dictionary<string, object?>>(MiniJson.Read(recording.ToPlayerData(Source())));
             Assert.True(player.TryGetValue("markers", out object? markerData), "The player must retain the final recorded chapter.");
             var marker = Assert.IsType<List<object?>>(Assert.Single(Assert.IsType<List<object?>>(markerData)));
             Assert.Equal("Interactive", marker[1]);
@@ -359,7 +359,7 @@ namespace ConsoleMonster.Tests.Sessions {
             var events = new[] { new LiveEvent("build", "advance", value: 1, time: 1000), new LiveEvent("build", "advance", value: 1, time: 4000) };
             Func<ProgressBar> root = () => new ProgressBar("Build", "build") { Total = 2 };
             var frames = Recording.CaptureFrames(root(), events, options);
-            string data = Recording.ExportPlayerData(root(), events, options);
+            string data = Recording.ToPlayerData(root(), events, options);
             Assert.Equal(7000, Total(frames));
             Assert.Contains("\"duration\":7000", data);
             Assert.Contains("[6000,\"Results\"]", data);

@@ -89,7 +89,7 @@ SessionRecording.Read("demo.cast").SaveGraphics("demo.gif", GraphicsFormat.Gif);
 
 Screens captured with `ScreenCapture` (scripted prompts, menus and apps) export as animations too:
 `capture.ToRecordedFrames(TimeSpan.FromMilliseconds(500))` gives timed frames for `Recording.Export(frames,
-ExportFormat.Svg)` (also `Html` and `Asciicast`) and for `frames.SaveGraphics("flow.gif", GraphicsFormat.Gif)` in
+OutputFormat.Svg)` (also `Html` and `Asciicast`) and for `frames.SaveGraphics("flow.gif", GraphicsFormat.Gif)` in
 ConsoleMonster.Graphics.
 
 ## Browser host

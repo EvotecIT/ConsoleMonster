@@ -74,7 +74,7 @@
     "ConsoleMonster.Demos.SemanticPromptDetector",
     "ConsoleMonster.Export.ConsoleExporter",
     "ConsoleMonster.Export.ExportFluent",
-    "ConsoleMonster.Export.ExportFormat",
+    "ConsoleMonster.Export.OutputFormat",
     "ConsoleMonster.Export.ExportFrameSize",
     "ConsoleMonster.Export.ExportOptions",
     "ConsoleMonster.Export.ExportTheme",

@@ -11,7 +11,7 @@ namespace ConsoleMonster.Tests.Export {
         [InlineData("report.MARKDOWN")]
         public void MarkdownFileRequestsNameTheRequiredPackageWithoutWriting(string name) {
             string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + name);
-            var error = Assert.Throws<NotSupportedException>(() => ConsoleExporter.Save(new TextBlock("report"), path));
+            var error = Assert.Throws<NotSupportedException>(() => new TextBlock("report").Save(path));
             Assert.Contains("ConsoleMonster.Markdown", error.Message);
             Assert.False(File.Exists(path));
         }

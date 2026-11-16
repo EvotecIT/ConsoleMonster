@@ -35,6 +35,6 @@ namespace ConsoleMonster {
         /// <param name="write">Optional host stdout sink.</param>
         /// <returns>The exported Markdown.</returns>
         public static string AddSummary(IWidget widget, ExportOptions? options = null, IFrameExportProvider? provider = null, Action<string>? write = null) =>
-            AddSummary(Encoding.UTF8.GetString(FrameExporter.Export(widget, "Markdown", options, provider)), write);
+            AddSummary(FrameExporter.Render(widget, OutputFormat.Markdown, options, provider).ToText(), write);
     }
 }

@@ -11,11 +11,11 @@ namespace ConsoleMonster.Graphics {
         /// <summary>The typed settings; Frame is overridden only when explicit frame options are supplied.</summary>
         public GraphicsExportOptions? Options { get; }
         /// <inheritdoc />
-        public string Format => "Png";
+        public OutputFormat Format => OutputFormat.Png;
         /// <inheritdoc />
-        public byte[] Export(IWidget widget, ExportOptions? options = null) => widget.ToPng(Settings(options));
+        public byte[] Render(IWidget widget, ExportOptions? options = null) => widget.ToPng(Settings(options));
         /// <inheritdoc />
-        public byte[] Export(CellBuffer frame, ExportOptions? options = null) => frame.ToPng(Settings(options));
+        public byte[] Render(CellBuffer frame, ExportOptions? options = null) => frame.ToPng(Settings(options));
         /// <summary>Registers the default PNG provider for the current application.</summary>
         public static void Register() => FrameExporter.Register(new PngFrameExportProvider());
 

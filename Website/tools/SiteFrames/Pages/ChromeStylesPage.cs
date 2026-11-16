@@ -16,8 +16,8 @@ namespace SiteFrames.Pages {
                     site.Write(site.Static(stem + ".svg"), ConsoleExporter.ToSvg(panel, frame));
                     site.Write(site.Static(stem + ".html"), ConsoleExporter.ToHtml(panel, frame));
                     RecordingExportOptions recording = new RecordingExportOptions { Title = "Console session", WindowChrome = true, ChromeStyle = style, Theme = theme };
-                    site.Write(site.Static(stem + "-player.html"), session.Export(ExportFormat.Html, recording));
-                    site.Write(site.Static(stem + "-animated.svg"), session.Export(ExportFormat.Svg, recording));
+                    site.Write(site.Static(stem + "-player.html"), session.Export(OutputFormat.Html, recording));
+                    site.Write(site.Static(stem + "-animated.svg"), session.Export(OutputFormat.Svg, recording));
                     site.Write(site.Static(stem + "-final.svg"), session.ExportFinalSvg(frame));
                     frame.Width = 1; frame.FontSize = 4; frame.Padding = 0; frame.Title = "A long caption at the minimum width";
                     site.Write(site.Static(stem + "-minimum.svg"), ConsoleExporter.ToSvg(TextBlock.Plain("x"), frame));

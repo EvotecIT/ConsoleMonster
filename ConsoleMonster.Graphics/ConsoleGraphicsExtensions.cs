@@ -25,15 +25,15 @@ namespace ConsoleMonster.Graphics {
         /// <summary>Encodes the latest live-session snapshot as PNG.</summary>
         public static byte[] ToPng(this LiveSession session, GraphicsExportOptions? options = null) =>
             (session.Snapshot() ?? throw new InvalidOperationException("The live session has not drawn a frame.")).ToPng(options);
-        /// <summary>Saves a frame as PNG.</summary>
-        public static void SavePng(this CellBuffer frame, string path, GraphicsExportOptions? options = null) => GraphicsOutput.Bytes(path, frame.ToPng(options));
+        /// <summary>Saves a frame as PNG.</summary><param name="frame">The frame.</param><param name="path">The file.</param><param name="options">Canvas, fonts and background.</param>
+        public static void Save(this CellBuffer frame, string path, GraphicsExportOptions? options = null) => GraphicsOutput.Bytes(path, frame.ToPng(options));
         /// <summary>Renders a widget and saves PNG.</summary>
-        public static void SavePng(this IWidget widget, string path, GraphicsExportOptions? options = null) => GraphicsOutput.Bytes(path, widget.ToPng(options));
+        public static void Save(this IWidget widget, string path, GraphicsExportOptions options) => GraphicsOutput.Bytes(path, widget.ToPng(options));
         /// <summary>Saves a recording's final frame, or the frame at a source time.</summary>
-        public static void SavePng(this SessionRecording recording, string path, GraphicsExportOptions? options = null, TimeSpan? at = null) =>
-            (at.HasValue ? recording.FrameAt(at.Value) : recording.FinalFrame()).SavePng(path, (options ?? new GraphicsExportOptions()).ForRecording(recording));
+        public static void Save(this SessionRecording recording, string path, GraphicsExportOptions options, TimeSpan? at = null) =>
+            (at.HasValue ? recording.FrameAt(at.Value) : recording.FinalFrame()).Save(path, (options ?? new GraphicsExportOptions()).ForRecording(recording));
         /// <summary>Saves one numbered PNG per chapter. Destination is a directory; chapter labels never become paths.</summary>
-        public static IReadOnlyList<string> SaveChapterPngs(this SessionRecording recording, string directory, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
+        public static IReadOnlyList<string> SaveChapters(this SessionRecording recording, string directory, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             options = (options ?? new GraphicsExportOptions()).ForRecording(recording);
             if (recording.Chapters.Count == 0) { throw new InvalidOperationException("The recording has no chapters. Add # demo: chapter directives."); }
             Directory.CreateDirectory(directory);
@@ -41,20 +41,20 @@ namespace ConsoleMonster.Graphics {
             for (int i = 0; i < recording.Chapters.Count; i++) {
                 cancellationToken.ThrowIfCancellationRequested();
                 string path = Path.Combine(directory, "slide-" + (i + 1).ToString("D3", System.Globalization.CultureInfo.InvariantCulture) + ".png");
-                recording.ChapterFrame(i).SavePng(path, options); paths.Add(path);
+                recording.ChapterFrame(i).Save(path, options); paths.Add(path);
             }
             return paths.AsReadOnly();
         }
         /// <summary>Encodes a terminal recording to GIF or APNG. PNG selects the final frame.</summary>
-        public static void SaveGraphics(this SessionRecording recording, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
+        public static void Save(this SessionRecording recording, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             GraphicsOutput.ValidatePath(path);
             GraphicsExportOptions settings = (options ?? new GraphicsExportOptions()).ForRecording(recording);
-            if (format == GraphicsFormat.Png) { recording.SavePng(path, settings); return; }
+            if (format == GraphicsFormat.Png) { recording.Save(path, settings); return; }
             SaveFrames(recording.CaptureFrames(Playback(settings), trimEmptyRows: settings.Preset == GraphicsPreset.Docs), path, format, settings, cancellationToken);
         }
         /// <summary>Encodes recorded dashboard events through the existing widget replay engine.</summary>
-        public static void SaveGraphics(this IWidget dashboard, IEnumerable<LiveEvent> events, string path, GraphicsFormat format,
+        public static void Save(this IWidget dashboard, IEnumerable<LiveEvent> events, string path, GraphicsFormat format,
             GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             GraphicsExportOptions settings = options ?? new GraphicsExportOptions();
             SaveFrames(Recording.CaptureFrames(dashboard, events, Playback(settings)), path, format, settings, cancellationToken);
@@ -68,7 +68,7 @@ namespace ConsoleMonster.Graphics {
         /// <param name="format">Gif, Apng or Png.</param>
         /// <param name="options">Canvas, fonts, background and loop count.</param>
         /// <param name="cancellationToken">Cancels encoding.</param>
-        public static void SaveGraphics(this IReadOnlyList<RecordedFrame> frames, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
+        public static void Save(this IReadOnlyList<RecordedFrame> frames, string path, GraphicsFormat format, GraphicsExportOptions? options = null, CancellationToken cancellationToken = default) {
             if (frames == null) { throw new ArgumentNullException(nameof(frames)); }
             SaveFrames(frames, path, format, options ?? new GraphicsExportOptions(), cancellationToken);
         }
@@ -117,7 +117,7 @@ namespace ConsoleMonster.Graphics {
                 }
             }
             if (frames.Count == 0) { throw new ArgumentException("The recording has no frames."); }
-            if (format == GraphicsFormat.Png) { frames[frames.Count - 1].Frame.SavePng(path, settings); return; }
+            if (format == GraphicsFormat.Png) { frames[frames.Count - 1].Frame.Save(path, settings); return; }
             // Render on demand: GIF's palette and encoding passes retain only bounded RGBA working buffers.
             int columns = 1, rows = 1;
             foreach (RecordedFrame frame in frames) {

@@ -36,7 +36,7 @@ namespace ConsoleMonster.TestHost {
                 File.WriteAllText(receipt + ".value", text + "|" + input);
                 File.WriteAllText(receipt + ".svg", ConsoleExporter.ToSvg(TextBlock.FromMarkup("[pass]pass[/]"), new ExportOptions { Theme = ExportTheme.Current, Width = 20 }));
                 using (SessionRecorder recording = SessionRecorder.Start(new SessionRecordingOptions { InProcess = true, RecordingPath = receipt + ".cast", Width = 20, Height = 5 })) { recording.CaptureOutput("\u001b[32mpass\u001b[0m"); }
-                File.WriteAllText(receipt + ".recording.svg", SessionRecording.Read(receipt + ".cast").Export(ExportFormat.Svg));
+                File.WriteAllText(receipt + ".recording.svg", SessionRecording.Read(receipt + ".cast").Render(OutputFormat.Svg).ToText());
                 File.WriteAllText(receipt + ".theme.json", ThemeFile.FromTheme(Terminal.Theme).ToJson());
                 File.WriteAllText(receipt + ".decision", string.Join("\n", Terminal.Profile.Decisions));
                 // Palette checks use the same cached exchange after the keyboard has started.

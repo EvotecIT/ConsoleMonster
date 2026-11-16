@@ -82,7 +82,7 @@
         $playback.Title = 'Build playback'
         $playback.ChromeStyle = 'None'
         $recording = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast)
-        $format = [Enum]::Parse([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.ExportFormat'), 'Svg')
+        $format = [Enum]::Parse([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.OutputFormat'), 'Svg')
         $actual = Export-ConsoleRecording -RecordingPath $cast -Format Svg -Width 40 -Height 8 -Speed 1.5 -FramesPerSecond 5 -Title 'Build playback'
         $actual | Should -BeExactly ($recording.Export($format, $playback))
     }

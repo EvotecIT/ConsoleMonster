@@ -133,23 +133,53 @@ namespace ConsoleMonster.Sessions {
             if (item.Kind == "o") { screen.Feed(item.Data); }
             else if (item.Kind == "r") { ParseSize(item.Data, out int width, out int height); screen.Resize(width, height); }
         }
-        /// <summary>Exports an HTML player, animated SVG, v2 asciicast, or scrollback as plain text.</summary>
-        public string Export(ExportFormat format, RecordingExportOptions? options = null) {
-            if (format == ExportFormat.Asciicast) { return ToAsciicast(); }
-            if (format == ExportFormat.Text) { return ConsoleExporter.ToText(Transcript()); }
+        /// <summary>Renders an HTML player, animated SVG, v2 asciicast, or scrollback as plain text.</summary>
+        /// <param name="format">Html, Svg, Asciicast or Text.</param>
+        /// <param name="options">Pacing, theme and player settings.</param>
+        /// <returns>The rendered output.</returns>
+        public RenderedOutput Render(OutputFormat format, RecordingExportOptions? options = null) => RenderedOutput.FromText(format, Text(format, options));
+
+        /// <summary>Writes the recording to a file in the given format or the one its extension implies.</summary>
+        /// <param name="path">The file.</param>
+        /// <param name="format">The format, or null to infer it from the extension.</param>
+        /// <param name="options">Pacing, theme and player settings.</param>
+        public void Save(string path, OutputFormat? format = null, RecordingExportOptions? options = null) =>
+            System.IO.File.WriteAllBytes(path ?? throw new ArgumentNullException(nameof(path)), Render(format ?? ConsoleExporter.FormatFor(path), options).ToBytes());
+
+        /// <summary>The HTML player.</summary>
+        /// <param name="options">Pacing, theme and player settings.</param>
+        /// <returns>The HTML page.</returns>
+        public string ToHtml(RecordingExportOptions? options = null) => Text(OutputFormat.Html, options);
+
+        /// <summary>The animated SVG.</summary>
+        /// <param name="options">Pacing, theme and player settings.</param>
+        /// <returns>The SVG.</returns>
+        public string ToSvg(RecordingExportOptions? options = null) => Text(OutputFormat.Svg, options);
+
+        /// <summary>The terminal scrollback as plain text.</summary>
+        /// <returns>The text.</returns>
+        public string ToText() => Text(OutputFormat.Text, null);
+
+        internal string Text(OutputFormat format, RecordingExportOptions? options = null) {
+            if (format == OutputFormat.Asciicast) { return ToAsciicast(); }
+            if (format == OutputFormat.Text) { return ConsoleExporter.ToText(Transcript()); }
             RecordingExportOptions effective = Ready(options);
             List<RecordedFrame> frames = Frames(effective);
-            if (format == ExportFormat.Html) { return HtmlPlayerWriter.Write(frames, effective); }
-            if (format == ExportFormat.Svg) { return AnimatedSvgWriter.Write(frames, effective); }
+            if (format == OutputFormat.Html) { return HtmlPlayerWriter.Write(frames, effective); }
+            if (format == OutputFormat.Svg) { return AnimatedSvgWriter.Write(frames, effective); }
             throw new ArgumentOutOfRangeException(nameof(format));
         }
-        /// <summary>Exports the existing native player's data format, including chapter markers.</summary>
-        public string ExportPlayerData(RecordingExportOptions? options = null) {
+        /// <summary>The native player's data format, including chapter markers.</summary>
+        /// <param name="options">Pacing, theme and player settings.</param>
+        /// <returns>The player data (JSON).</returns>
+        public string ToPlayerData(RecordingExportOptions? options = null) {
             RecordingExportOptions effective = Ready(options);
             return HtmlPlayerWriter.WriteData(Frames(effective), effective);
         }
-        /// <summary>Exports a static final-frame SVG with the same theme and cell geometry as the player.</summary>
-        public string ExportFinalSvg(ExportOptions? options = null) {
+        /// <summary>A static final-frame SVG with the same theme and cell geometry as the player.</summary>
+        /// <param name="options">Theme, font and window frame.</param>
+        /// <returns>The SVG.</returns>
+        public string ToFinalSvg(ExportOptions? options = null) {
             CellBuffer frame = FinalFrame();
             ExportOptions effective = ResolveFrameOptions(options);
             effective.Title = effective.Title ?? Title;

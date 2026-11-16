@@ -46,7 +46,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             try {
                 GraphicsExportOptions settings = Settings(GraphicsPreset.Social);
                 string gif = Path.Combine(directory, "talk.gif");
-                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                recording.Save(gif, GraphicsFormat.Gif, settings);
                 Assert.True(RasterImageDecoder.TryRead(gif, out RgbaImage animation));
                 // The first GIF screen is empty, but already reserves the clip's widest content and six used rows.
                 CellBuffer still = recording.FrameAt(TimeSpan.FromSeconds(0.5));

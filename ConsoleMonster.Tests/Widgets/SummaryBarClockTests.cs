@@ -37,10 +37,10 @@ namespace ConsoleMonster.Tests.Widgets {
                 new LiveEvent("summary", "progress", value: 0, total: 10, time: 0),
                 new LiveEvent("summary", "progress", value: 10, total: 10, time: 1000)
             };
-            // Recording.Export uses RecordingFrames.Sample, whose first frame is tick 0 at time 0.
-            string cast = Recording.Export(bar, events, ExportFormat.Asciicast, new RecordingExportOptions {
+            // Recording.Render uses RecordingFrames.Sample, whose first frame is tick 0 at time 0.
+            string cast = Recording.Render(bar, events, OutputFormat.Asciicast, new RecordingExportOptions {
                 Width = 100, Height = 1, FramesPerSecond = framesPerSecond
-            });
+            }).ToText();
             Assert.Contains("in 1.0s", cast);
         }
 

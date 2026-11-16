@@ -30,9 +30,9 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             SessionRecording recording = SessionRecording.Read(options.RecordingPath!);
             Assert.DoesNotContain("synthetic-", File.ReadAllText(options.RecordingPath!));
-            Assert.Contains("API_TOKEN=••••••• (redacted)", recording.Export(ExportFormat.Text));
+            Assert.Contains("API_TOKEN=••••••• (redacted)", recording.Render(OutputFormat.Text).ToText());
             Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(8), recording.FinalFrame()[0, 0].Style.Color);
-            Assert.Contains("Report", recording.ExportPlayerData());
+            Assert.Contains("Report", recording.ToPlayerData());
         }
 
         [Theory]
@@ -61,8 +61,8 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal(options.Folder, System.IO.Path.GetDirectoryName(first));
             Assert.Equal(options.Folder, System.IO.Path.GetDirectoryName(second));
             Assert.Equal(".cast", System.IO.Path.GetExtension(first));
-            Assert.Contains("first", SessionRecording.Read(first).Export(ExportFormat.Text));
-            Assert.Contains("second", SessionRecording.Read(second).Export(ExportFormat.Text));
+            Assert.Contains("first", SessionRecording.Read(first).Render(OutputFormat.Text).ToText());
+            Assert.Contains("second", SessionRecording.Read(second).Render(OutputFormat.Text).ToText());
             var header = (Dictionary<string, object?>)MiniJson.Read(File.ReadAllLines(first)[0])!;
             Assert.InRange(long.Parse((string)header["timestamp"]!), earliest, latest);
             Assert.Equal("Automatic recording", header["title"]);
@@ -93,7 +93,7 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             Assert.Contains("[REDACTED]", cast);
             Assert.Contains("in-process output only", cast);
-            Assert.Contains("Deploy [REDACTED] [REDACTED]", SessionRecording.Read(options.RecordingPath!).ExportPlayerData());
+            Assert.Contains("Deploy [REDACTED] [REDACTED]", SessionRecording.Read(options.RecordingPath!).ToPlayerData());
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace ConsoleMonster.Tests.Sessions {
             }
             string cast = File.ReadAllText(options.RecordingPath!);
             Assert.DoesNotContain(encoded, cast); Assert.DoesNotContain("private-label", cast);
-            if (interrupted) { Assert.Contains("Visible", SessionRecording.Read(options.RecordingPath!).Export(ExportFormat.Text)); }
+            if (interrupted) { Assert.Contains("Visible", SessionRecording.Read(options.RecordingPath!).Render(OutputFormat.Text).ToText()); }
         }
 
         [Fact]
@@ -183,7 +183,7 @@ namespace ConsoleMonster.Tests.Sessions {
             List<object?> resize = (List<object?>)MiniJson.Read(lines[2])!;
             double gap = double.Parse((string)resize[0]!, System.Globalization.CultureInfo.InvariantCulture) - double.Parse((string)first[0]!, System.Globalization.CultureInfo.InvariantCulture);
             Assert.True(gap >= 0.02, "Buffered output lost its original arrival time.");
-            string text = SessionRecording.Read(options.RecordingPath!).Export(ExportFormat.Text);
+            string text = SessionRecording.Read(options.RecordingPath!).Render(OutputFormat.Text).ToText();
             Assert.StartsWith("ABCD", text);
             Assert.Contains("EF", text.Split('\n')[1]);
         }
@@ -203,7 +203,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void Playback_ShowsInitialAndInterveningStatesDuringIdleGaps() {
             SessionRecording recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":12,\"height\":4}\n[0,\"o\",\"Ready\"]\n[0.05,\"o\",\"!\"]\n[5,\"o\",\"\\rDone\"]\n"));
-            Dictionary<string, object?> data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData())!;
+            Dictionary<string, object?> data = (Dictionary<string, object?>)MiniJson.Read(recording.ToPlayerData())!;
             List<object?> frames = (List<object?>)data["frames"]!;
             List<object?> rows = (List<object?>)data["rows"]!;
             List<object?> first = (List<object?>)frames[0]!;
@@ -213,8 +213,8 @@ namespace ConsoleMonster.Tests.Sessions {
             List<object?> second = (List<object?>)frames[1]!;
             Assert.Equal("100", second[0]);
             Assert.Contains("Ready!", (string)rows[int.Parse((string)((List<object?>)second[1]!)[0]!)]!);
-            Assert.DoesNotContain("infinite", recording.Export(ExportFormat.Svg, new RecordingExportOptions { Loop = false }));
-            Dictionary<string, object?> bounded = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData(new RecordingExportOptions { MaxFrames = 2 }))!;
+            Assert.DoesNotContain("infinite", recording.Render(OutputFormat.Svg, new RecordingExportOptions { Loop = false }).ToText());
+            Dictionary<string, object?> bounded = (Dictionary<string, object?>)MiniJson.Read(recording.ToPlayerData(new RecordingExportOptions { MaxFrames = 2 }))!;
             var boundedFrames = (List<object?>)bounded["frames"]!;
             Assert.InRange(boundedFrames.Count, 1, 2);
             var finalSample = (List<object?>)boundedFrames[boundedFrames.Count - 1]!;
@@ -247,7 +247,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.StartsWith("OKady", ConsoleExporter.ToText(frame));
             Assert.Contains("Done", ConsoleExporter.ToText(frame));
             Assert.Equal(ConsoleMonster.Styling.Color.FromAnsi16(2), frame[2, 0].Style.Color);
-            Assert.Contains("Done", recording.Export(ExportFormat.Text));
+            Assert.Contains("Done", recording.Render(OutputFormat.Text).ToText());
             Assert.Contains("16x5", recording.ToAsciicast());
         }
 
@@ -264,7 +264,7 @@ namespace ConsoleMonster.Tests.Sessions {
             Assert.Equal("next", frame.GetRowText(2).TrimEnd());
             Assert.Equal(88, frame.Width);
             Assert.Equal(4, frame.Height);
-            string player = recording.ExportPlayerData();
+            string player = recording.ToPlayerData();
             Assert.Contains(first, player);
             Assert.Contains("next", player);
         }
@@ -279,7 +279,7 @@ namespace ConsoleMonster.Tests.Sessions {
                 + "[0,\"o\",\"" + before + "tail\"]\n"
                 + "[0.1,\"r\",\"" + (width + 4) + "x6\"]\n"
                 + "[0.2,\"o\",\"\\r\\n" + after + "end\"]\n"));
-            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData())!;
+            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ToPlayerData())!;
             var rows = (List<object?>)data["rows"]!;
             var frames = (List<object?>)data["frames"]!;
             var last = (List<object?>)frames[frames.Count - 1]!;
@@ -300,13 +300,13 @@ namespace ConsoleMonster.Tests.Sessions {
                 "{\"version\":2,\"width\":88,\"height\":28}\n"
                 + "[0,\"o\",\"first\\r\\nsecond\\r\\nthird\"]\n"
                 + "[1,\"o\",\"\\u001b[2J\\u001b[Hdone\"]\n"));
-            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData())!;
+            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ToPlayerData())!;
             Assert.Equal("3", data["height"]);
             Assert.Equal("88", data["width"]);
-            Assert.Contains("third", recording.ExportPlayerData());
+            Assert.Contains("third", recording.ToPlayerData());
             Assert.Equal(28, recording.FinalFrame().Height);
             Assert.Contains("\"height\":28", recording.ToAsciicast());
-            Assert.Contains("height=\"40.8\"", recording.ExportFinalSvg(new ExportOptions { Padding = 12 }));
+            Assert.Contains("height=\"40.8\"", recording.ToFinalSvg(new ExportOptions { Padding = 12 }));
         }
 
         [Fact]
@@ -314,11 +314,11 @@ namespace ConsoleMonster.Tests.Sessions {
             SessionRecording recording = SessionRecording.Read(new StringReader(
                 "{\"version\":2,\"width\":88,\"height\":4}\n[0,\"o\",\"\\u001b[41m████\\u001b[0m\\r\\nplain\"]\n"));
             RecordingExportOptions options = new RecordingExportOptions { FontSize = 8 };
-            string html = recording.Export(ExportFormat.Html, options);
+            string html = recording.Render(OutputFormat.Html, options).ToText();
             var font = System.Text.RegularExpressions.Regex.Match(html, @"\.cm-export\.cm-standalone\{[^}]*font-size:(\d+(?:\.\d+)?)px");
             Assert.True(font.Success, "The standalone window must size itself in the configured terminal font.");
             Assert.Equal("8", font.Groups[1].Value);
-            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ExportPlayerData(options))!;
+            var data = (Dictionary<string, object?>)MiniJson.Read(recording.ToPlayerData(options))!;
             Assert.Contains("font-size:8px", (string)data["css"]!);
             Assert.Contains("height:9.6px", (string)data["css"]!);
         }
@@ -339,7 +339,7 @@ namespace ConsoleMonster.Tests.Sessions {
         [InlineData("\r")]
         public void Reader_AcceptsLineEndingsAndAnUnterminatedLastEvent(string newline) {
             string cast = "{\"version\":2,\"width\":88,\"height\":28}" + newline + "[0,\"o\",\"Visible output\"]";
-            Assert.Contains("Visible output", SessionRecording.Read(new StringReader(cast)).Export(ExportFormat.Text));
+            Assert.Contains("Visible output", SessionRecording.Read(new StringReader(cast)).Render(OutputFormat.Text).ToText());
         }
 
         private sealed class GeneratedRecordingReader : TextReader {
@@ -358,10 +358,10 @@ namespace ConsoleMonster.Tests.Sessions {
         public void Export_FinalFrameUsesRecordedTitleWithoutChangingCallerOptions() {
             SessionRecording recording = GoldenRecording();
             ExportOptions options = new ExportOptions { WindowChrome = true };
-            Assert.Contains("<title>Recorded session</title>", recording.ExportFinalSvg(options));
+            Assert.Contains("<title>Recorded session</title>", recording.ToFinalSvg(options));
             Assert.Null(options.Title);
             options.Title = "Custom title";
-            Assert.Contains("<title>Custom title</title>", recording.ExportFinalSvg(options));
+            Assert.Contains("<title>Custom title</title>", recording.ToFinalSvg(options));
         }
 
         [Fact]
@@ -377,13 +377,13 @@ namespace ConsoleMonster.Tests.Sessions {
         [Fact]
         public void Export_HtmlAndSvgMatchGoldenFrames() {
             SessionRecording recording = GoldenRecording();
-            Golden.Match("recording/session.html", recording.Export(ExportFormat.Html, ExportOptions()));
-            Golden.Match("recording/session.svg", recording.Export(ExportFormat.Svg, ExportOptions()));
-            Assert.Contains("Working 50%", recording.ExportPlayerData());
-            Assert.Contains("Chapters", recording.Export(ExportFormat.Html));
-            Assert.DoesNotContain("</script><img", recording.ExportPlayerData());
-            Assert.Contains("\\u003c/script\\u003e", recording.ExportPlayerData());
-            Assert.Contains("Done", recording.ExportFinalSvg(new ExportOptions { Theme = ExportTheme.Light }));
+            Golden.Match("recording/session.html", recording.Render(OutputFormat.Html, ExportOptions()).ToText());
+            Golden.Match("recording/session.svg", recording.Render(OutputFormat.Svg, ExportOptions()).ToText());
+            Assert.Contains("Working 50%", recording.ToPlayerData());
+            Assert.Contains("Chapters", recording.Render(OutputFormat.Html).ToText());
+            Assert.DoesNotContain("</script><img", recording.ToPlayerData());
+            Assert.Contains("\\u003c/script\\u003e", recording.ToPlayerData());
+            Assert.Contains("Done", recording.ToFinalSvg(new ExportOptions { Theme = ExportTheme.Light }));
         }
         private static RecordingExportOptions ExportOptions() => new RecordingExportOptions { Pace = RecordingPace.Source, IdleLimit = TimeSpan.Zero, Theme = ExportTheme.Dark, Title = "Recorded session", WindowChrome = true, HoldLastFrame = TimeSpan.FromSeconds(1) };
         private static SessionRecording GoldenRecording() => SessionRecording.Read(new StringReader(
@@ -435,10 +435,10 @@ namespace ConsoleMonster.Tests.Sessions {
             SessionRecording recording = SessionRecording.Read(options.RecordingPath!);
             Assert.Equal(40, recording.FinalFrame().Width);
             Assert.Contains("Finished", ConsoleExporter.ToText(recording.FinalFrame()));
-            Assert.Contains("git version", recording.Export(ExportFormat.Text));
-            string transcript = recording.Export(ExportFormat.Text);
+            Assert.Contains("git version", recording.Render(OutputFormat.Text).ToText());
+            string transcript = recording.Render(OutputFormat.Text).ToText();
             Assert.True(transcript.Contains(windows ? "Native size 40x10" : "Native rows/cols 10 40"), transcript);
-            Assert.Contains("consolemonster-player", recording.Export(ExportFormat.Html));
+            Assert.Contains("consolemonster-player", recording.Render(OutputFormat.Html).ToText());
         }
 
         [Fact]
@@ -488,7 +488,7 @@ namespace ConsoleMonster.Tests.Sessions {
             options.Arguments.Add(windows ? "-Command" : "-c");
             options.Arguments.Add(windows ? "[Console]::WriteLine('Failed safely'); exit 7" : "printf 'Failed safely\n'; exit 7");
             using (SessionRecorder recorder = SessionRecorder.Start(options)) { recorder.WaitForExit(); Assert.Equal(7, recorder.ExitCode); }
-            Assert.Contains("Failed safely", SessionRecording.Read(options.RecordingPath!).Export(ExportFormat.Text));
+            Assert.Contains("Failed safely", SessionRecording.Read(options.RecordingPath!).Render(OutputFormat.Text).ToText());
         }
 
         [Fact]
