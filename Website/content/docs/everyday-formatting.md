@@ -87,6 +87,9 @@ Omitted items show a `+N more` hint. CSV keeps its header order and original str
 | `Group-Object` | Name and count with a bar against the largest group | All platforms |
 | `Measure-Object` | Only the statistics you asked for | All platforms |
 | `TimeSpan` | A readable duration (`1 h 42 m`, `250 ms`) beside the exact value | All platforms |
+| `Get-ChildItem Env:`, hashtable entries | Name and value; path lists such as `PATH` and `PSModulePath` show one folder per line, with missing folders muted | All platforms |
+| `Get-FileHash` | Algorithm, the full hash and the path relative to the current folder | All platforms |
+| `Invoke-WebRequest` | One record: the status in green, blue, amber or red by its class, content type, size, server and the first lines of the content | All platforms |
 
 `Select-String -Raw` and `-Quiet` keep their native strings and booleans.
 
@@ -99,12 +102,19 @@ Omitted items show a `+N more` hint. CSV keeps its header order and original str
 | `Get-NetTCPConnection` | Endpoints, state, PID and process name; counts by state and listening ports. |
 | `Get-ScheduledTask` | Path, name and state, with counts by state. |
 | `Get-LocalUser` | Enabled, last logon, password expiry and description, with enabled, disabled and never-used counts. |
+| `Get-EventLog` (Windows PowerShell) | The `Get-WinEvent` columns and summary: time, id, level, source and the message's first line. |
+| `Get-CimInstance Win32_LogicalDisk` | Drive, label, type, file system, size, free space and a usage bar; total and free space and drives over 90% full. `Get-WmiObject` too. |
+| `Get-CimInstance Win32_OperatingSystem` | One record: name, version, architecture, computer, install date, last boot and memory in use. |
+| `Get-HotFix` | Update id, kind, when and by whom it was installed; security updates and the latest install. |
+| `Get-WindowsOptionalFeature` | Feature and state in words, enabled in green and disabled muted; features pending a restart. |
+| `Get-NetFirewallRule` | Rule, enabled, direction, allow or block, profile and group; counts by state, direction and blocking rules. |
+| Registry keys (`Get-ChildItem HKLM:\…`) | Under the parent key: each key with its subkey count and first five values as `name = data`. |
 | `Test-Connection` (PowerShell 7) | Destination, reply, address, latency and readable failures such as `Timed out`. All platforms. |
 | .NET `IPAddress`, `Dns.GetHostEntry` | Address and family; host name, addresses and aliases. All platforms. |
 | `Resolve-DnsName` | Name, type, TTL and the answer for A, AAAA, CNAME, MX, NS, PTR, TXT, SRV and SOA. |
 | `Get-NetIPAddress`, `Get-NetAdapter`, `Test-NetConnection` | Interface and address; adapter status, MAC and speed; ping and TCP outcomes. |
 
-Unless marked, these are Windows views and register only on Windows. No view sends network requests or loads a module: the command you run supplies the objects.
+Unless marked, these are Windows commands. No view sends network requests or loads a module: the command you run supplies the objects.
 
 ## Compare-Object
 
