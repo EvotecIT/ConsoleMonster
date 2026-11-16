@@ -13,7 +13,7 @@ The commands you already type can show readable tables, records and a summary li
 Enable-ConsoleFormatting
 ```
 
-Files, processes, services, events, JSON and CSV records, history, jobs, drives, certificates, `Select-String` matches and `Compare-Object` results then show as ConsoleMonster views when they reach the console. The objects stay the same: pipelines, variables, `Out-String`, files, transcripts, jobs and remoting get exactly what PowerShell gives them.
+Files, processes, services, events, JSON and CSV records, history, jobs, drives, certificates, environment paths, updates, firewall rules, web responses, file hashes, `Select-String` matches and `Compare-Object` results then show as ConsoleMonster views when they reach the console. The objects stay the same: pipelines, variables, `Out-String`, files, transcripts, jobs and remoting get exactly what PowerShell gives them.
 
 {{< cm-demo id="formatting" heading="h2" autoplay="true" >}}
 
@@ -31,7 +31,7 @@ Settings  Region=west
 Tags      blue, ready
 ```
 
-Collections in a cell are joined (`DNS, GC, PDC`) with a `+N` marker for what does not fit, durations read as `42 s` or `4 h 00 m`, and status words get their symbol and colour. `Get-ChildItem`, `Get-Process`, `Get-Service` and `Get-WinEvent` end with a line that sums up the result: sizes, memory, stopped services, errors and warnings.
+Collections in a cell are joined (`DNS, GC, PDC`) with a `+N` marker for what does not fit, durations read as `42 s` or `4 h 00 m`, and status words get their symbol and colour. `Get-ChildItem` colours each name by its kind (folders, scripts, archives, images, hidden files). It, `Get-Process`, `Get-Service` and `Get-WinEvent` end with a line that sums up the result: sizes, memory, stopped services, errors and warnings. [Everyday formatting](/docs/everyday-formatting/) lists every command with a view.
 
 {{< cm-demo id="shaping" heading="h2" >}}
 

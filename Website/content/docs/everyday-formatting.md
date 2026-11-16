@@ -1,6 +1,6 @@
 ---
 title: Everyday formatting
-description: "What Enable-ConsoleFormatting changes for everyday commands: files, processes, services, events, JSON, CSV, certificates and the Format commands."
+description: "What Enable-ConsoleFormatting changes for everyday commands: files, processes, services, events, drives, updates, JSON, CSV and the Format commands."
 slug: everyday-formatting
 group: shells
 order: 55
@@ -43,14 +43,21 @@ A line under the view sums it up. Small results get no line, and only the consol
 | View | The line under it |
 | --- | --- |
 | `Get-ChildItem` | Folders, files, their total size and the largest. With `-Recurse` the listing is one tree, folders first, each with the size of the files under it. |
+| `Get-CimInstance Win32_LogicalDisk` | Drives, total and free space, and drives over 90% full. |
 | `Get-Process` | How many, their memory together and the process using the most. Memory draws a bar against the largest. |
 | `Get-Service` | Running and stopped, and automatic services that are not running. |
-| `Get-WinEvent` | Errors, warnings and information, the time they cover and a sparkline of when they happened. |
+| `Get-WinEvent`, `Get-EventLog` | Errors, warnings and information, the time they cover and a sparkline of when they happened. |
+| `Get-HotFix` | Updates, security updates and the latest install. |
+| `Get-WindowsOptionalFeature`, `Get-NetFirewallRule` | Enabled, disabled and pending features; rules by state and direction, and blocking rules. |
 | `Test-Connection` | Replies, minimum, average and maximum latency, one line per destination. |
 | `Get-History` | Commands, failures, the time they took and the slowest. |
 | Certificates, `Select-String`, `Get-Job` | Expired and expiring certificates; matches and files; jobs by state. |
 
 {{< cm-frame ids="everyday-summaries" script="true" >}}
+
+## File names
+
+In the `Get-ChildItem` table and tree, a name takes the colour of its kind: folders, links, executables, scripts and source code, archives and packages, images and media, with hidden and generated files (`.log`, `.tmp`, `.bak`) muted. Other files stay plain. The colours are theme roles, so they follow light and dark themes, the colour depth and `NO_COLOR`, and need no special font. In terminals that support links, each name links to its file.
 
 Your own types can have a line too: `Register-ConsoleView -Summary` takes a script that returns facts. [Restyle any command's output](/guides/restyle-commands/) walks through it.
 
@@ -115,6 +122,8 @@ Omitted items show a `+N more` hint. CSV keeps its header order and original str
 | `Get-NetIPAddress`, `Get-NetAdapter`, `Test-NetConnection` | Interface and address; adapter status, MAC and speed; ping and TCP outcomes. |
 
 Unless marked, these are Windows commands. No view sends network requests or loads a module: the command you run supplies the objects.
+
+{{< cm-frame ids="everyday-admin" script="true" >}}
 
 ## Compare-Object
 

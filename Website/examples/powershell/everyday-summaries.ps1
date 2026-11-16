@@ -11,6 +11,9 @@ $files = [ordered] @{
     'bin/runtimes/libcm.so'  = 393216
     'docs/README.md'         = 15360
     'docs/CHANGELOG.md'      = 63488
+    'docs/screenshot.png'    = 48211
+    'ConsoleMonster.nupkg'   = 524288
+    'build.log'              = 9120
     'install.ps1'            = 2048
 }
 foreach ($name in $files.Keys) {
@@ -22,7 +25,7 @@ $stamp = [datetime] '2026-10-21 12:00'
 Get-ChildItem $root -Recurse -Force | ForEach-Object { $_.LastWriteTime = $stamp }
 (Get-Item -LiteralPath $root).LastWriteTime = $stamp
 
-# A recursive listing is one tree with folder sizes; the line under it sums it up.
+# One tree with folder sizes, names coloured by kind and a line that sums it up.
 Get-ChildItem -LiteralPath $root -Recurse
 
 # Your own types can sum themselves up too.
