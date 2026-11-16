@@ -13,7 +13,9 @@ $ErrorActionPreference = 'Stop'
 $env:PSModulePath = $ModuleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
 Import-Module ConsoleMonster
 $binary = (Get-Command Show-Console).DLL
-if (-not $binary.StartsWith($ModuleRoot, [StringComparison]::OrdinalIgnoreCase)) {
+# The module loader may report the binary by its resolved path, the link target inside this checkout.
+$binaries = (Get-Item -LiteralPath (Join-Path $ModuleRoot 'ConsoleMonster.PowerShell')).ResolvedTarget
+if (-not ($binary.StartsWith($ModuleRoot, [StringComparison]::OrdinalIgnoreCase) -or ($binaries -and $binary.StartsWith($binaries, [StringComparison]::OrdinalIgnoreCase)))) {
     throw 'The gallery must capture the repository module build.'
 }
 $profile = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Capabilities.TerminalProfile'))::Fixed($Width, $Height, 'TrueColor', 'Full')

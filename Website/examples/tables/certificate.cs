@@ -15,22 +15,22 @@ RecordView view = new RecordView("[bold]mail.evotec.xyz[/]")
     }
 };
 view.Section("Certificate");
-view.AddField("Subject", "CN=mail.evotec.xyz");
-view.AddField("Issuer", "CN=R11, O=Let's Encrypt, C=US");
-view.AddField("Serial", "04:A1:7F:3C:9E:22:51:0B:6D:8E:F0:13:44:2A:BC:91");
-view.AddField(
+view.Field("Subject", "CN=mail.evotec.xyz");
+view.Field("Issuer", "CN=R11, O=Let's Encrypt, C=US");
+view.Field("Serial", "04:A1:7F:3C:9E:22:51:0B:6D:8E:F0:13:44:2A:BC:91");
+view.Field(
     "Valid from (UTC)",
     new DateTimeOffset(2026, 8, 9, 12, 0, 0, TimeSpan.Zero),
     new DatePresenter(DateDisplay.Both));
-view.AddField(
+view.Field(
     "Valid to (UTC)",
     new DateTimeOffset(2026, 11, 8, 12, 0, 0, TimeSpan.Zero),
     new DatePresenter(DateDisplay.Both),
     new[] { RoleRule.Below(0, ThemeToken.Fail), RoleRule.Below(30, ThemeToken.Warn) });
-view.AddField("Key", "ECDSA P-256");
-view.AddField("OCSP stapling", true);
-view.AddField("Revoked", false, new BooleanPresenter("yes", "no", true));
-view.AddField("Notes", (object? )null);
+view.Field("Key", "ECDSA P-256");
+view.Field("OCSP stapling", true);
+view.Field("Revoked", false, new BooleanPresenter("yes", "no", true));
+view.Field("Notes", (object? )null);
 view.Group("Subject alternative names", "3");
 view.Widget(new Table() { Border = TableBorder.None, ShowHeader = false, RecordViewRows = 0 }
     .Column("Name")

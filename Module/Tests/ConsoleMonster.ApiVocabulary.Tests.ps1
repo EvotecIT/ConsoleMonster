@@ -1,4 +1,4 @@
-﻿Describe 'ConsoleMonster public API vocabulary' {
+Describe 'ConsoleMonster public API vocabulary' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '..\ConsoleMonster.psd1') -Force
         $script:Commands = @(Get-Command -Module ConsoleMonster -CommandType Cmdlet)
@@ -17,6 +17,9 @@
                 # Common parameters belong to PowerShell, including its native aliases.
                 $property = $command.ImplementingType.GetProperty($parameter.Name)
                 if ($null -eq $property -or $property.DeclaringType.Namespace -notlike 'ConsoleMonster*') { continue }
+                # 3.0 renames keep their old parameter name as an alias until 4.0.
+                $expected = @{ 'New-ConsoleMenuItem.Icon' = 'IconName' }["$($command.Name).$($parameter.Name)"]
+                if ($expected) { @($parameter.Aliases) | Should -Be @($expected) -Because "$($command.Name) -$($parameter.Name) keeps its 2.x name as an alias"; continue }
                 $parameter.Aliases.Count | Should -Be 0 -Because "$($command.Name) -$($parameter.Name) has one public name"
             }
         }
@@ -84,7 +87,7 @@
         $recording = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Sessions.SessionRecording'))::Read($cast)
         $format = [Enum]::Parse([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Export.OutputFormat'), 'Svg')
         $actual = Export-ConsoleRecording -RecordingPath $cast -Format Svg -Width 40 -Height 8 -Speed 1.5 -FramesPerSecond 5 -Title 'Build playback'
-        $actual | Should -BeExactly ($recording.Export($format, $playback))
+        $actual | Should -BeExactly ($recording.Render($format, $playback).ToText())
     }
 
     It 'uses the same chart controls and rejects them for mismatched kinds' {

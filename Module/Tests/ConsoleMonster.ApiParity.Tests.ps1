@@ -172,8 +172,8 @@ Update-Console -MissingParameter value
                         $fluent | Should -Not -BeNullOrEmpty -Because "$label needs both Boolean fluent overloads"
                         $methodName = if ($binding.Member -cmatch '^Is[A-Z]') { $binding.Member.Substring(2) } else { $binding.Member }
                         $overloads = @(Get-ConsoleApiFluentMethods $fluent $type | Where-Object Name -EQ $methodName)
-                        @($overloads | Where-Object { $_.GetParameters().Count -eq 1 }).Count | Should -BeGreaterThan 0 -Because "$label maps to a parameterless fluent switch"
-                        @($overloads | Where-Object { $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq [bool] }).Count | Should -BeGreaterThan 0 -Because "$label also accepts an explicit false"
+                        # X(bool value = true): X() switches it on and X(false) off.
+                        @($overloads | Where-Object { $_.GetParameters().Count -eq 2 -and $_.GetParameters()[1].ParameterType -eq [bool] -and $_.GetParameters()[1].IsOptional -and $_.GetParameters()[1].DefaultValue -eq $true }).Count | Should -BeGreaterThan 0 -Because "$label maps to a fluent switch that also accepts an explicit false"
                     }
                     if ($null -ne $script:ApiNullability) {
                         $script:ApiNullability.Create($member).WriteState.ToString() | Should -BeExactly $binding.Nullable -Because $label
@@ -395,6 +395,12 @@ Update-Console -MissingParameter value
         foreach ($method in $ui.GetMethods([Reflection.BindingFlags] 'Public,Static,DeclaredOnly')) {
             $parameters = @($method.GetParameters())
             if ($parameters.Count -eq 0) { continue }
+            # Titled factories: Ui.Panel("Build", p => ...) take the model's title and an optional configuration of the model.
+            if ($parameters.Count -eq 2 -and $parameters[0].Name -ceq 'title' -and $parameters[1].IsOptional -and $parameters[1].ParameterType.IsGenericType -and
+                $parameters[1].ParameterType.GetGenericTypeDefinition() -eq [Action`1] -and $parameters[1].ParameterType.GetGenericArguments()[0] -eq $method.ReturnType) {
+                $method.ReturnType.GetProperty('Title') | Should -Not -BeNullOrEmpty -Because "Ui.$($method.Name)(title) sets a real Title"
+                continue
+            }
             $parameters.Count | Should -Be 1 -Because 'configuration belongs in the chain; a factory can accept one recorded primary input'
             $primary = @($rule.PrimaryInputs | Where-Object { $_.Noun -ceq $method.Name -and $_.Argument -ceq $parameters[0].Name })
             $primary.Count | Should -Be 1 -Because "Ui.$($method.Name)($($parameters[0].Name)) needs a recorded primary input"

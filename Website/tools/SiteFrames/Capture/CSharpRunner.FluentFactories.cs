@@ -148,6 +148,8 @@ namespace SiteFrames.Capture {
                             if (add == null || collection.Expressions.Any(value => value is InitializerExpressionSyntax)) { return visited; }
                             foreach (ExpressionSyntax value in collection.Expressions) { result = Call(result, add.Name, value); }
                         } else {
+                            // A member without a fluent method ([NoFluent] test hooks such as Clock) keeps the initializer form.
+                            if (!FluentApi.Methods(model.Compilation, type, FluentApi.SetterName(property)).Any()) { return visited; }
                             ExpressionSyntax value = property.Name == "Preview" && question == "SelectQuestion"
                                 ? QuestionPreview(type, assignment.Right, originalAssignment) : assignment.Right;
                             result = Call(result, FluentApi.SetterName(property), value);

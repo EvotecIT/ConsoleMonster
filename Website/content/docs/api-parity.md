@@ -17,7 +17,7 @@ Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -Vie
 
 PowerShell exports use individual parameters, for example `Export-ConsoleFrame -Format Html -Width 100`. C# export calls accept typed ExportOptions configuration.
 
-Callback properties use `.Configure(item => item.Action = …)`. C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it.
+Callback properties use their declared verb, `.Run(callback)`. C# invokes a delegate-valued property before considering an extension with that name, so each callback property declares its verb: ShowWhen, PreviewBy, WhenChanged, Run.
 
 ## Fluent construction and nesting
 

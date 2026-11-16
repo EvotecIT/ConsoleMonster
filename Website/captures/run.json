@@ -1,27 +1,61 @@
 {
   "version": 1,
-  "producer": "windows",
+  "producer": "macos",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "benchmarks",
-  "filters": {},
+  "requestedSet": "demos",
+  "filters": {
+    "SITEFRAMES_DEMOS": "app,progress,record,template,watch"
+  },
   "allSetsCompleted": false,
   "files": {
-    "benchmarks/benchmarks.windows.cast": {
-      "platform": "windows",
-      "category": "measurements",
+    "demos/app.cast": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "1428ed64c471a5d11bb09a30b3e12d512b0601e0cead409f423e495af760ca3f",
+      "screen": "dark",
+      "width": 140,
+      "height": 40
+    },
+    "demos/progress.cast": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "9223fb2d561d709f0560f9294bf5eed29e2a398db88ade70ee55091a715a1171",
+      "screen": "dark",
+      "width": 96,
+      "height": 12
+    },
+    "demos/record.cast": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "80a4e9c465e4e6b96369fd2cdc252d697ede6f2b915e507f97a81b32b1ef9c95",
+      "screen": "dark",
+      "width": 100,
+      "height": 18
+    },
+    "demos/template.cast": {
+      "platform": "macos",
+      "category": "neutral",
       "comparison": {
         "class": "live-measured",
-        "reason": "Actual event-apply throughput, rendering rates and durations measured by the benchmark program.",
-        "minFrames": 2,
-        "maxFrames": 100,
-        "minDurationSeconds": 0.05,
-        "maxDurationSeconds": 10
+        "reason": "Actual service startup and shutdown durations and background batches in the runnable application template.",
+        "minFrames": 5,
+        "maxFrames": 4000,
+        "minDurationSeconds": 0.2,
+        "maxDurationSeconds": 180
       },
-      "sha256": "9df371cc8ae8c92c32d807e6c2f98f0eb7b2eab51a8b9aafc47046757b836149",
+      "sha256": "3d860660957fbdcd4f48800298ef4e2e93aea7621e02adb5c7157700200148f7",
       "screen": "dark",
-      "width": 110,
-      "height": 20
+      "width": 100,
+      "height": 26
+    },
+    "demos/watch.cast": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "1036eb6d67179682ff35427d36951b7c70f24a995501d99fbba5ef0795f0b0b0",
+      "screen": "dark",
+      "width": 96,
+      "height": 14
     }
   }
 }
