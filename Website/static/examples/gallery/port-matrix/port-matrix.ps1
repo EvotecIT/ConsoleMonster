@@ -1,0 +1,50 @@
+﻿# See which application ports are healthy across a group of hosts.
+Import-Module -Name ConsoleMonster
+
+# Data: synthetic observations; no DNS, ping, socket or network operation runs here.
+$hosts = @('web-01', 'web-02', 'api-01', 'sql-01', 'cache-01')
+$ports = @('HTTPS 443', 'SQL 5432', 'Cache 6379')
+$states = @(
+    'Pass', 'Skip', 'Skip'
+    'Pass', 'Skip', 'Skip'
+    'Pass', 'Fail', 'Warn'
+    'Skip', 'Pass', 'Skip'
+    'Skip', 'Skip', 'Pass'
+)
+
+# Layout: a compact map provides the overview; a table explains exceptions.
+$report = New-ConsoleRows -Gap 1 -Content {
+    New-ConsoleRule -Title '[accent bold]Application connectivity[/] [muted]· core services[/]'
+    $rows = for ($row = 0; $row -lt $hosts.Count; $row++) {
+        $values = [ordered]@{ ' ' = $hosts[$row] }
+        for ($column = 0; $column -lt $ports.Count; $column++) {
+            $state = $states[$row * 3 + $column]
+            $values[$ports[$column]] = $state
+        }
+        [pscustomobject]$values
+    }
+    $columns = @(' ') + @($ports | ForEach-Object { @{ Name = $_; Presenter = 'Status' } })
+    New-ConsoleTable -InputObject $rows -Property $columns -Border None
+    New-ConsoleFacts -Content {
+        @{ Value = @($states | Where-Object { $_ -eq 'Pass' }).Count; Label = 'passed'
+            Role = 'Pass' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Fail' }).Count; Label = 'failed'
+            Role = 'Fail' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Warn' }).Count; Label = 'warning'
+            Role = 'Warn' }
+        @{ Value = @($states | Where-Object { $_ -eq 'Skip' }).Count; Label = 'skipped'
+            Role = 'Skip' }
+    }
+    New-ConsolePanel -Title 'Exceptions to investigate' -Content {
+        New-ConsoleStatusList -Content {
+            [pscustomobject]@{ Label = 'api-01 → SQL 5432'; Status = 'Fail'
+                Detail = 'Connection refused · check listener and access policy' }
+            [pscustomobject]@{ Label = 'api-01 → Cache 6379'; Status = 'Warn'
+                Detail = '180 ms · expected under 50 ms' }
+        }
+    }
+    '[muted]Skipped cells are ports that host does not need.[/]'
+}
+
+# Behaviour: print the collected observations once; collectors belong before the layout.
+$report | Show-Console
