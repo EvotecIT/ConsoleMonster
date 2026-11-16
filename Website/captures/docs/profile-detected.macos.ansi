@@ -1,10 +1,11 @@
-[?1h=[0;1mThis console[0m
-[0;38;5;245mMode[0m             Interactive[0m
-[0;38;5;245mColorDepth[0m       Ansi256[0m
-[0;38;5;245mGlyphs[0m           Full[0m
-[0;38;5;245mWidth[0m            100[0m
-[0;38;5;245mHeight[0m           40[0m
-[0;38;5;245mThemePreference[0m  Auto[0m
+[?1h=]11;?[c[0;1mThis console[0m
+[0;38;5;245mMode[0m        Interactive[0m
+[0;38;5;245mColorDepth[0m  Ansi256[0m
+[0;38;5;245mGlyphs[0m      Full[0m
+[0;38;5;245mWidth[0m       100[0m
+[0;38;5;245mHeight[0m      40[0m
+[0;38;5;245mThemeMode[0m   Auto[0m
+[0;38;5;245mPalette[0m     Default[0m
 
   accessible: False
   reduced motion: False
@@ -18,7 +19,7 @@
   kind: Xterm
   width profile: emoji=2, ambiguous=1, zwj=Joined, flag=2, text=1 (environment)
   probe widths: False
-  theme preference: Auto (CONSOLEMONSTER_THEME)
+  theme mode: Auto, palette Default (CONSOLEMONSTER_THEME)
   culture: en-US (CONSOLEMONSTER_CULTURE)
   size: 100x40 (visible window or defaults)
   images: HalfBlock (no image protocol advertised)

@@ -285,6 +285,12 @@
           "note": "Table.Border uses ConsoleMonster.Widgets.TableBorder."
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
@@ -304,13 +310,6 @@
           "fluent": "Ui.Chart().Type(ChartType.Histogram)",
           "memberId": "M:ConsoleMonster.Ui.Chart",
           "note": "Inside Content: c.Chart(chart => …)."
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
         }
       ],
       "powershellRepo": "Website/examples/gallery/fleet/fleet.ps1",
@@ -492,10 +491,9 @@
         },
         {
           "powershell": "New-ConsoleCollapsible -Content { … }",
-          "csharp": "Content = …",
+          "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Content",
-          "note": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
+          "memberId": "M:ConsoleMonster.Interactive.CollapsibleInputOptionsFluent.Content"
         },
         {
           "powershell": "New-ConsoleCollapsible -Expanded",
@@ -694,11 +692,10 @@
           "note": null
         },
         {
-          "powershell": "New-ConsoleRule",
-          "csharp": "new Rule(…)",
-          "fluent": "Ui.Rule()",
-          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Rule",
-          "note": "Inside Content: c.Rule(rule => …)."
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/backup-runner/backup-runner.ps1",
@@ -840,6 +837,12 @@
           "note": null
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsolePanel",
           "csharp": "new Panel(…)",
           "fluent": "Ui.Panel()",
@@ -851,13 +854,6 @@
           "csharp": "Title = …",
           "fluent": ".Title(…)",
           "memberId": "ConsoleMonster.Layout.Panel.Title",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         }
       ],
@@ -1023,11 +1019,10 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -1322,11 +1317,10 @@
           "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/container-status/container-status.ps1",
@@ -1485,11 +1479,10 @@
           "note": "The shared factory/view adapter applies this option to the resulting BarChart."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -1628,11 +1621,10 @@
           "note": null
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/event-log-summary/event-log-summary.ps1",
@@ -1758,11 +1750,10 @@
           "note": null
         },
         {
-          "powershell": "New-ConsoleRule",
-          "csharp": "new Rule(…)",
-          "fluent": "Ui.Rule()",
-          "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Rule",
-          "note": "Inside Content: c.Rule(rule => …)."
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -1876,6 +1867,12 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
@@ -1895,13 +1892,6 @@
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Panel",
           "note": "Inside Content: c.Panel(p => …)."
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
         }
       ],
       "powershellRepo": "Website/examples/gallery/fleet-filter/fleet-filter.ps1",
@@ -2051,10 +2041,9 @@
         },
         {
           "powershell": "New-ConsoleCollapsible -Content { … }",
-          "csharp": "Content = …",
+          "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Content",
-          "note": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
+          "memberId": "M:ConsoleMonster.Interactive.CollapsibleInputOptionsFluent.Content"
         },
         {
           "powershell": "New-ConsoleCollapsible -Expanded",
@@ -2214,11 +2203,10 @@
           "note": null
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -2332,6 +2320,12 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
@@ -2351,13 +2345,6 @@
           "fluent": "Ui.TextInput()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.TextInput",
           "note": "Inside Content: c.TextInput(textInput => …)."
-        },
-        {
-          "powershell": "New-ConsoleTextInput -Value …",
-          "csharp": "Value = …",
-          "fluent": ".Value(…)",
-          "memberId": "ConsoleMonster.Interactive.TextInputOptions.Value",
-          "note": null
         }
       ],
       "powershellRepo": "Website/examples/gallery/live-filter/live-filter.ps1",
@@ -2500,18 +2487,17 @@
           "note": null
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsolePanel",
           "csharp": "new Panel(…)",
           "fluent": "Ui.Panel()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Panel",
           "note": "Inside Content: c.Panel(p => …)."
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
         },
         {
           "powershell": "New-ConsoleLogRegion -NoElapsed",
@@ -2828,11 +2814,10 @@
           "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "Invoke-ConsoleRun -NoLive",
@@ -2989,11 +2974,10 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
-          "powershell": "New-ConsoleRows -Gap …",
-          "csharp": "Gap = …",
-          "fluent": ".Gap(…)",
-          "memberId": "ConsoleMonster.Layout.Rows.Gap",
-          "note": null
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/patch-progress/patch-progress.ps1",
@@ -3343,11 +3327,10 @@
           "note": "Inside Content: c.StatusList(statusList => …)."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -3475,11 +3458,10 @@
           "note": "The shared factory/view adapter applies this option to the resulting LineChart."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -3622,6 +3604,12 @@
           "note": null
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
@@ -3640,13 +3628,6 @@
           "csharp": "Multiple = true",
           "fluent": ".Multiple()",
           "memberId": "ConsoleMonster.Interactive.SelectQuestionOptions.Multiple",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsoleDashboard -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Widgets.Dashboard.Content",
           "note": null
         }
       ],
@@ -3845,11 +3826,10 @@
           "note": "Creates the concrete BarChart directly; generated setters retain its type without Build or a cast. Inside Content: c.BarChart(barChart => …)."
         },
         {
-          "powershell": "New-ConsoleRegion -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Padding.Content",
-          "note": "Region composes the supplied content before applying its alignment and padding decorators."
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/query/query.ps1",
@@ -3975,11 +3955,10 @@
           "note": "The shared factory/view adapter applies this option to the resulting BarChart."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -4118,11 +4097,10 @@
           "note": null
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/repository-status/repository-status.ps1",
@@ -4255,10 +4233,9 @@
         },
         {
           "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/scheduled-tasks/scheduled-tasks.ps1",
@@ -4510,7 +4487,7 @@
         {
           "powershell": "Show-ConsoleGrid -RefreshRow …",
           "csharp": "new GridOptions { … }",
-          "fluent": "grid.Show(options => options.Configure(item => item.RefreshRow = …))",
+          "fluent": "grid.Show(options => options.{Verb}(callback))",
           "memberId": "M:ConsoleMonster.Interactive.Grid.Show",
           "note": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
         },
@@ -4669,10 +4646,9 @@
         },
         {
           "powershell": "New-ConsoleCollapsible -Content { … }",
-          "csharp": "Content = …",
+          "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Interactive.CollapsibleInputOptions.Content",
-          "note": "The shared factory/view adapter applies this option to the resulting CollapsibleInputOptions."
+          "memberId": "M:ConsoleMonster.Interactive.CollapsibleInputOptionsFluent.Content"
         },
         {
           "powershell": "New-ConsoleRows",
@@ -4682,18 +4658,17 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleTextInput",
           "csharp": "new TextInput(…)",
           "fluent": "Ui.TextInput()",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.TextInput",
           "note": "Inside Content: c.TextInput(textInput => …)."
-        },
-        {
-          "powershell": "New-ConsoleTextInput -Value …",
-          "csharp": "Value = …",
-          "fluent": ".Value(…)",
-          "memberId": "ConsoleMonster.Interactive.TextInputOptions.Value",
-          "note": null
         },
         {
           "powershell": "New-ConsoleCollapsible -Expanded",
@@ -5034,18 +5009,17 @@
           "note": null
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Markup",
           "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
         }
       ],
       "powershellRepo": "Website/examples/gallery/setup-basic/setup-basic.ps1",
@@ -5205,11 +5179,10 @@
           "note": "The fluent calendar configures the same Gregorian period as the host adapter."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/stale-accounts/stale-accounts.ps1",
@@ -5339,10 +5312,9 @@
         },
         {
           "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "csharp": "Content = widget",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.PanelFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/stress/stress.ps1",
@@ -5501,6 +5473,12 @@
           "note": null
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleSelect",
           "csharp": "new Select(…)",
           "fluent": "Ui.Select()",
@@ -5512,13 +5490,6 @@
           "csharp": "Choices = …",
           "fluent": ".Choices(…)",
           "memberId": "ConsoleMonster.Interactive.SelectInputOptions.Choices",
-          "note": null
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
           "note": null
         },
         {
@@ -5824,6 +5795,12 @@
           "note": null
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
@@ -5836,13 +5813,6 @@
           "fluent": ".ShowElapsed(false)",
           "memberId": "ConsoleMonster.Widgets.LogRegion.ShowElapsed",
           "note": "BooleanInversion"
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
         }
       ],
       "powershellRepo": "Website/examples/gallery/toolbox/toolbox.ps1",
@@ -6033,11 +6003,10 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         }
       ],
       "powershellRepo": "Website/examples/gallery/update-compliance/update-compliance.ps1",
@@ -6272,11 +6241,10 @@
           "note": "Inside Content: c.Rows(r => …)."
         },
         {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
           "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
         },
         {
           "powershell": "New-ConsoleText -Markup $text",
@@ -6404,18 +6372,17 @@
           "note": "Creates the concrete Sparkline directly; generated setters retain its type without Build or a cast. Inside Content: c.Sparkline(sparkline => …)."
         },
         {
+          "powershell": "New-ConsoleRows -Content { … }",
+          "csharp": "new Rows(widgets)",
+          "fluent": ".Content(c => { … })",
+          "memberId": "M:ConsoleMonster.Layout.RowsFluent.Content"
+        },
+        {
           "powershell": "New-ConsoleText -Markup $text",
           "csharp": "new TextBlock(text)",
           "fluent": "Ui.Markup(text); c.Markup(text)",
           "memberId": "M:ConsoleMonster.Layout.ContentBuilder.Markup",
           "note": "Same text renderer; the helper selects markup parsing explicitly while Text keeps brackets literal."
-        },
-        {
-          "powershell": "New-ConsolePanel -Content { … }",
-          "csharp": "Content = …",
-          "fluent": ".Content(c => { … })",
-          "memberId": "ConsoleMonster.Layout.Panel.Content",
-          "note": null
         }
       ],
       "powershellRepo": "Website/examples/gallery/worker-progress/worker-progress.ps1",
