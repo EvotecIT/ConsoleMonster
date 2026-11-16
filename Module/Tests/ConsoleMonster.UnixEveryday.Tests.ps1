@@ -65,6 +65,8 @@ Get-Process -Id $PID | Format-Table -Property Id, Handles
     It 'colours file names by kind, the same in the table and the recursive tree' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
         $root = Join-Path $TestDrive 'kinds'
         $null = New-Item -ItemType Directory -Path (Join-Path $root 'folder') -Force
+        # A nested file gives the recursive listing two parent folders, so it draws the tree rather than the table.
+        [IO.File]::WriteAllText((Join-Path $root 'folder/nested.txt'), 'x')
         foreach ($name in 'build.ps1', 'archive.zip', 'logo.png', 'debug.log', '.hidden', 'README.md', 'tool.sh') {
             [IO.File]::WriteAllText((Join-Path $root $name), 'x')
         }
@@ -92,8 +94,12 @@ Write-Host '### end ###'
             $part = (($text -split "### $section ###")[1] -split '### ')[0]
             $match = [regex]::Match($part, '(?:\x1b\[([0-9;]*)m|\s)' + [regex]::Escape($name) + '(?=/|\s|\x1b)')
             $match.Success | Should -BeTrue -Because "$name is listed in the $section"
-            $match.Groups[1].Value
+            # A bare reset before the name is plain text too.
+            if ($match.Groups[1].Value -eq '0') { '' } else { $match.Groups[1].Value }
         }
+        $treePart = (($text -split '### tree ###')[1] -split '### ')[0]
+        $treePart | Should -Match '├──|└──' -Because 'the recursive listing is drawn as a tree'
+        $treePart | Should -Not -Match 'UnixMode'
         $names = 'folder', 'link', 'tool.sh', '.hidden', 'build.ps1', 'archive.zip', 'logo.png', 'debug.log', 'README.md'
         $table = @{}; $tree = @{}
         foreach ($name in $names) { $table[$name] = & $colour 'table' $name; $tree[$name] = & $colour 'tree' $name }
