@@ -146,6 +146,8 @@ Describe 'Everyday administration command output' {
         # A SHA512 hash wraps in a narrow terminal but stays whole.
         $long = Get-FileHash -LiteralPath $file -Algorithm SHA512
         $narrow = $long | ConvertTo-TestEverydayText -Width 60
-        ($narrow -creplace '[^0-9A-F]', '') | Should -Match $long.Hash
+        # The Hash column's cells, joined: the second column of each body row.
+        $cells = foreach ($line in $narrow -split '\r?\n') { $parts = $line -split '│'; if ($parts.Count -ge 4) { $parts[2].Trim() } }
+        (-join $cells) | Should -Match $long.Hash
     }
 }
