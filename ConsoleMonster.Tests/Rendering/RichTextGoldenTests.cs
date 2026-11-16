@@ -41,7 +41,7 @@ namespace ConsoleMonster.Tests.Rendering {
             keys.Value("Status", Fail());
 
             RecordView record = new RecordView("Certificate");
-            record.AddField("Expires", RichText.Plain("in 22 d", new RichStyle(ThemeToken.Warn, default, TextDecoration.Bold)));
+            record.Field("Expires", RichText.Plain("in 22 d", new RichStyle(ThemeToken.Warn, default, TextDecoration.Bold)));
 
             Tree tree = new Tree(new RichTextBuilder().Append("ad.", ThemeToken.Muted).Append("evotec.xyz", ThemeToken.Accent).Build().ToMarkup());
             TreeNode site = tree.Add(new RichTextBuilder().Append("Site ", ThemeToken.Muted).Append("Warsaw", ConsoleColor.Green).Build(), StatusKind.Pass);

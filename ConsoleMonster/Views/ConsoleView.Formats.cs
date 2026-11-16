@@ -77,7 +77,7 @@ namespace ConsoleMonster.Views {
                 if (items.Count > 1) { view.Section(Markup.Escape(ValueShaper.Title(item, options.Shape))); }
                 foreach (Data.InspectMember member in Members(item, options)) {
                     if (options.Property != null && !options.Property.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) { continue; }
-                    view.AddField(member.Name, SafeRead(member));
+                    view.Field(member.Name, SafeRead(member));
                 }
             }
             return view;

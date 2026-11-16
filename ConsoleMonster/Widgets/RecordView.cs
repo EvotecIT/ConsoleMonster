@@ -87,8 +87,8 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
-            AddField(label, (object?)value, presenter, rules);
+        public RecordView Field<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
+            Field(label, (object?)value, presenter, rules);
 
         /// <summary>Adds a field with a raw value, formatted by a presenter.</summary>
         /// <param name="label">The label (plain text).</param>
@@ -97,7 +97,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
         public RecordView Field(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
-            return AddField(label, TableCell.FromValue(value), presenter, rules);
+            return Field(label, TableCell.FromValue(value), presenter, rules);
         }
 
         /// <summary>Adds a field with a cell (markup, status or raw value).</summary>
@@ -118,7 +118,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Keeps a table column's effective overflow and line limits when its row becomes a record or narrow card.</summary>
         internal void AddTableField(string label, TableCell cell, TableColumn column, int defaultMaxLines) {
-            AddField(label, cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
+            Field(label, cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
             RecordItem item = _items[_items.Count - 1];
             // Never keeps a table column wide. In a record, preserve the complete value by wrapping it instead.
             item.Overflow = column.Overflow == ColumnOverflow.Never ? ColumnOverflow.Wrap : column.Overflow;

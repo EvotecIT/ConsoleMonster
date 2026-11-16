@@ -42,15 +42,18 @@ namespace ConsoleMonster.Tests.Building {
                     Assert.DoesNotContain(Extensions, method => method.Name == property.Name && Receives(method, type));
                     continue;
                 }
-                if (IsSettable(property) && !Has(type, FluentName(property), property.PropertyType)) {
+                // A collection gets child methods instead of a setter, even when the property is settable.
+                if (IsSettable(property) && CollectionItem(property.PropertyType) == null && !Has(type, FluentName(property), property.PropertyType)) {
                     missing.Add(property.Name + "(" + property.PropertyType.Name + ")");
                 }
                 if (IsSettable(property) && property.PropertyType == typeof(bool)) {
-                    Assert.Contains(Extensions, method => method.Name == FluentName(property) && Receives(method, type) && method.GetParameters().Length == 1);
+                    // X() reads as X(true): the value parameter is optional.
+                    Assert.Contains(Extensions, method => method.Name == FluentName(property) && Receives(method, type) && method.GetParameters().Length == 2
+                        && method.GetParameters()[1].IsOptional && Equals(method.GetParameters()[1].DefaultValue, true));
                 }
                 Type? item = CollectionItem(property.PropertyType);
                 if (item != null) {
-                    if (!Extensions.Any(m => m.Name != property.Name && Receives(m, type) && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == item)) {
+                    if (!Extensions.Any(m => Receives(m, type) && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == item)) {
                         missing.Add("a singular method (" + item.Name + ") for " + property.Name);
                     }
                     if (!Has(type, property.Name, typeof(IEnumerable<>).MakeGenericType(item))) {
@@ -145,8 +148,8 @@ namespace ConsoleMonster.Tests.Building {
             return result;
         }
 
-        private static string FluentName(PropertyInfo property) => property.PropertyType == typeof(bool) && property.Name.Length > 2
-            && property.Name.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(property.Name[2]) ? property.Name.Substring(2) : property.Name;
+        private static string FluentName(PropertyInfo property) => DeclaredName(property) ?? (property.PropertyType == typeof(bool) && property.Name.Length > 2
+            && property.Name.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(property.Name[2]) ? property.Name.Substring(2) : property.Name);
 
         private static bool IsPrompt(Type type) {
             for (Type? current = type.BaseType; current != null; current = current.BaseType) {

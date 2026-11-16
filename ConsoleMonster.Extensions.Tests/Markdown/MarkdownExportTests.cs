@@ -111,8 +111,8 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [Fact]
         public void RecordsAndTreesUseSemanticStructureAndExistingStatusPresenters() {
             RecordView record = new RecordView("Server");
-            record.AddField("State", TableCell.FromValue("Pass"), CellPresenters.StatusWord);
-            record.AddField("Notes", TableCell.FromValue("first\nsecond"));
+            record.Field("State", TableCell.FromValue("Pass"), CellPresenters.StatusWord);
+            record.Field("Notes", TableCell.FromValue("first\nsecond"));
             Tree tree = new Tree("Root");
             tree.Add("Child", StatusKind.Warn).Add("Leaf");
             string markdown = MarkdownExporter.ToMarkdown(new Rows(record, tree));

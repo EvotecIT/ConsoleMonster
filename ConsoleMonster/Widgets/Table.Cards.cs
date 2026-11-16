@@ -77,7 +77,7 @@ namespace ConsoleMonster.Widgets {
                     if ((c == key && total.Cells[c].Widget == null) || total.Cells[c].IsEmpty) {
                         continue;
                     }
-                    view.AddField(Markup.Strip(_columns[c].Header), total.Cells[c].Widget is Layout.IWidget widget
+                    view.Field(Markup.Strip(_columns[c].Header), total.Cells[c].Widget is Layout.IWidget widget
                         ? TableCell.FromValue(widget) : new TableCell(Markup.Escape(total.Cells[c].Lines[0].PlainText)));
                 }
             }

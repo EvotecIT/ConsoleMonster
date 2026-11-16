@@ -80,7 +80,7 @@ internal sealed class DeclarativeView {
         }
         if (Kind.Equals("Inspector", StringComparison.OrdinalIgnoreCase) || Kind.Equals("List", StringComparison.OrdinalIgnoreCase) || Kind.Equals("Record", StringComparison.OrdinalIgnoreCase)) {
             RecordView record = new RecordView(Template(String(_data, "Title"), items[0], context)) { Summary = Template(String(_data, "Summary"), items[0], context) };
-            foreach (object item in items) { foreach (Column column in columns) { record.AddField(Markup.Escape(column.Label), Cell(item, column, context), column.Presenter); } }
+            foreach (object item in items) { foreach (Column column in columns) { record.Field(Markup.Escape(column.Label), Cell(item, column, context), column.Presenter); } }
             return record;
         }
         return BuildTable(items, context, columns);

@@ -7,7 +7,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void AddField_StringValue_PreservesLiteralBracketsAndPresenterInput() {
             RecordView view = new RecordView();
-            view.AddField("Identity", "[green]Operators[/]");
+            view.Field("Identity", "[green]Operators[/]");
             Assert.True(Assert.Single(view.Items).Cell!.HasValue);
             Assert.Equal("[green]Operators[/]", Assert.Single(view.Items).Cell!.Value);
             Assert.Contains("[green]Operators[/]", TestTerminal.RenderText(view, width: 100));
@@ -18,8 +18,8 @@ namespace ConsoleMonster.Tests.Widgets {
             RecordView view = new RecordView { HideEmpty = false };
             TableCell status = TableCell.ForStatus(Styling.StatusKind.Warn, "Needs review");
             string? absent = null;
-            view.AddField("Status", status);
-            view.AddField("Owner", absent);
+            view.Field("Status", status);
+            view.Field("Owner", absent);
             Assert.Same(status, view.Items[0].Cell);
             Assert.True(view.Items[1].Cell!.HasValue);
             Assert.Null(view.Items[1].Cell!.Value);

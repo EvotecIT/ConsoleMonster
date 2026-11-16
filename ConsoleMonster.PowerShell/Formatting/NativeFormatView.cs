@@ -120,8 +120,8 @@ namespace ConsoleMonster.PowerShell {
                                 string native = String(Get(Get(field, "formatPropertyField"), "propertyValue"));
                                 if (shaped != null && index < shaped.Length) {
                                     object? value = capture!.Formatted[index] ? FormattedCell(raw![index], native, capture.Columns[index].Name) : shaped[index];
-                                    view.AddField(label, value as TableCell ?? TableCell.FromValue(value), capture.Columns[index].Column.Presenter ?? CellPresenters.ForStatus(capture.Columns[index].Name, raw![index]));
-                                } else { view.AddField(label, FormattedCell(native, native, label)); }
+                                    view.Field(label, value as TableCell ?? TableCell.FromValue(value), capture.Columns[index].Column.Presenter ?? CellPresenters.ForStatus(capture.Columns[index].Name, raw![index]));
+                                } else { view.Field(label, FormattedCell(native, native, label)); }
                                 index++;
                             }
                             widgets.Add(view);

@@ -17,8 +17,8 @@ namespace ConsoleMonster.Tests.Widgets {
             RoleTable rows = new RoleTable(new[] { name, new TableColumn("Count") { Aggregate = ColumnAggregate.Sum } });
             rows.Table.ShowTotals = true;
             rows.Table.RecordViewRows = 0;
-            rows.AddRow(new TableRowRole { Bold = true, Marker = "★", AsciiMarker = "*" }, "first", TableCell.FromValue(7));
-            rows.AddRow(new TableRowRole { Muted = true }, "second", TableCell.FromValue(11));
+            rows.Row(new TableRowRole { Bold = true, Marker = "★", AsciiMarker = "*" }, "first", TableCell.FromValue(7));
+            rows.Row(new TableRowRole { Muted = true }, "second", TableCell.FromValue(11));
             string text = TestTerminal.RenderText(rows, 120, glyphs: tier);
             Assert.Contains(marker, text);
             Assert.Contains("first", text);
@@ -53,7 +53,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void Render_Cards_KeepsMarkerAndEveryDataValue() {
             RoleTable rows = new RoleTable(new[] { new TableColumn("Name"), new TableColumn("Count"), new TableColumn("Detail") });
             rows.Table.AlwaysCards = true;
-            rows.AddRow(new TableRowRole { Marker = "★", AsciiMarker = "*", Bold = true }, "entry", TableCell.FromValue(9), "evidence");
+            rows.Row(new TableRowRole { Marker = "★", AsciiMarker = "*", Bold = true }, "entry", TableCell.FromValue(9), "evidence");
             string text = TestTerminal.RenderText(rows, 40, glyphs: GlyphTier.Ascii);
             Assert.Contains("*", text);
             Assert.Contains("entry", text);

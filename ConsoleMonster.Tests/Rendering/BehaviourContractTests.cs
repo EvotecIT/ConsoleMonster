@@ -282,7 +282,7 @@ namespace ConsoleMonster.Tests.Rendering {
             ["live dashboard"] = TestScenes.Live,
             ["table"] = () => new Table().Column("Value").Values(CallerText).Values(null, ""),
             ["cards"] = () => new Table { AlwaysCards = true }.Column("Value").Values(CallerText),
-            ["record"] = () => new RecordView(CallerText).AddField("Value", CallerText),
+            ["record"] = () => new RecordView(CallerText).Field("Value", CallerText),
             ["inspector"] = () => new InspectorView(new { Name = CallerText, Empty = "", Null = (string?)null }),
             ["key/value"] = () => new KeyValueList().Value("Name", CallerText),
             ["tree"] = () => { var tree = new Tree(CallerText) { WrapLabels = true }; tree.Add(CallerText).Value = TableCell.FromValue(CallerText); return tree; },
@@ -369,7 +369,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 case "table": widget = new Table().Column("Value").Values(new[] { value }); break;
                 case "cards": widget = new Table { AlwaysCards = true }.Column("Value").Values(new[] { value }); break;
                 case "key/value": widget = new KeyValueList().Value("Value", value); break;
-                case "record": widget = new RecordView { HideEmpty = false }.AddField("Value", value); break;
+                case "record": widget = new RecordView { HideEmpty = false }.Field("Value", value); break;
                 case "diff": widget = new ChangeView(ObjectDiff.Compare(new Dictionary<string, object?> { ["Value"] = value }, new Dictionary<string, object?>())); break;
                 default: var tree = new Tree("Root"); tree.Add("Value").Value = TableCell.FromValue(value); widget = tree; break;
             }
@@ -453,8 +453,8 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer, string kind) {
             if (renderer == "record") {
                 object? value = kind == "null" ? null : kind == "empty" ? "" : Missing.Value;
-                var view = new RecordView().Section("Optional section").Group("Optional group").AddField("Optional field", value)
-                    .Section("Required section").AddField("Required field", "State");
+                var view = new RecordView().Section("Optional section").Group("Optional group").Field("Optional field", value)
+                    .Section("Required section").Field("Required field", "State");
                 Assert.True(view.HideEmpty);
                 string hidden = TestTerminal.RenderText(view);
                 Assert.DoesNotContain("Optional", hidden);

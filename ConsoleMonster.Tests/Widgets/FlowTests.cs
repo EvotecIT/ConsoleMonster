@@ -165,7 +165,7 @@ namespace ConsoleMonster.Tests.Widgets {
             string text = Frame(table, 48).ToPlainText();
             Assert.Contains("client", text);
             Assert.Contains("intermediate", text);
-            var record = new RecordView("Trust").AddField("Path", footer);
+            var record = new RecordView("Trust").Field("Path", footer);
             Assert.Contains(footer, record.Children);
             Recording.ToPlayerData(record, new[] { new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100) },
                 new RecordingExportOptions { Width = 48, Height = 80 });
@@ -173,7 +173,7 @@ namespace ConsoleMonster.Tests.Widgets {
             var rich = RichText.Plain("label");
             var richTable = new Table(); richTable.Column("Name"); richTable.Row(TableCell.FromValue(rich));
             Assert.Empty(richTable.Children);
-            Assert.Empty(new RecordView().AddField("Name", rich).Children);
+            Assert.Empty(new RecordView().Field("Name", rich).Children);
         }
 
         [Fact]

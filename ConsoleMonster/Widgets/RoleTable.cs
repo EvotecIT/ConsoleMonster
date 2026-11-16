@@ -35,7 +35,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="role">The row role, or null for an ordinary unmarked row.</param>
         /// <param name="cells">The data cells, excluding the marker column.</param>
         /// <returns>This widget.</returns>
-        public RoleTable AddRow(TableRowRole? role, params TableCell[] cells) {
+        public RoleTable Row(TableRowRole? role, params TableCell[] cells) {
             if (cells == null) throw new ArgumentNullException(nameof(cells));
             TableCell[] row = new TableCell[cells.Length + 1];
             row[0] = TableCell.FromValue(new MarkerWidget(role));
