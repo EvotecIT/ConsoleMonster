@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using ConsoleMonster.Views;
@@ -268,12 +268,12 @@ namespace ConsoleMonster.PowerShell {
                 "UnixMode", "User",
                 Hashtable("LastWriteTime", ScriptBlock.Create("$_.LastWriteTime"), "Date"),
                 Hashtable("Size", ScriptBlock.Create(UnixFormatDefaults.FileSizeScript), "Bytes"),
-                Hashtable("Name", ScriptBlock.Create(UnixFormatDefaults.FileNameScript), null)
+                FileName()
             } : new object[] {
                 "Mode",
                 Hashtable("LastWriteTime", ScriptBlock.Create("$_.LastWriteTime"), "Date"),
                 Hashtable("Length", ScriptBlock.Create("if ($_ -is [System.IO.FileInfo]) { $_.Length }"), "Bytes"),
-                "Name"
+                FileName()
             };
             foreach (string type in new[] { "System.IO.FileInfo", "System.IO.DirectoryInfo" }) {
                 AddBuiltIn(ConsoleViewRegistration.Define(type, ConsoleViewKind.Table, files, null, "FileSystem", directory, true));
@@ -345,6 +345,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
 
+
+        // The Name column: the name in its kind's colour (FileKinds), linked to the file where the terminal allows.
+        internal static System.Collections.Hashtable FileName() => Hashtable("Name", ScriptBlock.Create(FileKinds.NameScript), null);
 
         private static System.Collections.Hashtable Hashtable(string name, ScriptBlock expression, string? presenter) {
             System.Collections.Hashtable table = new System.Collections.Hashtable(StringComparer.OrdinalIgnoreCase) { ["Name"] = name, ["Expression"] = expression };
