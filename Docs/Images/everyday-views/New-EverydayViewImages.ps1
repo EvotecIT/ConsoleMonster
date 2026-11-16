@@ -35,7 +35,8 @@ function New-Record([string] $Type, [hashtable] $Data) {
 # A release folder with fixed sizes and times.
 $temp = if ($IsMacOS -or $IsLinux) { '/tmp' } else { $env:TEMP }
 $root = Join-Path $temp 'release'
-if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
+# The fixed path shows in the image; an existing folder is never deleted, so the script stops instead.
+if (Test-Path -LiteralPath $root) { throw "Remove '$root' before drawing the images. The script only deletes folders it created." }
 $files = [ordered] @{
     'bin/ConsoleMonster.dll' = 1048576; 'bin/ConsoleMonster.xml' = 262144; 'bin/runtimes/libcm.so' = 393216
     'docs/README.md' = 15360; 'docs/CHANGELOG.md' = 63488; 'install.ps1' = 2048
@@ -53,7 +54,8 @@ Remove-Item -LiteralPath $root -Recurse -Force
 
 # A project folder with one file of each kind, so every name colour shows.
 $root = Join-Path $temp 'project'
-if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
+# The fixed path shows in the image; an existing folder is never deleted, so the script stops instead.
+if (Test-Path -LiteralPath $root) { throw "Remove '$root' before drawing the images. The script only deletes folders it created." }
 $null = New-Item -ItemType Directory -Path (Join-Path $root 'src'), (Join-Path $root 'assets') -Force
 $files = [ordered] @{
     '.gitignore' = 120; 'build.ps1' = 4096; 'Program.cs' = 2210; 'release.zip' = 5242880; 'logo.png' = 48211
