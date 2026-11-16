@@ -77,7 +77,7 @@ namespace ConsoleMonster.Widgets {
             // A presenter the caller chose is never replaced by inference.
             if (configure != null && column.Presenter != null) { _explicitPresenters.Add(column); }
             _values[column] = value;
-            AddColumn(column);
+            Column(column);
             _dirty = true;
             return this;
         }
@@ -105,7 +105,7 @@ namespace ConsoleMonster.Widgets {
                             row[c] = _values.TryGetValue(columns[c], out Func<T, object?>? read) ? read(item) : null;
                             samples[c] ??= row[c] is TableCell ? null : row[c];
                         }
-                        AddValues(row);
+                        Values(row);
                     }
                     // The same inference as PowerShell tables, so a typed table of the same data looks the same.
                     for (int c = 0; c < columns.Count; c++) {
@@ -131,7 +131,7 @@ namespace ConsoleMonster.Widgets {
                 TableColumn single = new TableColumn(simple.Name);
                 _values[single] = item => item;
                 _inferred.Add(single);
-                AddColumn(single);
+                Column(single);
                 return;
             }
             PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -144,7 +144,7 @@ namespace ConsoleMonster.Widgets {
                 TableColumn column = new TableColumn(property.Name);
                 _values[column] = item => item == null ? null : read.GetValue(item, null);
                 _inferred.Add(column);
-                AddColumn(column);
+                Column(column);
             }
         }
 

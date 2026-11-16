@@ -21,8 +21,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
             AppBinding results = new AppBinding(state => {
                 string filter = state.Get<string>("query");
                 string[] matches = names.Where(name => name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-                Table table = new Table().AddColumn("Name");
-                foreach (string name in matches) { table.AddRow(name); }
+                Table table = new Table().Column("Name");
+                foreach (string name in matches) { table.Row(name); }
                 Rows display = new Rows(table, TextBlock.Plain("Matches: " + matches.Length));
                 queries.Add(filter);
                 displays.Add(TestTerminal.RenderText(display));

@@ -57,12 +57,12 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void ProcessWithoutPipelineInput() {
             SummaryBar bar = new SummaryBar(WidgetId) { BarWidth = BarWidth, Elapsed = Elapsed, ShowElapsed = !NoElapsed.IsPresent, DoneLabel = DoneLabel };
-            bar.SetProgress(Value, Total);
+            bar.Progress(Value, Total);
             if (Counter != null) {
                 foreach (DictionaryEntry entry in Counter) {
                     string label = PSWidgets.ToText(entry.Key);
                     StatusKind? status = StatusKinds.TryParse(label, out StatusKind parsed) ? parsed : (StatusKind?)null;
-                    bar.SetCounter(label, LanguagePrimitives.ConvertTo<int>(entry.Value), status);
+                    bar.Counter(label, LanguagePrimitives.ConvertTo<int>(entry.Value), status);
                 }
             }
             WriteObject(bar);

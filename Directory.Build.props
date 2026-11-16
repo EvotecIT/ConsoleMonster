@@ -11,7 +11,6 @@
     <Deterministic>true</Deterministic>
     <!-- Build-time fluent generator (development dependency, never shipped). See PowerForge.Generators. -->
     <PowerForgeGeneratorsVersion>3.0.193</PowerForgeGeneratorsVersion>
-    <PowerForgeFluentNaming>Prefixed</PowerForgeFluentNaming>
     <PowerForgeFluentFactory>ConsoleMonster.Ui</PowerForgeFluentFactory>
   </PropertyGroup>
 </Project>

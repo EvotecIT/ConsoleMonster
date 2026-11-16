@@ -16,16 +16,16 @@ namespace ConsoleMonster.Tests.Interactive {
 
         private static Grid Servers(GridSelection selection = GridSelection.Multiple) {
             Grid grid = new Grid("Servers") { OutputMode = selection, Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
-            grid.AddColumn(new TableColumn("Name") { IsKey = true });
-            grid.AddColumn("Role");
-            grid.AddColumn("CPU %");
-            grid.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-            grid.AddColumn("Last seen");
+            grid.Column(new TableColumn("Name") { IsKey = true });
+            grid.Column("Role");
+            grid.Column("CPU %");
+            grid.Column(new TableColumn("Status") { Presenter = CellPresenters.Status });
+            grid.Column("Last seen");
             for (int i = 1; i <= 30; i++) {
                 string name = "SRV" + i.ToString("00", CultureInfo.InvariantCulture);
                 int cpu = (i * 37) % 100;
                 string status = cpu > 85 ? "fail" : cpu > 70 ? "warn" : "pass";
-                grid.AddRow(name, name, Roles[i % Roles.Length], cpu, status, new DateTime(2026, 10, 17, 8, 0, 0).AddMinutes(i * 7));
+                grid.Row(name, name, Roles[i % Roles.Length], cpu, status, new DateTime(2026, 10, 17, 8, 0, 0).AddMinutes(i * 7));
             }
             return grid;
         }

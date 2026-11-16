@@ -208,7 +208,7 @@ namespace ConsoleMonster.Tests.Live {
 
         [Fact]
         public void RowPayloadRetainsTypedCellsAndIsCopiedBeforePublication() {
-            var table = new LiveTable(new Table().AddColumn("Name").AddColumn("Count"));
+            var table = new LiveTable(new Table().Column("Name").Column("Count"));
             object?[] values = { "web01", 12 };
             LiveEvent item = Assert.Single(ConsoleUpdate.Events(table, new WidgetUpdate { Row = new ConsoleTableRow { Key = "web01", Values = values } }));
             values[1] = 99;

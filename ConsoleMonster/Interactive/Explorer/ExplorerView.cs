@@ -73,7 +73,7 @@ namespace ConsoleMonster.Interactive {
             }
             if (cost > _root.RemainingNodes) { return null; }
             Table table = new Table { Border = TableBorder.Minimal, RecordViewRows = 0 };
-            foreach (string name in first) { table.AddColumn(Markup.Escape(name)); }
+            foreach (string name in first) { table.Column(Markup.Escape(name)); }
             for (int i = 0; i < count; i++) {
                 IReadOnlyList<ExplorerNode> members = _root.Children[i].Children;
                 if (members.Count != first.Count) { return null; }
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Interactive {
                     if (members[c].Name != first[c]) { return null; }
                     values[c] = members[c].Summary;
                 }
-                table.AddValues(values);
+                table.Values(values);
             }
             return table;
         }

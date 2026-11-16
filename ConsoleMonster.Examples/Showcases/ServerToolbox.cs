@@ -193,7 +193,7 @@ namespace ConsoleMonster.Examples.Showcases
             };
             string optionArguments = options.BuildCommand();
             review.Command = CommandLine.Join("Invoke-ServerToolbox", arguments) + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
-            review.Run = ctx => Execute(ctx, servers, selected, values);
+            review.Action = ctx => Execute(ctx, servers, selected, values);
             return review;
         }
 
@@ -234,9 +234,9 @@ namespace ConsoleMonster.Examples.Showcases
             {
                 Border = TableBorder.Minimal
             };
-            failures.AddColumn("Server");
-            failures.AddColumn("Task");
-            failures.AddColumn(new TableColumn("Finding") { Flexible = true });
+            failures.Column("Server");
+            failures.Column("Task");
+            failures.Column(new TableColumn("Finding") { Flexible = true });
             Stopwatch watch = Stopwatch.StartNew();
             log.Write("Started " + tasks.Count + " tasks on " + servers.Count + " servers, " + throttle + " at a time");
             for (int t = 0; t < tasks.Count; t++)
@@ -259,7 +259,7 @@ namespace ConsoleMonster.Examples.Showcases
                         case StatusKind.Fail:
                             failed++;
                             string finding = tasks[t].Category == "Security" ? "3 updates missing for 41 days" : "volume D: below 5% free";
-                            failures.AddRow(server.Name, tasks[t].Name, finding);
+                            failures.Row(server.Name, tasks[t].Name, finding);
                             log.Error(server.Name + " · " + tasks[t].Name + ": " + finding);
                             break;
                         case StatusKind.Warn:
@@ -324,15 +324,15 @@ namespace ConsoleMonster.Examples.Showcases
             {
                 Border = TableBorder.Minimal
             };
-            table.AddColumn("When");
-            table.AddColumn(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
-            table.AddColumn(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
-            table.AddColumn("Result");
-            table.AddColumn(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
+            table.Column("When");
+            table.Column(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
+            table.Column(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
+            table.Column("Result");
+            table.Column(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
             foreach (Run run in Enumerable.Reverse(History))
             {
                 StatusKind status = run.Failed > 0 ? StatusKind.Fail : run.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
-                table.AddRow(run.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture), run.Servers.ToString(CultureInfo.CurrentCulture), run.Tasks.ToString(CultureInfo.CurrentCulture), TableCell.ForStatus(status, run.Passed + " passed · " + run.Warnings + " warn · " + run.Failed + " failed"), NumberFormat.Duration(run.Elapsed));
+                table.Row(run.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture), run.Servers.ToString(CultureInfo.CurrentCulture), run.Tasks.ToString(CultureInfo.CurrentCulture), TableCell.ForStatus(status, run.Passed + " passed · " + run.Warnings + " warn · " + run.Failed + " failed"), NumberFormat.Duration(run.Elapsed));
             }
 
             return table;

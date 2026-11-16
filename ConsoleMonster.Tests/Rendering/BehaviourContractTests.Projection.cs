@@ -76,7 +76,7 @@ namespace ConsoleMonster.Tests.Rendering {
             var rich = new RichTextBuilder().AppendLink(label, address).Build();
             IWidget widget = entry == "markup" ? TextBlock.FromMarkup("[link=" + address + "]" + label + "[/]")
                 : entry == "rich" ? rich
-                : entry == "presenter" ? new Table().AddColumn(new TableColumn("Resource") { Presenter = new LinkPresenter(_ => label) }).AddValues(address)
+                : entry == "presenter" ? new Table().Column(new TableColumn("Resource") { Presenter = new LinkPresenter(_ => label) }).Values(address)
                 : new MarkdownText(rich);
             var profile = TerminalProfile.Fixed(240, 12, ColorDepth.None, tier, tier == GlyphTier.Ascii ? OutputMode.Plain : OutputMode.Stream);
             string output = FrameComposer.RenderBlock(widget, 240, new RenderContext(profile, Theme.Dark)).ToPlainText();

@@ -63,8 +63,8 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void TableWithoutTextGrowsEveryColumn() {
             Table table = new Table { Expand = true };
-            table.AddColumn("Cpu").AddColumn("Memory");
-            table.AddRow(TableCell.FromValue(12), TableCell.FromValue(64));
+            table.Column("Cpu").Column("Memory");
+            table.Row(TableCell.FromValue(12), TableCell.FromValue(64));
             string text = Render(table, 40);
             Assert.Equal(40, text.Split('\n')[0].Length);
         }
@@ -82,10 +82,10 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         private static void Configure(Table table) {
-            table.AddColumn("Host").AddColumn("State").AddColumn("Missing").AddColumn("Patched").AddColumn("Notes");
-            table.AddRow(TableCell.FromValue("dc-01"), TableCell.ForStatus(StatusKind.Pass, "Compliant"), TableCell.FromValue(0), TableCell.FromValue(new DateTime(2026, 10, 15)), TableCell.FromValue("Patched in the pilot ring"));
-            table.AddRow(TableCell.FromValue("sql-01"), TableCell.ForStatus(StatusKind.Fail, "Failed"), TableCell.FromValue(3), TableCell.FromValue(new DateTime(2026, 9, 12)), TableCell.FromValue("Missing the cumulative update and the servicing stack"));
-            table.AddRow(TableCell.FromValue("print-01"), TableCell.ForStatus(StatusKind.Warn, "Pending"), TableCell.FromValue(2), TableCell.FromValue(new DateTime(2026, 10, 2)), TableCell.FromValue("Reboot scheduled"));
+            table.Column("Host").Column("State").Column("Missing").Column("Patched").Column("Notes");
+            table.Row(TableCell.FromValue("dc-01"), TableCell.ForStatus(StatusKind.Pass, "Compliant"), TableCell.FromValue(0), TableCell.FromValue(new DateTime(2026, 10, 15)), TableCell.FromValue("Patched in the pilot ring"));
+            table.Row(TableCell.FromValue("sql-01"), TableCell.ForStatus(StatusKind.Fail, "Failed"), TableCell.FromValue(3), TableCell.FromValue(new DateTime(2026, 9, 12)), TableCell.FromValue("Missing the cumulative update and the servicing stack"));
+            table.Row(TableCell.FromValue("print-01"), TableCell.ForStatus(StatusKind.Warn, "Pending"), TableCell.FromValue(2), TableCell.FromValue(new DateTime(2026, 10, 2)), TableCell.FromValue("Reboot scheduled"));
         }
 
         private static string Render(Table table, int width) =>

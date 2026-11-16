@@ -67,7 +67,7 @@ namespace ConsoleMonster.Widgets {
                 case ChartType.Line: case ChartType.Scatter:
                     var line = new LineChart(id) { Unit = o.Unit, Height = o.Height ?? 8, Minimum = o.Minimum, Maximum = o.Maximum, Scatter = o.Type == ChartType.Scatter, Capacity = o.Capacity ?? 512 };
                     foreach (ChartSeries source in o.Series) {
-                        ChartSeries series = line.AddSeries(source.Key, source.AutomaticRole ? (Styling.ThemeToken?)null : source.Role);
+                        ChartSeries series = line.Series(source.Key, source.AutomaticRole ? (Styling.ThemeToken?)null : source.Role);
                         series.Label = source.Label;
                         series.LabelText = source.LabelText;
                         foreach (double value in source.Values) { line.Add(source.Key, value); }
@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
                     var sparkline = new Sparkline(id) { Unit = o.Unit, Title = o.Title, Height = o.Height ?? 1, Maximum = o.Maximum, ShowLatest = o.ShowLatest, Capacity = o.Capacity ?? 1024 };
                     if (o.Role.HasValue) { sparkline.Role = o.Role.Value; }
                     foreach (string label in o.Labels) sparkline.Labels.Add(label);
-                    sparkline.AddRange(o.Values ?? Array.Empty<double>());
+                    sparkline.Values(o.Values ?? Array.Empty<double>());
                     return sparkline;
             }
         }

@@ -11,7 +11,7 @@ namespace ConsoleMonster.Interactive {
     /// <summary>
     /// An entry of a <see cref="Menu"/>: title, description, hotkey, icon, badge, state text, a disabled reason, and what it
     /// opens (an action, a submenu, a form, a selection, a page). Configure it with the chainable methods:
-    /// <c>item.Hotkey('r').Form(form).Configure(value =&gt; value.Badge = () =&gt; RichText.Plain("24 tasks"))</c>.
+    /// <c>item.Hotkey('r').Form(form).BadgeBy(() =&gt; RichText.Plain("24 tasks"))</c>.
     /// </summary>
     [Fluent]
     public sealed class MenuItem {
@@ -45,24 +45,30 @@ namespace ConsoleMonster.Interactive {
         public MenuItemKind Kind { get; set; } = MenuItemKind.Action;
 
         /// <summary>Computes the badge (right-aligned tag) each time the menu is drawn.</summary>
+        [Fluent("BadgeBy")]
         public Func<RichText?>? Badge { get; set; }
 
         /// <summary>Computes the state text ("24 selected") each time the menu is drawn.</summary>
+        [Fluent("DetailBy")]
         public Func<string?>? Detail { get; set; }
 
         /// <summary>Computes why the item is unavailable (null when available).</summary>
+        [Fluent("DisabledReasonBy")]
         public Func<string?>? DisabledReason { get; set; }
 
         private Action<MenuContext>? _action;
         /// <summary>The action of an action item.</summary>
+        [Fluent("Run")]
         public Action<MenuContext>? Action { get => _action; set { _action = value; if (value != null) { Kind = MenuItemKind.Action; } } }
 
         private Func<MenuContext, CancellationToken, Task>? _actionAsync;
         /// <summary>The asynchronous action of an action item (runs without blocking the screen; Esc cancels it).</summary>
+        [Fluent("RunAsync")]
         public Func<MenuContext, CancellationToken, Task>? ActionAsync { get => _actionAsync; set { _actionAsync = value; if (value != null) { Kind = MenuItemKind.Action; } } }
 
         private Menu? _submenu;
         /// <summary>The submenu of a submenu item.</summary>
+        [NoFluent]
         public Menu? Submenu { get => _submenu; set { _submenu = value; if (value != null) { Kind = MenuItemKind.Submenu; } } }
 
         private Form? _form;
@@ -70,16 +76,19 @@ namespace ConsoleMonster.Interactive {
         public Form? Form { get => _form; set { _form = value; if (value != null) { Kind = MenuItemKind.Form; } } }
 
         /// <summary>Called when the form is submitted.</summary>
+        [Fluent("WhenSubmitted")]
         public Action<MenuContext, FormResult>? OnSubmit { get; set; }
 
         private Func<MenuContext, IWidget>? _page;
         /// <summary>Builds the content of a page item.</summary>
+        [Fluent("PageBy")]
         public Func<MenuContext, IWidget>? Page { get => _page; set { _page = value; if (value != null) { Kind = MenuItemKind.Page; } } }
 
         /// <summary>The choices of a selection item.</summary>
         public IList<Choice> Choices => _choices;
 
         /// <summary>Preview content for the focused choice of a selection item.</summary>
+        [Fluent("PreviewBy")]
         public Func<Choice, IWidget?>? Preview { get; set; }
 
         /// <summary>The fewest values of a multi-selection item.</summary>
@@ -90,13 +99,16 @@ namespace ConsoleMonster.Interactive {
 
         private Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>>? _loadChoices;
         /// <summary>Loads the choices of a selection item asynchronously (a spinner shows meanwhile; Ctrl+R reloads).</summary>
+        [Fluent("ChoicesBy")]
         public Func<MenuContext, CancellationToken, Task<IEnumerable<Choice>>>? LoadChoices { get => _loadChoices; set { _loadChoices = value; if (value != null) { Kind = MenuItemKind.MultiSelect; } } }
 
         private Func<MenuContext, ReviewModel>? _review;
         /// <summary>Builds the review of a review item each time it is drawn.</summary>
+        [Fluent("ReviewBy")]
         public Func<MenuContext, ReviewModel>? Review { get => _review; set { _review = value; if (value != null) { Kind = MenuItemKind.Review; } } }
 
         /// <summary>Called when the selection of a selection item changes.</summary>
+        [Fluent("WhenChanged")]
         public Action<MenuContext>? OnChange { get; set; }
 
         /// <summary>The selected values of a selection item, in list order.</summary>

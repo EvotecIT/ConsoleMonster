@@ -37,9 +37,9 @@ public sealed class ConsoleViewIntegrationTests {
     [Fact]
     public void Table_VisibilityInColumnBands_ReportsRenderedEvidence() {
         Table table = new Table { KeepAllColumns = true, RecordViewRows = 0, CardsBelow = 0 };
-        table.AddColumn(new TableColumn("Name") { IsKey = true, MinWidth = 30 });
-        table.AddColumn(new TableColumn("Evidence") { MinWidth = 30 });
-        table.AddValues("host-one", "banded-evidence");
+        table.Column(new TableColumn("Name") { IsKey = true, MinWidth = 30 });
+        table.Column(new TableColumn("Evidence") { MinWidth = 30 });
+        table.Values("host-one", "banded-evidence");
         Assert.Contains("banded-evidence", TestTerminal.RenderText(table, 40));
         Assert.True(table.DisplaysColumn("Name", 40, Context(40)));
         Assert.True(table.DisplaysColumn("Evidence", 40, Context(40)));
@@ -82,10 +82,10 @@ public sealed class ConsoleViewIntegrationTests {
     [InlineData(TableBorder.Rounded)]
     public void Table_BelowRowFooter_PreservesItsEvidence(TableBorder border) {
         Table table = new Table { Border = border, RecordViewRows = 0, CardsBelow = 0 };
-        table.AddColumn(new TableColumn("Name") { IsKey = true });
-        table.AddColumn(new TableColumn("Evidence") { Placement = ColumnPlacement.Below, BelowWidth = 100 });
-        table.AddValues("host-one", "row evidence");
-        table.SetFooter(TableCell.FromValue("Total"), TableCell.FromValue("final evidence"));
+        table.Column(new TableColumn("Name") { IsKey = true });
+        table.Column(new TableColumn("Evidence") { Placement = ColumnPlacement.Below, BelowWidth = 100 });
+        table.Values("host-one", "row evidence");
+        table.Footer(TableCell.FromValue("Total"), TableCell.FromValue("final evidence"));
         string text = TestTerminal.RenderText(table, 80);
         Assert.Contains("row evidence", text);
         Assert.Contains("final evidence", text);
@@ -97,9 +97,9 @@ public sealed class ConsoleViewIntegrationTests {
     [InlineData(true)]
     public void Table_DimRepeats_UsesMutedForegroundInBufferedChunkAndWindowRendering(bool numeric) {
         Table table = new Table { ShowHeader = false, Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 0 };
-        table.AddColumn(new TableColumn("Key") { DimRepeats = true });
+        table.Column(new TableColumn("Key") { DimRepeats = true });
         object value = numeric ? (object)42 : "host-one";
-        table.AddValues(value); table.AddValues(value);
+        table.Values(value); table.Values(value);
         RenderContext context = Context();
         CellBuffer buffered = FrameComposer.RenderBlock(table, 80, context);
         Assert.Equal(context.Style(ThemeToken.Text).Color, buffered[0, 0].Style.Color);

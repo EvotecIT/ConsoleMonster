@@ -3,7 +3,7 @@ using ConsoleMonster.Layout;
 
 namespace ConsoleMonster.Frames {
     /// <summary>Fluent builders for a <see cref="DashboardFrame"/>: the same parts New-ConsoleDashboardFrame takes as records.</summary>
-    public static partial class FramesFluent {
+    public static partial class DashboardFrameFluent {
         /// <summary>Sets the title.</summary><param name="frame">The frame.</param><param name="title">The literal title.</param><returns>The frame.</returns>
         public static DashboardFrame Title(this DashboardFrame frame, string title) {
             Require(frame).Header.Title = title ?? throw new ArgumentNullException(nameof(title));
@@ -25,12 +25,6 @@ namespace ConsoleMonster.Frames {
         /// <summary>Sets when the data was observed; the title line shows how long ago.</summary><param name="frame">The frame.</param><param name="observedAt">The observation time.</param><returns>The frame.</returns>
         public static DashboardFrame ObservedAt(this DashboardFrame frame, DateTimeOffset observedAt) {
             Require(frame).Header.ObservedAt = observedAt;
-            return frame;
-        }
-
-        /// <summary>Adds a headline meter; meters print in the order added and a narrow row keeps the first ones.</summary><param name="frame">The frame.</param><param name="meter">The meter.</param><returns>The frame.</returns>
-        public static DashboardFrame Meter(this DashboardFrame frame, Meter meter) {
-            Require(frame).Meters.Add(meter ?? throw new ArgumentNullException(nameof(meter)));
             return frame;
         }
 

@@ -29,11 +29,11 @@ namespace ConsoleMonster.Tests.Export {
         // A small scene with everything the writers treat specially: a border, a link, a wide glyph, a bar, braille, a background.
         private static IWidget Scene() {
             Table table = new Table { Border = TableBorder.Rounded };
-            table.AddColumn("Check");
-            table.AddColumn("Status");
-            table.AddRow("SPF", "[pass]PASS[/]");
-            table.AddRow("DKIM", "[warn on #3a2a00]WARN[/]");
-            table.AddRow("[link=https://example.org/docs]docs[/]", "日本");
+            table.Column("Check");
+            table.Column("Status");
+            table.Row("SPF", "[pass]PASS[/]");
+            table.Row("DKIM", "[warn on #3a2a00]WARN[/]");
+            table.Row("[link=https://example.org/docs]docs[/]", "日本");
             return new Rows(
                 new Panel(table, "Mail <checks> & \"more\""),
                 new TextBlock("██▌ ⣿⣀ ═══ <script>alert(1)</script>") { IsMarkup = false }

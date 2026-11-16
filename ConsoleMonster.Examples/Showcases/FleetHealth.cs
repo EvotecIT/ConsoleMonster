@@ -365,13 +365,13 @@ namespace ConsoleMonster.Examples.Showcases
             {
                 Border = TableBorder.Minimal
             };
-            details.AddColumn("Server");
-            details.AddColumn("Check");
-            details.AddColumn("Expected");
-            details.AddColumn(new TableColumn("Actual") { Flexible = true });
+            details.Column("Server");
+            details.Column("Check");
+            details.Column("Expected");
+            details.Column(new TableColumn("Actual") { Flexible = true });
             foreach (FleetFinding finding in findings)
             {
-                details.AddRow(finding.Server, Markup.Escape(finding.Check.Name), Markup.Escape(finding.Check.Expected), "[fail]" + Markup.Escape(finding.Outcome.Actual) + "[/]");
+                details.Row(finding.Server, Markup.Escape(finding.Check.Name), Markup.Escape(finding.Check.Expected), "[fail]" + Markup.Escape(finding.Outcome.Actual) + "[/]");
             }
 
             MenuRunResult result = new MenuRunResult("Fleet check finished", overall)
@@ -479,10 +479,10 @@ namespace ConsoleMonster.Examples.Showcases
                 {
                     BarWidth = 24
                 };
-                Summary.SetProgress(0, plan.Total);
-                Summary.SetCounter("passed", 0, StatusKind.Pass);
-                Summary.SetCounter("warnings", 0, StatusKind.Warn);
-                Summary.SetCounter("failed", 0, StatusKind.Fail);
+                Summary.Progress(0, plan.Total);
+                Summary.Counter("passed", 0, StatusKind.Pass);
+                Summary.Counter("warnings", 0, StatusKind.Warn);
+                Summary.Counter("failed", 0, StatusKind.Fail);
                 Phases = new Phases().Set("Discover").Set("Connect").Set("Check").Set("Report");
                 // One row per server and one column per check, with the server names beside the rows and one legend below.
                 Cells = new CellMap("cells")
@@ -514,10 +514,10 @@ namespace ConsoleMonster.Examples.Showcases
                 {
                     Border = TableBorder.Minimal
                 };
-                failureColumns.AddColumn("Server");
-                failureColumns.AddColumn("Check");
-                failureColumns.AddColumn("Expected");
-                failureColumns.AddColumn(new TableColumn("Actual") { Flexible = true });
+                failureColumns.Column("Server");
+                failureColumns.Column("Check");
+                failureColumns.Column("Expected");
+                failureColumns.Column(new TableColumn("Actual") { Flexible = true });
                 Failures = new LiveTable(failureColumns, "failures")
                 {
                     MaxRows = 5
@@ -526,9 +526,9 @@ namespace ConsoleMonster.Examples.Showcases
                 {
                     Border = TableBorder.Minimal
                 };
-                slowColumns.AddColumn("Check");
-                slowColumns.AddColumn("Server");
-                slowColumns.AddColumn(new TableColumn("Took") { Alignment = HorizontalAlignment.Right });
+                slowColumns.Column("Check");
+                slowColumns.Column("Server");
+                slowColumns.Column(new TableColumn("Took") { Alignment = HorizontalAlignment.Right });
                 Slowest = new LiveTable(slowColumns, "slowest");
                 Durations = new Histogram(new double[] { 0, 2, 4, 8, 16 }, "durations")
                 {
@@ -726,16 +726,16 @@ namespace ConsoleMonster.Examples.Showcases
                 {
                     Border = TableBorder.Minimal
                 };
-                table.AddColumn("When");
-                table.AddColumn("Domain");
-                table.AddColumn(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
-                table.AddColumn(new TableColumn("Checks") { Alignment = HorizontalAlignment.Right });
-                table.AddColumn("Result");
-                table.AddColumn(new TableColumn("Took") { Alignment = HorizontalAlignment.Right });
+                table.Column("When");
+                table.Column("Domain");
+                table.Column(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
+                table.Column(new TableColumn("Checks") { Alignment = HorizontalAlignment.Right });
+                table.Column("Result");
+                table.Column(new TableColumn("Took") { Alignment = HorizontalAlignment.Right });
                 foreach (FleetRun run in Enumerable.Reverse(_runs))
                 {
                     StatusKind status = run.Failed > 0 ? StatusKind.Fail : run.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
-                    table.AddRow(run.When.ToString("ddd d MMM HH:mm", CultureInfo.InvariantCulture), Markup.Escape(run.Domain), run.Servers.ToString(CultureInfo.InvariantCulture), (run.Servers * run.Checks).ToString(CultureInfo.InvariantCulture), TableCell.ForStatus(status, run.Passed + " passed · " + run.Warnings + " warn · " + run.Failed + " failed"), NumberFormat.Clock(run.Elapsed));
+                    table.Row(run.When.ToString("ddd d MMM HH:mm", CultureInfo.InvariantCulture), Markup.Escape(run.Domain), run.Servers.ToString(CultureInfo.InvariantCulture), (run.Servers * run.Checks).ToString(CultureInfo.InvariantCulture), TableCell.ForStatus(status, run.Passed + " passed · " + run.Warnings + " warn · " + run.Failed + " failed"), NumberFormat.Clock(run.Elapsed));
                 }
 
                 return table;

@@ -164,7 +164,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="header">The header (markup).</param>
         /// <param name="alignment">Alignment, or <c>null</c> for automatic.</param>
         /// <returns>This instance.</returns>
-        public Table AddColumn(string header, HorizontalAlignment? alignment = null) {
+        public Table Column(string header, HorizontalAlignment? alignment = null) {
             _columns.Add(new TableColumn(header) { Alignment = alignment });
             return this;
         }
@@ -172,7 +172,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a column definition.</summary>
         /// <param name="column">The column.</param>
         /// <returns>This instance.</returns>
-        public Table AddColumn(TableColumn column) {
+        public Table Column(TableColumn column) {
             _columns.Add(column ?? throw new ArgumentNullException(nameof(column)));
             return this;
         }
@@ -180,7 +180,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Starts a group: rows added after this belong to it until the next group.</summary>
         /// <param name="title">The group heading (markup).</param>
         /// <returns>This instance.</returns>
-        public Table AddGroup(string title) {
+        public Table Group(string title) {
             _groups.Add(title ?? string.Empty);
             return this;
         }
@@ -188,7 +188,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a row of cells (strings convert to markup cells). Omitted cells show the missing-value marker.</summary>
         /// <param name="cells">The cells.</param>
         /// <returns>This instance.</returns>
-        public Table AddRow(params TableCell[] cells) {
+        public Table Row(params TableCell[] cells) {
             _rows.Add(Normalize(cells));
             _rowGroups.Add(_groups.Count - 1);
             return this;
@@ -197,12 +197,12 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a row of raw values, formatted by the column presenters and summarised by their aggregates.</summary>
         /// <param name="values">The values.</param>
         /// <returns>This instance.</returns>
-        public Table AddValues(params object?[] values) {
+        public Table Values(params object?[] values) {
             TableCell[] cells = new TableCell[values?.Length ?? 0];
             for (int i = 0; i < cells.Length; i++) {
                 cells[i] = values![i] is TableCell cell ? cell : TableCell.FromValue(values[i]);
             }
-            return AddRow(cells);
+            return Row(cells);
         }
 
         /// <summary>Removes every row (columns, options and remembered column widths stay), so the table can be refilled.</summary>
@@ -215,18 +215,18 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a row of plain text values (brackets are shown literally).</summary>
         /// <param name="values">The values.</param>
         /// <returns>This instance.</returns>
-        public Table AddPlainRow(params string?[] values) {
+        public Table PlainRow(params string?[] values) {
             TableCell[] cells = new TableCell[values?.Length ?? 0];
             for (int i = 0; i < cells.Length; i++) {
                 cells[i] = string.IsNullOrEmpty(values![i]) ? TableCell.FromValue(values[i]) : new TableCell(Markup.Escape(values[i]!));
             }
-            return AddRow(cells);
+            return Row(cells);
         }
 
         /// <summary>Sets a footer row (totals), separated by a line. It replaces the automatic totals row.</summary>
         /// <param name="cells">The cells.</param>
         /// <returns>This instance.</returns>
-        public Table SetFooter(params TableCell[] cells) {
+        public Table Footer(params TableCell[] cells) {
             _footer = Normalize(cells);
             return this;
         }

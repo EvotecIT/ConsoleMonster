@@ -205,7 +205,7 @@ namespace ConsoleMonster.PowerShell {
             // A lone record's heading can be cut short; its key (Measure-Object's property) is also a wrapped field.
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true, ShowKeyField = view?.SingleRecord == true };
             foreach (BoundColumn column in columns) {
-                table.AddColumn(column.Column);
+                table.Column(column.Column);
                 TableBindings.Remember(column);
             }
             if (options.Total) {
@@ -240,9 +240,9 @@ namespace ConsoleMonster.PowerShell {
                     index[items[i]] = i;
                 }
                 foreach (KeyValuePair<string, IReadOnlyList<PSObject>> group in GroupBinder.Group(items, grouping, !options.NoSort, shape)) {
-                    table.AddGroup(Text.Markup.Escape(group.Key));
+                    table.Group(Text.Markup.Escape(group.Key));
                     foreach (PSObject item in group.Value) {
-                        table.AddValues(rows[index[item]]);
+                        table.Values(rows[index[item]]);
                         if (titled) {
                             titles.Add(KeyTitle(rows[index[item]][keyColumn], rows[index[item]][idColumn]));
                         }
@@ -250,7 +250,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             } else {
                 for (int i = 0; i < items.Count; i++) {
-                    table.AddValues(rows[i]);
+                    table.Values(rows[i]);
                     if (titled) {
                         titles.Add(KeyTitle(rows[i][keyColumn], rows[i][idColumn]));
                     }
@@ -360,7 +360,7 @@ namespace ConsoleMonster.PowerShell {
                 int key = ValueShaper.TitleIndex(columns.Select(column => column.Name).ToList());
                 if (groupBy != null) {
                     foreach (KeyValuePair<string, IReadOnlyList<PSObject>> group in GroupBinder.Group(run, groupBy, true, shape)) {
-                        view.AddSection(Text.Markup.Escape(group.Key));
+                        view.Section(Text.Markup.Escape(group.Key));
                         foreach (PSObject item in group.Value) {
                             AddRecord(view, columns, key, item, 1, depth, true, shape, budget, summarizeNested, omitted);
                         }
@@ -571,7 +571,7 @@ namespace ConsoleMonster.PowerShell {
             }
             if (heading) {
                 string? title = key >= 0 ? KeyTitle(ValueShaper.Prepare(values[key], shape), IdValue(columns, key, values), shape, record) : null;
-                view.AddHeading(Text.Markup.Escape(title ?? PSShaping.Title(item, shape, record)), level);
+                view.Heading(Text.Markup.Escape(title ?? PSShaping.Title(item, shape, record)), level);
                 fieldLevel = level + 1;
             }
             int shown = 0;
@@ -588,44 +588,44 @@ namespace ConsoleMonster.PowerShell {
                     visible++;
                 }
                 if (value is FieldError error) {
-                    view.AddFieldAt(fieldLevel, label, TableCell.ForStatus(Styling.StatusKind.Warn, error.Message));
+                    view.FieldAt(fieldLevel, label, TableCell.ForStatus(Styling.StatusKind.Warn, error.Message));
                     continue;
                 }
                 if (value is BudgetExceeded) {
-                    view.AddFieldAt(fieldLevel, label, new TableCell("[muted]…[/]"));
+                    view.FieldAt(fieldLevel, label, new TableCell("[muted]…[/]"));
                     continue;
                 }
                 object? prepared = ValueShaper.Prepare(value, shape);
                 if (summarizeNested && prepared != null && column.Presenter == null && NeedsNesting(prepared, shape)) {
-                    view.AddFieldAt(fieldLevel, label, new TableCell(NestedSummary(value!, prepared, shape, record)));
+                    view.FieldAt(fieldLevel, label, new TableCell(NestedSummary(value!, prepared, shape, record)));
                     continue;
                 }
                 if (summarizeNested && column.Presenter == null && prepared is string text && TextPreview(text) is string preview) {
-                    view.AddFieldAt(fieldLevel, label, new TableCell(preview));
+                    view.FieldAt(fieldLevel, label, new TableCell(preview));
                     continue;
                 }
                 if (depth > 0 && prepared != null && column.Presenter == null && NeedsNesting(prepared, shape)) {
-                    view.AddHeading(Text.Markup.Escape(label), fieldLevel);
-                    view.AddWidgetAt(fieldLevel + 1, InspectorBody(value!, depth));
+                    view.Heading(Text.Markup.Escape(label), fieldLevel);
+                    view.WidgetAt(fieldLevel + 1, InspectorBody(value!, depth));
                     continue;
                 }
                 object? cell = column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, column, shape, record);
                 // Status fields get their marker in records too, as status columns do in tables.
-                view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared)
+                view.FieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared)
                     ?? (prepared == null ? null : CellPresenters.ForMember(columns[c].Name, prepared.GetType())));
             }
             if (shown == 0) {
-                view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]none[/]"));
+                view.FieldAt(fieldLevel, "fields", new TableCell("[muted]none[/]"));
             } else if (visible == 0 && view.HideEmpty) {
                 // Every field is empty: the record still shows (its heading would otherwise vanish with its empty fields).
-                view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]all empty[/]"));
+                view.FieldAt(fieldLevel, "fields", new TableCell("[muted]all empty[/]"));
             } else if (summarizeNested) {
                 // Nothing leaves the automatic view without a trace: hidden empty fields and fields past the limit are counted.
                 List<string> notes = new List<string>();
                 if (view.HideEmpty && shown > visible) { notes.Add("+" + (shown - visible).ToString("N0", CultureInfo.InvariantCulture) + " empty"); }
                 if (omitted > 0) { notes.Add("+" + omitted.ToString("N0", CultureInfo.InvariantCulture) + (omitted == 1 ? " more field" : " more fields")); }
                 // A dim line at the key column, as the tree ends a record with its empty count.
-                if (notes.Count > 0) { view.AddWidgetAt(fieldLevel, TextBlock.FromMarkup("[muted]" + string.Join("  ", notes) + "[/]")); }
+                if (notes.Count > 0) { view.WidgetAt(fieldLevel, TextBlock.FromMarkup("[muted]" + string.Join("  ", notes) + "[/]")); }
             }
         }
 

@@ -42,9 +42,11 @@ namespace ConsoleMonster.Live {
         public LiveSessionOptions? Session { get; set; }
 
         /// <summary>Where a printed run goes when the view is not live, or null for the current terminal.</summary>
+        [Fluent("WriteTo")]
         public Action<IWidget>? Print { get; set; }
 
         /// <summary>Waits between runs (for tests), or null for a real wait that ends early on cancellation.</summary>
+        [NoFluent]
         public Action<TimeSpan, CancellationToken>? Delay { get; set; }
     }
 

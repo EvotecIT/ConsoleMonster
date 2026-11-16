@@ -15,8 +15,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
     public sealed class DataGridTests {
         private static readonly Canvas.RenderContext Context = Terminal.CreateContext(TerminalProfile.Fixed(100, 30));
         private static Grid Listing(params string[] names) {
-            var grid = new Grid("Files"); grid.AddColumn("Name");
-            foreach (string name in names) { grid.AddRow(new GridRow(name, name) { Id = name }); }
+            var grid = new Grid("Files"); grid.Column("Name");
+            foreach (string name in names) { grid.Row(new GridRow(name, name) { Id = name }); }
             return grid;
         }
 
@@ -62,9 +62,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
             int started = 0;
             var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var completion = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var listing = new Grid("Large"); listing.AddColumn("Name"); listing.AddColumn("Size");
+            var listing = new Grid("Large"); listing.Column("Name"); listing.Column("Size");
             for (int i = 0; i < 10000; i++) {
-                listing.AddRow(new GridRow(i, "row" + i.ToString("D5"), new DataGridCell(_ => { Interlocked.Increment(ref started); firstStarted.TrySetResult(true); return completion.Task; }, "pending")) { Id = i });
+                listing.Row(new GridRow(i, "row" + i.ToString("D5"), new DataGridCell(_ => { Interlocked.Increment(ref started); firstStarted.TrySetResult(true); return completion.Task; }, "pending")) { Id = i });
             }
             using var grid = new DataGrid("Rows", listing) { Focused = true };
             var repainted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -136,9 +136,9 @@ public sealed class ConsoleViewSystemTests {
     [InlineData(GlyphTier.Ascii, "[FAIL]", "x FAIL")]
     public void ConsoleViewStyle_OptIn_DoesNotChangeOrdinaryRendering(GlyphTier tier, string ordinaryStatus, string viewStatus) {
         Table table = new Table { Border = TableBorder.None, RecordViewRows = 0, ShowHeader = false };
-        table.AddColumn(new TableColumn("State") { Presenter = new ConsoleMonster.Presenters.StatusPresenter() });
-        table.AddColumn(new TableColumn("Used") { Presenter = new ConsoleMonster.Presenters.NumberPresenter("%", 0) });
-        table.AddValues(StatusKind.Fail, 68);
+        table.Column(new TableColumn("State") { Presenter = new ConsoleMonster.Presenters.StatusPresenter() });
+        table.Column(new TableColumn("Used") { Presenter = new ConsoleMonster.Presenters.NumberPresenter("%", 0) });
+        table.Values(StatusKind.Fail, 68);
         string before = TestTerminal.RenderText(table, 80, glyphs: tier);
         string styled = TestTerminal.RenderText(ConsoleViewStyle.Wrap(table), 80, glyphs: tier);
         string after = TestTerminal.RenderText(table, 80, glyphs: tier);
@@ -157,8 +157,8 @@ public sealed class ConsoleViewSystemTests {
     [InlineData(60, GlyphTier.Ascii)]
     public void Frame_TitleStateAndGutter_ContentWidthWithoutFilledBand(int width, GlyphTier tier) {
         Table table = new Table { RecordViewRows = 0 };
-        table.AddColumn(new TableColumn("Computer") { MinWidth = 12, IsKey = true });
-        table.AddColumn("State"); table.AddRow("CORP-DC01", "running");
+        table.Column(new TableColumn("Computer") { MinWidth = 12, IsKey = true });
+        table.Column("State"); table.Row("CORP-DC01", "running");
         ConsoleViewFrame frame = new ConsoleViewFrame(new ViewHeader("Services", "1 stopped", "corp.contoso.com", "18 services"), table);
         string text = TestTerminal.RenderText(frame, width, glyphs: tier);
         string[] lines = text.Split('\n');
@@ -173,10 +173,10 @@ public sealed class ConsoleViewSystemTests {
     [Fact]
     public void RuleTable_LongHeadersAndLowPriorityDetail_KeepIdentityMinimumAndValueWidth() {
         Table table = new Table { Border = TableBorder.Rule, CardsBelow = 0, RecordViewRows = 0 };
-        table.AddColumn(new TableColumn("A deliberately long identity header") { IsKey = true, MinWidth = 24, Overflow = ColumnOverflow.Truncate });
-        table.AddColumn(new TableColumn("A very long count header") { ShortHeader = "N", Priority = 5 });
-        table.AddColumn(new TableColumn("Detail") { Priority = -1, MinWidth = 35 });
-        table.AddRow("CORP-DC01.corp.contoso.com", TableCell.FromValue(1), "extra evidence");
+        table.Column(new TableColumn("A deliberately long identity header") { IsKey = true, MinWidth = 24, Overflow = ColumnOverflow.Truncate });
+        table.Column(new TableColumn("A very long count header") { ShortHeader = "N", Priority = 5 });
+        table.Column(new TableColumn("Detail") { Priority = -1, MinWidth = 35 });
+        table.Row("CORP-DC01.corp.contoso.com", TableCell.FromValue(1), "extra evidence");
         string text = TestTerminal.RenderText(table, 40);
         Assert.Contains("CORP-DC01.corp.contoso.com", text);
         Assert.Contains("N", text.Split('\n')[0]);
@@ -189,11 +189,11 @@ public sealed class ConsoleViewSystemTests {
     [InlineData(GlyphTier.Ascii)]
     public void BelowColumn_NarrowTable_KeepsEvidenceOnItsOwnContinuationRow(GlyphTier tier) {
         Table table = new Table { Border = TableBorder.Rule, CardsBelow = 0, RecordViewRows = 0 };
-        table.AddColumn(new TableColumn("Severity") { MinWidth = 10 });
-        table.AddColumn(new TableColumn("Rule") { IsKey = true, MinWidth = 20 });
-        table.AddColumn(new TableColumn("Detail") { Placement = ColumnPlacement.Below });
-        table.AddRow(TableCell.ForSeverity(Severity.Critical), "krbtgt not rotated", "Kerberos: last set 412 days ago");
-        table.AddRow(TableCell.ForSeverity(Severity.High), "Time source local", "Clock: +412 ms from the PDC");
+        table.Column(new TableColumn("Severity") { MinWidth = 10 });
+        table.Column(new TableColumn("Rule") { IsKey = true, MinWidth = 20 });
+        table.Column(new TableColumn("Detail") { Placement = ColumnPlacement.Below });
+        table.Row(TableCell.ForSeverity(Severity.Critical), "krbtgt not rotated", "Kerberos: last set 412 days ago");
+        table.Row(TableCell.ForSeverity(Severity.High), "Time source local", "Clock: +412 ms from the PDC");
         string text = TestTerminal.RenderText(table, 58, glyphs: tier);
         string[] lines = text.Split('\n');
         int first = Array.FindIndex(lines, line => line.Contains("krbtgt not rotated"));

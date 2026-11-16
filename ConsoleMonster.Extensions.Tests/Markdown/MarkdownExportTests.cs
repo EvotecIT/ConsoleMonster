@@ -18,7 +18,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [Fact]
         public void JobSummaryUsesTheOptionalSemanticExporterWithoutCroppingTheTable() {
             using IDisposable scope = ContinuousIntegration.UseProvider(ContinuousIntegrationProvider.None);
-            var table = new Table().AddColumn("Check").AddColumn("Result").AddRow("Build | tests", "Passed");
+            var table = new Table().Column("Check").Column("Result").Row("Build | tests", "Passed");
             string markdown = ContinuousIntegration.AddSummary(table, new ExportOptions { Width = 10 }, new MarkdownFrameExportProvider());
             Assert.Contains("| Check | Result |\n| :--- | :--- |", markdown);
             Assert.Contains("| Build \\| tests | Passed |", markdown);
@@ -26,7 +26,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         }
         [Fact]
         public void NullOrDefaultWidgetOptionsResolveWithoutSelectingTheRecordingOverload() {
-            var table = new Table().AddColumn("Host").AddRow("web-01");
+            var table = new Table().Column("Host").Row("web-01");
             Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null));
             Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, default));
             Assert.Equal(MarkdownExporter.Export(table), MarkdownExporter.Export(table, null, default));
@@ -37,11 +37,11 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [InlineData(GlyphTier.Ascii)]
         public void MarkdownUsesPipeTablesAndPreservesPresentedCulture(GlyphTier glyphs) {
             Table table = new Table();
-            table.AddColumn("Host");
-            table.AddColumn("Status");
-            table.AddColumn("Amount");
+            table.Column("Host");
+            table.Column("Status");
+            table.Column("Amount");
             table.Columns[2].Presenter = new NumberPresenter();
-            table.AddRow("日本", "[pass]Ready[/]", TableCell.FromValue(12.5));
+            table.Row("日本", "[pass]Ready[/]", TableCell.FromValue(12.5));
             IWidget widget = new Rows(table, new TextBlock("**literal** <script>\n```\n````") { IsMarkup = false });
             ExportOptions options = new ExportOptions { Width = 35, Glyphs = glyphs, Culture = CultureInfo.GetCultureInfo("pl-PL") };
             string text = ConsoleExporter.ToText(widget, options);
@@ -66,10 +66,10 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [Fact]
         public void TableMarkdownEscapesCellsKeepsCollectionsAndDoesNotCropToConsoleWidth() {
             Table table = new Table { RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("Left|header") { Alignment = HorizontalAlignment.Left });
-            table.AddColumn(new TableColumn("Center") { Alignment = HorizontalAlignment.Center });
-            table.AddColumn(new TableColumn("Right") { Alignment = HorizontalAlignment.Right });
-            table.AddValues("a|b\r\n<script> & *literal*", new[] { "one", "two" }, 12);
+            table.Column(new TableColumn("Left|header") { Alignment = HorizontalAlignment.Left });
+            table.Column(new TableColumn("Center") { Alignment = HorizontalAlignment.Center });
+            table.Column(new TableColumn("Right") { Alignment = HorizontalAlignment.Right });
+            table.Values("a|b\r\n<script> & *literal*", new[] { "one", "two" }, 12);
             string markdown = MarkdownExporter.Export(table, new ExportOptions { Width = 5, Culture = CultureInfo.InvariantCulture });
             Assert.Equal("| Left\\|header | Center | Right |\n| :--- | :---: | ---: |\n| a\\|b<br>&lt;script&gt; &amp; \\*literal\\* | one, two | 12 |\n\n", markdown);
         }
@@ -77,10 +77,10 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [Fact]
         public void GroupedMarkdownUsesHeadingsAndBoldSubtotalsAndFinalTotal() {
             Table table = new Table { Title = "Report", ShowTotals = true, ShowSubtotals = true };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn(new TableColumn("Count") { Aggregate = ColumnAggregate.Sum });
-            table.AddGroup("East").AddValues("first", 2).AddValues("second", 3);
-            table.AddGroup("West").AddValues("third", 4);
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column(new TableColumn("Count") { Aggregate = ColumnAggregate.Sum });
+            table.Group("East").Values("first", 2).Values("second", 3);
+            table.Group("West").Values("third", 4);
             string markdown = MarkdownExporter.Export(table, new ExportOptions { Culture = CultureInfo.InvariantCulture });
             Assert.Contains("### East · 2\n\n| Name | Count |", markdown);
             Assert.Contains("| **Subtotal** | **5** |", markdown);
@@ -124,8 +124,8 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         [Fact]
         public void CultureScopesAndCustomPresentersAreKeptInMarkdown() {
             Table table = new Table();
-            table.AddColumn(new TableColumn("Size") { Presenter = CellPresenters.Bytes });
-            table.AddValues(1536);
+            table.Column(new TableColumn("Size") { Presenter = CellPresenters.Bytes });
+            table.Values(1536);
             string markdown = MarkdownExporter.Export(new CultureScope(table, CultureInfo.GetCultureInfo("pl-PL")), new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
             Assert.Contains("| 1,5 KB |", markdown);
         }
@@ -142,7 +142,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
 
         [Fact]
         public void UnsupportedWidgetFallbackKeepsTheEffectiveScopedCulture() {
-            IWidget widget = new CultureScope(new KeyValueList().AddValue("Amount", 12.5), CultureInfo.GetCultureInfo("pl-PL"));
+            IWidget widget = new CultureScope(new KeyValueList().Value("Amount", 12.5), CultureInfo.GetCultureInfo("pl-PL"));
             string markdown = MarkdownExporter.Export(widget, new ExportOptions { Culture = CultureInfo.GetCultureInfo("en-US") });
             Assert.Contains("12,5", markdown);
             Assert.DoesNotContain("12.5", markdown);
@@ -152,8 +152,8 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         public void SemanticMarkdownSanitizesTerminalSequencesWithoutLosingLineBreaks() {
             string input = "\u001b[31mred\u001b[0m\r\n\u001b]8;;https://example.com\u0007link\u001b]8;;\u001b\\\u0001";
             Table table = new Table();
-            table.AddColumn("Value");
-            table.AddValues(input);
+            table.Column("Value");
+            table.Values(input);
             string markdown = MarkdownExporter.Export(new Rows(table, new TextBlock(input) { IsMarkup = false }));
             Assert.Contains("| red<br>link |", markdown);
             Assert.EndsWith("red<br>link\n\n", markdown);
@@ -185,7 +185,7 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
 
         [Fact]
         public void DashboardEventsExportMarkdownFramesInsteadOfAnHtmlFallback() {
-            LiveTable table = new LiveTable(new Table().AddColumn("Name"), "rows");
+            LiveTable table = new LiveTable(new Table().Column("Name"), "rows");
             var events = new[] { new LiveEvent("rows", "add", key: "1", text: "first") };
             string markdown = MarkdownExporter.ExportRecording(table, events, new RecordingExportOptions { Width = 40, Height = 5 });
             Assert.Contains("### 00:00:00", markdown);

@@ -214,6 +214,7 @@ namespace ConsoleMonster.Live {
         }
 
         /// <summary>Optional monotonic time source, sampled relative to its value at Start.</summary>
+        [NoFluent]
         public Func<TimeSpan>? Clock { get; set; }
 
         /// <summary>
@@ -222,6 +223,7 @@ namespace ConsoleMonster.Live {
         internal Func<int[]?>? WindowSource { get; set; }
 
         /// <summary>Optional replay delay implementation; receives the scaled interval and cancellation token.</summary>
+        [NoFluent]
         public Action<TimeSpan, CancellationToken>? ReplayDelay { get; set; }
     }
 }

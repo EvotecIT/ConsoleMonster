@@ -50,10 +50,10 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(StatusKind.Fail, true)]
         public void StatusCells_WordsMarkers_NameStatusOnceAndPreserveDistinctText(StatusKind status, bool consoleView) {
             var table = new Table { ShowHeader = false, RecordViewRows = 0, Border = TableBorder.None };
-            table.AddColumn(new TableColumn("State") { Presenter = new StatusPresenter() });
-            table.AddRow(TableCell.ForStatus(status));
-            table.AddRow(TableCell.FromValue(status));
-            table.AddRow(TableCell.ForStatus(status, "verification failed"));
+            table.Column(new TableColumn("State") { Presenter = new StatusPresenter() });
+            table.Row(TableCell.ForStatus(status));
+            table.Row(TableCell.FromValue(status));
+            table.Row(TableCell.ForStatus(status, "verification failed"));
             IWidget widget = consoleView ? ConsoleViewStyle.Wrap(table) : table;
             string[] rows = Render(widget, 60, GlyphTier.Full).Split('\n');
             string marker = status == StatusKind.Pass ? "[OK]" : "[FAIL]";

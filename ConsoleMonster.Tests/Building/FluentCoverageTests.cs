@@ -10,10 +10,10 @@ using Xunit;
 
 namespace ConsoleMonster.Tests.Building {
     /// <summary>
-    /// Every public widget property has its generated fluent counterpart: <c>X</c> for an ordinary setter,
-    /// <c>Configure</c> for callbacks and
-    /// <c>AddX</c> for a mutable collection, on the widgets and on the option types they hold. A new property without one
-    /// means the generator skipped it; mark it <c>[NoFluent]</c> only when a setter or Add would bypass the widget.
+    /// Every public widget property has its generated fluent counterpart: <c>X</c> for an ordinary setter, the verb
+    /// declared with <c>[Fluent("Verb")]</c> for a callback, and the singular noun plus <c>Xs(IEnumerable)</c> for a
+    /// mutable collection, on the widgets and on the option types they hold. A new property without one means the
+    /// generator skipped it; mark it <c>[NoFluent]</c> only when a setter or child method would bypass the widget.
     /// </summary>
     public sealed class FluentCoverageTests {
         private static readonly Assembly Core = typeof(IWidget).Assembly;
@@ -33,7 +33,12 @@ namespace ConsoleMonster.Tests.Building {
             List<string> missing = new List<string>();
             foreach (PropertyInfo property in Properties(type)) {
                 if (IsSettable(property) && typeof(Delegate).IsAssignableFrom(property.PropertyType)) {
-                    Assert.True(Extensions.Any(method => method.Name == "Configure" && Receives(method, type)), type.Name + " needs Configure for " + property.Name);
+                    string? verb = DeclaredName(property);
+                    if (verb == null) {
+                        missing.Add("[Fluent(\"Verb\")] on " + property.Name);
+                    } else if (!Has(type, verb, property.PropertyType)) {
+                        missing.Add(verb + "(" + property.PropertyType.Name + ") for " + property.Name);
+                    }
                     Assert.DoesNotContain(Extensions, method => method.Name == property.Name && Receives(method, type));
                     continue;
                 }
@@ -45,11 +50,11 @@ namespace ConsoleMonster.Tests.Building {
                 }
                 Type? item = CollectionItem(property.PropertyType);
                 if (item != null) {
-                    if (!Extensions.Any(m => m.Name.StartsWith("Add", StringComparison.Ordinal) && Receives(m, type) && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == item)) {
-                        missing.Add("Add...(" + item.Name + ") for " + property.Name);
+                    if (!Extensions.Any(m => m.Name != property.Name && Receives(m, type) && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == item)) {
+                        missing.Add("a singular method (" + item.Name + ") for " + property.Name);
                     }
-                    if (!Has(type, "Add" + property.Name, typeof(IEnumerable<>).MakeGenericType(item))) {
-                        missing.Add("Add" + property.Name + "(IEnumerable<" + item.Name + ">)");
+                    if (!Has(type, property.Name, typeof(IEnumerable<>).MakeGenericType(item))) {
+                        missing.Add(property.Name + "(IEnumerable<" + item.Name + ">)");
                     }
                 }
             }
@@ -71,7 +76,7 @@ namespace ConsoleMonster.Tests.Building {
         [Fact]
         public void GeneratedMethods_SetAndAddAndReturnTheSameInstance() {
             HeaderBar header = new HeaderBar("Build");
-            Assert.Same(header, header.Subtitle("nightly").ShowElapsed().AddCrumb("Tasks").AddCrumbs("Review", "Run"));
+            Assert.Same(header, header.Subtitle("nightly").ShowElapsed().Crumb("Tasks").Crumbs(new[] { "Review", "Run" }));
             Assert.Equal("nightly", header.Subtitle);
             Assert.True(header.ShowElapsed);
             Assert.Equal(new[] { "Tasks", "Review", "Run" }, header.Crumbs);
@@ -79,13 +84,13 @@ namespace ConsoleMonster.Tests.Building {
         }
 
         [Fact]
-        public void ConfigureAssignsCallbacksWithoutInvokingThemAndRetainsGenericReceivers() {
+        public void DeclaredVerbsAssignCallbacksWithoutInvokingThemAndRetainGenericReceivers() {
             int calls = 0;
-            var options = new SelectQuestionOptions().Configure(value => value.Preview = _ => { calls++; return new TextBlock("Ready"); });
+            var options = new SelectQuestionOptions().PreviewBy(_ => { calls++; return new TextBlock("Ready"); });
             Assert.Equal(0, calls);
             Assert.NotNull(options.Preview!(null));
             Assert.Equal(1, calls);
-            var prompt = new SelectPrompt<int>("Number", new[] { 1, 2 }).Configure(value => value.Preview = number => TextBlock.FromMarkup(number.ToString()));
+            var prompt = new SelectPrompt<int>("Number", new[] { 1, 2 }).PreviewBy(number => TextBlock.FromMarkup(number.ToString()));
             Assert.IsType<SelectPrompt<int>>(prompt);
             Assert.NotNull(prompt.Preview);
         }
@@ -94,7 +99,7 @@ namespace ConsoleMonster.Tests.Building {
         public void GeneratedMethods_ConfigureNestedOptionsAndCreateNullableCollections() {
             Table table = new Table().Presentation(p => p.Culture = System.Globalization.CultureInfo.InvariantCulture);
             Assert.Same(System.Globalization.CultureInfo.InvariantCulture, table.Presentation.Culture);
-            ProgressBar bar = new ProgressBar("copy").AddColumns(ProgressColumns.Percent(), ProgressColumns.Elapsed());
+            ProgressBar bar = new ProgressBar("copy").Columns(new[] { ProgressColumns.Percent(), ProgressColumns.Elapsed() });
             Assert.Equal(2, bar.Columns!.Count);
         }
 
@@ -181,6 +186,10 @@ namespace ConsoleMonster.Tests.Building {
             }
             return item;
         }
+
+        private static string? DeclaredName(PropertyInfo property) => property.GetCustomAttributesData()
+            .Where(a => a.AttributeType.Name == "FluentAttribute" && a.ConstructorArguments.Count == 1)
+            .Select(a => a.ConstructorArguments[0].Value as string).FirstOrDefault();
 
         private static bool NoFluent(MemberInfo member) => member.GetCustomAttributes(false).Any(a => a.GetType().Name == "NoFluentAttribute");
 

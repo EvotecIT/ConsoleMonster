@@ -148,8 +148,8 @@ namespace ConsoleMonster.Tests.HelpViews {
         [Fact]
         public void Table_ExplicitTitleIndent_AlignsSectionTitleWithoutChangingDefault() {
             Table table = new Table { Title = "Per-CA", TitleIndent = 0 };
-            table.AddColumn("CA");
-            table.AddValues("Issuing CA");
+            table.Column("CA");
+            table.Values("Issuing CA");
             Assert.StartsWith("Per-CA", Text(table, 45));
             table.TitleIndent = null;
             Assert.StartsWith(" Per-CA", Text(table, 45));

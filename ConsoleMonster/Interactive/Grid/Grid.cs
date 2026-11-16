@@ -52,7 +52,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Adds a column.</summary>
         /// <param name="column">The column (header, presenter, alignment, priority).</param>
         /// <returns>The grid.</returns>
-        public Grid AddColumn(TableColumn column) {
+        public Grid Column(TableColumn column) {
             _columns.Add(column ?? throw new ArgumentNullException(nameof(column)));
             return this;
         }
@@ -61,19 +61,19 @@ namespace ConsoleMonster.Interactive {
         /// <param name="header">The header.</param>
         /// <param name="presenter">The presenter, or null for automatic formatting.</param>
         /// <returns>The grid.</returns>
-        public Grid AddColumn(string header, ICellPresenter? presenter = null) => AddColumn(new TableColumn(header) { Presenter = presenter });
+        public Grid Column(string header, ICellPresenter? presenter = null) => Column(new TableColumn(header) { Presenter = presenter });
 
         /// <summary>Adds a row: the object it stands for and its raw column values.</summary>
         /// <param name="item">The object returned when the row is chosen.</param>
         /// <param name="values">The column values (formatted by the column presenters).</param>
         /// <returns>The grid.</returns>
-        public Grid AddRow(object? item, params object?[] values) {
+        public Grid Row(object? item, params object?[] values) {
             _rows.Add(new GridRow(item, values ?? new object?[0]));
             return this;
         }
 
         /// <summary>Adds a row with an explicit stable identity, including lazy cells.</summary>
-        public Grid AddRow(GridRow row) {
+        public Grid Row(GridRow row) {
             _rows.Add(row ?? throw new ArgumentNullException(nameof(row)));
             return this;
         }
@@ -125,6 +125,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Commands available through the action palette and their shortcuts. Actions keep the grid open.</summary>
         public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Refreshes each acted-on row on the input thread after successful completion. Return a new snapshot in the same column order; selection and row position are retained. Keep this callback short.</summary>
+        [Fluent("RefreshRowBy")]
         public Func<AppCommand, GridRow, GridRow>? RefreshRow { get; set; }
         /// <summary>Optional per-run mailbox, drained on the input thread and closed when the grid exits.</summary>
         public AppDispatcher? Dispatcher { get; set; }

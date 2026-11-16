@@ -15,6 +15,7 @@ namespace ConsoleMonster.Demos {
         /// <summary>Maximum time to wait for a semantic prompt or output match.</summary>
         public TimeSpan StepTimeout { get; set; } = TimeSpan.FromSeconds(30);
         /// <summary>Live output callback. Called on the PTY reader thread; use a thread-safe relay from PowerShell.</summary>
+        [Fluent("WriteTo")]
         public Action<string>? Output { get; set; }
     }
     /// <summary>Seeded character delays, independent of operating system and System.Random implementation.</summary>

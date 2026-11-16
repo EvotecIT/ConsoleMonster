@@ -33,8 +33,8 @@ namespace ConsoleMonster.Tests.Widgets {
         public void Render_WholeRowToneAndBold_AffectEachCellWithoutChangingInputCells() {
             TableCell source = TableCell.FromValue(7);
             Table table = new Table { Border = TableBorder.None, ShowHeader = false, RecordViewRows = 0 };
-            table.AddColumn("Name").AddColumn("Count");
-            table.AddRow(new TableRowRole { Muted = true, Bold = true }, "entry", source);
+            table.Column("Name").Column("Count");
+            table.Row(new TableRowRole { Muted = true, Bold = true }, "entry", source);
             RenderContext context = Terminal.CreateContext(TestTerminal.Profile(80, colors: ColorDepth.Ansi16), Theme.Dark);
             CellBuffer frame = FrameComposer.RenderBlock(table, 80, context);
             string text = frame.ToPlainText();

@@ -24,12 +24,12 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <param name="servers">The servers.</param>
         /// <param name="delay">A pause per server, to see the status line.</param>
         public void Run(string[] servers, TimeSpan delay) {
-            Table table = new Table().AddColumn("Server").AddColumn("State").AddColumn("Latency");
+            Table table = new Table().Column("Server").Column("State").Column("Latency");
             _target.Status("Checking servers", status => {
                 for (int i = 0; i < servers.Length; i++) {
                     status.Update(Markup.Interpolate($"Checking [accent]{servers[i]}[/] [muted]{i + 1} of {servers.Length}[/]"));
                     Thread.Sleep(delay);
-                    table.AddValues(servers[i], RichText.FromMarkup(i % 4 == 3 ? "[warn]slow[/]" : "[pass]ok[/]"), TimeSpan.FromMilliseconds(12 + i * 7));
+                    table.Values(servers[i], RichText.FromMarkup(i % 4 == 3 ? "[warn]slow[/]" : "[pass]ok[/]"), TimeSpan.FromMilliseconds(12 + i * 7));
                 }
             });
             _target.Write(table);

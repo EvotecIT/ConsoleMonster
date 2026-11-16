@@ -49,7 +49,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             List<IWidget> children = PSWidgets.CollectAny(_children, this);
-            WriteObject(new FormDialogOptions { Title = Title, Content = children.Count == 1 ? children[0] : new Rows(children.ToArray()), AcceptText = AcceptText, CancelText = CancelText, DefaultAccept = DefaultAccept, InitialFocus = InitialFocus, MaxWidth = MaxWidth, Validate = Validate }.Build());
+            WriteObject(new FormDialogOptions { Title = Title, Content = children.Count == 1 ? children[0] : new Rows(children.ToArray()), AcceptText = AcceptText, CancelText = CancelText, DefaultAccept = DefaultAccept, InitialFocus = InitialFocus, MaxWidth = MaxWidth, Validator = Validate }.Build());
         }
     }
 }

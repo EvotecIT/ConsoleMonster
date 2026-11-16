@@ -52,8 +52,8 @@ namespace ConsoleMonster.Examples.Showcases {
             Sparkline spark = new Sparkline("s1") { Title = "rules/s", Unit = "/s" };
             Sparkline area = new Sparkline("s2") { Height = 3, Unit = "/s" };
             LineChart chart = new LineChart { Height = 7 };
-            chart.AddSeries("completed", ThemeToken.Accent);
-            chart.AddSeries("failed", ThemeToken.Fail);
+            chart.Series("completed", ThemeToken.Accent);
+            chart.Series("failed", ThemeToken.Fail);
             Histogram histogram = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8, 16 }) { Height = 5, Unit = "s" };
             for (int i = 0; i < 120; i++) {
                 double value = 18 + (8 * Math.Sin(i / 9.0)) + (random.NextDouble() * 6);

@@ -7,6 +7,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
@@ -50,6 +51,7 @@ namespace ConsoleMonster.Widgets {
         public string? Unit { get; set; }
 
         /// <summary>Formats the bucket edge labels (for example milliseconds as 250ms and 1s), or null for the compact number and <see cref="Unit"/>.</summary>
+        [Fluent("EdgeFormatBy")]
         public Func<double, string>? EdgeFormat { get; set; }
 
         /// <summary>Counts a value.</summary>

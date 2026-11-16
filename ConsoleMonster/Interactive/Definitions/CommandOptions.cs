@@ -13,6 +13,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The visible label; null uses Key.</summary>
         public string? Label { get; set; }
         /// <summary>The asynchronous operation over captured rows and cancellation.</summary>
+        [Fluent("Run")]
         public Func<AppActionContext, CancellationToken, Task>? Action { get; set; }
         /// <summary>The optional keyboard shortcut.</summary>
         public KeyChord? Shortcut { get; set; }

@@ -13,14 +13,14 @@ namespace ConsoleMonster.Widgets {
         public RoleTable(IEnumerable<TableColumn> columns) {
             if (columns == null) throw new ArgumentNullException(nameof(columns));
             Table = new Table();
-            Table.AddColumn(new TableColumn(string.Empty) { Width = 2, Priority = int.MaxValue });
+            Table.Column(new TableColumn(string.Empty) { Width = 2, Priority = int.MaxValue });
             List<TableColumn> supplied = new List<TableColumn>(columns);
             bool hasKey = supplied.Exists(column => column != null && column.IsKey);
             for (int i = 0; i < supplied.Count; i++) {
                 TableColumn source = supplied[i] ?? throw new ArgumentException("Columns cannot be null.", nameof(columns));
                 TableColumn copy = CopyColumn(source);
                 if (!hasKey && i == 0) copy.IsKey = true;
-                Table.AddColumn(copy);
+                Table.Column(copy);
             }
         }
 
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Widgets {
             TableCell[] row = new TableCell[cells.Length + 1];
             row[0] = TableCell.FromValue(new MarkerWidget(role));
             Array.Copy(cells, 0, row, 1, cells.Length);
-            if (role == null) Table.AddRow(row); else Table.AddRow(role, row);
+            if (role == null) Table.Row(row); else Table.Row(role, row);
             return this;
         }
 

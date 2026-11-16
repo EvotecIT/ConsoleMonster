@@ -23,7 +23,7 @@ namespace ConsoleMonster.Widgets {
             for (int index = 0; index < _rows.Count; index++) {
                 TableCell[] row = _rows[index];
                 if (sections) {
-                    view.AddSection(Markup.Escape(RowTitle(index, key, contexts)), RowTone(row, contexts));
+                    view.Section(Markup.Escape(RowTitle(index, key, contexts)), RowTone(row, contexts));
                 }
                 // Without a row heading, the table title does not represent the key's value.
                 // Keep that field so titled single-record tables do not lose their identity or first metric.
@@ -63,16 +63,16 @@ namespace ConsoleMonster.Widgets {
                         string note = seen < count
                             ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, seen.ToString("N0", culture), count.ToString("N0", culture))
                             : count.ToString("N0", culture);
-                        view.AddSection(_groups[group], null, note);
+                        view.Section(_groups[group], null, note);
                         level = 1;
                     }
                 }
-                view.AddHeading(Markup.Escape(RowTitle(r, key, contexts)), level, RowTone(_rows[r], contexts));
+                view.Heading(Markup.Escape(RowTitle(r, key, contexts)), level, RowTone(_rows[r], contexts));
                 AddFields(view, _rows[r], key, contexts);
             }
             TableLayoutRow? total = BuildTotalRow(presenter);
             if (total?.Cells != null) {
-                view.AddHeading(Markup.Escape(TotalLabel ?? presenter.Render.Labels.Total), 0);
+                view.Heading(Markup.Escape(TotalLabel ?? presenter.Render.Labels.Total), 0);
                 for (int c = 0; c < _columns.Count; c++) {
                     if ((c == key && total.Cells[c].Widget == null) || total.Cells[c].IsEmpty) {
                         continue;

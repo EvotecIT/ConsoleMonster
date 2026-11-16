@@ -74,7 +74,7 @@ namespace ConsoleMonster.Views {
             var view = new RecordView(options.Title) { HideEmpty = !options.ShowEmpty };
             foreach (object? item in items) {
                 if (item == null) { continue; }
-                if (items.Count > 1) { view.AddSection(Markup.Escape(ValueShaper.Title(item, options.Shape))); }
+                if (items.Count > 1) { view.Section(Markup.Escape(ValueShaper.Title(item, options.Shape))); }
                 foreach (Data.InspectMember member in Members(item, options)) {
                     if (options.Property != null && !options.Property.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) { continue; }
                     view.AddField(member.Name, SafeRead(member));

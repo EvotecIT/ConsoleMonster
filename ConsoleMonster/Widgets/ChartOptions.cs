@@ -107,7 +107,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="role">The colour role, or null for the chart default.</param>
         /// <param name="key">Stable identity, or null to use the label.</param>
         /// <returns>These options.</returns>
-        public ChartOptions AddItem(string label, double value, ThemeToken? role = null, string? key = null) {
+        public ChartOptions Item(string label, double value, ThemeToken? role = null, string? key = null) {
             Items.Add(new ChartItem(label, value, role, key));
             return this;
         }

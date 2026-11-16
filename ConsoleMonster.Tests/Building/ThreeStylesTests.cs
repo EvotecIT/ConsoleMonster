@@ -42,18 +42,18 @@ namespace ConsoleMonster.Tests.Building {
         // 1. Object initializers: the canonical object model.
         private static IWidget Initializers() {
             Table table = new Table { ShowTotals = true, AutoTotals = true };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn(new TableColumn("Role"));
-            table.AddColumn(new TableColumn("Ram") { Presenter = CellPresenters.Bytes });
-            table.AddColumn(new TableColumn("Status"));
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column(new TableColumn("Role"));
+            table.Column(new TableColumn("Ram") { Presenter = CellPresenters.Bytes });
+            table.Column(new TableColumn("Status"));
             foreach (Server server in Servers) {
-                table.AddValues(server.Name, server.Role, server.Ram, server.Status);
+                table.Values(server.Name, server.Role, server.Ram, server.Status);
             }
             KeyValueList summary = new KeyValueList();
-            summary.AddValue("Servers", 3);
-            summary.AddValue("Failed", 1);
+            summary.Value("Servers", 3);
+            summary.Value("Failed", 1);
             Sparkline cpu = new Sparkline { Title = "CPU" };
-            cpu.AddRange(Cpu);
+            cpu.Values(Cpu);
             return new Rows(
                 new Columns(
                     new Panel(table, "Servers"),
@@ -74,8 +74,8 @@ namespace ConsoleMonster.Tests.Building {
                         .Column(s => s.Status)
                         .Totals(), "Servers"))
                     .Add(new Panel(new Rows()
-                        .Add(new KeyValueList().AddValue("Servers", 3).AddValue("Failed", 1))
-                        .Add(new Sparkline().Title("CPU").AddRange(Cpu)), "Summary")))
+                        .Add(new KeyValueList().Value("Servers", 3).Value("Failed", 1))
+                        .Add(new Sparkline().Title("CPU").Values(Cpu)), "Summary")))
                 .Add(TextBlock.FromMarkup("[muted]Updated 10:02[/]"));
         }
 

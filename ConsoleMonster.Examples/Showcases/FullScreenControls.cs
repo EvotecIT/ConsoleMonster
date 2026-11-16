@@ -15,12 +15,12 @@ namespace ConsoleMonster.Examples.Showcases {
         public static void Show() {
             Grid Listing(string title, int count) {
                 var listing = Ui.Grid().Title(title);
-                listing.AddColumn(new TableColumn("Name") { IsKey = true, Priority = 10 });
-                listing.AddColumn(new TableColumn("Size") { Priority = 5 });
-                listing.AddColumn(new TableColumn("Modified") { Priority = 1 });
+                listing.Column(new TableColumn("Name") { IsKey = true, Priority = 10 });
+                listing.Column(new TableColumn("Size") { Priority = 5 });
+                listing.Column(new TableColumn("Modified") { Priority = 1 });
                 for (int i = 0; i < count; i++) {
                     int number = i;
-                    listing.AddRow(new GridRow(i, "service-" + i.ToString("D5") + (i % 3 == 0 ? ".log" : ".json"),
+                    listing.Row(new GridRow(i, "service-" + i.ToString("D5") + (i % 3 == 0 ? ".log" : ".json"),
                         new DataGridCell(async cancellation => { await Task.Delay(100, cancellation); return (object?)(number * 1024L); }), new DateTime(2026, 10, 26)) { Id = i });
                 }
                 return listing;

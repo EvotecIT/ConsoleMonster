@@ -204,7 +204,7 @@ namespace ConsoleMonster.Widgets {
             }
             Table.ClearRows();
             foreach (string key in _order) {
-                Table.AddValues(_rows[key]);
+                Table.Values(_rows[key]);
             }
             _dirty = false;
         }

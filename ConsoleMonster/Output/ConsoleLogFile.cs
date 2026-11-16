@@ -95,6 +95,7 @@ namespace ConsoleMonster.Output {
         public string TimeFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary>Receives a message for each failed attempt (for example a PowerShell warning), or null.</summary>
+        [Fluent("WarnTo")]
         public Action<string>? Warning { get; set; }
 
         /// <summary>Appends a record; returns false (after warnings) when every attempt failed.</summary>

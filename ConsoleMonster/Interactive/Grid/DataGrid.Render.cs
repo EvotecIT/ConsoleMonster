@@ -77,9 +77,9 @@ namespace ConsoleMonster.Interactive {
         private Table BuildPage(RenderContext context, int sample, int count, bool snapshot = false) {
             var table = new Table { Border = TableBorder.Minimal, CardsBelow = 0, RecordViewRows = 0, Presentation = _grid.Presentation, StableWidths = false };
             bool focusGutter = !snapshot;
-            if (focusGutter) { table.AddColumn(new TableColumn(" ") { IsKey = true, Width = 1, Priority = int.MaxValue, HeaderSeparator = false }); }
+            if (focusGutter) { table.Column(new TableColumn(" ") { IsKey = true, Width = 1, Priority = int.MaxValue, HeaderSeparator = false }); }
             bool marks = !snapshot && _grid.OutputMode == GridSelection.Multiple;
-            if (marks) { table.AddColumn(new TableColumn(StatusPresenters ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left, HeaderSeparator = false }); }
+            if (marks) { table.Column(new TableColumn(StatusPresenters ? context.Glyphs.Get(Glyph.Check) : " ") { IsKey = true, Width = 1, Alignment = HorizontalAlignment.Left, HeaderSeparator = false }); }
             List<int> shown = ShownColumns();
             foreach (int c in shown) {
                 TableColumn source = _grid.Columns[c];
@@ -91,7 +91,7 @@ namespace ConsoleMonster.Interactive {
                     Overflow = snapshot ? source.Overflow : ColumnOverflow.Truncate, MaxLines = snapshot ? source.MaxLines : 1
                 };
                 foreach (RoleRule rule in source.RoleRules) { column.RoleRules.Add(rule); }
-                table.AddColumn(column);
+                table.Column(column);
             }
             string check = Markup.Escape(context.Glyphs.Get(Glyph.Check));
             void Add(int visibleIndex, bool resolve) {
@@ -107,7 +107,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     cells.Add(TableCell.FromValue(value));
                 }
-                table.AddRow(cells.ToArray());
+                table.Row(cells.ToArray());
             }
             if (sample == 0) {
                 for (int i = 0; i < _visible.Count; i++) { Add(i, !snapshot && i >= _top && i < _top + count); }

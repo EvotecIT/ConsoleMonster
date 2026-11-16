@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -84,6 +85,7 @@ namespace ConsoleMonster.Interactive {
         /// Whether the binding can run now; null means always. An unavailable binding stays in the footer dimmed and its
         /// keys do nothing, so they never fall through to another binding the footer does not show.
         /// </summary>
+        [Fluent("AvailableWhen")]
         public Func<bool>? Available { get; set; }
 
         /// <summary>The heading the binding is listed under in the key map.</summary>

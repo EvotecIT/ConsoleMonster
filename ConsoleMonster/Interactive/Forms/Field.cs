@@ -83,12 +83,14 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Shows the field only while this returns true.</summary>
+        [Fluent("ShowWhen")]
         public Func<FormValues, bool>? VisibleWhen { get; set; }
 
         /// <summary>Fields whose change resets this field (and reloads its options).</summary>
         public IList<string> DependsOn { get; } = new List<string>();
 
         /// <summary>A validator: returns an error message, or null when the value is fine.</summary>
+        [Fluent("Validate")]
         public Func<object?, FormValues, string?>? Validator { get; set; }
 
         /// <summary>Whether the value is kept in presets and remembered choices (never for secrets).</summary>

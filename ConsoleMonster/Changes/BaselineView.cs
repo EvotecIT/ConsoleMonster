@@ -30,12 +30,12 @@ namespace ConsoleMonster.Changes {
             WidgetLabels labels = context.Labels;
             // Hiding an object or the status column would hide the drift itself, so cards take over whenever the grid does not fit.
             var table = new Table { Title = Title, Border = TableBorder.Rounded, CardsBelow = int.MaxValue, ShowCardCount = false };
-            table.AddColumn(Markup.Escape(labels.ChangesProperty));
+            table.Column(Markup.Escape(labels.ChangesProperty));
             for (int i = 0; i < Comparison.Names.Count; i++) {
                 string name = Comparison.Names[i] + (i == Comparison.BaselineIndex ? " (" + labels.ChangesBaseline + ")" : "");
-                table.AddColumn(i == Comparison.BaselineIndex ? "[accent bold]" + Markup.Escape(name) + "[/]" : Markup.Escape(name));
+                table.Column(i == Comparison.BaselineIndex ? "[accent bold]" + Markup.Escape(name) + "[/]" : Markup.Escape(name));
             }
-            table.AddColumn(Markup.Escape(labels.ChangesStatus));
+            table.Column(Markup.Escape(labels.ChangesStatus));
             foreach (BaselineRow row in Comparison.Rows) {
                 var cells = new List<string> { Markup.Escape(row.Path) };
                 BaselineCell reference = row.Cells[Comparison.BaselineIndex];
@@ -58,7 +58,7 @@ namespace ConsoleMonster.Changes {
                     status.Add("[fail]" + Markup.Escape(WidgetLabels.Format(labels.ChangesMissingOn, row.MissingCount.ToString(CultureInfo.InvariantCulture))) + "[/]");
                 }
                 cells.Add(string.Join(", ", status));
-                table.AddRow(cells.Select(cell => new TableCell(cell)).ToArray());
+                table.Row(cells.Select(cell => new TableCell(cell)).ToArray());
             }
             string footer = WidgetLabels.Format(Comparison.Rows.Count == 1 ? labels.ChangesOnePropertyShown : labels.ChangesPropertiesShown,
                 Comparison.Rows.Count.ToString(CultureInfo.InvariantCulture));

@@ -7,7 +7,7 @@ namespace ConsoleMonster.Tests.Widgets {
     public sealed class LiveTableInputTests {
         [Fact]
         public void InputRows_UseStableKeysAndColumnKeysRatherThanDisplayHeaders() {
-            var model = new Table().AddColumn(new TableColumn("Display name") { Key = "Name" }).AddColumn(new TableColumn("Count"));
+            var model = new Table().Column(new TableColumn("Display name") { Key = "Name" }).Column(new TableColumn("Count"));
             var table = new LiveTable(model) { KeyProperty = "Id" };
             table.Add(new Dictionary<string, object?> { ["Id"] = "one", ["Name"] = "first", ["Count"] = 2 });
             table.Add(new Dictionary<string, object?> { ["Id"] = "one", ["Name"] = "changed", ["Count"] = 5 });

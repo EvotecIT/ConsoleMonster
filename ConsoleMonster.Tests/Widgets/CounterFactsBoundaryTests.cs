@@ -41,8 +41,8 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(GlyphTier.Basic, "√ 1,203 passed · × 0 failed · ▲ 2 warnings", "× 0 failed", "▲ 2 warnings")]
         [InlineData(GlyphTier.Ascii, "+ 1,203 passed | x 0 failed | ! 2 warnings", "x 0 failed", "! 2 warnings")]
         public void SummaryBar_CountersUseSemanticSeparatorsAndMuteZero(GlyphTier tier, string expected, string zero, string warning) {
-            var bar = new SummaryBar().SetCounter("passed", 1203, StatusKind.Pass)
-                .SetCounter("failed", 0, StatusKind.Fail).SetCounter("warnings", 2, StatusKind.Warn);
+            var bar = new SummaryBar().Counter("passed", 1203, StatusKind.Pass)
+                .Counter("failed", 0, StatusKind.Fail).Counter("warnings", 2, StatusKind.Warn);
             var context = Context(100, tier);
             CellBuffer frame = FrameComposer.RenderBlock(bar, 100, context);
             Assert.Equal(expected, frame.ToPlainText().TrimStart());

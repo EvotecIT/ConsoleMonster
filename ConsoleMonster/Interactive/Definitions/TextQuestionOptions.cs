@@ -49,6 +49,7 @@ namespace ConsoleMonster.Interactive {
         public string? PatternMessage { get => _patternMessage; set { _patternMessage = value; _bound.Add(nameof(PatternMessage)); } }
         private Func<string, string?>? _validator;
         /// <summary>Returns an error, or null to accept; secrets must not be logged.</summary>
+        [Fluent("Validate")]
         public Func<string, string?>? Validator { get => _validator; set { _validator = value; _bound.Add(nameof(Validator)); } }
         private bool _prefillDefault;
         /// <summary>Puts the single-line default in the editor.</summary>

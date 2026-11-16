@@ -11,6 +11,7 @@ namespace ConsoleMonster.Changes {
         public IList<string> Key { get; } = new List<string>();
 
         /// <summary>A function that returns an object's key, instead of <see cref="Key"/>.</summary>
+        [Fluent("KeyBy")]
         public Func<object, object?>? KeySelector { get; set; }
 
         /// <summary>The members to compare, or empty for all of them.</summary>
@@ -26,6 +27,7 @@ namespace ConsoleMonster.Changes {
         public bool IncludeUnchanged { get; set; }
 
         /// <summary>Turns a host wrapper into the value to compare (for example a PowerShell object around a dictionary), or null.</summary>
+        [Fluent("UnwrapBy")]
         public Func<object, object>? Unwrap { get; set; }
 
         /// <summary>How long getters may stall in one comparison before slow members stop being read (default 2 seconds).</summary>

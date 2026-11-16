@@ -25,8 +25,8 @@ namespace ConsoleMonster.Tests.Widgets {
 
         private static Table Cards() {
             Table table = new Table { Title = "Summary", Caption = "caller caption", AlwaysCards = true };
-            table.AddColumn("Name").AddColumn("State");
-            table.AddRow("one", "ready").AddRow("two", "ready");
+            table.Column("Name").Column("State");
+            table.Row("one", "ready").Row("two", "ready");
             return table;
         }
     }

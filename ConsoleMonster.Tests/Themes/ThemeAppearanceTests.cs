@@ -82,7 +82,7 @@ namespace ConsoleMonster.Tests.Themes {
             Theme single = Theme.Dark.WithAppearance(new ThemeAppearance(BoxStyle.Single));
             Assert.StartsWith("╭", Text(new Panel(new TextBlock("x")), Theme.Dark));
             Assert.StartsWith("┌", Text(new Panel(new TextBlock("x")), single));
-            Assert.StartsWith("┌", Text(new Table().AddColumn("A").AddRow("1"), single));
+            Assert.StartsWith("┌", Text(new Table().Column("A").Row("1"), single));
             Assert.StartsWith("┏", Text(new Panel(new TextBlock("x")), single, TestTerminal.Profile(40).WithBorder(BoxStyle.Heavy)));
             Assert.StartsWith("╔", Text(new Panel(new TextBlock("x")) { Border = BoxStyle.Double }, single));
             // The ASCII tier still draws ASCII frames.
@@ -98,7 +98,7 @@ namespace ConsoleMonster.Tests.Themes {
             Assert.Contains("[FAIL]", words);
             Assert.DoesNotContain("✓", words);
 
-            Table table = new Table().AddColumn(new TableColumn("State") { Presenter = Presenters.CellPresenters.Status }).AddRow(TableCell.FromValue(StatusKind.Fail));
+            Table table = new Table().Column(new TableColumn("State") { Presenter = Presenters.CellPresenters.Status }).Row(TableCell.FromValue(StatusKind.Fail));
             string cell = Text(table, Theme.Dark, TestTerminal.Profile(40, culture: CultureInfo.GetCultureInfo("en-US")).WithStatusMarkers(StatusMarkerStyle.Words));
             Assert.Contains("[FAIL]", cell);
             Assert.Matches(@"\[FAIL\]\s*│", cell);

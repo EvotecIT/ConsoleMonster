@@ -66,20 +66,20 @@ namespace ConsoleMonster.Widgets {
             }
             Localization.WidgetLabels labels = context.Labels;
             SummaryBar summary = new SummaryBar("run-summary") { Elapsed = snapshot.Elapsed };
-            summary.SetProgress(snapshot.Done, snapshot.Total);
-            summary.SetCounter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);
-            summary.SetCounter(labels.TestsPassedCount, snapshot.Passed, StatusKind.Pass);
+            summary.Progress(snapshot.Done, snapshot.Total);
+            summary.Counter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);
+            summary.Counter(labels.TestsPassedCount, snapshot.Passed, StatusKind.Pass);
             if (snapshot.Warned > 0) {
-                summary.SetCounter(labels.Warnings(snapshot.Warned), snapshot.Warned, StatusKind.Warn);
+                summary.Counter(labels.Warnings(snapshot.Warned), snapshot.Warned, StatusKind.Warn);
             }
             if (snapshot.Skipped > 0) {
-                summary.SetCounter(labels.SkippedCount, snapshot.Skipped, StatusKind.Skip);
+                summary.Counter(labels.SkippedCount, snapshot.Skipped, StatusKind.Skip);
             }
             if (snapshot.Running.Count > 0) {
-                summary.SetCounter(labels.RunningCount, snapshot.Running.Count, StatusKind.Running);
+                summary.Counter(labels.RunningCount, snapshot.Running.Count, StatusKind.Running);
             }
             if (snapshot.Retried > 0) {
-                summary.SetCounter(labels.RetriedCount, snapshot.Retried, StatusKind.Warn);
+                summary.Counter(labels.RetriedCount, snapshot.Retried, StatusKind.Warn);
             }
             rows.Add(summary);
             CellMap map = new CellMap("run-cells") { MaxRows = MaxCellRows, ShowLegend = false, Window = CellMap.CellWindow.Active, SpinRunning = false };

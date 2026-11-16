@@ -9,6 +9,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The optional live-region identity.</summary>
         public string? WidgetId { get; set; }
         /// <summary>Creates display content from the current state; stable input controls stay in the outer layout.</summary>
+        [Fluent("ContentBy")]
         public Func<AppState, IWidget>? Content { get; set; }
     }
 }

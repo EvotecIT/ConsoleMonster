@@ -37,6 +37,7 @@ namespace ConsoleMonster.Live.Tails {
         public bool Live { get; set; } = true;
 
         /// <summary>Receives each original line in plain mode, without a terminator. Null uses the core terminal writer.</summary>
+        [Fluent("WriteTo")]
         public Action<string>? WriteLine { get; set; }
 
         /// <summary>Live layout, full screen by default. Plain fallback ignores this setting.</summary>

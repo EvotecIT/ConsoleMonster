@@ -48,6 +48,7 @@ namespace ConsoleMonster.Live {
         public string? Title { get; set; }
 
         /// <summary>The label of an item in the view, or null for its title (a name-like property, or its text).</summary>
+        [Fluent("LabelBy")]
         public Func<object?, string>? Label { get; set; }
 
         /// <summary>Whether to show the live view (true), print a line per item (false) or decide from the terminal (null, default).</summary>
@@ -57,6 +58,7 @@ namespace ConsoleMonster.Live {
         public LiveSessionOptions? Session { get; set; }
 
         /// <summary>Where a printed line goes when the view is not live, or null for the current terminal.</summary>
+        [Fluent("WriteTo")]
         public Action<string>? Print { get; set; }
     }
 

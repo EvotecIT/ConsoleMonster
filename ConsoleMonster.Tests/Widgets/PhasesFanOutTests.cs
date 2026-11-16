@@ -35,11 +35,11 @@ namespace ConsoleMonster.Tests.Widgets {
         public void FanOutKeepsUrgentItemsVisibleAndFoldsTheRestIntoMoreWithStatusCounts() {
             Phases phases = Pipeline();
             phases.FanOut = 3;
-            foreach (string user in new[] { "alice", "bob", "carol" }) { phases.SetItem("migrate", user, StatusKind.Pass); }
+            foreach (string user in new[] { "alice", "bob", "carol" }) { phases.Item("migrate", user, StatusKind.Pass); }
             Assert.DoesNotContain(Render(phases, 80), line => line.Contains("more"));
 
-            phases.SetItem("migrate", "dave", StatusKind.Pending);
-            phases.SetItem("migrate", "erin", StatusKind.Fail, detail: "access denied");
+            phases.Item("migrate", "dave", StatusKind.Pending);
+            phases.Item("migrate", "erin", StatusKind.Fail, detail: "access denied");
             string[] lines = Render(phases, 80);
             Assert.Equal(4, lines.Count(line => line.Length > 0));
             Assert.Contains("alice", lines[1]);
@@ -88,8 +88,8 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(null)]
         [InlineData("")]
         public void ExplicitItemDetailClearReplacesThePreviousValue(string? clear) {
-            Phases phases = Pipeline().SetItem("migrate", "alice", StatusKind.Running, detail: "Old detail");
-            phases.SetItem("migrate", "alice", StatusKind.Running, detail: null);
+            Phases phases = Pipeline().Item("migrate", "alice", StatusKind.Running, detail: "Old detail");
+            phases.Item("migrate", "alice", StatusKind.Running, detail: null);
             Assert.Contains(Render(phases, 80), line => line.Contains("alice Old detail"));
             foreach (LiveEvent update in ConsoleUpdate.Events(phases, new WidgetUpdate { ParentKey = "migrate", Key = "alice", Detail = clear })) {
                 phases.Apply(update);

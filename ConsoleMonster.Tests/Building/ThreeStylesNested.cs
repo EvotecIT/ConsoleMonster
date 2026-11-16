@@ -12,7 +12,7 @@ namespace ThreeStylesSample {
                         .Column(s => s.Name, c => c.Key()).Column(s => s.Role)
                         .Column(s => s.Ram, c => c.Presenter(CellPresenters.Bytes)).Column(s => s.Status).Totals())));
                     panels.Panel(panel => panel.Title("Summary").Content(content => {
-                        content.KeyValue(list => list.AddValue("Servers", 3).AddValue("Failed", 1));
+                        content.KeyValue(list => list.Value("Servers", 3).Value("Failed", 1));
                         content.Chart(chart => chart.Type(ChartType.Sparkline).Title("CPU").Values(cpu));
                     }));
                 }));

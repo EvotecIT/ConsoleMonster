@@ -5,6 +5,7 @@ using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>
@@ -51,6 +52,7 @@ namespace ConsoleMonster.Widgets {
         public bool DetectRepeatedNodes { get; set; }
 
         /// <summary>Produces a plain text aggregate for explicitly collapsed nodes; never enumerates descendants itself.</summary>
+        [Fluent("CollapsedSummaryBy")]
         public Func<TreeNode, string>? CollapsedSummary { get; set; }
 
         /// <summary>Adds a top-level node.</summary>

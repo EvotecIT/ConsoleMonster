@@ -35,7 +35,7 @@ public sealed class ConsoleViewLayoutTests {
     public void Matrix_NumberedRectangularAxes_KeysBothAxesAndKeepsLiteralMarkup() {
         Matrix matrix = new Matrix(new[] { new MatrixLabel("HQ [bold]West[/]"), new MatrixLabel("Branch") },
             new[] { new MatrixLabel("_ldap"), new MatrixLabel("_kerberos"), new MatrixLabel("_gc"), new MatrixLabel("_kpasswd") }) { InlineAxes = true, MinCellWidth = 22, ShowLegend = false };
-        matrix.SetCell(0, 0, StatusKind.Pass, "registered");
+        matrix.Cell(0, 0, StatusKind.Pass, "registered");
         string text = TestTerminal.RenderText(matrix, 60);
         Assert.Contains("1 HQ [bold]West[/]", text); Assert.Contains("2 Branch", text);
         foreach (string service in new[] { "1 _ldap", "2 _kerberos", "3 _gc", "4 _kpasswd" }) Assert.Contains(service, text);
@@ -101,10 +101,10 @@ public sealed class ConsoleViewLayoutTests {
     [Fact]
     public void NaturalFrame_AtSixtyColumns_KeepsTheGridTier() {
         Table table = new Table { Border = TableBorder.Rule, RecordViewRows = 0, CardsBelow = 60 };
-        table.AddColumn(new TableColumn("Name") { IsKey = true, MinWidth = 20 });
-        table.AddColumn(new TableColumn("State") { MinWidth = 20 });
-        table.AddColumn(new TableColumn("Detail") { MinWidth = 30, Priority = -1 });
-        table.AddRow("CORP-DC01", "failed", "extra evidence");
+        table.Column(new TableColumn("Name") { IsKey = true, MinWidth = 20 });
+        table.Column(new TableColumn("State") { MinWidth = 20 });
+        table.Column(new TableColumn("Detail") { MinWidth = 30, Priority = -1 });
+        table.Row("CORP-DC01", "failed", "extra evidence");
         string text = TestTerminal.RenderText(new ConsoleViewFrame(new ViewHeader("Services"), table), 60);
         Assert.Contains("Name", text.Split('\n')[2]);
         Assert.Contains("State", text.Split('\n')[2]);
@@ -115,11 +115,11 @@ public sealed class ConsoleViewLayoutTests {
     [Fact]
     public void RuleTable_MarkerGapAndGroups_RuleMatchesBodyAndOneBlankSeparatesGroups() {
         Table table = new Table { Border = TableBorder.Rule, RecordViewRows = 0, CardsBelow = 0, GroupHeadersAsRows = true, ShowGroupCounts = false, GroupGap = 1 };
-        table.AddColumn(new TableColumn("") { Width = 1 });
-        table.AddColumn(new TableColumn("Name") { Gap = 1, IsKey = true });
-        table.AddColumn("State");
-        table.AddGroup("CORP-DC01"); table.AddRow("!", "W32Time", "stopped");
-        table.AddGroup("CORP-DC02"); table.AddRow("", "W32Time", "running");
+        table.Column(new TableColumn("") { Width = 1 });
+        table.Column(new TableColumn("Name") { Gap = 1, IsKey = true });
+        table.Column("State");
+        table.Group("CORP-DC01"); table.Row("!", "W32Time", "stopped");
+        table.Group("CORP-DC02"); table.Row("", "W32Time", "running");
         string text = TestTerminal.RenderText(table, 60);
         Assert.Contains("! W32Time  stopped", text);
         Assert.Contains("stopped\n\nCORP-DC02", text);
@@ -134,9 +134,9 @@ public sealed class ConsoleViewLayoutTests {
     public void InlineMatrix_DirectionalCells_PreserveMissingSelfAndQueryGapsWithinWidth(int width, GlyphTier tier) {
         MatrixLabel[] labels = Enumerable.Range(1, 6).Select(i => new MatrixLabel("CORP-DC0" + i + ".corp.contoso.com", i <= 2 ? "LON-HQ" : i <= 4 ? "AMS-DC" : "NYC-BR") { ShortText = "CORP-DC0" + i }).ToArray();
         Matrix matrix = new Matrix(labels, labels) { InlineAxes = true, MinCellWidth = 11, RowAxisCaption = "destination", ColumnAxisCaption = "source", ShortRowAxisCaption = "dest", ShortColumnAxisCaption = "src" };
-        for (int i = 0; i < labels.Length; i++) matrix.SetCell(i, i, null, diagonal: true);
-        matrix.SetCell(0, 1, StatusKind.Pass, "3m"); matrix.SetCell(2, 4, StatusKind.Fail, "2d 4h");
-        matrix.SetCell(5, 2, StatusKind.Info, "query failed", marker: "?");
+        for (int i = 0; i < labels.Length; i++) matrix.Cell(i, i, null, diagonal: true);
+        matrix.Cell(0, 1, StatusKind.Pass, "3m"); matrix.Cell(2, 4, StatusKind.Fail, "2d 4h");
+        matrix.Cell(5, 2, StatusKind.Info, "query failed", marker: "?");
         matrix.GetCell(5, 2)!.Tone = ThemeToken.Gap;
         matrix.LegendLabels[StatusKind.Info] = "query failed"; matrix.LegendMarkers[StatusKind.Info] = "?";
         string text = TestTerminal.RenderText(ConsoleViewStyle.Wrap(matrix), width, glyphs: tier);

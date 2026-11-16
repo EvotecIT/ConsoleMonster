@@ -37,7 +37,7 @@ namespace ConsoleMonster.Tests.Rendering {
             if (scene == "header") widget = new HeaderBar("Result") { Status = StatusKind.Fail };
             else if (scene == "verdict") widget = new Panel(new TextBlock("Result")) { Verdict = true, Status = StatusKind.Fail };
             else if (scene == "gauge") widget = new ScoreGauge(90, role: ThemeToken.Fail);
-            else if (scene.StartsWith("data bar", StringComparison.Ordinal)) widget = new Table().AddColumn(new TableColumn("Disk") { Presenter = new DataBarPresenter(100, new NumberPresenter { NonZeroRole = ThemeToken.Fail }) { ShowRoleMarker = scene != "data bar word" } }).AddValues(90);
+            else if (scene.StartsWith("data bar", StringComparison.Ordinal)) widget = new Table().Column(new TableColumn("Disk") { Presenter = new DataBarPresenter(100, new NumberPresenter { NonZeroRole = ThemeToken.Fail }) { ShowRoleMarker = scene != "data bar word" } }).Values(90);
             else if (scene == "bar expanded label") widget = new BarChart().Add("ßabc", 90, ThemeToken.Fail);
             else if (scene == "bar role") widget = new BarChart().Add("Disk", 90, ThemeToken.Fail);
             else if (scene == "calendar") widget = new Calendar(2026, 11, new[] { new Dates.CalendarMark(new DateTime(2026, 11, 2), StatusKind.Fail) }) { ShowLegend = false };
@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Rendering {
             else if (scene == "stacked") widget = new StackedBar().Add("Alpha", 1).Add("Beta", 1);
             else {
                 var chart = new LineChart { Scatter = scene.StartsWith("scatter", StringComparison.Ordinal) };
-                if (scene.EndsWith("status", StringComparison.Ordinal)) { var series = chart.AddSeries("Disk", ThemeToken.Fail); series.Add(10, 512); series.Add(20, 512); }
+                if (scene.EndsWith("status", StringComparison.Ordinal)) { var series = chart.Series("Disk", ThemeToken.Fail); series.Add(10, 512); series.Add(20, 512); }
                 else chart.Add("Alpha", 10).Add("Alpha", 20).Add("Beta", 30).Add("Beta", scene.EndsWith("converging", StringComparison.Ordinal) ? 20 : scene.EndsWith("quantized", StringComparison.Ordinal) ? 20.1 : 40);
                 if (scene == "line" || scene == "scatter") chart.Add("Gamma", 35).Add("Gamma", 5).Add("Delta", 5).Add("Delta", 35);
                 widget = chart;
@@ -107,7 +107,7 @@ namespace ConsoleMonster.Tests.Rendering {
             var context = new RenderContext(TerminalProfile.Fixed(80, 24, scene == "grid" ? ColorDepth.None : ColorDepth.TrueColor, tier), Theme.Dark);
             int height = scene == "compact date picker" ? 12 : 24;
             IWidget widget = scene == "tabs" ? new Tabs().Add("Alpha", new TextBlock("State")).Add("Beta", new TextBlock("State"))
-                : scene == "grid" ? new DataGrid("grid", new Grid("Rows").AddColumn("Value").AddRow("first", "alpha")) { StatusPresenters = true }
+                : scene == "grid" ? new DataGrid("grid", new Grid("Rows").Column("Value").Row("first", "alpha")) { StatusPresenters = true }
                 : scene == "menu choices" ? new ChoiceList(new[] { new Choice(1, "Alpha") }, false) { Focused = false, ShowInactiveFocus = true }
                 : Scenes[scene == "compact date picker" ? "date picker" : scene]();
             try {

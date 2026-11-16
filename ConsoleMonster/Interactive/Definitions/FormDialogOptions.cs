@@ -23,11 +23,12 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Maximum dialog width in cells.</summary>
         public int MaxWidth { get; set; } = 64;
         /// <summary>An app-thread validator; return an error to keep the form open.</summary>
-        public Func<AppState, string?>? Validate { get; set; }
+        [Fluent("Validate")]
+        public Func<AppState, string?>? Validator { get; set; }
         /// <summary>Builds a typed form without starting a nested input loop.</summary>
         public FormDialog<AppState> Build() => new FormDialog<AppState>(Title, Content, values => values) {
             AcceptText = AcceptText, CancelText = CancelText, DefaultAccept = DefaultAccept,
-            InitialFocus = InitialFocus, MaxWidth = MaxWidth, Validate = Validate
+            InitialFocus = InitialFocus, MaxWidth = MaxWidth, Validator = Validator
         };
     }
 }

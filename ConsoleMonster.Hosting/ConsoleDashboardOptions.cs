@@ -39,6 +39,7 @@ namespace ConsoleMonster.Hosting {
         /// Gives a hosted service its name in the dashboard, or null for its type name (generic arguments and a
         /// "Service" or "HostedService" suffix left out).
         /// </summary>
+        [Fluent("ServiceNameBy")]
         public Func<Type, string>? ServiceName { get; set; }
     }
 }

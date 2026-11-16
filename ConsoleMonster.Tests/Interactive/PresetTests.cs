@@ -58,7 +58,7 @@ namespace ConsoleMonster.Tests.Interactive
                 {
                     ReviewModel review = new ReviewModel();
                     review.Row("Targets", string.Join(", ", selection.GetSelection<string>()));
-                    review.Run = c =>
+                    review.Action = c =>
                     {
                     };
                     return review;

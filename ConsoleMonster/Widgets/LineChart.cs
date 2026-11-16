@@ -51,11 +51,11 @@ namespace ConsoleMonster.Widgets {
         /// <param name="key">The rich name.</param>
         /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
         /// <returns>The series.</returns>
-        public ChartSeries AddSeries(Text.RichText key, ThemeToken? role = null) {
+        internal ChartSeries GetOrAddSeries(Text.RichText key, ThemeToken? role = null) {
             if (key == null) {
                 throw new ArgumentNullException(nameof(key));
             }
-            ChartSeries series = AddSeries(key.PlainText, role);
+            ChartSeries series = GetOrAddSeries(key.PlainText, role);
             series.LabelText = key;
             return series;
         }
@@ -64,7 +64,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="key">The name.</param>
         /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
         /// <returns>The series.</returns>
-        public ChartSeries AddSeries(string key, ThemeToken? role = null) {
+        internal ChartSeries GetOrAddSeries(string key, ThemeToken? role = null) {
             foreach (ChartSeries existing in _series) {
                 if (string.Equals(existing.Key, key, StringComparison.Ordinal)) {
                     return existing;
@@ -82,7 +82,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="value">The value.</param>
         /// <returns>This instance.</returns>
         public LineChart Add(string series, double value) {
-            AddSeries(series).Add(value, Capacity);
+            GetOrAddSeries(series).Add(value, Capacity);
             return this;
         }
 
@@ -284,5 +284,24 @@ namespace ConsoleMonster.Widgets {
                 region.Write(axisWidth, region.Height - 1, new StyledLine(spans));
             }
         }
+    }
+
+    /// <summary>The fluent methods of <see cref="LineChart"/>: the generated property methods and the series lookup.</summary>
+    public static partial class LineChartFluent {
+        /// <summary>Adds a series with a multicolour legend name (its plain text is the key), or returns the existing one.</summary>
+        /// <param name="chart">The chart.</param>
+        /// <param name="key">The rich name.</param>
+        /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
+        /// <returns>The series.</returns>
+        public static ChartSeries Series(this LineChart chart, Text.RichText key, ThemeToken? role = null) =>
+            (chart ?? throw new ArgumentNullException(nameof(chart))).GetOrAddSeries(key, role);
+
+        /// <summary>Adds a series, or returns the existing one with that name.</summary>
+        /// <param name="chart">The chart.</param>
+        /// <param name="key">The name.</param>
+        /// <param name="role">The colour role, or <c>null</c> for the next series colour.</param>
+        /// <returns>The series.</returns>
+        public static ChartSeries Series(this LineChart chart, string key, ThemeToken? role = null) =>
+            (chart ?? throw new ArgumentNullException(nameof(chart))).GetOrAddSeries(key, role);
     }
 }

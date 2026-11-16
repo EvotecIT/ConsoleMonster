@@ -85,10 +85,10 @@ namespace ConsoleMonster.Examples.Showcases {
                     .Add(new Panel(new LogRegion { PreferredHeight = 8 }, "Output").Fill()));
 
             Table summary = new Table { Border = TableBorder.Minimal, Title = "[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]" };
-            summary.AddColumn("Phase");
-            summary.AddColumn(new TableColumn("Step") { Flexible = true });
-            summary.AddColumn("Result");
-            summary.AddColumn("Duration");
+            summary.Column("Phase");
+            summary.Column(new TableColumn("Step") { Flexible = true });
+            summary.Column("Result");
+            summary.Column("Duration");
             LiveSessionOptions options = new LiveSessionOptions { Summary = new Padding(summary, 1, 1, 1, 1) };
 
             using (LiveSession session = new LiveSession(dashboard, options)) {
@@ -144,7 +144,7 @@ namespace ConsoleMonster.Examples.Showcases {
                 steps.Set(step.Key, step.Result);
                 steps.Detail(step.Key, step.Result == StatusKind.Skip ? "skipped" : duration);
                 phaseResults.Add(step.Result);
-                summary.AddRow(step.Phase, Text.Markup.Escape(step.Label), TableCell.ForStatus(step.Result), step.Result == StatusKind.Skip ? "-" : duration);
+                summary.Row(step.Phase, Text.Markup.Escape(step.Label), TableCell.ForStatus(step.Result), step.Result == StatusKind.Skip ? "-" : duration);
                 index++;
                 progress.Set(index);
             }

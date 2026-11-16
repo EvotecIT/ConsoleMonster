@@ -84,12 +84,12 @@ namespace ConsoleMonster.Tests.Rendering {
             table.Presentation.Culture = CultureInfo.GetCultureInfo("pl-PL");
             table.Presentation.Now = Now;
             table.Presentation.TimeZone = LineIslands;
-            table.AddColumn(new TableColumn("Account") { IsKey = true });
-            table.AddColumn(new TableColumn("Expires") { Presenter = new DatePresenter(DateDisplay.Both) });
-            table.AddColumn(new TableColumn("Lockout") { Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
-            table.AddValues("krbtgt", DateTime.MinValue, TimeSpan.MaxValue);
-            table.AddValues("svc-backup", DateTime.MaxValue, TimeSpan.MinValue);
-            table.AddValues("przemek", new DateTime(2026, 11, 8, 12, 0, 0, DateTimeKind.Utc), TimeSpan.FromMinutes(30));
+            table.Column(new TableColumn("Account") { IsKey = true });
+            table.Column(new TableColumn("Expires") { Presenter = new DatePresenter(DateDisplay.Both) });
+            table.Column(new TableColumn("Lockout") { Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
+            table.Values("krbtgt", DateTime.MinValue, TimeSpan.MaxValue);
+            table.Values("svc-backup", DateTime.MaxValue, TimeSpan.MinValue);
+            table.Values("przemek", new DateTime(2026, 11, 8, 12, 0, 0, DateTimeKind.Utc), TimeSpan.FromMinutes(30));
             string text = Terminal.RenderText(table, TerminalProfile.Fixed(100, 30, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             Assert.Contains("krbtgt", text);
             Assert.Contains("svc-backup", text);

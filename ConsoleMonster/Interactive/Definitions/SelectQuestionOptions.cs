@@ -34,6 +34,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The preferred number of visible choices; zero retains the renderer default (10 single, 12 multiple).</summary>
         public int PageSize { get; set; }
         /// <summary>Preview content for the focused value.</summary>
+        [Fluent("PreviewBy")]
         public Func<object?, IWidget?>? Preview { get; set; }
     }
 }

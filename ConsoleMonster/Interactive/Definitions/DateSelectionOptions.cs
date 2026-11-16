@@ -12,6 +12,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Latest permitted date.</summary>
         public DateTime? Maximum { get; set; }
         /// <summary>Rejects individual dates, including dates inside a range.</summary>
+        [Fluent("UnavailableWhen")]
         public Func<DateTime, bool>? Unavailable { get; set; }
         /// <summary>Display and line-entry culture.</summary>
         public CultureInfo? Culture { get; set; }

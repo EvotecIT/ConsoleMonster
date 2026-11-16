@@ -20,8 +20,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         private static readonly double[] Cpu = { 10, 20, 30, 40, 50, 60, 70, 80 };
 
         private static DataGrid Samples() {
-            var grid = new Grid("Samples").AddColumn("Minute").AddColumn("Cpu");
-            for (int i = 0; i < Cpu.Length; i++) { grid.AddRow(i, i + 1, Cpu[i]); }
+            var grid = new Grid("Samples").Column("Minute").Column("Cpu");
+            for (int i = 0; i < Cpu.Length; i++) { grid.Row(i, i + 1, Cpu[i]); }
             return new DataGrid("samples", grid) { Height = 6, LinkKey = "minute" };
         }
 

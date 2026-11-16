@@ -55,6 +55,7 @@ namespace ConsoleMonster.Interactive {
         /// <see cref="Live.SimulatedClock.Read"/>; the action worker may sample it from another thread.
         /// This does not replace action delays, cancellation, or input pacing.
         /// </summary>
+        [NoFluent]
         public Func<TimeSpan>? ActionClock { get; set; }
 
         private IInputSource? _input;

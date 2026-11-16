@@ -16,12 +16,12 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private static Table Sample() {
             Table table = new Table { Border = TableBorder.Rounded, RecordViewRows = 0, CardsBelow = 0 };
-            table.AddColumn(new TableColumn("Name"));
-            table.AddColumn(new TableColumn("Enabled"));
-            table.AddColumn(new TableColumn("Changed"));
-            table.AddColumn(new TableColumn("Kind"));
-            table.AddColumn(new TableColumn("Notes"));
-            table.AddValues("alpha", true, new DateTime(2026, 10, 19, 14, 5, 0), DayOfWeek.Wednesday, Long);
+            table.Column(new TableColumn("Name"));
+            table.Column(new TableColumn("Enabled"));
+            table.Column(new TableColumn("Changed"));
+            table.Column(new TableColumn("Kind"));
+            table.Column(new TableColumn("Notes"));
+            table.Values("alpha", true, new DateTime(2026, 10, 19, 14, 5, 0), DayOfWeek.Wednesday, Long);
             return table;
         }
 
@@ -55,10 +55,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void StatusWordsAsText_StayOnOneLine() {
             Table table = new Table { Border = TableBorder.Rounded, RecordViewRows = 0, CardsBelow = 0 };
-            table.AddColumn(new TableColumn("Name"));
-            table.AddColumn(new TableColumn("State") { Presenter = ConsoleMonster.Presenters.CellPresenters.StatusWord });
-            table.AddColumn(new TableColumn("Notes"));
-            table.AddValues("alpha", "Warning", Long);
+            table.Column(new TableColumn("Name"));
+            table.Column(new TableColumn("State") { Presenter = ConsoleMonster.Presenters.CellPresenters.StatusWord });
+            table.Column(new TableColumn("Notes"));
+            table.Values("alpha", "Warning", Long);
             string[] lines = Render(table, 50);
             Assert.Contains(lines, line => line.Contains("alpha") && line.Contains("Warning"));
         }

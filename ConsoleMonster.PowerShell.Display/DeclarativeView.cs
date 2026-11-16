@@ -93,9 +93,9 @@ internal sealed class DeclarativeView {
         };
         foreach (Column column in columns) {
             int priority = _data["Priority"] is IDictionary priorities && priorities.Contains(column.Name) ? Convert.ToInt32(priorities[column.Name], CultureInfo.InvariantCulture) : column.Priority;
-            table.AddColumn(new TableColumn(Markup.Escape(column.Label)) { Key = column.Name, Priority = priority, Presenter = column.Presenter });
+            table.Column(new TableColumn(Markup.Escape(column.Label)) { Key = column.Name, Priority = priority, Presenter = column.Presenter });
         }
-        foreach (object item in items) { table.AddRow(columns.Select(column => Cell(item, column, context)).ToArray()); }
+        foreach (object item in items) { table.Row(columns.Select(column => Cell(item, column, context)).ToArray()); }
         return table;
     }
     private IWidget BuildTree(IReadOnlyList<object> items, DefaultDisplayContext context, List<Column> columns) {

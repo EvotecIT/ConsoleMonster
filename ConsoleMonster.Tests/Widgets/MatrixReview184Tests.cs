@@ -17,10 +17,10 @@ namespace ConsoleMonster.Tests.Widgets {
             Matrix matrix = new Matrix(new[] { new MatrixLabel("row"), new MatrixLabel("row2") }, new[] { new MatrixLabel("q"), new MatrixLabel("u") }) {
                 NonHealthyOnly = list, ListDirection = "<-"
             };
-            matrix.SetCell(0, 0, StatusKind.Warn, "query failed", marker: "?");
-            matrix.SetCell(0, 1, StatusKind.Info, "unknown", marker: "?");
-            matrix.SetCell(1, 0, StatusKind.Warn, "stale");
-            matrix.SetCell(1, 1, StatusKind.Warn, "ignored", marker: "?", diagonal: true);
+            matrix.Cell(0, 0, StatusKind.Warn, "query failed", marker: "?");
+            matrix.Cell(0, 1, StatusKind.Info, "unknown", marker: "?");
+            matrix.Cell(1, 0, StatusKind.Warn, "stale");
+            matrix.Cell(1, 1, StatusKind.Warn, "ignored", marker: "?", diagonal: true);
             matrix.LegendLabels[StatusKind.Warn] = "attention";
             matrix.LegendLabels[StatusKind.Info] = "unknown";
             matrix.LegendMarkers[StatusKind.Warn] = "?";
@@ -65,7 +65,7 @@ namespace ConsoleMonster.Tests.Widgets {
             };
             matrix.LegendLabels[StatusKind.Pass] = "healthy";
             matrix.LegendLabels[StatusKind.Fail] = "failing";
-            matrix.SetCell(0, 0, null, diagonal: true).SetCell(0, 1, StatusKind.Pass, "5m").SetCell(1, 0, StatusKind.Fail, "3d");
+            matrix.Cell(0, 0, null, diagonal: true).Cell(0, 1, StatusKind.Pass, "5m").Cell(1, 0, StatusKind.Fail, "3d");
             Review184Capture capture = new Review184Capture(matrix, width, tier, depth);
             string raw = capture.Raw.ToPlainText();
             string legendText = System.Text.RegularExpressions.Regex.Replace(raw, @"\s+", " ");
@@ -88,13 +88,13 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(GlyphTier.Ascii, ColorDepth.None)]
         public void Render_StructuredStatusCellAndMatrixValue_SeparateGlyphsWithoutChangingLiteralData(GlyphTier tier, ColorDepth depth) {
             Matrix matrix = new Matrix(new[] { new MatrixLabel("row") }, new[] { new MatrixLabel("column") });
-            matrix.SetCell(0, 0, StatusKind.Info, "Unknown");
+            matrix.Cell(0, 0, StatusKind.Info, "Unknown");
             Review184Capture capture = new Review184Capture(matrix, 120, tier, depth);
             Assert.Contains(capture.Context.Glyphs.StatusSymbol(StatusKind.Info) + " Unknown", capture.Decoded);
             Assert.DoesNotContain("iUnknown", capture.Decoded);
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0, ShowHeader = false };
-            table.AddColumn("Literal").AddColumn("State");
-            table.AddRow("iUnknown", TableCell.ForStatus(StatusKind.Info, "Unknown"));
+            table.Column("Literal").Column("State");
+            table.Row("iUnknown", TableCell.ForStatus(StatusKind.Info, "Unknown"));
             Review184Capture cells = new Review184Capture(table, 60, tier, depth);
             Assert.Contains("iUnknown", cells.Decoded);
             Assert.Contains(cells.Context.Glyphs.StatusMarker(StatusKind.Info) + " Unknown", cells.Decoded);

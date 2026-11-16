@@ -16,16 +16,16 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <returns>The table.</returns>
         public static Table Build(int rows) {
             Table table = new Table { Title = "Inventory" };
-            table.AddColumn("Name");
-            table.AddColumn("Site");
-            table.AddColumn(new TableColumn("Size") { Alignment = Layout.HorizontalAlignment.Right });
-            table.AddColumn("Modified");
-            table.AddColumn("Owner");
-            table.AddColumn("Path");
+            table.Column("Name");
+            table.Column("Site");
+            table.Column(new TableColumn("Size") { Alignment = Layout.HorizontalAlignment.Right });
+            table.Column("Modified");
+            table.Column("Owner");
+            table.Column("Path");
             string[] sites = { "Warsaw", "Berlin", "Dublin", "Lab" };
             DateTime start = new DateTime(2026, 1, 1);
             for (int i = 0; i < rows; i++) {
-                table.AddPlainRow("file-" + i.ToString("00000", CultureInfo.InvariantCulture) + ".log", sites[i % 4], ((i * 7919) % 100000).ToString("N0", CultureInfo.InvariantCulture) + " KB",
+                table.PlainRow("file-" + i.ToString("00000", CultureInfo.InvariantCulture) + ".log", sites[i % 4], ((i * 7919) % 100000).ToString("N0", CultureInfo.InvariantCulture) + " KB",
                     start.AddMinutes(i * 13).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), "svc-" + (i % 17).ToString(CultureInfo.InvariantCulture), @"D:\Data\Logs\" + sites[i % 4] + @"\" + (i % 100).ToString(CultureInfo.InvariantCulture));
             }
             return table;

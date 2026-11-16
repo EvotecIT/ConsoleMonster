@@ -93,10 +93,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void TablesAndLists_UseAutomaticPathsAndDeclaredLinkLabels() {
             Table table = new Table();
-            table.AddColumn(new TableColumn("Report") { Presenter = new LinkPresenter(_ => "Daily report", _ => "C:\\Reports\\daily.txt") });
-            table.AddRow(TableCell.FromValue("C:\\Reports\\daily.txt"));
+            table.Column(new TableColumn("Report") { Presenter = new LinkPresenter(_ => "Daily report", _ => "C:\\Reports\\daily.txt") });
+            table.Row(TableCell.FromValue("C:\\Reports\\daily.txt"));
             Assert.Contains(Osc + "file:///C:/Reports/daily.txt" + St, Terminal.RenderEncoded(table, Profile, Theme.Dark));
-            KeyValueList list = new KeyValueList().AddValue("Report", "/var/log/daily.txt").AddValue("Docs", "https://example.com/docs");
+            KeyValueList list = new KeyValueList().Value("Report", "/var/log/daily.txt").Value("Docs", "https://example.com/docs");
             string encoded = Terminal.RenderEncoded(list, Profile, Theme.Dark);
             Assert.Contains(Osc + "file:///var/log/daily.txt" + St, encoded);
             Assert.Contains(Osc + "https://example.com/docs" + St, encoded);

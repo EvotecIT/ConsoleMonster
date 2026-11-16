@@ -31,7 +31,8 @@ namespace ConsoleMonster.Interactive {
         public IList<string> Problems { get; } = new List<string>();
 
         /// <summary>The run action.</summary>
-        public Action<MenuContext>? Run { get; set; }
+        [Fluent("Run")]
+        public Action<MenuContext>? Action { get; set; }
 
         /// <summary>The caption of the run button; null uses "Run".</summary>
         public string? RunText { get; set; }
@@ -42,14 +43,6 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The review.</returns>
         public ReviewModel Row(string label, string? value) {
             Rows.Add(new KeyValuePair<string, string>(label, value ?? string.Empty));
-            return this;
-        }
-
-        /// <summary>Adds a problem that blocks running.</summary>
-        /// <param name="problem">The problem.</param>
-        /// <returns>The review.</returns>
-        public ReviewModel Problem(string problem) {
-            Problems.Add(problem);
             return this;
         }
 

@@ -181,7 +181,7 @@ namespace ConsoleMonster.PowerShell {
                 }
                 if (label == null) { samples.Add(number); continue; }
                 string text = Convert.ToString(name, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
-                options.AddItem(Chart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
+                options.Item(Chart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
             }
             if (Type != ChartType.Bar) { options.Values = samples.ToArray(); }
             return skipped;

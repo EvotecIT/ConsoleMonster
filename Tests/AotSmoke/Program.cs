@@ -37,7 +37,7 @@ internal static class Program {
         Require(ConsoleExporter.ToSvg(table), "web-01");
         GraphicsSmoke.Run();
         int previews = 0;
-        var question = new SelectQuestionOptions().Configure(options => options.Preview = _ => { previews++; return new TextBlock("Preview"); });
+        var question = new SelectQuestionOptions().PreviewBy(_ => { previews++; return new TextBlock("Preview"); });
         if (previews != 0 || question.Preview == null) { throw new InvalidOperationException("Fluent callback configuration invoked or lost the delegate."); }
         var progress = new ProgressBar("Build", "build");
         using (var session = new LiveSession(progress)) {
@@ -68,7 +68,7 @@ internal static class Program {
         Require(ConsoleExporter.ToText(calendar), "October", "2026");
         var scroll = Ui.ScrollView().MaxContentHeight(100).Content(content => content.Text("Scrollable content"));
         Require(ConsoleExporter.ToText(scroll), "Scrollable content");
-        var command = Ui.Command().Key("check").Label("Run check").Configure(definition => definition.Action = (_, __) => System.Threading.Tasks.Task.CompletedTask).Build();
+        var command = Ui.Command().Key("check").Label("Run check").Run((_, __) => System.Threading.Tasks.Task.CompletedTask).Build();
         var button = Ui.Button().Key("run").Command(command).Build();
         var typedProgress = Ui.Progress().WidgetId("fluent-progress").Label("Build").Value(5).Total(10).Build<ProgressBar>();
         Require(ConsoleExporter.ToText(typedProgress), "Build");
@@ -78,7 +78,7 @@ internal static class Program {
         })), "Nested", "literal [text]");
         var appCapture = new ScreenCapture(60, 12);
         ConsoleApp.Run(Ui.ScrollView().Content(content => content.Add(button)), options => options.SelectionKey("picked")
-            .Interactive(interactive => { interactive.Mode = InteractionMode.Snapshot; interactive.Capture = appCapture; interactive.Profile = TerminalProfile.Fixed(60, 12); }).AddCommand(command));
+            .Interactive(interactive => { interactive.Mode = InteractionMode.Snapshot; interactive.Capture = appCapture; interactive.Profile = TerminalProfile.Fixed(60, 12); }).Command(command));
         Require(appCapture.LastFrame!.ToPlainText(), "Run check");
         var profile = TerminalProfile.Fixed(60, 12);
         var target = new RecordingTarget(profile);

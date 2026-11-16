@@ -99,11 +99,11 @@ namespace ConsoleMonster.PowerShell {
 
         private static Table IndexTable(List<PSObject> entries) {
             Table table = new Table { RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn(new TableColumn("Category"));
-            table.AddColumn(new TableColumn("Synopsis") { MaxLines = 2 });
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column(new TableColumn("Category"));
+            table.Column(new TableColumn("Synopsis") { MaxLines = 2 });
             foreach (PSObject entry in entries) {
-                table.AddRow(
+                table.Row(
                     Text.Markup.Escape(Convert.ToString(entry.Properties["Name"]?.Value, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty),
                     "[muted]" + Text.Markup.Escape(Convert.ToString(entry.Properties["Category"]?.Value, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty) + "[/]",
                     Text.Markup.Escape((Convert.ToString(entry.Properties["Synopsis"]?.Value, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty).Trim()));

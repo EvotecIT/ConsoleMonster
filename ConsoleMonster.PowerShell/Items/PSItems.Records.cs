@@ -113,7 +113,7 @@ namespace ConsoleMonster.PowerShell {
             string key = PSText.PlainText(Field(item, "Key"));
             object? role = Field(item, "Role");
             ThemeToken? token = role == null ? (ThemeToken?)null : LanguagePrimitives.ConvertTo<ThemeToken>(role);
-            ChartSeries series = chart.AddSeries(key, token);
+            ChartSeries series = chart.Series(key, token);
             if (Field(item, "Label") is object label) {
                 if (label is RichText rich) { series.LabelText = rich; }
                 series.Label = PSText.PlainText(label);

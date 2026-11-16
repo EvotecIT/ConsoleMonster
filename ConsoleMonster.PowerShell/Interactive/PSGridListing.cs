@@ -20,10 +20,10 @@ namespace ConsoleMonster.PowerShell {
             items = PSFormatting.Expand(new List<PSObject>(objects), shape);
             IReadOnlyList<BoundColumn> columns = PropertyBinder.Bind(items, property, shape, cmdlet);
             if (culture != null) { grid.Presentation = new Presenters.PresentationOptions { Culture = culture }; }
-            foreach (BoundColumn column in columns) { grid.AddColumn(column.Column); }
+            foreach (BoundColumn column in columns) { grid.Column(column.Column); }
             PSGridListing listing = new PSGridListing(shape, columns);
             ConsoleMonster.Values.ShapeBudget budget = ConsoleMonster.Values.ShapeBudget.For(shape);
-            foreach (PSObject item in items) { grid.AddRow(item, listing.Cells(item, budget)); }
+            foreach (PSObject item in items) { grid.Row(item, listing.Cells(item, budget)); }
             return listing;
         }
 

@@ -42,8 +42,8 @@ namespace ConsoleMonster.TestHost {
             using (IInputSource? source = ConsoleInput.OpenConsole()) { }
             Console.WriteLine("HANDOFF_BASELINE");
             WaitFor(resultPath + ".start");
-            var listing = new Grid("TTY handoff"); listing.AddColumn("Name");
-            listing.AddRow("first", "first"); listing.AddRow("second", "second");
+            var listing = new Grid("TTY handoff"); listing.Column("Name");
+            listing.Row("first", "first"); listing.Row("second", "second");
             using var grid = new DataGrid("Rows", listing);
             var handoff = new TerminalHandoff();
             using var appCancellation = new CancellationTokenSource();

@@ -226,13 +226,13 @@ namespace ConsoleMonster.Interactive {
         // the chosen theme, colours, glyphs, culture and language. The margin is painted with the theme's page too.
         internal static IWidget Preview(IReadOnlyDictionary<string, string> values, int margin = 0) {
             Table table = new Table { CardsBelow = 0 };
-            table.AddColumn("Check").AddColumn("State")
-                .AddColumn(new TableColumn("Size") { Presenter = Presenters.CellPresenters.Bytes, Alignment = HorizontalAlignment.Right })
-                .AddColumn(new TableColumn("Changed") { Presenter = Presenters.CellPresenters.Date, Priority = -1 });
+            table.Column("Check").Column("State")
+                .Column(new TableColumn("Size") { Presenter = Presenters.CellPresenters.Bytes, Alignment = HorizontalAlignment.Right })
+                .Column(new TableColumn("Changed") { Presenter = Presenters.CellPresenters.Date, Priority = -1 });
             DateTime when = new DateTime(2026, 11, 9, 14, 30, 0);
-            table.AddRow("Backups", TableCell.ForStatus(StatusKind.Pass, "passed"), TableCell.FromValue(52_428_800L), TableCell.FromValue(when));
-            table.AddRow("Certificates", TableCell.ForStatus(StatusKind.Warn, "expiring"), TableCell.FromValue(4_096L), TableCell.FromValue(when.AddDays(-3)));
-            table.AddRow("Replication", TableCell.ForStatus(StatusKind.Fail, "failed"), TableCell.FromValue(1_288_490_189L), TableCell.FromValue(when.AddHours(-5)));
+            table.Row("Backups", TableCell.ForStatus(StatusKind.Pass, "passed"), TableCell.FromValue(52_428_800L), TableCell.FromValue(when));
+            table.Row("Certificates", TableCell.ForStatus(StatusKind.Warn, "expiring"), TableCell.FromValue(4_096L), TableCell.FromValue(when.AddDays(-3)));
+            table.Row("Replication", TableCell.ForStatus(StatusKind.Fail, "failed"), TableCell.FromValue(1_288_490_189L), TableCell.FromValue(when.AddHours(-5)));
             StatusList status = new StatusList()
                 .Add("Build", StatusKind.Pass, "1 m 12 s")
                 .Add("Tests", StatusKind.Warn, "2 skipped")

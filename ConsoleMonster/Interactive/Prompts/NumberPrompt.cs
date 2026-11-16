@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -31,6 +32,7 @@ namespace ConsoleMonster.Interactive {
         public CultureInfo? Culture { get; set; }
 
         /// <summary>A validator after range checks: returns an error message, or null.</summary>
+        [Fluent("Validate")]
         public Func<decimal, string?>? Validator { get; set; }
 
         private CultureInfo EffectiveCulture => Culture ?? CultureInfo.CurrentCulture;

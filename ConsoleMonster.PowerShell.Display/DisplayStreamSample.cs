@@ -18,8 +18,8 @@ internal static class DisplayStreamSample {
             rows.Add(row);
             if (sample == null) {
                 sample = new Table { Presentation = row.Presentation, Title = row.Title, Border = TableBorder.Rule, RecordViewRows = 0, CardsBelow = row.CardsBelow };
-                foreach (TableColumn column in row.Columns) sample.AddColumn(column);
-                sample.AddRow(row.Rows[0]);
+                foreach (TableColumn column in row.Columns) sample.Column(column);
+                sample.Row(row.Rows[0]);
                 continue;
             }
             if (sample.Columns.Count != row.Columns.Count) { throw new InvalidOperationException("A Stream builder changed its column definitions."); }
@@ -28,7 +28,7 @@ internal static class DisplayStreamSample {
                     throw new InvalidOperationException("A Stream builder changed its column definitions.");
                 }
             }
-            sample.AddRow(row.Rows[0]);
+            sample.Row(row.Rows[0]);
         }
         prepared = rows;
         return sample ?? throw new InvalidOperationException("A Stream sample must contain at least one row.");

@@ -103,7 +103,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Tone rules, or null.</param>
         /// <returns>This instance.</returns>
-        public KeyValueList AddValue(string key, object? value, Presenters.ICellPresenter? presenter = null, IReadOnlyList<Presenters.RoleRule>? rules = null) {
+        public KeyValueList Value(string key, object? value, Presenters.ICellPresenter? presenter = null, IReadOnlyList<Presenters.RoleRule>? rules = null) {
             Add(key, string.Empty);
             KeyValueItem item = _items[_index[key]];
             item.Cell = TableCell.FromValue(value);
@@ -112,7 +112,7 @@ namespace ConsoleMonster.Widgets {
             return this;
         }
 
-        /// <summary>Culture, clock and time zone for values added with <see cref="AddValue"/>.</summary>
+        /// <summary>Culture, clock and time zone for values added with <see cref="Value"/>.</summary>
         public Presenters.PresentationOptions Presentation { get; set; } = new Presenters.PresentationOptions();
 
         /// <summary>Adds a pair with a number formatted with thousands separators.</summary>

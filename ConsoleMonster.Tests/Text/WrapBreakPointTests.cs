@@ -47,19 +47,19 @@ namespace ConsoleMonster.Tests.Text {
             StringBuilder text = new StringBuilder();
 
             Table table = new Table { Title = "Table cell (Data is 33 cells)", RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("#") { IsKey = true });
-            table.AddColumn(new TableColumn("Data") { Width = 33, Overflow = ColumnOverflow.Wrap, MaxLines = 4 });
+            table.Column(new TableColumn("#") { IsKey = true });
+            table.Column(new TableColumn("Data") { Width = 33, Overflow = ColumnOverflow.Wrap, MaxLines = 4 });
             for (int i = 0; i < values.Length; i++) {
-                table.AddValues((i + 1).ToString(CultureInfo.InvariantCulture), values[i]);
+                table.Values((i + 1).ToString(CultureInfo.InvariantCulture), values[i]);
             }
             text.AppendLine(Terminal.RenderText(table, profile, Theme.Dark));
 
             Table cards = new Table { Title = "Record cards (44 cells)", CardsBelow = 60, RecordViewRows = 0 };
-            cards.AddColumn(new TableColumn("Record") { IsKey = true });
-            cards.AddColumn(new TableColumn("Type"));
-            cards.AddColumn(new TableColumn("Data") { MinWidth = 40, Overflow = ColumnOverflow.Wrap, MaxLines = 4 });
+            cards.Column(new TableColumn("Record") { IsKey = true });
+            cards.Column(new TableColumn("Type"));
+            cards.Column(new TableColumn("Data") { MinWidth = 40, Overflow = ColumnOverflow.Wrap, MaxLines = 4 });
             for (int i = 0; i < values.Length; i++) {
-                cards.AddValues("record " + (i + 1).ToString(CultureInfo.InvariantCulture), "TXT", values[i]);
+                cards.Values("record " + (i + 1).ToString(CultureInfo.InvariantCulture), "TXT", values[i]);
             }
             text.AppendLine(Terminal.RenderText(cards, TerminalProfile.Fixed(44, 60, ColorDepth.None, GlyphTier.Full).WithCulture(CultureInfo.InvariantCulture), Theme.Dark));
 
