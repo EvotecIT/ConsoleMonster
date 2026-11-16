@@ -28,14 +28,14 @@ StatusKind[] states =
 };
 
 // Layout: a compact map provides the overview; a table explains exceptions.
-Table map = Ui.Table().Border(TableBorder.None).AddColumn(" ");
+Table map = Ui.Table().Border(TableBorder.None).Column(" ");
 foreach (string port in ports)
 {
-    map.AddColumn(port);
+    map.Column(port);
     map.Columns.Last().Presenter(CellPresenters.Status);
 }
 for (int row = 0; row < hosts.Length; row++)
-    map.AddRow(hosts[row],
+    map.Row(hosts[row],
         TableCell.FromValue(states[row * ports.Length]),
         TableCell.FromValue(states[row * ports.Length + 1]),
         TableCell.FromValue(states[row * ports.Length + 2]));

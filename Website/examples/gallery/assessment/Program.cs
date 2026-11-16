@@ -419,8 +419,8 @@ LineChart throughput = new LineChart("throughput")
 {
     Height = 7
 };
-throughput.AddSeries("completed", ThemeToken.Accent);
-throughput.AddSeries("failed", ThemeToken.Fail);
+throughput.Series("completed", ThemeToken.Accent);
+throughput.Series("failed", ThemeToken.Fail);
 Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations")
 {
     Height = 6,

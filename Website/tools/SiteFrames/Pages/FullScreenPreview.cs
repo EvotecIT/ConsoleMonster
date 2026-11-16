@@ -21,7 +21,7 @@ namespace SiteFrames.Pages {
 
         internal static void CaptureGif(Site site) {
             string path = GifPath(site);
-            Read(Path.Combine(site.Captures, "fullscreen", "service-browser.cast")).SaveGraphics(path, GraphicsFormat.Gif, new GraphicsExportOptions {
+            Read(Path.Combine(site.Captures, "fullscreen", "service-browser.cast")).Save(path, GraphicsFormat.Gif, new GraphicsExportOptions {
                 Frame = new ExportOptions { Theme = ExportTheme.Dark, WindowChrome = true, Title = "Service browser" },
                 Playback = Playback(), IdleLimit = TimeSpan.FromSeconds(1.5)
             });

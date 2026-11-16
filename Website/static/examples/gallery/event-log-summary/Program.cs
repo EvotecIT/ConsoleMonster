@@ -52,7 +52,7 @@ var errors = new Sparkline
     Height = 3,
     Role = ThemeToken.Fail
 };
-errors.AddRange(errorsPerHour);
+errors.Values(errorsPerHour);
 foreach (int hour in Enumerable.Range(0, 24))
     errors.Labels.Add($"{hour:00}:00");
 var warnings = new Sparkline
@@ -61,7 +61,7 @@ var warnings = new Sparkline
     Height = 3,
     Role = ThemeToken.Warn
 };
-warnings.AddRange(warningsPerHour);
+warnings.Values(warningsPerHour);
 foreach (int hour in Enumerable.Range(0, 24))
     warnings.Labels.Add($"{hour:00}:00");
 var noisiest = new BarChart();

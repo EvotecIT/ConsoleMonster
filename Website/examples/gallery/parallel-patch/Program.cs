@@ -74,11 +74,11 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     )
         map.RowLabels.Add(label);
     SummaryBar summary = new SummaryBar()
-        .SetProgress(done, servers.Length)
-        .SetCounter("passed", done - failed, StatusKind.Pass)
-        .SetCounter("failed", failed, StatusKind.Fail)
-        .SetCounter("running", 0, StatusKind.Running)
-        .SetCounter("pending", servers.Length - done, StatusKind.Pending);
+        .Progress(done, servers.Length)
+        .Counter("passed", done - failed, StatusKind.Pass)
+        .Counter("failed", failed, StatusKind.Fail)
+        .Counter("running", 0, StatusKind.Running)
+        .Counter("pending", servers.Length - done, StatusKind.Pending);
     Lanes lanes = new Lanes();
     foreach (Host host in finished ? servers.TakeLast(throttle) : servers.Take(throttle))
     {

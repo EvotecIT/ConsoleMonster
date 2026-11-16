@@ -25,13 +25,13 @@ for (int i = 0; i < p50.Length; i++) { chart.Add("p50", p50[i]); }
 for (int i = 0; i < p95.Length; i++) { chart.Add("p95", p95[i]); }
 Grid samples = Ui.Grid()
     .Title("Samples")
-    .AddColumn("Time")
-    .AddColumn("P50")
-    .AddColumn("P95")
-    .AddColumn("Errors");
+    .Column("Time")
+    .Column("P50")
+    .Column("P95")
+    .Column("Errors");
 for (int i = 0; i < p50.Length; i++)
 {
-    samples.AddRow(times[i], times[i], p50[i], p95[i], errors[i]);
+    samples.Row(times[i], times[i], p50[i], p95[i], errors[i]);
 }
 IWidget latency = Ui.Splitter()
     .First(c => c.DataGrid(grid => grid.Key("Samples").Grid(samples).LinkKey("Sample")))
@@ -80,9 +80,9 @@ Collapsible verify = Ui.Collapsible()
     .Build();
 Outline steps = ((Outline)Ui.Outline()
     .Key("Steps")
-    .Build()).AddItem(new OutlineItem("Check").Target(check))
-    .AddItem(new OutlineItem("Mitigate").Target(mitigate))
-    .AddItem(new OutlineItem("Verify").Target(verify))
+    .Build()).Item(new OutlineItem("Check").Target(check))
+    .Item(new OutlineItem("Mitigate").Target(mitigate))
+    .Item(new OutlineItem("Verify").Target(verify))
     .SelectedIndex(0);
 IWidget runbook = Ui.Splitter().First(steps).Second(Ui.Accordion().Content(accordionContent =>
 {

@@ -264,7 +264,7 @@ ReviewModel Review(MenuContext context)
     string optionArguments = options.BuildCommand();
     review.Command = CommandLine.Join("Invoke-ServerToolbox",
         arguments) + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
-    review.Run = ctx => Execute(ctx, servers, selected, values);
+    review.Action = ctx => Execute(ctx, servers, selected, values);
     return review;
 }
 
@@ -315,9 +315,9 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
     {
         Border = TableBorder.Minimal
     };
-    failures.AddColumn("Server");
-    failures.AddColumn("Task");
-    failures.AddColumn(new TableColumn("Finding") { Flexible = true });
+    failures.Column("Server");
+    failures.Column("Task");
+    failures.Column(new TableColumn("Finding") { Flexible = true });
     Stopwatch watch = Stopwatch.StartNew();
     log.Write("Started " + selected.Count + " tasks on " + servers.Count + " servers, " + throttle
         + " at a time");
@@ -344,7 +344,7 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
                 string finding = task.Category == "Security"
                     ? "3 updates missing for 41 days"
                     : "volume D: below 5% free";
-                failures.AddRow(server.Name, task.Name, finding);
+                failures.Row(server.Name, task.Name, finding);
                 log.Error(server.Name + " · " + task.Name + ": " + finding);
             }
             else if (outcome == StatusKind.Warn)
@@ -421,17 +421,17 @@ IWidget HistoryPage()
     {
         Border = TableBorder.Minimal
     };
-    table.AddColumn("When");
-    table.AddColumn(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
-    table.AddColumn(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
-    table.AddColumn("Result");
-    table.AddColumn(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
+    table.Column("When");
+    table.Column(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
+    table.Column(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
+    table.Column("Result");
+    table.Column(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
     foreach (PastRun past in Enumerable.Reverse(history))
     {
         StatusKind status = past.Failed > 0
             ? StatusKind.Fail
             : past.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
-        table.AddRow(past.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture),
+        table.Row(past.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture),
             past.Servers.ToString(CultureInfo.CurrentCulture),
             past.Tasks.ToString(CultureInfo.CurrentCulture),
             TableCell.ForStatus(status,

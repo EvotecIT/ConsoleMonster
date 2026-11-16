@@ -92,7 +92,7 @@ namespace SiteFrames.Capture {
                     if (type.Name == "Grid" && noun == "LayoutGrid" && p.Name == "columns") { member = "Columns"; }
                     if (type.Name == "Logo" && p.Name == "text") { member = "Text"; }
                     if (type.Name == "AppBinding" && p.Name == "content" || type.Name == "AppCommand" && p.Name == "action") {
-                        result = Call(result, "Configure", SyntaxFactory.ParseExpression(Callback(member, value))); continue;
+                        result = Call(result, type.Name == "AppBinding" ? "ContentBy" : "Run", value); continue;
                     }
                     if ((type.Name is "SelectPrompt" or "MultiSelectPrompt") && p.Name is "values" or "choices") {
                         if (p.Name == "values") {
@@ -100,7 +100,7 @@ namespace SiteFrames.Capture {
                             string group = BoundArgument(original, visited, ctor, "group")?.ToString() ?? "null";
                             value = SyntaxFactory.ParseExpression("ConsoleMonster.Interactive.Choice.From(" + value + ", " + display + ", " + group + ")");
                         }
-                        member = "AddChoices";
+                        member = "Choices";
                     }
                     if ((type.Name is "SelectPrompt" or "MultiSelectPrompt") && p.Name is "display" or "group") { continue; }
                     if (type.Name == "Calendar" && p.Name is "marks" or "data") {
@@ -110,7 +110,7 @@ namespace SiteFrames.Capture {
                             value = SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(p.Type.ToDisplayString(format)), SyntaxFactory.ParenthesizedExpression(value));
                         }
                     }
-                    if (type.Name is "Select" or "MultiSelect" && p.Name == "choices") { member = "AddChoices"; }
+                    if (type.Name is "Select" or "MultiSelect" && p.Name == "choices") { member = "Choices"; }
                     if (type.Name == "ConfirmPrompt" && p.Name == "defaultValue") { member = "Default"; }
                     if (type.Name == "Panel" && p.Name == "title" && p.Type.ToDisplayString().Contains("RichText", StringComparison.Ordinal)
                         || type.Name == "Rule" && p.Type.ToDisplayString().Contains("RichText", StringComparison.Ordinal)) { value = Call(value, "ToMarkup"); }
@@ -137,22 +137,20 @@ namespace SiteFrames.Capture {
                             || model.GetSymbolInfo(originalAssignment.Left).Symbol is not IPropertySymbol property
                             || visited.Initializer.Expressions[i] is not AssignmentExpressionSyntax assignment) { return visited; }
                         if (assignment.Right is InitializerExpressionSyntax collection) {
-                            INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.ContainingNamespace.Name + "Fluent");
                             ITypeSymbol? item = (property.Type as INamedTypeSymbol)?.AllInterfaces.Prepend(property.Type as INamedTypeSymbol).FirstOrDefault(t => t?.OriginalDefinition.ToDisplayString() == "System.Collections.Generic.ICollection<T>")?.TypeArguments[0];
                             // Two collections can share an item type (a breadcrumb's segments and ancestors), so the adder
                             // named after this property wins over any other adder of the same item type.
-                            IMethodSymbol? add = fluent?.GetMembers().OfType<IMethodSymbol>().Where(method => method.IsExtensionMethod)
-                                .Select(method => method.ReduceExtensionMethod(type)).Where(method => method != null && method.Name.StartsWith("Add", StringComparison.Ordinal)
-                                    && method.Parameters.Length == 1 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, item))
-                                .OrderBy(method => property.Name.StartsWith(method!.Name.Substring(3), StringComparison.Ordinal) ? 0 : 1).FirstOrDefault();
+                            IMethodSymbol? add = FluentApi.Methods(model.Compilation, type)
+                                .Where(method => method.Name != property.Name || method.Name == FluentApi.SetterName(property))
+                                .Where(method => method.Parameters.Length == 1 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, item)
+                                    && property.Name.StartsWith(method.Name, StringComparison.Ordinal))
+                                .OrderByDescending(method => method.Name.Length).FirstOrDefault();
                             if (add == null || collection.Expressions.Any(value => value is InitializerExpressionSyntax)) { return visited; }
                             foreach (ExpressionSyntax value in collection.Expressions) { result = Call(result, add.Name, value); }
                         } else {
                             ExpressionSyntax value = property.Name == "Preview" && question == "SelectQuestion"
                                 ? QuestionPreview(type, assignment.Right, originalAssignment) : assignment.Right;
-                            result = property.Type.TypeKind == TypeKind.Delegate
-                                ? Call(result, "Configure", SyntaxFactory.ParseExpression(Callback(property.Name, value)))
-                                : Call(result, FluentSourceRewriter.FluentName(property), value);
+                            result = Call(result, FluentApi.SetterName(property), value);
                         }
                     }
                 }
@@ -175,6 +173,7 @@ namespace SiteFrames.Capture {
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {
                 var visited = (InvocationExpressionSyntax)base.VisitInvocationExpression(node)!;
                 if (QuestionShow(node, visited) is ExpressionSyntax typedShow) { return typedShow.WithTriviaFrom(node); }
+                if (QuestionPreviewCall(node, visited) is ExpressionSyntax typedPreview) { visited = (InvocationExpressionSyntax)typedPreview; }
                 if (AppInputDefinition(node, visited) is ExpressionSyntax definitionBuild) { return definitionBuild.WithTriviaFrom(node); }
                 if (node.Expression is MemberAccessExpressionSyntax originalSetter && visited.Expression is MemberAccessExpressionSyntax setter
                     && model.GetSymbolInfo(node).Symbol is IMethodSymbol setterMethod && setterMethod.Name.EndsWith(originalSetter.Name.Identifier.ValueText, StringComparison.Ordinal)
@@ -259,10 +258,8 @@ namespace SiteFrames.Capture {
 
             // Whether the type's fluent class has member(Action<ContentBuilder>), such as Splitter.First.
             private bool HasContentOverload(INamedTypeSymbol type, string member) {
-                INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(type.ContainingNamespace.ToDisplayString() + "." + type.ContainingNamespace.Name + "Fluent");
-                return fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.IsExtensionMethod && method.Parameters.Length == 2
-                    && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, type)
-                    && method.Parameters[1].Type.ToDisplayString() == "System.Action<ConsoleMonster.Layout.ContentBuilder>") == true;
+                return FluentApi.Methods(model.Compilation, type, member).Any(method => method.Parameters.Length == 1
+                    && method.Parameters[0].Type.ToDisplayString() == "System.Action<ConsoleMonster.Layout.ContentBuilder>");
             }
 
             private static IPropertySymbol? FindProperty(INamedTypeSymbol type, string name) {

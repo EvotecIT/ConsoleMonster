@@ -78,7 +78,7 @@ Table TableOf(string[] headers)
 {
     Table table = Ui.Table().Border(TableBorder.Minimal).RecordViewRows(0);
     foreach (string header in headers)
-        table.AddColumn(header, HorizontalAlignment.Left);
+        table.Column(header, HorizontalAlignment.Left);
     return table;
 }
 
@@ -87,7 +87,7 @@ IWidget Findings(IEnumerable<Work> work)
     Table table = TableOf(new[] { "Server", "Check", "Expected", "Actual" });
     table.Columns[3].Flexible();
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
-        table.AddRow(
+        table.Row(
             w.Node.Name,
             w.Check.Name,
             w.Check.Expected,
@@ -101,7 +101,7 @@ IWidget History()
 {
     Table table = TableOf(new[] { "When", "Servers", "Checks", "Result", "Duration" });
     foreach (HistoryRow h in history.AsEnumerable().Reverse())
-        table.AddRow(h.When, h.Servers.ToString(), h.Checks.ToString(),
+        table.Row(h.When, h.Servers.ToString(), h.Checks.ToString(),
             $"{h.Passed} passed · {h.Warnings} warn · {h.Failed} failed",
             h.Elapsed.ToString(@"hh\:mm\:ss"));
     return table;
@@ -126,10 +126,10 @@ IWidget Body(List<Work> work, int done, int phase)
         : Array.Empty<Work>();
     SummaryBar summary = Ui.SummaryBar()
         .Elapsed(TimeSpan.FromSeconds(done * .24 / parallel))
-        .SetProgress(done, work.Count)
-        .SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
-        .SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
-        .SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
+        .Progress(done, work.Count)
+        .Counter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
+        .Counter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
+        .Counter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
     Phases phases = Ui.Phases();
     string[] names = { "Discover", "Connect", "Check", "Report" };
     for (int i = 0; i < names.Length; i++)
@@ -194,7 +194,7 @@ IWidget Body(List<Work> work, int done, int phase)
         .Add("Report", format.ToUpperInvariant());
     Table slow = TableOf(new[] { "Check", "Server", "Took" });
     foreach (Work w in finished.OrderByDescending(w => w.Seconds).Take(5))
-        slow.AddRow(w.Check.Name, w.Node.Name, Seconds(w.Seconds));
+        slow.Row(w.Check.Name, w.Node.Name, Seconds(w.Seconds));
     Histogram durations = (Histogram)Ui.Chart()
         .Type(ChartType.Histogram)
         .Edges(new double[] { 0, 2, 4, 8, 16 })
@@ -357,8 +357,8 @@ Form Options()
         .Default(email)
         .ParameterName("To")
         .Required()
-        .Configure(configured => configured.VisibleWhen = v => v.Get<bool>("Notify"))
-        .Configure(configured => configured.Validator = (value,
+        .ShowWhen(v => v.Get<bool>("Notify"))
+        .Validate((value,
             _) => value is string s && s.Contains('@') ? null : "Enter an email address");
     return form;
 }
@@ -393,7 +393,7 @@ ChoiceField servers = scope.MultiSelect("Servers", "Servers")
     .Minimum(1)
     .ParameterName("ComputerName");
 servers.DependsOn.Add("Domain");
-servers.Configure(configured => configured.LoadChoices = async (values, token) =>
+servers.ChoicesBy(async (values, token) =>
 {
     await Task.Delay(350, token);
     return inventory.Where(n => n.Domain == values.Get<string>("Domain"))
@@ -416,9 +416,7 @@ ChoiceField operations = choose.MultiSelect(
         .Selected(checks.Contains(c))))
     .Minimum(1)
     .ParameterName("Check")
-    .Configure(
-        configured => configured.Preview = c => Preview(
-            catalog.First(k => k.Id == (string)c.Value!)));
+    .PreviewBy(c => Preview(catalog.First(k => k.Id == (string)c.Value!)));
 FormPage settings = checkForm.Page("Options", "How the run behaves.");
 foreach (Field field in options.Fields)
     settings.Add(field);
@@ -493,8 +491,8 @@ menu.Preset(
     {
         i.Hotkey('h')
             .Icon(Icons.List)
-            .Configure(configured => configured.Page = _ => History())
-            .Configure(configured => configured.Detail = () => history.Count + " runs");
+            .PageBy(_ => History())
+            .DetailBy(() => history.Count + " runs");
     })
     .Separator()
     .Exit("Quit");

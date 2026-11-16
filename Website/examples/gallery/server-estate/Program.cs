@@ -44,13 +44,13 @@ for (int i = 0; i < problems.Length; i++)
     item.Values.Add(problems[i].Value);
     frame.Attention.Items.Add(item);
 }
-Table siteTable = new Table().AddColumn("Site").AddColumn("Servers").AddColumn("Healthy");
-foreach (string[] site in sites) { siteTable.AddValues(site); }
+Table siteTable = new Table().Column("Site").Column("Servers").Column("Healthy");
+foreach (string[] site in sites) { siteTable.Values(site); }
 FrameSection siteSection = new FrameSection("Sites", context => siteTable);
 siteSection.Facts.Add("by location");
 frame.Sections.Add(siteSection);
-Table backupTable = new Table().AddColumn("Job").AddColumn("Last run").AddColumn("Size");
-foreach (string[] backup in backups) { backupTable.AddValues(backup); }
+Table backupTable = new Table().Column("Job").Column("Last run").Column("Size");
+foreach (string[] backup in backups) { backupTable.Values(backup); }
 frame.Sections.Add(new FrameSection(
     "Backups",
     context => backupTable) { Placement = FramePlacement.Detail });

@@ -28,7 +28,7 @@ IWidget Frame(int tick)
         .Column("Memory MiB", row => row.Memory);
     table.Expand = true;
     LineChart history = new LineChart { Height = 4, Unit = "%" };
-    history.AddSeries("CPU %", ThemeToken.Accent);
+    history.Series("CPU %", ThemeToken.Accent);
     foreach (double value in cpuHistory.Concat(new[] { 56.0 + tick * 5 }))
         history.Add("CPU %", value);
     return new Rows(

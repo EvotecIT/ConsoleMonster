@@ -417,8 +417,8 @@ KeyValueList summary = Ui.KeyValue("summary")
     .Add("Targets done", "0 / 12")
     .Add("Targets failing", "0");
 LineChart throughput = Ui.LineChart("throughput").Height(7);
-throughput.AddSeries("completed", ThemeToken.Accent);
-throughput.AddSeries("failed", ThemeToken.Fail);
+throughput.Series("completed", ThemeToken.Accent);
+throughput.Series("failed", ThemeToken.Fail);
 Histogram durations = (Histogram)Ui.Chart()
     .Type(ChartType.Histogram)
     .Edges(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 })

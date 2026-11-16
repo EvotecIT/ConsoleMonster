@@ -33,7 +33,7 @@ KeyValueList stats = new KeyValueList("stats")
     .Add("Dropped / errors", "0 / 0");
 Sparkline rate = new Sparkline("rate").Height(3).Unit("/s");
 LineChart cpu = new LineChart("cpu").Height(6).Minimum(0).Unit("%");
-cpu.AddSeries("cpu", ThemeToken.Accent2);
+cpu.Series("cpu", ThemeToken.Accent2);
 Dashboard dashboard = Ui.Dashboard().Title("[bold]Stress test[/]")
     .Subtitle(Workers + " workers · random Console.WriteLine · " + seconds + "s")
     .Content(body => body

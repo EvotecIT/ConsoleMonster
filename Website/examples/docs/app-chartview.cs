@@ -8,8 +8,8 @@ LineChart chart = new LineChart { Unit = "%" };
 foreach (double value in cpu) { chart.Add("cpu", value); }
 ChartView view = new ChartView("Cpu", chart) { LinkKey = "Sample", Height = 9 };
 foreach (string time in times) { view.PointLabels.Add(time); }
-Grid samples = new Grid("Samples").AddColumn("Time").AddColumn("Cpu");
-for (int i = 0; i < times.Length; i++) { samples.AddRow(times[i], times[i], cpu[i]); }
+Grid samples = new Grid("Samples").Column("Time").Column("Cpu");
+for (int i = 0; i < times.Length; i++) { samples.Row(times[i], times[i], cpu[i]); }
 ConsoleApp.Run(new Splitter(new DataGrid("Samples", samples) { LinkKey = "Sample" }, view)
 {
     Ratio = 0.3

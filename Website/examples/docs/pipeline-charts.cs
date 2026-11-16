@@ -6,7 +6,7 @@ var cpuOptions = new ChartOptions { Unit = " s", Signed = true };
 (string Name, double Value)[] samples = { ("web", 34.0), ("jobs", 72.0),
     ("api", 18.0), ("helper", 5.0) };
 foreach (var sample in samples.OrderByDescending(sample => sample.Value).Take(3))
-    cpuOptions.AddItem(sample.Name, sample.Value);
+    cpuOptions.Item(sample.Name, sample.Value);
 IWidget cpu = Chart.Create(cpuOptions);
 IWidget latency = Chart.Create(new ChartOptions
 {

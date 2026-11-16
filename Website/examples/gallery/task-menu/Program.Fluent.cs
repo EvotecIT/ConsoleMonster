@@ -13,10 +13,10 @@ Rows layout = Ui.Rows().Gap(1).Content(rowsContent2 =>
 {
     rowsContent2.Markup("[accent bold]Server toolbox[/] [muted]· operations[/]");
     rowsContent2.Select(select => select.Key("Task")
-        .AddChoices(tasks.Select(task => new Choice(task)))
+        .Choices(tasks.Select(task => new Choice(task)))
         .Label("Task")
         .Value(tasks[0]));
-    rowsContent2.Binding(binding => binding.Configure(o => o.Content = state =>
+    rowsContent2.Binding(binding => binding.ContentBy(state =>
     {
         string task = state.Get<string>("Task", tasks[0]);
         string[] lines = task == tasks[0] ? new[]

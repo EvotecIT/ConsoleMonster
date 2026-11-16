@@ -26,10 +26,10 @@ Service[] services = {
         "Verifies nightly backup snapshots."),
 };
 var grid = Ui.Grid().Title("Service browser");
-grid.AddColumn("Name").AddColumn("Status").AddColumn("StartType").AddColumn("DisplayName")
-    .AddColumn("ProcessId").AddColumn("Account").AddColumn("DependsOn").AddColumn("Description");
+grid.Column("Name").Column("Status").Column("StartType").Column("DisplayName")
+    .Column("ProcessId").Column("Account").Column("DependsOn").Column("Description");
 foreach (var service in services) {
-    grid.AddRow(service, service.Name, service.Status, service.StartType, service.DisplayName,
+    grid.Row(service, service.Name, service.Status, service.StartType, service.DisplayName,
         service.ProcessId, service.Account, service.DependsOn, service.Description);
 }
 
@@ -60,7 +60,7 @@ grid.Show(options =>
         options.Command.Add(Ui.Command()
             .Key(operation)
             .Label(operation)
-            .Configure(o => o.Action = async (context, cancellation) =>
+            .Run(async (context, cancellation) =>
             {
                 foreach (object? row in context.Rows)
                 {
@@ -92,7 +92,7 @@ grid.Show(options =>
     }
 
     // Refresh the acted-on snapshot on the input thread, preserving selection and row position.
-    options.Configure(configured => configured.RefreshRow = (command, row) =>
+    options.RefreshRowBy((command, row) =>
     {
         var values = row.Values.ToArray();
         string status = command.Key == "Stop" ? "Stopped" : "Running";

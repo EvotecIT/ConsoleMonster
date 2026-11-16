@@ -70,11 +70,11 @@ IWidget Summary(IReadOnlyList<RunResult<Host, string>> outcomes)
     )
         map.RowLabels.Add(label);
     SummaryBar summary = Ui.SummaryBar()
-        .SetProgress(done, servers.Length)
-        .SetCounter("passed", done - failed, StatusKind.Pass)
-        .SetCounter("failed", failed, StatusKind.Fail)
-        .SetCounter("running", 0, StatusKind.Running)
-        .SetCounter("pending", servers.Length - done, StatusKind.Pending);
+        .Progress(done, servers.Length)
+        .Counter("passed", done - failed, StatusKind.Pass)
+        .Counter("failed", failed, StatusKind.Fail)
+        .Counter("running", 0, StatusKind.Running)
+        .Counter("pending", servers.Length - done, StatusKind.Pending);
     Lanes lanes = Ui.Lanes();
     foreach (Host host in finished ? servers.TakeLast(throttle) : servers.Take(throttle))
     {
@@ -148,7 +148,7 @@ IReadOnlyList<RunResult<Host, string>> results = await ConsoleRun.ForEachAsync(
             .Timeout(TimeSpan.FromSeconds(timeoutSeconds))
             .Title("Patching the web farm")
             .Live(true)
-            .Configure(configured => configured.Label = item => ((Host)item!).Name);
+            .LabelBy(item => ((Host)item!).Name);
     });
 
 // Keep the structured outcomes; never retry automatically after a failure.

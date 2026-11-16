@@ -54,7 +54,7 @@ namespace SiteFrames.Capture {
             foreach (GalleryPage.Demo demo in GalleryPage.Read(site)) {
                 int step = demo.Metadata["capture"]!["states"]!.AsArray().Count - 1;
                 CellBuffer frame = GalleryFrames.Run(demo, step, theme: theme, width: 120, height: 42, density: density, markers: markers);
-                frame.SavePng(Path.Combine(directory, demo.Slug + ".png"), new GraphicsExportOptions { Frame = new ExportOptions { Theme = exportTheme } });
+                frame.Save(Path.Combine(directory, demo.Slug + ".png"), new GraphicsExportOptions { Frame = new ExportOptions { Theme = exportTheme } });
                 File.WriteAllText(Path.Combine(directory, demo.Slug + ".txt"), frame.ToPlainText(), new UTF8Encoding(false));
                 frames.Add((demo.Slug, frame));
             }
@@ -74,7 +74,7 @@ namespace SiteFrames.Capture {
                 y += height + 3;
             }
             string path = Path.Combine(directory, "gallery-" + name + "-120-contact-sheet.png");
-            sheet.SavePng(path, new GraphicsExportOptions { Frame = new ExportOptions { Theme = exportTheme } });
+            sheet.Save(path, new GraphicsExportOptions { Frame = new ExportOptions { Theme = exportTheme } });
             return path;
         }
 

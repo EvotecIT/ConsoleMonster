@@ -127,14 +127,14 @@ namespace SiteFrames.Pages {
 
             // The numbers as a ConsoleMonster table, so the page shows them the way a console would.
             Table table = new Table { Title = "[bold]ConsoleMonster.Benchmarks[/] [muted]140×45, 32 lanes, 5,000 updates between frames[/]" };
-            table.AddColumn(new TableColumn("Measure") { IsKey = true });
-            table.AddColumn(new TableColumn("Result") { Alignment = ConsoleMonster.Layout.HorizontalAlignment.Right });
-            table.AddColumn(new TableColumn("Share of a 66.7 ms frame") { Presenter = new ConsoleMonster.Presenters.DataBarPresenter(66.7, new ConsoleMonster.Presenters.NumberPresenter("ms")), Priority = 5 });
-            table.AddValues("Compose a frame", compose.ToString("0.000", Site.Culture) + " ms", compose);
-            table.AddValues("Diff and encode VT", encode.ToString("0.000", Site.Culture) + " ms", encode);
-            table.AddValues("Characters written per frame", chars.ToString("N0", Site.Culture), null);
-            table.AddValues("Allocated per frame", alloc.ToString("N0", Site.Culture) + " B", null);
-            table.AddValues("Events applied per second", apply.ToString("N0", Site.Culture), null);
+            table.Column(new TableColumn("Measure") { IsKey = true });
+            table.Column(new TableColumn("Result") { Alignment = ConsoleMonster.Layout.HorizontalAlignment.Right });
+            table.Column(new TableColumn("Share of a 66.7 ms frame") { Presenter = new ConsoleMonster.Presenters.DataBarPresenter(66.7, new ConsoleMonster.Presenters.NumberPresenter("ms")), Priority = 5 });
+            table.Values("Compose a frame", compose.ToString("0.000", Site.Culture) + " ms", compose);
+            table.Values("Diff and encode VT", encode.ToString("0.000", Site.Culture) + " ms", encode);
+            table.Values("Characters written per frame", chars.ToString("N0", Site.Culture), null);
+            table.Values("Allocated per frame", alloc.ToString("N0", Site.Culture) + " B", null);
+            table.Values("Events applied per second", apply.ToString("N0", Site.Culture), null);
 
             JsonObject machine = (JsonObject)JsonNode.Parse(File.ReadAllText(machinePath))!;
             return new JsonObject {

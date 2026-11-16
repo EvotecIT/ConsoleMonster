@@ -85,7 +85,7 @@ Table TableOf(string[] headers)
 {
     Table table = Ui.Table().Border(TableBorder.Minimal).RecordViewRows(0);
     foreach (string header in headers)
-        table.AddColumn(header, HorizontalAlignment.Left);
+        table.Column(header, HorizontalAlignment.Left);
     return table;
 }
 
@@ -94,7 +94,7 @@ IWidget Findings(IEnumerable<Work> work)
     Table table = TableOf(new[] { "Server", "Task", "Expected", "Actual" });
     table.Columns[3].Flexible();
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
-        table.AddRow(
+        table.Row(
             w.Node.Name,
             w.Check.Name,
             w.Check.Expected,
@@ -108,7 +108,7 @@ IWidget History()
 {
     Table table = TableOf(new[] { "When", "Servers", "Tasks", "Result", "Duration" });
     foreach (HistoryRow h in history.AsEnumerable().Reverse())
-        table.AddRow(h.When, h.Servers.ToString(), h.Tasks.ToString(),
+        table.Row(h.When, h.Servers.ToString(), h.Tasks.ToString(),
             $"{h.Passed} passed · {h.Warnings} warn · {h.Failed} failed",
             h.Elapsed.ToString(@"hh\:mm\:ss"));
     return table;
@@ -133,10 +133,10 @@ IWidget Body(List<Work> work, int done, int phase)
         : Array.Empty<Work>();
     SummaryBar summary = Ui.SummaryBar()
         .Elapsed(TimeSpan.FromSeconds(done * .24 / parallel))
-        .SetProgress(done, work.Count)
-        .SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
-        .SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
-        .SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
+        .Progress(done, work.Count)
+        .Counter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
+        .Counter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
+        .Counter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
     Phases phases = Ui.Phases();
     string[] names = { "Discover", "Connect", "Tasks", "Report" };
     for (int i = 0; i < names.Length; i++)
@@ -325,8 +325,8 @@ Form Options()
         .Default(email)
         .ParameterName("To")
         .Required()
-        .Configure(configured => configured.VisibleWhen = v => v.Get<bool>("Notify"))
-        .Configure(configured => configured.Validator = (value,
+        .ShowWhen(v => v.Get<bool>("Notify"))
+        .Validate((value,
             _) => value is string s && s.Contains('@') ? null : "Enter an email address");
     ToggleField dry = page.Toggle("DryRun", "Dry run").Default(false).ParameterName("WhatIf");
     return form;
@@ -350,9 +350,9 @@ Menu menu = Ui.Menu()
 MenuItem targetItem = Ui.MenuItem()
     .Label("Targets")
     .Hotkey('t')
-    .IconName(GlyphIcon.Targets)
+    .Icon(Icons.Targets)
     .Description("Inventory grouped by site; unavailable servers stay visible.")
-    .Configure(configured => configured.LoadChoices = async (_, token) =>
+    .ChoicesBy(async (_, token) =>
     {
         await Task.Delay(700, token);
         return Choice.From(
@@ -364,7 +364,7 @@ MenuItem targetItem = Ui.MenuItem()
             n => n.Offline);
     });
 targetItem.SetSelection(targets.Cast<object?>());
-targetItem.Minimum(1).Configure(configured => configured.Preview = c =>
+targetItem.Minimum(1).PreviewBy(c =>
 {
     Node n = (Node)c.Value!;
     return Ui.KeyValue()
@@ -376,7 +376,7 @@ targetItem.Minimum(1).Configure(configured => configured.Preview = c =>
 MenuItem taskItem = Ui.MenuItem()
     .Label("Tasks")
     .Hotkey('k')
-    .IconName(GlyphIcon.Tasks)
+    .Icon(Icons.Tasks)
     .MultiSelect(catalog.Select(c => new Choice(c.Id, c.Name)
         .Group(c.Category)
         .Description(c.Description)
@@ -385,14 +385,12 @@ MenuItem taskItem = Ui.MenuItem()
             new RichStyle(c.Changes ? ThemeToken.Warn : ThemeToken.Muted)))
         .Selected(checks.Contains(c))))
     .Minimum(1)
-    .Configure(
-        configured => configured.Preview = c => Preview(
-            catalog.First(k => k.Id == (string)c.Value!)));
+    .PreviewBy(c => Preview(catalog.First(k => k.Id == (string)c.Value!)));
 menu.Add(targetItem).Add(taskItem);
 MenuItem optionItem = Ui.MenuItem()
     .Label("Options")
     .Hotkey('o')
-    .IconName(GlyphIcon.Settings)
+    .Icon(Icons.Settings)
     .Form(options, (_, result) => ApplyOptions(result.Values));
 menu.Add(optionItem)
     .Preset(
@@ -410,11 +408,11 @@ menu.Add(optionItem)
             .Selection(
                 taskItem,
                 new object? [] { "EventErrors", "Services", "DiskSpace", "Uptime" }))
-    .Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets())
+    .Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Presets())
     .Separator()
     .Item("Review & run", i =>
     {
-        i.Hotkey('r').IconName(GlyphIcon.Run).Configure(configured2 => configured2.Review = _ =>
+        i.Hotkey('r').Icon(Icons.Run).ReviewBy(_ =>
         {
             targets = inventory.Where(n => targetItem.GetSelection<Node>()
                 .Contains(n) && n.Offline == "")
@@ -443,16 +441,16 @@ menu.Add(optionItem)
             };
             review.Command(CommandLine.Build("Invoke-ServerToolbox",
                 commandArguments) + " " + options.BuildCommand())
-                .Configure(configured => configured.Run = ctx => Execute(ctx, Plan()));
+                .Run(ctx => Execute(ctx, Plan()));
             return review;
         });
     })
     .Item("History", i =>
     {
         i.Hotkey('h')
-            .IconName(GlyphIcon.List)
-            .Configure(configured => configured.Page = _ => History())
-            .Configure(configured => configured.Detail = () => history.Count + " runs");
+            .Icon(Icons.List)
+            .PageBy(_ => History())
+            .DetailBy(() => history.Count + " runs");
     })
     .Separator()
     .Exit("Quit");

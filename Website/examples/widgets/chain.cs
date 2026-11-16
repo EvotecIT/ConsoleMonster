@@ -14,13 +14,13 @@ static Phases Stages(params StatusKind[] status)
     return stages;
 }
 
-Table table = new Table().AddColumn("Repository").AddColumn("Stages");
-table.AddValues("ConsoleMonster",
+Table table = new Table().Column("Repository").Column("Stages");
+table.Values("ConsoleMonster",
     Stages(StatusKind.Pass, StatusKind.Pass, StatusKind.Running, StatusKind.Pending,
         StatusKind.Pending));
-table.AddValues("PSPublishModule",
+table.Values("PSPublishModule",
     Stages(StatusKind.Pass, StatusKind.Fail, StatusKind.Pending, StatusKind.Pending,
         StatusKind.Pending));
-table.AddValues("DnsClientX",
+table.Values("DnsClientX",
     Stages(StatusKind.Pass, StatusKind.Pass, StatusKind.Pass, StatusKind.Pass, StatusKind.Pass));
 Terminal.Write(table);
