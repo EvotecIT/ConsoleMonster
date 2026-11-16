@@ -11,6 +11,17 @@ namespace ConsoleMonster.Tests.Building {
     /// <summary>The fluent entry point configures the same objects and preserves kind and identity at materialization.</summary>
     public sealed class UiFactoryTests {
         [Fact]
+        public void TitledFactoriesSetTheTitleBeforeTheConfigurationRuns() {
+            string? seen = null;
+            Panel panel = Ui.Panel("Build", p => seen = p.Title);
+            Assert.Equal("Build", panel.Title);
+            Assert.Equal("Build", seen);
+            Assert.Equal("Hosts", Ui.Table("Hosts").Title);
+            Assert.Equal("Main", Ui.Menu("Main").Title);
+            Assert.Equal("Orders", Ui.Chart("Orders").Title);
+        }
+
+        [Fact]
         public void RootAndNestedFactoryChainsRenderTheInitializerModel() {
             var expected = new Rows(new Panel(new Rows(TextBlock.Plain("literal [text]"), new Rule("Build")), "Status"), new Table().Column("Name").Row("API")) { Gap = 1 };
             var actual = Ui.Rows().Gap(1).Content(content => {
