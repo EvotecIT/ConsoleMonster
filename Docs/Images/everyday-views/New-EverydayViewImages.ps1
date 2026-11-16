@@ -51,6 +51,26 @@ Get-ChildItem $root -Recurse -Force | ForEach-Object { $_.LastWriteTime = $stamp
 Save-View 'files-tree' 'Get-ChildItem -Recurse' { Get-ChildItem -LiteralPath $root -Recurse } -Width 72
 Remove-Item -LiteralPath $root -Recurse -Force
 
+# A project folder with one file of each kind, so every name colour shows.
+$root = Join-Path $temp 'project'
+if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force }
+$null = New-Item -ItemType Directory -Path (Join-Path $root 'src'), (Join-Path $root 'assets') -Force
+$files = [ordered] @{
+    '.gitignore' = 120; 'build.ps1' = 4096; 'Program.cs' = 2210; 'release.zip' = 5242880; 'logo.png' = 48211
+    'debug.log' = 91234; 'README.md' = 15360; 'settings.json' = 512; 'setup.exe' = 3145728
+}
+foreach ($name in $files.Keys) { [System.IO.File]::WriteAllBytes((Join-Path $root $name), (New-Object byte[] $files[$name])) }
+if ($IsMacOS -or $IsLinux) { & chmod +x (Join-Path $root 'setup.exe') }
+Get-ChildItem $root -Force | ForEach-Object { $_.LastWriteTime = $stamp }
+# On macOS and Linux the listing shows the owner; the image shows an example name instead of whoever draws it.
+Save-View 'files' 'Get-ChildItem -Force' {
+    foreach ($type in 'System.IO.FileInfo', 'System.IO.DirectoryInfo') {
+        Update-TypeData -TypeName $type -MemberType ScriptProperty -MemberName User -Value { 'example' } -Force
+    }
+    Get-ChildItem -LiteralPath $root -Force
+} -Width 90
+Remove-Item -LiteralPath $root -Recurse -Force
+
 Save-View 'processes' 'Get-Process' {
     $processes = @(('pwsh', 412MB, 61.2), ('dotnet', 1.9GB, 812.4), ('Code', 980MB, 344.9), ('sqlservr', 2.6GB, 1290.5),
         ('w3wp', 640MB, 220.1), ('explorer', 210MB, 95.3), ('OneDrive', 160MB, 40.8))
