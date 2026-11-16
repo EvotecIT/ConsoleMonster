@@ -117,9 +117,9 @@ using (ContinuousIntegration.Group("Build")) {
         AnnotationLevel.Warning, "Review this setting", file: "build.cs", line: 12);
 }
 var table = new Table();
-table.AddColumn("Check");
-table.AddColumn("Result");
-table.AddRow("Build", "Passed");
+table.Column("Check");
+table.Column("Result");
+table.Row("Build", "Passed");
 string markdown = ContinuousIntegration.AddSummary(
     table, provider: new MarkdownFrameExportProvider());
 

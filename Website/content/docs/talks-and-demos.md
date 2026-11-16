@@ -166,8 +166,8 @@ var options = new DemoOptions {
 ConsolePresentation.Record(demo, options);
 var recording = SessionRecording.Read("talk.cast");
 var slides = new GraphicsExportOptions { Preset = GraphicsPreset.Slide16x9 };
-recording.SaveGraphics("talk.gif", GraphicsFormat.Gif, slides);
-recording.SaveChapterPngs("slides", slides);
+recording.Save("talk.gif", GraphicsFormat.Gif, slides);
+recording.SaveChapters("slides", slides);
 ```
 
 For live presentation use `ConsolePresentation.Present(demo, options)`. Pass `stepChanged` to display a custom step counter and a cancellation token to stop the owned child.

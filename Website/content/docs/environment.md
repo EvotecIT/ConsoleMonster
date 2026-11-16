@@ -86,7 +86,7 @@ Get-ConsoleCapability -Refresh | Select-Object Kind, SupportsHyperlinks
 
 ## In C#
 
-The same choices are available without the environment: `TerminalProfile.Fixed(width, height, colors, glyphs)` for a profile with no detection, and `WithCulture`, `WithThemePreference`, `WithSize`, `WithColorDepth` and `WithMode` to change one value. Live sessions take `LiveSessionOptions.Profile`, `Theme` and `Culture`.
+The same choices are available without the environment: `TerminalProfile.Fixed(width, height, colors, glyphs)` for a profile with no detection, and `WithCulture`, `WithThemeMode`, `WithPalette`, `WithSize`, `WithColorDepth` and `WithMode` to change one value. Live sessions take `LiveSessionOptions.Profile`, `Theme` and `Culture`.
 
 ```csharp
 using ConsoleMonster;

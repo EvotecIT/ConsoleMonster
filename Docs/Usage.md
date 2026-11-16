@@ -150,7 +150,7 @@ Ui.Panel().Title("Build").Border(BoxStyle.Rounded)
     .Show();
 ```
 
-Nested widgets use the same nouns: `c.Panel(p => p.Title("Build").Content(...))`, `c.Rows(r => ...)`, `c.Table(t => ...)`, or a configured instance. Existing handles use `c.Add(widget)`. A true Boolean switch becomes a parameterless call such as `.Expand()`; `.Expand(false)` remains available. Callback-valued properties use `.Configure(item => item.Action = callback)`, because C# otherwise invokes the delegate property.
+Nested widgets use the same nouns: `c.Panel(p => p.Title("Build").Content(...))`, `c.Rows(r => ...)`, `c.Table(t => ...)`, or a configured instance. Existing handles use `c.Add(widget)`. A true Boolean switch becomes a parameterless call such as `.Expand()`; `.Expand(false)` remains available. Callback-valued properties use the verb they declare, such as `.Run(callback)` for `Action` or `.ShowWhen(...)` for `VisibleWhen`, because C# otherwise invokes the delegate property.
 
 Factories start empty. The recorded primary inputs are literal text, rule titles, one typed table row sequence, and a live widget's positional identity. Titles, children, colors, sizes and other configuration belong in the chain. `Ui.Table(rows)` uses the same `Table.For(rows)` owner and typed `.Column(row => row.Name)` selectors as the initializer style. `Ui.Chart().Type(...)`, `Ui.Progress().Indeterminate()` and kind-selected inputs configure the existing typed options before `Build()`; a typed live handle uses `Build<T>()`. Container builders materialize those definitions after their configuration lambda.
 
@@ -205,11 +205,11 @@ output stays readable.
 
 ```csharp
 Table table = new Table { Title = "Artifacts", ShowTotals = true };
-table.AddColumn(new TableColumn("Artifact") { IsKey = true, Overflow = ColumnOverflow.Never });
-table.AddColumn(new TableColumn("Size") { Priority = 9, Presenter = CellPresenters.Bytes, Aggregate = ColumnAggregate.Sum });
-table.AddColumn(new TableColumn("Built in") { Priority = 6, Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
-table.AddColumn(new TableColumn("Path") { Priority = 1, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 20 });
-table.AddValues("ConsoleMonster.2.0.0.nupkg", 1_482_113L, TimeSpan.FromSeconds(48.2), @"C:\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg");
+table.Column(new TableColumn("Artifact") { IsKey = true, Overflow = ColumnOverflow.Never });
+table.Column(new TableColumn("Size") { Priority = 9, Presenter = CellPresenters.Bytes, Aggregate = ColumnAggregate.Sum });
+table.Column(new TableColumn("Built in") { Priority = 6, Presenter = CellPresenters.Duration, Aggregate = ColumnAggregate.Sum });
+table.Column(new TableColumn("Path") { Priority = 1, Overflow = ColumnOverflow.TruncateMiddle, MinWidth = 20 });
+table.Values("ConsoleMonster.2.0.0.nupkg", 1_482_113L, TimeSpan.FromSeconds(48.2), @"C:\Artefacts\Packed\ConsoleMonster.2.0.0.nupkg");
 Terminal.Write(table);
 ```
 
@@ -301,7 +301,7 @@ New-ConsolePanel -Title (New-ConsoleText 'SRV', '01' -Color Cyan, Yellow) -Conte
 
 ```csharp
 RichText status = new RichTextBuilder().Append("√ ", ThemeToken.Pass).Append("PASS", ThemeToken.Pass, TextDecoration.Bold).Build();
-table.AddValues(new RichTextBuilder().Append("SRV", ConsoleColor.Cyan).Append("01", ConsoleColor.Yellow).Build(), status);
+table.Values(new RichTextBuilder().Append("SRV", ConsoleColor.Cyan).Append("01", ConsoleColor.Yellow).Build(), status);
 lanes.Add("srv01", RichText.Gradient("SRV01", RichColor.FromRgb(0, 198, 255), RichColor.FromRgb(255, 0, 170)));
 ```
 
@@ -464,7 +464,7 @@ Show-ConsoleMenu $menu -Layout Classic
 
 ```csharp
 Menu menu = new Menu("Server toolbox")
-    .Item("Targets", i => i.Hotkey('t').Configure(item => item.LoadChoices = LoadServersAsync))
+    .Item("Targets", i => i.Hotkey('t').ChoicesBy(LoadServersAsync))
     .Item("Tasks", i => i.Hotkey('k').MultiSelect(tasks, t => t.Name, t => t.Category, TaskPreview))
     .Item("Options", i => i.Form(optionsForm))
     .Item("Presets", i => i.Presets())
@@ -620,8 +620,8 @@ using ConsoleMonster.Widgets;
 [Cmdlet(VerbsLifecycle.Invoke, "Build")]
 public sealed class InvokeBuildCommand : PSCmdlet {
     protected override void EndProcessing() {
-        Table table = new Table().AddColumn("Step").AddColumn("Took");
-        table.AddRow("Restore", "2.1s").AddRow("Build", "14s");
+        Table table = new Table().Column("Step").Column("Took");
+        table.Row("Restore", "2.1s").Row("Build", "14s");
         HostOutput.Write(this, table);
         HostOutput.WriteMarkup(this, "[pass]Build finished[/] in [bold]16s[/]");
         HostOutput.Run(this, () => WriteWarning("Two analyzers were skipped."));
@@ -685,14 +685,14 @@ scrolled; a step list belongs in a [step ledger](#step-ledgers)), and `SortColum
 In stream mode each added or updated row prints as a line.
 
 ```csharp
-LiveTable jobs = new LiveTable(new Table().AddColumn("Job").AddColumn("State").AddColumn("Took"), "jobs") { MaxRows = 8 };
+LiveTable jobs = new LiveTable(new Table().Column("Job").Column("State").Column("Took"), "jobs") { MaxRows = 8 };
 Dashboard dashboard = new Dashboard("Domain health", new Rows(
     new Panel(new RegionWidget("main", new Spinner("Querying domain controllers")), "Domain controllers"),
     new Panel(jobs, "Jobs").Fill()));
 using (LiveSession session = new LiveSession(dashboard)) {
     session.Start();
     LiveTableHandle rows = jobs.Handle(session);
-    rows.AddRow("dns@DC01", "dns", StatusKind.Running, TimeSpan.Zero);
+    rows.Row("dns@DC01", "dns", StatusKind.Running, TimeSpan.Zero);
     rows.UpdateRow("dns@DC01", "dns", StatusKind.Pass, TimeSpan.FromSeconds(4));
     session.Region("main").Set(controllersTable);          // from any thread
 }
@@ -1248,9 +1248,9 @@ root.SetAction(parseResult => {
     }
 
     Table table = new Table();                                    // then the result as a table
-    table.AddColumn(new TableColumn("Server") { IsKey = true });
-    table.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-    foreach (string name in names) { table.AddValues(name, StatusKind.Pass); }
+    table.Column(new TableColumn("Server") { IsKey = true });
+    table.Column(new TableColumn("Status") { Presenter = CellPresenters.Status });
+    foreach (string name in names) { table.Values(name, StatusKind.Pass); }
     Terminal.Write(table);
     return 0;
 });
@@ -1412,7 +1412,7 @@ try {
 - Font changes: in conhost, the console font is polled about once a second, and a new face or size re-derives the
   glyph tier and the emoji/ambiguous widths. In Windows Terminal, widths are measured again after every resize, which
   also covers Ctrl+= and Ctrl+0 zoom.
-- Theme: `CONSOLEMONSTER_THEME=light|dark|highcontrast|colorblind|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code. `auto` reads
+- Theme: `CONSOLEMONSTER_THEME=light|dark|highcontrast|colorblind|auto` (default `auto`), or `TerminalProfile.WithThemeMode` (and `WithPalette`) in code. `auto` reads
   Windows High Contrast first, then the console background colour in conhost. Explicit `light`, `dark`, `highcontrast`
   or `colorblind` selects that palette; `Theme`/`Set-ConsoleTheme` and a supplied target/session theme take precedence. Windows Terminal doesn't expose its colour scheme to console programs
   (ConPTY reports the default dark colour table), and ConsoleMonster never reads console input to ask the terminal

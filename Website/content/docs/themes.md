@@ -16,7 +16,7 @@ A theme restyles every widget at once. Widgets never name colours directly; they
 ## Choosing the theme
 
 - `Show-ConsoleSetting`, or `Set-ConsoleSetting Theme ... -Save`, for every session (below).
-- `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemePreference` in code.
+- `CONSOLEMONSTER_THEME=light|dark|auto` (default `auto`), or `TerminalProfile.WithThemeMode` (and `WithPalette`) in code.
 - `auto` reads the console background colour in conhost. In Windows Terminal, which does not report its scheme to console programs, `auto` picks the dark theme; set `CONSOLEMONSTER_THEME=light` for a light scheme.
 - `Set-ConsoleTheme` in PowerShell, `LiveSessionOptions.Theme` for one session.
 

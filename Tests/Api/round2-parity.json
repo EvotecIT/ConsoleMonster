@@ -1244,7 +1244,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Export.FrameExporter",
-          "Member": "Export",
+          "Member": "Render",
           "MemberKind": "Method",
           "Conversion": "Identity",
           "CSharpTypeName": "System.String",
@@ -1693,7 +1693,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Export.Recording",
-          "Member": "Export",
+          "Member": "Render",
           "Argument": "format",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -2946,7 +2946,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Sessions.SessionRecording",
-          "Member": "ExportFinalSvg",
+          "Member": "ToFinalSvg",
           "MemberKind": "Method",
           "Conversion": "EnumDiscriminator",
           "CSharpTypeName": null,
@@ -4635,7 +4635,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "AddItem",
+          "Member": "Item",
           "MemberKind": "Method",
           "Conversion": "HostAdaptation",
           "CSharpTypeName": "System.String",
@@ -4834,7 +4834,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "AddItem",
+          "Member": "Item",
           "MemberKind": "Method",
           "Conversion": "HostAdaptation",
           "CSharpTypeName": "System.Double",
@@ -11909,7 +11909,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.SummaryBar",
-          "Member": "SetCounter",
+          "Member": "Counter",
           "MemberKind": "Method",
           "Conversion": "RecordCollection",
           "CSharpTypeName": "System.Int32",
@@ -12003,7 +12003,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.SummaryBar",
-          "Member": "SetProgress",
+          "Member": "Progress",
           "Argument": "total",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -12021,7 +12021,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.SummaryBar",
-          "Member": "SetProgress",
+          "Member": "Progress",
           "Argument": "value",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -17469,7 +17469,7 @@
           "Writable": false,
           "Static": false,
           "Reason": "Adds definitions to the same Command collection used by grids and buttons.",
-          "FluentMember": "AddCommand"
+          "FluentMember": "Command"
         },
         {
           "Parameter": "Content",
@@ -18023,7 +18023,7 @@
           "Writable": false,
           "Static": false,
           "Reason": "Definitions or script-block shorthand become the same core AppCommand collection.",
-          "FluentMember": "AddCommand"
+          "FluentMember": "Command"
         },
         {
           "Parameter": "Culture",
@@ -18085,7 +18085,7 @@
           "Nullable": "Unknown",
           "Writable": false,
           "Static": false,
-          "FluentMember": "AddHiddenColumn"
+          "FluentMember": "HiddenColumn"
         },
         {
           "Parameter": "InputObject",
@@ -32897,7 +32897,7 @@
       "Member": "Save",
       "Argument": "widget",
       "FluentType": "ConsoleMonster.WidgetPipeline",
-      "FluentMember": "Export",
+      "FluentMember": "Save",
       "FluentArgument": "path"
     }
   ],
@@ -33003,9 +33003,9 @@
   "FluentExceptions": [
     {
       "Kind": "DelegateProperty",
-      "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = …)",
-      "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
+      "Method": "[Fluent(\"Verb\")]",
+      "Pattern": ".{Verb}(callback)",
+      "Reason": "C# invokes a delegate-valued property before considering an extension with that name, so each callback property declares its verb: ShowWhen, PreviewBy, WhenChanged, Run."
     }
   ],
   "FluentGrammar": {
@@ -33024,49 +33024,49 @@
         {
           "Command": "New-ConsolePanel",
           "CSharpType": "ConsoleMonster.Layout.Panel",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.PanelFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleRows",
           "CSharpType": "ConsoleMonster.Layout.Rows",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.RowsFluent",
           "Member": "Content",
           "InitializerPattern": "new Rows(widgets)"
         },
         {
           "Command": "New-ConsoleColumns",
           "CSharpType": "ConsoleMonster.Layout.Columns",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.ColumnsFluent",
           "Member": "Content",
           "InitializerPattern": "new Columns(widgets)"
         },
         {
           "Command": "New-ConsoleStack",
           "CSharpType": "ConsoleMonster.Layout.Stack",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.StackFluent",
           "Member": "Content",
           "InitializerPattern": "new Stack(widgets)"
         },
         {
           "Command": "New-ConsoleLayoutGrid",
           "CSharpType": "ConsoleMonster.Layout.LayoutGrid",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutGridFluent",
           "Member": "Content",
           "InitializerPattern": "new LayoutGrid(columns, widgets)"
         },
         {
           "Command": "New-ConsoleScrollView",
           "CSharpType": "ConsoleMonster.Widgets.ScrollView",
-          "FluentType": "ConsoleMonster.Widgets.WidgetsFluent",
+          "FluentType": "ConsoleMonster.Widgets.ScrollViewFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleCollapsible",
           "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
-          "FluentType": "ConsoleMonster.Interactive.InteractiveFluent",
+          "FluentType": "ConsoleMonster.Interactive.CollapsibleInputOptionsFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         }
@@ -34187,7 +34187,7 @@
       },
       {
         "CSharpType": "ConsoleMonster.WidgetPipeline",
-        "Member": "Export",
+        "Member": "Save",
         "OptionsType": "ConsoleMonster.Export.ExportOptions",
         "Argument": "configure",
         "Pattern": "options => options.Width(100)",

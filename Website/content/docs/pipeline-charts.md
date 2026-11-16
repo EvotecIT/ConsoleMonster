@@ -126,9 +126,9 @@ using ConsoleMonster;
 using ConsoleMonster.Widgets;
 
 Ui.Chart().Type(ChartType.Bar).Unit(" s")
-    .AddItem("web", 34)
-    .AddItem("jobs", 72)
-    .AddItem("api", 18)
+    .Item("web", 34)
+    .Item("jobs", 72)
+    .Item("api", 18)
     .Show();
 
 Ui.Chart()

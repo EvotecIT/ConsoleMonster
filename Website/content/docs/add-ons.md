@@ -42,8 +42,8 @@ With `using System.Management.Automation;`, `using ConsoleMonster.PowerShell.Dis
 [Cmdlet(VerbsLifecycle.Invoke, "Build")]
 public sealed class InvokeBuildCommand : PSCmdlet {
     protected override void EndProcessing() {
-        Table table = new Table().AddColumn("Step").AddColumn("Took");
-        table.AddRow("Restore", "2.1s").AddRow("Build", "14s");
+        Table table = new Table().Column("Step").Column("Took");
+        table.Row("Restore", "2.1s").Row("Build", "14s");
         HostOutput.Write(this, table);
         HostOutput.WriteMarkup(this, "[pass]Build finished[/] in [bold]16s[/]");
         HostOutput.Run(this, () => WriteWarning("Two analyzers were skipped."));

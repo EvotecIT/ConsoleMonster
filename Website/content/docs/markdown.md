@@ -50,7 +50,7 @@ $widget | Export-ConsoleFrame -Format FencedText
 Export-ConsoleRecording -RecordingPath ./talk.cast -Format Markdown -Path ./talk.md
 ```
 
-In C#, add the package and call `MarkdownExporter.Export(widget, options)` or `MarkdownExporter.ExportRecording(recording)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Tables, records and trees keep their cell formatting, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.
+In C#, add the package and call `MarkdownExporter.ToMarkdown(widget, options)` or `MarkdownExporter.ToMarkdown(recording)`. Frames and live snapshots become fenced text; terminal recordings retain scrollback. Dashboard events export timestamped frames. Tables, records and trees keep their cell formatting, groups and totals. OfficeIMO owns document blocks and safe fences; backtick-containing frames may use shorter tilde fences with identical literal content.
 
 ## Next
 

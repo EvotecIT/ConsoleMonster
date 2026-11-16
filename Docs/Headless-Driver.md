@@ -81,15 +81,15 @@ an app running in a real terminal, give its live session an in-process recorder:
 using var recorder = SessionRecorder.Start(new SessionRecordingOptions { Path = "demo.cast", InProcess = true });
 ConsoleApp.Run(layout, options: new ConsoleAppOptions { Live = new LiveSessionOptions { Recorder = recorder } });
 recorder.Dispose();
-SessionRecording.Read("demo.cast").SaveGraphics("demo.gif", GraphicsFormat.Gif);   // ConsoleMonster.Graphics
+SessionRecording.Read("demo.cast").Save("demo.gif", GraphicsFormat.Gif);   // ConsoleMonster.Graphics
 ```
 
 `LiveSessionOptions.RecordingPath` still records dashboard updates for replay into the same dashboard definition
 (`Show-ConsoleReplay`); it cannot hold an app's composed screen.
 
 Screens captured with `ScreenCapture` (scripted prompts, menus and apps) export as animations too:
-`capture.ToRecordedFrames(TimeSpan.FromMilliseconds(500))` gives timed frames for `Recording.Export(frames,
-OutputFormat.Svg)` (also `Html` and `Asciicast`) and for `frames.SaveGraphics("flow.gif", GraphicsFormat.Gif)` in
+`capture.ToRecordedFrames(TimeSpan.FromMilliseconds(500))` gives timed frames for `Recording.Render(frames,
+OutputFormat.Svg)` (also `Html` and `Asciicast`) and for `frames.Save("flow.gif", GraphicsFormat.Gif)` in
 ConsoleMonster.Graphics.
 
 ## Browser host

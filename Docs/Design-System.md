@@ -110,9 +110,9 @@ variation selectors cannot bypass the tier. This uses the documented character s
 fallback behavior. Ordinary localized prose and copyright/registered/trademark text signs remain as written;
 their explicit emoji presentation is decorative. Full retains the original text and symbols.
 
-## Icons (`GlyphIcon`)
+## Icons (`Icons`)
 
-Menu items take a semantic icon that follows the glyph tier, or free text when an app needs its own mark. Every icon is
+Menu items take an icon catalog key (`Icons.Run`, `-Icon run`) that follows the glyph tier, or a free-text mark (`Mark`, `-Mark`) when an app needs its own. Every icon is
 one cell wide in every tier.
 
 | Icon | Full | Basic | ASCII |

@@ -13,8 +13,8 @@ viewport, prefix search and marks. `Selection` contains original objects; a row'
 
 ```csharp
 var listing = Ui.Grid().Title("Files");
-listing.AddColumn("Name").AddColumn("Size");
-listing.AddRow(new GridRow(file, file.Name,
+listing.Column("Name").Column("Size");
+listing.Row(new GridRow(file, file.Name,
     new DataGridCell(async cancellation =>
         (object?)await ReadSizeAsync(file, cancellation))) { Id = file.FullName });
 
@@ -226,11 +226,11 @@ Show-ConsoleApp -Content {
 ```
 
 ```csharp
-var samples = new Grid("Samples").AddColumn("Minute").AddColumn("Cpu");
+var samples = new Grid("Samples").Column("Minute").Column("Cpu");
 var chart = new LineChart { Unit = "%" };
 for (int minute = 1; minute <= 30; minute++) {
     double cpu = 40 + minute % 7 * 6;
-    samples.AddRow(minute, minute, cpu);
+    samples.Row(minute, minute, cpu);
     chart.Add("cpu", cpu);
 }
 ConsoleApp.Run(new Rows(
@@ -415,15 +415,15 @@ And with the fluent builder:
 
 ```csharp
 Outline sections = Ui.Outline().Key("Sections").SelectedIndex(0)
-    .AddItem(new OutlineItem("Proxy") { Target = proxy })
-    .AddItem(new OutlineItem("DNS") { Target = dns })
+    .Item(new OutlineItem("Proxy") { Target = proxy })
+    .Item(new OutlineItem("DNS") { Target = dns })
     .Build();
-Breadcrumb where = Ui.Breadcrumb().Key("Where").AddAncestor("Settings").AddAncestor("Network")
+Breadcrumb where = Ui.Breadcrumb().Key("Where").Ancestor("Settings").Ancestor("Network")
     .Outline(sections).Build();
 ```
 
-The names match across the three: `-Items`/`Items`/`AddItem`, `-SelectedIndex`/`SelectedIndex`,
-`-Segments`/`Segments`/`AddSegment`, `-Ancestors`/`Ancestors`/`AddAncestor` and `-Outline`/`Outline`.
+The names match across the three: `-Items`/`Items`/`Item`, `-SelectedIndex`/`SelectedIndex`,
+`-Segments`/`Segments`/`Segment`, `-Ancestors`/`Ancestors`/`Ancestor` and `-Outline`/`Outline`.
 `OnChange` (PowerShell) and `Changed` (C#) report an opened entry or segment. The `settings-tabs` gallery
 demo shows all three forms in a settings app with tabs.
 ## Documents

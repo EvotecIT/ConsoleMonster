@@ -306,16 +306,18 @@ Update-Console -MissingParameter value
         $rules = @($script:Parity.FluentExceptions)
         $rules.Count | Should -Be 1
         $rules[0].Kind | Should -BeExactly DelegateProperty
-        $rules[0].Method | Should -BeExactly Configure
-        $rules[0].Pattern | Should -Match '^\.Configure\(item => item\.\{Member\} = .+\)$'
+        $rules[0].Pattern | Should -BeExactly '.{Verb}(callback)'
         $rules[0].Reason | Should -Not -BeNullOrEmpty
         foreach ($name in 'ConsoleMonster.Interactive.MenuItem', 'ConsoleMonster.Interactive.SelectQuestionOptions') {
             $type = $script:ApiTypes[$name]
             $methods = @(Get-ConsoleApiFluentMethods $script:ApiTypes[(Get-ConsoleApiFluentTypeName $name)] $type)
-            @($methods | Where-Object Name -EQ Configure).Count | Should -Be 1
+            @($methods | Where-Object Name -EQ Configure).Count | Should -Be 0
             foreach ($property in $type.GetProperties()) {
                 if ($null -ne $property.GetSetMethod($false) -and [Delegate].IsAssignableFrom($property.PropertyType)) {
                     @($methods | Where-Object Name -EQ $property.Name).Count | Should -Be 0
+                    $verb = @($property.GetCustomAttributesData() | Where-Object { $_.AttributeType.Name -eq 'FluentAttribute' } | ForEach-Object { $_.ConstructorArguments[0].Value })
+                    $verb.Count | Should -Be 1 -Because "$name.$($property.Name) declares its verb"
+                    @($methods | Where-Object Name -EQ $verb[0]).Count | Should -Be 1 -Because "$name.$($property.Name) is set with $($verb[0])"
                 }
             }
         }
