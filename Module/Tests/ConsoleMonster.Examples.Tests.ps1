@@ -382,6 +382,12 @@ BeforeAll {
             RequiresWindows = $true
             SetupFile = 'Website/tools/SiteFrames/Capture/Assets/EverydayWindows.ps1'
         }
+        # Windows administration commands, with the recording's invented records; -SkipHttpErrorCheck is PowerShell 7.
+        'Website/examples/powershell/everyday-admin.ps1' = @{
+            RequiresWindows = $true
+            RequiresCore = $true
+            SetupFile = 'Website/tools/SiteFrames/Capture/Assets/EverydayAdmin.ps1'
+        }
         'Website/examples/demos/formatting.ps1'      = @{ RequiresWindows = $true }
         'Website/examples/demos/parallel.ps1'        = @{ ExpectErrors = $true }
         'Website/examples/demos/format-commands.ps1' = @{ RequiresWindows = $true }

@@ -1,16 +1,11 @@
 ﻿# Invented administration records for the typed everyday-admin capture. No host data is recorded.
 
-# A working folder with one file to hash, at a fixed path so the capture does not depend on the machine.
-$root = if ($IsWindows -or $PSVersionTable.PSEdition -eq 'Desktop') { Join-Path $env:TEMP 'everyday-admin' } else { '/tmp/everyday-admin' }
-$null = New-Item -ItemType Directory -Path $root -Force
-[IO.File]::WriteAllText((Join-Path $root 'release.zip'), 'ConsoleMonster example package')
+# A working folder with two of the four PATH folders, so the listing is the same on every platform: relative entries
+# resolve against it, and the other two do not exist.
+$root = Join-Path ([IO.Path]::GetTempPath()) 'everyday-admin'
+foreach ($folder in 'tools/bin', 'scripts') { $null = New-Item -ItemType Directory -Path (Join-Path $root $folder) -Force }
 Set-Location -LiteralPath $root
-
-# Two folders that exist on every machine of this kind and two that do not.
-$env:PATH = if ($IsWindows) {
-    @("$env:SystemRoot\System32", 'C:\Tools\OldTool\bin', $env:SystemRoot, 'C:\Retired\Scripts') -join ';'
-}
-else { @('/usr/bin', '/opt/old-tool/bin', '/bin', '/usr/local/retired/bin') -join ':' }
+$env:PATH = @('tools/bin', 'old-tools/bin', 'scripts', 'retired/scripts') -join [IO.Path]::PathSeparator
 
 function global:Get-CimInstance {
     param([Parameter(Position = 0)][string] $ClassName)
@@ -63,7 +58,7 @@ function global:Get-NetFirewallRule {
 }
 
 function global:Invoke-WebRequest {
-    param([Parameter(Position = 0)][string] $Uri)
+    param([Parameter(Position = 0)][string] $Uri, [switch] $SkipHttpErrorCheck)
     $headers = [Collections.Generic.Dictionary[string, string[]]]::new()
     $headers['Content-Type'] = @('application/json; charset=utf-8')
     $headers['Server'] = @('nginx')

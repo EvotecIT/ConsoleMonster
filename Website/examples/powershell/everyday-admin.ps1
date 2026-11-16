@@ -13,6 +13,10 @@ Get-HotFix
 Get-WindowsOptionalFeature -Online
 Get-NetFirewallRule
 
-# A web response and a file hash.
-Invoke-WebRequest https://status.example.test/health
-Get-FileHash ./release.zip
+# A web response that failed: the status takes the colour of its class.
+Invoke-WebRequest https://status.example.test/health -SkipHttpErrorCheck
+
+# A file hash in full, with the path relative to the current folder.
+Set-Location -Path ([IO.Path]::GetTempPath())
+Set-Content -Path ./release.zip -Value 'ConsoleMonster example package' -NoNewline
+Get-FileHash -Path ./release.zip
