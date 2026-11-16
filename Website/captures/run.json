@@ -1,27 +1,171 @@
 {
   "version": 1,
-  "producer": "windows",
+  "producer": "macos",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "benchmarks",
+  "requestedSet": "powershell",
   "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "benchmarks/benchmarks.windows.cast": {
-      "platform": "windows",
-      "category": "measurements",
-      "comparison": {
-        "class": "live-measured",
-        "reason": "Actual event-apply throughput, rendering rates and durations measured by the benchmark program.",
-        "minFrames": 2,
-        "maxFrames": 100,
-        "minDurationSeconds": 0.05,
-        "maxDurationSeconds": 10
-      },
-      "sha256": "9df371cc8ae8c92c32d807e6c2f98f0eb7b2eab51a8b9aafc47046757b836149",
+    "powershell/compare-object.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "959622420aee196e83e156b8fe0e798b0610d4c56ab0071b386a7f46ab0a0b57",
       "screen": "dark",
-      "width": 110,
-      "height": 20
+      "width": 100,
+      "height": 120
+    },
+    "powershell/everyday-admin.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "134e697d4a9a654ff84bd37e6ec49b88c135cb370a149c0f737c64f53cc0a7fe",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/everyday-summaries.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "eb7b67bc2111e8d2c51c809826d037da08e8061504f187a1bbefbcebc6cb41f4",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/export-markdown.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "ba2d229601881321e12a4339fc555bfe9525cb4ec0bf358366fb0cfa4e307235",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/files.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "3623bbea5416b540c7a5a5ed95e74566bc17112998c02e784926bb3a302a7b0b",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consolelist.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "4c98e83bdd63fd4e555ff12469507fa8785d08ce1b7ac69ac6d95b58f3030ce2",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.narrow.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "d69c07ecd0a2b4b6e01d145a36810e271bef2848592ef70c6ff74452b13344a1",
+      "screen": "dark",
+      "width": 56,
+      "height": 120
+    },
+    "powershell/format-consoletable.nocolor.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "769becf6e4eca6229ffcfcf9dead5db4efec207d02a854c9ffea716f07ff2a70",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.plain.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "5600c4f84acff1c36cd3db2552689df4c08f869b324dc9a711ba7866bd4eacdf",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "73de699533e61a1b8e62f841396c7b311e374153544945eb310d2b43bd42644c",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletree.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "72a2b2d6929562664afc65af874c1bdcdf215a76464d665c5ebda57b143de728",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-list.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "8a02be579c31c4a5f495b34c31d2542700bc94875c7f2fc4b4d8538705d1acd1",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-table.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "f2498b4710bc6ed81c35b0bd7e2a07d91ddffce890705c5ac74e09aafdf4dc66",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/job.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "e209afb1afa0427b41589172186278bb4bfe79a1ee62caf373c1a54c7292ac38",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/markup.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "87dcbd8ab83ce7c4bce64b7c91e91e9ff3a54a0f0625728917c1e82e8061980e",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/relative-dates.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "eee3d95bf065b69875303968958c64bc23221e4d66e46dd5d4683e24a4dfc3ee",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/restyle-commands.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "0a2b7b836b54d24f5691d082168d8fd6d5a17e5566a4810885a52164b9581f63",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.light.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "ee8157988d9bfb4dd3d718772789a7143220adda60405bd18b91788d0e9e2c3e",
+      "screen": "light",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "9105b30e6846ea2f4c3dba7d4e2627d7d0aed65418763caed66d21d8ebe51416",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/write-consoletext.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "d6c04671d4338e0ade2e2ffd8e8d0b803646bc047e50731f981bd6124e8f4283",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
     }
   }
 }

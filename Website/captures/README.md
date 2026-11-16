@@ -52,7 +52,7 @@ module used by PowerShell 5.1. An optional area follows `Website`, for example
   Sample programs supply their own fixed timestamps and explicit invented data.
 - PowerShell uses no logo or profile. The checkout's module link comes first on
   `PSModulePath`, and the runner verifies that the loaded binary came from that
-  link. Capture recipes select the Release development configuration, including
+  link or, by its real path, from this checkout's `ConsoleMonster.PowerShell` build. Capture recipes select the Release development configuration, including
   native help, so a pre-existing Debug build cannot change the producing binary.
   Native review commands
   can explicitly select their build configuration.

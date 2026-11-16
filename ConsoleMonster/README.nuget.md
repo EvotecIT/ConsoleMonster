@@ -48,8 +48,8 @@ Table.For(files).Title("Files").Show();
 
 ## Nicer default output in one line
 
-Files, processes, services, hashtables and more read as tables and records; the objects, pipelines, files and
-transcripts stay PowerShell's.
+Files (with names coloured by kind), processes, services, events, drives, updates, firewall rules, web responses,
+hashtables and more read as tables and records; the objects, pipelines, files and transcripts stay PowerShell's.
 
 ```powershell
 Enable-ConsoleFormatting
