@@ -18,7 +18,8 @@ namespace ConsoleMonster.PowerShell {
     /// <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleselect/")]
-    public sealed class CmdletReadConsoleSelect : SelectionCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Interactive.SelectQuestionOptions), Include = new[] { "PageSize", "Minimum", "Maximum" })]
+    public sealed partial class CmdletReadConsoleSelect : SelectionCmdlet {
         /// <summary><para type="description">The default: one of the choices, or its displayed text.</para></summary>
         [Parameter]
         public object? Default { get; set; }
@@ -46,9 +47,7 @@ namespace ConsoleMonster.PowerShell {
             var definition = new SelectQuestionOptions { Title = Title, Description = Description, ParameterName = ParameterName, Multiple = Multiple.IsPresent };
             foreach (Choice choice in choices) { definition.Choices.Add(choice); }
             if (Preview != null) { ScriptBlock preview = Preview; definition.Preview = value => PSInteractive.ToWidget(PSInteractive.InvokeWith(preview, value)); }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(PageSize))) { definition.PageSize = PageSize; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Minimum))) { definition.Minimum = Minimum; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Maximum))) { definition.Maximum = Maximum; }
+            ApplyParameters(definition);
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Collapsed))) { definition.Collapsed = Collapsed.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Default))) {
                 if (Multiple.IsPresent) { definition.Default = choices.FindAll(c => c.Selected).ConvertAll(c => c.Value); }
