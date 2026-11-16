@@ -5,6 +5,8 @@
 $root = Join-Path ([IO.Path]::GetTempPath()) 'everyday-admin'
 foreach ($folder in 'tools/bin', 'scripts') { $null = New-Item -ItemType Directory -Path (Join-Path $root $folder) -Force }
 Set-Location -LiteralPath $root
+# The view checks folders through .NET, which resolves relative paths against the process directory.
+[Environment]::CurrentDirectory = $root
 $env:PATH = @('tools/bin', 'old-tools/bin', 'scripts', 'retired/scripts') -join [IO.Path]::PathSeparator
 
 function global:Get-CimInstance {
