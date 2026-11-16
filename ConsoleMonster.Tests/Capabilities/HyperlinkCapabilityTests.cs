@@ -107,7 +107,7 @@ namespace ConsoleMonster.Tests.Capabilities {
             TerminalProfile[] copies = {
                 profile.WithSize(70, 20), profile.WithColorDepth(ColorDepth.None), profile.WithGlyphs(GlyphTier.Basic),
                 profile.WithDecision("test"), profile.WithCulture(CultureInfo.InvariantCulture), profile.WithLanguage(CultureInfo.GetCultureInfo("pl-PL")),
-                profile.WithThemePreference(ThemePreference.Light), profile.WithWidthProfile(TerminalWidthProfile.Standard),
+                profile.WithThemeMode(ThemeMode.Light), profile.WithWidthProfile(TerminalWidthProfile.Standard),
                 profile.WithMode(OutputMode.Stream).WithMode(OutputMode.Interactive), new CapabilityDetector(environment).RefreshFont(profile, "Cascadia Mono")
             };
             foreach (TerminalProfile copy in copies) {
@@ -122,13 +122,13 @@ namespace ConsoleMonster.Tests.Capabilities {
             Type[] signature = {
                 typeof(ColorDepth), typeof(GlyphTier), typeof(OutputMode), typeof(int), typeof(int), typeof(TerminalKind),
                 typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(IReadOnlyList<string>),
-                typeof(TerminalWidthProfile), typeof(bool), typeof(ThemePreference), typeof(CultureInfo)
+                typeof(TerminalWidthProfile), typeof(bool), typeof(ThemeMode), typeof(CultureInfo)
             };
             System.Reflection.ConstructorInfo? constructor = typeof(TerminalProfile).GetConstructor(signature);
             Assert.NotNull(constructor);
             TerminalProfile profile = Assert.IsType<TerminalProfile>(constructor!.Invoke(new object?[] {
                 ColorDepth.TrueColor, GlyphTier.Full, OutputMode.Interactive, 80, 24, TerminalKind.WindowsTerminal,
-                true, false, false, false, null, null, null, false, ThemePreference.Auto, null
+                true, false, false, false, null, null, null, false, ThemeMode.Auto, null
             }));
             Assert.True(profile.SupportsHyperlinks);
             Assert.False(profile.WithMode(OutputMode.Stream).SupportsHyperlinks);

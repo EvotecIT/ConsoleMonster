@@ -57,7 +57,7 @@ namespace ConsoleMonster.PowerShell {
                     selected = ConsoleThemeDataFile.Load(SessionState.Path.GetUnresolvedProviderPathFromPSPath(Path)).ToTheme();
                 } else if (Theme != null) {
                     selected = string.Equals(Theme, "ColorBlindSafe", StringComparison.OrdinalIgnoreCase)
-                        ? Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind)) : Styling.Theme.FromName(Theme);
+                        ? Terminal.ResolveTheme(Terminal.Profile.WithThemeMode(ThemeMode.Auto).WithPalette(ThemePalette.ColorBlind)) : Styling.Theme.FromName(Theme);
                 }
                 report = ThemeCheck.Run(selected, new ThemeCheckOptions {
                     Background = Background == null ? (Color?)null : ParseBackground(Background),

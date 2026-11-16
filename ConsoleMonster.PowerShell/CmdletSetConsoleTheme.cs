@@ -61,7 +61,7 @@ namespace ConsoleMonster.PowerShell {
                     choice = name + ConsoleSettings.AccessibleThemeSuffix;
                 }
                 Theme selected = string.Equals(Theme, "ColorBlindSafe", StringComparison.OrdinalIgnoreCase)
-                    ? (Styling.Theme)Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind))
+                    ? (Styling.Theme)Terminal.ResolveTheme(Terminal.Profile.WithThemeMode(ThemeMode.Auto).WithPalette(ThemePalette.ColorBlind))
                     : Styling.Theme.FromName(choice);
                 Remember(choice);
                 Styling.Theme.TrySchemeName(choice, out _, out _, out bool family);

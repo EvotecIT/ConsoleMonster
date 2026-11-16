@@ -339,8 +339,8 @@ namespace ConsoleMonster.Interactive {
             private static ITheme ThemeFor(string name, RenderContext context) {
                 if (Theme.TrySchemeName(name, out _, out _, out _)) { return Theme.FromName(name); }
                 switch (name) {
-                    case "Auto": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.Auto));
-                    case "ColorBlindSafe": return Terminal.ResolveTheme(Terminal.Profile.WithThemePreference(ThemePreference.ColorBlind));
+                    case "Auto": return Terminal.ResolveTheme(Terminal.Profile.WithThemeMode(ThemeMode.Auto).WithPalette(ThemePalette.Default));
+                    case "ColorBlindSafe": return Terminal.ResolveTheme(Terminal.Profile.WithThemeMode(ThemeMode.Auto).WithPalette(ThemePalette.ColorBlind));
                     case "Terminal":
                     case "Dark": case "Light": case "HighContrast": case "ColorBlindSafeLight": case "ColorBlindSafeDark":
                         return Theme.FromName(name);

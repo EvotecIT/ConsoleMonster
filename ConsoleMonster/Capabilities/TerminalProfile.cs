@@ -38,14 +38,14 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="decisions">Notes explaining the capability decisions.</param>
         /// <param name="widthProfile">Display width assumptions.</param>
         /// <param name="probeWidths">Whether a live width probe is permitted.</param>
-        /// <param name="themePreference">Requested terminal theme preference.</param>
+        /// <param name="themeMode">Requested light, dark or automatic theme mode.</param>
         /// <param name="culture">Culture for numbers and dates, or null for the current culture.</param>
         public TerminalProfile(ColorDepth colorDepth, GlyphTier glyphs, OutputMode mode, int width, int height,
             TerminalKind kind, bool supportsVirtualTerminal, bool isOutputRedirected, bool isConsoleHandle,
             bool isContinuousIntegration, string? fontFace, IReadOnlyList<string>? decisions,
-            TerminalWidthProfile? widthProfile, bool probeWidths, ThemePreference themePreference, CultureInfo? culture)
+            TerminalWidthProfile? widthProfile, bool probeWidths, ThemeMode themeMode, CultureInfo? culture)
             : this(colorDepth, glyphs, mode, width, height, kind, supportsVirtualTerminal, isOutputRedirected,
-                isConsoleHandle, isContinuousIntegration, fontFace, decisions, widthProfile, probeWidths, themePreference, culture, null) {
+                isConsoleHandle, isContinuousIntegration, fontFace, decisions, widthProfile, probeWidths, themeMode, culture, null) {
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace ConsoleMonster.Capabilities {
         /// <param name="decisions">Human-readable notes explaining how each value was chosen.</param>
         /// <param name="widthProfile">Configured or derived display width assumptions.</param>
         /// <param name="probeWidths">Whether a live width probe is permitted.</param>
-        /// <param name="themePreference">Requested terminal theme preference.</param>
+        /// <param name="themeMode">Requested light, dark or automatic theme mode.</param>
         /// <param name="culture">The culture for numbers and dates in rendered output, or null for the current culture.</param>
         /// <param name="supportsHyperlinks">OSC 8 support, or null to infer it from the terminal kind. Redirected, CI, noninteractive and non-VT output always disable links.</param>
         public TerminalProfile(
@@ -83,7 +83,7 @@ namespace ConsoleMonster.Capabilities {
             IReadOnlyList<string>? decisions = null,
             TerminalWidthProfile? widthProfile = null,
             bool probeWidths = false,
-            ThemePreference themePreference = ThemePreference.Auto,
+            ThemeMode themeMode = ThemeMode.Auto,
             CultureInfo? culture = null,
             bool? supportsHyperlinks = null) {
             ColorDepth = colorDepth;
@@ -100,7 +100,7 @@ namespace ConsoleMonster.Capabilities {
             _decisions = decisions ?? NoDecisions;
             WidthProfile = widthProfile ?? TerminalWidthProfile.Standard;
             ProbeWidths = probeWidths;
-            ThemePreference = themePreference;
+            ThemeMode = themeMode;
             Culture = culture;
             _supportsHyperlinks = supportsHyperlinks ?? (kind == TerminalKind.WindowsTerminal || kind == TerminalKind.VisualStudioCode
                 || kind == TerminalKind.ITerm2 || kind == TerminalKind.WezTerm
@@ -204,7 +204,7 @@ namespace ConsoleMonster.Capabilities {
         /// <c>images:</c> note describes the final <see cref="ImageProtocol"/> of this profile, including its output guards.</summary>
         public IReadOnlyList<string> Decisions {
             get {
-                bool followsTerminal = ThemePreference == ThemePreference.Terminal || Terminal.HasAssignedTerminalTheme;
+                bool followsTerminal = Palette == ThemePalette.Terminal || Terminal.HasAssignedTerminalTheme;
                 if (ImageSource == null && !followsTerminal) { return _decisions; }
                 List<string> decisions = new List<string>(_decisions);
                 if (ImageSource != null) { decisions.Add(ImageDecision); }
@@ -224,8 +224,11 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Whether an interactive session may probe terminal widths.</summary>
         public bool ProbeWidths { get; }
 
-        /// <summary>The requested light, dark, or automatically detected theme preference.</summary>
-        public ThemePreference ThemePreference { get; }
+        /// <summary>The requested light or dark mode, or automatic detection from the terminal background.</summary>
+        public ThemeMode ThemeMode { get; }
+
+        /// <summary>The requested palette (standard, high contrast, colour-blind-safe or the terminal's own). Set with <see cref="WithPalette"/>.</summary>
+        public ThemePalette Palette { get; private set; }
 
         /// <summary>
         /// The culture for numbers and dates in rendered output (thousand and decimal separators, date formats), or null to
@@ -343,19 +346,28 @@ namespace ConsoleMonster.Capabilities {
         /// <returns>A new profile.</returns>
         public TerminalProfile WithMode(OutputMode mode) => Copy(mode: mode);
 
-        /// <summary>Returns a copy with a different theme preference.</summary>
-        /// <param name="themePreference">The requested preference.</param>
+        /// <summary>Returns a copy with a different theme mode.</summary>
+        /// <param name="themeMode">Light, dark or automatic.</param>
         /// <returns>A new profile.</returns>
-        public TerminalProfile WithThemePreference(ThemePreference themePreference) => Copy(themePreference: themePreference);
+        public TerminalProfile WithThemeMode(ThemeMode themeMode) => Copy(themeMode: themeMode);
+
+        /// <summary>Returns a copy with a different palette.</summary>
+        /// <param name="palette">The palette.</param>
+        /// <returns>A new profile.</returns>
+        public TerminalProfile WithPalette(ThemePalette palette) {
+            TerminalProfile copy = Copy();
+            copy.Palette = palette;
+            return copy;
+        }
 
         /// <summary>Returns a copy that renders numbers and dates with the given culture.</summary>
         /// <param name="culture">The culture, or null to follow the current culture.</param>
         /// <returns>The copy.</returns>
         public TerminalProfile WithCulture(CultureInfo? culture) {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
-                IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemePreference, culture, _supportsHyperlinks) {
+                IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemeMode, culture, _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
-                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density
+                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density, Palette = Palette
             };
         }
 
@@ -411,7 +423,7 @@ namespace ConsoleMonster.Capabilities {
             return Kind + " " + Width + "x" + Height + " " + Mode + " " + ColorDepth + " " + Glyphs;
         }
 
-        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null, ThemePreference? themePreference = null, bool? supportsHyperlinks = null) {
+        private TerminalProfile Copy(ColorDepth? colorDepth = null, GlyphTier? glyphs = null, OutputMode? mode = null, int? width = null, int? height = null, IReadOnlyList<string>? decisions = null, TerminalWidthProfile? widthProfile = null, ThemeMode? themeMode = null, bool? supportsHyperlinks = null) {
             return new TerminalProfile(
                 colorDepth ?? ColorDepth,
                 glyphs ?? Glyphs,
@@ -427,10 +439,10 @@ namespace ConsoleMonster.Capabilities {
                 decisions ?? _decisions,
                 widthProfile ?? WidthProfile,
                 ProbeWidths,
-                themePreference ?? ThemePreference,
+                themeMode ?? ThemeMode,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density, Palette = Palette
             };
         }
     }

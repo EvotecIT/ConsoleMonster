@@ -8,13 +8,16 @@ using ConsoleMonster.Styling;
 
 namespace SiteFrames.Capture {
     internal static partial class CaptureComparison {
+        // The list view pads labels to the longest property name (ColorDepth) plus two spaces.
+        private const int LabelWidth = 12;
+
         // Ordered schema of the three current 100x40 docs profiles; FontFace alone is optional.
         private static readonly string[] ProfilePrefixes = {
-            "This console", "Mode             ", "ColorDepth       ", "Glyphs           ", "Width            ",
-            "Height           ", "ThemePreference  ", "FontFace         ", "",
+            "This console", "Mode        ", "ColorDepth  ", "Glyphs      ", "Width       ",
+            "Height      ", "ThemeMode   ", "Palette     ", "FontFace    ", "",
             "  CONSOLEMONSTER_EMOJI_WIDTH: ", "  CONSOLEMONSTER_AMBIGUOUS_WIDTH: ", "  hyperlinks: ",
             "  mode: ", "  colour: ", "  glyphs: ", "  VT: ", "  kind: ", "  width profile: ",
-            "  probe widths: ", "  theme preference: ", "  culture: ", "  size: "
+            "  probe widths: ", "  theme mode: ", "  culture: ", "  size: "
         };
 
         /// <summary>Compares every complete profile frame, preserving styles and reporting each permitted value change.</summary>
@@ -46,7 +49,7 @@ namespace SiteFrames.Capture {
                     int count = mutable ? start : u.Cells.Length;
                     for (int i = 0; i < count; i++) {
                         Cell p = u.Cells[i], q = v.Cells[i];
-                        if (reduce && prefix.Length == 17 && i < 17) {
+                        if (reduce && prefix.Length == LabelWidth && i < LabelWidth) {
                             p = ProfileLabel(p, x["ColorDepth"].Value); q = ProfileLabel(q, y["ColorDepth"].Value);
                         }
                         if (!SameCell(p, q)) { return false; }
@@ -72,7 +75,7 @@ namespace SiteFrames.Capture {
             int row = 0;
             Cell[] Row(int r) => Enumerable.Range(0, frame.Width).Select(c => frame[c, r]).ToArray();
             // The separator is the one unpainted blank row after the fields; all blank padding must retain its style.
-            int separator = frame.GetRowText(7).StartsWith("FontFace         ", StringComparison.Ordinal) ? 8 : 7;
+            int separator = frame.GetRowText(8).StartsWith("FontFace".PadRight(LabelWidth), StringComparison.Ordinal) ? 9 : 8;
             Cell[] blank = Row(separator);
             if (blank.Any(c => c.Glyph != " " || c.Width != 1) || blank.Any(c => !SameCell(c, blank[0]))) { return false; }
             foreach (string prefix in ProfilePrefixes) {
@@ -98,7 +101,7 @@ namespace SiteFrames.Capture {
             if (values.TryGetValue("FontFace", out var font)) {
                 var mode = values["Mode"];
                 for (int i = 0; i < font.Cells.Length; i++) {
-                    if (!SameCell(new Cell("x", font.Cells[i].Style), new Cell("x", mode.Cells[Math.Min(i, 17)].Style))) { return false; }
+                    if (!SameCell(new Cell("x", font.Cells[i].Style), new Cell("x", mode.Cells[Math.Min(i, LabelWidth)].Style))) { return false; }
                 }
             }
             return values["Width"].Value == "100" && values["Height"].Value == "40" && values["size"].Value == "100x40 (visible window or defaults)" &&
