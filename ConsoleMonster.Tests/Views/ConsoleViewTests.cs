@@ -212,6 +212,21 @@ namespace ConsoleMonster.Tests.Views {
             Assert.Contains("1.5 KB", TestTerminal.RenderText(new InspectorView(stream), 100, glyphs: GlyphTier.Ascii));
         }
 
+        [Fact]
+        public void InspectedFilesAndStreams_KeepTheirLengthAsSize_WhenIdentityIsAToken() {
+            // A host's Identity can return a cycle token unrelated to the object; the object's own type still decides.
+            ConsoleMonster.Data.InspectorOptions options = new ConsoleMonster.Data.InspectorOptions { Identity = value => new object() };
+            using MemoryStream stream = new MemoryStream(new byte[1536]);
+            Assert.Contains("1.5 KB", TestTerminal.RenderText(InspectorTree.Build(ConsoleMonster.Data.ObjectInspector.Inspect(stream, options)), 100, glyphs: GlyphTier.Ascii));
+            string path = Path.GetTempFileName();
+            try {
+                File.WriteAllBytes(path, new byte[1536]);
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(new InspectorView(new FileInfo(path), options), 100, glyphs: GlyphTier.Ascii));
+            } finally {
+                File.Delete(path);
+            }
+        }
+
         public sealed class Sized {
             public string Name { get; set; } = string.Empty;
             public long Length { get; set; }
