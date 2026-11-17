@@ -172,7 +172,7 @@ namespace ConsoleMonster.PowerShell {
                 object? raw = PSText.Unwrap(value.GetValue(item));
                 object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
                 if (_valuePresenter == null && raw != null && Type == ChartType.Bar) {
-                    var inferred = Presenters.CellPresenters.ForMember(value.Name, raw.GetType());
+                    var inferred = Presenters.CellPresenters.ForMember(value.Name, raw.GetType(), PSFormatting.SourceType(item));
                     if (inferred is Presenters.BytesPresenter) { _valuePresenter = inferred; }
                 }
                 if (!Chart.TryNumber(raw, out double number) || name is Values.FieldError) {

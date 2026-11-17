@@ -57,7 +57,7 @@ namespace ConsoleMonster.Views {
     /// Picks the best view for data and builds it: one object becomes an inspector, objects of one shape a table (cards
     /// when narrow), hierarchical objects a tree, a numeric series a chart, strings highlighted code when a language is
     /// detected and text otherwise. Columns get presenters from their member names and types
-    /// (<see cref="CellPresenters.ForMember"/>). <c>Show-Console</c> is the PowerShell front end.
+    /// (<see cref="CellPresenters.ForMember(string, System.Type, System.Type)"/>). <c>Show-Console</c> is the PowerShell front end.
     /// </summary>
     public static partial class ConsoleView {
 
@@ -179,9 +179,11 @@ namespace ConsoleMonster.Views {
                 }
             }
             Table table = new Table { Title = options.Title };
+            // A bare Length or Size is a byte count only on files and streams, so the items' type takes part in the choice.
+            Type? source = present.Count > 0 && present.All(item => CellPresenters.IsFileSource(item.GetType())) ? present[0].GetType() : null;
             foreach (string column in columns) {
                 types.TryGetValue(column, out Type? type);
-                table.AddColumn(new TableColumn(Markup.Escape(column)) { Presenter = CellPresenters.ForMember(column, type) });
+                table.AddColumn(new TableColumn(Markup.Escape(column)) { Presenter = CellPresenters.ForMember(column, type, source) });
             }
             foreach (object item in present) {
                 Dictionary<string, object?> values = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);

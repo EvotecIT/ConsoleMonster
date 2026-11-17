@@ -152,6 +152,7 @@
 Describe 'Everyday command views' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
+        . (Join-Path $PSScriptRoot 'Support/Convert-TestNativeView.ps1')
         $script:culture = [Threading.Thread]::CurrentThread.CurrentCulture
         [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
         function script:New-TestCertificate([string] $Name, [int] $Days) {
@@ -255,5 +256,27 @@ Describe 'Everyday command views' {
         $duration = New-TimeSpan -Hours 1 -Minutes 42 -Seconds 5 | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 80
         $duration | Should -Match '1 h 42 m'
         $duration | Should -Match '01:42:05'
+    }
+
+    It 'shows character limits as numbers and file lengths as sizes' {
+        $rules = @(
+            [pscustomobject]@{ Name = 'storage'; MinLength = 3; MaxLength = 24 }
+            [pscustomobject]@{ Name = 'vm'; MinLength = 1; MaxLength = 260 }
+        )
+        $limits = Convert-TestNativeView -Rows $rules | Export-ConsoleFrame -Format Text -Width 80
+        $limits | Should -Match '\b260\b'
+        $limits | Should -Not -Match '\d B\b'
+        foreach ($widget in ($rules | New-ConsoleTable), ($rules[1] | Show-Console -View List -AsWidget)) {
+            $shown = $widget | Export-ConsoleFrame -Format Text -Width 80
+            $shown | Should -Match '\b260\b'
+            $shown | Should -Not -Match '\d B\b'
+        }
+
+        $file = Join-Path $TestDrive 'size.bin'
+        [System.IO.File]::WriteAllBytes($file, [byte[]]::new(1536))
+        $item = Get-Item -LiteralPath $file
+        foreach ($widget in ($item | New-ConsoleTable), ($item | Show-Console -View List -AsWidget -Property Name, Length), ($item | Select-Object Name, Length | New-ConsoleTable)) {
+            $widget | Export-ConsoleFrame -Format Text -Width 120 | Should -Match '1[.,]5 KB'
+        }
     }
 }

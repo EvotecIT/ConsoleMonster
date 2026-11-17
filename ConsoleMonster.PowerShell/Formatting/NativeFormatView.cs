@@ -30,7 +30,7 @@ namespace ConsoleMonster.PowerShell {
             List<object?[]> shapedRows = new List<object?[]>();
             if (capture != null && capture.Columns.Count > 0) {
                 foreach (object?[] raw in capture.Rows) { shapedRows.Add(PSFormatting.ShapeValues(capture.Columns, raw, shapeOptions)); }
-                PSFormatting.ChoosePresenters(new List<BoundColumn>(capture.Columns), shapedRows, true);
+                PSFormatting.ChoosePresenters(new List<BoundColumn>(capture.Columns), shapedRows, true, capture.Sources.Count > 0 ? PSFormatting.SourceType(capture.Sources[0]) : null);
             }
             void Flush() {
                 if (table != null && table.Rows.Count > 0) { widgets.Add(table); }
