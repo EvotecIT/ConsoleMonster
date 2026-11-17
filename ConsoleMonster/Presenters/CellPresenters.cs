@@ -24,16 +24,33 @@ namespace ConsoleMonster.Presenters {
         public static ICellPresenter StatusWord { get; } = new StatusEnumPresenter();
 
         /// <summary>
-        /// The presenter a column gets from its member name and value type, or null for the default: plain digits for
-        /// integer identifiers (Id, PID, Port, Index, Year, names ending in Id or Port), byte counts for
-        /// integer members named Size, Length, Bytes, WorkingSet or Memory (and names ending in them), dates for
-        /// DateTime and DateTimeOffset, durations for TimeSpan, Yes/No for booleans, and status markers for enums whose
-        /// names read as a status (Running, Stopped, Failed...).
+        /// The presenter a column gets from its member name and value type, or null for the default. Same as
+        /// <see cref="ForMember(string, Type, Type)"/> without a source type, so a bare Length or Size stays a number.
         /// </summary>
         /// <param name="name">The member or column name.</param>
         /// <param name="type">The value type, or null when unknown.</param>
         /// <returns>The presenter, or null.</returns>
-        public static ICellPresenter? ForMember(string? name, Type? type) {
+        public static ICellPresenter? ForMember(string? name, Type? type) => ForMember(name, type, null);
+
+        /// <summary>
+        /// The presenter a column gets from its member name, value type and the type of the object it was read from, or
+        /// null for the default: plain digits for integer identifiers (Id, PID, Port, Index, Year, names ending in Id or
+        /// Port), dates for DateTime and DateTimeOffset, durations for TimeSpan, Yes/No for booleans, status markers for
+        /// enums whose names read as a status (Running, Stopped, Failed...), and byte counts for integer members whose
+        /// name means bytes:
+        /// <list type="bullet">
+        /// <item><description>names ending in Bytes, Memory, WorkingSet, WorkingSet64, MemorySize64 or
+        /// FileSize (SizeInBytes, PrivateMemorySize64, PeakWorkingSet64...), and SizeOnDisk;</description></item>
+        /// <item><description>exactly Length or Size, only when <paramref name="sourceType"/> is file-like
+        /// (<see cref="IsFileSource(Type)"/>), as for a <see cref="System.IO.FileInfo"/>.</description></item>
+        /// </list>
+        /// Other names ending in Length or Size (MinLength, MaxLength, BatchSize, PageSize) are counts and stay numbers.
+        /// </summary>
+        /// <param name="name">The member or column name.</param>
+        /// <param name="type">The value type, or null when unknown.</param>
+        /// <param name="sourceType">The type of the object the value was read from, or null when unknown.</param>
+        /// <returns>The presenter, or null.</returns>
+        public static ICellPresenter? ForMember(string? name, Type? type, Type? sourceType) {
             if (type == null) {
                 return null;
             }
@@ -54,7 +71,7 @@ namespace ConsoleMonster.Presenters {
             if (integer && IdentifierPresenter.LooksLikeIdentifier(name)) {
                 return Identifier;
             }
-            if (integer && IsSizeName(name)) {
+            if (integer && IsByteName(name, sourceType)) {
                 return Bytes;
             }
             return null;
@@ -107,6 +124,38 @@ namespace ConsoleMonster.Presenters {
         /// <returns>The matching presenter, or null for automatic value presentation.</returns>
         public static ICellPresenter? ForLabel(string? label, object? value) => ForStatus(label, value) ?? ForMember(label, value?.GetType());
 
+        // Record fields and tree leaves of an object: its source type decides whether a bare Length or Size is a byte count.
+        internal static ICellPresenter? ForLabel(string? label, object? value, Type? sourceType) =>
+            ForStatus(label, value) ?? ForMember(label, value?.GetType(), sourceType);
+
+        // The source type a bare Length or Size is judged by: the object's own type when it is a file or stream, or a file type
+        // for a file known only by its type name (PowerShell's Selected. and Deserialized. copies).
+        internal static Type? ByteSource(Type? type, string? typeName) =>
+            IsFileSource(type) ? type : IsFileTypeName(typeName) ? typeof(System.IO.FileSystemInfo) : null;
+
+        /// <summary>
+        /// Whether a type name (full, short, IO.FileInfo, or PowerShell's Selected. and Deserialized. copies of one) names a file
+        /// or directory.
+        /// </summary>
+        internal static bool IsFileTypeName(string? typeName) {
+            if (string.IsNullOrEmpty(typeName)) {
+                return false;
+            }
+            string name = typeName!;
+            // Remoting, jobs and Import-Clixml add Deserialized.; Select-Object adds Selected.; inspected objects drop System.
+            bool stripped = true;
+            while (stripped) {
+                stripped = false;
+                foreach (string prefix in new[] { "Deserialized.", "Selected.", "System.", "IO." }) {
+                    if (name.StartsWith(prefix, StringComparison.Ordinal)) {
+                        name = name.Substring(prefix.Length);
+                        stripped = true;
+                    }
+                }
+            }
+            return name == "FileInfo" || name == "DirectoryInfo" || name == "FileSystemInfo";
+        }
+
         private static bool IsStatusName(string? name) {
             if (string.IsNullOrEmpty(name)) {
                 return false;
@@ -119,12 +168,29 @@ namespace ConsoleMonster.Presenters {
             return false;
         }
 
-        private static bool IsSizeName(string? name) {
+        /// <summary>
+        /// Whether values read from objects of this type use a bare Length or Size for a byte count: files, directories
+        /// and streams (<see cref="System.IO.FileSystemInfo"/>, <see cref="System.IO.Stream"/>).
+        /// </summary>
+        /// <param name="sourceType">The type of the object, or null.</param>
+        /// <returns>True for file-like types.</returns>
+        public static bool IsFileSource(Type? sourceType) =>
+            sourceType != null && (typeof(System.IO.FileSystemInfo).IsAssignableFrom(sourceType) || typeof(System.IO.Stream).IsAssignableFrom(sourceType));
+
+        private static readonly string[] ByteSuffixes = { "Bytes", "Memory", "WorkingSet", "WorkingSet64", "MemorySize64", "FileSize" };
+
+        private static bool IsByteName(string? name, Type? sourceType) {
             if (string.IsNullOrEmpty(name)) {
                 return false;
             }
-            foreach (string word in new[] { "Size", "Length", "Bytes", "WorkingSet", "WorkingSet64", "Memory", "PagedMemorySize64", "VirtualMemorySize64", "PrivateMemorySize64" }) {
-                if (name!.EndsWith(word, StringComparison.OrdinalIgnoreCase)) {
+            if (name!.Equals("Length", StringComparison.OrdinalIgnoreCase) || name.Equals("Size", StringComparison.OrdinalIgnoreCase)) {
+                return IsFileSource(sourceType);
+            }
+            if (name.Equals("SizeOnDisk", StringComparison.OrdinalIgnoreCase)) {
+                return true;
+            }
+            foreach (string word in ByteSuffixes) {
+                if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase)) {
                     return true;
                 }
             }

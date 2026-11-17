@@ -172,8 +172,13 @@ Describe 'ConsoleMonster pipeline charts' {
         $chart = $records | New-ConsoleChart
         @($chart.Items.Label) | Should -Be @('disk', 'disk (2)')
         @($chart.Items.Value) | Should -Be @(2, 3)
-        $bytes = [pscustomobject]@{Name='file';Length=[long] 1048576} | New-ConsoleChart -Property Length
+        $bytes = [pscustomobject]@{Name='file';SizeBytes=[long] 1048576} | New-ConsoleChart -Property SizeBytes
         $text = $bytes | Export-ConsoleFrame -Format Text -Width 80
         $text | Should -Match '1 MB'
+        $file = Join-Path $TestDrive 'chart.bin'
+        [System.IO.File]::WriteAllBytes($file, [byte[]]::new(1048576))
+        Get-Item -LiteralPath $file | New-ConsoleChart -Property Length -Label Name | Export-ConsoleFrame -Format Text -Width 80 | Should -Match '1 MB'
+        # A count that only ends in Length is not a byte size.
+        [pscustomobject]@{Name='rule';MaxLength=260} | New-ConsoleChart -Property MaxLength | Export-ConsoleFrame -Format Text -Width 80 | Should -Not -Match '\d B\b'
     }
 }

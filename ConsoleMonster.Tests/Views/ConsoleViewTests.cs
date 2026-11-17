@@ -38,7 +38,7 @@ namespace ConsoleMonster.Tests.Views {
         public sealed class Server {
             public string Name { get; set; } = string.Empty;
             public ServiceState State { get; set; }
-            public long Size { get; set; }
+            public long Memory { get; set; }
             public DateTime Seen { get; set; }
             public TimeSpan Uptime { get; set; }
             public bool Healthy { get; set; }
@@ -60,7 +60,7 @@ namespace ConsoleMonster.Tests.Views {
             public int Value { get; set; }
         }
 
-        private static Server Srv(string name, ServiceState state) => new Server { Name = name, State = state, Size = 1536000, Seen = new DateTime(2026, 10, 1, 8, 30, 0), Uptime = TimeSpan.FromHours(5), Healthy = state == ServiceState.Running };
+        private static Server Srv(string name, ServiceState state) => new Server { Name = name, State = state, Memory = 1536000, Seen = new DateTime(2026, 10, 1, 8, 30, 0), Uptime = TimeSpan.FromHours(5), Healthy = state == ServiceState.Running };
 
         [Fact]
         public void Decide_PicksTheViewForEachShape() {
@@ -121,7 +121,6 @@ namespace ConsoleMonster.Tests.Views {
 
         [Fact]
         public void ForMember_PicksPresentersByNameAndType() {
-            Assert.Same(CellPresenters.Bytes, CellPresenters.ForMember("Length", typeof(long)));
             Assert.Same(CellPresenters.Bytes, CellPresenters.ForMember("WorkingSet64", typeof(long)));
             Assert.Null(CellPresenters.ForMember("Count", typeof(long)));
             Assert.Same(CellPresenters.Date, CellPresenters.ForMember("LastWriteTime", typeof(DateTime)));
@@ -130,6 +129,113 @@ namespace ConsoleMonster.Tests.Views {
             Assert.Same(CellPresenters.StatusWord, CellPresenters.ForMember("State", typeof(ServiceState)));
             Assert.Null(CellPresenters.ForMember("Colour", typeof(Colour)));
             Assert.Null(CellPresenters.ForMember("Name", typeof(string)));
+        }
+
+        [Theory]
+        [InlineData("WorkingSet64")]
+        [InlineData("PeakWorkingSet64")]
+        [InlineData("PrivateMemorySize64")]
+        [InlineData("SizeBytes")]
+        [InlineData("SizeInBytes")]
+        [InlineData("FileSize")]
+        [InlineData("SizeOnDisk")]
+        public void ForMember_ShowsByteNamesAsSizesFromAnySource(string name) {
+            Assert.Same(CellPresenters.Bytes, CellPresenters.ForMember(name, typeof(long)));
+        }
+
+        [Theory]
+        [InlineData("MinLength")]
+        [InlineData("MaxLength")]
+        [InlineData("BatchSize")]
+        [InlineData("PageSize")]
+        [InlineData("Length")]
+        [InlineData("Size")]
+        public void ForMember_KeepsLengthAndSizeCountsAsNumbers(string name) {
+            Assert.Null(CellPresenters.ForMember(name, typeof(int)));
+            Assert.Null(CellPresenters.ForMember(name, typeof(long), typeof(Server)));
+        }
+
+        [Theory]
+        [InlineData(typeof(FileInfo))]
+        [InlineData(typeof(DirectoryInfo))]
+        [InlineData(typeof(MemoryStream))]
+        public void ForMember_ShowsFileLengthAsSize(Type source) {
+            Assert.Same(CellPresenters.Bytes, CellPresenters.ForMember("Length", typeof(long), source));
+            Assert.Same(CellPresenters.Bytes, CellPresenters.ForMember("Size", typeof(long), source));
+            Assert.Null(CellPresenters.ForMember("MaxLength", typeof(long), source));
+        }
+
+        [Theory]
+        [InlineData("System.IO.FileInfo", true)]
+        [InlineData("IO.FileInfo", true)]
+        [InlineData("DirectoryInfo", true)]
+        [InlineData("Selected.System.IO.FileInfo", true)]
+        [InlineData("Deserialized.System.IO.FileInfo", true)]
+        [InlineData("Deserialized.Selected.System.IO.FileInfo", true)]
+        [InlineData("Selected.Deserialized.System.IO.FileInfo", true)]
+        [InlineData("PSCustomObject", false)]
+        [InlineData("Contoso.FileRule", false)]
+        public void ByteSource_ReadsFileSourcesByTypeName(string typeName, bool file) {
+            Type? source = CellPresenters.ByteSource(null, typeName);
+            Assert.Equal(file, CellPresenters.ForLabel("Length", 1536L, source) == CellPresenters.Bytes);
+            Assert.Null(CellPresenters.ForLabel("MaxLength", 260, source));
+        }
+
+        [Fact]
+        public void Auto_TableShowsCharacterLimitsAsNumbersAndFileLengthsAsSizes() {
+            IWidget limits = ConsoleView.Auto(new object?[] { new NameRule { Name = "storage", MinLength = 3, MaxLength = 24 }, new NameRule { Name = "vm", MinLength = 1, MaxLength = 260 } });
+            string text = TestTerminal.RenderText(limits, 60, glyphs: GlyphTier.Ascii);
+            Assert.Contains("260", text);
+            Assert.DoesNotContain(" B ", text);
+
+            string path = Path.GetTempFileName();
+            try {
+                File.WriteAllBytes(path, new byte[1536]);
+                FileInfo file = new FileInfo(path);
+                Table files = ConsoleView.BuildTable(new object?[] { file }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } });
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(files, 100, glyphs: GlyphTier.Ascii));
+                // One file is an inspector record; a list is a record sheet. Both keep its size.
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(ConsoleView.Auto(file), 100, glyphs: GlyphTier.Ascii));
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(ConsoleView.BuildList(new object?[] { file }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } }), 100, glyphs: GlyphTier.Ascii));
+                // A file in a mixed table does not make another object's count a size.
+                Table mixed = ConsoleView.BuildTable(new object?[] { file, new Sized { Name = "rule", Length = 260 } }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } });
+                Assert.DoesNotContain("260 B", TestTerminal.RenderText(mixed, 100, glyphs: GlyphTier.Ascii));
+            } finally {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public void InspectedStreams_KeepTheirLengthAsSize() {
+            using MemoryStream stream = new MemoryStream(new byte[1536]);
+            Assert.Contains("1.5 KB", TestTerminal.RenderText(InspectorTree.Build(ConsoleMonster.Data.ObjectInspector.Inspect(stream)), 100, glyphs: GlyphTier.Ascii));
+            Assert.Contains("1.5 KB", TestTerminal.RenderText(new InspectorView(stream), 100, glyphs: GlyphTier.Ascii));
+        }
+
+        [Fact]
+        public void InspectedFilesAndStreams_KeepTheirLengthAsSize_WhenIdentityIsAToken() {
+            // A host's Identity can return a cycle token unrelated to the object; the object's own type still decides.
+            ConsoleMonster.Data.InspectorOptions options = new ConsoleMonster.Data.InspectorOptions { Identity = value => new object() };
+            using MemoryStream stream = new MemoryStream(new byte[1536]);
+            Assert.Contains("1.5 KB", TestTerminal.RenderText(InspectorTree.Build(ConsoleMonster.Data.ObjectInspector.Inspect(stream, options)), 100, glyphs: GlyphTier.Ascii));
+            string path = Path.GetTempFileName();
+            try {
+                File.WriteAllBytes(path, new byte[1536]);
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(new InspectorView(new FileInfo(path), options), 100, glyphs: GlyphTier.Ascii));
+            } finally {
+                File.Delete(path);
+            }
+        }
+
+        public sealed class Sized {
+            public string Name { get; set; } = string.Empty;
+            public long Length { get; set; }
+        }
+
+        public sealed class NameRule {
+            public string Name { get; set; } = string.Empty;
+            public int MinLength { get; set; }
+            public int MaxLength { get; set; }
         }
 
         private static KeyValuePair<string, IReadOnlyList<object?>> Shape(string name, params object?[] items) => new KeyValuePair<string, IReadOnlyList<object?>>(name, items);

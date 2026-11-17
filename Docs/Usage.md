@@ -1284,7 +1284,7 @@ inspector's item counts use invariant digits regardless, because they are compac
 | Data | View |
 |---|---|
 | One object | An inspector (record view with nested members). |
-| Objects of one shape | A table (cards when the window is narrow), from the DefaultDisplayPropertySet, with presenters by type: bytes for integer members named Length, Size or Memory, dates, durations, Yes/No, status markers for enums such as Running/Stopped. |
+| Objects of one shape | A table (cards when the window is narrow), from the DefaultDisplayPropertySet, with presenters by type: bytes for integer members whose names mean bytes (WorkingSet64, PrivateMemorySize64, SizeBytes, names ending in Bytes or Memory) and for a file's Length; other counts such as MinLength, MaxLength or BatchSize stay plain numbers; dates, durations, Yes/No, status markers for enums such as Running/Stopped. |
 | Containers: objects whose only other field is a name, with children of the same type | A tree. A record with fields of its own (a release with its assets) stays a record or table, with the children summarized. |
 | A numeric series, or `-Chart` | A bar chart. |
 | Strings | Highlighted code when a language is detected (JSON, PowerShell, XML, YAML, C#...), otherwise text. |

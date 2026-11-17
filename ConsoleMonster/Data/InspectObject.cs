@@ -16,5 +16,9 @@ namespace ConsoleMonster.Data {
 
         /// <summary>Inspected members in display order.</summary>
         public IReadOnlyList<InspectNode> Members { get; }
+
+        // The inspected object's own type (a FileInfo or MemoryStream behind a PowerShell wrapper), for presenters that depend
+        // on the source, such as a bare Length being a byte count.
+        internal System.Type? SourceType { get; set; }
     }
 }

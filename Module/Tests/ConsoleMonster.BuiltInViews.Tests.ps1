@@ -152,6 +152,7 @@
 Describe 'Everyday command views' {
     BeforeAll {
         Import-Module (Join-Path $PSScriptRoot '../ConsoleMonster.psd1') -Force
+        . (Join-Path $PSScriptRoot 'Support/Convert-TestNativeView.ps1')
         $script:culture = [Threading.Thread]::CurrentThread.CurrentCulture
         [Threading.Thread]::CurrentThread.CurrentCulture = [cultureinfo]'en-US'
         function script:New-TestCertificate([string] $Name, [int] $Days) {
@@ -255,5 +256,54 @@ Describe 'Everyday command views' {
         $duration = New-TimeSpan -Hours 1 -Minutes 42 -Seconds 5 | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 80
         $duration | Should -Match '1 h 42 m'
         $duration | Should -Match '01:42:05'
+    }
+
+    It 'shows character limits as numbers and file lengths as sizes' {
+        $rules = @(
+            [pscustomobject]@{ Name = 'storage'; MinLength = 3; MaxLength = 24 }
+            [pscustomobject]@{ Name = 'vm'; MinLength = 1; MaxLength = 260 }
+        )
+        $limits = Convert-TestNativeView -Rows $rules | Export-ConsoleFrame -Format Text -Width 80
+        $limits | Should -Match '\b260\b'
+        $limits | Should -Not -Match '\d B\b'
+        foreach ($widget in ($rules | New-ConsoleTable), ($rules[1] | Show-Console -View List -AsWidget)) {
+            $shown = $widget | Export-ConsoleFrame -Format Text -Width 80
+            $shown | Should -Match '\b260\b'
+            $shown | Should -Not -Match '\d B\b'
+        }
+
+        $file = Join-Path $TestDrive 'size.bin'
+        [System.IO.File]::WriteAllBytes($file, [byte[]]::new(1536))
+        $item = Get-Item -LiteralPath $file
+        foreach ($widget in ($item | New-ConsoleTable), ($item | Show-Console -View List -AsWidget -Property Name, Length),
+            ($item | Show-Console -View Tree -Depth 1 -AsWidget), ($item | Select-Object Name, Length | New-ConsoleTable)) {
+            $widget | Export-ConsoleFrame -Format Text -Width 120 | Should -Match '1[.,]5 KB'
+        }
+    }
+
+    It 'keeps sizes for deserialized files and streams and not for counts mixed with files' {
+        $file = Join-Path $TestDrive 'size.bin'
+        [System.IO.File]::WriteAllBytes($file, [byte[]]::new(1536))
+        $xml = Join-Path $TestDrive 'files.clixml'
+        Get-Item -LiteralPath $file | Export-Clixml -LiteralPath $xml
+        $restored = Import-Clixml -LiteralPath $xml
+        $restored.PSObject.TypeNames[0] | Should -BeExactly 'Deserialized.System.IO.FileInfo'
+        foreach ($widget in ($restored | New-ConsoleTable -Property Name, Length), ($restored | Show-Console -View List -AsWidget -Property Name, Length),
+            ($restored | Show-Console -View Tree -Depth 1 -AsWidget -Property Name, Length), ($restored | New-ConsoleChart -Property Length -Label Name)) {
+            $widget | Export-ConsoleFrame -Format Text -Width 120 | Should -Match '1[.,]5 KB'
+        }
+
+        $stream = [System.IO.MemoryStream]::new([byte[]]::new(1536))
+        try {
+            $stream | Show-Console -View Tree -Depth 1 -AsWidget -Property Length | Export-ConsoleFrame -Format Text -Width 80 | Should -Match '1[.,]5 KB'
+        } finally { $stream.Dispose() }
+
+        $mixed = @((Get-Item -LiteralPath $file), [pscustomobject]@{ Name = 'rule'; Length = 260 })
+        $table = $mixed | New-ConsoleTable -Property Name, Length | Export-ConsoleFrame -Format Text -Width 80
+        $table | Should -Match '\b260\b'
+        $table | Should -Not -Match '\d B\b'
+        $chart = $mixed | New-ConsoleChart -Property Length -Label Name | Export-ConsoleFrame -Format Text -Width 80
+        $chart | Should -Match '\b260\b'
+        $chart | Should -Not -Match '\d (B|KB)\b'
     }
 }

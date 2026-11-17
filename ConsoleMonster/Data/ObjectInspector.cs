@@ -298,7 +298,10 @@ namespace ConsoleMonster.Data {
                         )
                     )
                     .ToList();
-                return new InspectObject(name, typeName, path, members.AsReadOnly());
+                // The object's own type: Identity may be a host's cycle token, but it also unwraps host wrappers (a PSObject
+                // around a FileInfo), so it is used only when the inspected value itself is not a file or stream.
+                Type sourceType = Presenters.CellPresenters.IsFileSource(current.GetType()) ? current.GetType() : identity.GetType();
+                return new InspectObject(name, typeName, path, members.AsReadOnly()) { SourceType = sourceType };
             }
             finally {
                 if (track)

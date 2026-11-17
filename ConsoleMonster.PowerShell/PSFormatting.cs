@@ -36,6 +36,31 @@ namespace ConsoleMonster.PowerShell {
         /// The items to show: a single collection passed as one object (<c>,$list</c>, a function that returns a list, a data
         /// table) is shown as its items; anything else as it is.
         /// </summary>
+        // The type a bare Length or Size is judged by (a byte count only on files and streams): the wrapped object's own type,
+        // or a file type for Select-Object and deserialized copies of files (Selected.System.IO.FileInfo,
+        // Deserialized.System.IO.FileInfo).
+        internal static Type? SourceType(PSObject? item) {
+            if (item == null) { return null; }
+            object source = item.BaseObject;
+            if (!(source is PSCustomObject)) { return source.GetType(); }
+            foreach (string name in item.TypeNames) {
+                if (CellPresenters.IsFileTypeName(name)) { return typeof(System.IO.FileSystemInfo); }
+            }
+            return null;
+        }
+
+        // One source for a column shared by many rows: a file or stream source only when every row is one, so a count on a
+        // non-file row never shows as bytes because a file came first.
+        internal static Type? SharedSource(IEnumerable<PSObject> items) {
+            Type? shared = null;
+            foreach (PSObject item in items) {
+                Type? source = CellPresenters.ByteSource(SourceType(item), null);
+                if (source == null) { return null; }
+                shared ??= source;
+            }
+            return shared;
+        }
+
         internal static IReadOnlyList<PSObject> Expand(IReadOnlyList<PSObject> items, ShapeOptions options) {
             bool data = items.Count > 0 && items.All(item => item != null && (item.BaseObject is System.Data.DataTable || item.BaseObject is System.Data.DataSet));
             if (!data && (items.Count != 1 || items[0] == null)) {
@@ -201,7 +226,7 @@ namespace ConsoleMonster.PowerShell {
             }
             // Live tables keep every bound column so later updates fill the same cells.
             if (view?.HideEmptyColumns == true && (property == null || property.Length == 0) && boundRow == null) { DropEmptyColumns(columns, rows); }
-            ChoosePresenters(columns, rows, options.AutoPresenters);
+            ChoosePresenters(columns, rows, options.AutoPresenters, SharedSource(items));
             // A lone record's heading can be cut short; its key (Measure-Object's property) is also a wrapped field.
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true, ShowKeyField = view?.SingleRecord == true };
             foreach (BoundColumn column in columns) {
@@ -302,9 +327,9 @@ namespace ConsoleMonster.PowerShell {
         }
 
         // Identifier numbers (Id, PID, Port, Index, Year...) never get thousands separators; with autoPresenters, presenters
-        // by member name and type too (bytes for Length, dates, durations, status-like enums). Columns with a presenter only
-        // receive values the presenter can format.
-        internal static void ChoosePresenters(List<BoundColumn> columns, List<object?[]> rows, bool autoPresenters) {
+        // by member name and type too (bytes for WorkingSet64 or SizeBytes, and for a file's Length; dates, durations,
+        // status-like enums). Columns with a presenter only receive values the presenter can format.
+        internal static void ChoosePresenters(List<BoundColumn> columns, List<object?[]> rows, bool autoPresenters, Type? sourceType = null) {
             for (int c = 0; c < columns.Count; c++) {
                 TableColumn column = columns[c].Column;
                 object? sample = null;
@@ -321,7 +346,7 @@ namespace ConsoleMonster.PowerShell {
                     // Identifiers and status columns are inferred in every command (and typed C# tables), not only in Out-ConsoleDefault's views.
                     column.Presenter = inferred;
                 } else if (autoPresenters) {
-                    column.Presenter = CellPresenters.ForMember(columns[c].Name, sample.GetType());
+                    column.Presenter = CellPresenters.ForMember(columns[c].Name, sample.GetType(), sourceType);
                 }
             }
         }
@@ -612,7 +637,7 @@ namespace ConsoleMonster.PowerShell {
                 object? cell = column.Presenter != null && PSShaping.IsPresentable(prepared) ? prepared : PSShaping.Cell(value, column, shape, record);
                 // Status fields get their marker in records too, as status columns do in tables.
                 view.AddFieldAt(fieldLevel, label, cell as TableCell ?? TableCell.FromValue(cell), column.Presenter ?? CellPresenters.ForStatus(columns[c].Name, prepared)
-                    ?? (prepared == null ? null : CellPresenters.ForMember(columns[c].Name, prepared.GetType())));
+                    ?? (prepared == null ? null : CellPresenters.ForMember(columns[c].Name, prepared.GetType(), SourceType(item))));
             }
             if (shown == 0) {
                 view.AddFieldAt(fieldLevel, "fields", new TableCell("[muted]none[/]"));
