@@ -502,17 +502,33 @@ jobs:
           path: pester-results.xml
 
   pester-macos:
-    needs: changes
     name: 'Pester (macOS, PowerShell 7)'
+    needs: [changes, pester-macos-shards]
+    if: ${{ !cancelled() && needs.changes.outputs.build == 'true' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every macOS Pester shard
+        env:
+          MACOS_RESULT: ${{ needs.pester-macos-shards.result }}
+        run: test "$MACOS_RESULT" = success
+
+  pester-macos-shards:
+    needs: changes
+    name: 'Pester (macOS, PowerShell 7, ${{ matrix.shard }}/4)'
     # Full macOS coverage on default-branch pushes and manual runs.
     if: needs.changes.outputs.build == 'true' && github.event_name != 'pull_request'
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         shell: pwsh
     env:
       TERM: xterm-256color
       LANG: en_US.UTF-8
+      PESTER_SHARD: ${{ matrix.shard }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
@@ -556,32 +572,15 @@ jobs:
           Import-Module Pester -RequiredVersion $env:PESTER_VERSION
           Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
           $configuration = New-PesterConfiguration
-          $configuration.Run.Path = @(Get-ChildItem Module/Tests -Filter *.Tests.ps1 | Where-Object Name -NE 'ConsoleMonster.Examples.Tests.ps1').FullName
+          $configuration.Run.Path = @(./.github/scripts/Get-PesterShard.ps1 -Shard $env:PESTER_SHARD -Count 4)
           $configuration.Run.Exit = $true
           $configuration.Output.Verbosity = 'Detailed'
           $configuration.TestResult.Enabled = $true
           $configuration.TestResult.OutputPath = 'pester-results.xml'
           Invoke-ConsolePester -Configuration $configuration
         timeout-minutes: 20
-      - name: Run Pester examples
-        if: ${{ !cancelled() }}
-        run: |
-          $moduleRoot = Join-Path $env:RUNNER_TEMP 'pester-modules'
-          $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + $env:PSModulePath
-          Import-Module Pester -RequiredVersion $env:PESTER_VERSION
-          Import-Module ./Module/ConsoleMonster.psd1 -Force -ErrorAction Stop
-          $configuration = New-PesterConfiguration
-          $configuration.Run.Path = 'Module/Tests/ConsoleMonster.Examples.Tests.ps1'
-          $configuration.Run.Exit = $true
-          $configuration.Output.Verbosity = 'Detailed'
-          $configuration.TestResult.Enabled = $true
-          $configuration.TestResult.OutputPath = 'pester-examples-results.xml'
-          Invoke-ConsolePester -Configuration $configuration
-        timeout-minutes: 20
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: pester-results-macos
-          path: |
-            pester-results.xml
-            pester-examples-results.xml
+          name: pester-results-macos-${{ matrix.shard }}
+          path: pester-results.xml
