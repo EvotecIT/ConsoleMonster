@@ -165,6 +165,18 @@ namespace ConsoleMonster.Tests.Views {
             Assert.Null(CellPresenters.ForMember("MaxLength", typeof(long), source));
         }
 
+        [Theory]
+        [InlineData("System.IO.FileInfo", true)]
+        [InlineData("IO.FileInfo", true)]
+        [InlineData("DirectoryInfo", true)]
+        [InlineData("Selected.System.IO.FileInfo", true)]
+        [InlineData("PSCustomObject", false)]
+        [InlineData("Contoso.FileRule", false)]
+        public void ForLabel_ReadsFileSourcesByTypeName(string typeName, bool file) {
+            Assert.Equal(file, CellPresenters.ForLabel("Length", 1536L, typeName) == CellPresenters.Bytes);
+            Assert.Null(CellPresenters.ForLabel("MaxLength", 260, typeName));
+        }
+
         [Fact]
         public void Auto_TableShowsCharacterLimitsAsNumbersAndFileLengthsAsSizes() {
             IWidget limits = ConsoleView.Auto(new object?[] { new NameRule { Name = "storage", MinLength = 3, MaxLength = 24 }, new NameRule { Name = "vm", MinLength = 1, MaxLength = 260 } });

@@ -275,7 +275,8 @@ Describe 'Everyday command views' {
         $file = Join-Path $TestDrive 'size.bin'
         [System.IO.File]::WriteAllBytes($file, [byte[]]::new(1536))
         $item = Get-Item -LiteralPath $file
-        foreach ($widget in ($item | New-ConsoleTable), ($item | Show-Console -View List -AsWidget -Property Name, Length), ($item | Select-Object Name, Length | New-ConsoleTable)) {
+        foreach ($widget in ($item | New-ConsoleTable), ($item | Show-Console -View List -AsWidget -Property Name, Length),
+            ($item | Show-Console -View Tree -Depth 1 -AsWidget), ($item | Select-Object Name, Length | New-ConsoleTable)) {
             $widget | Export-ConsoleFrame -Format Text -Width 120 | Should -Match '1[.,]5 KB'
         }
     }

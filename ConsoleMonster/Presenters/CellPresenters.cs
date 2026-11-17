@@ -128,14 +128,17 @@ namespace ConsoleMonster.Presenters {
         internal static ICellPresenter? ForLabel(string? label, object? value, string? sourceTypeName) =>
             ForStatus(label, value) ?? ForMember(label, value?.GetType(), IsFileTypeName(sourceTypeName) ? typeof(System.IO.FileSystemInfo) : null);
 
-        /// <summary>Whether a type name (full, short, or PowerShell's Selected. copy of one) names a file or directory.</summary>
+        /// <summary>Whether a type name (full, short, IO.FileInfo, or PowerShell's Selected. copy of one) names a file or directory.</summary>
         internal static bool IsFileTypeName(string? typeName) {
             if (string.IsNullOrEmpty(typeName)) {
                 return false;
             }
             string name = typeName!.StartsWith("Selected.", StringComparison.Ordinal) ? typeName.Substring("Selected.".Length) : typeName;
-            if (name.StartsWith("System.IO.", StringComparison.Ordinal)) {
-                name = name.Substring("System.IO.".Length);
+            // Inspected PowerShell objects drop the System. prefix (IO.FileInfo).
+            foreach (string prefix in new[] { "System.", "IO." }) {
+                if (name.StartsWith(prefix, StringComparison.Ordinal)) {
+                    name = name.Substring(prefix.Length);
+                }
             }
             return name == "FileInfo" || name == "DirectoryInfo" || name == "FileSystemInfo";
         }
