@@ -70,7 +70,7 @@ namespace ConsoleMonster.Widgets {
             RecordView view = ShowHeader ? new RecordView(Markup.Escape(Title ?? Root.TypeName)) { Presentation = Presentation, Summary = SummaryOf(Root, labels) } : new RecordView { Presentation = Presentation };
             switch (Root) {
                 case InspectObject obj:
-                    AddMembers(view, obj.Members, 0, labels);
+                    AddMembers(view, obj, 0, labels);
                     break;
                 case InspectCollection collection:
                     AddCollectionBody(view, collection, 0, labels);
@@ -82,20 +82,23 @@ namespace ConsoleMonster.Widgets {
             return view;
         }
 
-        private void AddMembers(RecordView view, IReadOnlyList<InspectNode> members, int level, Localization.WidgetLabels labels) {
-            foreach (InspectNode member in members) {
+        private void AddMembers(RecordView view, InspectObject owner, int level, Localization.WidgetLabels labels) {
+            // A bare Length or Size is a byte count only on a file or stream.
+            System.Type? source = Presenters.CellPresenters.ByteSource(owner.SourceType, owner.TypeName);
+            foreach (InspectNode member in owner.Members) {
                 string name = member.Name ?? string.Empty;
                 switch (member) {
                     case InspectObject obj:
                         view.AddHeading(Markup.Escape(name), level, null, NoteOf(obj));
-                        AddMembers(view, obj.Members, level + 1, labels);
+                        AddMembers(view, obj, level + 1, labels);
                         break;
                     case InspectCollection collection:
                         view.AddHeading(Markup.Escape(name), level, null, SummaryOf(collection, labels));
                         AddCollectionBody(view, collection, level + 1, labels);
                         break;
                     default:
-                        view.AddFieldAt(level, name, CellFor(member));
+                        TableCell cell = CellFor(member);
+                        view.AddFieldAt(level, name, cell, Presenters.CellPresenters.ForLabel(name, cell.Value, source));
                         break;
                 }
             }
@@ -110,7 +113,7 @@ namespace ConsoleMonster.Widgets {
                     string label = "[" + index.ToString(CultureInfo.InvariantCulture) + "]";
                     if (item is InspectObject obj) {
                         view.AddHeading(Markup.Escape(label), level, null, NoteOf(obj));
-                        AddMembers(view, obj.Members, level + 1, labels);
+                        AddMembers(view, obj, level + 1, labels);
                     } else if (item is InspectCollection inner) {
                         view.AddHeading(Markup.Escape(label), level, null, SummaryOf(inner, labels));
                         AddCollectionBody(view, inner, level + 1, labels);

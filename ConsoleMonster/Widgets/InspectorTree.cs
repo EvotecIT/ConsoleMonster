@@ -36,7 +36,7 @@ namespace ConsoleMonster.Widgets {
         internal static InspectNode OmitIdentity(InspectNode node, ISet<string> identityProperties) {
             if (!(node is InspectObject obj) || identityProperties.Count == 0) { return node; }
             return new InspectObject(obj.Name, obj.TypeName, obj.Path,
-                obj.Members.Where(member => !(member is InspectScalar) || member.Name == null || !identityProperties.Contains(member.Name)).ToArray());
+                obj.Members.Where(member => !(member is InspectScalar) || member.Name == null || !identityProperties.Contains(member.Name)).ToArray()) { SourceType = obj.SourceType };
         }
 
         private static void Fill(TreeNode parent, InspectNode node) {
@@ -45,7 +45,7 @@ namespace ConsoleMonster.Widgets {
                     int[] keyWidths = obj.Members.Where(member => member.TypeName != "InspectionEmptySummary")
                         .Select(member => DisplayWidth.Measure(member.Name ?? string.Empty)).ToArray();
                     foreach (InspectNode member in obj.Members) {
-                        AddNode(parent, member, member.Name ?? string.Empty, keyWidths: member.TypeName == "InspectionEmptySummary" ? null : keyWidths, ownerType: obj.TypeName);
+                        AddNode(parent, member, member.Name ?? string.Empty, keyWidths: member.TypeName == "InspectionEmptySummary" ? null : keyWidths, owner: Presenters.CellPresenters.ByteSource(obj.SourceType, obj.TypeName));
                     }
                     break;
                 case InspectCollection collection:
@@ -63,7 +63,7 @@ namespace ConsoleMonster.Widgets {
             }
         }
 
-        private static void AddNode(TreeNode parent, InspectNode node, string name, bool collectionItem = false, IReadOnlyList<int>? keyWidths = null, string? ownerType = null) {
+        private static void AddNode(TreeNode parent, InspectNode node, string name, bool collectionItem = false, IReadOnlyList<int>? keyWidths = null, System.Type? owner = null) {
             string label = Markup.Escape(name);
             TreeNode Add(Styling.StatusKind? status = null, string? detail = null) {
                 TreeNode child = parent.Add(label, status, detail);
@@ -88,7 +88,7 @@ namespace ConsoleMonster.Widgets {
                 case InspectScalar scalar:
                     TreeNode leaf = Add();
                     leaf.Value = TableCell.FromValue(scalar.Value is byte[] || scalar.Value is System.Security.SecureString ? Values.ValueShaper.ScalarText(scalar.Value) : scalar.Value);
-                    leaf.Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value, ownerType);
+                    leaf.Presenter = Presenters.CellPresenters.ForLabel(name, scalar.Value, owner);
                     leaf.IsScalarCollectionItem = collectionItem;
                     break;
                 case InspectCycle cycle:

@@ -280,4 +280,30 @@ Describe 'Everyday command views' {
             $widget | Export-ConsoleFrame -Format Text -Width 120 | Should -Match '1[.,]5 KB'
         }
     }
+
+    It 'keeps sizes for deserialized files and streams and not for counts mixed with files' {
+        $file = Join-Path $TestDrive 'size.bin'
+        [System.IO.File]::WriteAllBytes($file, [byte[]]::new(1536))
+        $xml = Join-Path $TestDrive 'files.clixml'
+        Get-Item -LiteralPath $file | Export-Clixml -LiteralPath $xml
+        $restored = Import-Clixml -LiteralPath $xml
+        $restored.PSObject.TypeNames[0] | Should -BeExactly 'Deserialized.System.IO.FileInfo'
+        foreach ($widget in ($restored | New-ConsoleTable -Property Name, Length), ($restored | Show-Console -View List -AsWidget -Property Name, Length),
+            ($restored | Show-Console -View Tree -Depth 1 -AsWidget -Property Name, Length), ($restored | New-ConsoleChart -Property Length -Label Name)) {
+            $widget | Export-ConsoleFrame -Format Text -Width 120 | Should -Match '1[.,]5 KB'
+        }
+
+        $stream = [System.IO.MemoryStream]::new([byte[]]::new(1536))
+        try {
+            $stream | Show-Console -View Tree -Depth 1 -AsWidget -Property Length | Export-ConsoleFrame -Format Text -Width 80 | Should -Match '1[.,]5 KB'
+        } finally { $stream.Dispose() }
+
+        $mixed = @((Get-Item -LiteralPath $file), [pscustomobject]@{ Name = 'rule'; Length = 260 })
+        $table = $mixed | New-ConsoleTable -Property Name, Length | Export-ConsoleFrame -Format Text -Width 80
+        $table | Should -Match '\b260\b'
+        $table | Should -Not -Match '\d B\b'
+        $chart = $mixed | New-ConsoleChart -Property Length -Label Name | Export-ConsoleFrame -Format Text -Width 80
+        $chart | Should -Match '\b260\b'
+        $chart | Should -Not -Match '\d (B|KB)\b'
+    }
 }

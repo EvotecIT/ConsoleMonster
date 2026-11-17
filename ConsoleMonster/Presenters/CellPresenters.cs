@@ -124,20 +124,33 @@ namespace ConsoleMonster.Presenters {
         /// <returns>The matching presenter, or null for automatic value presentation.</returns>
         public static ICellPresenter? ForLabel(string? label, object? value) => ForStatus(label, value) ?? ForMember(label, value?.GetType());
 
-        // Record fields and tree leaves of a file (Length) read their source by type name: inspected objects keep only that.
-        internal static ICellPresenter? ForLabel(string? label, object? value, string? sourceTypeName) =>
-            ForStatus(label, value) ?? ForMember(label, value?.GetType(), IsFileTypeName(sourceTypeName) ? typeof(System.IO.FileSystemInfo) : null);
+        // Record fields and tree leaves of an object: its source type decides whether a bare Length or Size is a byte count.
+        internal static ICellPresenter? ForLabel(string? label, object? value, Type? sourceType) =>
+            ForStatus(label, value) ?? ForMember(label, value?.GetType(), sourceType);
 
-        /// <summary>Whether a type name (full, short, IO.FileInfo, or PowerShell's Selected. copy of one) names a file or directory.</summary>
+        // The source type a bare Length or Size is judged by: the object's own type when it is a file or stream, or a file type
+        // for a file known only by its type name (PowerShell's Selected. and Deserialized. copies).
+        internal static Type? ByteSource(Type? type, string? typeName) =>
+            IsFileSource(type) ? type : IsFileTypeName(typeName) ? typeof(System.IO.FileSystemInfo) : null;
+
+        /// <summary>
+        /// Whether a type name (full, short, IO.FileInfo, or PowerShell's Selected. and Deserialized. copies of one) names a file
+        /// or directory.
+        /// </summary>
         internal static bool IsFileTypeName(string? typeName) {
             if (string.IsNullOrEmpty(typeName)) {
                 return false;
             }
-            string name = typeName!.StartsWith("Selected.", StringComparison.Ordinal) ? typeName.Substring("Selected.".Length) : typeName;
-            // Inspected PowerShell objects drop the System. prefix (IO.FileInfo).
-            foreach (string prefix in new[] { "System.", "IO." }) {
-                if (name.StartsWith(prefix, StringComparison.Ordinal)) {
-                    name = name.Substring(prefix.Length);
+            string name = typeName!;
+            // Remoting, jobs and Import-Clixml add Deserialized.; Select-Object adds Selected.; inspected objects drop System.
+            bool stripped = true;
+            while (stripped) {
+                stripped = false;
+                foreach (string prefix in new[] { "Deserialized.", "Selected.", "System.", "IO." }) {
+                    if (name.StartsWith(prefix, StringComparison.Ordinal)) {
+                        name = name.Substring(prefix.Length);
+                        stripped = true;
+                    }
                 }
             }
             return name == "FileInfo" || name == "DirectoryInfo" || name == "FileSystemInfo";

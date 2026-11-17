@@ -167,23 +167,25 @@ namespace ConsoleMonster.PowerShell {
             var labels = new HashSet<string>(StringComparer.Ordinal);
             int row = 0;
             int skipped = 0;
+            // Byte units label the whole chart, so every charted row must be a byte count (a file's Length, a WorkingSet64).
+            bool bytes = Type == ChartType.Bar;
+            int charted = 0;
             foreach (PSObject item in rows) {
                 row++;
                 object? raw = PSText.Unwrap(value.GetValue(item));
                 object? name = label == null ? null : PSText.Unwrap(label.GetValue(item));
-                if (_valuePresenter == null && raw != null && Type == ChartType.Bar) {
-                    var inferred = Presenters.CellPresenters.ForMember(value.Name, raw.GetType(), PSFormatting.SourceType(item));
-                    if (inferred is Presenters.BytesPresenter) { _valuePresenter = inferred; }
-                }
                 if (!Chart.TryNumber(raw, out double number) || name is Values.FieldError) {
                     skipped++;
                     continue;
                 }
+                charted++;
+                if (bytes && !(Presenters.CellPresenters.ForMember(value.Name, raw!.GetType(), PSFormatting.SourceType(item)) is Presenters.BytesPresenter)) { bytes = false; }
                 if (label == null) { samples.Add(number); continue; }
                 string text = Convert.ToString(name, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
                 options.AddItem(Chart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
             }
             if (Type != ChartType.Bar) { options.Values = samples.ToArray(); }
+            if (bytes && charted > 0 && _valuePresenter == null) { _valuePresenter = Presenters.CellPresenters.Bytes; }
             return skipped;
         }
 

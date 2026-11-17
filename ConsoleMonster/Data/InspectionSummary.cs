@@ -44,7 +44,7 @@ namespace ConsoleMonster.Data {
                 members.Add(Normalize(member, hideEmpty, repeated, false));
             }
             if (empty > 0) { members.Add(new InspectScalar("+" + empty + " empty", "InspectionEmptySummary", record.Path, string.Empty)); }
-            return new InspectObject(record.Name, record.TypeName, record.Path, members);
+            return new InspectObject(record.Name, record.TypeName, record.Path, members) { SourceType = record.SourceType };
         }
 
         private static bool IsEmpty(InspectNode node) => node is InspectScalar scalar && (scalar.Value == null || scalar.Value is string text && text.Length == 0)

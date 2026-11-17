@@ -36,8 +36,9 @@ namespace ConsoleMonster.PowerShell {
         /// The items to show: a single collection passed as one object (<c>,$list</c>, a function that returns a list, a data
         /// table) is shown as its items; anything else as it is.
         /// </summary>
-        // The type a bare Length or Size is judged by (a byte count only on files): the wrapped object's own type, or a file
-        // type for Select-Object copies of files (Selected.System.IO.FileInfo).
+        // The type a bare Length or Size is judged by (a byte count only on files and streams): the wrapped object's own type,
+        // or a file type for Select-Object and deserialized copies of files (Selected.System.IO.FileInfo,
+        // Deserialized.System.IO.FileInfo).
         internal static Type? SourceType(PSObject? item) {
             if (item == null) { return null; }
             object source = item.BaseObject;
@@ -46,6 +47,18 @@ namespace ConsoleMonster.PowerShell {
                 if (CellPresenters.IsFileTypeName(name)) { return typeof(System.IO.FileSystemInfo); }
             }
             return null;
+        }
+
+        // One source for a column shared by many rows: a file or stream source only when every row is one, so a count on a
+        // non-file row never shows as bytes because a file came first.
+        internal static Type? SharedSource(IEnumerable<PSObject> items) {
+            Type? shared = null;
+            foreach (PSObject item in items) {
+                Type? source = CellPresenters.ByteSource(SourceType(item), null);
+                if (source == null) { return null; }
+                shared ??= source;
+            }
+            return shared;
         }
 
         internal static IReadOnlyList<PSObject> Expand(IReadOnlyList<PSObject> items, ShapeOptions options) {
@@ -213,7 +226,7 @@ namespace ConsoleMonster.PowerShell {
             }
             // Live tables keep every bound column so later updates fill the same cells.
             if (view?.HideEmptyColumns == true && (property == null || property.Length == 0) && boundRow == null) { DropEmptyColumns(columns, rows); }
-            ChoosePresenters(columns, rows, options.AutoPresenters, items.Count > 0 ? SourceType(items[0]) : null);
+            ChoosePresenters(columns, rows, options.AutoPresenters, SharedSource(items));
             // A lone record's heading can be cut short; its key (Measure-Object's property) is also a wrapped field.
             Table table = new Table { GroupHeadersAsRows = view?.GroupHeadersAsRows == true, ShowKeyField = view?.SingleRecord == true };
             foreach (BoundColumn column in columns) {

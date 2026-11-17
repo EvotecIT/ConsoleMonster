@@ -75,9 +75,12 @@ namespace ConsoleMonster.Views {
             foreach (object? item in items) {
                 if (item == null) { continue; }
                 if (items.Count > 1) { view.AddSection(Markup.Escape(ValueShaper.Title(item, options.Shape))); }
+                // A bare Length or Size is a byte count only on a file or stream.
+                Type? source = Presenters.CellPresenters.ByteSource(item.GetType(), null);
                 foreach (Data.InspectMember member in Members(item, options)) {
                     if (options.Property != null && !options.Property.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) { continue; }
-                    view.AddField(member.Name, SafeRead(member));
+                    object? value = SafeRead(member);
+                    view.AddField(member.Name, value, Presenters.CellPresenters.ForLabel(member.Name, value, source));
                 }
             }
             return view;

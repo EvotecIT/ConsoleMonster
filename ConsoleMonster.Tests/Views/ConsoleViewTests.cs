@@ -170,11 +170,15 @@ namespace ConsoleMonster.Tests.Views {
         [InlineData("IO.FileInfo", true)]
         [InlineData("DirectoryInfo", true)]
         [InlineData("Selected.System.IO.FileInfo", true)]
+        [InlineData("Deserialized.System.IO.FileInfo", true)]
+        [InlineData("Deserialized.Selected.System.IO.FileInfo", true)]
+        [InlineData("Selected.Deserialized.System.IO.FileInfo", true)]
         [InlineData("PSCustomObject", false)]
         [InlineData("Contoso.FileRule", false)]
-        public void ForLabel_ReadsFileSourcesByTypeName(string typeName, bool file) {
-            Assert.Equal(file, CellPresenters.ForLabel("Length", 1536L, typeName) == CellPresenters.Bytes);
-            Assert.Null(CellPresenters.ForLabel("MaxLength", 260, typeName));
+        public void ByteSource_ReadsFileSourcesByTypeName(string typeName, bool file) {
+            Type? source = CellPresenters.ByteSource(null, typeName);
+            Assert.Equal(file, CellPresenters.ForLabel("Length", 1536L, source) == CellPresenters.Bytes);
+            Assert.Null(CellPresenters.ForLabel("MaxLength", 260, source));
         }
 
         [Fact]
@@ -187,11 +191,30 @@ namespace ConsoleMonster.Tests.Views {
             string path = Path.GetTempFileName();
             try {
                 File.WriteAllBytes(path, new byte[1536]);
-                Table files = ConsoleView.BuildTable(new object?[] { new FileInfo(path) }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } });
+                FileInfo file = new FileInfo(path);
+                Table files = ConsoleView.BuildTable(new object?[] { file }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } });
                 Assert.Contains("1.5 KB", TestTerminal.RenderText(files, 100, glyphs: GlyphTier.Ascii));
+                // One file is an inspector record; a list is a record sheet. Both keep its size.
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(ConsoleView.Auto(file), 100, glyphs: GlyphTier.Ascii));
+                Assert.Contains("1.5 KB", TestTerminal.RenderText(ConsoleView.BuildList(new object?[] { file }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } }), 100, glyphs: GlyphTier.Ascii));
+                // A file in a mixed table does not make another object's count a size.
+                Table mixed = ConsoleView.BuildTable(new object?[] { file, new Sized { Name = "rule", Length = 260 } }, new ConsoleViewOptions { Property = new[] { "Name", "Length" } });
+                Assert.DoesNotContain("260 B", TestTerminal.RenderText(mixed, 100, glyphs: GlyphTier.Ascii));
             } finally {
                 File.Delete(path);
             }
+        }
+
+        [Fact]
+        public void InspectedStreams_KeepTheirLengthAsSize() {
+            using MemoryStream stream = new MemoryStream(new byte[1536]);
+            Assert.Contains("1.5 KB", TestTerminal.RenderText(InspectorTree.Build(ConsoleMonster.Data.ObjectInspector.Inspect(stream)), 100, glyphs: GlyphTier.Ascii));
+            Assert.Contains("1.5 KB", TestTerminal.RenderText(new InspectorView(stream), 100, glyphs: GlyphTier.Ascii));
+        }
+
+        public sealed class Sized {
+            public string Name { get; set; } = string.Empty;
+            public long Length { get; set; }
         }
 
         public sealed class NameRule {

@@ -298,7 +298,7 @@ namespace ConsoleMonster.Data {
                         )
                     )
                     .ToList();
-                return new InspectObject(name, typeName, path, members.AsReadOnly());
+                return new InspectObject(name, typeName, path, members.AsReadOnly()) { SourceType = identity.GetType() };
             }
             finally {
                 if (track)
