@@ -11,6 +11,8 @@ const { chromium } = require('playwright-core');
 const run = promisify(execFile);
 const isWindows = process.platform === 'win32';
 
+class BrowserCleanupError extends AggregateError {}
+
 async function killHostTree(pid) {
     if (isWindows) {
         await run('taskkill.exe', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, timeout: 5000 });
@@ -52,10 +54,10 @@ async function openBrowser({ channel, headed }) {
                 terminationError = error;
             }
             const terminated = await Promise.race([exited, wait(5000, null, { ref: false })]);
-            if (!terminated) {
+            if (!terminated || terminationError) {
                 throw terminationError ?? new Error('HtmlTinkerX browser host did not exit after termination.');
             }
-            return terminated;
+            return { ...terminated, forceStopped: true };
         } finally {
             if (result) fs.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
         }
@@ -69,18 +71,25 @@ async function openBrowser({ channel, headed }) {
             if (fs.existsSync(portFile)) {
                 const port = Number(fs.readFileSync(portFile, 'utf8'));
                 if (Number.isInteger(port) && port > 0 && port <= 65535) {
-                    const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
+                    const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`, { timeout: Math.max(1, deadline - Date.now()) });
                     return {
                         browser,
                         async close() {
+                            const errors = [];
                             try {
                                 await browser.close();
-                            } finally {
-                                const state = await stopHost();
-                                if (state.error || state.code !== 0) {
-                                    throw state.error || new Error(`HtmlTinkerX browser host failed during shutdown (${state.code ?? state.signal}).`);
-                                }
+                            } catch (error) {
+                                errors.push(error);
                             }
+                            try {
+                                const state = await stopHost();
+                                if (!state.forceStopped && (state.error || state.code !== 0)) {
+                                    errors.push(state.error || new Error(`HtmlTinkerX browser host failed during shutdown (${state.code ?? state.signal}).`));
+                                }
+                            } catch (error) {
+                                throw new BrowserCleanupError([...errors, error], 'HtmlTinkerX browser cleanup failed.');
+                            }
+                            if (errors.length) throw new AggregateError(errors, 'HtmlTinkerX browser shutdown failed.');
                         }
                     };
                 }
@@ -92,10 +101,10 @@ async function openBrowser({ channel, headed }) {
         try {
             await stopHost();
         } catch (cleanupError) {
-            throw new AggregateError([error, cleanupError], error.message);
+            throw new BrowserCleanupError([error, cleanupError], 'HtmlTinkerX browser startup and cleanup failed.');
         }
         throw error;
     }
 }
 
-module.exports = { openBrowser };
+module.exports = { BrowserCleanupError, openBrowser };

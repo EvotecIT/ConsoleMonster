@@ -27,7 +27,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { openBrowser } = require('./managed-browser.cjs');
+const { BrowserCleanupError, openBrowser } = require('./managed-browser.cjs');
 
 try {
     os.setPriority(0, os.constants.priority.PRIORITY_BELOW_NORMAL);
@@ -391,31 +391,49 @@ async function main() {
     const names = Object.keys(scenarios).filter(n => options.only ? options.only.includes(n) : true);
     const results = [];
     let failed = false;
+    let cleanupFailed = false;
+    const errorText = error => error instanceof AggregateError
+        ? [error.message, ...error.errors.map(errorText)].join(': ')
+        : String(error && error.message || error);
     // One browser at a time, closed after each scenario, so nothing from one run carries into the next.
     for (const name of names) {
         let result = null;
         let problems = [];
         for (let attempt = 1; attempt <= (budget ? options.attempts : 1); attempt++) {
-            const managed = await openBrowser(options);
+            let managed;
+            const errors = [];
+            result = null;
+            problems = [];
             try {
+                managed = await openBrowser(options);
                 const { browser } = managed;
                 const browserSession = await browser.newBrowserCDPSession();
                 result = await measure(browser, browserSession, options, name);
                 problems = budget ? withinBudget(result, budget) : [];
             } catch (error) {
-                // A scenario that cannot run (a missing control, a page that fails to load) is a failure, recorded with the rest.
-                result = { scenario: name, url: scenarios[name].url, error: String(error && error.stack || error) };
-                problems = ['scenario failed: ' + String(error && error.message || error)];
-            } finally {
-                await managed.close();
+                errors.push(error);
+            }
+            if (managed) {
+                try {
+                    await managed.close();
+                } catch (error) {
+                    errors.push(error);
+                }
+            }
+            if (errors.length) {
+                result ??= { scenario: name, url: scenarios[name].url };
+                result.error = errors.map(error => String(error?.stack || error) + '\n' + errorText(error)).join('\n');
+                problems.push(...errors.map(errorText));
+                cleanupFailed = errors.some(error => error instanceof BrowserCleanupError);
             }
             result.attempt = attempt;
-            if (!problems.length) break;
+            if (!problems.length || cleanupFailed) break;
         }
         result.problems = problems;
         if (problems.length) failed = true;
         results.push(result);
         console.log(result.error ? name.padEnd(18) + '  FAILED: ' + problems.join('; ') : line(result, problems));
+        if (cleanupFailed) break;
     }
     fs.writeFileSync(path.join(options.out, 'results.json'), JSON.stringify({ base: options.base, assets: options.assets, channel: options.channel || 'chromium', viewport: options.width + 'x' + options.height + '@' + options.scale, cpuThrottle: options.cpu, date: new Date().toISOString(), results }, null, 2));
     if (failed) {

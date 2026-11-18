@@ -17,6 +17,8 @@ $version = '3.0.10'
 if ($PSCmdlet.ParameterSetName -eq 'Prepare') {
     New-Item -ItemType Directory -Path $ModuleDirectory -Force | Out-Null
     Save-PSResource -Name PSParseHTML -Version $version -Repository PSGallery -Path $ModuleDirectory -TrustRepository
+    Import-Module -Name (Join-Path $ModuleDirectory "PSParseHTML/$version/PSParseHTML.psd1")
+    [HtmlTinkerX.HtmlBrowser]::EnsureInstalledAsync([HtmlTinkerX.HtmlBrowserEngine]::Chromium).GetAwaiter().GetResult()
     return
 }
 
@@ -27,8 +29,10 @@ $launch = @{
     UserDataDirectory = $ProfileDirectory
     BrowserArgument = @('--remote-debugging-port=0', '--remote-debugging-address=127.0.0.1', '--force-renderer-accessibility')
     LoadState = 'DomContentLoaded'
-    Visible = $Visible
     NoDefault = $true
+}
+if ($Visible) {
+    $launch.Visible = $true
 }
 if ($Channel) {
     $launch.BrowserChannel = $Channel

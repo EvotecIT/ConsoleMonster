@@ -165,6 +165,9 @@ jobs:
       - name: Prepare HtmlTinkerX and the Playwright client
         if: steps.changes.outputs.website == 'true'
         shell: pwsh
+        env:
+          HTMLTINKERX_PLAYWRIGHT_WITH_DEPS: '1'
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/consolemonster-chromium
         run: |
           $moduleDirectory = Join-Path $env:RUNNER_TEMP 'render-budget-modules'
           ./Website/build/perf/Start-PerfBrowser.ps1 -ModuleDirectory $moduleDirectory
