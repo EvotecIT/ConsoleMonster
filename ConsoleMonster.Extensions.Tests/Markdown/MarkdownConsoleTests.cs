@@ -69,11 +69,12 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
         }
 
         // Indented code that shows front matter or alert syntax stays code: neither block is metadata nor an alert.
+        // An alert at the margin in the same document is still an alert.
         [Fact]
         public void IndentedFrontMatterAndAlertExamplesStayCode() {
-            const string source = "    ---\n    title: example\n    ---\n\nVisible\n\n    > [!NOTE]\n    > example\n";
+            const string source = "    ---\n    title: example\n    ---\n\nVisible\n\n    > [!NOTE]\n    > example\n\n> [!TIP]\n> Real tip.\n";
             MarkdownView view = MarkdownConsole.Parse(source);
-            Assert.Equal(3, view.Children.Count);
+            Assert.Equal(4, view.Children.Count);
             Assert.IsType<CodeView>(view.Children[0]);
             Assert.IsType<CodeView>(view.Children[2]);
             string[] rows = Render(source, 60).ToPlainText().Split('\n');
@@ -81,6 +82,8 @@ namespace ConsoleMonster.Extensions.Tests.Markdown {
             Assert.Contains(rows, row => row.StartsWith("│ > [!NOTE]", StringComparison.Ordinal));
             Assert.Contains(rows, row => row.Trim() == "Visible");
             Assert.DoesNotContain(rows, row => row.Trim() == "Note");
+            Assert.Contains(rows, row => row.Contains("Tip") && !row.Contains("[!TIP]"));
+            Assert.Contains(rows, row => row.Contains("Real tip."));
         }
 
         [Fact]
