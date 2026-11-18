@@ -54,10 +54,11 @@ async function openBrowser({ channel, headed }) {
                 terminationError = error;
             }
             const terminated = await Promise.race([exited, wait(5000, null, { ref: false })]);
-            if (!terminated || terminationError) {
+            // The host can finish its graceful shutdown just before the kill request.
+            if (!terminated || (terminationError && terminated.code !== 0)) {
                 throw terminationError ?? new Error('HtmlTinkerX browser host did not exit after termination.');
             }
-            return { ...terminated, forceStopped: true };
+            return { ...terminated, forceStopped: !terminationError };
         } finally {
             if (result) fs.rmSync(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
         }
