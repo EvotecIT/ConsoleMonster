@@ -162,15 +162,20 @@ jobs:
         shell: pwsh
         # The optimized (minified) output is what readers get, so the optimize step stays; the checks verify-site runs do not.
         run: ./Website/build.ps1 -CI -PowerForgeRoot "$PWD/_powerforge" -Skip verify,seo-doctor,audit,agent-ready
-      - name: Install Playwright and Chromium
+      - name: Prepare HtmlTinkerX and the Playwright client
         if: steps.changes.outputs.website == 'true'
+        shell: pwsh
         run: |
-          mkdir -p _perf && cd _perf
-          npm init -y > /dev/null
-          npm install --no-save --no-audit --no-fund playwright@1.58.2
-          npx playwright install --with-deps chromium
+          $moduleDirectory = Join-Path $env:RUNNER_TEMP 'render-budget-modules'
+          ./Website/build/perf/Start-PerfBrowser.ps1 -ModuleDirectory $moduleDirectory
+          "PSModulePath=$moduleDirectory$([IO.Path]::PathSeparator)$env:PSModulePath" >> $env:GITHUB_ENV
+          npm install --prefix _perf --no-save --no-audit --no-fund playwright-core@1.65.0
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Measure against the budget
         if: steps.changes.outputs.website == 'true'
+        env:
+          HTMLTINKERX_PLAYWRIGHT_WITH_DEPS: '1'
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/consolemonster-chromium
         run: |
           node Website/build/perf/serve.cjs Website/_site 8080 &
           curl --silent --output /dev/null --retry 20 --retry-delay 1 --retry-connrefused http://localhost:8080/

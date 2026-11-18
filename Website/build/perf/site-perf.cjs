@@ -17,8 +17,9 @@
 //
 // --assets serves /themes/consolemonster/assets/<file> from a local folder instead (an A/B run of other CSS/JS against
 // the same build). The script lowers its own priority (and so the browser's) to below normal and runs headless, one
-// browser at a time, so measuring does not load the machine it runs on. Needs playwright (CI) or playwright-core;
-// --channel msedge uses an installed Edge instead of a downloaded Chromium. The browser runs with its accessibility tree
+// browser at a time, so measuring does not load the machine it runs on. Install PSParseHTML 3.0.10 for pwsh and put
+// playwright-core on NODE_PATH. HtmlTinkerX installs and launches Chromium and Node connects over loopback.
+// --channel msedge uses an installed Edge. The browser runs with its accessibility tree
 // on (--force-renderer-accessibility), as it does on any machine with a screen reader, password manager or other UI
 // Automation client: that is where exposing every terminal cell to assistive technology cost a core per frame swap.
 'use strict';
@@ -26,22 +27,12 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { openBrowser } = require('./managed-browser.cjs');
 
 try {
     os.setPriority(0, os.constants.priority.PRIORITY_BELOW_NORMAL);
 } catch (e) {
     // Not every platform lets a process lower itself; the measurements still stand.
-}
-
-function load() {
-    for (const name of ['playwright', 'playwright-core']) {
-        try {
-            return require(name);
-        } catch (e) {
-            // Try the next package name.
-        }
-    }
-    throw new Error('Install playwright (npm install --no-save playwright) or put playwright-core on NODE_PATH.');
 }
 
 function args() {
@@ -397,7 +388,6 @@ async function main() {
     const options = args();
     fs.mkdirSync(options.out, { recursive: true });
     const budget = options.budget ? JSON.parse(fs.readFileSync(options.budget, 'utf8')) : null;
-    const { chromium } = load();
     const names = Object.keys(scenarios).filter(n => options.only ? options.only.includes(n) : true);
     const results = [];
     let failed = false;
@@ -406,8 +396,9 @@ async function main() {
         let result = null;
         let problems = [];
         for (let attempt = 1; attempt <= (budget ? options.attempts : 1); attempt++) {
-            const browser = await chromium.launch(Object.assign({ headless: !options.headed, args: ['--force-renderer-accessibility'] }, options.channel ? { channel: options.channel } : {}));
+            const managed = await openBrowser(options);
             try {
+                const { browser } = managed;
                 const browserSession = await browser.newBrowserCDPSession();
                 result = await measure(browser, browserSession, options, name);
                 problems = budget ? withinBudget(result, budget) : [];
@@ -416,7 +407,7 @@ async function main() {
                 result = { scenario: name, url: scenarios[name].url, error: String(error && error.stack || error) };
                 problems = ['scenario failed: ' + String(error && error.message || error)];
             } finally {
-                await browser.close();
+                await managed.close();
             }
             result.attempt = attempt;
             if (!problems.length) break;
