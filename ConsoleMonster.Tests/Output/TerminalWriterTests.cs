@@ -59,8 +59,12 @@ namespace ConsoleMonster.Tests.Output {
         [InlineData(false, true, 1200, 1200)]
         [InlineData(true, true, 28591, 65001)]
         [InlineData(false, false, 28591, 65001)]
+        [InlineData(false, true, 0, 65001)]
         public void RedirectedOutputUsesTheConsoleEncodingOnlyOnWindowsOutsideCi(bool ci, bool windows, int console, int expectedCodePage) {
-            Encoding chosen = StreamEncoding.Choose(ci, windows, Encoding.GetEncoding(console));
+            // Code page 0 is what the runtime reports when no console is attached.
+            Encoding consoleEncoding = console == 0 ? new NoConsoleEncoding() : Encoding.GetEncoding(console);
+
+            Encoding chosen = StreamEncoding.Choose(ci, windows, consoleEncoding);
 
             Assert.Equal(expectedCodePage, chosen.CodePage);
         }
@@ -82,6 +86,10 @@ namespace ConsoleMonster.Tests.Output {
                 }
                 Assert.Equal(new byte[] { 0x63, 0x61, 0x66, 0xE9 }, stream.ToArray());
             }
+        }
+
+        private sealed class NoConsoleEncoding : UTF8Encoding {
+            public override int CodePage => 0;
         }
     }
 }

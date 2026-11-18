@@ -27,7 +27,9 @@ namespace ConsoleMonster.Output {
             => codePage == 0 || codePage == 65001 || codePage == 1200 || codePage == 1201 || codePage == 12000 || codePage == 12001;
 
         internal static Encoding Choose(bool continuousIntegration, bool windows, Encoding? console) {
-            if (continuousIntegration || !windows || console == null || console.CodePage == 65001) {
+            // Zero means no console: the runtime would then encode through the ANSI code page, which a parent reading
+            // UTF-8 cannot decode.
+            if (continuousIntegration || !windows || console == null || console.CodePage == 0 || console.CodePage == 65001) {
                 return Utf8;
             }
             // Keep the configured encoding (a legacy code page or UTF-16), but never throw on a character it cannot

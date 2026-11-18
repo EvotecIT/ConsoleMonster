@@ -12,6 +12,12 @@ namespace ConsoleMonster.Rendering {
     internal static class CellEncoder {
         /// <summary>Encodes a direct styled line with the same link policy as widget frames and live redraws.</summary>
         internal static void AppendStyled(StringBuilder sb, StyledLine line, ColorDepth depth, bool hyperlinks, TerminalProfile? profile = null) {
+            using (Glyphs.SymbolFallback.KeepCodePageText(profile)) {
+                AppendStyledText(sb, line, depth, hyperlinks, profile);
+            }
+        }
+
+        private static void AppendStyledText(StringBuilder sb, StyledLine line, ColorDepth depth, bool hyperlinks, TerminalProfile? profile) {
             if (!hyperlinks) {
                 foreach (TextSpan span in line) {
                     SgrEncoder.Append(sb, span.Style, depth, profile);
@@ -43,6 +49,12 @@ namespace ConsoleMonster.Rendering {
         /// narrower than measured, only that glyph's own cells are affected; the rest of the row stays in its columns.
         /// </remarks>
         public static void AppendRun(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor = false, bool hyperlinks = false, TerminalProfile? profile = null) {
+            using (Glyphs.SymbolFallback.KeepCodePageText(profile)) {
+                AppendCells(sb, buffer, y, start, endExclusive, depth, ref current, anchor, hyperlinks, profile);
+            }
+        }
+
+        private static void AppendCells(StringBuilder sb, CellBuffer buffer, int y, int start, int endExclusive, ColorDepth depth, ref Style? current, bool anchor, bool hyperlinks, TerminalProfile? profile) {
             bool drifting = false;
             string? link = null;
             string? raw = null;

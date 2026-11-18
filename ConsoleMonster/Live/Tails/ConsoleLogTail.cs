@@ -57,7 +57,9 @@ namespace ConsoleMonster.Live.Tails {
                 using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, guard.Cancellation)) {
                     bool snapshot = options.NonInteractive || Interactive.InteractiveOptions.Default.IsNonInteractive
                         || new Interactive.InteractiveOptions { Profile = profile, Input = options.Input }.ResolveMode() != Interactive.InteractionMode.Rich;
-                    Poll(read, options, entry => write(Glyphs.SymbolFallback.Constrain(entry.Text, profile.Glyphs)), null, linked.Token, snapshot: snapshot);
+                    Poll(read, options, entry => {
+                        using (Glyphs.SymbolFallback.KeepCodePageText(profile)) { write(Glyphs.SymbolFallback.Constrain(entry.Text, profile.Glyphs)); }
+                    }, null, linked.Token, snapshot: snapshot);
                 }
             } finally {
                 if (ownsWriter) { writer?.Dispose(); }

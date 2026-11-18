@@ -119,7 +119,9 @@ namespace ConsoleMonster.Canvas {
             }
             if (!_markupCache.TryGetValue(markup, out var text)) {
                 StyledText source = Rendering.LinkTargets.Show(Text.Markup.Parse(markup, Theme, Depth), this);
-                text = (source, SymbolFallback.ForOutput(source, Glyphs.Tier));
+                using (SymbolFallback.KeepCodePageText(Profile)) {
+                    text = (source, SymbolFallback.ForOutput(source, Glyphs.Tier));
+                }
                 if (_markupCache.Count < 4096) {
                     _markupCache[markup] = text;
                 }

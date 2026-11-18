@@ -11,14 +11,14 @@ namespace ConsoleMonster.Glyphs {
             if (tier == GlyphTier.Full || string.IsNullOrEmpty(text)) return text;
             bool safe = true;
             foreach (char c in text) {
-                if (!Allowed(c, tier)) { safe = false; break; }
+                if (!Kept(c, tier)) { safe = false; break; }
             }
             if (safe) return text;
             var result = new StringBuilder(text.Length);
             foreach (TextCluster cluster in DisplayWidth.Clusters(text)) {
                 string glyph = text.Substring(cluster.Start, cluster.Length);
                 bool allowed = true;
-                foreach (char c in glyph) if (!Allowed(c, tier)) { allowed = false; break; }
+                foreach (char c in glyph) if (!Kept(c, tier)) { allowed = false; break; }
                 if (allowed) { result.Append(glyph); continue; }
                 if (TryGet(glyph, tier, out string fallback)) { result.Append(Safe(fallback, tier)); continue; }
                 // Invisible format characters (a byte order mark, zero-width spaces and joiners) take no cell: drop them
@@ -26,7 +26,7 @@ namespace ConsoleMonster.Glyphs {
                 string visible = WithoutFormatCharacters(glyph);
                 if (visible.Length == 0) continue;
                 allowed = true;
-                foreach (char c in visible) if (!Allowed(c, tier)) { allowed = false; break; }
+                foreach (char c in visible) if (!Kept(c, tier)) { allowed = false; break; }
                 result.Append(allowed ? visible : tier == GlyphTier.Ascii ? Transliterate(visible) : "?");
             }
             return result.ToString();

@@ -19,6 +19,12 @@ namespace ConsoleMonster.Rendering {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context));
             }
+            using (Glyphs.SymbolFallback.KeepCodePageText(context.Profile)) {
+                return ComposeFrame(root, width, height, context, reuse);
+            }
+        }
+
+        private static CellBuffer ComposeFrame(IWidget root, int width, int height, RenderContext context, CellBuffer? reuse) {
             CellBuffer buffer = reuse ?? new CellBuffer(width, height);
             buffer.GlyphTier = context.Glyphs.Tier;
             if (buffer.Width != width || buffer.Height != height) {
@@ -47,10 +53,12 @@ namespace ConsoleMonster.Rendering {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context));
             }
-            Size size = widget.Measure(new Constraints(width), context);
-            CellBuffer buffer = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
-            widget.Render(new Region(buffer), context);
-            return buffer;
+            using (Glyphs.SymbolFallback.KeepCodePageText(context.Profile)) {
+                Size size = widget.Measure(new Constraints(width), context);
+                CellBuffer buffer = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
+                widget.Render(new Region(buffer), context);
+                return buffer;
+            }
         }
     }
 }
