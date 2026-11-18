@@ -349,5 +349,24 @@ namespace ConsoleMonster.Tests.Capabilities {
             Assert.True(interactive.ProbeWidths);
             Assert.False(redirected.ProbeWidths);
         }
+
+        [Theory]
+        [InlineData(852, false, false, null, GlyphTier.Ascii)]
+        [InlineData(437, false, false, null, GlyphTier.Ascii)]
+        [InlineData(852, false, false, "interactive", GlyphTier.Ascii)]
+        [InlineData(65001, false, false, null, GlyphTier.Basic)]
+        [InlineData(852, true, false, null, GlyphTier.Basic)]
+        [InlineData(852, false, true, "stream", GlyphTier.Basic)]
+        public void RedirectedWindowsOutputUsesGlyphsItsCodePageCanCarry(int codePage, bool ci, bool consoleHandle, string? mode, GlyphTier expected) {
+            var variables = new Dictionary<string, string>();
+            if (ci) variables["GITHUB_ACTIONS"] = "true";
+            if (mode != null) variables["CONSOLEMONSTER_MODE"] = mode;
+            TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(variables, isWindows: true,
+                isOutputRedirected: !consoleHandle, isConsoleHandle: consoleHandle).WithOutputCodePage(codePage)).Detect();
+
+            // A parent process decodes redirected output with the console code page, which has no basic markers, even
+            // when interactive mode is forced; CI logs are read as UTF-8, and a console handle is written with WriteConsoleW.
+            Assert.Equal(expected, profile.Glyphs);
+        }
     }
 }

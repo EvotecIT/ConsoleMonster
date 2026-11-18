@@ -53,5 +53,43 @@ namespace ConsoleMonster.Tests.Output {
             }
             Assert.Equal(text, rebuilt.ToString());
         }
+
+        [Theory]
+        [InlineData(false, true, 28591, 28591)]
+        [InlineData(false, true, 1200, 1200)]
+        [InlineData(true, true, 28591, 65001)]
+        [InlineData(false, false, 28591, 65001)]
+        [InlineData(false, true, 0, 65001)]
+        public void RedirectedOutputUsesTheConsoleEncodingOnlyOnWindowsOutsideCi(bool ci, bool windows, int console, int expectedCodePage) {
+            // Code page 0 is what the runtime reports when no console is attached.
+            Encoding consoleEncoding = console == 0 ? new NoConsoleEncoding() : Encoding.GetEncoding(console);
+
+            Encoding chosen = StreamEncoding.Choose(ci, windows, consoleEncoding);
+
+            Assert.Equal(expectedCodePage, chosen.CodePage);
+        }
+
+        [Fact]
+        public void ConsoleEncodingReplacesCharactersItCannotCarryInsteadOfThrowing() {
+            Encoding strict = Encoding.GetEncoding(28591, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+
+            Encoding chosen = StreamEncoding.Choose(false, true, strict);
+
+            Assert.Equal(new byte[] { 0x61, 0x3F, 0x3F }, chosen.GetBytes("a\u4E2D\u6587"));
+        }
+
+        [Fact]
+        public void StreamWriterWritesInTheGivenEncoding() {
+            using (MemoryStream stream = new MemoryStream()) {
+                using (StreamTerminalWriter writer = new StreamTerminalWriter(stream, Encoding.GetEncoding(28591))) {
+                    writer.Write("caf\u00e9");
+                }
+                Assert.Equal(new byte[] { 0x63, 0x61, 0x66, 0xE9 }, stream.ToArray());
+            }
+        }
+
+        private sealed class NoConsoleEncoding : UTF8Encoding {
+            public override int CodePage => 0;
+        }
     }
 }

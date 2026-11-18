@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ConsoleMonster.Output;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Capabilities {
@@ -26,14 +27,7 @@ namespace ConsoleMonster.Capabilities {
         public TerminalProfile Detect() {
             TerminalEnvironment env = _environment;
             List<string> decisions = new List<string>();
-            bool ci = false;
-            foreach (string name in CiVariables) {
-                string value = Get(name);
-                if (value.Length > 0 && !Equal(value, "false") && value != "0") {
-                    ci = true;
-                    break;
-                }
-            }
+            bool ci = IsContinuousIntegration(Get);
             bool vt = env.IsWindows
                 ? env.IsConsoleHandle && (env.VirtualTerminalEnabled ?? env.WindowsBuild >= 10586)
                 : !env.IsOutputRedirected && Get("TERM").Length > 0;
@@ -178,7 +172,8 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
                 env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
-                WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource
+                WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource,
+                TextCodePage = TextCodePage(glyphs, glyphReason, widths)
             }.WithAccessibility(accessible, reducedMotion).WithBorder(border).WithStatusMarkers(markers).WithDensity(density);
         }
 
@@ -286,7 +281,9 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) { ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource }.WithLanguage(profile.Language)
+                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) {
+                ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource, TextCodePage = TextCodePage(glyphs, reason, profile.WidthProfile)
+            }.WithLanguage(profile.Language)
                 .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride)
                 .WithBorder(profile.Border).WithStatusMarkers(profile.StatusMarkers).WithDensity(profile.Density);
         }
@@ -375,11 +372,25 @@ namespace ConsoleMonster.Capabilities {
             return ColorDepth.None;
         }
 
+        private const string CodePageReason = "redirected, code page ";
+
+        // Caller text keeps what the code page can encode only when the code page itself chose ASCII.
+        private int TextCodePage(GlyphTier glyphs, string reason, TerminalWidthProfile widths)
+            => glyphs == GlyphTier.Ascii && widths.AmbiguousWidth != 2 && reason.StartsWith(CodePageReason, StringComparison.Ordinal)
+                ? _environment.OutputCodePage : 0;
+
         private GlyphTier DetectGlyphs(OutputMode mode, bool ci, out string reason) {
             return DetectGlyphs(mode, ci, _environment.ConsoleFontFace, _environment.ConsoleFontIsRaster, out reason);
         }
 
         private GlyphTier DetectGlyphs(OutputMode mode, bool ci, string? consoleFontFace, bool consoleFontIsRaster, out string reason) {
+            // Windows output that is not a console handle goes through the stream writer in the console code page
+            // (whatever the rendering mode); no OEM or ANSI code page holds the basic markers, so outside CI a
+            // non-Unicode code page gets ASCII rather than '?' or misread bytes. Console handles use WriteConsoleW.
+            if (!ci && _environment.IsWindows && !_environment.IsConsoleHandle && !StreamEncoding.IsUnicode(_environment.OutputCodePage)) {
+                reason = CodePageReason + _environment.OutputCodePage.ToString(CultureInfo.InvariantCulture);
+                return GlyphTier.Ascii;
+            }
             if (mode != OutputMode.Interactive || ci) {
                 reason = "stream/CI";
                 return GlyphTier.Basic;
@@ -485,6 +496,20 @@ namespace ConsoleMonster.Capabilities {
                 return TerminalKind.Conhost;
             }
             return Get("TERM").Length > 0 ? TerminalKind.Xterm : TerminalKind.Unknown;
+        }
+
+        /// <summary>Whether this process runs in CI, read from its environment without detecting a profile.</summary>
+        internal static bool ProcessIsContinuousIntegration()
+            => IsContinuousIntegration(name => (Environment.GetEnvironmentVariable(name) ?? string.Empty).Trim());
+
+        private static bool IsContinuousIntegration(Func<string, string> get) {
+            foreach (string name in CiVariables) {
+                string value = get(name);
+                if (value.Length > 0 && !Equal(value, "false") && value != "0") {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private string Get(string key) => _environment.EnvironmentVariables.TryGetValue(key, out string? value) ? (value ?? string.Empty).Trim() : string.Empty;

@@ -90,6 +90,15 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>Whether the Windows system High Contrast setting is enabled in this snapshot.</summary>
         public bool HighContrast { get; }
 
+        // The console output code page at capture, or zero when unknown. Redirected Windows output is written in it.
+        internal int OutputCodePage { get; private set; }
+
+        internal TerminalEnvironment WithOutputCodePage(int codePage) {
+            var copy = (TerminalEnvironment)MemberwiseClone();
+            copy.OutputCodePage = codePage;
+            return copy;
+        }
+
         /// <summary>Captures real process inputs, enabling Windows VT output without changing code pages.</summary>
         /// <returns>A snapshot for deterministic detection.</returns>
         public static TerminalEnvironment Capture() {
@@ -115,7 +124,8 @@ namespace ConsoleMonster.Capabilities {
             bool? vt = console ? DetectionOutputMode.Enable(handle, mode) : (bool?)null;
             WindowsConsole.TryGetFont(handle, out string? face, out bool raster);
             TerminalSize.TryGet(out int width, out int height);
-            return new TerminalEnvironment(WindowsAccessibility.HighContrastEnabled(), variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height, inputRedirected);
+            return new TerminalEnvironment(WindowsAccessibility.HighContrastEnabled(), variables, redirected, windows, WindowsConsole.BuildNumber(), console, vt, face, raster, width, height, inputRedirected)
+                .WithOutputCodePage(StreamEncoding.CurrentCodePage());
         }
     }
 }
