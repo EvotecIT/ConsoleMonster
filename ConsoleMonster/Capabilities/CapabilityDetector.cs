@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using ConsoleMonster.Output;
 using ConsoleMonster.Text;
 
 namespace ConsoleMonster.Capabilities {
@@ -381,6 +382,12 @@ namespace ConsoleMonster.Capabilities {
 
         private GlyphTier DetectGlyphs(OutputMode mode, bool ci, string? consoleFontFace, bool consoleFontIsRaster, out string reason) {
             if (mode != OutputMode.Interactive || ci) {
+                // Redirected Windows output is written in the console code page; no OEM or ANSI code page holds the
+                // basic markers, so outside CI a non-Unicode code page gets ASCII rather than '?' or misread bytes.
+                if (!ci && _environment.IsWindows && !StreamEncoding.IsUnicode(_environment.OutputCodePage)) {
+                    reason = "stream, code page " + _environment.OutputCodePage.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    return GlyphTier.Ascii;
+                }
                 reason = "stream/CI";
                 return GlyphTier.Basic;
             }

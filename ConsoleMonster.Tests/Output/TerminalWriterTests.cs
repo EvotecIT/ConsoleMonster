@@ -53,5 +53,26 @@ namespace ConsoleMonster.Tests.Output {
             }
             Assert.Equal(text, rebuilt.ToString());
         }
+
+        [Theory]
+        [InlineData(false, true, 28591)]
+        [InlineData(true, true, 65001)]
+        [InlineData(false, false, 65001)]
+        public void RedirectedOutputUsesTheConsoleCodePageOnlyOnWindowsOutsideCi(bool ci, bool windows, int expectedCodePage) {
+            Encoding chosen = StreamEncoding.Choose(ci, windows, Encoding.GetEncoding(28591));
+
+            Assert.Equal(expectedCodePage, chosen.CodePage);
+            Assert.Empty(chosen.GetPreamble());
+        }
+
+        [Fact]
+        public void StreamWriterWritesInTheGivenEncoding() {
+            using (MemoryStream stream = new MemoryStream()) {
+                using (StreamTerminalWriter writer = new StreamTerminalWriter(stream, Encoding.GetEncoding(28591))) {
+                    writer.Write("caf\u00e9");
+                }
+                Assert.Equal(new byte[] { 0x63, 0x61, 0x66, 0xE9 }, stream.ToArray());
+            }
+        }
     }
 }

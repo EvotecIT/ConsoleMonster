@@ -4,7 +4,7 @@ using ConsoleMonster.Interop;
 
 namespace ConsoleMonster.Output {
 
-    /// <summary>Chooses WriteConsoleW for Windows consoles and UTF-8 standard output otherwise.</summary>
+    /// <summary>Chooses WriteConsoleW for Windows consoles and standard output in the reader's encoding otherwise.</summary>
     internal static class TerminalWriterFactory {
 
         /// <summary>Creates the writer for a profile.</summary>
@@ -16,7 +16,7 @@ namespace ConsoleMonster.Output {
             }
             return WindowsConsole.IsWindows && profile.IsConsoleHandle
                 ? (ITerminalWriter)new ConsoleHandleWriter()
-                : StreamTerminalWriter.ForStandardOutput();
+                : StreamTerminalWriter.ForStandardOutput(profile.IsContinuousIntegration);
         }
     }
 }
