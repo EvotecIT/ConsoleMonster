@@ -38,7 +38,7 @@ namespace ConsoleMonster.Output {
         /// platforms get UTF-8.
         /// </summary>
         /// <returns>The writer.</returns>
-        public static StreamTerminalWriter ForStandardOutput() => ForStandardOutput(Terminal.Profile.IsContinuousIntegration);
+        public static StreamTerminalWriter ForStandardOutput() => ForStandardOutput(Capabilities.CapabilityDetector.ProcessIsContinuousIntegration());
 
         internal static StreamTerminalWriter ForStandardOutput(bool continuousIntegration)
             => new StreamTerminalWriter(Console.OpenStandardOutput(), StreamEncoding.ForStandardOutput(continuousIntegration), true);

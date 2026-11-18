@@ -16,7 +16,7 @@ namespace ConsoleMonster.Output {
             }
             return WindowsConsole.IsWindows && profile.IsConsoleHandle
                 ? (ITerminalWriter)new ConsoleHandleWriter()
-                : StreamTerminalWriter.ForStandardOutput(profile.IsContinuousIntegration);
+                : StreamTerminalWriter.ForStandardOutput(profile.IsContinuousIntegration || CapabilityDetector.ProcessIsContinuousIntegration());
         }
     }
 }

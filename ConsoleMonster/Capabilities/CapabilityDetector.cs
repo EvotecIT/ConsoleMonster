@@ -27,14 +27,7 @@ namespace ConsoleMonster.Capabilities {
         public TerminalProfile Detect() {
             TerminalEnvironment env = _environment;
             List<string> decisions = new List<string>();
-            bool ci = false;
-            foreach (string name in CiVariables) {
-                string value = Get(name);
-                if (value.Length > 0 && !Equal(value, "false") && value != "0") {
-                    ci = true;
-                    break;
-                }
-            }
+            bool ci = IsContinuousIntegration(Get);
             bool vt = env.IsWindows
                 ? env.IsConsoleHandle && (env.VirtualTerminalEnabled ?? env.WindowsBuild >= 10586)
                 : !env.IsOutputRedirected && Get("TERM").Length > 0;
@@ -381,13 +374,14 @@ namespace ConsoleMonster.Capabilities {
         }
 
         private GlyphTier DetectGlyphs(OutputMode mode, bool ci, string? consoleFontFace, bool consoleFontIsRaster, out string reason) {
+            // Windows output that is not a console handle goes through the stream writer in the console code page
+            // (whatever the rendering mode); no OEM or ANSI code page holds the basic markers, so outside CI a
+            // non-Unicode code page gets ASCII rather than '?' or misread bytes. Console handles use WriteConsoleW.
+            if (!ci && _environment.IsWindows && !_environment.IsConsoleHandle && !StreamEncoding.IsUnicode(_environment.OutputCodePage)) {
+                reason = "redirected, code page " + _environment.OutputCodePage.ToString(CultureInfo.InvariantCulture);
+                return GlyphTier.Ascii;
+            }
             if (mode != OutputMode.Interactive || ci) {
-                // Redirected Windows output is written in the console code page; no OEM or ANSI code page holds the
-                // basic markers, so outside CI a non-Unicode code page gets ASCII rather than '?' or misread bytes.
-                if (!ci && _environment.IsWindows && !StreamEncoding.IsUnicode(_environment.OutputCodePage)) {
-                    reason = "stream, code page " + _environment.OutputCodePage.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                    return GlyphTier.Ascii;
-                }
                 reason = "stream/CI";
                 return GlyphTier.Basic;
             }
@@ -492,6 +486,20 @@ namespace ConsoleMonster.Capabilities {
                 return TerminalKind.Conhost;
             }
             return Get("TERM").Length > 0 ? TerminalKind.Xterm : TerminalKind.Unknown;
+        }
+
+        /// <summary>Whether this process runs in CI, read from its environment without detecting a profile.</summary>
+        internal static bool ProcessIsContinuousIntegration()
+            => IsContinuousIntegration(name => (Environment.GetEnvironmentVariable(name) ?? string.Empty).Trim());
+
+        private static bool IsContinuousIntegration(Func<string, string> get) {
+            foreach (string name in CiVariables) {
+                string value = get(name);
+                if (value.Length > 0 && !Equal(value, "false") && value != "0") {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private string Get(string key) => _environment.EnvironmentVariables.TryGetValue(key, out string? value) ? (value ?? string.Empty).Trim() : string.Empty;

@@ -27,10 +27,18 @@ namespace ConsoleMonster.Output {
             => codePage == 0 || codePage == 65001 || codePage == 1200 || codePage == 1201 || codePage == 12000 || codePage == 12001;
 
         internal static Encoding Choose(bool continuousIntegration, bool windows, Encoding? console) {
-            if (continuousIntegration || !windows || console == null || IsUnicode(console.CodePage)) {
+            if (continuousIntegration || !windows || console == null || console.CodePage == 65001) {
                 return Utf8;
             }
-            return console;
+            // Keep the configured encoding (a legacy code page or UTF-16), but never throw on a character it cannot
+            // carry: a console encoding may come with an exception fallback.
+            try {
+                var encoding = (Encoding)console.Clone();
+                encoding.EncoderFallback = EncoderFallback.ReplacementFallback;
+                return encoding;
+            } catch (Exception) {
+                return console;
+            }
         }
 
         private static Encoding? CurrentConsoleEncoding() {

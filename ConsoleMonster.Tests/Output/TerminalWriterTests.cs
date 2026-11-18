@@ -55,14 +55,23 @@ namespace ConsoleMonster.Tests.Output {
         }
 
         [Theory]
-        [InlineData(false, true, 28591)]
-        [InlineData(true, true, 65001)]
-        [InlineData(false, false, 65001)]
-        public void RedirectedOutputUsesTheConsoleCodePageOnlyOnWindowsOutsideCi(bool ci, bool windows, int expectedCodePage) {
-            Encoding chosen = StreamEncoding.Choose(ci, windows, Encoding.GetEncoding(28591));
+        [InlineData(false, true, 28591, 28591)]
+        [InlineData(false, true, 1200, 1200)]
+        [InlineData(true, true, 28591, 65001)]
+        [InlineData(false, false, 28591, 65001)]
+        public void RedirectedOutputUsesTheConsoleEncodingOnlyOnWindowsOutsideCi(bool ci, bool windows, int console, int expectedCodePage) {
+            Encoding chosen = StreamEncoding.Choose(ci, windows, Encoding.GetEncoding(console));
 
             Assert.Equal(expectedCodePage, chosen.CodePage);
-            Assert.Empty(chosen.GetPreamble());
+        }
+
+        [Fact]
+        public void ConsoleEncodingReplacesCharactersItCannotCarryInsteadOfThrowing() {
+            Encoding strict = Encoding.GetEncoding(28591, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
+
+            Encoding chosen = StreamEncoding.Choose(false, true, strict);
+
+            Assert.Equal(new byte[] { 0x61, 0x3F, 0x3F }, chosen.GetBytes("a\u4E2D\u6587"));
         }
 
         [Fact]
