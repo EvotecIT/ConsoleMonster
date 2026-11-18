@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 
@@ -39,6 +40,26 @@ namespace ConsoleMonster.Rendering {
             }
             root.Render(new Region(buffer), context);
             return buffer;
+        }
+
+        /// <summary>
+        /// Renders streamed blocks (long tables) under the same rules as <see cref="RenderBlock"/>. The code page text scope
+        /// is per thread, so it covers each step of the enumeration and is never held across a yield.
+        /// </summary>
+        /// <param name="blocks">The lazily rendered blocks.</param>
+        /// <param name="context">The render context.</param>
+        /// <returns>The blocks, top to bottom.</returns>
+        internal static IEnumerable<CellBuffer> RenderStream(IEnumerable<CellBuffer> blocks, RenderContext context) {
+            using (IEnumerator<CellBuffer> enumerator = blocks.GetEnumerator()) {
+                while (true) {
+                    CellBuffer block;
+                    using (Glyphs.SymbolFallback.KeepCodePageText(context.Profile)) {
+                        if (!enumerator.MoveNext()) yield break;
+                        block = enumerator.Current;
+                    }
+                    yield return block;
+                }
+            }
         }
 
         /// <summary>Renders a widget as a block exactly as tall as it measures at the given width.</summary>
