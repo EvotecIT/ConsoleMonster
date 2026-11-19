@@ -189,6 +189,25 @@ The fallback maps `-Title`, `-PassThru` (multiple selection), and `-OutputMode N
 
 The grid keeps its normal keys: type to filter, arrows to move, Space to mark rows, F10 or Ctrl+Enter to accept, and Esc to cancel. Selection returns the original objects, so assignment, `-OutVariable` and a downstream command receive objects rather than screen text. A working native command's pipeline, file, job and transcript behavior is unchanged. Without interactivity the existing `Show-ConsoleGrid` fallback prints a table with a warning and returns no selections. Closing the terminal grid restores its caller's Windows output mode, including when capability detection enabled VT for the first time, the user cancels, or the grid fails.
 
+### In the browser instead of the terminal
+
+`Show-ConsoleGrid -Window` shows the same grid in your default browser: the same columns and presenters, typing to filter, clicking a header to sort, Ctrl+click or Shift+click to choose several rows, and OK to return them. The original objects come back to the pipeline, so `Show-ConsoleGrid -Window | Stop-Service -WhatIf` works as it does in the terminal. It runs on Windows, macOS and Linux, on Windows PowerShell 5.1 and PowerShell 7, and needs nothing beyond a browser.
+
+```powershell
+Get-Service | Where-Object Status -eq Running |
+    Show-ConsoleGrid -Property Name, DisplayName, Status -Title 'Stop services' -Window |
+    Stop-Service -WhatIf
+```
+
+The page is served from `127.0.0.1` on a random port behind a one-time address, answers only requests addressed to that host, and loads nothing from the internet. The command waits until you press OK or Cancel, close the tab, or press Ctrl+C in PowerShell. When no browser can be opened (for example over SSH without a desktop), it warns and shows the terminal grid instead. Set `BROWSER` to choose the command that opens the page; `BROWSER=echo` only prints the address. `-Command` and `-RefreshRow` stay terminal-only.
+
+To use the browser for the `Out-GridView` fallback too:
+
+```powershell
+$PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true
+Enable-ConsoleFormatting -Include GridView
+```
+
 Existing functions and aliases are kept unless you pass `-Force` while the native grid is unavailable. Constants, `AllScope` aliases and caller-local aliases that cannot be replaced safely are kept with a warning, even with `-Force`; remove or rename them in their defining scope first if you want the fallback. Installation verifies that callers can actually resolve the fallback before marking it enabled. Disable or module removal restores the saved function and alias, including their options and descriptions. A command you replace after enabling belongs to you and is kept. `-Force` never replaces a working native grid.
 
 For a .NET application the same renderer is `ConsoleMonster.Interactive.Grid`:
@@ -200,6 +219,7 @@ Grid grid = new Grid("Choose nodes") { OutputMode = GridSelection.Single };
 grid.AddColumn("Name").AddColumn("Region");
 grid.AddRow("api-east", "api-east", "eu-west");
 GridResult selected = grid.Show();
+GridResult fromBrowser = grid.ShowInBrowser();
 ```
 
 ## Parameter mapping

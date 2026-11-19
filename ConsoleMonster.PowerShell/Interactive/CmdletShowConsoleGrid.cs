@@ -23,6 +23,10 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Browse processes sorted by memory</para>
     /// <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -Descending -OutputMode None</code>
     /// </example>
+    /// <example>
+    /// <para>Choose services in the browser and stop them</para>
+    /// <code>Get-Service | Where-Object Status -eq Running | Show-ConsoleGrid -Property Name, DisplayName, Status -Title 'Stop services' -Window | Stop-Service -WhatIf</code>
+    /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleGrid", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolegrid/")]
     [OutputType(typeof(object))]
     public sealed class CmdletShowConsoleGrid : PSCmdlet {
@@ -80,6 +84,11 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
+        /// <summary><para type="description">Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.</para></summary>
+        [Parameter]
+        [PSDefaultValue(Help = "$false")]
+        public SwitchParameter Window { get; set; }
+
         /// <summary>The unavailable Out-GridView adapter requests unattended display in jobs, transcripts and redirected sessions.</summary>
         [Parameter(DontShow = true)]
         [PSDefaultValue(Help = "$false")]
@@ -129,14 +138,42 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             GridResult result;
+            CancellationToken stop = (_stop ??= new CancellationTokenSource()).Token;
+            if (Window.IsPresent && !options.Interactive.NonInteractive && TryShowInBrowser(grid, options, stop, out GridResult? browserResult)) {
+                foreach (object? item in browserResult!.Items) {
+                    WriteObject(item);
+                }
+                return;
+            }
             try {
-                result = grid.Show(options, (_stop ??= new CancellationTokenSource()).Token);
+                result = grid.Show(options, stop);
             } catch (Exception ex) when (ex is PromptUnavailableException || ex is PromptCanceledException || ex is Input.InputClosedException) {
                 PSInteractive.Fail(this, ex, Title);
                 throw;
             }
             foreach (object? item in result.Items) {
                 WriteObject(item);
+            }
+        }
+
+        // Returns false (after a warning) when no browser could be opened, so the caller shows the terminal grid.
+        private bool TryShowInBrowser(Grid grid, GridOptions options, CancellationToken stop, out GridResult? result) {
+            if (Command != null || RefreshRow != null) {
+                WriteWarning("-Command and -RefreshRow apply to the terminal grid only; the browser grid shows the rows without them.");
+            }
+            BrowserGridOptions browser = new BrowserGridOptions {
+                Opened = address => WriteInformation(new HostInformationMessage {
+                    Message = "The grid is open in your browser: " + address.AbsoluteUri + " (press Ctrl+C to cancel).",
+                    NoNewLine = false
+                }, new[] { "PSHOST" })
+            };
+            try {
+                result = grid.ShowInBrowser(options, browser, stop);
+                return true;
+            } catch (PromptUnavailableException ex) {
+                WriteWarning(ex.Message + " Showing the terminal grid instead.");
+                result = null;
+                return false;
             }
         }
 

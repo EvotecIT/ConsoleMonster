@@ -398,6 +398,35 @@ $static = @($rows | Show-ConsoleGrid -Mode None -ErrorAction Stop)
             $text | Should -Match 'WARNED=0'
         }
 
+        It 'returns the rows chosen in the browser grid' {
+            . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
+            $runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+            # The stand-in browser loads the page, then answers with the second row, as the page's OK button would.
+            $answer = Join-Path $TestDrive 'answer.ps1'
+            Set-Content -LiteralPath $answer -Value @'
+param($Url)
+$null = Invoke-WebRequest -Uri $Url -UseBasicParsing
+$null = Invoke-WebRequest -Uri ($Url + 'answer') -Method Post -Body 'ok:1' -ContentType 'text/plain' -UseBasicParsing
+'@
+            if ([System.IO.Path]::DirectorySeparatorChar -eq '\') {
+                $browser = Join-Path $TestDrive 'answer.cmd'
+                Set-Content -LiteralPath $browser -Value "@`"$runtime`" -NoProfile -ExecutionPolicy Bypass -File `"$answer`" %1"
+            } else {
+                $browser = Join-Path $TestDrive 'answer.sh'
+                Set-Content -LiteralPath $browser -Value "#!/bin/sh`nexec `"$runtime`" -NoProfile -File `"$answer`" `"`$1`""
+                chmod +x $browser
+            }
+            $lines = @(
+                "`$env:BROWSER = '$($browser.Replace("'", "''"))'"
+                "Import-Module '$(Join-Path $PSScriptRoot '..\ConsoleMonster.psd1')' -Force"
+                "`$rows = @([pscustomobject] @{ Name = 'alpha'; Cpu = 3 }, [pscustomobject] @{ Name = 'beta'; Cpu = 85 })"
+                "`$picked = @(`$rows | Show-ConsoleGrid -Title 'Servers' -Window -InformationAction SilentlyContinue)"
+                "'PICKED=' + (`$picked.Name -join '+') + ' TYPE=' + `$picked[0].GetType().Name"
+            )
+            $text = (Invoke-TestChild -Runtime $runtime -Script ($lines -join "`n")) -join "`n"
+            $text | Should -Match 'PICKED=beta TYPE=PSCustomObject'
+        }
+
         It 'cancels with a PromptCanceled error on Esc' {
             $text = Invoke-PromptChild -Script @'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Escape')
