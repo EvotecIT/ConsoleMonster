@@ -15,6 +15,9 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+        <Reference Include="System.Net.Http" />
+    </ItemGroup>
     <ItemGroup>
         <None Update="Golden/flow-*.txt" CopyToOutputDirectory="PreserveNewest" />
         <EmbeddedResource Include="Themes/Catalogue.faithful.txt" LogicalName="Catalogue.faithful.txt" />
