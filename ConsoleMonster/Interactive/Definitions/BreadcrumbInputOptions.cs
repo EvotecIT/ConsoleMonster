@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Constructs a breadcrumb using the same definition as New-ConsoleBreadcrumb.</summary>
+    [Fluent]
     public sealed class BreadcrumbInputOptions : AppInputOptions {
         /// <summary>The segments, outermost first, shown when no outline is followed.</summary>
         public IList<string> Segments { get; } = new List<string>();

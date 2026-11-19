@@ -109,24 +109,24 @@ namespace ConsoleMonster.PowerShell {
                 if (depth < ExpansionDepth && budget.Rows > 0 && (array || nestedBranch)) {
                     branches.Add(field);
                 } else {
-                    view.AddFieldAt(0, BoundedText(field.Key, 48), ToCell(FormatValue(field.Value, depth + 1, budget)));
+                    view.FieldAt(0, BoundedText(field.Key, 48), ToCell(FormatValue(field.Value, depth + 1, budget)));
                 }
             }
             foreach (KeyValuePair<string, object?> branch in branches) {
-                view.AddHeading(Markup.Escape(BoundedText(branch.Key, 48)), 0);
+                view.Heading(Markup.Escape(BoundedText(branch.Key, 48)), 0);
                 if (Unwrap(branch.Value) is IList list) {
                     int count = Math.Min(Math.Min(list.Count, NestedRowLimit), budget.Rows);
                     budget.Rows -= count;
                     List<DataRecord> rows = new List<DataRecord>();
                     for (int i = 0; i < count; i++) { rows.Add(ReadRecord(list[i]!)); }
-                    if (count > 0) { view.AddWidgetAt(1, BuildTable(rows, list.Count - count, depth + 1, budget, true)); }
-                    else { view.AddFieldAt(1, "items", TableCell.FromValue(ItemCount(list.Count))); }
+                    if (count > 0) { view.WidgetAt(1, BuildTable(rows, list.Count - count, depth + 1, budget, true)); }
+                    else { view.FieldAt(1, "items", TableCell.FromValue(ItemCount(list.Count))); }
                 } else {
-                    view.AddWidgetAt(1, BuildRecord(ReadRecord(branch.Value!), depth + 1, budget, false));
+                    view.WidgetAt(1, BuildRecord(ReadRecord(branch.Value!), depth + 1, budget, false));
                 }
             }
             if (record.Count > ColumnLimit) { view.Summary = More(record.Count - ColumnLimit, "fields"); }
-            if (record.Count == 0) { view.AddFieldAt(0, "fields", TableCell.FromValue("(none)")); }
+            if (record.Count == 0) { view.FieldAt(0, "fields", TableCell.FromValue("(none)")); }
             return view;
         }
 

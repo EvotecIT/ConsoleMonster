@@ -1,4 +1,5 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Hosting {
     /// <summary>When the console dashboard is shown.</summary>
@@ -14,6 +15,7 @@ namespace ConsoleMonster.Hosting {
     }
 
     /// <summary>Options for <see cref="ConsoleDashboardServiceCollectionExtensions.AddConsoleDashboard"/>.</summary>
+    [Fluent]
     public sealed class ConsoleDashboardOptions {
         /// <summary>The title in the header, or null for the application name.</summary>
         public string? Title { get; set; }
@@ -37,6 +39,7 @@ namespace ConsoleMonster.Hosting {
         /// Gives a hosted service its name in the dashboard, or null for its type name (generic arguments and a
         /// "Service" or "HostedService" suffix left out).
         /// </summary>
+        [Fluent("ServiceNameBy")]
         public Func<Type, string>? ServiceName { get; set; }
     }
 }

@@ -69,14 +69,14 @@ IWidget Frame(int tick)
         Height = 3,
         Unit = "/s"
     };
-    rate.AddRange(sampleRates.Take(samples));
+    rate.Values(sampleRates.Take(samples));
     LineChart cpu = new LineChart("cpu")
     {
         Height = 6,
         Minimum = 0,
         Unit = "%"
     };
-    cpu.AddSeries("cpu", ThemeToken.Accent2);
+    cpu.Series("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples))
         cpu.Add("cpu", value);
     LogRegion output = new LogRegion

@@ -17989,10 +17989,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18002,35 +18014,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18102,10 +18088,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18115,35 +18113,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18239,10 +18211,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18252,35 +18236,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18424,10 +18382,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18437,35 +18407,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18645,10 +18589,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18658,35 +18614,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -18902,40 +18832,14 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
           </maml:description>
-          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
           <dev:type>
-            <maml:name>String</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
-          <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
+            <maml:name>Icon</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -18960,6 +18864,18 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
           <dev:type>
             <maml:name>ScriptBlock</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Mark</maml:name>
+          <maml:description>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+          <dev:type>
+            <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
@@ -19099,10 +19015,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19112,35 +19040,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19224,10 +19126,22 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19237,35 +19151,9 @@ $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {&#xD;
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19351,10 +19239,22 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19364,35 +19264,9 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19476,10 +19350,22 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19489,35 +19375,9 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19613,10 +19473,22 @@ Description and RunText.</maml:para>
           </dev:type>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
           <maml:name>Icon</maml:name>
           <maml:description>
-            <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+            <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
+          <dev:type>
+            <maml:name>Icon</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>None</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
+          <maml:name>Label</maml:name>
+          <maml:description>
+            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19626,35 +19498,9 @@ Description and RunText.</maml:para>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-          <maml:name>IconName</maml:name>
+          <maml:name>Mark</maml:name>
           <maml:description>
-            <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-          </maml:description>
-          <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-          <command:parameterValueGroup>
-            <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-            <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-          </command:parameterValueGroup>
-          <dev:type>
-            <maml:name>GlyphIcon</maml:name>
-            <maml:uri />
-          </dev:type>
-          <dev:defaultValue>None</dev:defaultValue>
-        </command:parameter>
-        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
-          <maml:name>Label</maml:name>
-          <maml:description>
-            <maml:para>Literal text shown for this selectable menu item; use Description for its supporting detail.</maml:para>
+            <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
@@ -19834,40 +19680,14 @@ Description and RunText.</maml:para>
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="IconName">
         <maml:name>Icon</maml:name>
         <maml:description>
-          <maml:para>A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</maml:para>
+          <maml:para>An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</maml:para>
         </maml:description>
-        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <command:parameterValue required="false" variableLength="false">Icon</command:parameterValue>
         <dev:type>
-          <maml:name>String</maml:name>
-          <maml:uri />
-        </dev:type>
-        <dev:defaultValue>None</dev:defaultValue>
-      </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
-        <maml:name>IconName</maml:name>
-        <maml:description>
-          <maml:para>A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</maml:para>
-        </maml:description>
-        <command:parameterValue required="false" variableLength="false">GlyphIcon</command:parameterValue>
-        <command:parameterValueGroup>
-          <command:parameterValue required="false" variableLength="false">Item</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Targets</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Tasks</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Settings</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Favorite</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Run</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Back</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">List</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Help</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Warning</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Done</command:parameterValue>
-          <command:parameterValue required="false" variableLength="false">Exit</command:parameterValue>
-        </command:parameterValueGroup>
-        <dev:type>
-          <maml:name>GlyphIcon</maml:name>
+          <maml:name>Icon</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>
@@ -19892,6 +19712,18 @@ Description and RunText.</maml:para>
         <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
         <dev:type>
           <maml:name>ScriptBlock</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>None</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Mark</maml:name>
+        <maml:description>
+          <maml:para>A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
         <dev:defaultValue>None</dev:defaultValue>

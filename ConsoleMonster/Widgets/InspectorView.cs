@@ -76,7 +76,7 @@ namespace ConsoleMonster.Widgets {
                     AddCollectionBody(view, collection, 0, labels);
                     break;
                 default:
-                    view.AddFieldAt(0, "Value", CellFor(Root));
+                    view.FieldAt(0, "Value", CellFor(Root));
                     break;
             }
             return view;
@@ -89,16 +89,16 @@ namespace ConsoleMonster.Widgets {
                 string name = member.Name ?? string.Empty;
                 switch (member) {
                     case InspectObject obj:
-                        view.AddHeading(Markup.Escape(name), level, null, NoteOf(obj));
+                        view.Heading(Markup.Escape(name), level, null, NoteOf(obj));
                         AddMembers(view, obj, level + 1, labels);
                         break;
                     case InspectCollection collection:
-                        view.AddHeading(Markup.Escape(name), level, null, SummaryOf(collection, labels));
+                        view.Heading(Markup.Escape(name), level, null, SummaryOf(collection, labels));
                         AddCollectionBody(view, collection, level + 1, labels);
                         break;
                     default:
                         TableCell cell = CellFor(member);
-                        view.AddFieldAt(level, name, cell, Presenters.CellPresenters.ForLabel(name, cell.Value, source));
+                        view.FieldAt(level, name, cell, Presenters.CellPresenters.ForLabel(name, cell.Value, source));
                         break;
                 }
             }
@@ -106,33 +106,33 @@ namespace ConsoleMonster.Widgets {
 
         private void AddCollectionBody(RecordView view, InspectCollection collection, int level, Localization.WidgetLabels labels) {
             if (collection.Columns != null && collection.Columns.Count > 0) {
-                view.AddWidgetAt(level, TableOf(collection, labels));
+                view.WidgetAt(level, TableOf(collection, labels));
             } else {
                 int index = 0;
                 foreach (InspectNode item in collection.Items) {
                     string label = "[" + index.ToString(CultureInfo.InvariantCulture) + "]";
                     if (item is InspectObject obj) {
-                        view.AddHeading(Markup.Escape(label), level, null, NoteOf(obj));
+                        view.Heading(Markup.Escape(label), level, null, NoteOf(obj));
                         AddMembers(view, obj, level + 1, labels);
                     } else if (item is InspectCollection inner) {
-                        view.AddHeading(Markup.Escape(label), level, null, SummaryOf(inner, labels));
+                        view.Heading(Markup.Escape(label), level, null, SummaryOf(inner, labels));
                         AddCollectionBody(view, inner, level + 1, labels);
                     } else {
-                        view.AddFieldAt(level, label, CellFor(item));
+                        view.FieldAt(level, label, CellFor(item));
                     }
                     index++;
                 }
             }
             string? more = MoreText(collection, labels);
             if (more != null) {
-                view.AddFieldAt(level, string.Empty, new TableCell("[muted]" + Markup.Escape(more) + "[/]"));
+                view.FieldAt(level, string.Empty, new TableCell("[muted]" + Markup.Escape(more) + "[/]"));
             }
         }
 
         private Table TableOf(InspectCollection collection, Localization.WidgetLabels labels) {
             Table table = new Table { Border = TableBorder.Minimal, RecordViewRows = 0, Presentation = Presentation };
             foreach (string column in collection.Columns!) {
-                table.AddColumn(new TableColumn(Markup.Escape(column)) { Key = column });
+                table.Column(new TableColumn(Markup.Escape(column)) { Key = column });
             }
             foreach (InspectNode item in collection.Items) {
                 object?[] values = new object?[collection.Columns.Count];
@@ -141,7 +141,7 @@ namespace ConsoleMonster.Widgets {
                         values[c] = CellValue(Find(obj, collection.Columns[c]), labels);
                     }
                 }
-                table.AddValues(values);
+                table.Values(values);
             }
             if (collection.HiddenColumns > 0) {
                 table.Caption = Localization.WidgetLabels.Format(labels.MoreColumns, collection.HiddenColumns.ToString(CultureInfo.InvariantCulture));

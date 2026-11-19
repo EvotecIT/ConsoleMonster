@@ -4,6 +4,7 @@ using System.Threading;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -32,9 +33,11 @@ namespace ConsoleMonster.Interactive {
         public IList<Choice> Choices { get; }
 
         /// <summary>Preview content for the focused value.</summary>
+        [Fluent("PreviewBy")]
         public Func<T, IWidget?>? Preview { get; set; }
 
         /// <summary>Preview text for the focused value (wrapped in the preview pane).</summary>
+        [Fluent("PreviewTextBy")]
         public Func<T, string?>? PreviewText { get; set; }
 
         /// <summary>The preferred number of visible rows.</summary>

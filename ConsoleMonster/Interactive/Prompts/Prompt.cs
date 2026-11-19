@@ -9,6 +9,7 @@ using ConsoleMonster.Live;
 using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -17,6 +18,7 @@ namespace ConsoleMonster.Interactive {
     /// default or a clear <see cref="PromptUnavailableException"/>. It never waits for input that cannot come.
     /// </summary>
     /// <typeparam name="T">The answer type.</typeparam>
+    [Fluent]
     public abstract class Prompt<T> {
         private T _default = default!;
 

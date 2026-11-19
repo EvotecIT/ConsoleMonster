@@ -53,7 +53,7 @@ Any decision can be pinned with an environment variable (see [Environment overri
 
 {{< cm-frame id="profile" script="false" caption="The profile the site uses for its captures: `CONSOLEMONSTER_COLOR`, `_GLYPHS`, `_THEME`, `_CULTURE` and `_LANGUAGE` pinned." >}}
 
-In code, `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemePreference` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it:
+In code, `TerminalProfile.Fixed(width, height, colors, glyphs)` builds a profile without detection, and `TerminalProfile.WithCulture`, `WithThemeMode`, `WithPalette` and `WithSize` change one value. `Terminal.Write(widget, profile)` renders with it:
 
 ```csharp
 using ConsoleMonster;

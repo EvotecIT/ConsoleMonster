@@ -14,11 +14,11 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void KeepAllColumns_LongKeysAtFortyColumns_PreservesTheOnlyValueColumn() {
             Table table = new Table { KeepAllColumns = true, WrapHeaders = true, RecordViewRows = 0, WrapLines = 0 };
-            table.AddColumn(new TableColumn("CA") { IsKey = true, MaxWidth = 20 });
-            table.AddColumn(new TableColumn("Issued") { MaxWidth = 7 });
-            table.AddColumn(new TableColumn("UserProtected off") { MaxWidth = 17 });
-            table.AddValues("ca01.example.test\\Issuing CA", 42, "Enabled");
-            table.AddValues("ca02.example.test\\Issuing CA", 24, "Disabled");
+            table.Column(new TableColumn("CA") { IsKey = true, MaxWidth = 20 });
+            table.Column(new TableColumn("Issued") { MaxWidth = 7 });
+            table.Column(new TableColumn("UserProtected off") { MaxWidth = 17 });
+            table.Values("ca01.example.test\\Issuing CA", 42, "Enabled");
+            table.Values("ca02.example.test\\Issuing CA", 24, "Disabled");
 
             string text = Render(table, 40);
             Assert.Contains("UserProtected", text);
@@ -32,13 +32,13 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(120)]
         public void KeepAllColumns_NarrowGrid_RepeatsKeysAndKeepsEveryField(int width) {
             Table table = new Table { KeepAllColumns = true, WrapHeaders = true, RecordViewRows = 0, WrapLines = 0 };
-            table.AddColumn(new TableColumn("Authority") { IsKey = true, MaxWidth = 12 });
-            table.AddColumn(new TableColumn("Issued") { MaxWidth = 8 });
-            table.AddColumn(new TableColumn("SAN from request") { MaxWidth = 10 });
-            table.AddColumn(new TableColumn("UserProtected off") { MaxWidth = 10 });
-            table.AddColumn(new TableColumn("Mapping methods") { MaxWidth = 10 });
-            table.AddValues("CA[1]", 42, "SAN enabled", "Protected", "Explicit");
-            table.AddValues("CA[2]", 24, "SAN disabled", "Unprotected", "Implicit");
+            table.Column(new TableColumn("Authority") { IsKey = true, MaxWidth = 12 });
+            table.Column(new TableColumn("Issued") { MaxWidth = 8 });
+            table.Column(new TableColumn("SAN from request") { MaxWidth = 10 });
+            table.Column(new TableColumn("UserProtected off") { MaxWidth = 10 });
+            table.Column(new TableColumn("Mapping methods") { MaxWidth = 10 });
+            table.Values("CA[1]", 42, "SAN enabled", "Protected", "Explicit");
+            table.Values("CA[2]", 24, "SAN disabled", "Unprotected", "Implicit");
 
             string text = Render(table, width);
             Assert.Contains("CA[1]", text);
@@ -114,11 +114,11 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private static Table SectionTable() {
             Table table = new Table { GroupHeadersAsRows = true, RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("Name") { Width = 9 });
-            table.AddColumn("Definition");
+            table.Column(new TableColumn("Name") { Width = 9 });
+            table.Column("Definition");
             foreach (string label in new[] { "Method", "Event", "Property" }) {
-                table.AddGroup(label);
-                table.AddPlainRow("Member", "definition");
+                table.Group(label);
+                table.PlainRow("Member", "definition");
             }
             return table;
         }
@@ -126,10 +126,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Render_TitledSingleRecord_PreservesKeyFieldAndValue() {
             Table table = new Table { Title = "Per-CA" };
-            table.AddColumn("CA");
-            table.AddColumn("Issued");
-            table.AddColumn("Pending");
-            table.AddValues("CA[1]", 42, 3);
+            table.Column("CA");
+            table.Column("Issued");
+            table.Column("Pending");
+            table.Values("CA[1]", 42, 3);
 
             string text = Render(table, 100);
 
@@ -142,10 +142,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void NumericColumnsAndTheirHeadersAreRightAligned() {
             Table table = new Table { Border = TableBorder.None };
-            table.AddColumn("Name");
-            table.AddColumn("Count");
-            table.AddPlainRow("alpha", "7");
-            table.AddPlainRow("beta", "1,234");
+            table.Column("Name");
+            table.Column("Count");
+            table.PlainRow("alpha", "7");
+            table.PlainRow("beta", "1,234");
             string[] lines = Render(table, 60).Split('\n');
             Assert.Equal("Name   Count", lines[0]);
             Assert.Equal("alpha      7", lines[1]);
@@ -155,9 +155,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void ExpandedTableGivesSpareWidthToTheFlexibleColumn() {
             Table table = new Table { Expand = true };
-            table.AddColumn(new TableColumn("Id") { Wrap = false });
-            table.AddColumn(new TableColumn("Description") { Flexible = true });
-            table.AddPlainRow("1", "short");
+            table.Column(new TableColumn("Id") { Wrap = false });
+            table.Column(new TableColumn("Description") { Flexible = true });
+            table.PlainRow("1", "short");
             string[] lines = Render(table, 50).Split('\n');
             Assert.Equal(50, lines[0].Length);
             Assert.Equal("│ Id │ Description", lines[1].Substring(0, 18));
@@ -166,9 +166,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void LongValuesWrapInsteadOfTruncatingWhileHeadersStayWhole() {
             Table table = new Table();
-            table.AddColumn(new TableColumn("Host") { Wrap = false });
-            table.AddColumn("Distinguished name");
-            table.AddPlainRow("dc01", "CN=DC01,OU=Domain Controllers,DC=ad,DC=evotec,DC=xyz");
+            table.Column(new TableColumn("Host") { Wrap = false });
+            table.Column("Distinguished name");
+            table.PlainRow("dc01", "CN=DC01,OU=Domain Controllers,DC=ad,DC=evotec,DC=xyz");
             string text = Render(table, 40);
             Assert.Contains("Distinguished name", text);
             Assert.DoesNotContain("…", text);
@@ -179,9 +179,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void WordsStatusCellUsesItsMarkerWithoutRepeatingTheWord() {
             Table table = new Table { Border = TableBorder.None };
-            table.AddColumn("Check");
-            table.AddColumn("Result");
-            table.AddRow("SPF", TableCell.ForStatus(StatusKind.Fail));
+            table.Column("Check");
+            table.Column("Result");
+            table.Row("SPF", TableCell.ForStatus(StatusKind.Fail));
             string ascii = Terminal.RenderText(table, TerminalProfile.Fixed(40, 10, ColorDepth.None, GlyphTier.Ascii), Theme.Dark);
             Assert.Contains("[FAIL]", ascii);
             Assert.DoesNotContain("[FAIL] FAIL", ascii);

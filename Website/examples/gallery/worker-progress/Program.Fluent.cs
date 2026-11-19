@@ -31,8 +31,9 @@ IWidget Frame(int tick)
         .Add("Queue", (24 - tick * 5).ToString(System.Globalization.CultureInfo.InvariantCulture))
         .Add("Workers", "8")
         .Add("Dropped", "[muted]0[/]");
-    Sparkline trend = Ui.Sparkline().Title("updates/s");
-    trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
+    Sparkline trend = Ui.Sparkline()
+        .Title("updates/s")
+        .Values(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return Ui.Rows().Gap(1).Content(rowsContent2 =>
     {
         rowsContent2.Markup("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]");

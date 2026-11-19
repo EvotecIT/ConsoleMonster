@@ -21,7 +21,7 @@ namespace ConsoleMonster.Widgets {
     /// State = status word for its symbol and colour).</para>
     /// </summary>
     public sealed class SummaryBar : LiveWidget {
-        private readonly List<Counter> _counters = new List<Counter>();
+        private readonly List<CounterEntry> _counters = new List<CounterEntry>();
         private readonly Stopwatch _clock = new Stopwatch();
         // Session times (RenderContext.Elapsed, or a live event's time) of the first progress and of reaching the total;
         // a pending mark is taken from the next live event or clocked frame.
@@ -79,7 +79,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="value">Items value.</param>
         /// <param name="total">Items in total (0 = unknown).</param>
         /// <returns>This instance.</returns>
-        public SummaryBar SetProgress(double value, double total) {
+        public SummaryBar Progress(double value, double total) {
             // A new run on the same bar (value going back) starts the clock again.
             if (!_clock.IsRunning || value < Value) {
                 _clock.Restart();
@@ -117,18 +117,18 @@ namespace ConsoleMonster.Widgets {
         /// <param name="count">The count.</param>
         /// <param name="status">A status for the symbol and colour, or null for plain text.</param>
         /// <returns>This instance.</returns>
-        public SummaryBar SetCounter(string label, int count, StatusKind? status = null) {
+        public SummaryBar Counter(string label, int count, StatusKind? status = null) {
             if (string.IsNullOrEmpty(label)) {
                 throw new ArgumentException("A counter needs a label.", nameof(label));
             }
-            Counter? existing = _counters.Find(c => string.Equals(c.Label, label, StringComparison.Ordinal));
+            CounterEntry? existing = _counters.Find(c => string.Equals(c.Label, label, StringComparison.Ordinal));
             if (existing != null) {
                 existing.Count = count;
                 if (status.HasValue) {
                     existing.Status = status;
                 }
             } else {
-                _counters.Add(new Counter(label, count, status));
+                _counters.Add(new CounterEntry(label, count, status));
             }
             return this;
         }
@@ -151,7 +151,7 @@ namespace ConsoleMonster.Widgets {
                 return;
             }
             if (liveEvent.Operation == "progress") {
-                SetProgress(Kept(liveEvent.Value, Value), Kept(liveEvent.Total, Total));
+                Progress(Kept(liveEvent.Value, Value), Kept(liveEvent.Total, Total));
                 // Zero is also a valid recording/session time. Remember it until a frame resolves an unstamped
                 // update, or a later timed event resolves the start before the first frame.
                 if (liveEvent.Time > 0) {
@@ -161,7 +161,7 @@ namespace ConsoleMonster.Widgets {
                 }
             } else if (liveEvent.Operation == "counter" && !string.IsNullOrEmpty(liveEvent.Key)) {
                 StatusKind? status = StatusKinds.TryParse(liveEvent.Status, out StatusKind parsed) ? parsed : (StatusKind?)null;
-                SetCounter(liveEvent.Key!, (int)liveEvent.Value, status);
+                Counter(liveEvent.Key!, (int)liveEvent.Value, status);
             }
         }
 
@@ -218,7 +218,7 @@ namespace ConsoleMonster.Widgets {
                     label: slot >= 0 ? format.Substring(slot + 3).Trim() : format,
                     caption: slot >= 0 ? format.Substring(0, slot).Trim() : null, role: ThemeToken.Text));
             }
-            foreach (Counter counter in _counters) {
+            foreach (CounterEntry counter in _counters) {
                 string? symbol = counter.Status.HasValue ? context.Glyphs.StatusSymbol(counter.Status.Value) : null;
                 int slot = counter.Label.IndexOf("{0}", StringComparison.Ordinal);
                 string prefix = slot >= 0 ? counter.Label.Substring(0, slot).Trim() : string.Empty;
@@ -238,8 +238,8 @@ namespace ConsoleMonster.Widgets {
             return line;
         }
 
-        private sealed class Counter {
-            internal Counter(string label, int count, StatusKind? status) {
+        private sealed class CounterEntry {
+            internal CounterEntry(string label, int count, StatusKind? status) {
                 Label = label;
                 Count = count;
                 Status = status;

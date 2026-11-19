@@ -74,13 +74,13 @@ namespace ConsoleMonster.Views {
             var view = new RecordView(options.Title) { HideEmpty = !options.ShowEmpty };
             foreach (object? item in items) {
                 if (item == null) { continue; }
-                if (items.Count > 1) { view.AddSection(Markup.Escape(ValueShaper.Title(item, options.Shape))); }
+                if (items.Count > 1) { view.Section(Markup.Escape(ValueShaper.Title(item, options.Shape))); }
                 // A bare Length or Size is a byte count only on a file or stream.
                 Type? source = Presenters.CellPresenters.ByteSource(item.GetType(), null);
                 foreach (Data.InspectMember member in Members(item, options)) {
                     if (options.Property != null && !options.Property.Contains(member.Name, StringComparer.OrdinalIgnoreCase)) { continue; }
                     object? value = SafeRead(member);
-                    view.AddField(member.Name, value, Presenters.CellPresenters.ForLabel(member.Name, value, source));
+                    view.Field(member.Name, value, Presenters.CellPresenters.ForLabel(member.Name, value, source));
                 }
             }
             return view;

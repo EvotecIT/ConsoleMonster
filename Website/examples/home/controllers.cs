@@ -28,7 +28,7 @@ table.Column(c => c.Name, c =>
 {
     c.Presenter = new NumberPresenter("ms");
     c.Priority = 5;
-    c.AddRoleRules(RoleRule.Above(100, ThemeToken.Warn));
+    c.RoleRule(RoleRule.Above(100, ThemeToken.Warn));
 }).Column(c => c.LastSync, c =>
 {
     c.Header = "Last sync";

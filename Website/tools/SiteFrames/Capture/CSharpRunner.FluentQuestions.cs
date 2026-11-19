@@ -46,6 +46,16 @@ namespace SiteFrames.Capture {
                 return visited.WithExpression(access.WithName(typed));
             }
 
+            // .PreviewBy(typed) on a typed select prompt becomes the definition's callback over the untyped value.
+            private ExpressionSyntax? QuestionPreviewCall(InvocationExpressionSyntax node, InvocationExpressionSyntax visited) {
+                if (node.Expression is not MemberAccessExpressionSyntax { Name.Identifier.ValueText: "PreviewBy" } access || node.ArgumentList.Arguments.Count != 1
+                    || visited.ArgumentList.Arguments.Count != 1
+                    || model.GetTypeInfo(access.Expression).Type is not INamedTypeSymbol { TypeArguments.Length: 1 } receiver || QuestionNoun(receiver) != "SelectQuestion") { return null; }
+                ArgumentSyntax argument = visited.ArgumentList.Arguments[0];
+                return visited.WithArgumentList(visited.ArgumentList.WithArguments(SyntaxFactory.SingletonSeparatedList(
+                    argument.WithExpression(QuestionPreview(receiver, argument.Expression, node)))));
+            }
+
             // A typed preview becomes a callback over the definition's untyped value.
             public override SyntaxNode? VisitAssignmentExpression(AssignmentExpressionSyntax node) {
                 var visited = (AssignmentExpressionSyntax)base.VisitAssignmentExpression(node)!;

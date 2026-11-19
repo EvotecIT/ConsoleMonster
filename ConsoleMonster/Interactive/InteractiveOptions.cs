@@ -3,12 +3,14 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Output;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// Settings shared by prompts, menus and forms: how to interact (detected by default), where input comes from, the
     /// terminal profile, theme and labels. Every property is optional.
     /// </summary>
+    [Fluent]
     public sealed class InteractiveOptions {
         private static InteractiveOptions _default = new InteractiveOptions();
 
@@ -53,6 +55,7 @@ namespace ConsoleMonster.Interactive {
         /// <see cref="Live.SimulatedClock.Read"/>; the action worker may sample it from another thread.
         /// This does not replace action delays, cancellation, or input pacing.
         /// </summary>
+        [NoFluent]
         public Func<TimeSpan>? ActionClock { get; set; }
 
         private IInputSource? _input;

@@ -70,7 +70,7 @@ namespace ConsoleMonster.Tests.Interactive
                         review.Problem("Pick at least one target");
                     }
 
-                    review.Run = c => log.Add("run " + targets.Selection.Count);
+                    review.Action = c => log.Add("run " + targets.Selection.Count);
                     return review;
                 };
             });

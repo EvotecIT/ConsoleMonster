@@ -22,19 +22,21 @@ namespace ConsoleMonster.Tests.Capabilities {
         }
 
         [Theory]
-        [InlineData("light", ThemePreference.Light, false)]
-        [InlineData("DARK", ThemePreference.Dark, false)]
-        [InlineData("auto", ThemePreference.Auto, false)]
-        [InlineData("", ThemePreference.Auto, false)]
-        [InlineData("colorblind", ThemePreference.ColorBlind, false)]
-        [InlineData("color-blind-safe-light", ThemePreference.ColorBlindLight, false)]
-        [InlineData("ColorBlind-Dark", ThemePreference.ColorBlindDark, false)]
-        [InlineData("sepia", ThemePreference.Auto, true)]
-        public void Detect_ThemeEnvironmentValue_UsesPreferenceOrRecordsIgnoredValue(string value, ThemePreference expected, bool invalid) {
+        [InlineData("light", ThemeMode.Light, ThemePalette.Default, false)]
+        [InlineData("DARK", ThemeMode.Dark, ThemePalette.Default, false)]
+        [InlineData("auto", ThemeMode.Auto, ThemePalette.Default, false)]
+        [InlineData("", ThemeMode.Auto, ThemePalette.Default, false)]
+        [InlineData("colorblind", ThemeMode.Auto, ThemePalette.ColorBlind, false)]
+        [InlineData("color-blind-safe-light", ThemeMode.Light, ThemePalette.ColorBlind, false)]
+        [InlineData("ColorBlind-Dark", ThemeMode.Dark, ThemePalette.ColorBlind, false)]
+        [InlineData("terminal", ThemeMode.Auto, ThemePalette.Terminal, false)]
+        [InlineData("sepia", ThemeMode.Auto, ThemePalette.Default, true)]
+        public void Detect_ThemeEnvironmentValue_UsesModeAndPaletteOrRecordsIgnoredValue(string value, ThemeMode mode, ThemePalette palette, bool invalid) {
             TerminalProfile profile = new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string> {
                 ["TERM"] = "xterm", ["CONSOLEMONSTER_THEME"] = value
             })).Detect();
-            Assert.Equal(expected, profile.ThemePreference);
+            Assert.Equal(mode, profile.ThemeMode);
+            Assert.Equal(palette, profile.Palette);
             Assert.Equal(invalid, profile.Decisions.Any(decision => decision.Contains("CONSOLEMONSTER_THEME: ignored invalid value")));
         }
 
@@ -63,10 +65,13 @@ namespace ConsoleMonster.Tests.Capabilities {
         }
 
         [Fact]
-        public void Fixed_DefaultsThemePreferenceToAutoAndCopyCanOverrideIt() {
+        public void Fixed_DefaultsThemeModeToAutoAndCopiesKeepThePalette() {
             TerminalProfile profile = TerminalProfile.Fixed(80, 24);
-            Assert.Equal(ThemePreference.Auto, profile.ThemePreference);
-            Assert.Equal(ThemePreference.Dark, profile.WithThemePreference(ThemePreference.Dark).ThemePreference);
+            Assert.Equal(ThemeMode.Auto, profile.ThemeMode);
+            Assert.Equal(ThemePalette.Default, profile.Palette);
+            TerminalProfile copy = profile.WithPalette(ThemePalette.ColorBlind).WithThemeMode(ThemeMode.Dark).WithCulture(null);
+            Assert.Equal(ThemeMode.Dark, copy.ThemeMode);
+            Assert.Equal(ThemePalette.ColorBlind, copy.Palette);
         }
 
         [Theory]

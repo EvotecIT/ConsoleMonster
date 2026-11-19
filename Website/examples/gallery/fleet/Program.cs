@@ -81,7 +81,7 @@ Table TableOf(string[] headers)
         RecordViewRows = 0
     };
     foreach (string header in headers)
-        table.AddColumn(header, HorizontalAlignment.Left);
+        table.Column(header, HorizontalAlignment.Left);
     return table;
 }
 
@@ -90,7 +90,7 @@ IWidget Findings(IEnumerable<Work> work)
     Table table = TableOf(new[] { "Server", "Check", "Expected", "Actual" });
     table.Columns[3].Flexible = true;
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
-        table.AddRow(
+        table.Row(
             w.Node.Name,
             w.Check.Name,
             w.Check.Expected,
@@ -104,7 +104,7 @@ IWidget History()
 {
     Table table = TableOf(new[] { "When", "Servers", "Checks", "Result", "Duration" });
     foreach (HistoryRow h in history.AsEnumerable().Reverse())
-        table.AddRow(h.When, h.Servers.ToString(), h.Checks.ToString(),
+        table.Row(h.When, h.Servers.ToString(), h.Checks.ToString(),
             $"{h.Passed} passed · {h.Warnings} warn · {h.Failed} failed",
             h.Elapsed.ToString(@"hh\:mm\:ss"));
     return table;
@@ -133,10 +133,10 @@ IWidget Body(List<Work> work, int done, int phase)
     {
         Elapsed = TimeSpan.FromSeconds(done * .24 / parallel)
     }
-        .SetProgress(done, work.Count)
-        .SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
-        .SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
-        .SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
+        .Progress(done, work.Count)
+        .Counter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
+        .Counter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
+        .Counter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
     Phases phases = new Phases();
     string[] names = { "Discover", "Connect", "Check", "Report" };
     for (int i = 0; i < names.Length; i++)
@@ -209,7 +209,7 @@ IWidget Body(List<Work> work, int done, int phase)
         .Add("Report", format.ToUpperInvariant());
     Table slow = TableOf(new[] { "Check", "Server", "Took" });
     foreach (Work w in finished.OrderByDescending(w => w.Seconds).Take(5))
-        slow.AddRow(w.Check.Name, w.Node.Name, Seconds(w.Seconds));
+        slow.Row(w.Check.Name, w.Node.Name, Seconds(w.Seconds));
     Histogram durations = new Histogram(new double[] { 0, 2, 4, 8, 16 }, "durations")
     {
         Height = 5
@@ -467,11 +467,11 @@ menu.Preset(
             ["Servers"] = new[] { "WEB01" },
             ["Checks"] = new[] { "CertExpiry", "CertChain", "ForwardRecord" }
         }));
-menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets());
+menu.Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Presets());
 menu.Item(
     "New check",
     i => i.Hotkey('n')
-        .IconName(GlyphIcon.Run)
+        .Icon(Icons.Run)
         .Description("Choose a domain, servers and checks; review the command and run.")
         .Form(checkForm, (context, result) =>
         {
@@ -488,7 +488,7 @@ menu.Item(
 menu.Item("History", i =>
 {
     i.Hotkey = 'h';
-    i.IconName = GlyphIcon.List;
+    i.Icon = Icons.List;
     i.Page = _ => History();
     i.Detail = () => history.Count + " runs";
 });

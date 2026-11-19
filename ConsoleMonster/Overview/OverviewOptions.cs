@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Overview {
     /// <summary>Controls section selection and bounded collection latency.</summary>
+    [Fluent]
     public sealed class OverviewOptions {
         /// <summary>Section keys, in requested order; null selects all registered sections.</summary>
         public IReadOnlyList<string>? Sections { get; set; }

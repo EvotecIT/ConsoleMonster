@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -9,6 +10,7 @@ namespace ConsoleMonster.Interactive {
     /// app (Shell), a centred menu (Classic) or a scrollback list (Inline), with a breadcrumb, Back/Home/Exit, the command
     /// palette (Ctrl+K or :), the key map (?) and a footer generated from the active keys.
     /// </summary>
+    [Fluent]
     public sealed partial class Menu {
         /// <summary>Creates a menu.</summary>
         /// <param name="title">The title (the app name for the root menu).</param>

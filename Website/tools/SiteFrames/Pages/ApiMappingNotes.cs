@@ -10,6 +10,14 @@ namespace SiteFrames.Pages {
     internal static partial class ApiMappingNotes {
         private static readonly string[] Preferred = { "Expand", "Title", "Content", "Border", "Label", "Value", "Total", "WidgetId", "HeaderRight", "Caption", "Role" };
 
+        // A callback property declares its fluent verb with [Fluent("Verb")]; the property name is the fallback.
+        private static string CallbackVerb(string owner, string member) {
+            var property = new[] { typeof(ConsoleMonster.Terminal).Assembly }.Concat(AppDomain.CurrentDomain.GetAssemblies())
+                .Select(assembly => assembly.GetType(owner)).FirstOrDefault(type => type != null)?.GetProperty(member);
+            var fluent = property?.CustomAttributes.FirstOrDefault(attribute => attribute.AttributeType.FullName == "PowerForge.Fluent.FluentAttribute");
+            return fluent?.ConstructorArguments.Count > 0 && fluent.ConstructorArguments[0].Value is string verb && verb.Length > 0 ? verb : member;
+        }
+
         public static JsonArray For(Site site, string initializer, string fluent, params string[] companions) =>
             FromSource(site, initializer, Site.ReadText(fluent), companions);
 
@@ -144,7 +152,7 @@ namespace SiteFrames.Pages {
                     string type = row.Binding["CSharpTypeName"]!.GetValue<string>();
                     if (type.StartsWith("System.Action", StringComparison.Ordinal) || type.StartsWith("System.Func", StringComparison.Ordinal)) {
                         JsonObject exception = map["FluentExceptions"]!.AsArray().Single(rule => rule!["Kind"]!.GetValue<string>() == "DelegateProperty")!.AsObject();
-                        return exception["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal);
+                        return exception["Pattern"]!.GetValue<string>().Replace("{Verb}", CallbackVerb(optionsType, member), StringComparison.Ordinal);
                     }
                     string fluentMember = type == "System.Boolean" && member.Length > 2 && member.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(member[2]) ? member.Substring(2) : member;
                     return "." + fluentMember + "(…)";
@@ -177,7 +185,11 @@ namespace SiteFrames.Pages {
                 bool contentBuilder = parameter == "Content" && used.Any(key => key.StartsWith("M:", StringComparison.Ordinal) && key.EndsWith("Fluent.Content", StringComparison.Ordinal));
                 bool boolSwitch = isSwitch && valueType == "System.Boolean";
                 string fluentMember = valueType == "System.Boolean" && member.Length > 2 && member.StartsWith("Is", StringComparison.Ordinal) && char.IsUpper(member[2]) ? member.Substring(2) : member;
-                if (callbackRule != null) { note = (note == null ? string.Empty : note + " ") + callbackRule["Reason"]!.GetValue<string>(); }
+                if (callbackRule != null) {
+                    // The conversion name alone (ScriptBlockCallback) is not a reader-facing note; the verb rule explains the mapping.
+                    if (note == conversion) { note = null; }
+                    note = (note == null ? string.Empty : note + " ") + callbackRule["Reason"]!.GetValue<string>();
+                }
                 if (valueType != null && typeof(ConsoleMonster.Terminal).Assembly.GetType(valueType)?.IsEnum == true) {
                     string owner = binding["CSharpType"]!.GetValue<string>();
                     string typedNote = owner.Substring(owner.LastIndexOf('.') + 1) + "." + member + " uses " + valueType + ".";
@@ -190,7 +202,7 @@ namespace SiteFrames.Pages {
                     ["fluent"] = contentBuilder ? map["FluentGrammar"]!["Content"]!["FluentPattern"]!.GetValue<string>()
                         : boolSwitch ? map["FluentGrammar"]!["Boolean"]![conversion == "BooleanInversion" ? "DisabledPattern" : "EnabledPattern"]!.GetValue<string>().Replace("{Member}", fluentMember, StringComparison.Ordinal)
                         : collectionAdd != null ? "." + collectionAdd + "(" + value + ")"
-                        : callbackRule == null ? "." + fluentMember + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Member}", member, StringComparison.Ordinal),
+                        : callbackRule == null ? "." + fluentMember + "(" + value + ")" : callbackRule["Pattern"]!.GetValue<string>().Replace("{Verb}", CallbackVerb(binding["CSharpType"]!.GetValue<string>(), member), StringComparison.Ordinal),
                     ["memberId"] = row.Key,
                     ["note"] = note
                 });

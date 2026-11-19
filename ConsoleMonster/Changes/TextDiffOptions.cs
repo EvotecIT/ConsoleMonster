@@ -1,7 +1,9 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Changes {
     /// <summary>Controls text comparison and the amount of unchanged context shown by a text diff.</summary>
+    [Fluent]
     public sealed class TextDiffOptions {
         private int _context = 3;
 

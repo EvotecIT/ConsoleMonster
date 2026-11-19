@@ -65,7 +65,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
             var dialogs = new AppDialogs();
             DialogResult<string>? result = null;
             var field = new TextInput("Destination", "bad");
-            var form = new FormDialog<string>("Destination", field, state => state.Get<string>("Destination")) { Validate = _ => "Choose a writable destination" };
+            var form = new FormDialog<string>("Destination", field, state => state.Get<string>("Destination")) { Validator = _ => "Choose a writable destination" };
             var options = new ConsoleAppOptions { Dialogs = dialogs };
             options.HandleInput = (_, input) => { if (!input.Is(ConsoleKey.F5)) { return false; } dialogs.Show(form, answer => result = answer); return true; };
             var context = Terminal.CreateContext(TerminalProfile.Fixed(80, 24));

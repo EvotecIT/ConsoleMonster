@@ -138,13 +138,13 @@ namespace ConsoleMonster.Tests.Widgets {
         public void TableCellsDrawAndReplayLiveFlowInsteadOfStringifyingIt(int width, bool cards) {
             Flow flow = Chain();
             var table = new Table { RecordViewRows = 0, CardsBelow = 0, AlwaysCards = cards, Expand = true };
-            table.AddColumn("Path");
-            table.AddRow(TableCell.FromValue(flow));
+            table.Column("Path");
+            table.Row(TableCell.FromValue(flow));
             string text = Frame(table, width).ToPlainText();
             foreach (string label in new[] { "client", "host:443", "leaf", "intermediate", "root" }) Assert.Contains(label, text);
             Assert.DoesNotContain("ConsoleMonster.Widgets.Flow", text);
             Assert.Contains(flow, table.Children);
-            string data = Recording.ExportPlayerData(new Panel(table), new[] {
+            string data = Recording.ToPlayerData(new Panel(table), new[] {
                 new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100),
                 new LiveEvent("chain", "cut", "issuer", status: "Fail", time: 200)
             }, new RecordingExportOptions { Width = width, Height = 80 });
@@ -158,22 +158,22 @@ namespace ConsoleMonster.Tests.Widgets {
         public void WidgetFootersSurviveCardsAndRecordFieldsReceiveReplay(bool keyCell) {
             Flow footer = Chain();
             var table = new Table { AlwaysCards = true };
-            table.AddColumn("Name"); table.AddColumn("Path");
-            table.AddRow("Certificate", "finished");
-            table.SetFooter(keyCell ? new[] { TableCell.FromValue(footer), new TableCell("") }
+            table.Column("Name"); table.Column("Path");
+            table.Row("Certificate", "finished");
+            table.Footer(keyCell ? new[] { TableCell.FromValue(footer), new TableCell("") }
                 : new[] { new TableCell(""), TableCell.FromValue(footer) });
             string text = Frame(table, 48).ToPlainText();
             Assert.Contains("client", text);
             Assert.Contains("intermediate", text);
-            var record = new RecordView("Trust").AddField("Path", footer);
+            var record = new RecordView("Trust").Field("Path", footer);
             Assert.Contains(footer, record.Children);
-            Recording.ExportPlayerData(record, new[] { new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100) },
+            Recording.ToPlayerData(record, new[] { new LiveEvent("chain", "node", "issuer", status: "Fail", time: 100) },
                 new RecordingExportOptions { Width = 48, Height = 80 });
             Assert.Equal(StatusKind.Fail, footer.Nodes[3].Status);
             var rich = RichText.Plain("label");
-            var richTable = new Table(); richTable.AddColumn("Name"); richTable.AddRow(TableCell.FromValue(rich));
+            var richTable = new Table(); richTable.Column("Name"); richTable.Row(TableCell.FromValue(rich));
             Assert.Empty(richTable.Children);
-            Assert.Empty(new RecordView().AddField("Name", rich).Children);
+            Assert.Empty(new RecordView().Field("Name", rich).Children);
         }
 
         [Fact]

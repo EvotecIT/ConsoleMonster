@@ -62,7 +62,7 @@ namespace ConsoleMonster.Interactive {
 
         private List<ButtonKind> Kinds() {
             List<ButtonKind> kinds = new List<ButtonKind>();
-            if (_model.Run != null) {
+            if (_model.Action != null) {
                 kinds.Add(ButtonKind.Run);
             }
             if (!string.IsNullOrEmpty(_model.Command)) {
@@ -102,7 +102,7 @@ namespace ConsoleMonster.Interactive {
             return captions;
         }
 
-        private int BlockedIndex() => _model.Run != null && _model.Problems.Count > 0 ? 0 : -1;
+        private int BlockedIndex() => _model.Action != null && _model.Problems.Count > 0 ? 0 : -1;
 
         public IWidget Build(ViewFrame frame, bool focused) {
             Refresh();
@@ -165,7 +165,7 @@ namespace ConsoleMonster.Interactive {
                     }
                     return;
                 }
-                _run(_model.Run!);
+                _run(_model.Action!);
             } else if (kind == ButtonKind.Copy) {
                 bool copied;
                 try {

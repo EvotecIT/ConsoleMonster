@@ -5,6 +5,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>One key hint in a footer: the keys ("ctrl+c", "↑↓") and what they do ("stop", "move").</summary>
@@ -83,6 +84,7 @@ namespace ConsoleMonster.Widgets {
         public List<KeyHint> Hints { get; } = new List<KeyHint>();
 
         /// <summary>Reads current registry hints at render time, for example from the focused panel or active dialog. In an app, a footer with neither hints nor a source shows the app's key bindings.</summary>
+        [Fluent("HintsBy")]
         public Func<IEnumerable<KeyHint>>? HintsSource { get; set; }
         private IReadOnlyList<KeyHint>? _appHints;
         internal void RefreshHints() => Volatile.Write(ref _appHints, HintsSource == null ? null : new List<KeyHint>(HintsSource()));

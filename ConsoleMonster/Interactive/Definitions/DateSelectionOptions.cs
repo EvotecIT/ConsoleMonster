@@ -1,15 +1,18 @@
 using System;
 using System.Globalization;
 using ConsoleMonster.Dates;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Shared calendar data, civil-date bounds and culture for pickers and date questions.</summary>
+    [Fluent]
     public sealed class DateSelectionOptions {
         /// <summary>Earliest permitted date.</summary>
         public DateTime? Minimum { get; set; }
         /// <summary>Latest permitted date.</summary>
         public DateTime? Maximum { get; set; }
         /// <summary>Rejects individual dates, including dates inside a range.</summary>
+        [Fluent("UnavailableWhen")]
         public Func<DateTime, bool>? Unavailable { get; set; }
         /// <summary>Display and line-entry culture.</summary>
         public CultureInfo? Culture { get; set; }

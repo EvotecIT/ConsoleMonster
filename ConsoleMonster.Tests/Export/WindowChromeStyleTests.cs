@@ -72,21 +72,21 @@ namespace ConsoleMonster.Tests.Export {
         public void DashboardAndSessionCarryStyleThroughPlayerAndAnimation(WindowChromeStyle style, ExportTheme theme) {
             RecordingExportOptions options = new RecordingExportOptions { Width = 36, Height = 2, Title = "Build <release>", WindowChrome = true, ChromeStyle = style, Theme = theme };
             LiveEvent[] events = { new LiveEvent("log", "write", text: "Complete", time: 20) };
-            string dashboardData = Recording.ExportPlayerData(new LogRegion("log"), events, options);
-            string dashboardSvg = Recording.Export(new LogRegion("log"), events, ExportFormat.Svg, options);
+            string dashboardData = Recording.ToPlayerData(new LogRegion("log"), events, options);
+            string dashboardSvg = Recording.Render(new LogRegion("log"), events, OutputFormat.Svg, options).ToText();
             SessionRecording session = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":36,\"height\":2}\n[0.02,\"o\",\"Complete\"]\n"));
-            foreach (string json in new[] { dashboardData, session.ExportPlayerData(options) }) {
+            foreach (string json in new[] { dashboardData, session.ToPlayerData(options) }) {
                 Assert.Contains("\"chromeStyle\":\"" + style.ToString().ToLowerInvariant() + "\"", json);
                 Assert.Contains("\"chrome\":" + (style == WindowChromeStyle.None ? "false" : "true"), json);
                 Assert.DoesNotContain("<release>", json);
                 if (style != WindowChromeStyle.None) { Assert.Contains("cm-titlebar", json); }
             }
-            foreach (string markup in new[] { dashboardSvg, session.Export(ExportFormat.Svg, options) }) {
+            foreach (string markup in new[] { dashboardSvg, session.Render(OutputFormat.Svg, options).ToText() }) {
                 XElement svg = XElement.Parse(markup);
                 XElement viewport = Assert.Single(svg.Descendants(), e => e.Name.LocalName == "svg" && (string?)e.Attribute("class") != "cm-title-area");
                 Assert.Equal(Bar(style) + (style == WindowChromeStyle.None ? 0 : 8), Number(viewport, "y"));
             }
-            Assert.Contains("chromeBar", session.Export(ExportFormat.Html, options));
+            Assert.Contains("chromeBar", session.Render(OutputFormat.Html, options).ToText());
             Assert.Equal(style, options.ChromeStyle);
         }
 
@@ -126,7 +126,7 @@ namespace ConsoleMonster.Tests.Export {
                 Assert.Contains("--cm-chrome-fg:#abcdef", output);
             }
             RecordingExportOptions recording = new RecordingExportOptions { Width = 36, Height = 2, WindowChrome = true, ChromeStyle = WindowChromeStyle.Linux, CustomTheme = theme };
-            Assert.Contains("--cm-chrome:#314159", Recording.ExportPlayerData(new LogRegion("log"), Array.Empty<LiveEvent>(), recording));
+            Assert.Contains("--cm-chrome:#314159", Recording.ToPlayerData(new LogRegion("log"), Array.Empty<LiveEvent>(), recording));
         }
 
         private static ExportOptions Options(WindowChromeStyle style, ExportTheme theme) => new ExportOptions { WindowChrome = true, ChromeStyle = style, Theme = theme, Title = "Build <release> & verify / " + new string('W', 40) };

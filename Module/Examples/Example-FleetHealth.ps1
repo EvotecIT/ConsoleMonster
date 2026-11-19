@@ -329,10 +329,10 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
         }
         [pscustomobject]@{ Name = $preset.Name; Preview = $preview; Form = $form; Values = $presetValues }
     }
-    New-ConsoleMenuItem 'Presets' -Hotkey p -IconName Favorite -Presets `
+    New-ConsoleMenuItem 'Presets' -Hotkey p -Icon favorite -Presets `
         -Description 'Scopes for New check. Applying one fills in the form; the domain stays your choice.'
     $newCheck = 'Choose a domain, its servers and the checks, review the equivalent command, and run.'
-    New-ConsoleMenuItem 'New check' -Hotkey n -IconName Run -Description $newCheck -Form $form -OnSubmit {
+    New-ConsoleMenuItem 'New check' -Hotkey n -Icon run -Description $newCheck -Form $form -OnSubmit {
         $chosen = @($Values.Checks | ForEach-Object { [string] $_ })
         $names = @($Values.Servers | ForEach-Object { [string] $_ })
         $plan = [pscustomobject] @{
@@ -688,7 +688,7 @@ $menu = New-ConsoleMenu 'Fleet health check' -Subtitle 'Tue 20 Oct 2026 · 09:30
         $null = $MenuContext.Run($dashboard, $checkRun, $clock)
     }
     $historyState = { "$(@($script:history).Count) runs" }
-    New-ConsoleMenuItem 'History' -Hotkey h -IconName List -Description 'Earlier runs, newest first.' `
+    New-ConsoleMenuItem 'History' -Hotkey h -Icon list -Description 'Earlier runs, newest first.' `
         -Detail $historyState -Page {
         $rows = for ($i = @($script:history).Count - 1; $i -ge 0; $i--) {
             $run = @($script:history)[$i]

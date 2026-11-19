@@ -319,8 +319,8 @@ namespace SiteFrames.Pages {
             ParityResult result = Parity.Compare(expected, actual);
             if (!result.Identical) { throw new InvalidDataException(demo.Slug + " step " + step + ": " + style + " " + result.Detail + "\nC#:\n" + Parity.Describe(expected) + style + ":\n" + Parity.Describe(actual)); }
             var options = new ExportOptions { Theme = ExportTheme.Dark };
-            byte[] first = FrameExporter.Export(expected, "Svg", options);
-            byte[] second = FrameExporter.Export(actual, "Svg", options);
+            byte[] first = FrameExporter.Render(expected, OutputFormat.Svg, options).ToBytes();
+            byte[] second = FrameExporter.Render(actual, OutputFormat.Svg, options).ToBytes();
             if (!first.SequenceEqual(second)) { throw new InvalidDataException(demo.Slug + " step " + step + ": " + style + " differs in encoded frame bytes."); }
         }
 

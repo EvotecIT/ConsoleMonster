@@ -24,24 +24,24 @@ namespace ConsoleMonster.Tests.Rendering {
 
         internal static IWidget Gallery() {
             Table table = new Table { Title = new RichTextBuilder().Append("Checks", ThemeToken.Accent, TextDecoration.Bold).Append(" · rich cells", ThemeToken.Muted).Build().ToMarkup() };
-            table.AddColumn(new TableColumn(new RichTextBuilder().Append("Ser", ConsoleColor.Cyan).Append("ver", ConsoleColor.Magenta).Build()) { IsKey = true });
-            table.AddColumn(new TableColumn("Result"));
-            table.AddColumn(new TableColumn("Path") { Overflow = ColumnOverflow.TruncateMiddle, MaxWidth = 18 });
-            table.AddColumn(new TableColumn("Note") { Overflow = ColumnOverflow.Wrap, MaxWidth = 14 });
-            table.AddValues(Server("01"), Pass(), new RichTextBuilder().Append(@"C:\Support\GitHub\", ThemeToken.Muted).Append("ConsoleMonster", ConsoleColor.Green).Build(), RichText.Plain("replication healthy across sites", new RichStyle(ThemeToken.Info)));
-            table.AddValues(Server("02"), Fail(), RichText.Plain(@"D:\Data\Reports\Weekly.xlsx"), RichText.Plain("[red]literal[/] data"));
+            table.Column(new TableColumn(new RichTextBuilder().Append("Ser", ConsoleColor.Cyan).Append("ver", ConsoleColor.Magenta).Build()) { IsKey = true });
+            table.Column(new TableColumn("Result"));
+            table.Column(new TableColumn("Path") { Overflow = ColumnOverflow.TruncateMiddle, MaxWidth = 18 });
+            table.Column(new TableColumn("Note") { Overflow = ColumnOverflow.Wrap, MaxWidth = 14 });
+            table.Values(Server("01"), Pass(), new RichTextBuilder().Append(@"C:\Support\GitHub\", ThemeToken.Muted).Append("ConsoleMonster", ConsoleColor.Green).Build(), RichText.Plain("replication healthy across sites", new RichStyle(ThemeToken.Info)));
+            table.Values(Server("02"), Fail(), RichText.Plain(@"D:\Data\Reports\Weekly.xlsx"), RichText.Plain("[red]literal[/] data"));
 
             Table cards = new Table { CardsBelow = 200, RecordViewRows = 0 };
-            cards.AddColumn(new TableColumn("Server") { IsKey = true });
-            cards.AddColumn(new TableColumn("Result"));
-            cards.AddValues(Server("03"), Pass());
+            cards.Column(new TableColumn("Server") { IsKey = true });
+            cards.Column(new TableColumn("Result"));
+            cards.Values(Server("03"), Pass());
 
             KeyValueList keys = new KeyValueList();
-            keys.AddValue("Owner", new RichTextBuilder().Append("Przemysław ", ConsoleColor.White).Append("Kłys", ConsoleColor.Cyan, TextDecoration.Italic).Build());
-            keys.AddValue("Status", Fail());
+            keys.Value("Owner", new RichTextBuilder().Append("Przemysław ", ConsoleColor.White).Append("Kłys", ConsoleColor.Cyan, TextDecoration.Italic).Build());
+            keys.Value("Status", Fail());
 
             RecordView record = new RecordView("Certificate");
-            record.AddField("Expires", RichText.Plain("in 22 d", new RichStyle(ThemeToken.Warn, default, TextDecoration.Bold)));
+            record.Field("Expires", RichText.Plain("in 22 d", new RichStyle(ThemeToken.Warn, default, TextDecoration.Bold)));
 
             Tree tree = new Tree(new RichTextBuilder().Append("ad.", ThemeToken.Muted).Append("evotec.xyz", ThemeToken.Accent).Build().ToMarkup());
             TreeNode site = tree.Add(new RichTextBuilder().Append("Site ", ThemeToken.Muted).Append("Warsaw", ConsoleColor.Green).Build(), StatusKind.Pass);
@@ -67,8 +67,8 @@ namespace ConsoleMonster.Tests.Rendering {
             stacked.Add(Pass(), 40);
             stacked.Add(Fail(), 4);
             LineChart line = new LineChart { Height = 3 };
-            line.AddSeries(new RichTextBuilder().Append("rules", ConsoleColor.Cyan).Append("/s", ThemeToken.Muted).Build());
-            line.AddSeries(RichText.Plain("failed", new RichStyle(ThemeToken.Fail)));
+            line.Series(new RichTextBuilder().Append("rules", ConsoleColor.Cyan).Append("/s", ThemeToken.Muted).Build());
+            line.Series(RichText.Plain("failed", new RichStyle(ThemeToken.Fail)));
             foreach (double v in new[] { 1.0, 3, 2, 5, 4 }) {
                 line.Add("rules/s", v);
                 line.Add("failed", v / 4);
@@ -105,12 +105,12 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(GlyphTier.Ascii)]
         public void Cards_RichCells_MatchGoldenPerTier(GlyphTier tier) {
             Table cards = new Table { Title = "Cards" };
-            cards.AddColumn(new TableColumn(new RichTextBuilder().Append("Ser", ConsoleColor.Cyan).Append("ver", ConsoleColor.Magenta).Build()) { IsKey = true });
-            cards.AddColumn(new TableColumn("Result") { MinWidth = 10 });
-            cards.AddColumn(new TableColumn("Owner") { MinWidth = 16 });
-            cards.AddColumn(new TableColumn("Note") { MinWidth = 16 });
-            cards.AddValues(Server("03"), Pass(), RichText.Plain("Przemysław Kłys", new RichStyle(ConsoleColor.Cyan)), RichText.Plain("[red]literal[/] data"));
-            cards.AddValues(Server("04"), Fail(), RichText.Plain("Ada", new RichStyle(ThemeToken.Muted)), RichText.Plain("needs a reboot", new RichStyle(ThemeToken.Warn)));
+            cards.Column(new TableColumn(new RichTextBuilder().Append("Ser", ConsoleColor.Cyan).Append("ver", ConsoleColor.Magenta).Build()) { IsKey = true });
+            cards.Column(new TableColumn("Result") { MinWidth = 10 });
+            cards.Column(new TableColumn("Owner") { MinWidth = 16 });
+            cards.Column(new TableColumn("Note") { MinWidth = 16 });
+            cards.Values(Server("03"), Pass(), RichText.Plain("Przemysław Kłys", new RichStyle(ConsoleColor.Cyan)), RichText.Plain("[red]literal[/] data"));
+            cards.Values(Server("04"), Fail(), RichText.Plain("Ada", new RichStyle(ThemeToken.Muted)), RichText.Plain("needs a reboot", new RichStyle(ThemeToken.Warn)));
             string text = Terminal.RenderText(cards, TerminalProfile.Fixed(36, 40, ColorDepth.None, tier), Theme.Dark);
             Assert.Contains("[red]literal[/] data", text);
             Golden.Match("richtext.cards." + tier.ToString().ToLowerInvariant() + ".txt", text.TrimEnd('\n') + "\n");

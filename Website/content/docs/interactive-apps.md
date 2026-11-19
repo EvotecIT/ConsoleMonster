@@ -52,7 +52,7 @@ new AppBinding(state => Results(state.Get<string>("Query", string.Empty)))
 c.TextInput(textInput => textInput.Key("Query")
     .Label("Query")
     .Placeholder("Host, role, site or status"));
-c.Binding(binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
+c.Binding(binding => binding.ContentBy(state => Results(state.Get<string>(
     "Query", string.Empty))));
 ```
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Text {
     /// <summary>
@@ -11,6 +12,7 @@ namespace ConsoleMonster.Text {
     /// following parts aligned under the text, wrapping that continues under the text, padding (left, right or centred,
     /// measured in terminal cells) and centring in the window.
     /// </summary>
+    [Fluent]
     public sealed class ConsoleTextLayout {
         /// <summary>Tabs before the text (eight cells each).</summary>
         public int StartTab { get; set; }

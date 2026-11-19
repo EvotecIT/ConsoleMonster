@@ -1,3 +1,4 @@
+using PowerForge.Fluent;
 ﻿using System;
 using System.Globalization;
 using ConsoleMonster.Canvas;
@@ -42,6 +43,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The latest committable date.</summary>
         public DateTime? Maximum { get; set; }
         /// <summary>Returns true for a date that cannot be committed. Keep this callback short.</summary>
+        [Fluent("UnavailableWhen")]
         public Func<DateTime, bool>? Unavailable { get; set; }
         /// <summary>The display culture; arithmetic remains Gregorian.</summary>
         public CultureInfo? Culture { get; set; }

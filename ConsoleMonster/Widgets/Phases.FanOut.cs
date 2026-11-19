@@ -35,7 +35,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="detail">Detail (duration, percentage), or null to keep the existing one.</param>
         /// <returns>This instance.</returns>
         /// <exception cref="ArgumentException">The phase has not been added, or the key is empty or contains U+001F.</exception>
-        public Phases SetItem(string phase, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
+        public Phases Item(string phase, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (phase == null || !_byKey.ContainsKey(phase)) { throw new ArgumentException("Add the phase '" + phase + "' before its items.", nameof(phase)); }
             if (string.IsNullOrEmpty(key)) { throw new ArgumentException("An item needs a key.", nameof(key)); }
             CheckKey(key, nameof(key));
@@ -56,7 +56,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="detail">Detail, or null to keep the existing one.</param>
         /// <returns>This instance.</returns>
         /// <exception cref="ArgumentException">The phase or the item has not been added, or the key is empty or contains U+001F.</exception>
-        public Phases SetSubItem(string phase, string item, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
+        public Phases SubItem(string phase, string item, string key, StatusKind status = StatusKind.Pending, string? label = null, string? detail = null) {
             if (phase == null || item == null || FindItem(new[] { phase, item }) == null) { throw new ArgumentException("Add the item '" + item + "' of phase '" + phase + "' before its sub-items.", nameof(item)); }
             if (string.IsNullOrEmpty(key)) { throw new ArgumentException("A sub-item needs a key.", nameof(key)); }
             CheckKey(key, nameof(key));

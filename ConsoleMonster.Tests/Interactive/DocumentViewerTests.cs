@@ -218,8 +218,8 @@ namespace ConsoleMonster.Tests.Interactive {
         public void TheWheelScrollsALongOutline() {
             var long_ = new MarkdownView();
             for (int i = 1; i <= 30; i++) {
-                long_.AddHeading(RichText.Plain("Section " + i), 2);
-                long_.AddParagraph(RichText.Plain("text " + i));
+                long_.Heading(RichText.Plain("Section " + i), 2);
+                long_.Paragraph(RichText.Plain("text " + i));
             }
             DocumentView view = View(long_);
             string before = Draw(view, 100, 10);
@@ -294,14 +294,14 @@ namespace ConsoleMonster.Tests.Interactive {
         // A guide long enough to scroll: Install with a nested Windows section, then Usage with a link back to Install.
         private static MarkdownView Guide() {
             var guide = new MarkdownView();
-            guide.AddHeading(RichText.Plain("Guide"), 1);
-            guide.AddParagraph(RichText.Plain("Read this first."));
-            guide.AddHeading(RichText.Plain("Install"), 2);
-            for (int i = 0; i < 20; i++) { guide.AddParagraph(RichText.Plain("install line " + i)); }
-            guide.AddHeading(RichText.Plain("Windows"), 3);
-            for (int i = 0; i < 20; i++) { guide.AddParagraph(RichText.Plain("windows line " + i)); }
-            guide.AddHeading(RichText.Plain("Usage"), 2);
-            guide.AddParagraph(new RichTextBuilder().Append("Go to ").AppendLink("Install", "#install").Build());
+            guide.Heading(RichText.Plain("Guide"), 1);
+            guide.Paragraph(RichText.Plain("Read this first."));
+            guide.Heading(RichText.Plain("Install"), 2);
+            for (int i = 0; i < 20; i++) { guide.Paragraph(RichText.Plain("install line " + i)); }
+            guide.Heading(RichText.Plain("Windows"), 3);
+            for (int i = 0; i < 20; i++) { guide.Paragraph(RichText.Plain("windows line " + i)); }
+            guide.Heading(RichText.Plain("Usage"), 2);
+            guide.Paragraph(new RichTextBuilder().Append("Go to ").AppendLink("Install", "#install").Build());
             return guide;
         }
 

@@ -14,6 +14,7 @@ using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Replay {
     /// <summary>Whether to show player controls or play the recording straight into its widget tree.</summary>
@@ -25,6 +26,7 @@ namespace ConsoleMonster.Replay {
     }
 
     /// <summary>Options for <see cref="ReplayPlayer.Play(IWidget, TextReader, ReplayOptions, CancellationToken)"/>.</summary>
+    [Fluent]
     public sealed class ReplayOptions {
         private double _speed = 1;
 

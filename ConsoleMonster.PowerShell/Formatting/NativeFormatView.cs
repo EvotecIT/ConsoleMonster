@@ -79,7 +79,7 @@ namespace ConsoleMonster.PowerShell {
                                     table.GroupHeadersAsRows = true;
                                     pendingGroup = true;
                                 }
-                                if (pendingGroup) { table.AddGroup(Markup.Escape(title ?? string.Empty)); pendingGroup = false; }
+                                if (pendingGroup) { table.Group(Markup.Escape(title ?? string.Empty)); pendingGroup = false; }
                             } else { table ??= TableFor(shape, title, Bool(entry, "multiLine")); }
                             // A valid native wildcard can match no properties. Preserve its native empty shape.
                             if (table.Columns.Count == 0) { return false; }
@@ -98,7 +98,7 @@ namespace ConsoleMonster.PowerShell {
                                     table.Columns[c].Presenter = capture.Columns[c].Column.Presenter;
                                     table.Columns[c].Alignment = capture.Columns[c].Column.Alignment;
                                 }
-                                table.AddValues(values);
+                                table.Values(values);
                                 rowIndex++;
                                 break;
                             }
@@ -108,7 +108,7 @@ namespace ConsoleMonster.PowerShell {
                                 cells.Add(FormattedCell(value, value, cells.Count < table.Columns.Count ? Markup.Strip(table.Columns[cells.Count].Header) : string.Empty));
                             }
                             if (cells.Count != table.Columns.Count) { return false; }
-                            table.AddRow(cells.ToArray());
+                            table.Row(cells.ToArray());
                         } else if (entryType == "ListViewEntry") {
                             RecordView view = new RecordView(Markup.Escape(title ?? string.Empty)) { HideEmpty = false };
                             object?[]? raw = capture != null && capture.Columns.Count > 0 && rowIndex < capture.Rows.Count ? capture.Rows[rowIndex++] : null;
@@ -120,8 +120,8 @@ namespace ConsoleMonster.PowerShell {
                                 string native = String(Get(Get(field, "formatPropertyField"), "propertyValue"));
                                 if (shaped != null && index < shaped.Length) {
                                     object? value = capture!.Formatted[index] ? FormattedCell(raw![index], native, capture.Columns[index].Name) : shaped[index];
-                                    view.AddField(label, value as TableCell ?? TableCell.FromValue(value), capture.Columns[index].Column.Presenter ?? CellPresenters.ForStatus(capture.Columns[index].Name, raw![index]));
-                                } else { view.AddField(label, FormattedCell(native, native, label)); }
+                                    view.Field(label, value as TableCell ?? TableCell.FromValue(value), capture.Columns[index].Column.Presenter ?? CellPresenters.ForStatus(capture.Columns[index].Name, raw![index]));
+                                } else { view.Field(label, FormattedCell(native, native, label)); }
                                 index++;
                             }
                             widgets.Add(view);
@@ -146,7 +146,7 @@ namespace ConsoleMonster.PowerShell {
                 if (label.Length == 0) { label = String(Get(column, "propertyName")); }
                 int alignment = Number(Get(column, "alignment"));
                 int width = Number(Get(column, "width"));
-                table.AddColumn(new TableColumn(Markup.Escape(label)) {
+                table.Column(new TableColumn(Markup.Escape(label)) {
                     Alignment = alignment == (int)Alignment.Center ? HorizontalAlignment.Center : alignment == (int)Alignment.Right ? HorizontalAlignment.Right : HorizontalAlignment.Left,
                     Width = width > 0 ? width : (int?)null,
                     Overflow = wrap ? ColumnOverflow.Wrap : ColumnOverflow.Truncate

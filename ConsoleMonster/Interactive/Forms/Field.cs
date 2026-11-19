@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// A form field: a name (the key in <see cref="FormValues"/>), a label, help, a default, validation, a condition for
     /// showing it, the fields it depends on, and the command-line parameter it maps to for the equivalent command.
     /// </summary>
+    [Fluent]
     public abstract class Field {
         /// <summary>Creates a field.</summary>
         /// <param name="key">The key in the form values.</param>
@@ -81,12 +83,14 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Shows the field only while this returns true.</summary>
+        [Fluent("ShowWhen")]
         public Func<FormValues, bool>? VisibleWhen { get; set; }
 
         /// <summary>Fields whose change resets this field (and reloads its options).</summary>
         public IList<string> DependsOn { get; } = new List<string>();
 
         /// <summary>A validator: returns an error message, or null when the value is fine.</summary>
+        [Fluent("Validate")]
         public Func<object?, FormValues, string?>? Validator { get; set; }
 
         /// <summary>Whether the value is kept in presets and remembered choices (never for secrets).</summary>

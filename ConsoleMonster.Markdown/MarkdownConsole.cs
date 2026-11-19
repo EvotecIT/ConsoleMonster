@@ -59,18 +59,18 @@ namespace ConsoleMonster.Markdown {
             foreach (IMarkdownBlock block in blocks) {
                 switch (block) {
                     case HeadingBlock heading:
-                        view.AddHeading(MarkdownInlines.Read(heading.Inlines), heading.Level);
+                        view.Heading(MarkdownInlines.Read(heading.Inlines), heading.Level);
                         break;
                     case ParagraphBlock paragraph:
-                        view.AddParagraph(MarkdownInlines.Read(paragraph.Inlines));
+                        view.Paragraph(MarkdownInlines.Read(paragraph.Inlines));
                         break;
                     case CodeBlock code:
                         // With Graphics registered a Mermaid fence draws as a diagram; otherwise it stays readable source.
                         Diagram? diagram = Diagram.FenceParser?.Invoke(code.Language, code.Content);
-                        if (diagram != null) view.AddBlock(diagram); else view.AddCode(code.Content, code.Language);
+                        if (diagram != null) view.Block(diagram); else view.Code(code.Content, code.Language);
                         break;
                     case QuoteBlock quote:
-                        view.AddQuote(ConvertBlocks(quote.ChildBlocks));
+                        view.Quote(ConvertBlocks(quote.ChildBlocks));
                         break;
                     case CalloutBlock callout:
                         AddCallout(view, callout);
@@ -85,13 +85,13 @@ namespace ConsoleMonster.Markdown {
                         AddTable(view, table);
                         break;
                     case HorizontalRuleBlock _:
-                        view.AddRule();
+                        view.Rule();
                         break;
                     case HtmlRawBlock html:
-                        view.AddParagraph(RichText.Plain(html.Html));
+                        view.Paragraph(RichText.Plain(html.Html));
                         break;
                     case HtmlCommentBlock comment:
-                        view.AddParagraph(RichText.Plain("<!--" + comment.Comment + "-->"));
+                        view.Paragraph(RichText.Plain("<!--" + comment.Comment + "-->"));
                         break;
                     default:
                         throw new NotSupportedException(MarkdownMessages.Format("UnsupportedBlock", block.GetType().Name));
@@ -101,7 +101,7 @@ namespace ConsoleMonster.Markdown {
         }
 
         private static void AddList(MarkdownView view, List<ListItem> items, int? start) =>
-            view.AddList(items.Select(item => ConvertBlocks(item.ChildBlocks)).ToList(),
+            view.List(items.Select(item => ConvertBlocks(item.ChildBlocks)).ToList(),
                 items.Select(item => item.IsTask ? item.Checked : (bool?)null).ToList(), start, !items.Any(item => item.ForceLoose));
 
         private static void AddCallout(MarkdownView view, CalloutBlock callout) {
@@ -139,7 +139,7 @@ namespace ConsoleMonster.Markdown {
                 MarkdownColumnAlignment.Right => HorizontalAlignment.Right,
                 _ => null
             }).ToArray();
-            view.AddTable(headers, rows, alignments);
+            view.Table(headers, rows, alignments);
         }
     }
 }

@@ -5,9 +5,11 @@ using ConsoleMonster.Data;
 using ConsoleMonster.Input;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Browses object members lazily with the grid's keyboard and screen infrastructure.</summary>
+    [Fluent]
     public sealed class ObjectExplorer {
         /// <summary>Creates an explorer without reading nested values.</summary>
         /// <param name="value">The object, dictionary, JSON value or collection to explore.</param>

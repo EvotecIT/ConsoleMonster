@@ -47,9 +47,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void LineChart_StatusNamedSeries_UsesStatusTones() {
             LineChart chart = new LineChart();
-            Assert.Equal(ThemeToken.Fail, chart.AddSeries("failed").Role);
-            Assert.Equal(ThemeToken.Pass, chart.AddSeries("passed").Role);
-            Assert.Equal(ThemeToken.Series3, chart.AddSeries("latency").Role);
+            Assert.Equal(ThemeToken.Fail, chart.Series("failed").Role);
+            Assert.Equal(ThemeToken.Pass, chart.Series("passed").Role);
+            Assert.Equal(ThemeToken.Series3, chart.Series("latency").Role);
         }
 
         [Theory]
@@ -80,8 +80,8 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_WithoutHeaderSeparator_FirstRowFollowsHeader() {
             Table table = new Table { Border = TableBorder.None, HeaderSeparator = false };
-            table.AddColumn("Name").AddColumn("Count");
-            table.AddPlainRow("alpha", "7");
+            table.Column("Name").Column("Count");
+            table.PlainRow("alpha", "7");
             string[] rows = Render(table);
             Assert.Contains("Name", rows[0]);
             Assert.Contains("alpha", rows[1]);

@@ -51,7 +51,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         private static BarChart Missing(bool signed) {
             BarChart chart = new BarChart { Signed = signed };
-            chart.AddMissing("waiting", new string('m', 80), StatusKind.Warn);
+            chart.Missing("waiting", new string('m', 80), StatusKind.Warn);
             if (signed) chart.Add("reference", -2);
             return chart;
         }

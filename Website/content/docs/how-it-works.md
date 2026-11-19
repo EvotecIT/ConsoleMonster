@@ -67,7 +67,7 @@ The PowerShell verbs say what a command does with a widget:
 | `Show-Console*` | Print a widget, or objects piped in, once. | `Terminal.Write(widget)` or `widget.Show()` |
 | `Write-Console*` | Write text: a line with markup (`Write-ConsoleText`), a log line (`Write-ConsoleLogEntry`). | `Terminal.WriteMarkupLine(...)` |
 | `Invoke-Console*`, `Start-Console*` | Run work while a widget stays on screen and updates: a dashboard, a per-item run, a test run. | `LiveSession`, `ConsoleRun` |
-| `Export-Console*` | Save a widget or a recording as HTML, SVG, Markdown, text or PNG. | `ConsoleExporter.Save(...)` or `widget.Export(path)` |
+| `Export-Console*` | Save a widget or a recording as HTML, SVG, Markdown, text or PNG. | `widget.Save(path)` or `recording.Save(path)` |
 
 `Show-Console` also takes ordinary objects: `Get-Service | Show-Console` picks a table, a record or a tree from the shape of the data. The [widgets](/widgets/) and [tables](/tables/) pages list everything that can be built, each with its PowerShell, C# and fluent forms.
 
@@ -105,7 +105,7 @@ Terminal.WriteMarkupLine("[accent bold]Deploy[/] finished: [pass]3 passed[/], [f
 
 By default a widget is drawn to the console with the colour depth and glyphs the terminal supports. Redirected output, CI logs and `CONSOLEMONSTER_MODE=plain` get plain lines instead, from the same widget. To send output somewhere else on purpose:
 
-- `Export-ConsoleFrame` writes a widget to an HTML page, an SVG image, Markdown, text or PNG, with the format taken from the file extension. In C#, `ConsoleExporter.Save` (or `widget.Export(path)` in fluent code) writes HTML, SVG or text the same way.
+- `Export-ConsoleFrame` writes a widget to an HTML page, an SVG image, Markdown, text or PNG, with the format taken from the file extension. In C#, `widget.Save(path)` writes the same formats, and `ToHtml`, `ToSvg` and `ToText` return them as strings.
 - `Use-ConsoleTarget` runs a script block with all ConsoleMonster output going to a file or returned as a string; `Terminal.Use(target)` does the same in C#.
 
 <div class="cm-lang" data-lang="powershell">
@@ -126,7 +126,7 @@ ConsoleExporter.Save(report, "service-check.html");
 <div class="cm-lang" data-lang="csharp-fluent">
 
 ```csharp
-report.Export("service-check.html");
+report.Save("service-check.html");
 ```
 
 </div>

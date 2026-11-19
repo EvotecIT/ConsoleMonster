@@ -37,7 +37,7 @@ namespace ConsoleMonster.Tests.Output {
         }
 
         private static Table Servers() {
-            return new Table().AddColumn("Server").AddColumn("State").AddValues("SRV01", StatusKind.Pass).AddValues("SRV02", StatusKind.Fail);
+            return new Table().Column("Server").Column("State").Values("SRV01", StatusKind.Pass).Values("SRV02", StatusKind.Fail);
         }
 
         [Theory]

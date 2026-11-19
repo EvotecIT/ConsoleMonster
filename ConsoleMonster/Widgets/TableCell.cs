@@ -44,7 +44,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Returns a copy with a cell tone, retaining the raw value, status and existing emphasis.</summary>
         /// <param name="tone">The theme role supplied by the caller; it is not inferred from the numeric value.</param>
         /// <returns>A new cell; this cell is unchanged.</returns>
-        public TableCell WithTone(ThemeToken tone) => WithRowRole(new TableRowRole {
+        public TableCell WithTone(Tone tone) => WithRowRole(new TableRowRole {
             Tone = tone, Bold = RowRole?.Bold ?? false, Muted = RowRole?.Muted ?? false,
             Marker = RowRole?.Marker, AsciiMarker = RowRole?.AsciiMarker
         });

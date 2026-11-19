@@ -49,7 +49,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>
         /// The captured screens as an animation timeline: each frame shows for <paramref name="frameDuration"/> plus its
         /// <see cref="FrameHolds"/>, and the last one for <paramref name="lastFrameHold"/> more. Export it with
-        /// <see cref="Export.Recording.Export(IReadOnlyList{Export.RecordedFrame}, Export.ExportFormat, Export.RecordingExportOptions)"/>
+        /// <see cref="Export.Recording.Render(IReadOnlyList{Export.RecordedFrame}, Export.OutputFormat, Export.RecordingExportOptions)"/>
         /// (HTML player, animated SVG, asciicast) or <c>SaveGraphics</c> in ConsoleMonster.Graphics (GIF, APNG).
         /// </summary>
         /// <param name="frameDuration">How long each frame shows (at least one millisecond).</param>

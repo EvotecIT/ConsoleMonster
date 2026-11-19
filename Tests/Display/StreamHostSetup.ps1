@@ -19,10 +19,10 @@ $global:StreamHostBuilder=[Func[System.Collections.Generic.IReadOnlyList[object]
         if($c.Header -eq 'Id'){$c.IsKey=$true}
         if($c.Header -eq 'Display'){$c.Flexible=$true}
         if($c.Header -eq 'Size'){$c.Alignment=[ConsoleMonster.Layout.HorizontalAlignment]::Right;$c.Presenter=[ConsoleMonster.Presenters.CellPresenters]::Bytes}
-        $null=$t.AddColumn($c)
+        $null=$t.Column($c)
     }
     $size=if($global:StreamHostRows -eq 1){[long]1}else{[long]1000000000000}
-    $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue('row'+$global:StreamHostRows),[ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue($size),[ConsoleMonster.Widgets.TableCell]::FromValue('DOMAIN\service-account-with-long-name')))
+    $null=$t.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue('row'+$global:StreamHostRows),[ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue($size),[ConsoleMonster.Widgets.TableCell]::FromValue('DOMAIN\service-account-with-long-name')))
     $t
 }
 function global:Use-StreamHost {
@@ -58,11 +58,11 @@ function global:Use-IdentityStreamHost {
         $t=[ConsoleMonster.Widgets.Table]::new();$t.Title='identity-host'
         $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100;$key.MinWidth=22
         if(-not $global:StreamHostUnboundedIdentity){$key.MaxWidth=40}
-        $null=$t.AddColumn($key)
+        $null=$t.Column($key)
         foreach($def in @(@('State',80),@('Neighbors',60),@('Failed',90),@('Stale Schema/Config/Domain/App',0),@('Last logon',0),@('Password set',0))){
-            $c=[ConsoleMonster.Widgets.TableColumn]::new([string]$def[0]);$c.Priority=[int]$def[1];$null=$t.AddColumn($c)
+            $c=[ConsoleMonster.Widgets.TableColumn]::new([string]$def[0]);$c.Priority=[int]$def[1];$null=$t.Column($c)
         }
-        $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(6),[ConsoleMonster.Widgets.TableCell]::FromValue(1),[ConsoleMonster.Widgets.TableCell]::FromValue(0),[ConsoleMonster.Widgets.TableCell]::FromValue($null),[ConsoleMonster.Widgets.TableCell]::FromValue($null)))
+        $null=$t.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(6),[ConsoleMonster.Widgets.TableCell]::FromValue(1),[ConsoleMonster.Widgets.TableCell]::FromValue(0),[ConsoleMonster.Widgets.TableCell]::FromValue($null),[ConsoleMonster.Widgets.TableCell]::FromValue($null)))
         return $t
     }
     $null=$global:StreamHostLease.Register('DisplayHostContract.Row','stream.identity',[version]'1.0.0','Stream',$null,$builder)

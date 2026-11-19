@@ -19,7 +19,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(GridSelection.Multiple, true)]
         public void ActionFooter_OnlyOffersMarksForMultipleSelection(GridSelection selection, bool marks) {
             Grid grid = new Grid("Services") { OutputMode = selection };
-            grid.AddColumn("Name"); grid.AddRow("one", "One");
+            grid.Column("Name"); grid.Row("one", "One");
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("run", "Run", (_, __) => Task.CompletedTask));
             using GridView view = new GridView(grid, options, new PromptLabels());
@@ -30,7 +30,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void ActionScreen_UsesTheLabelLanguage() {
             Grid grid = new Grid("Usługi") { OutputMode = GridSelection.Multiple };
-            grid.AddColumn("Name"); grid.AddRow("one", "One");
+            grid.Column("Name"); grid.Row("one", "One");
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("run", "Uruchom", (_, __) => Task.CompletedTask));
             PromptLabels labels = PromptLabels.For(System.Globalization.CultureInfo.GetCultureInfo("pl-PL"));
@@ -47,9 +47,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void Pointer_FilteringDuringDragCancelsTheOldRangeAndAllowsANewDrag() {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name");
-            grid.AddRow("keep-one", "Keep One"); grid.AddRow("keep-two", "Keep Two");
-            for (int index = 2; index < 6; index++) { grid.AddRow("other-" + index, "Other " + index); }
+            Grid grid = new Grid("Services"); grid.Column("Name");
+            grid.Row("keep-one", "Keep One"); grid.Row("keep-two", "Keep Two");
+            for (int index = 2; index < 6; index++) { grid.Row("other-" + index, "Other " + index); }
             using GridView view = new GridView(grid, new GridOptions(), new PromptLabels());
             string[] initial = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText().Split('\n');
             int last = Array.FindIndex(initial, line => line.Contains("Other 5"));
@@ -73,9 +73,9 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(false)]
         [InlineData(true)]
         public void Pointer_RejectsBlankSpaceAndAcceptsEveryLineOfADataRow(bool widgetCell) {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name");
-            grid.AddRow("one", "One");
-            grid.AddRow("two", widgetCell ? (object)new TextBlock("Two\nSecond line") : "Two");
+            Grid grid = new Grid("Services"); grid.Column("Name");
+            grid.Row("one", "One");
+            grid.Row("two", widgetCell ? (object)new TextBlock("Two\nSecond line") : "Two");
             using GridView view = new GridView(grid, new GridOptions(), new PromptLabels());
             string[] lines = FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 100, 30, false, TimeSpan.Zero)), 100, 30, Context).ToPlainText().Split('\n');
             int last = Array.FindIndex(lines, line => line.Contains(widgetCell ? "Second line" : "Two"));

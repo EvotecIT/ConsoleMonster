@@ -1,4 +1,5 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Shared construction vocabulary for persistent application controls.</summary>
@@ -14,6 +15,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Initial validation text.</summary>
         public string? ValidationMessage { get; set; }
         /// <summary>Runs after a committed value change on the application input thread.</summary>
+        [Fluent("WhenChanged")]
         public EventHandler<AppValueChangedEventArgs>? OnChange { get; set; }
     }
 }

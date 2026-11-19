@@ -280,11 +280,11 @@ namespace ConsoleMonster.Tests.Rendering {
             ["code"] = () => new CodeView(CallerText),
             ["report"] = TestScenes.Report,
             ["live dashboard"] = TestScenes.Live,
-            ["table"] = () => new Table().AddColumn("Value").AddValues(CallerText).AddValues(null, ""),
-            ["cards"] = () => new Table { AlwaysCards = true }.AddColumn("Value").AddValues(CallerText),
-            ["record"] = () => new RecordView(CallerText).AddField("Value", CallerText),
+            ["table"] = () => new Table().Column("Value").Values(CallerText).Values(null, ""),
+            ["cards"] = () => new Table { AlwaysCards = true }.Column("Value").Values(CallerText),
+            ["record"] = () => new RecordView(CallerText).Field("Value", CallerText),
             ["inspector"] = () => new InspectorView(new { Name = CallerText, Empty = "", Null = (string?)null }),
-            ["key/value"] = () => new KeyValueList().AddValue("Name", CallerText),
+            ["key/value"] = () => new KeyValueList().Value("Name", CallerText),
             ["tree"] = () => { var tree = new Tree(CallerText) { WrapLabels = true }; tree.Add(CallerText).Value = TableCell.FromValue(CallerText); return tree; },
             ["calendar"] = () => new global::ConsoleMonster.Widgets.Calendar(2026, 11),
             ["exception"] = () => new ExceptionView(new InvalidOperationException(CallerText)),
@@ -297,12 +297,12 @@ namespace ConsoleMonster.Tests.Rendering {
             ["flow"] = () => new Flow(),
             ["cells"] = () => new CellMap().Resize(5),
             ["activity"] = () => new ActivityList(),
-            ["summary"] = () => new SummaryBar().SetCounter(CallerText, 3),
+            ["summary"] = () => new SummaryBar().Counter(CallerText, 3),
             ["watch"] = () => new WatchView(),
             ["region"] = () => new RegionWidget("region", TextBlock.FromMarkup(CallerText)),
             ["dashboard"] = () => new Dashboard(CallerText, TextBlock.FromMarkup(CallerText)),
-            ["live table"] = () => { var live = new LiveTable(new Table().AddColumn("Value")); live.Set("first", CallerText); return live; },
-            ["grid"] = () => new DataGrid("grid", new Grid(CallerText).AddColumn("Value").AddRow("first", CallerText)),
+            ["live table"] = () => { var live = new LiveTable(new Table().Column("Value")); live.Set("first", CallerText); return live; },
+            ["grid"] = () => new DataGrid("grid", new Grid(CallerText).Column("Value").Row("first", CallerText)),
             ["text input"] = () => new TextInput("input") { Value = CallerText },
             ["button"] = () => new Button("button", CallerText),
             ["toggle"] = () => new Toggle("toggle", true),
@@ -312,7 +312,7 @@ namespace ConsoleMonster.Tests.Rendering {
             ["tree select"] = () => new TreeSelect("tree", new ObjectExplorer(new { Name = CallerText })),
             ["log viewport"] = () => { var log = new LogViewport("log"); log.Write(CallerText); return log; },
             ["text area"] = () => new TextArea("area") { Value = CallerText },
-            ["matrix"] = () => new Matrix(new[] { new MatrixLabel(CallerText) }, new[] { new MatrixLabel(CallerText) }).SetCell(0, 0, StatusKind.Pass, CallerText),
+            ["matrix"] = () => new Matrix(new[] { new MatrixLabel(CallerText) }, new[] { new MatrixLabel(CallerText) }).Cell(0, 0, StatusKind.Pass, CallerText),
             ["paths"] = () => new PathSet(new PathHop("origin", CallerText)).Add(new PathHop("next", CallerText)),
             ["shell prompt"] = () => new ShellPrompt { Path = CallerText },
             ["help"] = () => new HelpView(new Help.HelpTopic("Get-Example") { Synopsis = CallerText }),
@@ -366,10 +366,10 @@ namespace ConsoleMonster.Tests.Rendering {
             object? value = kind == "null" ? null : kind == "empty" ? "" : Missing.Value;
             IWidget widget;
             switch (renderer) {
-                case "table": widget = new Table().AddColumn("Value").AddValues(new[] { value }); break;
-                case "cards": widget = new Table { AlwaysCards = true }.AddColumn("Value").AddValues(new[] { value }); break;
-                case "key/value": widget = new KeyValueList().AddValue("Value", value); break;
-                case "record": widget = new RecordView { HideEmpty = false }.AddField("Value", value); break;
+                case "table": widget = new Table().Column("Value").Values(new[] { value }); break;
+                case "cards": widget = new Table { AlwaysCards = true }.Column("Value").Values(new[] { value }); break;
+                case "key/value": widget = new KeyValueList().Value("Value", value); break;
+                case "record": widget = new RecordView { HideEmpty = false }.Field("Value", value); break;
                 case "diff": widget = new ChangeView(ObjectDiff.Compare(new Dictionary<string, object?> { ["Value"] = value }, new Dictionary<string, object?>())); break;
                 default: var tree = new Tree("Root"); tree.Add("Value").Value = TableCell.FromValue(value); widget = tree; break;
             }
@@ -453,8 +453,8 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Options_ApplyWhenChangedAfterAnEarlierRender(string renderer, string kind) {
             if (renderer == "record") {
                 object? value = kind == "null" ? null : kind == "empty" ? "" : Missing.Value;
-                var view = new RecordView().AddSection("Optional section").AddGroup("Optional group").AddField("Optional field", value)
-                    .AddSection("Required section").AddField("Required field", "State");
+                var view = new RecordView().Section("Optional section").Group("Optional group").Field("Optional field", value)
+                    .Section("Required section").Field("Required field", "State");
                 Assert.True(view.HideEmpty);
                 string hidden = TestTerminal.RenderText(view);
                 Assert.DoesNotContain("Optional", hidden);
@@ -498,7 +498,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 case "app async": await ConsoleApp.RunAsync(new TextBlock("State"), options: appOptions); break;
                 case "menu": menu.Run(new MenuOptions { Interactive = options }); break;
                 case "menu async": await menu.RunAsync(new MenuOptions { Interactive = options }); break;
-                case "grid": Assert.Empty(new Grid("State").AddColumn("Name").AddRow("first", "alpha").Show(new GridOptions { Interactive = options }).Items); break;
+                case "grid": Assert.Empty(new Grid("State").Column("Name").Row("first", "alpha").Show(new GridOptions { Interactive = options }).Items); break;
                 default: Assert.Null(new ObjectExplorer(new { Name = "State" }).Show(options)); break;
             }
             Assert.Contains("State", target.Text);
@@ -631,7 +631,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData("tr-TR")]
         public void SearchAndSort_UseOrdinalIgnoreCaseWithStableTies(string culture) {
             var grid = new Grid("Names") { Presentation = new Presenters.PresentationOptions { Culture = CultureInfo.GetCultureInfo(culture) } };
-            grid.AddColumn("Name").AddRow("lower", "alpha").AddRow("upper", "ALPHA").AddRow("last", "zeta").AddRow("accent", "ä");
+            grid.Column("Name").Row("lower", "alpha").Row("upper", "ALPHA").Row("last", "zeta").Row("accent", "ä");
             using (var control = new DataGrid("grid", grid)) {
                 control.Sort(0, false);
                 Assert.Equal("lower", control.CurrentRow!.Item);
@@ -640,7 +640,7 @@ namespace ConsoleMonster.Tests.Rendering {
                 control.Filter = "AlPhA";
                 Assert.Equal(2, control.VisibleCount);
             }
-            var live = new LiveTable(new Table().AddColumn("Name")) { SortColumn = 0 };
+            var live = new LiveTable(new Table().Column("Name")) { SortColumn = 0 };
             live.Set("lower", "alpha"); live.Set("upper", "ALPHA"); live.Set("last", "zeta"); live.Set("accent", "ä");
             Assert.Equal(new[] { "lower", "upper", "last", "accent" }, live.Keys);
             Assert.NotNull(new Menu("Tasks").Item("ALPHA").Find("alpha"));
@@ -672,7 +672,7 @@ namespace ConsoleMonster.Tests.Rendering {
             IWidget widget;
             if (kind == "progress") widget = new ProgressBar("State") { Value = 50 };
             else if (kind == "log") { var log = new LogRegion(); log.Write("State"); widget = log; }
-            else { var table = new LiveTable(new Table().AddColumn("Name")); table.Set("first", "State"); widget = table; }
+            else { var table = new LiveTable(new Table().Column("Name")); table.Set("first", "State"); widget = table; }
             var target = TestTerminal.Target(80);
             using (Terminal.Use(target)) Terminal.Write(widget);
             Assert.Equal(1, target.Text.Split(new[] { "State" }, StringSplitOptions.None).Length - 1);

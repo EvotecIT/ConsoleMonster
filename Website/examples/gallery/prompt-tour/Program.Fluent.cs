@@ -63,7 +63,7 @@ SelectQuestionOptions ServerPrompt()
 {
     SelectQuestionOptions prompt = Ui.SelectQuestion()
         .Title("Target server")
-        .AddChoices(Choice.From(servers, s => s.Name, s => s.Site))
+        .Choices(Choice.From(servers, s => s.Name, s => s.Site))
         .Description("Type to filter; offline servers show why they cannot be picked.")
         .Default(servers[0]);
     foreach (Choice choice in prompt.Choices)
@@ -91,11 +91,9 @@ SelectQuestionOptions TaskPrompt()
     return Ui.SelectQuestion()
         .Multiple()
         .Title("Tasks")
-        .AddChoices(choices)
+        .Choices(choices)
         .Minimum(1)
-        .Configure(configured => configured.Preview = value => value is Job item
-            ? Preview(item)
-            : null)
+        .PreviewBy(value => value is Job item ? Preview(item) : null)
         .Default(tasks.Where(t => t.Id is "PatchStatus" or "DiskSpace").ToArray());
 }
 

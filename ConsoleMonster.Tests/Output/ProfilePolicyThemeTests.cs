@@ -22,9 +22,9 @@ namespace ConsoleMonster.Tests.Output {
         [InlineData(true)]
         public void ProfilePolicy_DefaultTargetThemeFollowsTheAdjustedProfile(bool explicitTheme) {
             RecordingTarget target = new RecordingTarget(TerminalProfile.Fixed(30, 10, ColorDepth.None, GlyphTier.Full)
-                .WithThemePreference(ThemePreference.Dark)) { Theme = explicitTheme ? Theme.Dark : null };
+                .WithThemeMode(ThemeMode.Dark)) { Theme = explicitTheme ? Theme.Dark : null };
             using (Terminal.Use(target)) {
-                using (Terminal.UseProfilePolicy(p => p.WithThemePreference(ThemePreference.Light))) {
+                using (Terminal.UseProfilePolicy(p => p.WithThemeMode(ThemeMode.Light))) {
                     Probe probe = new Probe();
                     Terminal.Write(probe);
                     Assert.Same(explicitTheme ? Theme.Dark : Theme.Light, probe.Theme);
@@ -43,21 +43,21 @@ namespace ConsoleMonster.Tests.Output {
             try {
                 themeSlot.SetValue(null, null);
                 Terminal.Profile = TerminalProfile.Fixed(30, 10, ColorDepth.None, GlyphTier.Full, OutputMode.Stream)
-                    .WithThemePreference(ThemePreference.Auto);
+                    .WithThemeMode(ThemeMode.Auto);
                 using (Terminal.Use(ConsoleTarget.Instance)) {
                     if (readBeforePolicy) Assert.Same(Theme.Dark, Terminal.Theme);
-                    using (Terminal.UseProfilePolicy(p => p.WithThemePreference(ThemePreference.Light))) {
+                    using (Terminal.UseProfilePolicy(p => p.WithThemeMode(ThemeMode.Light))) {
                         Probe probe = new Probe();
                         Terminal.Write(probe, null, new StringTerminalWriter());
                         Assert.Same(Theme.Light, probe.Theme);
-                        using (Terminal.UseProfilePolicy(p => p.WithThemePreference(ThemePreference.Dark))) {
+                        using (Terminal.UseProfilePolicy(p => p.WithThemeMode(ThemeMode.Dark))) {
                             Assert.Same(Theme.Dark, Terminal.Theme);
                         }
                         Assert.Same(Theme.Light, Terminal.Theme);
                     }
                     Assert.Same(Theme.Dark, Terminal.Theme);
                     Terminal.Theme = Theme.Dark;
-                    using (Terminal.UseProfilePolicy(p => p.WithThemePreference(ThemePreference.Light))) {
+                    using (Terminal.UseProfilePolicy(p => p.WithThemeMode(ThemeMode.Light))) {
                         Assert.Same(Theme.Dark, Terminal.Theme);
                     }
                 }
@@ -69,13 +69,13 @@ namespace ConsoleMonster.Tests.Output {
 
         [Fact]
         public async Task ProfilePolicy_TargetThemesRemainLocalToConcurrentFlows() {
-            await Task.WhenAll(Check(ThemePreference.Light, Theme.Light), Check(ThemePreference.Dark, Theme.Dark));
+            await Task.WhenAll(Check(ThemeMode.Light, Theme.Light), Check(ThemeMode.Dark, Theme.Dark));
         }
 
-        private static async Task Check(ThemePreference preference, ITheme expected) {
+        private static async Task Check(ThemeMode preference, ITheme expected) {
             RecordingTarget target = new RecordingTarget(TerminalProfile.Fixed(30, 10, ColorDepth.None, GlyphTier.Full)) { Theme = null };
             using (Terminal.Use(target))
-            using (Terminal.UseProfilePolicy(p => p.WithThemePreference(preference))) {
+            using (Terminal.UseProfilePolicy(p => p.WithThemeMode(preference))) {
                 await Task.Yield();
                 Probe probe = new Probe();
                 Terminal.Write(probe);

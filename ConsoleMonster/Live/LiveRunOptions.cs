@@ -1,7 +1,9 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Display settings for a single-use <see cref="LiveRun"/>. Configure these before creating the run.</summary>
+    [Fluent]
     public sealed class LiveRunOptions {
         /// <summary>The literal run name.</summary>
         public string Title { get; set; } = "Run";
@@ -22,6 +24,7 @@ namespace ConsoleMonster.Live {
         /// <summary>Optional report location included in the final summary.</summary>
         public string? ReportPath { get; set; }
         /// <summary>Optional monotonic run clock for an embedding host or deterministic capture.</summary>
+        [NoFluent]
         public Func<TimeSpan>? Clock { get; set; }
         /// <summary>Exclusive configuration for this run's target, output, theme and capture. Do not share it with another session. The run sets inline mode, cooperative cancellation, ten frames per second, height limit and final summary.</summary>
         public LiveSessionOptions? Session { get; set; }

@@ -21,7 +21,7 @@ public sealed class Distribution : IWidget {
     /// <summary>Adds a row without a bar, such as items that were not read.</summary>
     /// <param name="label">The literal label.</param><param name="count">The count.</param><param name="state">The note's state.</param><param name="note">A literal note in place of the bar.</param>
     /// <returns>This instance.</returns>
-    public Distribution AddNote(string label, long count, HealthState state, string note) {
+    public Distribution Note(string label, long count, HealthState state, string note) {
         _buckets.Add(new Bucket(label ?? string.Empty, count, state, note ?? string.Empty));
         return this;
     }

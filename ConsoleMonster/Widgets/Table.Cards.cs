@@ -23,7 +23,7 @@ namespace ConsoleMonster.Widgets {
             for (int index = 0; index < _rows.Count; index++) {
                 TableCell[] row = _rows[index];
                 if (sections) {
-                    view.AddSection(Markup.Escape(RowTitle(index, key, contexts)), RowTone(row, contexts));
+                    view.Section(Markup.Escape(RowTitle(index, key, contexts)), RowTone(row, contexts));
                 }
                 // Without a row heading, the table title does not represent the key's value.
                 // Keep that field so titled single-record tables do not lose their identity or first metric.
@@ -63,21 +63,21 @@ namespace ConsoleMonster.Widgets {
                         string note = seen < count
                             ? Localization.WidgetLabels.Format(presenter.Render.Labels.GroupOf, seen.ToString("N0", culture), count.ToString("N0", culture))
                             : count.ToString("N0", culture);
-                        view.AddSection(_groups[group], null, note);
+                        view.Section(_groups[group], null, note);
                         level = 1;
                     }
                 }
-                view.AddHeading(Markup.Escape(RowTitle(r, key, contexts)), level, RowTone(_rows[r], contexts));
+                view.Heading(Markup.Escape(RowTitle(r, key, contexts)), level, RowTone(_rows[r], contexts));
                 AddFields(view, _rows[r], key, contexts);
             }
             TableLayoutRow? total = BuildTotalRow(presenter);
             if (total?.Cells != null) {
-                view.AddHeading(Markup.Escape(TotalLabel ?? presenter.Render.Labels.Total), 0);
+                view.Heading(Markup.Escape(TotalLabel ?? presenter.Render.Labels.Total), 0);
                 for (int c = 0; c < _columns.Count; c++) {
                     if ((c == key && total.Cells[c].Widget == null) || total.Cells[c].IsEmpty) {
                         continue;
                     }
-                    view.AddField(Markup.Strip(_columns[c].Header), total.Cells[c].Widget is Layout.IWidget widget
+                    view.Field(Markup.Strip(_columns[c].Header), total.Cells[c].Widget is Layout.IWidget widget
                         ? TableCell.FromValue(widget) : new TableCell(Markup.Escape(total.Cells[c].Lines[0].PlainText)));
                 }
             }
@@ -115,7 +115,7 @@ namespace ConsoleMonster.Widgets {
 
         // The row's tone (from a status cell or a status presenter) colours its card title.
         private ThemeToken? RowTone(TableCell[] row, PresenterContext[] contexts) {
-            if (row.Length > 0 && row[0].RowRole is TableRowRole role && (role.Tone.HasValue || role.Muted)) return role.Tone ?? ThemeToken.Muted;
+            if (row.Length > 0 && row[0].RowRole is TableRowRole role && (role.Tone != Tone.None || role.Muted)) return role.Tone.ToToken() ?? ThemeToken.Muted;
             for (int c = 0; c < _columns.Count; c++) {
                 if (row[c].Status.HasValue) {
                     return row[c].Status!.Value.ToToken();

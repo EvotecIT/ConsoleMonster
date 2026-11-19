@@ -1,6 +1,6 @@
 namespace ConsoleMonster.Widgets {
-    // Generated widget extensions share this namespace class; these are the hand-written table helpers.
-    public static partial class WidgetsFluent {
+    /// <summary>The fluent methods of <see cref="Table"/>: the generated property methods and the handwritten table helpers.</summary>
+    public static partial class TableFluent {
         /// <summary>
         /// Adds a totals row that sums every numeric column (<see cref="Table.ShowTotals"/> with <see cref="Table.AutoTotals"/>);
         /// columns with their own <see cref="TableColumn.Aggregate"/> keep it.
@@ -24,10 +24,10 @@ namespace ConsoleMonster.Widgets {
         /// <param name="header">The header (markup).</param>
         /// <param name="configure">Configures the column (priority, presenter, overflow...), or null.</param>
         /// <returns>The same table.</returns>
-        public static TSelf AddColumn<TSelf>(this TSelf table, string header, System.Action<TableColumn> configure) where TSelf : Table {
+        public static TSelf Column<TSelf>(this TSelf table, string header, System.Action<TableColumn> configure) where TSelf : Table {
             TableColumn column = new TableColumn(header);
             configure?.Invoke(column);
-            table.AddColumn(column);
+            table.Column(column);
             return table;
         }
     }

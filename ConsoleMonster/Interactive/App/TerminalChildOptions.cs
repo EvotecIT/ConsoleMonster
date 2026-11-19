@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A child process launched on a real PTY/ConPTY while an application suspends its screen.</summary>
+    [Fluent]
     public sealed class TerminalChildOptions {
         /// <summary>Executable to launch, or null for the platform shell.</summary>
         public string? FileName { get; set; }

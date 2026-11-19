@@ -37,14 +37,14 @@ namespace ConsoleMonster.Interactive {
         }
 
         private static DocumentModel? FromMarkdown(MarkdownView markdown, string title) {
-            IReadOnlyList<MarkdownView.Heading> headings = markdown.Headings;
+            IReadOnlyList<MarkdownView.HeadingEntry> headings = markdown.Headings;
             if (headings.Count == 0) { return null; }
             IReadOnlyList<IWidget> blocks = markdown.Children;
             DocumentPart part = new DocumentPart(title);
             Slugs slugs = new Slugs();
             if (headings[0].Block > 0) { part.Sections.Add(new DocumentSection(string.Empty, 0, string.Empty, Body(blocks, 0, headings[0].Block))); }
             for (int i = 0; i < headings.Count; i++) {
-                MarkdownView.Heading heading = headings[i];
+                MarkdownView.HeadingEntry heading = headings[i];
                 int end = i + 1 < headings.Count ? headings[i + 1].Block : blocks.Count;
                 string text = heading.Text.PlainText.Trim();
                 part.Sections.Add(new DocumentSection(text, heading.Level, slugs.Next(text), Body(blocks, heading.Block + 1, end)));

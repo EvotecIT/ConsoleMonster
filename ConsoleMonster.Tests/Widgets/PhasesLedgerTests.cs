@@ -50,7 +50,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void AFinishedGroupFoldsIntoItsRowSoTheRunningStepStaysVisible() {
             var phases = new Phases { StepCounter = true };
             phases.Set("build", StatusKind.Pass, "Build", "14s").Set("sign", StatusKind.Running, "Sign NuGet packages");
-            for (int i = 1; i <= 149; i++) { phases.SetItem("sign", "p" + i, StatusKind.Pass, "Package " + i + "/149", "signed"); }
+            for (int i = 1; i <= 149; i++) { phases.Item("sign", "p" + i, StatusKind.Pass, "Package " + i + "/149", "signed"); }
             phases.Set("sign", StatusKind.Pass, null, "40s").Set("help", StatusKind.Running, "Extract help").Set("pack", StatusKind.Pending, "Pack");
             CellBuffer buffer = new CellBuffer(50, 6);
             phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(50, 6, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
@@ -157,7 +157,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void AnItemResultTooWideToShareTheRowGoesBelowItsLabel() {
             var phases = new Phases { StepCounter = true };
             phases.Set("sign", StatusKind.Running, "Sign");
-            phases.SetItem("sign", "p1", StatusKind.Pass, "Package one", "timestamped by fallback");
+            phases.Item("sign", "p1", StatusKind.Pass, "Package one", "timestamped by fallback");
             CellBuffer buffer = new CellBuffer(40, 4);
             phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(40, 4, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
             string[] rows = Enumerable.Range(0, buffer.Height).Select(y => buffer.GetRowText(y).TrimEnd()).ToArray();
@@ -171,7 +171,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void AFrontierStepTallerThanTheAreaStillShowsTheNextStep() {
             var phases = new Phases { StepCounter = true };
             phases.Set("build", StatusKind.Pass, "Build").Set("sign", StatusKind.Running, "Sign").Set("pack", StatusKind.Pending, "Pack");
-            for (int i = 1; i <= 20; i++) { phases.SetItem("sign", "p" + i, StatusKind.Running, "Package " + i); }
+            for (int i = 1; i <= 20; i++) { phases.Item("sign", "p" + i, StatusKind.Running, "Package " + i); }
             CellBuffer buffer = new CellBuffer(40, 6);
             phases.Render(new Region(buffer), Terminal.CreateContext(TerminalProfile.Fixed(40, 6, ColorDepth.None, GlyphTier.Ascii), Theme.Dark));
             string[] rows = Enumerable.Range(0, buffer.Height).Select(y => buffer.GetRowText(y).TrimEnd()).ToArray();
@@ -185,11 +185,11 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void KeysCannotContainTheItemSeparator() {
             string joined = "p" + Phases.ItemSeparator + "a";
-            var phases = new Phases().Set("p", StatusKind.Running).SetItem("p", "a", StatusKind.Running);
+            var phases = new Phases().Set("p", StatusKind.Running).Item("p", "a", StatusKind.Running);
             Assert.Throws<ArgumentException>(() => phases.Set(joined));
             Assert.Throws<ArgumentException>(() => phases.Insert(0, joined));
-            Assert.Throws<ArgumentException>(() => phases.SetItem("p", joined));
-            Assert.Throws<ArgumentException>(() => phases.SetSubItem("p", "a", joined));
+            Assert.Throws<ArgumentException>(() => phases.Item("p", joined));
+            Assert.Throws<ArgumentException>(() => phases.SubItem("p", "a", joined));
             Assert.Equal(new[] { "p" }, phases.Items.Select(p => p.Key));
         }
 

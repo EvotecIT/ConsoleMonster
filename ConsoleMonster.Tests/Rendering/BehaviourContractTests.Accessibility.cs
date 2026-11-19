@@ -119,20 +119,21 @@ namespace ConsoleMonster.Tests.Rendering {
         }
 
         [Theory]
-        [InlineData("highcontrast", false, false, ThemePreference.HighContrast)]
-        [InlineData("colorblind", false, false, ThemePreference.ColorBlind)]
-        [InlineData(null, true, true, ThemePreference.HighContrast)]
-        [InlineData("auto", true, true, ThemePreference.HighContrast)]
-        [InlineData("dark", true, true, ThemePreference.Dark)]
-        [InlineData("light", true, true, ThemePreference.Light)]
-        [InlineData(null, false, true, ThemePreference.Auto)]
-        public void ThemeDetection_RespectsNamedPalettesAndWindowsHighContrast(string? name, bool windows, bool systemHighContrast, ThemePreference expected) {
+        [InlineData("highcontrast", false, false, ThemeMode.Auto, ThemePalette.HighContrast)]
+        [InlineData("colorblind", false, false, ThemeMode.Auto, ThemePalette.ColorBlind)]
+        [InlineData(null, true, true, ThemeMode.Auto, ThemePalette.HighContrast)]
+        [InlineData("auto", true, true, ThemeMode.Auto, ThemePalette.HighContrast)]
+        [InlineData("dark", true, true, ThemeMode.Dark, ThemePalette.Default)]
+        [InlineData("light", true, true, ThemeMode.Light, ThemePalette.Default)]
+        [InlineData(null, false, true, ThemeMode.Auto, ThemePalette.Default)]
+        public void ThemeDetection_RespectsNamedPalettesAndWindowsHighContrast(string? name, bool windows, bool systemHighContrast, ThemeMode mode, ThemePalette palette) {
             var variables = new Dictionary<string, string> { ["CONSOLEMONSTER_ACCESSIBLE"] = "1" };
             if (name != null) variables["CONSOLEMONSTER_THEME"] = name;
             var profile = new CapabilityDetector(new TerminalEnvironment(systemHighContrast, variables, isWindows: windows)).Detect();
-            Assert.Equal(expected, profile.ThemePreference);
-            if (expected == ThemePreference.HighContrast) Assert.Same(Theme.HighContrast, Terminal.ResolveTheme(profile));
-            if (expected == ThemePreference.ColorBlind) Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile));
+            Assert.Equal(mode, profile.ThemeMode);
+            Assert.Equal(palette, profile.Palette);
+            if (palette == ThemePalette.HighContrast) Assert.Same(Theme.HighContrast, Terminal.ResolveTheme(profile));
+            if (palette == ThemePalette.ColorBlind) Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile));
             // Real rendering copies must retain accessible motion even after culture, size, mode and font refresh.
             profile = new CapabilityDetector(new TerminalEnvironment()).RefreshFont(profile.WithCulture(CultureInfo.InvariantCulture)
                 .WithLanguage(CultureInfo.InvariantCulture).WithSize(30, 5).WithMode(OutputMode.Interactive), "Cascadia Mono");

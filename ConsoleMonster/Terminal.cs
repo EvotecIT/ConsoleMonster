@@ -93,22 +93,24 @@ namespace ConsoleMonster {
             if (profile == null) {
                 throw new ArgumentNullException(nameof(profile));
             }
-            switch (profile.ThemePreference) {
-                case ThemePreference.Terminal: return Styling.Theme.Terminal;
-                case ThemePreference.HighContrast:
-                    return Styling.Theme.HighContrast;
-                case ThemePreference.ColorBlind:
-                    return DetectLight(profile) ? Styling.Theme.ColorBlindSafeLight : Styling.Theme.ColorBlindSafe;
-                case ThemePreference.ColorBlindLight:
-                    return Styling.Theme.ColorBlindSafeLight;
-                case ThemePreference.ColorBlindDark:
-                    return Styling.Theme.ColorBlindSafe;
-                case ThemePreference.Light:
-                    return Styling.Theme.Light;
-                case ThemePreference.Dark:
-                    return Styling.Theme.Dark;
-            }
+            ITheme? chosen = Chosen(profile, () => DetectLight(profile));
+            if (chosen != null) { return chosen; }
             return DetectLight(profile) ? Styling.Theme.Light : Styling.Theme.Dark;
+        }
+
+        // The theme a palette and mode name, or null when the mode is automatic and the palette standard.
+        private static ITheme? Chosen(TerminalProfile profile, Func<bool> light) {
+            switch (profile.Palette) {
+                case ThemePalette.Terminal: return Styling.Theme.Terminal;
+                case ThemePalette.HighContrast: return Styling.Theme.HighContrast;
+                case ThemePalette.ColorBlind:
+                    return profile.ThemeMode == ThemeMode.Light || profile.ThemeMode == ThemeMode.Auto && light() ? Styling.Theme.ColorBlindSafeLight : Styling.Theme.ColorBlindSafe;
+            }
+            switch (profile.ThemeMode) {
+                case ThemeMode.Light: return Styling.Theme.Light;
+                case ThemeMode.Dark: return Styling.Theme.Dark;
+                default: return null;
+            }
         }
 
         internal static bool DetectLight(TerminalProfile profile) =>
@@ -118,7 +120,7 @@ namespace ConsoleMonster {
         // so a light terminal got the dark palette. Ask once, outside Gate, only when the automatic choice depends on it.
         private static void ProbeBackground(TerminalProfile profile) {
             if (profile.Mode != OutputMode.Interactive || profile.ColorDepth == ColorDepth.None || profile.IsContinuousIntegration
-                || (profile.ThemePreference != ThemePreference.Auto && profile.ThemePreference != ThemePreference.ColorBlind)) { return; }
+                || profile.ThemeMode != ThemeMode.Auto || (profile.Palette != ThemePalette.Default && profile.Palette != ThemePalette.ColorBlind)) { return; }
             if (Output.TerminalBackground.ProbeForOutput()) { RefreshBackground(); }
         }
 
@@ -141,19 +143,10 @@ namespace ConsoleMonster {
                 lock (Gate) {
                     if (_theme != null) return _theme;
                     profile = Profile;
-                    detected = _detectedTheme ?? (_detectedTheme = ResolveTheme(profile.WithThemePreference(ThemePreference.Auto)));
+                    detected = _detectedTheme ?? (_detectedTheme = ResolveTheme(profile.WithThemeMode(ThemeMode.Auto).WithPalette(ThemePalette.Default)));
                 }
                 // Host callbacks and flow-local preferences must not be cached or invoked while holding Gate.
-                switch (ApplyProfilePolicy(profile).ThemePreference) {
-                    case ThemePreference.Terminal: return Styling.Theme.Terminal;
-                case ThemePreference.HighContrast: return Styling.Theme.HighContrast;
-                    case ThemePreference.ColorBlind: return ReferenceEquals(detected, Styling.Theme.Light) ? Styling.Theme.ColorBlindSafeLight : Styling.Theme.ColorBlindSafe;
-                    case ThemePreference.ColorBlindLight: return Styling.Theme.ColorBlindSafeLight;
-                    case ThemePreference.ColorBlindDark: return Styling.Theme.ColorBlindSafe;
-                    case ThemePreference.Light: return Styling.Theme.Light;
-                    case ThemePreference.Dark: return Styling.Theme.Dark;
-                    default: return detected;
-                }
+                return Chosen(ApplyProfilePolicy(profile), () => ReferenceEquals(detected, Styling.Theme.Light)) ?? detected;
             }
             set {
                 lock (Gate) { _theme = value ?? throw new ArgumentNullException(nameof(value)); }
@@ -165,7 +158,7 @@ namespace ConsoleMonster {
         internal static bool HasChosenTheme {
             get {
                 lock (Gate) { if (_theme != null) { return true; } }
-                return Profile.ThemePreference != ThemePreference.Auto || ConsoleSettings.ThemeFromSetting() != null;
+                return Profile.ThemeMode != ThemeMode.Auto || Profile.Palette != ThemePalette.Default || ConsoleSettings.ThemeFromSetting() != null;
             }
         }
 

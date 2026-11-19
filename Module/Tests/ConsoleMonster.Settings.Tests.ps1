@@ -45,8 +45,8 @@
 
     It 'keeps Terminal and an accessible scheme choice across fresh sessions' {
         $null = Invoke-SettingsChild -File $script:File -Script 'Set-ConsoleTheme Terminal -Save'
-        $next = Invoke-SettingsChild -File $script:File -Script '"theme=$((Get-ConsoleSetting Theme).Value);preference=$((Get-ConsoleCapability).ThemePreference)"'
-        $next | Should -Match 'theme=Terminal;preference=Terminal'
+        $next = Invoke-SettingsChild -File $script:File -Script '"theme=$((Get-ConsoleSetting Theme).Value);palette=$((Get-ConsoleCapability).Palette)"'
+        $next | Should -Match 'theme=Terminal;palette=Terminal'
         $source = Join-Path $script:Folder 'scheme.json'
         $theme = Join-Path $script:Folder 'scheme.theme.json'
         $data = Get-Content (Join-Path $PSScriptRoot '../../ConsoleMonster/Styling/Schemes/Dracula.json') -Raw | ConvertFrom-Json
@@ -67,19 +67,19 @@ Enable-ConsoleFormatting -Include Help -Save -Confirm:$false
         $next = Invoke-SettingsChild -File $script:File -Script @'
 $theme = Get-ConsoleSetting Theme
 "theme=$($theme.Value)/$($theme.Source)"
-"preference=$((Get-ConsoleCapability).ThemePreference)"
+"palette=$((Get-ConsoleCapability).Palette)"
 Enable-ConsoleFormatting -Confirm:$false
 "features=$((Get-ConsoleFormatting).Features -join ',')"
 '@
         $next | Should -Match 'theme=ColorBlindSafe/File'
-        $next | Should -Match 'preference=ColorBlind'
+        $next | Should -Match 'palette=ColorBlind'
         $next | Should -Match 'features=.*Help'
 
         $overridden = Invoke-SettingsChild -File $script:File -Environment @{ CONSOLEMONSTER_THEME = 'light' } -Script @'
 $theme = Get-ConsoleSetting Theme
 "theme=$($theme.Value)/$($theme.Source)"
 Set-ConsoleSetting Theme Dark
-"session=$((Get-ConsoleSetting Theme).Source)/$((Get-ConsoleCapability).ThemePreference)"
+"session=$((Get-ConsoleSetting Theme).Source)/$((Get-ConsoleCapability).ThemeMode)"
 '@
         $overridden | Should -Match 'theme=Light/Environment'
         $overridden | Should -Match 'session=Session/Dark'

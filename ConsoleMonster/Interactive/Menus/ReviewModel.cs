@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// What a review item shows: the app's current choices as label/value rows, the equivalent command line, problems that
     /// block running, and the run action. Built fresh each time the review is drawn, so it always matches the choices.
     /// </summary>
+    [Fluent]
     public sealed class ReviewModel {
         /// <summary>Creates a review.</summary>
         /// <param name="title">A heading, or null for the item title.</param>
@@ -29,7 +31,8 @@ namespace ConsoleMonster.Interactive {
         public IList<string> Problems { get; } = new List<string>();
 
         /// <summary>The run action.</summary>
-        public Action<MenuContext>? Run { get; set; }
+        [Fluent("Run")]
+        public Action<MenuContext>? Action { get; set; }
 
         /// <summary>The caption of the run button; null uses "Run".</summary>
         public string? RunText { get; set; }
@@ -40,14 +43,6 @@ namespace ConsoleMonster.Interactive {
         /// <returns>The review.</returns>
         public ReviewModel Row(string label, string? value) {
             Rows.Add(new KeyValuePair<string, string>(label, value ?? string.Empty));
-            return this;
-        }
-
-        /// <summary>Adds a problem that blocks running.</summary>
-        /// <param name="problem">The problem.</param>
-        /// <returns>The review.</returns>
-        public ReviewModel Problem(string problem) {
-            Problems.Add(problem);
             return this;
         }
 

@@ -7,6 +7,7 @@ using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>A labelled status grid with contiguous axis bands, a counted legend and explicit narrow fallbacks.</summary>
@@ -94,6 +95,7 @@ namespace ConsoleMonster.Widgets {
         public int MaxListRows { get; set; } = 10;
 
         /// <summary>Classifies supplied statuses for the attention list; null uses Pass, Skip and absent as healthy.</summary>
+        [Fluent("HealthyWhen")]
         public Func<StatusKind?, bool>? IsHealthy { get; set; }
 
         /// <summary>Sets an observation without deriving health or assuming the axes describe the same entities.</summary>
@@ -103,7 +105,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="text">Optional short plain text.</param>
         /// <param name="diagonal">True for an explicit self marker.</param>
         /// <returns>This matrix.</returns>
-        public Matrix SetCell(int row, int column, StatusKind? status, string? text = null, bool diagonal = false) {
+        public Matrix Cell(int row, int column, StatusKind? status, string? text = null, bool diagonal = false) {
             CheckIndex(row, column);
             _cells[(row, column)] = new MatrixCell(status, text, diagonal);
             return this;
@@ -117,7 +119,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="marker">A literal marker; null retains the built-in glyph. Explicit self cells retain their self marker.</param>
         /// <param name="diagonal">True for an explicit self marker.</param>
         /// <returns>This matrix.</returns>
-        public Matrix SetCell(int row, int column, StatusKind? status, string? text, string? marker, bool diagonal = false) {
+        public Matrix Cell(int row, int column, StatusKind? status, string? text, string? marker, bool diagonal = false) {
             CheckIndex(row, column);
             _cells[(row, column)] = new MatrixCell(status, text, diagonal, marker);
             return this;

@@ -17,15 +17,15 @@ namespace ConsoleMonster.Tests.Widgets {
             FrameComposer.RenderBlock(view, width, new RenderContext(TerminalProfile.Fixed(width, 30, ColorDepth.TrueColor, tier).WithHyperlinks(links), Theme.Dark));
 
         private static MarkdownView Sample() => new MarkdownView()
-            .AddHeading(RichText.Plain("Deployment [literal]"))
-            .AddParagraph(new RichTextBuilder().Append("Read ").AppendLink("the guide", "https://example.org/guide").Append(" before continuing.").Build())
-            .AddQuote(new MarkdownView().AddParagraph(RichText.Plain("Keep the rollback plan close.")))
-            .AddList(new[] {
-                new MarkdownView().AddParagraph(RichText.Plain("Verify the target.")),
-                new MarkdownView().AddParagraph(RichText.Plain("Deploy the approved build."))
+            .Heading(RichText.Plain("Deployment [literal]"))
+            .Paragraph(new RichTextBuilder().Append("Read ").AppendLink("the guide", "https://example.org/guide").Append(" before continuing.").Build())
+            .Quote(new MarkdownView().Paragraph(RichText.Plain("Keep the rollback plan close.")))
+            .List(new[] {
+                new MarkdownView().Paragraph(RichText.Plain("Verify the target.")),
+                new MarkdownView().Paragraph(RichText.Plain("Deploy the approved build."))
             }, 3)
-            .AddCode("Get-Service | Select-Object Name", "powershell")
-            .AddTable(new[] { RichText.Plain("Host"), RichText.Plain("State") }, new[] {
+            .Code("Get-Service | Select-Object Name", "powershell")
+            .Table(new[] { RichText.Plain("Host"), RichText.Plain("State") }, new[] {
                 new[] { RichText.Plain("LAB01"), RichText.Plain("Ready") },
                 new[] { RichText.Plain("LAB02"), RichText.Plain("Waiting") }
             });
@@ -52,7 +52,7 @@ namespace ConsoleMonster.Tests.Widgets {
                 RenderContext context = new RenderContext(profile, Theme.Dark);
                 for (int level = 1; level <= 6; level++) {
                     CellBuffer frame = FrameComposer.RenderBlock(
-                        new MarkdownView().AddHeading(RichText.Plain("Section"), level), 28, context);
+                        new MarkdownView().Heading(RichText.Plain("Section"), level), 28, context);
                     string[] lines = frame.ToPlainText().Split('\n');
                     Assert.Equal(level <= 2 ? 2 : 1, lines.Length);
                     Assert.Equal(level <= 2 ? "Section" : new string('#', level) + " Section", lines[0]);
@@ -75,7 +75,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void InlineLinks_KeepTargetsOrShowMutedUrl() {
             RichText label = new RichTextBuilder().AppendLink("Read ", "https://example.org")
                 .AppendLink("more", "https://example.org", new RichStyle(decoration: TextDecoration.Bold)).Build();
-            MarkdownView view = new MarkdownView().AddParagraph(label);
+            MarkdownView view = new MarkdownView().Paragraph(label);
             CellBuffer linked = Render(view, links: true);
             Assert.Equal("Read more", linked.ToPlainText());
             Assert.Equal("https://example.org", linked[0, 0].Style.Link);
@@ -88,15 +88,15 @@ namespace ConsoleMonster.Tests.Widgets {
             string wrapped = Render(view, 12).ToPlainText().Replace("\n", string.Empty).Replace(" ", string.Empty);
             Assert.Equal("Readmore(https://example.org)", wrapped);
             RichText address = new RichTextBuilder().AppendLink("https://example.org", "https://example.org").Build();
-            Assert.Equal("https://example.org", Render(new MarkdownView().AddParagraph(address)).ToPlainText());
+            Assert.Equal("https://example.org", Render(new MarkdownView().Paragraph(address)).ToPlainText());
             RichText unsupported = new RichTextBuilder().AppendLink("note", "notes:topic").Build();
-            Assert.Equal("note (notes:topic)", Render(new MarkdownView().AddParagraph(unsupported), links: true).ToPlainText());
+            Assert.Equal("note (notes:topic)", Render(new MarkdownView().Paragraph(unsupported), links: true).ToPlainText());
         }
 
         [Fact]
         public void ListsAndQuotes_ReflowWithHangingIndent() {
-            MarkdownView view = new MarkdownView().AddQuote(new MarkdownView().AddList(new[] {
-                new MarkdownView().AddParagraph(RichText.Plain("alpha beta gamma delta"))
+            MarkdownView view = new MarkdownView().Quote(new MarkdownView().List(new[] {
+                new MarkdownView().Paragraph(RichText.Plain("alpha beta gamma delta"))
             }, 9));
             string[] lines = Render(view, 16).ToPlainText().TrimEnd('\n').Split('\n');
             Assert.Equal(new[] { "│ 9. alpha beta", "│    gamma delta" }, lines);
@@ -105,7 +105,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Code_UsesRegisteredHighlighterAndUnknownLanguageFallsBack() {
-            MarkdownView view = new MarkdownView().AddCode("{\"enabled\": true}", "json");
+            MarkdownView view = new MarkdownView().Code("{\"enabled\": true}", "json");
             CellBuffer buffer = Render(view);
             Assert.Contains("json", buffer.ToPlainText());
             Assert.Contains("\"enabled\": true", buffer.ToPlainText());
@@ -116,13 +116,13 @@ namespace ConsoleMonster.Tests.Widgets {
                 }
             }
             Assert.True(styles.Count > 1, "Code tokens should carry the registered highlighter's distinct styles.");
-            Assert.Contains("unregistered-language", Render(new MarkdownView().AddCode("[fail]literal[/]", "unregistered-language")).ToPlainText());
-            Assert.Contains("[fail]literal[/]", Render(new MarkdownView().AddCode("[fail]literal[/]", "unregistered-language")).ToPlainText());
+            Assert.Contains("unregistered-language", Render(new MarkdownView().Code("[fail]literal[/]", "unregistered-language")).ToPlainText());
+            Assert.Contains("[fail]literal[/]", Render(new MarkdownView().Code("[fail]literal[/]", "unregistered-language")).ToPlainText());
         }
 
         [Fact]
         public void Tables_UseNativeLayoutAndKeepCells() {
-            MarkdownView table = new MarkdownView().AddTable(new[] { RichText.Plain("Name"), RichText.Plain("Notes") }, new[] {
+            MarkdownView table = new MarkdownView().Table(new[] { RichText.Plain("Name"), RichText.Plain("Notes") }, new[] {
                 new[] { RichText.Plain("alpha"), RichText.Plain("one two three four five six seven eight nine ten eleven twelve") },
                 new[] { RichText.Plain("beta"), new RichTextBuilder().AppendLink("guide", "https://example.org").Build() }
             }, new HorizontalAlignment?[] { HorizontalAlignment.Left, HorizontalAlignment.Right });
@@ -136,7 +136,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void SingleRowTable_PreservesHeaderGridAndAlignment() {
-            MarkdownView view = new MarkdownView().AddTable(
+            MarkdownView view = new MarkdownView().Table(
                 new[] { RichText.Plain("Name"), RichText.Plain("Count"), RichText.Plain("State") },
                 new[] { new[] { RichText.Plain("alpha"), RichText.Plain("12"), RichText.Plain("Ready") } },
                 new HorizontalAlignment?[] { HorizontalAlignment.Left, HorizontalAlignment.Right, HorizontalAlignment.Left });
@@ -156,7 +156,7 @@ namespace ConsoleMonster.Tests.Widgets {
             RichText[] headers = names.Select(name => RichText.Plain(name)).ToArray();
             RichText linked = new RichTextBuilder().AppendLink(
                 "START first second third fourth fifth KEY_END", "https://example.org/key").Build();
-            MarkdownView view = new MarkdownView().AddTable(headers, new[] {
+            MarkdownView view = new MarkdownView().Table(headers, new[] {
                 new[] { linked, RichText.Plain("staging"), RichText.Plain("passed"), RichText.Plain("window"), RichText.Plain("ONLY_EVIDENCE") }
             });
             foreach (int width in new[] { 60, 40 }) {
@@ -175,7 +175,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void LongTableHeaders_WrapWithoutLosingTheirSuffix() {
-            MarkdownView view = new MarkdownView().AddTable(new[] {
+            MarkdownView view = new MarkdownView().Table(new[] {
                 RichText.Plain("Host"), RichText.Plain("Required approval before deployment ONLY_HEADER_SUFFIX")
             }, new[] { new[] { RichText.Plain("web-01"), RichText.Plain("ready") } });
             string text = Render(view, 40).ToPlainText();
@@ -187,14 +187,14 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void InvalidStructure_RejectsMalformedInput() {
             MarkdownView view = new MarkdownView();
-            Assert.Throws<ArgumentOutOfRangeException>(() => view.AddHeading(RichText.Plain("bad"), 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => view.Heading(RichText.Plain("bad"), 0));
             for (int level = 1; level <= 6; level++) {
-                Assert.Throws<ArgumentNullException>(() => view.AddHeading(null!, level));
+                Assert.Throws<ArgumentNullException>(() => view.Heading(null!, level));
             }
-            Assert.Throws<ArgumentException>(() => view.AddTable(new[] { RichText.Plain("Header") }, new[] { Array.Empty<RichText>() }));
-            Assert.Throws<ArgumentException>(() => view.AddBlock(view));
-            Assert.Throws<ArgumentException>(() => view.AddQuote(view));
-            Assert.Throws<ArgumentException>(() => view.AddList(new[] { view }));
+            Assert.Throws<ArgumentException>(() => view.Table(new[] { RichText.Plain("Header") }, new[] { Array.Empty<RichText>() }));
+            Assert.Throws<ArgumentException>(() => view.Block(view));
+            Assert.Throws<ArgumentException>(() => view.Quote(view));
+            Assert.Throws<ArgumentException>(() => view.List(new[] { view }));
             Assert.Equal(0, Render(view).Height);
         }
     }

@@ -8,7 +8,7 @@ namespace ConsoleMonster.Tests.Widgets {
     public sealed class SummaryBarProgressTests {
         [Fact]
         public void Apply_ProgressKeepingTheTotal_ChangesOnlyDone() {
-            SummaryBar bar = new SummaryBar().SetProgress(0, 40);
+            SummaryBar bar = new SummaryBar().Progress(0, 40);
             bar.Apply(new LiveEvent("summary", "progress", value: 12, total: SummaryBar.Keep));
             Assert.Equal(12, bar.Value);
             Assert.Equal(40, bar.Total);
@@ -16,7 +16,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Apply_ProgressKeepingDone_ChangesOnlyTheTotal() {
-            SummaryBar bar = new SummaryBar().SetProgress(12, 40);
+            SummaryBar bar = new SummaryBar().Progress(12, 40);
             bar.Apply(new LiveEvent("summary", "progress", value: double.NaN, total: 80));
             Assert.Equal(12, bar.Value);
             Assert.Equal(80, bar.Total);
@@ -34,7 +34,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Apply_ZeroTotal_StillMeansUnknown() {
-            SummaryBar bar = new SummaryBar().SetProgress(3, 10);
+            SummaryBar bar = new SummaryBar().Progress(3, 10);
             bar.Apply(new LiveEvent("summary", "progress", value: 4, total: 0));
             Assert.Equal(4, bar.Value);
             Assert.Equal(0, bar.Total);

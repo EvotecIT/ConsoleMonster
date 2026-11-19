@@ -31,8 +31,8 @@ namespace ConsoleMonster.Tests.Output {
         [Fact]
         public void StreamedLongTableKeepsTextThatCodePageCanEncode() {
             TerminalProfile profile = Redirected(852);
-            Table table = new Table().AddColumn("Name");
-            for (int i = 0; i <= Terminal.StreamingRowThreshold; i++) table.AddRow("Zażółć");
+            Table table = new Table().Column("Name");
+            for (int i = 0; i <= Terminal.StreamingRowThreshold; i++) table.Row("Zażółć");
             StringTerminalWriter writer = new StringTerminalWriter();
 
             using (ITerminalOutput output = Terminal.CreateOutput(profile, writer)) {

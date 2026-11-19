@@ -4,6 +4,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
+using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>A composition of <see cref="Table"/> with a dedicated marker column and whole-row roles.</summary>
@@ -13,14 +14,14 @@ namespace ConsoleMonster.Widgets {
         public RoleTable(IEnumerable<TableColumn> columns) {
             if (columns == null) throw new ArgumentNullException(nameof(columns));
             Table = new Table();
-            Table.AddColumn(new TableColumn(string.Empty) { Width = 2, Priority = int.MaxValue });
+            Table.Column(new TableColumn(string.Empty) { Width = 2, Priority = int.MaxValue });
             List<TableColumn> supplied = new List<TableColumn>(columns);
             bool hasKey = supplied.Exists(column => column != null && column.IsKey);
             for (int i = 0; i < supplied.Count; i++) {
                 TableColumn source = supplied[i] ?? throw new ArgumentException("Columns cannot be null.", nameof(columns));
                 TableColumn copy = CopyColumn(source);
                 if (!hasKey && i == 0) copy.IsKey = true;
-                Table.AddColumn(copy);
+                Table.Column(copy);
             }
         }
 
@@ -34,12 +35,12 @@ namespace ConsoleMonster.Widgets {
         /// <param name="role">The row role, or null for an ordinary unmarked row.</param>
         /// <param name="cells">The data cells, excluding the marker column.</param>
         /// <returns>This widget.</returns>
-        public RoleTable AddRow(TableRowRole? role, params TableCell[] cells) {
+        public RoleTable Row(TableRowRole? role, params TableCell[] cells) {
             if (cells == null) throw new ArgumentNullException(nameof(cells));
             TableCell[] row = new TableCell[cells.Length + 1];
             row[0] = TableCell.FromValue(new MarkerWidget(role));
             Array.Copy(cells, 0, row, 1, cells.Length);
-            if (role == null) Table.AddRow(row); else Table.AddRow(role, row);
+            if (role == null) Table.Row(row); else Table.Row(role, row);
             return this;
         }
 
@@ -67,7 +68,7 @@ namespace ConsoleMonster.Widgets {
             internal MarkerWidget(TableRowRole? role) { _role = role; }
             private string Text(RenderContext context) => (context.Glyphs.Tier == GlyphTier.Ascii ? _role?.AsciiMarker ?? _role?.Marker : _role?.Marker) ?? string.Empty;
             public Size Measure(Constraints constraints, RenderContext context) => new Size(Math.Min(DisplayWidth.Measure(Text(context)), constraints.MaxWidth), Math.Min(1, constraints.MaxHeight));
-            public void Render(Region region, RenderContext context) => region.Write(0, 0, Text(context), _role?.MarkerTone is Styling.ThemeToken tone ? context.Style(tone) : _role?.Style(context) ?? Styling.Style.Plain);
+            public void Render(Region region, RenderContext context) => region.Write(0, 0, Text(context), _role?.MarkerTone.ToToken() is Styling.ThemeToken tone ? context.Style(tone) : _role?.Style(context) ?? Styling.Style.Plain);
         }
     }
 }

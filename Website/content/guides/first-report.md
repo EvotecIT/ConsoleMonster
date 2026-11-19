@@ -189,9 +189,9 @@ ConsoleExporter.Save(report, "server-report.txt", options: options);
 <div class="cm-lang" data-lang="csharp-fluent">
 
 ```csharp
-report.Export("server-report.html", options => options.Width = 80);
-report.Export("server-report.svg", options => options.Width = 80);
-report.Export("server-report.txt", options => options.Width = 80);
+report.Save("server-report.html", options => options.Width = 80);
+report.Save("server-report.svg", options => options.Width = 80);
+report.Save("server-report.txt", options => options.Width = 80);
 ```
 
 </div>

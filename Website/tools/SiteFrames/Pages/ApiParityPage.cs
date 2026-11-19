@@ -19,7 +19,7 @@ namespace SiteFrames.Pages {
             body.AppendLine("Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.\n");
             body.AppendLine("PowerShell exports use individual parameters, for example `Export-ConsoleFrame -Format Html -Width 100`. C# export calls accept typed ExportOptions configuration.\n");
             foreach (JsonNode? rule in map["FluentExceptions"]!.AsArray()) {
-                body.AppendLine("Callback properties use `" + rule!["Pattern"]!.GetValue<string>().Replace("{Member}", "Action", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
+                body.AppendLine("Callback properties use their declared verb, `" + rule!["Pattern"]!.GetValue<string>().Replace("{Verb}", "Run", StringComparison.Ordinal) + "`. " + rule["Reason"]!.GetValue<string>() + "\n");
             }
             body.AppendLine("## Fluent construction and nesting\n");
             body.AppendLine("Ui is the fluent entry point: New-ConsolePanel becomes Ui.Panel(), named settings stay in the chain, and nested Content uses c.Panel(p => …). Initializers retain constructors. Factories accept no positional configuration; the recorded primary inputs below are the only exceptions. Typed chart and progress factories return their concrete widgets directly. Chart, Progress and kind-selected inputs also expose their existing options through Build.\n");

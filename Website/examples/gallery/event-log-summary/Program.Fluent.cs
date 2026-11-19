@@ -46,12 +46,14 @@ int peak = Array.IndexOf(errorsPerHour, errorsPerHour.Max());
 var topIds = eventIds.OrderByDescending(row => row.Count).ToArray();
 
 // Layout: headline, the 24-hour trend, the noisiest sources beside the top IDs, then criticals.
-var errors = Ui.Sparkline().Title("errors").Height(3).Role(ThemeToken.Fail);
-errors.AddRange(errorsPerHour);
+var errors = Ui.Sparkline().Title("errors").Height(3).Role(ThemeToken.Fail).Values(errorsPerHour);
 foreach (int hour in Enumerable.Range(0, 24))
     errors.Labels.Add($"{hour:00}:00");
-var warnings = Ui.Sparkline().Title("warnings").Height(3).Role(ThemeToken.Warn);
-warnings.AddRange(warningsPerHour);
+var warnings = Ui.Sparkline()
+    .Title("warnings")
+    .Height(3)
+    .Role(ThemeToken.Warn)
+    .Values(warningsPerHour);
 foreach (int hour in Enumerable.Range(0, 24))
     warnings.Labels.Add($"{hour:00}:00");
 var noisiest = Ui.BarChart();

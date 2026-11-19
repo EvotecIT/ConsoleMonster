@@ -167,18 +167,18 @@ namespace ConsoleMonster.PowerShell {
                 || (Format == null && Path != null && string.Equals(System.IO.Path.GetExtension(Path), ".json", System.StringComparison.OrdinalIgnoreCase));
             string selectedFormat = PSOutputExport.FormatFor(playerData ? "Html" : Format, Path);
             bool markdown = PSOutputExport.IsMarkdown(selectedFormat);
-            ExportFormat format = markdown ? ExportFormat.Html : PSOutputExport.CoreFormat(selectedFormat);
-            if (ParameterSetName == "Dashboard" && format == ExportFormat.Text) { format = ExportFormat.Html; }
+            OutputFormat format = markdown ? OutputFormat.Html : PSOutputExport.CoreFormat(selectedFormat);
+            if (ParameterSetName == "Dashboard" && format == OutputFormat.Text) { format = OutputFormat.Html; }
 
             string document;
             using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
                 if (ParameterSetName == "Session") {
                     SessionRecording session = SessionRecording.Read(reader);
-                    document = FinalFrame.IsPresent ? session.ExportFinalSvg(options.ToFrameOptions())
-                        : playerData ? session.ExportPlayerData(options) : markdown ? MarkdownExportBridge.Recording(session) : session.Export(format, options);
+                    document = FinalFrame.IsPresent ? session.ToFinalSvg(options.ToFrameOptions())
+                        : playerData ? session.ToPlayerData(options) : markdown ? MarkdownExportBridge.Recording(session) : session.Render(format, options).ToText();
                 } else {
-                    document = playerData ? Export.Recording.ExportPlayerData(Dashboard, reader, options)
-                        : markdown ? MarkdownExportBridge.Dashboard(Dashboard, reader, options) : Export.Recording.Export(Dashboard, reader, format, options);
+                    document = playerData ? Export.Recording.ToPlayerData(Dashboard, reader, options)
+                        : markdown ? MarkdownExportBridge.Dashboard(Dashboard, reader, options) : Export.Recording.Render(Dashboard, reader, format, options).ToText();
                 }
             }
             if (Path == null) {

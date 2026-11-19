@@ -1244,10 +1244,10 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Export.FrameExporter",
-          "Member": "Export",
+          "Member": "Render",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
+          "CSharpTypeName": "ConsoleMonster.Export.OutputFormat",
           "Argument": "format"
         },
         {
@@ -1693,11 +1693,11 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Export.Recording",
-          "Member": "Export",
+          "Member": "Render",
           "Argument": "format",
           "MemberKind": "Method",
           "Conversion": "Identity",
-          "CSharpTypeName": "ConsoleMonster.Export.ExportFormat"
+          "CSharpTypeName": "ConsoleMonster.Export.OutputFormat"
         },
         {
           "Parameter": "FramesPerSecond",
@@ -1886,7 +1886,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Graphics.ConsoleGraphicsExtensions",
-          "Member": "SaveChapterPngs",
+          "Member": "SaveChapters",
           "MemberKind": "Method",
           "Conversion": "EnumDiscriminator",
           "CSharpTypeName": null,
@@ -2946,7 +2946,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Sessions.SessionRecording",
-          "Member": "ExportFinalSvg",
+          "Member": "ToFinalSvg",
           "MemberKind": "Method",
           "Conversion": "EnumDiscriminator",
           "CSharpTypeName": null,
@@ -4635,7 +4635,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "AddItem",
+          "Member": "Item",
           "MemberKind": "Method",
           "Conversion": "HostAdaptation",
           "CSharpTypeName": "System.String",
@@ -4834,7 +4834,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.ChartOptions",
-          "Member": "AddItem",
+          "Member": "Item",
           "MemberKind": "Method",
           "Conversion": "HostAdaptation",
           "CSharpTypeName": "System.Double",
@@ -6653,13 +6653,14 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.FormDialogOptions",
-          "Member": "Validate",
+          "Member": "Validator",
           "MemberKind": "Property",
           "Conversion": "Identity",
           "CSharpTypeName": "System.Func`2[ConsoleMonster.Interactive.AppState,System.String]",
           "Nullable": "Nullable",
           "Writable": true,
-          "Static": false
+          "Static": false,
+          "Reason": "The parameter keeps its 2.x name, which is also the fluent verb Validate(...) that sets the Validator property."
         }
       ]
     },
@@ -9379,8 +9380,8 @@
         },
         {
           "Parameter": "Icon",
-          "ParameterType": "System.String",
-          "Default": null,
+          "ParameterType": "ConsoleMonster.Icon",
+          "Default": "",
           "Sets": [
             {
               "Name": "__AllParameterSets",
@@ -9392,14 +9393,14 @@
           "Member": "Icon",
           "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.String",
-          "Nullable": "Nullable",
+          "CSharpTypeName": "ConsoleMonster.Icon",
+          "Nullable": "NotNull",
           "Writable": true,
           "Static": false
         },
         {
-          "Parameter": "IconName",
-          "ParameterType": "System.Nullable`1[ConsoleMonster.Glyphs.GlyphIcon]",
+          "Parameter": "Mark",
+          "ParameterType": "System.String",
           "Default": null,
           "Sets": [
             {
@@ -9409,10 +9410,10 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Interactive.MenuItem",
-          "Member": "IconName",
+          "Member": "Mark",
           "MemberKind": "Property",
           "Conversion": "Identity",
-          "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Glyphs.GlyphIcon]",
+          "CSharpTypeName": "System.String",
           "Nullable": "Nullable",
           "Writable": true,
           "Static": false
@@ -11909,7 +11910,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.SummaryBar",
-          "Member": "SetCounter",
+          "Member": "Counter",
           "MemberKind": "Method",
           "Conversion": "RecordCollection",
           "CSharpTypeName": "System.Int32",
@@ -12003,7 +12004,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.SummaryBar",
-          "Member": "SetProgress",
+          "Member": "Progress",
           "Argument": "total",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -12021,7 +12022,7 @@
             }
           ],
           "CSharpType": "ConsoleMonster.Widgets.SummaryBar",
-          "Member": "SetProgress",
+          "Member": "Progress",
           "Argument": "value",
           "MemberKind": "Method",
           "Conversion": "Identity",
@@ -17469,7 +17470,7 @@
           "Writable": false,
           "Static": false,
           "Reason": "Adds definitions to the same Command collection used by grids and buttons.",
-          "FluentMember": "AddCommand"
+          "FluentMember": "Command"
         },
         {
           "Parameter": "Content",
@@ -18023,7 +18024,7 @@
           "Writable": false,
           "Static": false,
           "Reason": "Definitions or script-block shorthand become the same core AppCommand collection.",
-          "FluentMember": "AddCommand"
+          "FluentMember": "Command"
         },
         {
           "Parameter": "Culture",
@@ -18085,7 +18086,7 @@
           "Nullable": "Unknown",
           "Writable": false,
           "Static": false,
-          "FluentMember": "AddHiddenColumn"
+          "FluentMember": "HiddenColumn"
         },
         {
           "Parameter": "InputObject",
@@ -27093,9 +27094,9 @@
     {
       "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
       "Member": "Tone",
-      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "CSharpTypeName": "ConsoleMonster.Tone",
       "Reason": "A whole-row semantic tone is independent of the ordinary column presentation policy.",
-      "Alternative": "Set Tone on TableRowRole and supply that role to native Table.AddRow.",
+      "Alternative": "Set Tone on TableRowRole and supply that role to native Table.Row.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -27301,9 +27302,9 @@
     {
       "CSharpType": "ConsoleMonster.Widgets.TreeNode",
       "Member": "MarkerTone",
-      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "CSharpTypeName": "ConsoleMonster.Tone",
       "Reason": "The marker tone can express application meaning independently of the node status and label style.",
-      "Alternative": "Set MarkerTone to a ThemeToken on native TreeNode instances before passing their tree to Show-Console.",
+      "Alternative": "Set MarkerTone to a Tone on native TreeNode instances before passing their tree to Show-Console.",
       "Disposition": "CSharpOnly"
     },
     {
@@ -27549,7 +27550,7 @@
     {
       "CSharpType": "ConsoleMonster.Widgets.TableRowRole",
       "Member": "MarkerTone",
-      "CSharpTypeName": "System.Nullable`1[ConsoleMonster.Styling.ThemeToken]",
+      "CSharpTypeName": "ConsoleMonster.Tone",
       "Reason": "A row marker tone is supplied independently of the row label and status.",
       "Alternative": "Set MarkerTone on a native TableRowRole used by the table builder.",
       "Disposition": "CSharpOnly"
@@ -29933,7 +29934,6 @@
     "ConsoleMonster.Capabilities.OutputMode",
     "ConsoleMonster.Capabilities.TerminalKind",
     "ConsoleMonster.Capabilities.TerminalProfile",
-    "ConsoleMonster.Capabilities.ThemePreference",
     "ConsoleMonster.Changes.BaselineCell",
     "ConsoleMonster.Changes.BaselineComparison",
     "ConsoleMonster.Changes.BaselineRow",
@@ -29987,7 +29987,6 @@
     "ConsoleMonster.Frames.HealthState",
     "ConsoleMonster.Frames.Meter",
     "ConsoleMonster.Glyphs.BoxStyle",
-    "ConsoleMonster.Glyphs.GlyphIcon",
     "ConsoleMonster.Graphics.ConsoleImage",
     "ConsoleMonster.Graphics.GraphicsBackground",
     "ConsoleMonster.Graphics.GraphicsExportOptions",
@@ -30286,7 +30285,6 @@
     "ConsoleMonster.Widgets.TableBorder",
     "ConsoleMonster.Widgets.TableCell",
     "ConsoleMonster.Widgets.TableColumn",
-    "ConsoleMonster.Widgets.TableRowRole",
     "ConsoleMonster.Widgets.Tabs",
     "ConsoleMonster.Widgets.TextBlock",
     "ConsoleMonster.Widgets.TextOverflow",
@@ -30306,7 +30304,12 @@
     "ConsoleMonster.Export.IFrameExportProvider",
     "ConsoleMonster.Styling.TerminalScheme",
     "ConsoleMonster.Widgets.ViewFact",
-    "ConsoleMonster.Widgets.ViewFacts"
+    "ConsoleMonster.Widgets.ViewFacts",
+    "ConsoleMonster.Capabilities.ThemePalette",
+    "ConsoleMonster.Export.OutputFormat",
+    "ConsoleMonster.Icon",
+    "ConsoleMonster.ThemeMode",
+    "ConsoleMonster.Tone"
   ],
   "RelatedBindings": [
     {
@@ -32941,7 +32944,7 @@
       "Member": "Save",
       "Argument": "widget",
       "FluentType": "ConsoleMonster.WidgetPipeline",
-      "FluentMember": "Export",
+      "FluentMember": "Save",
       "FluentArgument": "path"
     }
   ],
@@ -33047,9 +33050,9 @@
   "FluentExceptions": [
     {
       "Kind": "DelegateProperty",
-      "Method": "Configure",
-      "Pattern": ".Configure(item => item.{Member} = …)",
-      "Reason": "C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it."
+      "Method": "[Fluent(\"Verb\")]",
+      "Pattern": ".{Verb}(callback)",
+      "Reason": "C# invokes a delegate-valued property before considering an extension with that name, so each callback property declares its verb: ShowWhen, PreviewBy, WhenChanged, Run."
     }
   ],
   "FluentGrammar": {
@@ -33068,49 +33071,49 @@
         {
           "Command": "New-ConsolePanel",
           "CSharpType": "ConsoleMonster.Layout.Panel",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.PanelFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleRows",
           "CSharpType": "ConsoleMonster.Layout.Rows",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.RowsFluent",
           "Member": "Content",
           "InitializerPattern": "new Rows(widgets)"
         },
         {
           "Command": "New-ConsoleColumns",
           "CSharpType": "ConsoleMonster.Layout.Columns",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.ColumnsFluent",
           "Member": "Content",
           "InitializerPattern": "new Columns(widgets)"
         },
         {
           "Command": "New-ConsoleStack",
           "CSharpType": "ConsoleMonster.Layout.Stack",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.StackFluent",
           "Member": "Content",
           "InitializerPattern": "new Stack(widgets)"
         },
         {
           "Command": "New-ConsoleLayoutGrid",
           "CSharpType": "ConsoleMonster.Layout.LayoutGrid",
-          "FluentType": "ConsoleMonster.Layout.LayoutFluent",
+          "FluentType": "ConsoleMonster.Layout.LayoutGridFluent",
           "Member": "Content",
           "InitializerPattern": "new LayoutGrid(columns, widgets)"
         },
         {
           "Command": "New-ConsoleScrollView",
           "CSharpType": "ConsoleMonster.Widgets.ScrollView",
-          "FluentType": "ConsoleMonster.Widgets.WidgetsFluent",
+          "FluentType": "ConsoleMonster.Widgets.ScrollViewFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         },
         {
           "Command": "New-ConsoleCollapsible",
           "CSharpType": "ConsoleMonster.Interactive.CollapsibleInputOptions",
-          "FluentType": "ConsoleMonster.Interactive.InteractiveFluent",
+          "FluentType": "ConsoleMonster.Interactive.CollapsibleInputOptionsFluent",
           "Member": "Content",
           "InitializerPattern": "Content = widget"
         }
@@ -34231,7 +34234,7 @@
       },
       {
         "CSharpType": "ConsoleMonster.WidgetPipeline",
-        "Member": "Export",
+        "Member": "Save",
         "OptionsType": "ConsoleMonster.Export.ExportOptions",
         "Argument": "configure",
         "Pattern": "options => options.Width(100)",

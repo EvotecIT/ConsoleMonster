@@ -3,13 +3,13 @@
 
 Cmdlet parameters, C# configuration and fluent calls use the same domain names. Familiar PowerShell conventions keep their own spelling, with each reason recorded in the contract. PowerShell keeps numeric duration parameters with units; C# keeps TimeSpan values. PrintFinalState and AutoPlay default to true in both surfaces; pass :$false in PowerShell or false in C# to disable them. Other PowerShell switches default to false.
 
-The contract covers **118 commands**, **1261 parameters** and **385 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **118 commands**, **1260 parameters** and **386 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 
 PowerShell exports use individual parameters, for example `Export-ConsoleFrame -Format Html -Width 100`. C# export calls accept typed ExportOptions configuration.
 
-Callback properties use `.Configure(item => item.Action = …)`. C# invokes a delegate-valued property before considering an extension with that name; Configure assigns the callback without invoking it.
+Callback properties use their declared verb, `.Run(callback)`. C# invokes a delegate-valued property before considering an extension with that name, so each callback property declares its verb: ShowWhen, PreviewBy, WhenChanged, Run.
 
 ## Fluent construction and nesting
 
@@ -119,9 +119,6 @@ Native host hooks, runtime models and equivalent representations are listed indi
 
 | C# member | Disposition and reason | PowerShell route or alternative |
 | --- | --- | --- |
-| `ConsoleMonster.Interactive.BrowserGridOptions.Open` | CSharpOnly: A C# host can show the page in its own browser control; PowerShell opens the default browser or the BROWSER command. | Use Show-ConsoleGrid -Window; set BROWSER to choose how the page opens, and press Ctrl+C to stop waiting. |
-| `ConsoleMonster.Interactive.BrowserGridOptions.Opened` | CSharpOnly: A C# host decides how to report the page address; Show-ConsoleGrid writes it to the information stream. | Use Show-ConsoleGrid -Window; set BROWSER to choose how the page opens, and press Ctrl+C to stop waiting. |
-| `ConsoleMonster.Interactive.BrowserGridOptions.Timeout` | CSharpOnly: A C# host without a console can bound the wait; PowerShell waits until the page answers or Ctrl+C. | Use Show-ConsoleGrid -Window; set BROWSER to choose how the page opens, and press Ctrl+C to stop waiting. |
 | `ConsoleMonster.Changes.ChangePreviewOptions.Interactive` | CSharpOnly: The PowerShell adapter supplies its own prompt devices and runspace; C# embedding hosts can provide different devices. | Compare-ConsoleObject uses the owning PowerShell host for confirmation. |
 | `ConsoleMonster.Changes.ChangeView.LongValue` | CSharpOnly: PowerShell uses a fixed preview truncation policy; this controls embedded change-view value cells. | Choose Compare-ConsoleObject -View; direct ChangeView instances remain configurable in C#. |
 | `ConsoleMonster.Changes.ChangeView.MaxProperties` | CSharpOnly: PowerShell selects its property projection before rendering; this caps properties inside a custom embedded ChangeView. | Choose Compare-ConsoleObject -View; direct ChangeView instances remain configurable in C#. |
@@ -335,7 +332,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.TableRowRole.Bold` | CSharpOnly: Whole-row emphasis follows the application-supplied row classification. | Set Bold on TableRowRole and supply that role to native Table.AddRow. |
 | `ConsoleMonster.Widgets.TableRowRole.Marker` | CSharpOnly: A whole-row marker belongs to an explicit row role rather than an inferred status column. | Set Marker on TableRowRole and supply that role to native Table.AddRow. |
 | `ConsoleMonster.Widgets.TableRowRole.Muted` | CSharpOnly: Whole-row muting follows the application-supplied row classification. | Set Muted on TableRowRole and supply that role to native Table.AddRow. |
-| `ConsoleMonster.Widgets.TableRowRole.Tone` | CSharpOnly: A whole-row semantic tone is independent of the ordinary column presentation policy. | Set Tone on TableRowRole and supply that role to native Table.AddRow. |
+| `ConsoleMonster.Widgets.TableRowRole.Tone` | CSharpOnly: A whole-row semantic tone is independent of the ordinary column presentation policy. | Set Tone on TableRowRole and supply that role to native Table.Row. |
 | `ConsoleMonster.Widgets.Tree.CollapsedSummary` | CSharpOnly: A collapsed-node aggregate requires a typed application callback and does not enumerate descendants itself. | Assign CollapsedSummary in a native Tree builder and pass the widget to Show-Console. |
 | `ConsoleMonster.Widgets.Tree.DetectRepeatedNodes` | CSharpOnly: Repeated-node references depend on explicit graph identity rather than label equality. | Set DetectRepeatedNodes on a native Tree with identified nodes and pass it to Show-Console. |
 | `ConsoleMonster.Widgets.Tree.ShowValueHeaders` | CSharpOnly: Value headers belong to explicitly configured tree value columns. | Set ShowValueHeaders on a native Tree with ValueColumns and pass it to Show-Console. |
@@ -361,7 +358,7 @@ Native host hooks, runtime models and equivalent representations are listed indi
 | `ConsoleMonster.Widgets.TreeNode.AsciiMarker` | CSharpOnly: The ASCII node marker is supplied independently of status semantics and the full-tier marker. | Set AsciiMarker on native TreeNode instances before passing their tree to Show-Console. |
 | `ConsoleMonster.Widgets.TreeNode.BasicMarker` | CSharpOnly: A Basic-tier node marker can differ from both full Unicode and ASCII markers. | Set BasicMarker together with Marker and AsciiMarker on native TreeNode instances. |
 | `ConsoleMonster.Widgets.TreeNode.Marker` | CSharpOnly: A literal node marker is application presentation rather than an inferred status. | Set Marker on native TreeNode instances and supply reduced-tier alternatives when needed. |
-| `ConsoleMonster.Widgets.TreeNode.MarkerTone` | CSharpOnly: The marker tone can express application meaning independently of the node status and label style. | Set MarkerTone to a ThemeToken on native TreeNode instances before passing their tree to Show-Console. |
+| `ConsoleMonster.Widgets.TreeNode.MarkerTone` | CSharpOnly: The marker tone can express application meaning independently of the node status and label style. | Set MarkerTone to a Tone on native TreeNode instances before passing their tree to Show-Console. |
 | `ConsoleMonster.Widgets.BarChart.BarHeader` | CSharpOnly: The bar column caption belongs to a configured native chart. | Set BarHeader on the BarChart returned by New-ConsoleChart -Type Bar. |
 | `ConsoleMonster.Widgets.BarChart.BarWidth` | CSharpOnly: A fixed bar width is a native chart layout choice. | Set BarWidth on the BarChart returned by New-ConsoleChart -Type Bar. |
 | `ConsoleMonster.Widgets.BarChart.LabelHeader` | CSharpOnly: The label column caption describes the supplied chart identities. | Set LabelHeader on the BarChart returned by New-ConsoleChart -Type Bar. |

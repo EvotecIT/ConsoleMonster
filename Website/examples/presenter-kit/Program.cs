@@ -55,6 +55,6 @@ var graphics = new GraphicsExportOptions
         Title = "A repeatable demo"
     }
 };
-recording.SaveGraphics(Path.Combine(output, "talk.gif"), GraphicsFormat.Gif, graphics);
-recording.SaveChapterPngs(Path.Combine(output, "slides"), graphics);
+recording.Save(Path.Combine(output, "talk.gif"), GraphicsFormat.Gif, graphics);
+recording.SaveChapters(Path.Combine(output, "slides"), graphics);
 Console.WriteLine("Saved " + output);

@@ -60,13 +60,13 @@ namespace ConsoleMonster.Widgets {
         /// <param name="role">An optional tone (for example the record's status), or null.</param>
         /// <param name="note">An optional muted note after the heading, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddSection(string title, ThemeToken? role = null, string? note = null) => AddHeading(title, 0, role, note);
+        public RecordView Section(string title, ThemeToken? role = null, string? note = null) => Heading(title, 0, role, note);
 
         /// <summary>Adds a group heading under the current section; following fields belong to it.</summary>
         /// <param name="title">The heading (markup).</param>
         /// <param name="note">An optional muted note, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddGroup(string title, string? note = null) => AddHeading(title, 1, null, note);
+        public RecordView Group(string title, string? note = null) => Heading(title, 1, null, note);
 
         /// <summary>Adds a heading at a nesting level (0 = section, 1 = group, deeper for nested objects).</summary>
         /// <param name="title">The heading (markup).</param>
@@ -74,7 +74,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="role">An optional tone, or null.</param>
         /// <param name="note">An optional muted note, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddHeading(string title, int level, ThemeToken? role = null, string? note = null) {
+        public RecordView Heading(string title, int level, ThemeToken? role = null, string? note = null) {
             _level = Math.Max(0, level);
             _items.Add(new RecordItem(RecordItemKind.Heading, _level) { Text = title ?? string.Empty, Role = role, Note = note });
             return this;
@@ -87,8 +87,8 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
-            AddField(label, (object?)value, presenter, rules);
+        public RecordView Field<T>(string label, T value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) =>
+            Field(label, (object?)value, presenter, rules);
 
         /// <summary>Adds a field with a raw value, formatted by a presenter.</summary>
         /// <param name="label">The label (plain text).</param>
@@ -96,8 +96,8 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter, or null for automatic.</param>
         /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
-            return AddField(label, TableCell.FromValue(value), presenter, rules);
+        public RecordView Field(string label, object? value, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
+            return Field(label, TableCell.FromValue(value), presenter, rules);
         }
 
         /// <summary>Adds a field with a cell (markup, status or raw value).</summary>
@@ -106,7 +106,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="presenter">The presenter for raw values, or null for automatic.</param>
         /// <param name="rules">Role rules, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddField(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
+        public RecordView Field(string label, TableCell cell, ICellPresenter? presenter = null, IReadOnlyList<RoleRule>? rules = null) {
             _items.Add(new RecordItem(RecordItemKind.Field, _level + 1) {
                 Text = label ?? string.Empty,
                 Cell = cell ?? TableCell.FromValue(null),
@@ -118,7 +118,7 @@ namespace ConsoleMonster.Widgets {
 
         /// <summary>Keeps a table column's effective overflow and line limits when its row becomes a record or narrow card.</summary>
         internal void AddTableField(string label, TableCell cell, TableColumn column, int defaultMaxLines) {
-            AddField(label, cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
+            Field(label, cell, column.Presenter, (IReadOnlyList<RoleRule>)column.RoleRules);
             RecordItem item = _items[_items.Count - 1];
             // Never keeps a table column wide. In a record, preserve the complete value by wrapping it instead.
             item.Overflow = column.Overflow == ColumnOverflow.Never ? ColumnOverflow.Wrap : column.Overflow;
@@ -129,7 +129,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a nested widget (a table, a list) under the current heading.</summary>
         /// <param name="widget">The widget.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddWidget(IWidget widget) {
+        public RecordView Widget(IWidget widget) {
             _items.Add(new RecordItem(RecordItemKind.Widget, _level + 1) { Widget = widget ?? throw new ArgumentNullException(nameof(widget)) });
             return this;
         }
@@ -140,7 +140,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="cell">The cell.</param>
         /// <param name="presenter">The presenter, or null.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddFieldAt(int level, string label, TableCell cell, ICellPresenter? presenter = null) {
+        public RecordView FieldAt(int level, string label, TableCell cell, ICellPresenter? presenter = null) {
             _items.Add(new RecordItem(RecordItemKind.Field, Math.Max(0, level)) { Text = label ?? string.Empty, Cell = cell, Presenter = presenter ?? CellPresenters.ForLabel(label, cell?.Value) });
             return this;
         }
@@ -149,7 +149,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="level">The level.</param>
         /// <param name="widget">The widget.</param>
         /// <returns>This instance.</returns>
-        public RecordView AddWidgetAt(int level, IWidget widget) {
+        public RecordView WidgetAt(int level, IWidget widget) {
             _items.Add(new RecordItem(RecordItemKind.Widget, Math.Max(0, level)) { Widget = widget ?? throw new ArgumentNullException(nameof(widget)) });
             return this;
         }

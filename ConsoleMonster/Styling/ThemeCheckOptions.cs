@@ -1,7 +1,9 @@
 using ConsoleMonster.Capabilities;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Styling {
     /// <summary>The known drawing conditions for a theme check. Palette colours and terminal-dependent dimming remain unknown.</summary>
+    [Fluent]
     public sealed class ThemeCheckOptions {
         /// <summary>The page colour. Null uses #0c0c0c for a dark Theme or #ffffff for a light Theme; other ITheme implementations need an explicit background.</summary>
         public Color? Background { get; set; }

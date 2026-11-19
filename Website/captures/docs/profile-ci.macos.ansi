@@ -1,10 +1,11 @@
 [?1h=This console
-Mode             Stream
-ColorDepth       – None
-Glyphs           Basic
-Width            100
-Height           40
-ThemePreference  Dark
+Mode        Stream
+ColorDepth  – None
+Glyphs      Basic
+Width       100
+Height      40
+ThemeMode   Dark
+Palette     Default
 
   accessible: False
   reduced motion: False
@@ -18,7 +19,7 @@ ThemePreference  Dark
   kind: Xterm
   width profile: emoji=2, ambiguous=1, zwj=Joined, flag=2, text=1 (environment)
   probe widths: False
-  theme preference: Dark (CONSOLEMONSTER_THEME)
+  theme mode: Dark, palette Default (CONSOLEMONSTER_THEME)
   culture: en-US (CONSOLEMONSTER_CULTURE)
   size: 100x40 (visible window or defaults)
   images: None (CI output gets the placeholder; terminal: HalfBlock, no image protocol advertised)

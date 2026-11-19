@@ -121,7 +121,7 @@ namespace SiteFrames.Capture {
                     && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
                     && property.SetMethod?.DeclaredAccessibility == Accessibility.Public
                     && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
-                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : FluentName(property))
+                    && HasSetter(receiver, FluentApi.SetterName(property))
                     && visited.Expression is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
                     return visited.WithExpression(Setter(rewrittenMember.Expression, receiver, property, rewritten.Right));
                 }
@@ -134,7 +134,7 @@ namespace SiteFrames.Capture {
                     && model.GetTypeInfo(node).ConvertedType is INamedTypeSymbol { DelegateInvokeMethod.ReturnsVoid: true }
                     && model.GetSymbolInfo(member).Symbol is IPropertySymbol property
                     && model.GetTypeInfo(member.Expression).Type is INamedTypeSymbol receiver && Owned(receiver)
-                    && HasSetter(receiver, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : FluentName(property))
+                    && HasSetter(receiver, FluentApi.SetterName(property))
                     && visited.ExpressionBody is AssignmentExpressionSyntax { Left: MemberAccessExpressionSyntax rewrittenMember } rewritten) {
                     return visited.WithExpressionBody(Setter(rewrittenMember.Expression, receiver, property, rewritten.Right));
                 }
@@ -161,9 +161,9 @@ namespace SiteFrames.Capture {
                     if (original.Initializer.Expressions[i] is not AssignmentExpressionSyntax assignment
                         || model.GetSymbolInfo(assignment.Left).Symbol is not IPropertySymbol property
                         || property.SetMethod?.DeclaredAccessibility != Accessibility.Public
-                        || property.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == "ConsoleMonster.NoFluentAttribute")
+                        || property.GetAttributes().Any(attribute => attribute.AttributeClass?.ToDisplayString() == FluentApi.NoFluentAttribute)
                         || visited.Initializer!.Expressions[i] is not AssignmentExpressionSyntax converted
-                        || converted.Right is InitializerExpressionSyntax || !HasSetter(type, property.Type.TypeKind == TypeKind.Delegate ? "Configure" : FluentName(property))) {
+                        || converted.Right is InitializerExpressionSyntax || !HasSetter(type, FluentApi.SetterName(property))) {
                         // Moving only some members would reorder callback/kind setters or collection initialization.
                         return visited;
                     }
@@ -191,20 +191,10 @@ namespace SiteFrames.Capture {
             }
 
             private ExpressionSyntax Setter(ExpressionSyntax receiver, INamedTypeSymbol type, IPropertySymbol property, ExpressionSyntax value) {
-                bool callback = property.Type.TypeKind == TypeKind.Delegate;
-                string method = callback ? "Configure" : FluentName(property);
+                string method = FluentApi.SetterName(property);
                 Namespaces.Add(SetterNamespace(type, method)!);
                 if (property.Name == "Content" && type.AllInterfaces.Any(i => i.ToDisplayString() == "ConsoleMonster.Layout.IContentOwner")) {
                     return ContentCall(receiver, new[] { value });
-                }
-                if (callback) {
-                    var used = new HashSet<string>(model.SyntaxTree.GetRoot().DescendantTokens().Concat(value.DescendantTokens())
-                        .Where(token => token.IsKind(SyntaxKind.IdentifierToken)).Select(token => token.ValueText), StringComparer.Ordinal);
-                    string name = "configured";
-                    for (int suffix = 2; used.Contains(name); suffix++) { name = "configured" + suffix; }
-                    value = SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier(name)),
-                        SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                            SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(name), SyntaxFactory.IdentifierName(property.Name)), value));
                 }
                 return SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                     receiver, SyntaxFactory.IdentifierName(method)), property.Type.SpecialType == SpecialType.System_Boolean && value.IsKind(SyntaxKind.TrueLiteralExpression)
@@ -216,13 +206,9 @@ namespace SiteFrames.Capture {
 
             private bool HasSetter(INamedTypeSymbol type, string member) => SetterNamespace(type, member) != null;
 
-            private string? SetterNamespace(INamedTypeSymbol type, string member) {
-                for (INamedTypeSymbol? current = type; current != null; current = current.BaseType) {
-                    INamedTypeSymbol? fluent = compilation.GetTypeByMetadataName(current.ContainingNamespace.ToDisplayString() + "." + current.ContainingNamespace.Name + "Fluent");
-                    if (fluent?.GetMembers(member).OfType<IMethodSymbol>().Any(method => method.IsExtensionMethod && method.ReduceExtensionMethod(type) != null) == true) { return current.ContainingNamespace.ToDisplayString(); }
-                }
-                return null;
-            }
+            private string? SetterNamespace(INamedTypeSymbol type, string member) =>
+                FluentApi.Classes(compilation, type).FirstOrDefault(fluent => fluent.GetMembers(member).OfType<IMethodSymbol>()
+                    .Any(method => method.IsExtensionMethod && method.ReduceExtensionMethod(type) != null))?.ContainingNamespace.ToDisplayString();
 
             public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node) {
                 IMethodSymbol? method = model.GetSymbolInfo(node).Symbol as IMethodSymbol;

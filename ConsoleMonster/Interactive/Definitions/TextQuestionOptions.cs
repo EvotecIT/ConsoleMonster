@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>One validated definition for ordinary, multiline and secret text questions.</summary>
+    [Fluent]
     public sealed class TextQuestionOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal IEnumerable<string> Bound => _bound;
@@ -47,6 +49,7 @@ namespace ConsoleMonster.Interactive {
         public string? PatternMessage { get => _patternMessage; set { _patternMessage = value; _bound.Add(nameof(PatternMessage)); } }
         private Func<string, string?>? _validator;
         /// <summary>Returns an error, or null to accept; secrets must not be logged.</summary>
+        [Fluent("Validate")]
         public Func<string, string?>? Validator { get => _validator; set { _validator = value; _bound.Add(nameof(Validator)); } }
         private bool _prefillDefault;
         /// <summary>Puts the single-line default in the editor.</summary>

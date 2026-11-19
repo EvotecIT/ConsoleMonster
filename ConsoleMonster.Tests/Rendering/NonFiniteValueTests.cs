@@ -23,7 +23,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(3)]
         public void Sparkline_NonFiniteValues_AreSkipped(int height) {
             Sparkline sparkline = new Sparkline { Height = height, Unit = "/s" };
-            sparkline.AddRange(new[] { 1, 2, double.PositiveInfinity, double.NaN, double.NegativeInfinity, 3 });
+            sparkline.Values(new[] { 1, 2, double.PositiveInfinity, double.NaN, double.NegativeInfinity, 3 });
             AssertReadable(Render(sparkline));
             Assert.Contains("3/s", Render(sparkline));
         }
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Sparkline_NonFiniteMaximumOrNegativeCapacity_DoesNotThrow() {
             Sparkline sparkline = new Sparkline { Maximum = double.NaN, Capacity = -5 };
-            sparkline.AddRange(new[] { 1.0, 2.0, 3.0 });
+            sparkline.Values(new[] { 1.0, 2.0, 3.0 });
             AssertReadable(Render(sparkline));
         }
 

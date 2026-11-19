@@ -64,10 +64,9 @@ IWidget Frame(int tick)
                     CultureInfo.InvariantCulture) + "% of 8 cores")
         .Add("Stray writes", (tick * 4).ToString(CultureInfo.InvariantCulture))
         .Add("Dropped / errors", "0 / 0");
-    Sparkline rate = Ui.Sparkline("rate").Height(3).Unit("/s");
-    rate.AddRange(sampleRates.Take(samples));
+    Sparkline rate = Ui.Sparkline("rate").Height(3).Unit("/s").Values(sampleRates.Take(samples));
     LineChart cpu = Ui.LineChart("cpu").Height(6).Minimum(0).Unit("%");
-    cpu.AddSeries("cpu", ThemeToken.Accent2);
+    cpu.Series("cpu", ThemeToken.Accent2);
     foreach (double value in sampleCpu.Take(samples))
         cpu.Add("cpu", value);
     LogRegion output = Ui.LogRegion().PreferredHeight(12).ShowElapsed(false).Wrap();

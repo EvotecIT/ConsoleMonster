@@ -54,9 +54,8 @@ Rows layout = Ui.Rows().Gap(1).Content(rowsContent =>
         .Value(string.Empty)
         .Label("Filter")
         .Placeholder("Host, role, site or status"));
-    rowsContent.Binding(
-        binding => binding.Configure(o => o.Content = state => Results(state.Get<string>(
-            "Query", string.Empty))));
+    rowsContent.Binding(binding => binding.ContentBy(state => Results(state.Get<string>("Query",
+        string.Empty))));
 });
 
 // Behaviour: edit controls to update the view; Escape exits the app.

@@ -40,38 +40,40 @@ namespace ConsoleMonster.Glyphs {
         }
 
         /// <summary>
-        /// The text of a semantic icon in the glyph set's tier (see <see cref="GlyphIcon"/>). Custom glyph sets resolve by
-        /// their <see cref="IGlyphSet.Tier"/>; the status icons (Warning, Done) use the set's own symbols.
+        /// The text of an icon catalog key in the glyph set's tier (see <see cref="Icons"/>). Custom glyph sets resolve by
+        /// their <see cref="IGlyphSet.Tier"/>; the status icons (warning, done) use the set's own symbols. A key from another
+        /// pack (<c>pack:name</c>) is looked up by its name; an unknown key draws the item mark.
         /// </summary>
         /// <param name="glyphs">The glyph set.</param>
         /// <param name="icon">The icon.</param>
         /// <returns>One cell of text.</returns>
-        public static string Icon(this IGlyphSet glyphs, GlyphIcon icon) {
+        public static string Icon(this IGlyphSet glyphs, Icon icon) {
             int tier = glyphs.Tier == Capabilities.GlyphTier.Full ? 0 : glyphs.Tier == Capabilities.GlyphTier.Basic ? 1 : 2;
             IGlyphSet set = StyledGlyphSet.Unwrap(glyphs);
             bool consoleView = ReferenceEquals(set, GlyphSet.ConsoleViewFull) || ReferenceEquals(set, GlyphSet.ConsoleViewBasic) || ReferenceEquals(set, GlyphSet.ConsoleViewAscii);
-            switch (icon) {
-                case GlyphIcon.Warning:
+            string key = icon.Key.Substring(icon.Key.IndexOf(':') + 1);
+            switch (key) {
+                case "warning":
                     return glyphs.Get(Glyph.Warning);
-                case GlyphIcon.Done:
+                case "done":
                     return glyphs.Get(Glyph.Check);
-                case GlyphIcon.Targets:
+                case "targets":
                     return Pick(tier, "●", consoleView ? "○" : "●", "o");
-                case GlyphIcon.Tasks:
+                case "tasks":
                     return Pick(tier, "■", "■", "#");
-                case GlyphIcon.Settings:
+                case "settings":
                     return Pick(tier, "◆", "♦", "*");
-                case GlyphIcon.Favorite:
+                case "favorite":
                     return consoleView ? "*" : Pick(tier, "★", "☼", "*");
-                case GlyphIcon.Run:
+                case "run":
                     return Pick(tier, "►", "►", ">");
-                case GlyphIcon.Back:
+                case "back":
                     return Pick(tier, "◄", "◄", "<");
-                case GlyphIcon.List:
+                case "list":
                     return Pick(tier, "≡", "≡", "=");
-                case GlyphIcon.Help:
+                case "help":
                     return "?";
-                case GlyphIcon.Exit:
+                case "exit":
                     return Pick(tier, "×", "×", "x");
                 default:
                     return glyphs.Get(Glyph.Bullet);

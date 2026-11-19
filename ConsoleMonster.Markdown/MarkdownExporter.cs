@@ -15,7 +15,7 @@ namespace ConsoleMonster.Markdown {
         /// <param name="options">Size, culture, glyphs and theme.</param>
         /// <param name="fenced">Preserves the exact terminal layout in a code block instead of exporting semantic data.</param>
         /// <returns>The Markdown document.</returns>
-        public static string Export(IWidget widget, ExportOptions? options = null, bool fenced = false) {
+        public static string ToMarkdown(this IWidget widget, ExportOptions? options = null, bool fenced = false) {
             if (widget == null) { throw new ArgumentNullException(nameof(widget)); }
             return fenced ? MarkdownFrameWriter.Write(ConsoleExporter.ToText(widget, options))
                 : MarkdownWidgetWriter.Write(widget, ConsoleExporter.Ready(options));
@@ -24,22 +24,22 @@ namespace ConsoleMonster.Markdown {
         /// <summary>Preserves an already rendered frame in a fenced text block.</summary>
         /// <param name="frame">The frame; its dimensions are kept.</param>
         /// <returns>The Markdown code block.</returns>
-        public static string Export(CellBuffer frame) => MarkdownFrameWriter.Write(ConsoleExporter.ToText(frame));
+        public static string ToMarkdown(this CellBuffer frame) => MarkdownFrameWriter.Write(ConsoleExporter.ToText(frame));
 
         /// <summary>Exports the current live-session snapshot as a fenced text block.</summary>
         /// <param name="session">A session that has drawn a frame.</param>
         /// <returns>The Markdown code block.</returns>
-        public static string Export(LiveSession session) {
+        public static string ToMarkdown(this LiveSession session) {
             if (session == null) { throw new ArgumentNullException(nameof(session)); }
-            return Export(session.Snapshot() ?? throw new InvalidOperationException("The session has not drawn a frame yet."));
+            return ToMarkdown(session.Snapshot() ?? throw new InvalidOperationException("The session has not drawn a frame yet."));
         }
 
         /// <summary>Exports terminal scrollback and the final main screen as a fenced text block.</summary>
         /// <param name="recording">The recorded terminal session.</param>
         /// <returns>The complete transcript as Markdown.</returns>
-        public static string ExportRecording(SessionRecording recording) {
+        public static string ToMarkdown(this SessionRecording recording) {
             if (recording == null) { throw new ArgumentNullException(nameof(recording)); }
-            return Export(recording.Transcript());
+            return ToMarkdown(recording.Transcript());
         }
 
         /// <summary>Replays dashboard events into timestamped fenced frames in an OfficeIMO document.</summary>
@@ -47,7 +47,7 @@ namespace ConsoleMonster.Markdown {
         /// <param name="events">Recorded updates, in order.</param>
         /// <param name="options">Replay dimensions, sampling and timing.</param>
         /// <returns>A document containing each distinct replayed frame.</returns>
-        public static string ExportRecording(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
+        public static string ReplayToMarkdown(IWidget root, IEnumerable<LiveEvent> events, RecordingExportOptions? options = null) {
             if (root == null) { throw new ArgumentNullException(nameof(root)); }
             using MarkdownDocument document = MarkdownDocument.Create();
             foreach (RecordedFrame frame in Recording.CaptureFrames(root, events, options)) {

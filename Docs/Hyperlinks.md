@@ -94,10 +94,10 @@ using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
 var table = new Table();
-table.AddColumn(new TableColumn("Report") {
+table.Column(new TableColumn("Report") {
     Presenter = new LinkPresenter(text: _ => "Open report", address: value => (string)value!)
 });
-table.AddRow(TableCell.FromValue("/var/log/report.txt"));
+table.Row(TableCell.FromValue("/var/log/report.txt"));
 Terminal.Write(table);
 
 TerminalProfile profile = new CapabilityDetector().Detect();

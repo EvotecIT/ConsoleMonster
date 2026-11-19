@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Export;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Graphics {
     /// <summary>Raster formats supplied by the graphics add-on.</summary>
@@ -40,6 +41,7 @@ namespace ConsoleMonster.Graphics {
         Gradient
     }
     /// <summary>Graphics layout and animation settings. Existing frame and recording options own themes and chrome.</summary>
+    [Fluent]
     public sealed class GraphicsExportOptions {
         /// <summary>Canvas size. Slide presets fit the entire grid without cropping.</summary>
         public GraphicsPreset Preset { get; set; } = GraphicsPreset.Docs;

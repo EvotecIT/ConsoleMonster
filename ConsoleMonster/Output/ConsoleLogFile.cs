@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Output {
     /// <summary>The layout of a <see cref="ConsoleLogFile"/>.</summary>
@@ -48,6 +49,7 @@ namespace ConsoleMonster.Output {
     /// Appends console text to a log file, as Write-Color's log option does: Text, Csv or JsonLines; appends under a file
     /// lock and retries with a growing pause, reporting each failed attempt to a warning callback.
     /// </summary>
+    [Fluent]
     public sealed class ConsoleLogFile {
         /// <summary>Creates a log file writer.</summary>
         /// <param name="path">The file path.</param>
@@ -93,6 +95,7 @@ namespace ConsoleMonster.Output {
         public string TimeFormat { get; set; } = "yyyy-MM-dd HH:mm:ss";
 
         /// <summary>Receives a message for each failed attempt (for example a PowerShell warning), or null.</summary>
+        [Fluent("WarnTo")]
         public Action<string>? Warning { get; set; }
 
         /// <summary>Appends a record; returns false (after warnings) when every attempt failed.</summary>

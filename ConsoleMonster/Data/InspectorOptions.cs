@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Data {
     /// <summary>Controls depth, collection, member filtering and member source selection.</summary>
+    [Fluent]
     public sealed class InspectorOptions {
         /// <summary>Maximum node depth below the root.</summary>
         public int MaxDepth { get; set; } = 4;
@@ -54,12 +56,14 @@ namespace ConsoleMonster.Data {
         /// Optional host callback applied to each non-null value before the inspector classifies it.
         /// Use this to strip host wrapper objects while preserving the wrapped value's identity for cycle detection.
         /// </summary>
+        [Fluent("UnwrapBy")]
         public Func<object, object>? Unwrap { get; set; }
 
         /// <summary>
         /// Optional host callback that gives the identity of a value for cycle detection (for example the object a host
         /// wrapper wraps, since a new wrapper can be created for every read), or null to use the value itself.
         /// </summary>
+        [Fluent("IdentityBy")]
         public Func<object, object>? Identity { get; set; }
 
         /// <summary>Optional identity label for objects beyond the depth limit. Return null when no useful label exists.</summary>

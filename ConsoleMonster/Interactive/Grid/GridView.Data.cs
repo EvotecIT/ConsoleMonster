@@ -49,7 +49,7 @@ namespace ConsoleMonster.Interactive {
                     if (title.Length == 0 && !PresenterValues.IsEmpty(value)) {
                         title = PresenterValues.ToText(value is DataGridCell lazy ? lazy.Peek() : value, _view.Grid.Presentation.Culture ?? CultureInfo.CurrentCulture);
                     }
-                    record.AddField(Markup.Strip(column.Header), TableCell.FromValue(value), column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null);
+                    record.Field(Markup.Strip(column.Header), TableCell.FromValue(value), column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null);
                 }
             }
             return record;

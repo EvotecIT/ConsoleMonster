@@ -2,23 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Data;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Values {
     /// <summary>Options for <see cref="ValueShaper"/>: how records are read and how values become text.</summary>
+    [Fluent]
     public sealed class ShapeOptions {
         /// <summary>Record adapters tried before the built-in ones (for example PowerShell objects).</summary>
         public IList<IMemberSource> Sources { get; } = new List<IMemberSource>();
 
         /// <summary>Turns a wrapper into the value it wraps (for example a PowerShell object into its base object), or null.</summary>
+        [Fluent("UnwrapBy")]
         public Func<object, object>? Unwrap { get; set; }
 
         /// <summary>
         /// The identity of a value for cycle detection (for example the object a host wrapper wraps, since a new wrapper can be
         /// created for every read), or null to use the value itself.
         /// </summary>
+        [Fluent("IdentityBy")]
         public Func<object, object>? Identity { get; set; }
 
         /// <summary>Extra type names for a value (for example PowerShell type names), used to find registered shapers, or null.</summary>
+        [Fluent("TypeNamesBy")]
         public Func<object, IEnumerable<string>>? TypeNames { get; set; }
 
         /// <summary>How collections are written inside cells and titles (default <see cref="CollectionDisplay.Join"/>).</summary>

@@ -20,7 +20,7 @@ namespace ConsoleMonster.Tests.Capabilities {
                 .WithCulture(CultureInfo.GetCultureInfo("pl-PL")).WithLanguage(CultureInfo.GetCultureInfo("de-DE"));
             TerminalProfile[] copies = {
                 profile.WithColorDepth(ColorDepth.Ansi16), profile.WithGlyphs(GlyphTier.Basic),
-                profile.WithMode(OutputMode.Stream), profile.WithThemePreference(ThemePreference.Light),
+                profile.WithMode(OutputMode.Stream), profile.WithThemeMode(ThemeMode.Light),
                 profile.WithCulture(null), profile.WithLanguage(null), profile.WithSize(120, 40),
                 profile.WithDecision("baseline retained"), profile.WithWidthProfile(TerminalWidthProfile.Standard),
                 profile.WithHyperlinks(true), new CapabilityDetector(new TerminalEnvironment(new Dictionary<string, string>()))
@@ -57,7 +57,7 @@ namespace ConsoleMonster.Tests.Capabilities {
             Type[] constructor = {
                 typeof(ColorDepth), typeof(GlyphTier), typeof(OutputMode), typeof(int), typeof(int), typeof(TerminalKind),
                 typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(string), typeof(IReadOnlyList<string>),
-                typeof(TerminalWidthProfile), typeof(bool), typeof(ThemePreference), typeof(CultureInfo)
+                typeof(TerminalWidthProfile), typeof(bool), typeof(ThemeMode), typeof(CultureInfo)
             };
             Assert.NotNull(typeof(TerminalProfile).GetConstructor(constructor));
             List<Type> current = new List<Type>(constructor) { typeof(bool?) };

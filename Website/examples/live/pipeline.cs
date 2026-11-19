@@ -84,10 +84,10 @@ Dashboard dashboard = Ui.Dashboard().Title("[bold]Module build[/]")
 Table summary = new Table()
     .Border(TableBorder.Minimal)
     .Title("[bold]Build summary[/] [muted]ConsoleMonster 2.0.0[/]")
-    .AddColumn("Phase")
-    .AddColumn("Step", c => c.Flexible())
-    .AddColumn("Result")
-    .AddColumn("Duration");
+    .Column("Phase")
+    .Column("Step", c => c.Flexible())
+    .Column("Result")
+    .Column("Duration");
 
 // Planned step durations drive the displayed clocks; session delays keep normal playback paced in real time.
 SimulatedClock clock = new SimulatedClock();
@@ -166,7 +166,7 @@ void Build(LiveSession session)
         stepsHandle.Set(step.Key, step.Result);
         stepsHandle.Detail(step.Key, step.Result == StatusKind.Skip ? "skipped" : duration);
         phaseResults.Add(step.Result);
-        summary.AddRow(step.Phase, Markup.Escape(step.Label), TableCell.ForStatus(step.Result),
+        summary.Row(step.Phase, Markup.Escape(step.Label), TableCell.ForStatus(step.Result),
             step.Result == StatusKind.Skip ? "-" : duration);
         index++;
         progressHandle.Set(index);

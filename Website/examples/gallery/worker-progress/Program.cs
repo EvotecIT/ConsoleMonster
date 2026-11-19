@@ -30,7 +30,7 @@ IWidget Frame(int tick)
     {
         Title = "updates/s"
     };
-    trend.AddRange(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
+    trend.Values(new double[] { 120, 180, 160, 240, 210, 220 + tick * 15 });
     return new Rows(
         TextBlock.FromMarkup("[accent bold]Worker stress dashboard[/] [muted]· worker pool[/]"),
         new Columns(

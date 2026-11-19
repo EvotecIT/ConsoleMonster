@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMonster.Examples", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMonster.Benchmarks", "ConsoleMonster.Benchmarks\ConsoleMonster.Benchmarks.csproj", "{55D10248-8C96-43E5-8517-85D2801553F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMonster.Generators", "ConsoleMonster.Generators\ConsoleMonster.Generators.csproj", "{EBA29662-C716-45B5-BDCD-A8F33396B44F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMonster.Extensions.Logging", "ConsoleMonster.Extensions.Logging\ConsoleMonster.Extensions.Logging.csproj", "{D0E7FE18-F0B0-49D8-B162-C1504C42FC84}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMonster.Hosting", "ConsoleMonster.Hosting\ConsoleMonster.Hosting.csproj", "{0E63AFEA-97FC-464F-AFA6-4F2D54BEB8D7}"
@@ -111,18 +109,6 @@ Global
 		{55D10248-8C96-43E5-8517-85D2801553F7}.Release|x64.Build.0 = Release|Any CPU
 		{55D10248-8C96-43E5-8517-85D2801553F7}.Release|x86.ActiveCfg = Release|Any CPU
 		{55D10248-8C96-43E5-8517-85D2801553F7}.Release|x86.Build.0 = Release|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Debug|x64.Build.0 = Debug|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Debug|x86.Build.0 = Debug|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Release|x64.ActiveCfg = Release|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Release|x64.Build.0 = Release|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Release|x86.ActiveCfg = Release|Any CPU
-		{EBA29662-C716-45B5-BDCD-A8F33396B44F}.Release|x86.Build.0 = Release|Any CPU
 		{D0E7FE18-F0B0-49D8-B162-C1504C42FC84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D0E7FE18-F0B0-49D8-B162-C1504C42FC84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0E7FE18-F0B0-49D8-B162-C1504C42FC84}.Debug|x64.ActiveCfg = Debug|Any CPU

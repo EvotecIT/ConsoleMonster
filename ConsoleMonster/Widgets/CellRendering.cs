@@ -103,7 +103,7 @@ namespace ConsoleMonster.Widgets {
             foreach (StyledLine line in content.Lines) lines.Add(role.Apply(line, context.Render));
             PresentedValue? presented = content.Presented;
             if (presented != null) presented = new PresentedValue(role.Apply(presented.Line, context.Render), presented.Alignment) {
-                Role = role.Tone ?? (role.Muted ? ThemeToken.Muted : presented.Role), Visual = presented.Visual,
+                Role = role.Tone.ToToken() ?? (role.Muted ? ThemeToken.Muted : presented.Role), Visual = presented.Visual,
                 Fraction = presented.Fraction, Series = presented.Series, VisualWidth = presented.VisualWidth,
                 Number = presented.Number, IsEmpty = presented.IsEmpty
             };
@@ -119,7 +119,7 @@ namespace ConsoleMonster.Widgets {
                 bool dataBar = presenter is DataBarPresenter;
                 PresentedValue presented = CellPresenters.Present(cell.Value, presenter, dataBar ? null : rules, context);
                 if (dataBar) {
-                    ThemeToken? tone = cell.RowRole?.Tone;
+                    ThemeToken? tone = cell.RowRole?.Tone.ToToken();
                     if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
                         if (rule.Matches(cell.Value, presented.Number)) { tone = rule.Role; break; }
                     }

@@ -49,13 +49,13 @@ public static class Program {
 public static class Report {
     public static IWidget Build() {
         Table table = new Table();
-        table.AddColumn("Service");
-        table.AddColumn("State");
-        table.AddColumn("Uptime", HorizontalAlignment.Right);
-        table.AddColumn("Requests", HorizontalAlignment.Right);
-        table.AddRow("api", TableCell.ForStatus(StatusKind.Pass, "healthy"), "3d 4h", "1 204 311");
-        table.AddRow("worker", TableCell.ForStatus(StatusKind.Warn, "slow"), "3d 4h", "88 412");
-        table.AddRow("reports", TableCell.ForStatus(StatusKind.Fail, "stopped"), "0s", "0");
+        table.Column("Service");
+        table.Column("State");
+        table.Column("Uptime", HorizontalAlignment.Right);
+        table.Column("Requests", HorizontalAlignment.Right);
+        table.Row("api", TableCell.ForStatus(StatusKind.Pass, "healthy"), "3d 4h", "1 204 311");
+        table.Row("worker", TableCell.ForStatus(StatusKind.Warn, "slow"), "3d 4h", "88 412");
+        table.Row("reports", TableCell.ForStatus(StatusKind.Fail, "stopped"), "0s", "0");
         return new Rows(
             TextBlock.FromMarkup("[bold]Services[/] [muted]· sample data[/]"),
             table,

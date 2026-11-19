@@ -64,9 +64,9 @@ namespace ConsoleMonster.Tests.Progress {
         public void Labels_FollowTheProfileLanguage(string language, string yes, string showing, string pass) {
             CultureInfo culture = CultureInfo.GetCultureInfo(language);
             Assert.Equal(yes, PromptLabels.For(culture).Yes);
-            Table table = new Table { MaxRows = 2 }.AddColumn("Server").AddColumn("State");
+            Table table = new Table { MaxRows = 2 }.Column("Server").Column("State");
             for (int i = 0; i < 5; i++) {
-                table.AddValues("SRV0" + i, StatusKind.Pass);
+                table.Values("SRV0" + i, StatusKind.Pass);
             }
             string text = TestTerminal.RenderText(table, 60, culture: culture);
             Assert.Contains(showing, text);

@@ -137,7 +137,7 @@ namespace ConsoleMonster.PowerShell {
                         if (parent == null) {
                             phases.Set(phase.Key, phase.Status, phase.Label, phase.Detail);
                         } else if (phases.Items.Any(existing => existing.Key == parent)) {
-                            phases.SetItem(parent, phase.Key, phase.Status, phase.Label, phase.Detail);
+                            phases.Item(parent, phase.Key, phase.Status, phase.Label, phase.Detail);
                         } else {
                             problem = "The phase '" + parent + "' must come before its items.";
                             return false;
@@ -169,7 +169,7 @@ namespace ConsoleMonster.PowerShell {
                     if (TryAddSeriesRecord(chart, item)) { return true; }
                     if (item is ChartSeries series) {
                         ThemeToken? token = series.Role;
-                        ChartSeries attached = chart.AddSeries(series.Key, token);
+                        ChartSeries attached = chart.Series(series.Key, token);
                         attached.Label = series.Label;
                         attached.LabelText = series.LabelText;
                         foreach (double value in series.Values) {

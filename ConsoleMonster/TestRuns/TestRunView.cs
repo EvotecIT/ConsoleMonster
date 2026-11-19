@@ -161,19 +161,19 @@ namespace ConsoleMonster.TestRuns {
         private static IWidget Summary(TestRunSnapshot snapshot, RenderContext context) {
             // The header shows the clock, so the summary line does not repeat the duration; the count is of tests.
             SummaryBar bar = new SummaryBar("summary") { Elapsed = snapshot.Elapsed, ShowElapsed = false, DoneLabel = context.Labels.TestsDoneCount };
-            bar.SetProgress(snapshot.Done, snapshot.Total ?? 0);
+            bar.Progress(snapshot.Done, snapshot.Total ?? 0);
             Localization.WidgetLabels labels = context.Labels;
-            bar.SetCounter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);
-            bar.SetCounter(labels.TestsPassedCount, snapshot.Passed, StatusKind.Pass);
-            bar.SetCounter(labels.SkippedCount, snapshot.Skipped, StatusKind.Skip);
+            bar.Counter(labels.FailedCount, snapshot.Failed, StatusKind.Fail);
+            bar.Counter(labels.TestsPassedCount, snapshot.Passed, StatusKind.Pass);
+            bar.Counter(labels.SkippedCount, snapshot.Skipped, StatusKind.Skip);
             if (snapshot.Inconclusive > 0) {
-                bar.SetCounter(labels.TestsInconclusiveCount, snapshot.Inconclusive, StatusKind.Warn);
+                bar.Counter(labels.TestsInconclusiveCount, snapshot.Inconclusive, StatusKind.Warn);
             }
             if (snapshot.NotRun > 0) {
-                bar.SetCounter(labels.TestsNotRunCount, snapshot.NotRun, StatusKind.Skip);
+                bar.Counter(labels.TestsNotRunCount, snapshot.NotRun, StatusKind.Skip);
             }
             if (snapshot.BlockFailures > 0) {
-                bar.SetCounter(snapshot.BlockFailures == 1 ? labels.TestsOneBlockFailed : labels.TestsManyBlocksFailed, snapshot.BlockFailures, StatusKind.Fail);
+                bar.Counter(snapshot.BlockFailures == 1 ? labels.TestsOneBlockFailed : labels.TestsManyBlocksFailed, snapshot.BlockFailures, StatusKind.Fail);
             }
             return bar;
         }

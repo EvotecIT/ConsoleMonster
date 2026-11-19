@@ -1,7 +1,9 @@
 using System.Collections;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell.Pester {
     /// <summary>Presence-aware native Pester input and ConsoleMonster display options.</summary>
+    [Fluent]
     public sealed class ConsolePesterOptions {
         private readonly Hashtable _simple = new Hashtable(System.StringComparer.OrdinalIgnoreCase);
         internal Hashtable Simple() => (Hashtable)_simple.Clone();

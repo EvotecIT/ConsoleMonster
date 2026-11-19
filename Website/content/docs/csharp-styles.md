@@ -20,7 +20,7 @@ Every demo has three tabs: **PowerShell | C# | C# fluent**. They use the same wi
 
 A parameter keeps its domain name: `-Title 'Build'` becomes `Title = "Build"` or `.Title("Build")`. Panel's `-Border Rounded` maps to `Border = BoxStyle.Rounded` and `.Border(BoxStyle.Rounded)`; Table uses its own `TableBorder` enum with the same property name. Each demo's generated **How it maps** note names its actual owning members.
 
-Callback properties use `.Configure(item => item.Action = callback)`. C# treats `.Action(...)` as invoking the delegate property, so a property-named extension cannot assign it. Configure returns the same object and runs the assignments in order; it does not invoke the callback. The generated mapping notes show this exception for each affected parameter.
+Callback properties use the verb they declare: `.Run(callback)` for `Action`, `.Validate(...)` for `Validator`, `.ShowWhen(...)` for `VisibleWhen`, `.PreviewBy(...)` for `Preview`. C# treats `.Action(...)` as invoking the delegate property, so a property-named extension cannot assign it; the verb assigns the callback and returns the same object without invoking it. The generated mapping notes show this exception for each affected parameter.
 
 <div class="cm-lang" data-lang="powershell">
 
@@ -57,7 +57,7 @@ Ui.Panel()
 
 The C# snippets use `ConsoleMonster`, `ConsoleMonster.Layout`, `ConsoleMonster.Glyphs` and `ConsoleMonster.Widgets`. `.Content(widget)` attaches an existing widget; `.Content(c => …)` builds nested content, like PowerShell's `-Content { … }`. Rows, Columns, Stack, LayoutGrid, Panel and dashboard regions use the same grammar.
 
-A pipeline ending becomes a chain ending: `| Show-Console` maps to `.Show()`, and `| Export-ConsoleFrame -Path ./build.svg -Format Svg` maps to `.Export("./build.svg", "Svg")`. Export dispatches through the same registered format providers. Add `ConsoleMonster.Markdown` for Markdown display/export and `ConsoleMonster.Graphics` for raster formats; the core does not implement those formats.
+A pipeline ending becomes a chain ending: `| Show-Console` maps to `.Show()`, and `| Export-ConsoleFrame -Path ./build.svg -Format Svg` maps to `.Save("./build.svg")`, with the format taken from the extension (or `.Save(path, OutputFormat.Svg)`). Save dispatches through the same registered format providers. Add `ConsoleMonster.Markdown` for Markdown display/export and `ConsoleMonster.Graphics` for raster formats; the core does not implement those formats.
 
 PowerShell switches name the non-default behavior: `-NoMouse` maps to `Mouse = false` and `.Mouse(false)`. Numeric `-TimeoutSeconds 0.5` maps to `Timeout = TimeSpan.FromSeconds(0.5)` and `.Timeout(TimeSpan.FromSeconds(0.5))`. Constructor arguments, collection rows and host callbacks have explicit entries in the [API parity map](/docs/api-parity/).
 

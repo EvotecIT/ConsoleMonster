@@ -14,7 +14,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTextInput", DefaultParameterSetName = "Single", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletextinput/")]
     [OutputType(typeof(TextInput), typeof(TextArea))]
-    public sealed class CmdletNewConsoleTextInput : AppInputCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Interactive.TextInputOptions), Include = new[] { "Height", "ScrollRow", "Mask", "Role" })]
+    public sealed partial class CmdletNewConsoleTextInput : AppInputCmdlet {
         /// <summary><para type="description">Initial text; empty by default.</para></summary>
         [Parameter]
         public string? Value { get; set; }
@@ -48,10 +49,7 @@ namespace ConsoleMonster.PowerShell {
         /// <inheritdoc />
         protected override void EndProcessing() {
             var options = new TextInputOptions { Key = Key, Multiline = Multiline.IsPresent, Value = Value, Placeholder = Placeholder, MaxLength = MaxLength };
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Height))) { options.Height = Height; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(ScrollRow))) { options.ScrollRow = ScrollRow; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Mask))) { options.Mask = Mask; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Role))) { options.Role = Role; }
+            ApplyParameters(options);
             Emit(AppInput.Text(options));
         }
     }

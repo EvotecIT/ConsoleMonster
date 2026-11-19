@@ -24,13 +24,13 @@ LineChart chart = new LineChart { Unit = " ms" };
 for (int i = 0; i < p50.Length; i++) { chart.Add("p50", p50[i]); }
 for (int i = 0; i < p95.Length; i++) { chart.Add("p95", p95[i]); }
 Grid samples = new Grid("Samples")
-    .AddColumn("Time")
-    .AddColumn("P50")
-    .AddColumn("P95")
-    .AddColumn("Errors");
+    .Column("Time")
+    .Column("P50")
+    .Column("P95")
+    .Column("Errors");
 for (int i = 0; i < p50.Length; i++)
 {
-    samples.AddRow(times[i], times[i], p50[i], p95[i], errors[i]);
+    samples.Row(times[i], times[i], p50[i], p95[i], errors[i]);
 }
 ChartView latencyChart = new ChartView("Latency", chart) { LinkKey = "Sample" };
 foreach (string time in times) { latencyChart.PointLabels.Add(time); }

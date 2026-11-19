@@ -17,13 +17,13 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private static Table Wide() {
             Table table = new Table { Border = TableBorder.Rounded };
-            table.AddColumn(new TableColumn("Host") { IsKey = true });
-            table.AddColumn(new TableColumn("Site") { Priority = 1 });
-            table.AddColumn(new TableColumn("Owner") { Priority = 0 });
-            table.AddColumn(new TableColumn("Status") { Priority = 9, Presenter = CellPresenters.Status });
-            table.AddColumn(new TableColumn("Notes") { Priority = 0 });
-            table.AddValues("dc01.ad.adatum.com", "Warsaw-HQ", "Przemyslaw Klys", StatusKind.Pass, "primary domain controller");
-            table.AddValues("dc02.ad.adatum.com", "Krakow-Branch", "Ada Lovelace", StatusKind.Fail, "replication lag");
+            table.Column(new TableColumn("Host") { IsKey = true });
+            table.Column(new TableColumn("Site") { Priority = 1 });
+            table.Column(new TableColumn("Owner") { Priority = 0 });
+            table.Column(new TableColumn("Status") { Priority = 9, Presenter = CellPresenters.Status });
+            table.Column(new TableColumn("Notes") { Priority = 0 });
+            table.Values("dc01.ad.adatum.com", "Warsaw-HQ", "Przemyslaw Klys", StatusKind.Pass, "primary domain controller");
+            table.Values("dc02.ad.adatum.com", "Krakow-Branch", "Ada Lovelace", StatusKind.Fail, "replication lag");
             return table;
         }
 
@@ -63,10 +63,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(true)]
         public void CardsAndRecords_KeepExplicitTruncationAndOmissionHint(bool cards) {
             Table table = new Table { Caption = "+3 more rows", AlwaysCards = cards };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn(new TableColumn("Command") { Overflow = ColumnOverflow.Truncate, MaxLines = 1 });
-            table.AddColumn(new TableColumn("Notes") { MaxLines = 2 });
-            table.AddValues("api-01", "Get-Inventory -ComputerName api-01 -OutputPath /reports/very-long-file.json", "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen");
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column(new TableColumn("Command") { Overflow = ColumnOverflow.Truncate, MaxLines = 1 });
+            table.Column(new TableColumn("Notes") { MaxLines = 2 });
+            table.Values("api-01", "Get-Inventory -ComputerName api-01 -OutputPath /reports/very-long-file.json", "one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen");
             string text = Render(table, 40);
             Assert.Contains("+3 more rows", text);
             Assert.Contains("Get-Inventory", text);
@@ -80,9 +80,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(true)]
         public void SparseCardsAndRecords_KeepTheirIdentity(bool cards) {
             Table table = new Table { AlwaysCards = cards };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn("Owner").AddColumn("Note");
-            table.AddValues("api-01", null, null);
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column("Owner").Column("Note");
+            table.Values("api-01", null, null);
             Assert.Contains("api-01", Render(table, 48));
         }
 
@@ -94,10 +94,10 @@ namespace ConsoleMonster.Tests.Rendering {
         public void CardsAndRecords_NeverOverflow_PreservesTheCompleteValue(bool cards, int maxLines) {
             const string identifier = "https://example.test/a-long-identifier-that-must-survive/";
             Table table = new Table { AlwaysCards = cards };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn(new TableColumn("Identifier") { Overflow = ColumnOverflow.Never, MaxLines = maxLines });
-            table.AddColumn("Note");
-            table.AddValues("api-01", identifier, "Ready");
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column(new TableColumn("Identifier") { Overflow = ColumnOverflow.Never, MaxLines = maxLines });
+            table.Column("Note");
+            table.Values("api-01", identifier, "Ready");
             string text = Render(table, 40);
             Assert.DoesNotContain("…", text);
             Assert.Contains(identifier, text.Replace("\n", string.Empty).Replace(" ", string.Empty));
@@ -110,10 +110,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(true, true)]
         public void CardsAndRecords_WrappedValues_UseTheTableLimitUnlessExplicitlyUnlimited(bool cards, bool unlimited) {
             Table table = new Table { AlwaysCards = cards, WrapLines = 2 };
-            table.AddColumn(new TableColumn("Name") { IsKey = true });
-            table.AddColumn(new TableColumn("Notes") { MaxLines = unlimited ? TableColumn.Unlimited : 0 });
-            table.AddColumn("State");
-            table.AddValues("api-01", string.Concat(Enumerable.Repeat("one two three four five six seven eight nine ten ", 4)) + "TAIL", "Ready");
+            table.Column(new TableColumn("Name") { IsKey = true });
+            table.Column(new TableColumn("Notes") { MaxLines = unlimited ? TableColumn.Unlimited : 0 });
+            table.Column("State");
+            table.Values("api-01", string.Concat(Enumerable.Repeat("one two three four five six seven eight nine ten ", 4)) + "TAIL", "Ready");
             string text = Render(table, 40);
             if (unlimited) {
                 Assert.Contains("TAIL", text);
@@ -127,8 +127,8 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Negotiation_SingleRow_RendersRecordView() {
             Table table = new Table { Title = "dc01" };
-            table.AddColumn("Host").AddColumn("Site").AddColumn("Owner");
-            table.AddValues("dc01", "Warsaw", null);
+            table.Column("Host").Column("Site").Column("Owner");
+            table.Values("dc01", "Warsaw", null);
             string text = Render(table, 60);
             Assert.Contains("Site", text);
             Assert.Contains("Warsaw", text);
@@ -141,8 +141,8 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(ColumnOverflow.TruncateMiddle, "…\\cache\\A.json")]
         public void Overflow_TruncateModes_KeepTheExpectedEnd(ColumnOverflow overflow, string expected) {
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 0 };
-            table.AddColumn(new TableColumn("Path") { Overflow = overflow, Width = 20 });
-            table.AddValues(@"C:\ProgramData\DnsCache\A.json");
+            table.Column(new TableColumn("Path") { Overflow = overflow, Width = 20 });
+            table.Values(@"C:\ProgramData\DnsCache\A.json");
             string text = Render(table, 40);
             Assert.Contains(overflow == ColumnOverflow.Truncate ? expected : "A.json", text);
             Assert.Contains("…", text);
@@ -151,8 +151,8 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Overflow_WrapWithMaxLines_EndsWithEllipsis() {
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0, CardsBelow = 0 };
-            table.AddColumn(new TableColumn("Data") { Overflow = ColumnOverflow.Wrap, MaxLines = 2, Width = 12 });
-            table.AddValues("v=spf1 include:spf.protection.outlook.com include:_spf.google.com -all");
+            table.Column(new TableColumn("Data") { Overflow = ColumnOverflow.Wrap, MaxLines = 2, Width = 12 });
+            table.Values("v=spf1 include:spf.protection.outlook.com include:_spf.google.com -all");
             string[] lines = Render(table, 30).Split('\n').Where(l => l.Trim().Length > 0).ToArray();
             Assert.Equal(3, lines.Length);
             Assert.EndsWith("…", lines[2].TrimEnd());
@@ -161,9 +161,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void StableWidths_LiveValuesShrink_ColumnsKeepTheirWidth() {
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0 };
-            table.AddColumn("Name").AddColumn("Detail");
-            table.AddValues("a", "a fairly long detail value");
-            table.AddValues("b", "x");
+            table.Column("Name").Column("Detail");
+            table.Values("a", "a fairly long detail value");
+            table.Values("b", "x");
             int before = Render(table, 80).Split('\n')[0].TrimEnd().Length;
             Table again = table;
             again.Rows[0][1] = TableCell.FromValue("short");
@@ -174,14 +174,14 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Groups_SubtotalsAndTotals_SumPerGroupAndOverall() {
             Table table = new Table { Border = TableBorder.None, ShowSubtotals = true, ShowTotals = true, RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("Target") { IsKey = true });
-            table.AddColumn(new TableColumn("Failed") { Aggregate = ColumnAggregate.Sum, Presenter = CellPresenters.Number });
-            table.AddColumn(new TableColumn("Took") { Aggregate = ColumnAggregate.Sum, Presenter = CellPresenters.Duration });
-            table.AddGroup("Domains");
-            table.AddValues("ad", 2, TimeSpan.FromSeconds(10));
-            table.AddValues("eu", 1, TimeSpan.FromSeconds(20));
-            table.AddGroup("Controllers");
-            table.AddValues("dc01", 4, TimeSpan.FromSeconds(30));
+            table.Column(new TableColumn("Target") { IsKey = true });
+            table.Column(new TableColumn("Failed") { Aggregate = ColumnAggregate.Sum, Presenter = CellPresenters.Number });
+            table.Column(new TableColumn("Took") { Aggregate = ColumnAggregate.Sum, Presenter = CellPresenters.Duration });
+            table.Group("Domains");
+            table.Values("ad", 2, TimeSpan.FromSeconds(10));
+            table.Values("eu", 1, TimeSpan.FromSeconds(20));
+            table.Group("Controllers");
+            table.Values("dc01", 4, TimeSpan.FromSeconds(30));
             string text = Render(table, 60);
             Assert.Contains("Domains · 2", text);
             Assert.Matches(@"Subtotal\s+3\s+30 s", text);
@@ -192,10 +192,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void TopN_MaxRowsAndTotalRowCount_ShowsTheShowingFooter() {
             Table table = new Table { Border = TableBorder.None, MaxRows = 2, TotalRowCount = 1234, RecordViewRows = 0 };
-            table.AddColumn("Name");
-            table.AddValues("a");
-            table.AddValues("b");
-            table.AddValues("c");
+            table.Column("Name");
+            table.Values("a");
+            table.Values("b");
+            table.Values("c");
             string text = Render(table, 40);
             Assert.Contains("Showing 2 of 1,234", text);
             Assert.DoesNotContain(" c", text);
@@ -204,9 +204,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void DataBar_ScalesToColumnMaximumAndKeepsTheNumber() {
             Table table = new Table { Border = TableBorder.None, RecordViewRows = 0 };
-            table.AddColumn("Name").AddColumn(new TableColumn("Score") { Presenter = CellPresenters.DataBar });
-            table.AddValues("full", 100);
-            table.AddValues("half", 50);
+            table.Column("Name").Column(new TableColumn("Score") { Presenter = CellPresenters.DataBar });
+            table.Values("full", 100);
+            table.Values("half", 50);
             string[] lines = Render(table, 40).Split('\n');
             int full = lines[1].Count(ch => ch == '▆');
             int half = lines[2].Count(ch => ch == '▆');
@@ -231,10 +231,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_FirstGroupHeading_IsTheHeaderSeparator() {
             Table grouped = new Table { Border = TableBorder.Rounded };
-            grouped.AddColumn(new TableColumn("Host") { IsKey = true });
-            grouped.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-            grouped.AddGroup("Domain controllers");
-            grouped.AddValues("dc01.example.test", StatusKind.Pass);
+            grouped.Column(new TableColumn("Host") { IsKey = true });
+            grouped.Column(new TableColumn("Status") { Presenter = CellPresenters.Status });
+            grouped.Group("Domain controllers");
+            grouped.Values("dc01.example.test", StatusKind.Pass);
             string[] lines = Render(grouped, 80).Replace("\r\n", "\n").Split('\n');
             int header = Array.FindIndex(lines, line => line.Contains("Host"));
             Assert.StartsWith("├─ Domain controllers · 1 ", lines[header + 1]);
@@ -248,14 +248,14 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(TableBorder.Double, "╠═ Beta · 1 ", "╬")]
         public void Table_GroupHeadings_AreLabelledRulesThatKeepTheColumnsJoined(TableBorder border, string heading, string cross) {
             Table grouped = new Table { Border = border, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Name") { IsKey = true });
-            grouped.AddColumn(new TableColumn("Size"));
-            grouped.AddColumn(new TableColumn("Kind"));
-            grouped.AddGroup("Alpha");
-            grouped.AddValues("a1", 1, "x");
-            grouped.AddValues("a2", 2, "y");
-            grouped.AddGroup("Beta");
-            grouped.AddValues("b1", 3, "z");
+            grouped.Column(new TableColumn("Name") { IsKey = true });
+            grouped.Column(new TableColumn("Size"));
+            grouped.Column(new TableColumn("Kind"));
+            grouped.Group("Alpha");
+            grouped.Values("a1", 1, "x");
+            grouped.Values("a2", 2, "y");
+            grouped.Group("Beta");
+            grouped.Values("b1", 3, "z");
             string[] lines = Render(grouped, 60).Replace("\r\n", "\n").Split('\n');
             string rule = Array.Find(lines, line => line.Contains("Beta"))!;
             Assert.StartsWith(heading, rule);
@@ -268,17 +268,17 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_GroupCutByTop_ShowsShownOfTotalAndTheGroupCount() {
             Table grouped = new Table { Border = TableBorder.Rounded, MaxRows = 3, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Name") { IsKey = true });
-            grouped.AddColumn(new TableColumn("Size"));
-            grouped.AddGroup("Alpha");
-            grouped.AddValues("a1", 1);
-            grouped.AddValues("a2", 2);
-            grouped.AddGroup("Beta");
-            grouped.AddValues("b1", 3);
-            grouped.AddValues("b2", 4);
-            grouped.AddValues("b3", 5);
-            grouped.AddGroup("Gamma");
-            grouped.AddValues("c1", 6);
+            grouped.Column(new TableColumn("Name") { IsKey = true });
+            grouped.Column(new TableColumn("Size"));
+            grouped.Group("Alpha");
+            grouped.Values("a1", 1);
+            grouped.Values("a2", 2);
+            grouped.Group("Beta");
+            grouped.Values("b1", 3);
+            grouped.Values("b2", 4);
+            grouped.Values("b3", 5);
+            grouped.Group("Gamma");
+            grouped.Values("c1", 6);
             string text = Render(grouped, 60);
             Assert.Contains("Alpha · 2 ", text);
             Assert.Contains("Beta · 1 of 3 ", text);
@@ -291,13 +291,13 @@ namespace ConsoleMonster.Tests.Rendering {
         [InlineData(ThemeDensity.Compact)]
         public void Table_GroupHeadingWiderThanTheFirstColumn_WidensItSoNoColumnLineIsCovered(ThemeDensity density) {
             Table grouped = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Host"));
-            grouped.AddColumn(new TableColumn("Name"));
-            grouped.AddColumn(new TableColumn("Size"));
-            grouped.AddGroup("Small");
-            grouped.AddValues("dc01.example.test", "dc01", 3);
-            grouped.AddGroup("Domain controllers");
-            grouped.AddValues("dc02.example.test", "dc02", 4);
+            grouped.Column(new TableColumn("Host"));
+            grouped.Column(new TableColumn("Name"));
+            grouped.Column(new TableColumn("Size"));
+            grouped.Group("Small");
+            grouped.Values("dc01.example.test", "dc01", 3);
+            grouped.Group("Domain controllers");
+            grouped.Values("dc02.example.test", "dc02", 4);
             string[] lines = Render(grouped, 80, density: density).Replace("\r\n", "\n").Split('\n');
             string row = Array.Find(lines, line => line.Contains("dc02"))!;
             foreach (string rule in lines.Where(line => line.Contains("Small") || line.Contains("Domain controllers"))) {
@@ -312,10 +312,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_GroupHeadingFarWiderThanANarrowFirstColumn_CrossesInsteadOfStretchingIt() {
             Table grouped = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Id"));
-            grouped.AddColumn(new TableColumn("Name"));
-            grouped.AddGroup("A rather long group heading");
-            grouped.AddValues(1, "a");
+            grouped.Column(new TableColumn("Id"));
+            grouped.Column(new TableColumn("Name"));
+            grouped.Group("A rather long group heading");
+            grouped.Values(1, "a");
             string[] lines = Render(grouped, 80).Replace("\r\n", "\n").Split('\n');
             string row = Array.Find(lines, line => line.Contains(" a "))!;
             // The Id column keeps its own width ("│ Id │"); the table is still wide enough for the whole heading.
@@ -327,10 +327,10 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_GroupHeadings_DoNotWidenAColumnPastItsMaxWidth() {
             Table grouped = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Id") { MaxWidth = 4 });
-            grouped.AddColumn(new TableColumn("Name"));
-            grouped.AddGroup("Domain controllers");
-            grouped.AddValues(1, "dc01");
+            grouped.Column(new TableColumn("Id") { MaxWidth = 4 });
+            grouped.Column(new TableColumn("Name"));
+            grouped.Group("Domain controllers");
+            grouped.Values(1, "dc01");
             string[] lines = Render(grouped, 80).Replace("\r\n", "\n").Split('\n');
             string row = Array.Find(lines, line => line.Contains("dc01"))!;
             // "│ " + at most 4 + " │"
@@ -341,12 +341,12 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_WithoutAHeader_FirstGroupHeadingIsTheTopRule() {
             Table grouped = new Table { Border = TableBorder.Rounded, ShowHeader = false, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Name") { IsKey = true });
-            grouped.AddColumn(new TableColumn("Size"));
-            grouped.AddGroup("Alpha");
-            grouped.AddValues("a1", 1);
-            grouped.AddGroup("Beta");
-            grouped.AddValues("b1", 2);
+            grouped.Column(new TableColumn("Name") { IsKey = true });
+            grouped.Column(new TableColumn("Size"));
+            grouped.Group("Alpha");
+            grouped.Values("a1", 1);
+            grouped.Group("Beta");
+            grouped.Values("b1", 2);
             string[] lines = Render(grouped, 40).Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
             Assert.StartsWith("╭─ Alpha · 1 ", lines[0]);
             Assert.EndsWith("╮", lines[0].TrimEnd());
@@ -359,12 +359,12 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_WindowStartingOnAGroupHeading_DrawsItInPlaceOfTheHeaderSeparator() {
             Table grouped = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("Name") { IsKey = true });
-            grouped.AddColumn(new TableColumn("Size"));
-            grouped.AddGroup("Alpha");
-            grouped.AddValues("a1", 1);
-            grouped.AddGroup("Beta");
-            grouped.AddValues("b1", 2);
+            grouped.Column(new TableColumn("Name") { IsKey = true });
+            grouped.Column(new TableColumn("Size"));
+            grouped.Group("Alpha");
+            grouped.Values("a1", 1);
+            grouped.Group("Beta");
+            grouped.Values("b1", 2);
             RenderContext context = new RenderContext(TerminalProfile.Fixed(40, 20, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             // Rows: 0 Alpha, 1 a1, 2 Beta, 3 b1. A window from row 2 starts on the Beta heading.
             CellBuffer buffer = grouped.RenderWindow(40, 2, 2, context, out int headHeight, out List<int> rowLines, out _);
@@ -379,9 +379,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_TooNarrowForAGroupLabel_KeepsTheRuleAndItsBorder() {
             Table grouped = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
-            grouped.AddColumn(new TableColumn("N"));
-            grouped.AddGroup("Alpha");
-            grouped.AddValues("a");
+            grouped.Column(new TableColumn("N"));
+            grouped.Group("Alpha");
+            grouped.Values("a");
             string[] lines = Render(grouped, 5).Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
             string rule = lines[2];
             Assert.StartsWith("├", rule);
@@ -392,11 +392,11 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void Table_SingleGroupedRow_RecordViewKeepsTheGroupHeading() {
             Table grouped = new Table { Border = TableBorder.Rounded };
-            grouped.AddColumn(new TableColumn("Id"));
-            grouped.AddColumn(new TableColumn("Cpu"));
-            grouped.AddColumn(new TableColumn("Handles"));
-            grouped.AddGroup("pwsh");
-            grouped.AddValues(4242, 1.5, 300);
+            grouped.Column(new TableColumn("Id"));
+            grouped.Column(new TableColumn("Cpu"));
+            grouped.Column(new TableColumn("Handles"));
+            grouped.Group("pwsh");
+            grouped.Values(4242, 1.5, 300);
             string[] lines = Render(grouped, 60).Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
             Assert.Contains(lines, line => line.Trim().StartsWith("pwsh", StringComparison.Ordinal) && line.Contains("1"));
             Assert.Contains(lines, line => line.Contains("Handles"));
@@ -407,10 +407,10 @@ namespace ConsoleMonster.Tests.Rendering {
         public void Table_MinimalAndNoneBorders_ShowGroupHeadings() {
             foreach (TableBorder border in new[] { TableBorder.Minimal, TableBorder.None }) {
                 Table grouped = new Table { Border = border, RecordViewRows = 0 };
-                grouped.AddColumn(new TableColumn("Name") { IsKey = true });
-                grouped.AddColumn(new TableColumn("Size"));
-                grouped.AddGroup("Alpha");
-                grouped.AddValues("a1", 1);
+                grouped.Column(new TableColumn("Name") { IsKey = true });
+                grouped.Column(new TableColumn("Size"));
+                grouped.Group("Alpha");
+                grouped.Values("a1", 1);
                 Assert.Contains("Alpha · 1", Render(grouped, 40));
             }
         }

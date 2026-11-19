@@ -183,14 +183,14 @@ namespace ConsoleMonster.Views {
             Type? source = present.Count > 0 && present.All(item => CellPresenters.IsFileSource(item.GetType())) ? present[0].GetType() : null;
             foreach (string column in columns) {
                 types.TryGetValue(column, out Type? type);
-                table.AddColumn(new TableColumn(Markup.Escape(column)) { Presenter = CellPresenters.ForMember(column, type, source) });
+                table.Column(new TableColumn(Markup.Escape(column)) { Presenter = CellPresenters.ForMember(column, type, source) });
             }
             foreach (object item in present) {
                 Dictionary<string, object?> values = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
                 foreach (InspectMember member in Members(item, options)) {
                     values[member.Name] = SafeRead(member);
                 }
-                table.AddValues(columns.Select(column => values.TryGetValue(column, out object? value) ? Plain(value) : null).ToArray());
+                table.Values(columns.Select(column => values.TryGetValue(column, out object? value) ? Plain(value) : null).ToArray());
             }
             return table;
         }

@@ -61,12 +61,12 @@ namespace ConsoleMonster.Examples.Showcases
             MenuItem targets = new MenuItem("Targets")
             {
                 Hotkey = 't',
-                IconName = GlyphIcon.Targets,
+                Icon = Icons.Targets,
                 Description = "Servers the tasks run on. The list is loaded from the inventory; offline servers cannot be picked.",
                 LoadChoices = (context, token) => ToolboxData.LoadServersAsync(null, token)
             };
             targets.Minimum = 1;
-            MenuItem tasks = new MenuItem("Tasks").Hotkey('k').IconName(GlyphIcon.Tasks).Description("What to run on every target. Tasks marked 'changes' modify the servers; the rest only read.").MultiSelect(ToolboxData.Tasks, t => t.Name, t => t.Category, ToolboxData.TaskPreview);
+            MenuItem tasks = new MenuItem("Tasks").Hotkey('k').Icon(Icons.Tasks).Description("What to run on every target. Tasks marked 'changes' modify the servers; the rest only read.").MultiSelect(ToolboxData.Tasks, t => t.Name, t => t.Category, ToolboxData.TaskPreview);
             foreach (Choice c in tasks.Choices)
             {
                 ToolboxTask task = (ToolboxTask)c.Value!;
@@ -85,14 +85,14 @@ namespace ConsoleMonster.Examples.Showcases
             Form options = OptionsForm();
             menu.Add(targets);
             menu.Add(tasks);
-            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').IconName(GlyphIcon.Settings).Description("How the run behaves: parallelism, the report and notifications.").Form(options, (context, result) => context.Toast("Options saved"));
+            MenuItem optionsItem = new MenuItem("Options").Hotkey('o').Icon(Icons.Settings).Description("How the run behaves: parallelism, the report and notifications.").Form(options, (context, result) => context.Toast("Options saved"));
             menu.Add(optionsItem);
-            menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Description("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
+            menu.Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Description("Saved combinations of targets, tasks and options. Save one from Review & run.").Presets());
             menu.Separator();
             menu.Item("Review & run", i =>
             {
                 i.Hotkey = 'r';
-                i.IconName = GlyphIcon.Run;
+                i.Icon = Icons.Run;
                 i.Review = context => Review(context, targets, tasks, optionsItem, options);
             });
             menu.Item("History", i =>
@@ -193,7 +193,7 @@ namespace ConsoleMonster.Examples.Showcases
             };
             string optionArguments = options.BuildCommand();
             review.Command = CommandLine.Join("Invoke-ServerToolbox", arguments) + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
-            review.Run = ctx => Execute(ctx, servers, selected, values);
+            review.Action = ctx => Execute(ctx, servers, selected, values);
             return review;
         }
 
@@ -234,9 +234,9 @@ namespace ConsoleMonster.Examples.Showcases
             {
                 Border = TableBorder.Minimal
             };
-            failures.AddColumn("Server");
-            failures.AddColumn("Task");
-            failures.AddColumn(new TableColumn("Finding") { Flexible = true });
+            failures.Column("Server");
+            failures.Column("Task");
+            failures.Column(new TableColumn("Finding") { Flexible = true });
             Stopwatch watch = Stopwatch.StartNew();
             log.Write("Started " + tasks.Count + " tasks on " + servers.Count + " servers, " + throttle + " at a time");
             for (int t = 0; t < tasks.Count; t++)
@@ -259,7 +259,7 @@ namespace ConsoleMonster.Examples.Showcases
                         case StatusKind.Fail:
                             failed++;
                             string finding = tasks[t].Category == "Security" ? "3 updates missing for 41 days" : "volume D: below 5% free";
-                            failures.AddRow(server.Name, tasks[t].Name, finding);
+                            failures.Row(server.Name, tasks[t].Name, finding);
                             log.Error(server.Name + " · " + tasks[t].Name + ": " + finding);
                             break;
                         case StatusKind.Warn:
@@ -324,15 +324,15 @@ namespace ConsoleMonster.Examples.Showcases
             {
                 Border = TableBorder.Minimal
             };
-            table.AddColumn("When");
-            table.AddColumn(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
-            table.AddColumn(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
-            table.AddColumn("Result");
-            table.AddColumn(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
+            table.Column("When");
+            table.Column(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
+            table.Column(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
+            table.Column("Result");
+            table.Column(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
             foreach (Run run in Enumerable.Reverse(History))
             {
                 StatusKind status = run.Failed > 0 ? StatusKind.Fail : run.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
-                table.AddRow(run.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture), run.Servers.ToString(CultureInfo.CurrentCulture), run.Tasks.ToString(CultureInfo.CurrentCulture), TableCell.ForStatus(status, run.Passed + " passed · " + run.Warnings + " warn · " + run.Failed + " failed"), NumberFormat.Duration(run.Elapsed));
+                table.Row(run.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture), run.Servers.ToString(CultureInfo.CurrentCulture), run.Tasks.ToString(CultureInfo.CurrentCulture), TableCell.ForStatus(status, run.Passed + " passed · " + run.Warnings + " warn · " + run.Failed + " failed"), NumberFormat.Duration(run.Elapsed));
             }
 
             return table;

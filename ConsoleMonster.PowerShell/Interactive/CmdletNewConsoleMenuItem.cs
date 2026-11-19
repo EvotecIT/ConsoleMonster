@@ -53,13 +53,15 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public string? Description { get; set; }
 
-        /// <summary><para type="description">A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.</para></summary>
+        /// <summary><para type="description">A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.</para></summary>
         [Parameter]
-        public string? Icon { get; set; }
+        public string? Mark { get; set; }
 
-        /// <summary><para type="description">A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.</para></summary>
+        /// <summary><para type="description">An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.</para></summary>
         [Parameter]
-        public ConsoleMonster.Glyphs.GlyphIcon? IconName { get; set; }
+        [Alias("IconName")]
+        [ArgumentCompleter(typeof(Binding.IconKeyCompleter))]
+        public ConsoleMonster.Icon Icon { get; set; }
 
         /// <summary><para type="description">Right-aligned text: a string, rich text, or a scriptblock recomputed whenever the menu draws.</para></summary>
         [Parameter]
@@ -196,10 +198,11 @@ namespace ConsoleMonster.PowerShell {
             if (Single.IsPresent && (Minimum.HasValue || Maximum.HasValue)) { throw new PSArgumentException("Single selection does not support Minimum or Maximum."); }
             MenuItem item = new MenuItem(Label ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
                 Description = Description,
-                Icon = Icon,
-                IconName = IconName,
+                Mark = Mark,
                 Hotkey = Hotkey
             };
+            // Setting Icon clears Mark, so only an -Icon the caller passed may replace a -Mark.
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Icon))) { item.Icon = Icon; }
             ApplyDynamic(item);
             if (Separator.IsPresent) {
                 item.Kind = MenuItemKind.Separator;

@@ -110,9 +110,9 @@ The data file is a PowerShell module convention. In .NET code, declare the same 
 
 ```csharp
 var table = new Table { RecordViewRows = 0 };
-table.AddColumn("Name");
-table.AddColumn(new TableColumn("Health") { Presenter = CellPresenters.StatusWord });
-table.AddValues("alpha", "Pass");
+table.Column("Name");
+table.Column(new TableColumn("Health") { Presenter = CellPresenters.StatusWord });
+table.Values("alpha", "Pass");
 Terminal.Write(table);
 ```
 

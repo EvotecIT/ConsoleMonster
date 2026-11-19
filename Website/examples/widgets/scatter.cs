@@ -8,7 +8,7 @@ LineChart chart = new LineChart()
     Scatter = true,
     Unit = "ms"
 };
-chart.AddSeries("latency", ThemeToken.Accent2);
+chart.Series("latency", ThemeToken.Accent2);
 for (int i = 0; i < 60; i++)
 {
     chart.Add("latency", 40 + ((i * 37) % 23) + (i % 7 == 0 ? 30 : 0));

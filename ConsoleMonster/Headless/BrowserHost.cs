@@ -10,9 +10,11 @@ using ConsoleMonster.Export;
 using ConsoleMonster.Input;
 using ConsoleMonster.Serialization;
 using ConsoleMonster.Sessions;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Headless {
     /// <summary>Settings for <see cref="BrowserHost.Start"/>.</summary>
+    [Fluent]
     public sealed class BrowserHostOptions {
         /// <summary>The port on 127.0.0.1 (default 0: the system picks a free one; read it from <see cref="BrowserHost.Address"/>).</summary>
         public int Port { get; set; }

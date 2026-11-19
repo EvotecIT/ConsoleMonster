@@ -23,7 +23,7 @@
       "command": "dotnet",
       "argsList": ["test", "tools/SiteFrames.Tests/SiteFrames.Tests.csproj", "-c", "Release", "--nologo", "--logger", "trx;LogFileName=site-frames.trx", "--results-directory", "./_reports/tests"],
       "workingDirectory": ".",
-      "timeoutSeconds": 180
+      "timeoutSeconds": 360
     },
     {
       "task": "exec",

@@ -95,7 +95,7 @@ namespace ConsoleMonster.Tests.Live {
         }
 
         private static LiveTable Jobs() {
-            Table table = new Table().AddColumn("Job").AddColumn("State").AddColumn("Took");
+            Table table = new Table().Column("Job").Column("State").Column("Took");
             return new LiveTable(table, "jobs");
         }
 

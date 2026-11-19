@@ -43,9 +43,9 @@ namespace ConsoleMonster.Tests.Widgets {
         public void RepeatedLabelsRemainDistinctWithoutReplacingEarlierValues() {
             var labels = new HashSet<string>(StringComparer.Ordinal);
             var options = new ChartOptions();
-            options.AddItem(Chart.UniqueLabel("same", labels), 2);
-            options.AddItem(Chart.UniqueLabel("same", labels), 3);
-            options.AddItem(Chart.UniqueLabel("same (2)", labels), 4);
+            options.Item(Chart.UniqueLabel("same", labels), 2);
+            options.Item(Chart.UniqueLabel("same", labels), 3);
+            options.Item(Chart.UniqueLabel("same (2)", labels), 4);
             var chart = Assert.IsType<BarChart>(Chart.Create(options));
             Assert.Equal(new[] { "same", "same (2)", "same (2) (2)" }, chart.Items.Select(item => item.Label));
             Assert.Equal(new[] { 2.0, 3, 4 }, chart.Items.Select(item => item.Value));
@@ -57,7 +57,7 @@ namespace ConsoleMonster.Tests.Widgets {
             double second = BitConverter.Int64BitsToDouble(0x3ff0000000000002);
             Assert.True(Chart.TryNumber(first, out double parsed));
             Assert.Equal(first, parsed);
-            var bars = Assert.IsType<BarChart>(Chart.Create(new ChartOptions().AddItem("value", parsed)));
+            var bars = Assert.IsType<BarChart>(Chart.Create(new ChartOptions().Item("value", parsed)));
             Assert.Equal(first, Assert.Single(bars.Items).Value);
             var histogram = Assert.IsType<Histogram>(Chart.Create(new ChartOptions {
                 Type = ChartType.Histogram, Edges = new[] { first, second }, Values = new[] { first, second }
@@ -148,7 +148,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(GlyphTier.Basic)]
         [InlineData(GlyphTier.Ascii)]
         public void ExistingRendererFramesIncludeSignedBarsHistogramAndTrend(GlyphTier tier) {
-            IWidget bars = Chart.Create(new ChartOptions { Signed = true }.AddItem("loss", -2).AddItem("gain", 4).AddItem("zero", 0));
+            IWidget bars = Chart.Create(new ChartOptions { Signed = true }.Item("loss", -2).Item("gain", 4).Item("zero", 0));
             IWidget histogram = Chart.Create(new ChartOptions {
                 Type = ChartType.Histogram, Edges = new[] { 0.0, 1, 2 }, Values = new[] { 0.0, 1, 2 }
             });
@@ -159,7 +159,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void ColouredChartSharesSignedZeroBaseline() {
-            IWidget chart = Chart.Create(new ChartOptions { Signed = true }.AddItem("loss", -4).AddItem("gain", 4).AddItem("zero", 0));
+            IWidget chart = Chart.Create(new ChartOptions { Signed = true }.Item("loss", -4).Item("gain", 4).Item("zero", 0));
             Canvas.RenderContext context = Terminal.CreateContext(TestTerminal.Profile(40, colors: ColorDepth.Ansi16), Theme.Dark);
             Canvas.CellBuffer buffer = FrameComposer.RenderBlock(chart, 40, context);
             int zero = buffer.GetRowText(0).IndexOf('|');

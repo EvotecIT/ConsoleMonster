@@ -62,7 +62,7 @@ using (StreamReader reader = File.OpenText(recording))
 {
     File.WriteAllText(
         Path.Combine(Path.GetTempPath(), "deploy.html"),
-        Recording.ExportHtml(
+        Recording.ToHtml(
             dashboard,
             reader,
             new RecordingExportOptions { Width = 100, Height = 16 }));

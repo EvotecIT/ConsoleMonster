@@ -25,7 +25,7 @@ public sealed class ConsoleViewFontTests {
         string tokens = string.Concat(Enum.GetValues(typeof(Glyph)).Cast<Glyph>().Select(set.Get))
             + string.Concat(Enum.GetValues(typeof(StatusKind)).Cast<StatusKind>().Select(set.StatusMarker))
             + string.Concat(Enum.GetValues(typeof(Severity)).Cast<Severity>().Select(value => StatusScale.Marker(value, tier)))
-            + string.Concat(Enum.GetValues(typeof(GlyphIcon)).Cast<GlyphIcon>().Select(set.Icon))
+            + string.Concat(Icons.All.Select(set.Icon))
             + string.Concat(Enumerable.Range(1, 8).Select(set.HorizontalFill));
         int[] missing = tokens.Where(c => !char.IsWhiteSpace(c)).Distinct().Where(c => !Covered(bytes, c)).Select(c => (int)c).ToArray();
         Assert.True(missing.Length == 0, font + " lacks " + string.Join(", ", missing.Select(c => "U+" + c.ToString("X4"))));

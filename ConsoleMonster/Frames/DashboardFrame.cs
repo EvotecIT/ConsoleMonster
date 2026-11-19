@@ -4,6 +4,7 @@ using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Views;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Frames;
 
@@ -44,6 +45,7 @@ public sealed class DashboardFrame : IWidget {
     /// title line, attention list and sections, so it must carry its own title line and list every problem; the frame adds
     /// the meter counts and the footer.
     /// </summary>
+    [Fluent("CompactBy")]
     public Func<FrameScale, IWidget>? Compact { get; set; }
 
     /// <inheritdoc />

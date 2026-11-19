@@ -32,7 +32,8 @@ namespace ConsoleMonster.PowerShell {
     /// Complete-ConsoleRun $run</code>
     /// </example>
     [Cmdlet(VerbsData.Update, "Console", DefaultParameterSetName = "Fields", HelpUri = "https://consolemonster.dev/powershell/commands/update-console/")]
-    public sealed class CmdletUpdateConsole : PSCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Live.WidgetUpdate), Include = new[] { "NodeKey", "EdgeKey", "Key", "Total", "Increment", "Status", "Result", "ParentKey", "Index", "Count", "CellCount" })]
+    public sealed partial class CmdletUpdateConsole : PSCmdlet {
         /// <summary>Unsupported pipeline input for update modes that do not take rows or content.</summary>
         [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Fields")]
         [Parameter(ValueFromPipeline = true, DontShow = true, ParameterSetName = "Append")]
@@ -230,18 +231,11 @@ namespace ConsoleMonster.PowerShell {
                 session ??= LiveSession.Current;
                 if (session == null) { throw new InvalidOperationException("No console dashboard is running. Use Invoke-ConsoleDashboard first."); }
                 var update = new WidgetUpdate();
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(NodeKey))) { update.NodeKey = NodeKey; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(EdgeKey))) { update.EdgeKey = EdgeKey; }
+                ApplyParameters(update);
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Cut))) { update.Cut = Cut.IsPresent; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Key))) { update.Key = Key; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { update.Label = PSText.EventText(Label, out _); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Detail))) { update.Detail = PSText.EventText(Detail, out _); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) { update.Value = PSText.Unwrap(Value); }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Total))) { update.Total = Total; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Increment))) { update.Increment = Increment; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Status))) { update.Status = Status; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Result))) { update.Result = Result; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(ParentKey))) { update.ParentKey = ParentKey; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(RemainingSeconds))) { update.Remaining = TimeSpan.FromSeconds(RemainingSeconds); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Counter))) { update.Counter = Counters(Counter); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Restart))) { update.Restart = Restart.IsPresent; }
@@ -250,10 +244,7 @@ namespace ConsoleMonster.PowerShell {
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Row))) { update.Row = TableRow(Row, session, WidgetId); }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(RemoveRow))) { update.RemoveRow = RemoveRow.IsPresent; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(ClearRows))) { update.ClearRows = ClearRows.IsPresent; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Index))) { update.Index = Index; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(AppendCells))) { update.AppendCells = AppendCells.IsPresent; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(Count))) { update.Count = Count; }
-                if (MyInvocation.BoundParameters.ContainsKey(nameof(CellCount))) { update.CellCount = CellCount; }
                 if (MyInvocation.BoundParameters.ContainsKey(nameof(Content))) { update.Content = ContentWidget(Content); }
                 ConsoleUpdate.Apply(session, WidgetId, update);
             } catch (ArgumentException error) {

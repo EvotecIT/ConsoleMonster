@@ -90,12 +90,12 @@ Form BuildForm()
         .Default("ServiceUser")
         .ParameterName("Account");
     TextField user = service.Text("UserName", "User name")
-        .Configure(configured => configured.VisibleWhen = v => Equals(v["Account"], "Custom"))
+        .ShowWhen(v => Equals(v["Account"], "Custom"))
         .Required()
         .Placeholder("toolbox-agent")
         .ParameterName("UserName");
     SecretField password = service.Secret("Password", "Password")
-        .Configure(configured => configured.VisibleWhen = v => Equals(v["Account"], "Custom"))
+        .ShowWhen(v => Equals(v["Account"], "Custom"))
         .ParameterName("Password")
         .CommandPlaceholder("(Read-Host -AsSecureString)");
     ToggleField automatic = service.Toggle("AutoStart", "Start automatically")
@@ -117,14 +117,11 @@ Form BuildForm()
         .Help("Choosing a region loads its servers.");
     ChoiceField server = connection.Select("Server", "Server");
     server.DependsOn.Add("Region");
-    server.Required()
-        .ParameterName("Server")
-        .Configure(configured => configured.LoadChoices = async (values, token) =>
-        {
-            await Task.Delay(300, token);
-            return Servers(values.Get<string>("Region"));
-        })
-        .Help("Loaded for the chosen region; Esc cancels loading.");
+    server.Required().ParameterName("Server").ChoicesBy(async (values, token) =>
+    {
+        await Task.Delay(300, token);
+        return Servers(values.Get<string>("Region"));
+    }).Help("Loaded for the chosen region; Esc cancels loading.");
     NumberField port = connection.Number("Port", "Port")
         .Integer()
         .Minimum(1)
@@ -133,7 +130,7 @@ Form BuildForm()
         .ParameterName("Port");
     ToggleField proxy = connection.Toggle("UseProxy", "Use a proxy").ParameterName("UseProxy");
     TextField address = connection.Text("Proxy", "Proxy address")
-        .Configure(configured => configured.VisibleWhen = v => v.Get<bool>("UseProxy"))
+        .ShowWhen(v => v.Get<bool>("UseProxy"))
         .Required()
         .Placeholder("http://proxy.example.test:8080")
         .ParameterName("Proxy");

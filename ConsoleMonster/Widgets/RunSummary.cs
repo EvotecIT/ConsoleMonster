@@ -30,9 +30,9 @@ namespace ConsoleMonster.Widgets {
             var groups = snapshot.Items.Where(i => i.Item.Group.Length > 0).GroupBy(i => i.Item.Group).ToArray();
             if (groups.Length > 0) {
                 Table table = new Table { CardsBelow = 80 };
-                table.AddColumn("Group"); table.AddColumn("Done"); table.AddColumn("Passed"); table.AddColumn("Failed"); table.AddColumn("Warnings"); table.AddColumn("Skipped");
+                table.Column("Group"); table.Column("Done"); table.Column("Passed"); table.Column("Failed"); table.Column("Warnings"); table.Column("Skipped");
                 foreach (var group in groups) {
-                    table.AddRow(Markup.Escape(group.Key), group.Count(i => RunTracker.IsTerminal(i.Status)) + "/" + group.Count(), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Pass)), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Fail)), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Warn)), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Skip)));
+                    table.Row(Markup.Escape(group.Key), group.Count(i => RunTracker.IsTerminal(i.Status)) + "/" + group.Count(), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Pass)), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Fail)), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Warn)), TableCell.FromValue(group.Count(i => i.Status == Styling.StatusKind.Skip)));
                 }
                 rows.Add(RunDashboard.Label("Groups"));
                 rows.Add(table);
@@ -42,9 +42,9 @@ namespace ConsoleMonster.Widgets {
             if (problems.Length > 0) {
                 // Each problem keeps its entire message. Table's narrow cards wrap rather than hiding detail columns.
                 Table table = new Table { CardsBelow = 160, ShowKeyField = true };
-                table.AddColumn(new TableColumn("Item") { IsKey = true, MaxLines = TableColumn.Unlimited });
-                foreach (string column in new[] { "Target", "State", "Duration", "Message" }) { table.AddColumn(new TableColumn(column) { MaxLines = TableColumn.Unlimited }); }
-                foreach (var item in problems) { table.AddRow(Markup.Escape(item.Item.Label), Markup.Escape(item.Item.Target), TableCell.ForStatus(item.Status), NumberFormat.Duration(item.Duration), Markup.Escape(item.Detail)); }
+                table.Column(new TableColumn("Item") { IsKey = true, MaxLines = TableColumn.Unlimited });
+                foreach (string column in new[] { "Target", "State", "Duration", "Message" }) { table.Column(new TableColumn(column) { MaxLines = TableColumn.Unlimited }); }
+                foreach (var item in problems) { table.Row(Markup.Escape(item.Item.Label), Markup.Escape(item.Item.Target), TableCell.ForStatus(item.Status), NumberFormat.Duration(item.Duration), Markup.Escape(item.Detail)); }
                 rows.Add(RunDashboard.Label("Problems"));
                 rows.Add(table);
             }

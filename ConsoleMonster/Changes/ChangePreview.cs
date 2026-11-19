@@ -2,9 +2,11 @@ using System;
 using System.Globalization;
 using System.Threading;
 using ConsoleMonster.Interactive;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Changes {
     /// <summary>Options for <see cref="ChangePreview.Confirm"/>.</summary>
+    [Fluent]
     public sealed class ChangePreviewOptions {
         /// <summary>A title above the preview (markup), or null.</summary>
         public string? Title { get; set; }

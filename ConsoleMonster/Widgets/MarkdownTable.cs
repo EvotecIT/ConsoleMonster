@@ -37,13 +37,13 @@ namespace ConsoleMonster.Widgets {
         private Table Build(RenderContext context) {
             Table table = new Table { WrapLines = int.MaxValue, WrapHeaders = true, RecordViewRows = 0, KeepAllColumns = true, ShowKeyField = true };
             for (int c = 0; c < _headers.Length; c++) {
-                table.AddColumn(new TableColumn(MarkdownText.Resolve(_headers[c], context)) {
+                table.Column(new TableColumn(MarkdownText.Resolve(_headers[c], context)) {
                     Alignment = _alignments?[c],
                     MaxLines = TableColumn.Unlimited
                 });
             }
             foreach (RichText[] row in _rows) {
-                table.AddRow(row.Select(cell => new TableCell(MarkdownText.Resolve(cell, context).ToMarkup())).ToArray());
+                table.Row(row.Select(cell => new TableCell(MarkdownText.Resolve(cell, context).ToMarkup())).ToArray());
             }
             return table;
         }

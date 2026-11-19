@@ -20,11 +20,11 @@ namespace ConsoleMonster.Examples.Showcases {
         /// <returns>The table widget.</returns>
         public static Table BuildTable() {
             Table table = new Table { Border = TableBorder.Rounded, Title = "Owners" };
-            table.AddColumn("Owner").AddColumn("Site").AddColumn("Status").AddColumn("Mailboxes", HorizontalAlignment.Right).AddColumn("Note");
-            table.AddRow(new TableCell(Family + " K\u0142ys family"), new TableCell(Poland + " Warsaw"), TableCell.ForStatus(StatusKind.Pass), new TableCell("42"), new TableCell("ZWJ family"));
-            table.AddRow(new TableCell("\u5F20\u4F1F (Zhang Wei)"), new TableCell(Japan + " Tokyo"), TableCell.ForStatus(StatusKind.Warn), new TableCell("7"), new TableCell("CJK name"));
-            table.AddRow(new TableCell("\U0001F44D\U0001F3FD Ada"), new TableCell("London"), TableCell.ForStatus(StatusKind.Fail), new TableCell("1234"), new TableCell("skin tone"));
-            table.AddRow(new TableCell("#\uFE0F\u20E3 Ops"), new TableCell("\u2764\uFE0F Krak\u00F3w"), TableCell.ForStatus(StatusKind.Pass), new TableCell("9"), new TableCell("keycap, VS16"));
+            table.Column("Owner").Column("Site").Column("Status").Column("Mailboxes", HorizontalAlignment.Right).Column("Note");
+            table.Row(new TableCell(Family + " K\u0142ys family"), new TableCell(Poland + " Warsaw"), TableCell.ForStatus(StatusKind.Pass), new TableCell("42"), new TableCell("ZWJ family"));
+            table.Row(new TableCell("\u5F20\u4F1F (Zhang Wei)"), new TableCell(Japan + " Tokyo"), TableCell.ForStatus(StatusKind.Warn), new TableCell("7"), new TableCell("CJK name"));
+            table.Row(new TableCell("\U0001F44D\U0001F3FD Ada"), new TableCell("London"), TableCell.ForStatus(StatusKind.Fail), new TableCell("1234"), new TableCell("skin tone"));
+            table.Row(new TableCell("#\uFE0F\u20E3 Ops"), new TableCell("\u2764\uFE0F Krak\u00F3w"), TableCell.ForStatus(StatusKind.Pass), new TableCell("9"), new TableCell("keycap, VS16"));
             return table;
         }
 

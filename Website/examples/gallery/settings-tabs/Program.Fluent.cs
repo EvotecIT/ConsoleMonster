@@ -33,12 +33,12 @@ Collapsible firewall = Ui.Collapsible().Key("Firewall").Content(Ui.Rows().Conten
 })).Build();
 Outline sections = ((Outline)Ui.Outline()
     .Key("Sections")
-    .Build()).AddItem(new OutlineItem("Proxy").Target(proxy))
-    .AddItem(new OutlineItem("DNS").Target(dns))
-    .AddItem(new OutlineItem("Firewall").Target(firewall))
+    .Build()).Item(new OutlineItem("Proxy").Target(proxy))
+    .Item(new OutlineItem("DNS").Target(dns))
+    .Item(new OutlineItem("Firewall").Target(firewall))
     .SelectedIndex(0);
-Breadcrumb where = ((Breadcrumb)Ui.Breadcrumb().Key("Where").Build()).AddAncestor("Settings")
-    .AddAncestor("Network")
+Breadcrumb where = ((Breadcrumb)Ui.Breadcrumb().Key("Where").Build()).Ancestor("Settings")
+    .Ancestor("Network")
     .Outline(sections);
 Tabs layout = Ui.Tabs().Add("General", Ui.Rows().Content(rowsContent =>
 {

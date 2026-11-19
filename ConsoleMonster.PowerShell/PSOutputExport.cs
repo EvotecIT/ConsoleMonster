@@ -11,7 +11,7 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Pipeline adaptation shared by frame export and clipboard copying; core and add-on exporters own serialization.</summary>
     internal static class PSOutputExport {
-        internal static ExportFormat CoreFormat(string name) => (ExportFormat)Enum.Parse(typeof(ExportFormat), name, true);
+        internal static OutputFormat CoreFormat(string name) => (OutputFormat)Enum.Parse(typeof(OutputFormat), name, true);
 
         internal static bool IsMarkdown(string format) => string.Equals(format, "Markdown", StringComparison.OrdinalIgnoreCase)
             || string.Equals(format, "FencedText", StringComparison.OrdinalIgnoreCase);
@@ -25,7 +25,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal static string Export(IWidget widget, string format, ExportOptions options) => IsMarkdown(format)
             ? MarkdownExportBridge.Widget(widget, options, string.Equals(format, "FencedText", StringComparison.OrdinalIgnoreCase))
-            : System.Text.Encoding.UTF8.GetString(FrameExporter.Export(widget, format, options));
+            : FrameExporter.Render(widget, FrameExporter.ResolveFormat(format), options).ToText();
 
         /// <summary>Reject competing output modes before input is rendered, including an empty pipeline.</summary>
         internal static void Validate(PSCmdlet cmdlet) {
@@ -45,7 +45,7 @@ namespace ConsoleMonster.PowerShell {
 
         internal static string Document(IReadOnlyList<object> items, string format, ExportOptions options, PSCmdlet cmdlet) {
             if (items.Count == 1 && Frame(items[0]) is CellBuffer frame) {
-                return IsMarkdown(format) ? MarkdownExportBridge.Frame(frame) : System.Text.Encoding.UTF8.GetString(FrameExporter.Export(frame, format, options));
+                return IsMarkdown(format) ? MarkdownExportBridge.Frame(frame) : FrameExporter.Render(frame, FrameExporter.ResolveFormat(format), options).ToText();
             }
             return Prepare(items, options, cmdlet, widget => Export(widget, format, options));
         }

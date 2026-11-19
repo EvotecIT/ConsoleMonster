@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Constructs an outline using the same definition as New-ConsoleOutline.</summary>
+    [Fluent]
     public sealed class OutlineInputOptions : AppInputOptions {
         /// <summary>The entries, in order.</summary>
         public IList<OutlineItem> Items { get; } = new List<OutlineItem>();

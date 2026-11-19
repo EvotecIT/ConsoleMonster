@@ -1,8 +1,10 @@
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A retained page definition; its title becomes a stable tab identity at Build.</summary>
+    [Fluent]
     public sealed class TabOptions : IContentOwner {
         /// <summary>The unique page label.</summary>
         public string Title { get; set; } = string.Empty;

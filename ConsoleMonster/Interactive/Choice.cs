@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
     /// One option in a selection prompt, menu or choice field: the value returned when it is chosen, the title shown, and
     /// optional group, description, hotkey, badge, disabled reason and initial selection.
     /// </summary>
+    [Fluent]
     public sealed class Choice {
         /// <summary>Creates a choice.</summary>
         /// <param name="value">The value returned when chosen (any object).</param>
