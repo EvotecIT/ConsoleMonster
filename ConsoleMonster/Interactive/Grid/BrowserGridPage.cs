@@ -289,7 +289,7 @@ th,td{padding:6px 12px;border-bottom:1px solid var(--line);text-align:left;white
 th{position:sticky;top:0;background:var(--head);cursor:pointer;user-select:none;font-weight:600}
 th:hover,th:focus-visible{color:var(--focus);outline:none}th[aria-sort=ascending]::after{content:"" \2191""}th[aria-sort=descending]::after{content:"" \2193""}
 td.right,th.right{text-align:right;font-variant-numeric:tabular-nums}td.center,th.center{text-align:center}
-tbody tr{cursor:default}tbody tr[aria-selected=true] td{background:var(--sel)}tbody tr.focus td:first-child{box-shadow:inset 3px 0 0 var(--focus)}
+tbody:focus{outline:none}tbody:focus-visible tr.focus td{outline:2px solid var(--focus);outline-offset:-2px}tbody tr{cursor:default}tbody tr[aria-selected=true] td{background:var(--sel)}tbody tr.focus td:first-child{box-shadow:inset 3px 0 0 var(--focus)}
 .pass{color:var(--pass)}.fail{color:var(--fail)}.warn{color:var(--warn)}.info{color:var(--info)}.muted{color:var(--muted)}.accent{color:var(--accent)}
 .vis{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}.track{display:inline-block;width:80px;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
 .fill{display:block;height:100%;background:currentColor}td:not(.pass):not(.fail):not(.warn):not(.info):not(.muted) .fill{background:var(--accent)}
@@ -300,7 +300,7 @@ button.primary{background:var(--focus);border-color:var(--focus);color:#fff}butt
 .done{margin:auto;color:var(--muted);padding:24px;text-align:center}
 </style></head><body>
 <header><h1 id=""title""></h1><input id=""filter"" type=""search"" placeholder=""Filter"" aria-label=""Filter rows"" autocomplete=""off""></header>
-<main><table aria-multiselectable=""true""><thead><tr id=""head""></tr></thead><tbody id=""body""></tbody></table></main>
+<main><table aria-multiselectable=""true""><thead><tr id=""head""></tr></thead><tbody id=""body"" tabindex=""0"" aria-label=""Rows""></tbody></table></main>
 <footer><span id=""status"" role=""status""></span><button id=""cancel"" type=""button"">Cancel</button><button id=""ok"" type=""button"" class=""primary"">OK</button></footer>
 <script>
 const d=__DATA__;let sort=d.sort,desc=d.descending,picked=new Set(),shown=[],focus=-1,anchor=-1,sending=false,sent=false,failure='';
@@ -330,11 +330,12 @@ shown=d.rows.map((r,i)=>i).filter(i=>words.every(w=>cols.some(c=>key(d.rows[i][c
 if(!shown.includes(focus))focus=shown.length?shown[0]:-1;
 [...$('head').children].forEach((th,k)=>th.setAttribute('aria-sort',cols[k].i===sort?(desc?'descending':'ascending'):'none'));
 const body=$('body');body.replaceChildren();
-for(const i of shown){const tr=document.createElement('tr');tr.dataset.i=i;
+for(const i of shown){const tr=document.createElement('tr');tr.dataset.i=i;tr.id='row'+i;
 for(const c of cols){const v=d.rows[i][c.i],td=document.createElement('td');cell(td,v);const cls=[c.align!=='left'?c.align:'',v.r||''].join(' ').trim();if(cls)td.className=cls;tr.appendChild(td)}
 body.appendChild(tr)}mark()}
 // Selection and focus change the rows in place, so the rows under a double-click are still there for its second click.
 function mark(){for(const tr of $('body').children){const i=+tr.dataset.i;tr.setAttribute('aria-selected',single?i===focus:picked.has(i));tr.className=i===focus?'focus':''}
+if(focus>=0)$('body').setAttribute('aria-activedescendant','row'+focus);else $('body').removeAttribute('aria-activedescendant');
 const count=single?(focus>=0?1:0):picked.size,s=$('status');s.className=failure?'error':'';s.textContent=failure||(shown.length+' of '+d.rows.length+' rows'+(multiple&&count?' \u00b7 '+count+' selected':''))}
 function choose(i,toggle,range){focus=i;if(!multiple){mark();return}
 const from=shown.indexOf(anchor),to=shown.indexOf(i);
@@ -345,17 +346,19 @@ $('body').onclick=e=>{const i=row(e);if(i>=0)choose(i,e.ctrlKey||e.metaKey,e.shi
 $('body').ondblclick=e=>{const i=row(e);if(i>=0&&d.mode!=='None'){focus=i;if(multiple)picked=new Set([i]);answer(true)}};
 // As in the screen grid: marked rows in the current sort order, otherwise the focused row.
 function chosen(){if(d.mode==='None')return[];if(multiple&&picked.size)return d.rows.map((r,i)=>i).filter(i=>picked.has(i)).sort(order);return focus>=0?[focus]:[]}
-async function answer(ok){if(sending||sent)return;sending=true;failure='';const rows=ok?chosen():[];
-let reply;try{reply=await fetch('answer',{method:'POST',body:(ok?'ok:'+rows.join(','):'cancel')})}catch(e){reply=null}
+async function answer(ok){if(sending||sent)return;failure='';const rows=ok?chosen():[];sending=ok?'ok:'+rows.join(','):'cancel';
+let reply;try{reply=await fetch('answer',{method:'POST',body:sending})}catch(e){reply=null}
 sending=false;if(!reply||!reply.ok){failure='PowerShell did not receive the answer. Try again, or press Ctrl+C in PowerShell.';mark();return}
 sent=true;document.body.innerHTML='';const p=document.createElement('p');p.className='done';
 p.textContent=ok?(d.mode==='None'?'Closed.':'Sent '+rows.length+' row(s) back to PowerShell.')+' You can close this tab.':'Cancelled. You can close this tab.';document.body.appendChild(p)}
 $('filter').oninput=draw;$('ok').onclick=()=>answer(true);$('cancel').onclick=()=>answer(false);
 document.addEventListener('keydown',e=>{if(sent)return;const tag=e.target.tagName;
 if(e.key==='Escape'){answer(false)}else if(e.key==='Enter'&&tag!=='TH'&&tag!=='BUTTON'){answer(true)}
-else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const p=shown.indexOf(focus),n=Math.max(0,Math.min(shown.length-1,p+(e.key==='ArrowDown'?1:-1)));focus=shown[n]??-1;mark();document.querySelector('tr.focus')?.scrollIntoView({block:'nearest'})}
+else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(tag==='INPUT')$('body').focus();const p=shown.indexOf(focus),n=Math.max(0,Math.min(shown.length-1,p+(e.key==='ArrowDown'?1:-1)));focus=shown[n]??-1;mark();document.querySelector('tr.focus')?.scrollIntoView({block:'nearest'})}
 else if(e.key===' '&&tag!=='INPUT'&&tag!=='BUTTON'&&tag!=='TH'&&focus>=0){e.preventDefault();choose(focus,true,false)}});
-window.addEventListener('pagehide',()=>{if(!sent&&!sending){sent=true;navigator.sendBeacon('answer','cancel')}});
+// Arrow keys move from the filter into the rows, where Space marks them. A closing tab repeats an answer still being
+// sent (the browser may drop that request), or cancels; the grid takes the first answer that arrives.
+window.addEventListener('pagehide',()=>{if(!sent){navigator.sendBeacon('answer',sending||'cancel');sent=true}});
 draw();$('filter').focus();
 </script></body></html>";
     }
