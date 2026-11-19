@@ -227,9 +227,10 @@ namespace ConsoleMonster.Tests.Interactive {
             BrowserGridOptions browser = new BrowserGridOptions {
                 Open = address => {
                     _ = Task.Run(() => {
-                        // Sends one byte every 100 ms, so no single read ever stalls.
+                        // Declares an accepted length (three rows allow 70 bytes), then sends one byte every 100 ms, so the
+                        // body reaches the streaming read and no single read ever stalls.
                         using System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient(address.Host, address.Port);
-                        byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 1000\r\n\r\n");
+                        byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 60\r\n\r\n");
                         System.Net.Sockets.NetworkStream stream = client.GetStream();
                         stream.Write(head, 0, head.Length);
                         try {
@@ -251,7 +252,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Grid grid = Servers();
             GridResult result = grid.ShowInBrowser(Interactive(), Browser(async (client, address) => {
                 using (System.Net.Sockets.TcpClient dropped = new System.Net.Sockets.TcpClient(address.Host, address.Port)) {
-                    byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 100\r\n\r\nok:");
+                    byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 60\r\n\r\nok:");
                     dropped.GetStream().Write(head, 0, head.Length);
                     await Task.Delay(300).ConfigureAwait(false);
                 }
@@ -268,9 +269,9 @@ namespace ConsoleMonster.Tests.Interactive {
             BrowserGridOptions browser = new BrowserGridOptions {
                 Open = address => {
                     _ = Task.Run(() => {
-                        // Declares a longer body than it sends, then keeps the connection open.
+                        // Declares an accepted but longer body than it sends, then keeps the connection open.
                         using System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient(address.Host, address.Port);
-                        byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 100\r\n\r\nok:");
+                        byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 60\r\n\r\nok:");
                         client.GetStream().Write(head, 0, head.Length);
                         Thread.Sleep(5000);
                     });
@@ -279,6 +280,64 @@ namespace ConsoleMonster.Tests.Interactive {
             };
 
             Assert.ThrowsAny<OperationCanceledException>(() => Servers().ShowInBrowser(Interactive(), browser, stop.Token));
+        }
+
+        [Fact]
+        public void AnAnswerLargerThanEverySelectionIsRejectedAndTheGridKeepsWaiting() {
+            string status = string.Empty;
+            Grid grid = Servers();
+            GridResult result = grid.ShowInBrowser(Interactive(), Browser(async (client, address) => {
+                Assert.Equal(70, BrowserGridServer.MaxAnswerBytes(3));
+                using (System.Net.Sockets.TcpClient large = new System.Net.Sockets.TcpClient(address.Host, address.Port)) {
+                    System.Net.Sockets.NetworkStream stream = large.GetStream();
+                    byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 71\r\n\r\n");
+                    stream.Write(head, 0, head.Length);
+                    using System.IO.StreamReader reader = new System.IO.StreamReader(stream, Encoding.ASCII);
+                    status = await reader.ReadLineAsync().ConfigureAwait(false) ?? string.Empty;
+                }
+                await Answer(client, address, "ok:2").ConfigureAwait(false);
+            }));
+
+            Assert.StartsWith("HTTP/1.1 413", status);
+            Assert.Same(grid.Rows[2].Item, result.Items.Single());
+        }
+
+        [Fact]
+        public void FilterTextAndSortTiesUseTheRawValueLikeTheScreenGrid() {
+            Grid grid = new Grid("Files") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
+            grid.Column(new TableColumn("Size") { Presenter = CellPresenters.Bytes });
+            grid.Row("file", 1024L);
+            string html = Page(grid);
+
+            // The page shows the presented size but filters on the raw 1024, as -Filter '1024' does in the terminal.
+            Assert.Contains("\"s\":\"1024\"", html);
+            Assert.DoesNotContain("\"t\":\"1024\"", html);
+        }
+
+        [Fact]
+        public void VisualPresentersKeepTheirBarsAndSparklines() {
+            Grid grid = new Grid("Load") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
+            grid.Column(new TableColumn("Done") { Presenter = CellPresenters.Progress });
+            grid.Column(new TableColumn("Trend") { Presenter = CellPresenters.Sparkline });
+            grid.Row("job", 0.25, new[] { 1.0, 100.0, 1.0 });
+            string html = Page(grid);
+
+            Assert.Contains("\"v\":\"progress\",\"p\":0.25", html);
+            Assert.Contains("\"v\":\"spark\",\"d\":[1,100,1]", html);
+        }
+
+        [Fact]
+        public void AnAnswerThatArrivesIsKeptWhenItsAcknowledgementCannotBeSent() {
+            Grid grid = Servers();
+            GridResult result = grid.ShowInBrowser(Interactive(), Browser((client, address) => Task.Run(() => {
+                // Like a closing tab's beacon: sends the whole answer and leaves without reading the reply.
+                using System.Net.Sockets.TcpClient beacon = new System.Net.Sockets.TcpClient(address.Host, address.Port) { LingerState = new System.Net.Sockets.LingerOption(true, 0) };
+                byte[] request = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 4\r\n\r\nok:0");
+                beacon.GetStream().Write(request, 0, request.Length);
+            })));
+
+            Assert.True(result.Accepted);
+            Assert.Same(grid.Rows[0].Item, result.Items.Single());
         }
     }
 }
