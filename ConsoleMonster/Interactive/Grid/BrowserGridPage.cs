@@ -24,9 +24,11 @@ namespace ConsoleMonster.Interactive {
         }
 
         public static string Build(Grid grid, GridOptions options, CancellationToken cancellationToken) {
-            CultureInfo culture = grid.Presentation.Culture ?? CultureInfo.CurrentCulture;
-            // Presenters write for a wide, full-colour, full-glyph screen; the page keeps their text and role.
-            RenderContext render = Terminal.CreateContext(TerminalProfile.Fixed(200, 50, ColorDepth.TrueColor, GlyphTier.Full), (options.Interactive?.Theme) ?? Terminal.Theme);
+            InteractiveOptions interactive = options.Interactive ?? InteractiveOptions.Default;
+            // Presenters write for a wide, full-colour, full-glyph screen; the page keeps their text and role. The culture
+            // follows the resolved interaction profile, as in the screen grid, unless the grid's presentation sets one.
+            TerminalProfile profile = TerminalProfile.Fixed(200, 50, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(interactive.ResolveProfile().Culture);
+            RenderContext render = Terminal.CreateContext(profile, interactive.Theme ?? Terminal.Theme);
             PresenterContext presenter = grid.Presentation.CreateContext(render);
             int columns = grid.Columns.Count;
             object?[][] values = ResolveValues(grid, cancellationToken);
@@ -221,36 +223,37 @@ button.primary{background:var(--focus);border-color:var(--focus);color:#fff}butt
 <footer><span id=""status"" role=""status""></span><button id=""cancel"" type=""button"">Cancel</button><button id=""ok"" type=""button"" class=""primary"">OK</button></footer>
 <script>
 const d=__DATA__;let sort=d.sort,desc=d.descending,picked=new Set(),shown=[],focus=-1,anchor=-1,sending=false,sent=false,failure='';
-const $=id=>document.getElementById(id),cols=d.columns.map((c,i)=>({...c,i})).filter(c=>!c.hidden);
+const $=id=>document.getElementById(id),cols=d.columns.map((c,i)=>({...c,i})).filter(c=>!c.hidden),single=d.mode==='Single',multiple=d.mode==='Multiple';
 $('title').textContent=d.title;document.title=d.title;$('filter').value=d.filter;
 if(d.mode==='None'){$('ok').textContent='Close';$('cancel').hidden=true}
 for(const c of cols){const th=document.createElement('th');th.textContent=c.name;th.tabIndex=0;if(c.align!=='left')th.className=c.align;
 th.onclick=()=>{desc=sort===c.i?!desc:false;sort=c.i;draw()};th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();th.click()}};$('head').appendChild(th)}
-function draw(){const words=$('filter').value.toLowerCase().split(/\s+/).filter(Boolean);
-shown=d.rows.map((r,i)=>i).filter(i=>words.every(w=>cols.some(c=>d.rows[i][c.i].t.toLowerCase().includes(w))));
-if(sort>=0){shown.sort((a,b)=>{const k=d.rows[a][sort].k-d.rows[b][sort].k;return k===0?a-b:(desc?-k:k)})}
+const order=(a,b)=>{if(sort<0)return a-b;const k=d.rows[a][sort].k-d.rows[b][sort].k;return k===0?a-b:(desc?-k:k)};
+function draw(){const words=$('filter').value.toLowerCase().split(/[\s,]+/).filter(Boolean);
+shown=d.rows.map((r,i)=>i).filter(i=>words.every(w=>cols.some(c=>d.rows[i][c.i].t.toLowerCase().includes(w)))).sort(order);
 if(!shown.includes(focus))focus=shown.length?shown[0]:-1;
 [...$('head').children].forEach((th,k)=>th.setAttribute('aria-sort',cols[k].i===sort?(desc?'descending':'ascending'):'none'));
 const body=$('body');body.replaceChildren();
-for(const i of shown){const tr=document.createElement('tr');tr.setAttribute('aria-selected',picked.has(i));if(i===focus)tr.className='focus';
+for(const i of shown){const tr=document.createElement('tr');tr.setAttribute('aria-selected',single?i===focus:picked.has(i));if(i===focus)tr.className='focus';
 for(const c of cols){const v=d.rows[i][c.i],td=document.createElement('td');td.textContent=v.t;const cls=[c.align!=='left'?c.align:'',v.r||''].join(' ').trim();if(cls)td.className=cls;tr.appendChild(td)}
-tr.onclick=e=>choose(i,e.ctrlKey||e.metaKey,e.shiftKey);tr.ondblclick=()=>{if(d.mode!=='None'){picked=new Set([i]);answer(true)}};body.appendChild(tr)}
-const s=$('status');s.className=failure?'error':'';s.textContent=failure||(shown.length+' of '+d.rows.length+' rows'+(picked.size?' · '+picked.size+' selected':''))}
-function choose(i,toggle,range){focus=i;if(d.mode==='None'){draw();return}
+tr.onclick=e=>choose(i,e.ctrlKey||e.metaKey,e.shiftKey);tr.ondblclick=()=>{if(d.mode!=='None'){focus=i;if(multiple)picked=new Set([i]);answer(true)}};body.appendChild(tr)}
+const count=single?(focus>=0?1:0):picked.size,s=$('status');s.className=failure?'error':'';s.textContent=failure||(shown.length+' of '+d.rows.length+' rows'+(multiple&&count?' \u00b7 '+count+' selected':''))}
+function choose(i,toggle,range){focus=i;if(!multiple){draw();return}
 const from=shown.indexOf(anchor),to=shown.indexOf(i);
-if(d.mode==='Multiple'&&range&&from>=0&&to>=0){for(let k=Math.min(from,to);k<=Math.max(from,to);k++)picked.add(shown[k])}
-else if(d.mode==='Multiple'&&toggle){picked.has(i)?picked.delete(i):picked.add(i);anchor=i}else{picked=new Set([i]);anchor=i}draw()}
-async function answer(ok){if(sending||sent)return;sending=true;failure='';
-const rows=ok&&d.mode!=='None'?(picked.size?[...picked]:(focus>=0?[focus]:[])):[];
+if(range&&from>=0&&to>=0){for(let k=Math.min(from,to);k<=Math.max(from,to);k++)picked.add(shown[k])}
+else if(toggle){picked.has(i)?picked.delete(i):picked.add(i);anchor=i}else{picked=new Set([i]);anchor=i}draw()}
+// As in the screen grid: marked rows in the current sort order, otherwise the focused row.
+function chosen(){if(d.mode==='None')return[];if(multiple&&picked.size)return d.rows.map((r,i)=>i).filter(i=>picked.has(i)).sort(order);return focus>=0?[focus]:[]}
+async function answer(ok){if(sending||sent)return;sending=true;failure='';const rows=ok?chosen():[];
 let reply;try{reply=await fetch('answer',{method:'POST',body:(ok?'ok:'+rows.join(','):'cancel')})}catch(e){reply=null}
 sending=false;if(!reply||!reply.ok){failure='PowerShell did not receive the answer. Try again, or press Ctrl+C in PowerShell.';draw();return}
 sent=true;document.body.innerHTML='';const p=document.createElement('p');p.className='done';
 p.textContent=ok?(d.mode==='None'?'Closed.':'Sent '+rows.length+' row(s) back to PowerShell.')+' You can close this tab.':'Cancelled. You can close this tab.';document.body.appendChild(p)}
 $('filter').oninput=draw;$('ok').onclick=()=>answer(true);$('cancel').onclick=()=>answer(false);
-document.addEventListener('keydown',e=>{if(sent)return;
-if(e.key==='Escape'){answer(false)}else if(e.key==='Enter'&&e.target.tagName!=='TH'&&e.target.tagName!=='BUTTON'){answer(true)}
+document.addEventListener('keydown',e=>{if(sent)return;const tag=e.target.tagName;
+if(e.key==='Escape'){answer(false)}else if(e.key==='Enter'&&tag!=='TH'&&tag!=='BUTTON'){answer(true)}
 else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const p=shown.indexOf(focus),n=Math.max(0,Math.min(shown.length-1,p+(e.key==='ArrowDown'?1:-1)));focus=shown[n]??-1;draw();document.querySelector('tr.focus')?.scrollIntoView({block:'nearest'})}
-else if(e.key===' '&&e.target.tagName!=='INPUT'&&e.target.tagName!=='BUTTON'&&focus>=0){e.preventDefault();choose(focus,true,false)}});
+else if(e.key===' '&&tag!=='INPUT'&&tag!=='BUTTON'&&tag!=='TH'&&focus>=0){e.preventDefault();choose(focus,true,false)}});
 window.addEventListener('pagehide',()=>{if(!sent&&!sending){sent=true;navigator.sendBeacon('answer','cancel')}});
 draw();$('filter').focus();
 </script></body></html>";

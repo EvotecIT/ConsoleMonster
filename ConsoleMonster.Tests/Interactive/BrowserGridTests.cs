@@ -196,6 +196,73 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
+        public void ASelectionOfEveryRowInALargeGridIsAccepted() {
+            Grid grid = new Grid("Many");
+            grid.Column("Index");
+            for (int i = 0; i < 13000; i++) { grid.Row(i, i); }
+            string all = "ok:" + string.Join(",", Enumerable.Range(0, 13000));
+            GridResult result = grid.ShowInBrowser(Interactive(), Browser((client, address) => Answer(client, address, all)));
+
+            Assert.True(result.Accepted);
+            Assert.Equal(13000, result.Items.Count);
+        }
+
+        [Fact]
+        public void TheResolvedProfileCultureFormatsTheCells() {
+            Grid grid = new Grid("Amounts");
+            grid.Column("Amount");
+            grid.Row("total", 1234.5);
+            GridOptions options = Interactive();
+            options.Interactive!.Profile = options.Interactive.Profile!.WithCulture(CultureInfo.GetCultureInfo("de-DE"));
+            string html = string.Empty;
+            grid.ShowInBrowser(options, Browser((client, address) => Answer(client, address, "cancel"), page => html = page));
+
+            Assert.Contains("1234,5", html.Replace(".", string.Empty));
+            Assert.DoesNotContain("1234.5", html);
+        }
+
+        [Fact]
+        public void ASlowlyTrickledAnswerStillHonoursCancellation() {
+            using CancellationTokenSource stop = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            BrowserGridOptions browser = new BrowserGridOptions {
+                Open = address => {
+                    _ = Task.Run(() => {
+                        // Sends one byte every 100 ms, so no single read ever stalls.
+                        using System.Net.Sockets.TcpClient client = new System.Net.Sockets.TcpClient(address.Host, address.Port);
+                        byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 1000\r\n\r\n");
+                        System.Net.Sockets.NetworkStream stream = client.GetStream();
+                        stream.Write(head, 0, head.Length);
+                        try {
+                            for (int i = 0; i < 100; i++) { stream.WriteByte((byte)'0'); stream.Flush(); Thread.Sleep(100); }
+                        } catch (System.IO.IOException) {
+                        }
+                    });
+                    return true;
+                }
+            };
+
+            DateTime started = DateTime.UtcNow;
+            Assert.ThrowsAny<OperationCanceledException>(() => Servers().ShowInBrowser(Interactive(), browser, stop.Token));
+            Assert.True(DateTime.UtcNow - started < TimeSpan.FromSeconds(6), "cancellation waited for the trickling body");
+        }
+
+        [Fact]
+        public void ADroppedAnswerKeepsTheGridWaitingForTheNextOne() {
+            Grid grid = Servers();
+            GridResult result = grid.ShowInBrowser(Interactive(), Browser(async (client, address) => {
+                using (System.Net.Sockets.TcpClient dropped = new System.Net.Sockets.TcpClient(address.Host, address.Port)) {
+                    byte[] head = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 100\r\n\r\nok:");
+                    dropped.GetStream().Write(head, 0, head.Length);
+                    await Task.Delay(300).ConfigureAwait(false);
+                }
+                await Answer(client, address, "ok:1").ConfigureAwait(false);
+            }));
+
+            Assert.True(result.Accepted);
+            Assert.Same(grid.Rows[1].Item, result.Items.Single());
+        }
+
+        [Fact]
         public void ATruncatedAnswerDoesNotBlockCancellation() {
             using CancellationTokenSource stop = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             BrowserGridOptions browser = new BrowserGridOptions {

@@ -51,7 +51,7 @@ namespace ConsoleMonster.Interactive {
                 throw new PromptUnavailableException("Nobody can answer the browser grid in a non-interactive session.");
             }
             string page = BrowserGridPage.Build(this, options, cancellationToken);
-            using BrowserGridServer server = BrowserGridServer.Start(page);
+            using BrowserGridServer server = BrowserGridServer.Start(page, Rows.Count);
             browser.Opened?.Invoke(server.Address);
             Process? launcher = null;
             try {
@@ -83,20 +83,24 @@ namespace ConsoleMonster.Interactive {
 
     /// <summary>Serves one page on loopback behind a random token and waits for its single answer.</summary>
     internal sealed class BrowserGridServer : IDisposable {
-        private const int MaxAnswerBytes = 64 * 1024;
         private static readonly TimeSpan AnswerReadLimit = TimeSpan.FromSeconds(10);
         private const int AccessDenied = 5;
         private readonly HttpListener _listener;
         private readonly byte[] _page;
         private readonly string _token;
         private readonly int _port;
+        private readonly long _maxAnswerBytes;
 
-        private BrowserGridServer(HttpListener listener, int port, string token, string page) {
+        private BrowserGridServer(HttpListener listener, int port, string token, string page, int rows) {
             _listener = listener;
             _port = port;
             _token = token;
             _page = Encoding.UTF8.GetBytes(page);
+            _maxAnswerBytes = MaxAnswerBytes(rows);
         }
+
+        /// <summary>Room for every row index of the grid with its separator: the largest valid answer.</summary>
+        internal static long MaxAnswerBytes(int rows) => 64 + (long)Math.Max(rows, 1) * (Math.Max(rows - 1, 0).ToString(CultureInfo.InvariantCulture).Length + 1);
 
         public Uri Address => new Uri("http://127.0.0.1:" + _port.ToString(CultureInfo.InvariantCulture) + "/" + _token + "/");
 
@@ -109,7 +113,7 @@ namespace ConsoleMonster.Interactive {
             return !interactive.ResolveProfile().IsContinuousIntegration;
         }
 
-        public static BrowserGridServer Start(string page) {
+        public static BrowserGridServer Start(string page, int rows) {
             string token = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
             for (int attempt = 0; ; attempt++) {
                 int port = FreePort();
@@ -117,7 +121,7 @@ namespace ConsoleMonster.Interactive {
                 listener.Prefixes.Add("http://127.0.0.1:" + port.ToString(CultureInfo.InvariantCulture) + "/" + token + "/");
                 try {
                     listener.Start();
-                    return new BrowserGridServer(listener, port, token, page);
+                    return new BrowserGridServer(listener, port, token, page, rows);
                 } catch (HttpListenerException ex) {
                     listener.Close();
                     if (ex.ErrorCode == AccessDenied) {
@@ -197,7 +201,7 @@ namespace ConsoleMonster.Interactive {
                         Respond(response, 403, "text/plain", Encoding.UTF8.GetBytes("Forbidden"));
                         return false;
                     }
-                    string? body = ReadAnswer(request, response, check);
+                    string? body = ReadAnswer(request, response, check, _maxAnswerBytes);
                     if (body == null) {
                         return false;
                     }
@@ -213,10 +217,11 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
-        // Reads at most 64 KB, gives a slow sender ten seconds, and keeps the caller's cancellation and timeout working.
-        // Returns null after rejecting or abandoning the request.
-        private static string? ReadAnswer(HttpListenerRequest request, HttpListenerResponse response, Action check) {
-            if (request.ContentLength64 > MaxAnswerBytes) {
+        // Reads at most the largest valid answer, gives a sender ten seconds in total, and checks the caller's cancellation
+        // and timeout before every read and while a read waits. Returns null after rejecting or abandoning the request,
+        // including a connection the browser dropped mid-body, so the grid keeps waiting for a valid answer.
+        private static string? ReadAnswer(HttpListenerRequest request, HttpListenerResponse response, Action check, long maxBytes) {
+            if (request.ContentLength64 > maxBytes) {
                 Respond(response, 413, "text/plain", Encoding.UTF8.GetBytes("Too large"));
                 return null;
             }
@@ -224,29 +229,47 @@ namespace ConsoleMonster.Interactive {
             using MemoryStream body = new MemoryStream();
             byte[] chunk = new byte[4096];
             while (true) {
-                Task<int> read = request.InputStream.ReadAsync(chunk, 0, chunk.Length);
-                while (!read.Wait(200)) {
-                    try {
-                        check();
-                    } catch {
-                        response.Abort();
-                        throw;
-                    }
-                    if (DateTime.UtcNow >= limit) {
-                        response.Abort();
-                        return null;
-                    }
+                if (!Continue(response, check, limit)) {
+                    return null;
                 }
-                if (read.Result == 0) {
+                int count;
+                try {
+                    Task<int> read = request.InputStream.ReadAsync(chunk, 0, chunk.Length);
+                    while (!read.Wait(200)) {
+                        if (!Continue(response, check, limit)) {
+                            return null;
+                        }
+                    }
+                    count = read.Result;
+                } catch (Exception ex) when (ex is AggregateException || ex is HttpListenerException || ex is IOException) {
+                    response.Abort();
+                    return null;
+                }
+                if (count == 0) {
                     break;
                 }
-                body.Write(chunk, 0, read.Result);
-                if (body.Length > MaxAnswerBytes) {
+                body.Write(chunk, 0, count);
+                if (body.Length > maxBytes) {
                     Respond(response, 413, "text/plain", Encoding.UTF8.GetBytes("Too large"));
                     return null;
                 }
             }
             return Encoding.UTF8.GetString(body.ToArray());
+        }
+
+        // False when the per-request limit passed; the caller's cancellation and timeout propagate after aborting the request.
+        private static bool Continue(HttpListenerResponse response, Action check, DateTime limit) {
+            try {
+                check();
+            } catch {
+                response.Abort();
+                throw;
+            }
+            if (DateTime.UtcNow >= limit) {
+                response.Abort();
+                return false;
+            }
+            return true;
         }
 
         /// <summary>"ok:3,0,7" returns those indexes; anything else is a cancel.</summary>
