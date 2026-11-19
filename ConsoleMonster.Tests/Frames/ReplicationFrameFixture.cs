@@ -157,10 +157,10 @@ internal static class ReplicationFrameFixture {
             MatrixLabel[] labels = estate.Controllers.Select(c => new MatrixLabel(c.Name, c.Site) { ShortText = c.Name.Split('-')[1] }).ToArray();
             Matrix grid = new Matrix(labels, labels) { InlineAxes = true, ShowLegend = false, MinCellWidth = 6, MaxGridSize = labels.Length,
                 RowAxisCaption = "destination", ColumnAxisCaption = "source", CellNote = "cell: age of the oldest naming context" };
-            for (int i = 0; i < labels.Length; i++) grid.SetCell(i, i, null, diagonal: true);
+            for (int i = 0; i < labels.Length; i++) grid.Cell(i, i, null, diagonal: true);
             foreach (Partnership p in partnerships) {
                 int r = estate.Controllers.FindIndex(c => c.Name == p.Destination), c = estate.Controllers.FindIndex(x => x.Name == p.Source);
-                grid.SetCell(r, c, Status(p.State), p.Oldest.HasValue ? Largest(p.Oldest.Value) : "?", p.State == HealthState.NotEvaluated ? "?" : null);
+                grid.Cell(r, c, Status(p.State), p.Oldest.HasValue ? Largest(p.Oldest.Value) : "?", p.State == HealthState.NotEvaluated ? "?" : null);
             }
             return grid;
         }
@@ -169,7 +169,7 @@ internal static class ReplicationFrameFixture {
             RowAxisCaption = "destination", ColumnAxisCaption = "source", CellNote = "cell: worst state · partnerships in that state" };
         foreach (var pair in partnerships.GroupBy(p => (p.DestinationSite, p.SourceSite))) {
             Partnership worst = pair.OrderByDescending(p => p.Failing ? 2 : p.NotReached ? 1 : 0).First();
-            rollup.SetCell(Array.IndexOf(sites, pair.Key.DestinationSite), Array.IndexOf(sites, pair.Key.SourceSite), Status(worst.State),
+            rollup.Cell(Array.IndexOf(sites, pair.Key.DestinationSite), Array.IndexOf(sites, pair.Key.SourceSite), Status(worst.State),
                 worst.State == HealthState.Healthy ? string.Empty : pair.Count(p => p.State == worst.State).ToString(), worst.State == HealthState.NotEvaluated ? "?" : null);
         }
         return rollup;
@@ -183,7 +183,7 @@ internal static class ReplicationFrameFixture {
             .Add("1h to 1d", ages.Count(a => a >= TimeSpan.FromHours(1) && a < TimeSpan.FromDays(1)))
             .Add(">1d", ages.Count(a => a >= TimeSpan.FromDays(1)));
         int unread = estate.Links.Count(l => !l.Age.HasValue);
-        if (unread > 0) distribution.AddNote("unread", unread, HealthState.NotEvaluated, "DC not reached");
+        if (unread > 0) distribution.Note("unread", unread, HealthState.NotEvaluated, "DC not reached");
         return distribution;
     }
 

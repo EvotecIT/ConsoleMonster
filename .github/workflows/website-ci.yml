@@ -7,7 +7,6 @@ on:
       - "README.md"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
-      - "ConsoleMonster.Generators/**"
       - "ConsoleMonster.PowerShell/**"
       - "Tests/Api/**"
       - "Module/en-US/**"
@@ -21,7 +20,6 @@ on:
       - "README.md"
       - "ConsoleMonster/**"
       - "ConsoleMonster.Examples/**"
-      - "ConsoleMonster.Generators/**"
       - "ConsoleMonster.PowerShell/**"
       - "Tests/Api/**"
       - "Module/en-US/**"
@@ -62,7 +60,7 @@ jobs:
           import os
           import subprocess
 
-          library = ('ConsoleMonster/', 'ConsoleMonster.Examples/', 'ConsoleMonster.Generators/',
+          library = ('ConsoleMonster/', 'ConsoleMonster.Examples/', 'Directory.Build.props',
                      'ConsoleMonster.PowerShell/', 'Tests/Api/')
           # Complete PR diff, including both sides of renames, deletions and earlier commits.
           paths = subprocess.check_output([

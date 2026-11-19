@@ -62,11 +62,11 @@ namespace ConsoleMonster.Examples.Showcases {
             // The recorded run.
             RecordingExportOptions run = new RecordingExportOptions { Width = 120, Height = 36, FramesPerSecond = 4, WindowChrome = true, Title = "Parallel run (recording)", Timestamp = new DateTimeOffset(2026, 10, 16, 14, 30, 0, TimeSpan.Zero) };
             List<LiveEvent> events = ParallelRunRecording.Generate();
-            Save(written, Path.Combine(folder, "recording-player.html"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Html, run));
-            Save(written, Path.Combine(folder, "recording-animated.svg"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Svg, run));
+            Save(written, Path.Combine(folder, "recording-player.html"), Recording.Render(ParallelRun.Build(out _), events, OutputFormat.Html, run).ToText());
+            Save(written, Path.Combine(folder, "recording-animated.svg"), Recording.Render(ParallelRun.Build(out _), events, OutputFormat.Svg, run).ToText());
             RecordingExportOptions compact = new RecordingExportOptions { Width = 120, Height = 36, FramesPerSecond = 2, WindowChrome = true, Title = "Parallel run (recording, compact)" };
-            Save(written, Path.Combine(folder, "recording-animated-compact.svg"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Svg, compact));
-            Save(written, Path.Combine(folder, "recording.cast"), Recording.Export(ParallelRun.Build(out _), events, ExportFormat.Asciicast, run));
+            Save(written, Path.Combine(folder, "recording-animated-compact.svg"), Recording.Render(ParallelRun.Build(out _), events, OutputFormat.Svg, compact).ToText());
+            Save(written, Path.Combine(folder, "recording.cast"), Recording.Render(ParallelRun.Build(out _), events, OutputFormat.Asciicast, run).ToText());
             return written;
         }
 

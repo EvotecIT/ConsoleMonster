@@ -90,9 +90,8 @@ namespace SiteFrames.Capture {
             // The single-argument setters a definition type has for a member, as instance or fluent extension methods.
             private IEnumerable<ITypeSymbol> Setters(INamedTypeSymbol options, string name) {
                 foreach (IMethodSymbol method in options.GetMembers(name).OfType<IMethodSymbol>().Where(m => m.Parameters.Length == 1)) { yield return method.Parameters[0].Type; }
-                INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(options.ContainingNamespace.ToDisplayString() + "." + options.ContainingNamespace.Name + "Fluent");
-                foreach (IMethodSymbol method in fluent?.GetMembers(name).OfType<IMethodSymbol>() ?? Enumerable.Empty<IMethodSymbol>()) {
-                    if (method.IsExtensionMethod && method.Parameters.Length == 2 && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, options)) { yield return method.Parameters[1].Type; }
+                foreach (IMethodSymbol method in FluentApi.Methods(model.Compilation, options, name).Where(method => method.Parameters.Length == 1)) {
+                    yield return method.Parameters[0].Type;
                 }
             }
 
@@ -127,9 +126,8 @@ namespace SiteFrames.Capture {
                 if (receiver.ToDisplayString() == Builder && member.Name.Identifier.ValueText == "Add" && member.Expression is IdentifierNameSyntax content) {
                     return statement.ReplaceNode(call, helper(content.Identifier.ValueText).WithTriviaFrom(call));
                 }
-                INamedTypeSymbol? fluent = model.Compilation.GetTypeByMetadataName(receiver.ContainingNamespace.ToDisplayString() + "." + receiver.ContainingNamespace.Name + "Fluent");
-                bool pane = fluent?.GetMembers(member.Name.Identifier.ValueText).OfType<IMethodSymbol>().Any(method => method.IsExtensionMethod && method.Parameters.Length == 2
-                    && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, receiver) && method.Parameters[1].Type.ToDisplayString() == "System.Action<" + Builder + ">") == true;
+                bool pane = FluentApi.Methods(model.Compilation, receiver, member.Name.Identifier.ValueText)
+                    .Any(method => method.Parameters.Length == 1 && method.Parameters[0].Type.ToDisplayString() == "System.Action<" + Builder + ">");
                 if (!pane) { return null; }
                 string c = Fresh("c");
                 var lambda = SyntaxFactory.SimpleLambdaExpression(SyntaxFactory.Parameter(SyntaxFactory.Identifier(c)), helper(c));

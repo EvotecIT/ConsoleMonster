@@ -120,8 +120,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void DataGrid_DoubleClickOpensTheRowLikeEnter() {
             Grid grid = new Grid("Services");
-            grid.AddColumn("Name");
-            grid.AddRow("alpha", "alpha"); grid.AddRow("beta", "beta"); grid.AddRow("gamma", "gamma");
+            grid.Column("Name");
+            grid.Row("alpha", "alpha"); grid.Row("beta", "beta"); grid.Row("gamma", "gamma");
             DataGrid services = new DataGrid("services", grid);
             object? opened = null;
             services.Bindings.Add(new KeyBinding("open", () => opened = services.CurrentRow?.Item, new KeyChord(ConsoleKey.Enter)));
@@ -139,8 +139,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         public void GridView_DoubleClickOpensTheRowsDetailsLikeEnter() {
             Func<GridView> show = () => {
                 Grid grid = new Grid("Services");
-                grid.AddColumn("Name"); grid.AddColumn("State");
-                grid.AddRow("alpha", "alpha", "running"); grid.AddRow("beta", "beta", "stopped");
+                grid.Column("Name"); grid.Column("State");
+                grid.Row("alpha", "alpha", "running"); grid.Row("beta", "beta", "stopped");
                 return new GridView(grid, new GridOptions(), new PromptLabels());
             };
             Func<GridView, string> frame = view => FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 80, 16, false, TimeSpan.Zero)), 80, 16, Context).ToPlainText();
@@ -167,8 +167,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         public void GridView_ContextMenuListsTheKeysAndChoosingOnePressesIt() {
             Func<GridView> show = () => {
                 Grid grid = new Grid("Services");
-                grid.AddColumn("Name"); grid.AddColumn("State");
-                grid.AddRow("alpha", "alpha", "running"); grid.AddRow("beta", "beta", "stopped");
+                grid.Column("Name"); grid.Column("State");
+                grid.Row("alpha", "alpha", "running"); grid.Row("beta", "beta", "stopped");
                 return new GridView(grid, new GridOptions(), new PromptLabels());
             };
             Func<GridView, string> frame = view => FrameComposer.Compose(view.BuildFrame(new ViewFrame(Context, 80, 16, false, TimeSpan.Zero)), 80, 16, Context).ToPlainText();
@@ -203,8 +203,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void DataGrid_HeaderClickSortsAndReversesLikeF3AndF4() {
             Grid grid = new Grid("Services");
-            grid.AddColumn("Name"); grid.AddColumn("State");
-            grid.AddRow("b", "bravo", "running"); grid.AddRow("a", "alpha", "stopped");
+            grid.Column("Name"); grid.Column("State");
+            grid.Row("b", "bravo", "running"); grid.Row("a", "alpha", "stopped");
             DataGrid services = new DataGrid("services", grid);
             using AppController app = new AppController(services, new AppState(), Context, 60);
             string[] rows = Rows(app.PrepareFrame(80, 14));
@@ -344,7 +344,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void DataGrid_DoubleClickOnAHeaderSortsWithoutOpeningARow() {
             Grid grid = new Grid("Services");
-            grid.AddColumn("Name"); grid.AddRow("a", "alpha"); grid.AddRow("b", "bravo");
+            grid.Column("Name"); grid.Row("a", "alpha"); grid.Row("b", "bravo");
             DataGrid services = new DataGrid("services", grid);
             int opened = 0;
             services.Bindings.Add(new KeyBinding("open", () => opened++, new KeyChord(ConsoleKey.Enter)));
@@ -462,7 +462,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void ContextMenu_RunsGeneratedHostAndControlEntries() {
             Grid grid = new Grid("Services");
-            grid.AddColumn("Name"); grid.AddRow("b", "bravo"); grid.AddRow("a", "alpha");
+            grid.Column("Name"); grid.Row("b", "bravo"); grid.Row("a", "alpha");
             DataGrid services = new DataGrid("services", grid);
             AppState state = new AppState();
             using AppController app = new AppController(services, state, Context, 60);

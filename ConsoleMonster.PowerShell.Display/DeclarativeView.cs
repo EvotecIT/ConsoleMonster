@@ -80,7 +80,7 @@ internal sealed class DeclarativeView {
         }
         if (Kind.Equals("Inspector", StringComparison.OrdinalIgnoreCase) || Kind.Equals("List", StringComparison.OrdinalIgnoreCase) || Kind.Equals("Record", StringComparison.OrdinalIgnoreCase)) {
             RecordView record = new RecordView(Template(String(_data, "Title"), items[0], context)) { Summary = Template(String(_data, "Summary"), items[0], context) };
-            foreach (object item in items) { foreach (Column column in columns) { record.AddField(Markup.Escape(column.Label), Cell(item, column, context), column.Presenter); } }
+            foreach (object item in items) { foreach (Column column in columns) { record.Field(Markup.Escape(column.Label), Cell(item, column, context), column.Presenter); } }
             return record;
         }
         return BuildTable(items, context, columns);
@@ -93,9 +93,9 @@ internal sealed class DeclarativeView {
         };
         foreach (Column column in columns) {
             int priority = _data["Priority"] is IDictionary priorities && priorities.Contains(column.Name) ? Convert.ToInt32(priorities[column.Name], CultureInfo.InvariantCulture) : column.Priority;
-            table.AddColumn(new TableColumn(Markup.Escape(column.Label)) { Key = column.Name, Priority = priority, Presenter = column.Presenter });
+            table.Column(new TableColumn(Markup.Escape(column.Label)) { Key = column.Name, Priority = priority, Presenter = column.Presenter });
         }
-        foreach (object item in items) { table.AddRow(columns.Select(column => Cell(item, column, context)).ToArray()); }
+        foreach (object item in items) { table.Row(columns.Select(column => Cell(item, column, context)).ToArray()); }
         return table;
     }
     private IWidget BuildTree(IReadOnlyList<object> items, DefaultDisplayContext context, List<Column> columns) {

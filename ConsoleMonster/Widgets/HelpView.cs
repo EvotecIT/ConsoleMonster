@@ -239,11 +239,11 @@ namespace ConsoleMonster.Widgets {
         private Table ParameterTable() {
             // Always a grid, also for a single parameter.
             Table table = new Table { RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("Parameter") { IsKey = true });
-            table.AddColumn(new TableColumn("Type"));
-            table.AddColumn(new TableColumn("Required"));
-            table.AddColumn(new TableColumn("Position"));
-            table.AddColumn(new TableColumn("Pipeline"));
+            table.Column(new TableColumn("Parameter") { IsKey = true });
+            table.Column(new TableColumn("Type"));
+            table.Column(new TableColumn("Required"));
+            table.Column(new TableColumn("Position"));
+            table.Column(new TableColumn("Pipeline"));
             // Columns nobody fills (help generated without a help file has no defaults or descriptions) are left out.
             bool defaults = false;
             bool descriptions = false;
@@ -252,10 +252,10 @@ namespace ConsoleMonster.Widgets {
                 descriptions |= !string.IsNullOrEmpty(parameter.Description);
             }
             if (defaults) {
-                table.AddColumn(new TableColumn("Default"));
+                table.Column(new TableColumn("Default"));
             }
             if (descriptions) {
-                table.AddColumn(new TableColumn("Description") { MaxLines = TableColumn.Unlimited });
+                table.Column(new TableColumn("Description") { MaxLines = TableColumn.Unlimited });
             }
             foreach (HelpParameter parameter in Topic.Parameters) {
                 string label = "[accent2]" + (parameter.Named ? "-" : string.Empty) + Text.Markup.Escape(parameter.Name) + "[/]";
@@ -275,7 +275,7 @@ namespace ConsoleMonster.Widgets {
                 if (descriptions) {
                     cells.Add(Text.Markup.Escape(parameter.Description ?? string.Empty));
                 }
-                table.AddRow(cells.ToArray());
+                table.Row(cells.ToArray());
             }
             return table;
         }

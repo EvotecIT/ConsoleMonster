@@ -168,9 +168,9 @@ namespace ConsoleMonster.Tests.Text {
         [Fact]
         public void TableCell_RichTextValue_KeepsItsColoursAndIgnoresPresenters() {
             Table table = new Table();
-            table.AddColumn(new TableColumn(new RichTextBuilder().Append("Re", ConsoleColor.Cyan).Append("sult", ConsoleColor.Magenta).Build()));
-            table.AddColumn(new TableColumn("Data") { Presenter = CellPresenters.Bytes });
-            table.AddValues(new RichTextBuilder().Append("√ ", ThemeToken.Pass).Append("PASS", ThemeToken.Pass, TextDecoration.Bold).Build(), RichText.Plain("[red]literal[/]"));
+            table.Column(new TableColumn(new RichTextBuilder().Append("Re", ConsoleColor.Cyan).Append("sult", ConsoleColor.Magenta).Build()));
+            table.Column(new TableColumn("Data") { Presenter = CellPresenters.Bytes });
+            table.Values(new RichTextBuilder().Append("√ ", ThemeToken.Pass).Append("PASS", ThemeToken.Pass, TextDecoration.Bold).Build(), RichText.Plain("[red]literal[/]"));
             string plain = Terminal.RenderText(table, TerminalProfile.Fixed(40, 8, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             Assert.Contains("Result", plain);
             Assert.Contains("√ PASS", plain);
@@ -183,15 +183,15 @@ namespace ConsoleMonster.Tests.Text {
         [Fact]
         public void MarkupPresenter_InterpretsOnlyWhenTheColumnOptsIn() {
             Table table = new Table();
-            table.AddColumn(new TableColumn("Literal"));
-            table.AddColumn(new TableColumn("Markup") { Presenter = CellPresenters.Markup });
-            table.AddValues("[bold]x[/]", "[bold]y[/] [broken");
+            table.Column(new TableColumn("Literal"));
+            table.Column(new TableColumn("Markup") { Presenter = CellPresenters.Markup });
+            table.Values("[bold]x[/]", "[bold]y[/] [broken");
             string plain = Terminal.RenderText(table, TerminalProfile.Fixed(50, 8, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             Assert.Contains("[bold]x[/]", plain);
             Assert.Contains("[bold]y[/] [broken", plain);
             Table valid = new Table();
-            valid.AddColumn(new TableColumn("Markup") { Presenter = CellPresenters.FromName("Markup") });
-            valid.AddValues("[bold]y[/] ok");
+            valid.Column(new TableColumn("Markup") { Presenter = CellPresenters.FromName("Markup") });
+            valid.Values("[bold]y[/] ok");
             Assert.Contains("y ok", Terminal.RenderText(valid, TerminalProfile.Fixed(50, 8, ColorDepth.None, GlyphTier.Full), Theme.Dark));
         }
 

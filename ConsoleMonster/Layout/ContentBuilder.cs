@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Layout {
     // Implemented by core containers whose content can be configured before session ownership.
+    [FluentForward("Content", typeof(ContentBuilder), nameof(ContentBuilder.Replace), Summary = "Configures this container's content before session ownership.", ValueSummary = "The widget or nested content builder.")]
     internal interface IContentOwner {
         void ReplaceContent(IWidget[] content);
     }
@@ -34,7 +36,7 @@ namespace ConsoleMonster.Layout {
         }
 
         // Collection and validation finish before changing the container, so a throwing lambda leaves it untouched.
-        internal static void Replace(IContentOwner owner, Action<ContentBuilder> content) => owner.ReplaceContent(Collect(content));
         internal static void Replace(IContentOwner owner, IWidget content) => owner.ReplaceContent(new[] { content ?? throw new ArgumentNullException(nameof(content)) });
+        internal static void Replace(IContentOwner owner, Action<ContentBuilder> content) => owner.ReplaceContent(Collect(content));
     }
 }

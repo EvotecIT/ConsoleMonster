@@ -16,7 +16,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleText", DefaultParameterSetName = "Text", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoletext/")]
     [OutputType(typeof(string), typeof(System.Security.SecureString))]
-    public sealed class CmdletReadConsoleText : NonSelectionPromptCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Interactive.TextQuestionOptions), Include = new[] { "Default", "Placeholder", "MinLength", "MaxLength", "Pattern", "PatternMessage", "MaxLines", "Height" })]
+    public sealed partial class CmdletReadConsoleText : NonSelectionPromptCmdlet {
         /// <summary><para type="description">The answer initially selected; pressing Enter accepts this value.</para></summary>
         [Parameter(ParameterSetName = "Text")]
         public string? Default { get; set; }
@@ -95,16 +96,9 @@ namespace ConsoleMonster.PowerShell {
             var options = new TextQuestionOptions { Title = Title, Description = Description, ParameterName = ParameterName };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(AsSecret))) { options.AsSecret = AsSecret.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Multiline))) { options.Multiline = Multiline.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Default))) { options.Default = Default; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Placeholder))) { options.Placeholder = Placeholder; }
+            ApplyParameters(options);
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Required))) { options.Required = Required.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(MinLength))) { options.MinLength = MinLength; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLength))) { options.MaxLength = MaxLength; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Pattern))) { options.Pattern = Pattern; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(PatternMessage))) { options.PatternMessage = PatternMessage; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(PrefillDefault))) { options.PrefillDefault = PrefillDefault.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLines))) { options.MaxLines = MaxLines; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Height))) { options.Height = Height; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Hidden))) { options.Hidden = Hidden.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(AllowEmpty))) { options.AllowEmpty = AllowEmpty.IsPresent; }
             if (History != null) { foreach (string entry in History) { options.History.Add(entry); } }

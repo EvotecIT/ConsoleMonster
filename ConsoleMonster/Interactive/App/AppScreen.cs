@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -26,6 +27,7 @@ namespace ConsoleMonster.Interactive {
         public string Title { get; set; }
 
         /// <summary>Builds the title from state instead, for a screen that shows one item ("web-deploy"). Runs on the app thread.</summary>
+        [Fluent("TitleBy")]
         public Func<AppState, string>? TitleSource { get; set; }
 
         /// <summary>The content.</summary>

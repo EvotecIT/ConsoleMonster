@@ -6,11 +6,11 @@ Describe 'Composed full-screen controls' {
 
     It 'keeps two original-object selections separate through the public constructors' {
         $listing = ($script:Core.GetType('ConsoleMonster.Interactive.Grid'))::new('Files')
-        $null = $listing.AddColumn('Name')
+        $null = $listing.Column('Name')
         $first = [pscustomobject]@{ Name = 'first.log' }
         $second = [pscustomobject]@{ Name = 'second.json' }
-        $null = $listing.AddRow($first, @('first.log'))
-        $null = $listing.AddRow($second, @('second.json'))
+        $null = $listing.Row($first, @('first.log'))
+        $null = $listing.Row($second, @('second.json'))
         $left = New-ConsoleDataGrid -Key Left -Grid $listing
         $right = New-ConsoleDataGrid -Key Right -Grid $listing -NoQuickSearch
         try {

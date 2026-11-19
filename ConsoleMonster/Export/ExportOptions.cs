@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using ConsoleMonster.Capabilities;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Export {
     /// <summary>Which colours an export uses.</summary>
@@ -25,8 +26,11 @@ namespace ConsoleMonster.Export {
         Current = 4
     }
 
-    /// <summary>A file format for frame and recording exports.</summary>
-    public enum ExportFormat {
+    /// <summary>
+    /// The output formats of ConsoleMonster: Html, Svg, Text and Asciicast are built in; Markdown and FencedText need the
+    /// ConsoleMonster.Markdown package and Png needs ConsoleMonster.Graphics, each registered through its frame provider.
+    /// </summary>
+    public enum OutputFormat {
         /// <summary>A self-contained HTML page (inline CSS; a recording gets a small inline player).</summary>
         Html = 0,
 
@@ -37,15 +41,23 @@ namespace ConsoleMonster.Export {
         Text = 2,
 
         /// <summary>An asciicast file for terminal players: v2 for terminal sessions, v3 for dashboard recordings.</summary>
-        Asciicast = 3
+        Asciicast = 3,
 
+        /// <summary>Semantic Markdown (ConsoleMonster.Markdown).</summary>
+        Markdown = 4,
 
+        /// <summary>Terminal text in a Markdown code fence (ConsoleMonster.Markdown).</summary>
+        FencedText = 5,
+
+        /// <summary>A PNG image (ConsoleMonster.Graphics).</summary>
+        Png = 6
     }
 
     /// <summary>
     /// How a widget, a rendered frame or a live-session snapshot is exported to HTML, SVG or text: the size in cells, the
     /// theme, the font, and an optional window frame with a title bar.
     /// </summary>
+    [Fluent]
     public sealed class ExportOptions {
         /// <summary>
         /// The font stack. The first fonts draw box drawing and block characters on the cell grid; braille needs a font that

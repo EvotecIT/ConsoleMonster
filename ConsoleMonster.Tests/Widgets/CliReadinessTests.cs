@@ -46,11 +46,11 @@ namespace ConsoleMonster.Tests.Widgets {
                 KeepAllColumns = true, WrapHeaders = true, RecordViewRows = 0,
                 WrapLines = 0, GroupHeadersAsRows = true
             };
-            table.AddColumn(new TableColumn("Authority") { IsKey = true, MaxWidth = 12 });
-            table.AddColumn(new TableColumn("First observation") { MaxWidth = 17 });
-            table.AddColumn(new TableColumn("Second observation") { MaxWidth = 18 });
-            table.AddGroup("Directory");
-            table.AddValues("node-1", "First complete value", "Second complete value");
+            table.Column(new TableColumn("Authority") { IsKey = true, MaxWidth = 12 });
+            table.Column(new TableColumn("First observation") { MaxWidth = 17 });
+            table.Column(new TableColumn("Second observation") { MaxWidth = 18 });
+            table.Group("Directory");
+            table.Values("node-1", "First complete value", "Second complete value");
             string text = Terminal.RenderText(table,
                 TerminalProfile.Fixed(40, 100, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             string[] sections = text.Split('\n').Where(line => line.Contains("Directory")).ToArray();

@@ -13,16 +13,16 @@ namespace ConsoleMonster.Tests.Rendering {
     public sealed class TableStreamingTests {
         private static Table Large(int rows) {
             Table table = new Table { Title = "Files", Caption = "invented data", ShowTotals = true };
-            table.AddColumn("Name");
-            table.AddColumn(new TableColumn("Size") { Aggregate = ColumnAggregate.Sum });
-            table.AddColumn("Note");
+            table.Column("Name");
+            table.Column(new TableColumn("Size") { Aggregate = ColumnAggregate.Sum });
+            table.Column("Note");
             for (int i = 0; i < rows; i++) {
                 if (i % 1000 == 0) {
-                    table.AddGroup("Batch " + (i / 1000).ToString(CultureInfo.InvariantCulture));
+                    table.Group("Batch " + (i / 1000).ToString(CultureInfo.InvariantCulture));
                 }
                 // A few long notes wrap, so rows have different heights and widths come from late rows too.
                 string note = i == rows - 3 ? "a much longer note that appears only near the end of the table and wraps" : "ok";
-                table.AddValues("file-" + i.ToString("00000", CultureInfo.InvariantCulture), i, note);
+                table.Values("file-" + i.ToString("00000", CultureInfo.InvariantCulture), i, note);
             }
             return table;
         }

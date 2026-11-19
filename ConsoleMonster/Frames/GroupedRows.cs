@@ -4,6 +4,7 @@ using System.Linq;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Frames;
 
@@ -66,8 +67,10 @@ public sealed class GroupedRows<T> : IWidget {
     /// <summary>The frame's scale.</summary>
     internal FrameScale Scale { get; }
     /// <summary>Builds a group's heading; null shows the key only.</summary>
+    [Fluent("HeadingBy")]
     public Func<string, IReadOnlyList<T>, GroupHeading>? Heading { get; set; }
     /// <summary>Whether a row is healthy, for collapsing large sections; null never collapses.</summary>
+    [Fluent("HealthyWhen")]
     public Func<T, bool>? IsHealthy { get; set; }
     /// <summary>The singular noun for rows, for <c>+N more</c> and collapsed counts.</summary>
     public string Noun { get; set; } = "row";

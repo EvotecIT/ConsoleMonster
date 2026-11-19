@@ -21,8 +21,8 @@ for (int i = 0; i < cpu.Length; i++) { times[i] = $"{9 + (i * 5 / 60):D2}:{i * 5
 LineChart chart = new LineChart { Unit = "%" };
 for (int i = 0; i < cpu.Length; i++) { chart.Add("cpu", cpu[i]); }
 for (int i = 0; i < memory.Length; i++) { chart.Add("memory", memory[i]); }
-Grid samples = new Grid("Samples").AddColumn("Time").AddColumn("Cpu").AddColumn("Memory");
-for (int i = 0; i < cpu.Length; i++) { samples.AddRow(times[i], times[i], cpu[i], memory[i]); }
+Grid samples = new Grid("Samples").Column("Time").Column("Cpu").Column("Memory");
+for (int i = 0; i < cpu.Length; i++) { samples.Row(times[i], times[i], cpu[i], memory[i]); }
 ChartView load = new ChartView("Load", chart) { LinkKey = "Sample" };
 foreach (string time in times) { load.PointLabels.Add(time); }
 Rows layout = new Rows(

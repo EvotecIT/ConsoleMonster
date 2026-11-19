@@ -157,7 +157,7 @@ namespace ConsoleMonster.PowerShell {
                 table = new Table();
                 foreach (object descriptor in property) {
                     object? column = PSText.Unwrap(descriptor);
-                    table.AddColumn(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
+                    table.Column(column is System.Collections.IDictionary record ? Binding.PropertyBinder.ColumnFrom(record) : new TableColumn(Text.Markup.Escape(PSWidgets.ToText(column))));
                 }
             } else { table = ConsoleHostViews.TableModelCore(items, new ConsoleTableViewOptions { Property = property, GroupBy = GroupBy, ShowTotals = ShowTotals.IsPresent, NoSort = NoSort.IsPresent, ShowGroupColumn = ShowGroupColumn.IsPresent }, cmdlet ?? this,
                 boundRows == null ? null : (row, values, identity) => boundRows.Add((row, values, identity))); }

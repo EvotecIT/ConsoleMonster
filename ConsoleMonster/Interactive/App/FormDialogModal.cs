@@ -66,7 +66,7 @@ namespace ConsoleMonster.Interactive {
         private void Accept() {
             T value;
             try {
-                _error = _dialog.Validate?.Invoke(_values);
+                _error = _dialog.Validator?.Invoke(_values);
                 if (_error != null) { return; }
                 value = _dialog.Result(_values);
             } catch (Exception error) { _error = error.Message; return; }

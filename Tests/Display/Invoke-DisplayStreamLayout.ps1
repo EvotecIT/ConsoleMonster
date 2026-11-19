@@ -13,9 +13,9 @@ $builder=[Func[System.Collections.Generic.IReadOnlyList[object],ConsoleMonster.P
         $c=[ConsoleMonster.Widgets.TableColumn]::new([string]$definition[0]);$c.MinWidth=[int]$definition[1];$c.MaxWidth=[int]$definition[2];$c.Priority=[int]$definition[3];$c.Flexible=[bool]$definition[4]
         if($c.Header -eq 'Name'){$c.IsKey=$true}
         if($c.Header -in @('Size','Free')){$c.Alignment=[ConsoleMonster.Layout.HorizontalAlignment]::Right;$c.Presenter=[ConsoleMonster.Presenters.CellPresenters]::Bytes}
-        $null=$t.AddColumn($c)
+        $null=$t.Column($c)
     }
-    $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Label),[ConsoleMonster.Widgets.TableCell]::FromValue('running'),[ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Size),[ConsoleMonster.Widgets.TableCell]::FromValue([long]42),[ConsoleMonster.Widgets.TableCell]::FromValue('DOMAIN\long-service-account')))
+    $null=$t.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Label),[ConsoleMonster.Widgets.TableCell]::FromValue('running'),[ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Size),[ConsoleMonster.Widgets.TableCell]::FromValue([long]42),[ConsoleMonster.Widgets.TableCell]::FromValue('DOMAIN\long-service-account')))
     if($null -eq $global:LayoutPrototype){$global:LayoutPrototype=$t}
     return $t
 }
@@ -64,11 +64,11 @@ try{
         $identityBuilder=[Func[System.Collections.Generic.IReadOnlyList[object],ConsoleMonster.PowerShell.Display.DefaultDisplayContext,ConsoleMonster.Layout.IWidget]]{
             param($objects,$context)
             $t=[ConsoleMonster.Widgets.Table]::new();$t.Title='identity-layout'
-            $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100;$key.MinWidth=22;$key.MaxWidth=40;$null=$t.AddColumn($key)
+            $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100;$key.MinWidth=22;$key.MaxWidth=40;$null=$t.Column($key)
             foreach($def in @(@('State',80),@('Neighbors',60),@('Failed',90),@('Stale Schema/Config/Domain/App',0),@('Last logon',0),@('Password set',0))){
-                $col=[ConsoleMonster.Widgets.TableColumn]::new([string]$def[0]);$col.Priority=[int]$def[1];$null=$t.AddColumn($col)
+                $col=[ConsoleMonster.Widgets.TableColumn]::new([string]$def[0]);$col.Priority=[int]$def[1];$null=$t.Column($col)
             }
-            $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(6),[ConsoleMonster.Widgets.TableCell]::FromValue(1),[ConsoleMonster.Widgets.TableCell]::FromValue(0),[ConsoleMonster.Widgets.TableCell]::FromValue($null),[ConsoleMonster.Widgets.TableCell]::FromValue($null)))
+            $null=$t.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(6),[ConsoleMonster.Widgets.TableCell]::FromValue(1),[ConsoleMonster.Widgets.TableCell]::FromValue(0),[ConsoleMonster.Widgets.TableCell]::FromValue($null),[ConsoleMonster.Widgets.TableCell]::FromValue($null)))
             $global:IdentityPrototype=$t
             return $t
         }
@@ -98,9 +98,9 @@ try{
             $t=[ConsoleMonster.Widgets.Table]::new();$t.Title='boundary-layout'
             $key=[ConsoleMonster.Widgets.TableColumn]::new('Name');$key.IsKey=$true;$key.Priority=100
             if($global:LayoutBoundaryScenario -eq 'NarrowMinimum'){$key.MinWidth=40}
-            $null=$t.AddColumn($key)
-            foreach($header in 'State','Failed'){$c=[ConsoleMonster.Widgets.TableColumn]::new($header);$c.Priority=90;$null=$t.AddColumn($c)}
-            $null=$t.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(1)))
+            $null=$t.Column($key)
+            foreach($header in 'State','Failed'){$c=[ConsoleMonster.Widgets.TableColumn]::new($header);$c.Priority=90;$null=$t.Column($c)}
+            $null=$t.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name),[ConsoleMonster.Widgets.TableCell]::FromValue('failing'),[ConsoleMonster.Widgets.TableCell]::FromValue(1)))
             $t
         }
         $v=$lease.Register('DisplayLayout.Row',('layout.boundary.'+$scenario),[version]'1.0.0','Stream',$null,$boundaryBuilder)

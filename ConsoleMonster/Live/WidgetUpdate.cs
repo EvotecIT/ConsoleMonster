@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>A presence-aware update: omission, zero, null and empty text retain distinct meanings.</summary>
+    [Fluent]
     public sealed class WidgetUpdate {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal IEnumerable<string> Bound => _bound;
@@ -170,6 +172,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>An update to one item of a caller-managed run.</summary>
+    [Fluent]
     public sealed class RunUpdate {
         /// <summary>The zero-based item position.</summary>
         public int Index { get; set; }

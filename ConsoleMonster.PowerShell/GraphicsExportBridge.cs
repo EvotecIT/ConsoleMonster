@@ -23,9 +23,9 @@ namespace ConsoleMonster.PowerShell {
             GraphicsExportOptions settings = Settings(preset, font, fit, background, backgroundColor, backgroundEndColor, options, maxFontSize, fontFallbacks);
             byte[] bytes;
             object raw = items.Count == 1 ? PSObject.AsPSObject(items[0]).BaseObject : new object();
-            if (raw is Canvas.CellBuffer frame) { bytes = FrameExporter.Export(frame, "Png", options, new PngFrameExportProvider(settings)); }
-            else if (raw is LiveSession session) { bytes = FrameExporter.Export(session.Snapshot() ?? throw new PSInvalidOperationException("The session has not drawn a frame yet."), "Png", options, new PngFrameExportProvider(settings)); }
-            else { bytes = PSOutputExport.Prepare(items, options, cmdlet, widget => FrameExporter.Export(widget, "Png", options, new PngFrameExportProvider(settings))); }
+            if (raw is Canvas.CellBuffer frame) { bytes = FrameExporter.Render(frame, OutputFormat.Png, options, new PngFrameExportProvider(settings)).ToBytes(); }
+            else if (raw is LiveSession session) { bytes = FrameExporter.Render(session.Snapshot() ?? throw new PSInvalidOperationException("The session has not drawn a frame yet."), OutputFormat.Png, options, new PngFrameExportProvider(settings)).ToBytes(); }
+            else { bytes = PSOutputExport.Prepare(items, options, cmdlet, widget => FrameExporter.Render(widget, OutputFormat.Png, options, new PngFrameExportProvider(settings)).ToBytes()); }
             if (path == null) { return bytes; }
             File.WriteAllBytes(path, bytes); return new FileInfo(path);
         }
@@ -37,21 +37,21 @@ namespace ConsoleMonster.PowerShell {
             GraphicsFormat selected = (GraphicsFormat)Enum.Parse(typeof(GraphicsFormat), format ?? System.IO.Path.GetExtension(target).TrimStart('.'), true);
             if (dashboard != null) {
                 using (StreamReader reader = new StreamReader(source, Encoding.UTF8)) {
-                    dashboard.SaveGraphics(LiveRecordingReader.Read(reader), target, selected, settings, cancellationToken);
+                    dashboard.Save(LiveRecordingReader.Read(reader), target, selected, settings, cancellationToken);
                 }
             } else {
                 SessionRecording recording = SessionRecording.Read(source);
                 if (frame.Title == null) { frame.Title = recording.Title; }
                 settings = settings.ForRecording(recording);
-                if (perChapter) { return recording.SaveChapterPngs(target, settings, cancellationToken); }
+                if (perChapter) { return recording.SaveChapters(target, settings, cancellationToken); }
                 if (selected == GraphicsFormat.Png) {
                     if (chapter != null) {
                         int found = -1;
                         for (int i = 0; i < recording.Chapters.Count; i++) { if (recording.Chapters[i].Label == chapter) { found = i; break; } }
                         if (found < 0) { throw new ArgumentException("The recording has no chapter named " + chapter + "."); }
-                        recording.ChapterFrame(found).SavePng(target, settings);
-                    } else { recording.SavePng(target, settings, at); }
-                } else { recording.SaveGraphics(target, selected, settings, cancellationToken); }
+                        recording.ChapterFrame(found).Save(target, settings);
+                    } else { recording.Save(target, settings, at); }
+                } else { recording.Save(target, selected, settings, cancellationToken); }
             }
             return new[] { target };
         }

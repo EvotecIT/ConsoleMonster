@@ -65,7 +65,7 @@ namespace ConsoleMonster.Headless {
                 values["text"] = frame.ToPlainText();
             } else if (string.Equals(format, "png", StringComparison.OrdinalIgnoreCase)) {
                 // The PNG encoder lives in ConsoleMonster.Graphics; an app opts in by registering its provider.
-                values["png"] = Convert.ToBase64String(FrameExporter.Export(frame, "Png", new ExportOptions { Width = frame.Width, Height = frame.Height }));
+                values["png"] = Convert.ToBase64String(FrameExporter.Render(frame, OutputFormat.Png, new ExportOptions { Width = frame.Width, Height = frame.Height }).ToBytes());
             } else {
                 throw new FormatException("Use format text or png.");
             }

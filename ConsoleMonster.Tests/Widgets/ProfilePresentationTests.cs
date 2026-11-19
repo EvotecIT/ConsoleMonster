@@ -71,8 +71,8 @@ namespace ConsoleMonster.Tests.Widgets {
             DateTimeOffset expected = new DateTimeOffset(2026, 10, 21, 12, 0, 0, TimeSpan.Zero);
             try {
                 Table table = new Table();
-                table.AddColumn(new TableColumn("Changed") { Presenter = new DatePresenter(DateDisplay.Relative) });
-                table.AddValues(expected.AddHours(-3));
+                table.Column(new TableColumn("Changed") { Presenter = new DatePresenter(DateDisplay.Relative) });
+                table.Values(expected.AddHours(-3));
                 Environment.SetEnvironmentVariable("CONSOLEMONSTER_NOW", reference);
                 Assert.Equal(expected, new PresenterContext(Context("en")).Now);
                 Assert.Equal(expected, new PresentationOptions().CreateContext(Context("en")).Now);

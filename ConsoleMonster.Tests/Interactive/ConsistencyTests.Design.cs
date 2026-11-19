@@ -160,15 +160,15 @@ namespace ConsoleMonster.Tests.Interactive {
         [InlineData(false)]
         [InlineData(true)]
         public void NumericTextTableColumnsAlignRightUnlessExplicitlyAligned(bool raw) {
-            Table table = new Table().AddColumn("Count");
-            if (raw) { table.AddValues("3"); table.AddValues("18"); }
-            else { table.AddRow("3"); table.AddRow("18"); }
+            Table table = new Table().Column("Count");
+            if (raw) { table.Values("3"); table.Values("18"); }
+            else { table.Row("3"); table.Row("18"); }
             RenderContext context = Context(GlyphTier.Full);
             Assert.Equal(HorizontalAlignment.Right, table.SemanticLayout(context).Alignments[0]);
             table.Columns[0].Alignment = HorizontalAlignment.Left;
             Assert.Equal(HorizontalAlignment.Left, table.SemanticLayout(context).Alignments[0]);
             table.Columns[0].Alignment = null;
-            table.AddValues("unknown");
+            table.Values("unknown");
             Assert.Equal(HorizontalAlignment.Left, table.SemanticLayout(context).Alignments[0]);
         }
 

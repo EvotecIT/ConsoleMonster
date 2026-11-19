@@ -56,11 +56,11 @@ namespace ConsoleMonster {
 
         /// <summary>Displays the configured definition through the shared widget pipeline.</summary><param name="definition">The configured definition.</param><param name="profile">The terminal profile.</param><param name="writer">The output writer.</param>
         public static void Show(this ChartOptions definition, TerminalProfile? profile = null, ITerminalWriter? writer = null) => definition.Build().Show(profile, writer);
-        /// <summary>Exports the configured definition through the shared core/add-on dispatcher.</summary><param name="definition">The configured definition.</param><param name="path">The destination.</param><param name="format">The format.</param><param name="options">The export options.</param><param name="provider">An optional add-on provider.</param>
-        public static void Export(this ChartOptions definition, string path, string? format = null, ExportOptions? options = null, IFrameExportProvider? provider = null) => definition.Build().Export(path, format, options, provider);
+        /// <summary>Writes the configured definition to a file; the extension picks the format.</summary><param name="definition">The configured definition.</param><param name="path">The destination.</param><param name="options">The output options.</param><param name="provider">An optional add-on provider.</param>
+        public static void Save(this ChartOptions definition, string path, ExportOptions? options = null, IFrameExportProvider? provider = null) => definition.Build().Save(path, options, provider);
         /// <summary>Displays the configured definition through the shared widget pipeline.</summary><param name="definition">The configured definition.</param><param name="profile">The terminal profile.</param><param name="writer">The output writer.</param>
         public static void Show(this ProgressOptions definition, TerminalProfile? profile = null, ITerminalWriter? writer = null) => definition.Build().Show(profile, writer);
-        /// <summary>Exports the configured definition through the shared core/add-on dispatcher.</summary><param name="definition">The configured definition.</param><param name="path">The destination.</param><param name="format">The format.</param><param name="options">The export options.</param><param name="provider">An optional add-on provider.</param>
-        public static void Export(this ProgressOptions definition, string path, string? format = null, ExportOptions? options = null, IFrameExportProvider? provider = null) => definition.Build().Export(path, format, options, provider);
+        /// <summary>Writes the configured definition to a file; the extension picks the format.</summary><param name="definition">The configured definition.</param><param name="path">The destination.</param><param name="options">The output options.</param><param name="provider">An optional add-on provider.</param>
+        public static void Save(this ProgressOptions definition, string path, ExportOptions? options = null, IFrameExportProvider? provider = null) => definition.Build().Save(path, options, provider);
     }
 }

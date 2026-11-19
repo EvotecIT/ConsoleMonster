@@ -9,9 +9,11 @@ using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Options for <c>ConsoleRun.ForEachAsync</c> and <see cref="RunMonitor"/>.</summary>
+    [Fluent]
     public sealed class RunOptions {
         // Sequential PowerShell runs already enclose the body and completion in one scope.
         internal bool GroupCompletions { get; set; } = true;
@@ -46,6 +48,7 @@ namespace ConsoleMonster.Live {
         public string? Title { get; set; }
 
         /// <summary>The label of an item in the view, or null for its title (a name-like property, or its text).</summary>
+        [Fluent("LabelBy")]
         public Func<object?, string>? Label { get; set; }
 
         /// <summary>Whether to show the live view (true), print a line per item (false) or decide from the terminal (null, default).</summary>
@@ -55,6 +58,7 @@ namespace ConsoleMonster.Live {
         public LiveSessionOptions? Session { get; set; }
 
         /// <summary>Where a printed line goes when the view is not live, or null for the current terminal.</summary>
+        [Fluent("WriteTo")]
         public Action<string>? Print { get; set; }
     }
 

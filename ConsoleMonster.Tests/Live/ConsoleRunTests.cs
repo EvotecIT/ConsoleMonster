@@ -215,10 +215,10 @@ namespace ConsoleMonster.Tests.Live {
         public void SummaryBar_Finished_ShowsTheDurationOnlyWhenEveryCounterFits() {
             RenderContext context = new RenderContext(TerminalProfile.Fixed(120, 5, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             SummaryBar bar = new SummaryBar { Elapsed = TimeSpan.FromSeconds(12) };
-            bar.SetProgress(3, 3);
-            bar.SetCounter("{0} failed", 1, StatusKind.Fail);
-            bar.SetCounter("{0} passed", 1, StatusKind.Pass);
-            bar.SetCounter("{0} skipped", 1, StatusKind.Skip);
+            bar.Progress(3, 3);
+            bar.Counter("{0} failed", 1, StatusKind.Fail);
+            bar.Counter("{0} passed", 1, StatusKind.Pass);
+            bar.Counter("{0} skipped", 1, StatusKind.Skip);
             Assert.Contains("in 12s", bar.Line(120, context).PlainText);
             string narrow = bar.Line(36, context).PlainText;
             Assert.DoesNotContain("skipped", narrow);

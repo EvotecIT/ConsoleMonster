@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>One definition for scalar and multiple-choice questions, retaining the original values.</summary>
+    [Fluent]
     public sealed class SelectQuestionOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal bool Has(string name) => _bound.Contains(name);
@@ -32,6 +34,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>The preferred number of visible choices; zero retains the renderer default (10 single, 12 multiple).</summary>
         public int PageSize { get; set; }
         /// <summary>Preview content for the focused value.</summary>
+        [Fluent("PreviewBy")]
         public Func<object?, IWidget?>? Preview { get; set; }
     }
 }

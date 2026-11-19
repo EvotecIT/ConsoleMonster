@@ -1,7 +1,9 @@
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Constructs a collapsible section using the same definition as New-ConsoleCollapsible.</summary>
+    [Fluent]
     public sealed class CollapsibleInputOptions : AppInputOptions, IContentOwner {
         /// <summary>Whether the section starts expanded.</summary>
         public bool Expanded { get; set; }

@@ -50,16 +50,16 @@ namespace ConsoleMonster.TestRuns {
         internal Table FileTable() {
             Localization.WidgetLabels labels = Localization.WidgetLabels.Current;
             Table table = new Table { Title = Text.Markup.Escape(labels.TestsResultsByFile) };
-            table.AddColumn(Text.Markup.Escape(labels.TestsFile));
-            table.AddColumn(Text.Markup.Escape(labels.TestsCount), HorizontalAlignment.Right);
-            table.AddColumn(Text.Markup.Escape(labels.TestsPassedColumn), HorizontalAlignment.Right);
-            table.AddColumn(Text.Markup.Escape(labels.TestsFailedColumn), HorizontalAlignment.Right);
-            table.AddColumn(Text.Markup.Escape(labels.TestsSkippedColumn), HorizontalAlignment.Right);
-            table.AddColumn(Text.Markup.Escape(labels.TestsTimeColumn), HorizontalAlignment.Right);
+            table.Column(Text.Markup.Escape(labels.TestsFile));
+            table.Column(Text.Markup.Escape(labels.TestsCount), HorizontalAlignment.Right);
+            table.Column(Text.Markup.Escape(labels.TestsPassedColumn), HorizontalAlignment.Right);
+            table.Column(Text.Markup.Escape(labels.TestsFailedColumn), HorizontalAlignment.Right);
+            table.Column(Text.Markup.Escape(labels.TestsSkippedColumn), HorizontalAlignment.Right);
+            table.Column(Text.Markup.Escape(labels.TestsTimeColumn), HorizontalAlignment.Right);
             TimeSpan time = TimeSpan.Zero;
             foreach (TestContainerState container in _snapshot.Containers) {
                 time += container.Duration;
-                table.AddRow(
+                table.Row(
                     TableCell.ForStatus(container.Status, container.Name),
                     Number(container.Done),
                     Number(container.Passed),
@@ -67,7 +67,7 @@ namespace ConsoleMonster.TestRuns {
                     Number(container.Skipped + container.NotRun),
                     NumberFormat.Duration(container.Duration));
             }
-            table.SetFooter(Text.Markup.Escape(labels.Total), Number(_snapshot.Done), Number(_snapshot.Passed), Number(_snapshot.Failed), Number(_snapshot.Skipped + _snapshot.NotRun), NumberFormat.Duration(time));
+            table.Footer(Text.Markup.Escape(labels.Total), Number(_snapshot.Done), Number(_snapshot.Passed), Number(_snapshot.Failed), Number(_snapshot.Skipped + _snapshot.NotRun), NumberFormat.Duration(time));
             return table;
         }
 

@@ -26,7 +26,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Maps committed field values to the result.</summary>
         public Func<AppState, T> Result { get; }
         /// <summary>Returns an error to keep the form open, or null to accept.</summary>
-        public Func<AppState, string?>? Validate { get; set; }
+        public Func<AppState, string?>? Validator { get; set; }
         /// <summary>The affirmative button label.</summary>
         public string AcceptText { get; set; } = "OK";
         /// <summary>The cancellation button label.</summary>

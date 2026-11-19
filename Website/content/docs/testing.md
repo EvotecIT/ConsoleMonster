@@ -44,9 +44,9 @@ It 'renders the server summary' {
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
 
-var table = new Table().AddColumn("Name").AddColumn("Status")
-    .AddValues("web-01", "Ready")
-    .AddValues("db-01", "Degraded");
+var table = new Table().Column("Name").Column("Status")
+    .Values("web-01", "Ready")
+    .Values("db-01", "Degraded");
 GoldenFile.Match("Golden/summary.txt", TestTerminal.RenderText(table, width: 80));
 ```
 
@@ -58,9 +58,9 @@ using ConsoleMonster;
 using ConsoleMonster.Testing;
 using ConsoleMonster.Widgets;
 
-Table table = Ui.Table().AddColumn("Name").AddColumn("Status")
-    .AddValues("web-01", "Ready")
-    .AddValues("db-01", "Degraded");
+Table table = Ui.Table().Column("Name").Column("Status")
+    .Values("web-01", "Ready")
+    .Values("db-01", "Degraded");
 GoldenFile.Match("Golden/summary.txt", TestTerminal.RenderText(table, width: 80));
 ```
 

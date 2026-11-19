@@ -141,7 +141,7 @@ namespace SiteFrames.Capture {
                 // the same-instance contract. Native builders are explicit below.
                 if (method.IsExtensionMethod && owner.Name.EndsWith("Fluent", StringComparison.Ordinal)) { return true; }
                 return (owner.ContainingNamespace.ToDisplayString(), owner.Name, method.Name) switch {
-                    ("ConsoleMonster.Widgets", "Table", "Column" or "AddColumn" or "AddRow" or "Refresh") => true,
+                    ("ConsoleMonster.Widgets", "Table", "Column" or "Row" or "Refresh") => true,
                     ("ConsoleMonster.Widgets", "KeyValueList", "Add") => true,
                     ("ConsoleMonster.Interactive", "Menu", "Add" or "Item" or "Separator" or "Exit" or "Preset") => true,
                     ("ConsoleMonster.Interactive", "ReviewModel", "Row" or "Problem" or "Command") => true,

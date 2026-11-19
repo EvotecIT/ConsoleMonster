@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     /// <summary>Limits for <see cref="TreeHierarchy.Add{T}"/>: how deep, how wide and how large a tree built from objects may grow.</summary>
+    [Fluent]
     public sealed class TreeHierarchyOptions {
         /// <summary>How many levels of children are followed below each top-level item (default 5; 0 shows only the items).</summary>
         public int Depth { get; set; } = 5;
@@ -19,6 +21,7 @@ namespace ConsoleMonster.Widgets {
         /// The identity of an item for cycle detection (for example the object a host wrapper wraps), or null to use the item
         /// itself. An item that is already on the path from the top is shown once more with a "(cycle)" note and not followed.
         /// </summary>
+        [Fluent("IdentityBy")]
         public Func<object, object>? Identity { get; set; }
 
         /// <summary>Suppress identities already shown on another branch, using explicit repeat markers (default false).</summary>
@@ -28,9 +31,11 @@ namespace ConsoleMonster.Widgets {
         public IEqualityComparer<object>? IdentityComparer { get; set; }
 
         /// <summary>Produces a plain text aggregate when descendants are omitted at the depth limit.</summary>
+        [Fluent("CollapsedSummaryBy")]
         public Func<object, string>? CollapsedSummary { get; set; }
 
         /// <summary>Reports incomplete source data independently of configured depth or size limits.</summary>
+        [Fluent("IncompleteWhen")]
         public Func<object, bool>? IsIncomplete { get; set; }
     }
 

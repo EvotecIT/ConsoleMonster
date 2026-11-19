@@ -156,7 +156,7 @@ namespace ConsoleMonster.Changes {
 
         private Table BuildTable() {
             Table table = new Table { Border = TableBorder.Rounded };
-            table.AddColumn("").AddColumn(Markup.Escape(_labels.ChangesItem)).AddColumn(Markup.Escape(_labels.ChangesProperty)).AddColumn(Markup.Escape(_labels.ChangesBefore)).AddColumn(Markup.Escape(_labels.ChangesAfter));
+            table.Column("").Column(Markup.Escape(_labels.ChangesItem)).Column(Markup.Escape(_labels.ChangesProperty)).Column(Markup.Escape(_labels.ChangesBefore)).Column(Markup.Escape(_labels.ChangesAfter));
             foreach (ObjectChange change in Changes.Changes) {
                 string marker = Marker(change.Kind);
                 string key = Markup.Escape(change.Key);
@@ -166,13 +166,13 @@ namespace ConsoleMonster.Changes {
                         AddObjectRows(table, change, marker, key);
                         break;
                     case ChangeKind.Unchanged when change.Properties.Count == 0:
-                        table.AddRow(marker, "[muted]" + key + "[/]", "", "", "");
+                        table.Row(marker, "[muted]" + key + "[/]", "", "", "");
                         break;
                     default:
                         bool first = true;
                         foreach (PropertyChange property in change.Properties) {
                             bool longValue = IsLong(property.Before) || IsLong(property.After);
-                            table.AddRow(first ? marker : "", first ? Tone(change.Kind, key) : "", PropertyLabel(property),
+                            table.Row(first ? marker : "", first ? Tone(change.Kind, key) : "", PropertyLabel(property),
                                 longValue && property.HasBefore ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[fail]" + Markup.Escape(ValueText(property, true)) + "[/]",
                                 longValue && property.HasAfter ? "[muted]" + Markup.Escape(_labels.ChangesSeeDiff) + "[/]" : "[pass]" + Markup.Escape(ValueText(property, false)) + "[/]");
                             first = false;
@@ -190,7 +190,7 @@ namespace ConsoleMonster.Changes {
             string tone = added ? "pass" : "fail";
             if (change.Values.Count == 0) {
                 string value = "[" + tone + "]" + Markup.Escape(Clip(Describe(change))) + "[/]";
-                table.AddRow(marker, Tone(change.Kind, key), "", added ? "" : value, added ? value : "");
+                table.Row(marker, Tone(change.Kind, key), "", added ? "" : value, added ? value : "");
                 return;
             }
             int shown = change.Values.Count;
@@ -201,13 +201,13 @@ namespace ConsoleMonster.Changes {
             for (int i = 0; i < shown; i++) {
                 PropertyChange property = change.Values[i];
                 string value = "[" + tone + "]" + Markup.Escape(Clip(ObjectDiff.Text(added ? property.After : property.Before))) + "[/]";
-                table.AddRow(i == 0 ? marker : "", i == 0 ? Tone(change.Kind, key) : "", PropertyLabel(property), added ? "" : value, added ? value : "");
+                table.Row(i == 0 ? marker : "", i == 0 ? Tone(change.Kind, key) : "", PropertyLabel(property), added ? "" : value, added ? value : "");
             }
             int more = change.Values.Count - shown;
             if (more > 0) {
                 string count = "[muted]" + Markup.Escape(Localization.WidgetLabels.Format(_labels.MoreCount, more.ToString(CultureInfo.InvariantCulture))) + "[/]";
                 string hint = string.IsNullOrEmpty(MoreHint) ? "" : "[muted]" + Markup.Escape(MoreHint) + "[/]";
-                table.AddRow(shown == 0 ? marker : "", shown == 0 ? Tone(change.Kind, key) : "", count, added ? "" : hint, added ? hint : "");
+                table.Row(shown == 0 ? marker : "", shown == 0 ? Tone(change.Kind, key) : "", count, added ? "" : hint, added ? hint : "");
             }
         }
 
@@ -232,12 +232,12 @@ namespace ConsoleMonster.Changes {
                     continue;
                 }
                 Table table = new Table { Title = Marker(change.Kind) + " " + Tone(change.Kind, Markup.Escape(change.Key)), Border = TableBorder.Rounded };
-                table.AddColumn(Markup.Escape(_labels.ChangesProperty)).AddColumn(Markup.Escape(_labels.ChangesBefore)).AddColumn(Markup.Escape(_labels.ChangesAfter));
+                table.Column(Markup.Escape(_labels.ChangesProperty)).Column(Markup.Escape(_labels.ChangesBefore)).Column(Markup.Escape(_labels.ChangesAfter));
                 // Every property: changed ones with both sides, an added or removed object's with its one side.
                 foreach (PropertyChange property in change.Kind == ChangeKind.Changed || change.Kind == ChangeKind.Unchanged ? change.Properties : change.Values) {
                     string before = change.Kind == ChangeKind.Added ? "" : "[fail]" + Markup.Escape(ValueText(property, true)) + "[/]";
                     string after = change.Kind == ChangeKind.Removed ? "" : "[pass]" + Markup.Escape(ValueText(property, false)) + "[/]";
-                    table.AddRow(PropertyLabel(property), before, after);
+                    table.Row(PropertyLabel(property), before, after);
                 }
                 yield return table;
             }

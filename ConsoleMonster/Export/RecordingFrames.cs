@@ -7,9 +7,11 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Export {
     /// <summary>How a recording is exported: screen size, frame rate, speed, theme, font and window frame.</summary>
+    [Fluent]
     public sealed partial class RecordingExportOptions {
         private List<RecordingMarker> _markers = new List<RecordingMarker>();
         /// <summary>Chapters and export instructions at source recording times.</summary>

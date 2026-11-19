@@ -20,13 +20,13 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(GlyphTier.Ascii, ColorDepth.TrueColor, 120)]
         public void Render_ThresholdDataBars_AlwaysKeepValueThenStatusInRawAndEncodedOutput(GlyphTier tier, ColorDepth depth, int width) {
             Table table = new Table { Border = TableBorder.None, ShowHeader = false, RecordViewRows = 0 };
-            table.AddColumn("Volume");
+            table.Column("Volume");
             TableColumn used = new TableColumn("Used") { Presenter = new DataBarPresenter(100, barWidth: 8) };
             used.RoleRules.Add(RoleRule.Above(93, ThemeToken.Fail));
             used.RoleRules.Add(RoleRule.Above(90, ThemeToken.Warn));
-            table.AddColumn(used);
-            table.AddValues("volume-a", 92);
-            table.AddValues("volume-b", 96);
+            table.Column(used);
+            table.Values("volume-a", 92);
+            table.Values("volume-b", 96);
             Review184Capture capture = new Review184Capture(table, width, tier, depth);
             string warn = "92 " + capture.Context.Glyphs.StatusSymbol(StatusKind.Warn);
             string fail = "96 " + capture.Context.Glyphs.StatusSymbol(StatusKind.Fail);
@@ -43,15 +43,15 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void WithTone_VendorSeverity_LeavesRawNumberAndOriginalCellIntactAndTonesTheBar() {
             TableCell original = TableCell.FromValue(1.1m);
-            TableCell critical = original.WithTone(ThemeToken.Fail);
+            TableCell critical = original.WithTone(Tone.Danger);
             Assert.NotSame(original, critical);
             Assert.Same(original.Value, critical.Value);
             Assert.Equal(1.1m, critical.Value);
             Assert.Null(original.RowRole);
             Table table = new Table { Border = TableBorder.None, ShowHeader = false, RecordViewRows = 0 };
-            table.AddColumn("Item");
-            table.AddColumn(new TableColumn("CVSS") { Presenter = new DataBarPresenter(10, barWidth: 8) });
-            table.AddRow("critical", critical);
+            table.Column("Item");
+            table.Column(new TableColumn("CVSS") { Presenter = new DataBarPresenter(10, barWidth: 8) });
+            table.Row("critical", critical);
             Review184Capture capture = new Review184Capture(table, 120, GlyphTier.Basic, ColorDepth.Ansi16);
             CellContent content = CellRendering.Content(critical, table.Columns[1].Presenter, null, new PresenterContext(capture.Context));
             Assert.Equal(ThemeToken.Fail, content.Presented!.Role);

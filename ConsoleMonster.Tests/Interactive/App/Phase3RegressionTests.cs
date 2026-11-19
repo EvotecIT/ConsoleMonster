@@ -17,8 +17,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void SharedListingChangesAreAdoptedOnlyByExplicitRefreshWithMarkReconciliation() {
-            var listing = new Grid("Files"); listing.AddColumn("Name");
-            listing.AddRow(new GridRow("old", "old") { Id = 1 });
+            var listing = new Grid("Files"); listing.Column("Name");
+            listing.Row(new GridRow("old", "old") { Id = 1 });
             using var first = new DataGrid("First", listing);
             using var second = new DataGrid("Second", listing);
             second.ToggleMark();
@@ -31,8 +31,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void BackingListingCanShrinkAndClearBeforeRefreshWithoutInvalidatingTheOldSelection() {
-            var listing = new Grid("Files"); listing.AddColumn("Name");
-            listing.AddRow(new GridRow("one", "one") { Id = 1 }); listing.AddRow(new GridRow("two", "two") { Id = 2 });
+            var listing = new Grid("Files"); listing.Column("Name");
+            listing.Row(new GridRow("one", "one") { Id = 1 }); listing.Row(new GridRow("two", "two") { Id = 2 });
             using var grid = new DataGrid("Rows", listing);
             grid.Move(1); grid.ToggleMark();
             listing.SetRows(new[] { new GridRow("replacement", "two") { Id = 2 } });

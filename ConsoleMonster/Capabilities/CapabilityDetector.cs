@@ -91,35 +91,38 @@ namespace ConsoleMonster.Capabilities {
                     glyphReason = "CONSOLEMONSTER_GLYPHS";
                     break;
             }
-            ThemePreference themePreference = ThemePreference.Auto;
+            ThemeMode themeMode = ThemeMode.Auto;
+            ThemePalette palette = ThemePalette.Default;
             string themeValue = Get("CONSOLEMONSTER_THEME");
             switch (themeValue.ToLowerInvariant()) {
                 case "terminal":
-                    themePreference = ThemePreference.Terminal;
+                    palette = ThemePalette.Terminal;
                     break;
                 case "highcontrast":
-                    themePreference = ThemePreference.HighContrast;
+                    palette = ThemePalette.HighContrast;
                     break;
                 case "colorblind":
                 case "colorblindsafe":
                 case "color-blind-safe":
-                    themePreference = ThemePreference.ColorBlind;
+                    palette = ThemePalette.ColorBlind;
                     break;
                 case "colorblind-light":
                 case "colorblindsafe-light":
                 case "color-blind-safe-light":
-                    themePreference = ThemePreference.ColorBlindLight;
+                    palette = ThemePalette.ColorBlind;
+                    themeMode = ThemeMode.Light;
                     break;
                 case "colorblind-dark":
                 case "colorblindsafe-dark":
                 case "color-blind-safe-dark":
-                    themePreference = ThemePreference.ColorBlindDark;
+                    palette = ThemePalette.ColorBlind;
+                    themeMode = ThemeMode.Dark;
                     break;
                 case "light":
-                    themePreference = ThemePreference.Light;
+                    themeMode = ThemeMode.Light;
                     break;
                 case "dark":
-                    themePreference = ThemePreference.Dark;
+                    themeMode = ThemeMode.Dark;
                     break;
                 case "":
                 case "auto":
@@ -129,8 +132,8 @@ namespace ConsoleMonster.Capabilities {
                     else { decisions.Add("CONSOLEMONSTER_THEME: ignored invalid value '" + themeValue + "'"); }
                     break;
             }
-            if (themePreference == ThemePreference.Auto && env.IsWindows && env.HighContrast) {
-                themePreference = ThemePreference.HighContrast;
+            if (themeMode == ThemeMode.Auto && palette == ThemePalette.Default && env.IsWindows && env.HighContrast) {
+                palette = ThemePalette.HighContrast;
                 decisions.Add("theme: Windows High Contrast setting");
             }
             bool accessible = AccessibilityPolicy.Enabled(Get("CONSOLEMONSTER_ACCESSIBLE"));
@@ -164,17 +167,17 @@ namespace ConsoleMonster.Capabilities {
             decisions.Add("kind: " + kind);
             decisions.Add("width profile: " + widths);
             decisions.Add("probe widths: " + probeWidths);
-            decisions.Add("theme preference: " + themePreference + " (CONSOLEMONSTER_THEME)");
+            decisions.Add("theme mode: " + themeMode + ", palette " + palette + " (CONSOLEMONSTER_THEME)");
             CultureInfo? culture = ParseCulture(Get("CONSOLEMONSTER_CULTURE"), decisions);
             Glyphs.BoxStyle? border = ParseBorder(Get("CONSOLEMONSTER_BORDER"), decisions);
             Styling.StatusMarkerStyle? markers = ParseMarkers(Get("CONSOLEMONSTER_STATUS_MARKERS"), decisions);
             Styling.ThemeDensity? density = ParseDensity(Get("CONSOLEMONSTER_DENSITY"), decisions);
             decisions.Add("size: " + width.ToString(CultureInfo.InvariantCulture) + "x" + height.ToString(CultureInfo.InvariantCulture) + (env.IsOutputRedirected ? " (COLUMNS/LINES or defaults)" : " (visible window or defaults)"));
             return new TerminalProfile(color, glyphs, mode, width, height, kind, vt,
-                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themePreference, culture, hyperlinks) {
+                env.IsOutputRedirected, env.IsConsoleHandle, ci, env.ConsoleFontFace, decisions.AsReadOnly(), widths, probeWidths, themeMode, culture, hyperlinks) {
                 WidthFromColumns = columns > 0, ImageSupport = images, ImageSource = imageSource,
                 TextCodePage = TextCodePage(glyphs, glyphReason, widths)
-            }.WithAccessibility(accessible, reducedMotion).WithBorder(border).WithStatusMarkers(markers).WithDensity(density);
+            }.WithAccessibility(accessible, reducedMotion).WithBorder(border).WithStatusMarkers(markers).WithDensity(density).WithPalette(palette);
         }
 
         private static Styling.ThemeDensity? ParseDensity(string value, List<string> decisions) {
@@ -281,11 +284,11 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(profile.ColorDepth, glyphs, profile.Mode, profile.Width, profile.Height,
                 profile.Kind, profile.SupportsVirtualTerminal, profile.IsOutputRedirected, profile.IsConsoleHandle,
                 profile.IsContinuousIntegration, fontFace, decisions.AsReadOnly(), profile.WidthProfile, profile.ProbeWidths,
-                profile.ThemePreference, profile.Culture, profile.HyperlinkSupport) {
+                profile.ThemeMode, profile.Culture, profile.HyperlinkSupport) {
                 ImageSupport = profile.ImageSupport, ImageSource = profile.ImageSource, TextCodePage = TextCodePage(glyphs, reason, profile.WidthProfile)
             }.WithLanguage(profile.Language)
                 .WithDefaultColors(profile.DefaultForeground, profile.DefaultBackground).WithAccessibility(profile.IsAccessible, profile.ReducedMotion, profile.MotionOverride)
-                .WithBorder(profile.Border).WithStatusMarkers(profile.StatusMarkers).WithDensity(profile.Density);
+                .WithBorder(profile.Border).WithStatusMarkers(profile.StatusMarkers).WithDensity(profile.Density).WithPalette(profile.Palette);
         }
 
         private bool ParseWidth(string name, ref TerminalWidthProfile profile, bool emoji, List<string> decisions) {

@@ -6,6 +6,7 @@ using ConsoleMonster.Glyphs;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
 using ConsoleMonster.Text;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Widgets {
     public sealed partial class Dashboard : ICompactWidget {
@@ -19,6 +20,7 @@ namespace ConsoleMonster.Widgets {
         /// The progress text for the compact status line (for example <c>218/332 · ✗12 ▲25</c>), or null to use
         /// <see cref="Detail"/>. Called on the render thread.
         /// </summary>
+        [Fluent("CompactSummaryBy")]
         public Func<string>? CompactSummary { get; set; }
 
         /// <inheritdoc />

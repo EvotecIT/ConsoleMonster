@@ -209,7 +209,7 @@ namespace ConsoleMonster.Tests.Interactive
                         review.Problem("Pick at least one target", targets);
                     }
 
-                    review.Run = c => log.Add("run");
+                    review.Action = c => log.Add("run");
                     return review;
                 };
             });

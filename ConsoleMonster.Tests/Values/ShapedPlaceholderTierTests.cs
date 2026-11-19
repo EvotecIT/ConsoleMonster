@@ -13,10 +13,10 @@ namespace ConsoleMonster.Tests.Values {
         [Fact]
         public void PlaceholdersAndCallerTextFollowTheDestinationTier() {
             var table = new Table { RecordViewRows = 0 };
-            table.AddColumn("Note");
-            table.AddColumn("Tags");
-            table.AddColumn("Members");
-            table.AddValues("café — ✓ …", ValueShaper.Cell(new string[0]), ValueShaper.Cell(Enumerable.Range(1, 9).Select(i => "m" + i).ToList()));
+            table.Column("Note");
+            table.Column("Tags");
+            table.Column("Members");
+            table.Values("café — ✓ …", ValueShaper.Cell(new string[0]), ValueShaper.Cell(Enumerable.Range(1, 9).Select(i => "m" + i).ToList()));
 
             string ascii = Render(table, GlyphTier.Ascii);
             Assert.Contains("cafe - + ...", ascii);

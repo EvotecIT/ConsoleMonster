@@ -29,11 +29,11 @@ namespace ConsoleMonster.Tests.Export {
         // A small scene with everything the writers treat specially: a border, a link, a wide glyph, a bar, braille, a background.
         private static IWidget Scene() {
             Table table = new Table { Border = TableBorder.Rounded };
-            table.AddColumn("Check");
-            table.AddColumn("Status");
-            table.AddRow("SPF", "[pass]PASS[/]");
-            table.AddRow("DKIM", "[warn on #3a2a00]WARN[/]");
-            table.AddRow("[link=https://example.org/docs]docs[/]", "日本");
+            table.Column("Check");
+            table.Column("Status");
+            table.Row("SPF", "[pass]PASS[/]");
+            table.Row("DKIM", "[warn on #3a2a00]WARN[/]");
+            table.Row("[link=https://example.org/docs]docs[/]", "日本");
             return new Rows(
                 new Panel(table, "Mail <checks> & \"more\""),
                 new TextBlock("██▌ ⣿⣀ ═══ <script>alert(1)</script>") { IsMarkup = false }
@@ -239,11 +239,11 @@ namespace ConsoleMonster.Tests.Export {
             using (Terminal.Use(target)) {
                 var options = new RecordingExportOptions { Height = 6, FramesPerSecond = 5 };
                 IWidget root = Build(out string recording);
-                string data = Recording.ExportPlayerData(root, new StringReader(recording), options);
+                string data = Recording.ToPlayerData(root, new StringReader(recording), options);
                 Assert.Contains("\"width\":57", data);
-                string cast = Recording.ExportAsciicast(root, new StringReader(recording), options);
+                string cast = Recording.ToAsciicast(root, new StringReader(recording), options);
                 Assert.Contains("\"cols\":57", cast.Split('\n')[0]);
-                string svg = Recording.ExportSvg(root, new StringReader(recording), options);
+                string svg = Recording.ToSvg(root, new StringReader(recording), options);
                 Assert.DoesNotContain("width=\"0\"", svg);
                 Assert.Equal(0, options.Width);
             }
@@ -252,7 +252,7 @@ namespace ConsoleMonster.Tests.Export {
         [Fact]
         public void Recording_Asciicast_IsValidV3() {
             IWidget root = Build(out string recording);
-            string cast = Recording.ExportAsciicast(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5, Title = "Build", Timestamp = new DateTimeOffset(2026, 10, 17, 0, 0, 0, TimeSpan.Zero) });
+            string cast = Recording.ToAsciicast(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5, Title = "Build", Timestamp = new DateTimeOffset(2026, 10, 17, 0, 0, 0, TimeSpan.Zero) });
             string[] lines = cast.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
             Assert.StartsWith("{\"version\":3,\"term\":{\"cols\":40,\"rows\":6,\"type\":\"xterm-256color\",\"theme\":{\"fg\":\"#cccccc\",\"bg\":\"#0c0c0c\",\"palette\":\"#0c0c0c:", lines[0]);
             Assert.Contains("\"timestamp\":1792195200", lines[0]);
@@ -275,7 +275,7 @@ namespace ConsoleMonster.Tests.Export {
         [Fact]
         public void Recording_AnimatedSvg_UsesKeyframesAndSharedRows() {
             IWidget root = Build(out string recording);
-            string svg = Recording.ExportSvg(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5 });
+            string svg = Recording.ToSvg(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5 });
             Assert.Contains("@keyframes cm-play{0%{transform:translateX(0px)}", svg);
             Assert.Contains("animation:cm-play ", svg);
             Assert.DoesNotContain("<script", svg);
@@ -288,7 +288,7 @@ namespace ConsoleMonster.Tests.Export {
         public void Recording_HtmlPlayer_KeepsRowsInsideTheScript() {
             IWidget root = new Rows(new LogRegion("log"));
             string recording = "{\"consolemonster\":\"recording\",\"version\":1}\n{\"t\":10,\"target\":\"log\",\"op\":\"write\",\"text\":\"</script><script>alert(1)</script>\"}\n";
-            string html = Recording.ExportHtml(root, new StringReader(recording), new RecordingExportOptions { Width = 50, Height = 4 });
+            string html = Recording.ToHtml(root, new StringReader(recording), new RecordingExportOptions { Width = 50, Height = 4 });
             Assert.Single(Regex.Matches(html, "<script>"));
             Assert.Single(Regex.Matches(html, "<script type=\"application/json\" id=\"cm-data\">"));
             Assert.Equal(2, Regex.Matches(html, "</script>").Count);
@@ -300,7 +300,7 @@ namespace ConsoleMonster.Tests.Export {
         [Fact]
         public void Recording_PlayerData_IsTheDocumentedFormat() {
             IWidget root = Build(out string recording);
-            string data = Recording.ExportPlayerData(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5, Title = "Build" });
+            string data = Recording.ToPlayerData(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 6, FramesPerSecond = 5, Title = "Build" });
             Assert.StartsWith("{\"format\":\"consolemonster-player\",\"version\":1,\"title\":\"Build\",\"width\":40,\"height\":6,\"fps\":5,", data);
             Assert.Contains("\"css\":\".cm-export{", data);
             Assert.Contains("\"rows\":[", data);
@@ -324,7 +324,7 @@ namespace ConsoleMonster.Tests.Export {
             // A progress bar only (no spinner), so frames change only when an event arrives.
             IWidget root = new Rows(new ProgressBar("Build", "build") { Total = 10 });
             string recording = "{\"consolemonster\":\"recording\",\"version\":1}\n{\"t\":400,\"target\":\"build\",\"op\":\"advance\",\"value\":4}\n{\"t\":1600,\"target\":\"build\",\"op\":\"advance\",\"value\":6}\n";
-            string cast = Recording.ExportAsciicast(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 3, FramesPerSecond = 50 });
+            string cast = Recording.ToAsciicast(root, new StringReader(recording), new RecordingExportOptions { Width = 40, Height = 3, FramesPerSecond = 50 });
             int events = cast.Split('\n').Count(l => l.StartsWith("[", StringComparison.Ordinal));
             Assert.Equal(4, events);
         }

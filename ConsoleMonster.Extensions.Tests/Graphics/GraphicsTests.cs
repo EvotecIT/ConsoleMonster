@@ -26,12 +26,12 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 options.Frame = new RecordingExportOptions { Width = 4, Height = 3 }.ToFrameOptions();
                 Assert.Equal(ExportTheme.Auto, options.Frame.Theme);
                 options.Frame.FontSize = 10; options.Frame.LineHeight = 1; options.Frame.Padding = 0;
-                recording.SavePng(path, options);
+                recording.Save(path, options);
                 RgbaImage image = RasterImageDecoder.Decode(File.ReadAllBytes(path));
                 Assert.Equal((18, 171, 52), (image.Pixels[(3 * image.Width + 3) * 4], image.Pixels[(3 * image.Width + 3) * 4 + 1], image.Pixels[(3 * image.Width + 3) * 4 + 2]));
                 Assert.Equal(ExportTheme.Auto, options.Frame.Theme);
                 options.Frame.Theme = ExportTheme.Dark;
-                recording.SavePng(path, options);
+                recording.Save(path, options);
                 image = RasterImageDecoder.Decode(File.ReadAllBytes(path));
                 Assert.Equal((19, 161, 14), (image.Pixels[(3 * image.Width + 3) * 4], image.Pixels[(3 * image.Width + 3) * 4 + 1], image.Pixels[(3 * image.Width + 3) * 4 + 2]));
             } finally { File.Delete(path); }
@@ -73,11 +73,11 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                     Assert.Equal(ConsoleExporter.ToText(sourceFrames[index]), ConsoleExporter.ToText(recording.ChapterFrame(index)));
                 }
                 var playback = new RecordingExportOptions { Width = 120, Height = 40, FramesPerSecond = 60, MaxFrames = 4096, HoldLastFrame = TimeSpan.Zero };
-                string html = recording.Export(ExportFormat.Html, playback);
+                string html = recording.Render(OutputFormat.Html, playback).ToText();
                 foreach (var chapter in recording.Chapters) { Assert.Contains(chapter.Label, html); }
                 string gif = Path.Combine(folder, "dashboard.gif");
                 var settings = new GraphicsExportOptions { Frame = new ExportOptions { FontSize = 6, Padding = 0 }, Playback = playback, IdleLimit = TimeSpan.Zero };
-                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                recording.Save(gif, GraphicsFormat.Gif, settings);
                 // Slide GIFs start on the first content poster rather than an empty opening screen.
                 int contentFrames = recording.CaptureFrames(playback).Count(frame => !string.IsNullOrWhiteSpace(ConsoleExporter.ToText(frame.Frame)));
                 Assert.Equal(contentFrames, GifDelays(File.ReadAllBytes(gif), out _).Count);
@@ -137,7 +137,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             try {
                 var settings = new GraphicsExportOptions { LoopCount = 2, IdleLimit = TimeSpan.FromSeconds(0.5), Playback = new RecordingExportOptions { Pace = RecordingPace.Source } };
                 string gif = Path.Combine(folder, "demo.gif"), apng = Path.Combine(folder, "demo.apng");
-                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings); recording.SaveGraphics(apng, GraphicsFormat.Apng, settings);
+                recording.Save(gif, GraphicsFormat.Gif, settings); recording.Save(apng, GraphicsFormat.Apng, settings);
                 byte[] bytes = File.ReadAllBytes(gif);
                 Assert.Equal("GIF89a", Encoding.ASCII.GetString(bytes, 0, 6)); Assert.Equal(0x3b, bytes[bytes.Length - 1]);
                 var delays = GifDelays(bytes, out int repetitions);
@@ -148,7 +148,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 byte[] png = File.ReadAllBytes(apng);
                 Assert.Contains("acTL", Encoding.ASCII.GetString(png)); Assert.Contains("fcTL", Encoding.ASCII.GetString(png)); Assert.Contains("fdAT", Encoding.ASCII.GetString(png));
                 Assert.Contains("finished", ConsoleExporter.ToText(recording.ChapterFrame(0)));
-                var slides = recording.SaveChapterPngs(folder, settings); Assert.Equal(2, slides.Count); Assert.All(slides, path => Assert.True(new FileInfo(path).Length > 100));
+                var slides = recording.SaveChapters(folder, settings); Assert.Equal(2, slides.Count); Assert.All(slides, path => Assert.True(new FileInfo(path).Length > 100));
             } finally { Directory.Delete(folder, true); }
         }
         [Fact]
@@ -167,7 +167,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             var recording = SessionRecording.Read(new StringReader("{\"version\":2,\"width\":20,\"height\":3}\n[1,\"o\",\"done\"]\n[61,\"m\",\"End\"]\n"));
             string path = Path.Combine(Path.GetTempPath(), "cm-idle-" + Guid.NewGuid().ToString("N") + ".gif");
             try {
-                recording.SaveGraphics(path, GraphicsFormat.Gif, new GraphicsExportOptions {
+                recording.Save(path, GraphicsFormat.Gif, new GraphicsExportOptions {
                     IdleLimit = TimeSpan.FromSeconds(idle), Playback = new RecordingExportOptions { Pace = RecordingPace.Source, HoldLastFrame = TimeSpan.FromSeconds(hold) }
                 });
                 int last = GifDelays(File.ReadAllBytes(path), out _).Last();
@@ -182,8 +182,8 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             Directory.CreateDirectory(folder);
             try {
                 string gif = Path.Combine(folder, "resize.gif"), apng = Path.Combine(folder, "resize.apng");
-                recording.SaveGraphics(gif, GraphicsFormat.Gif);
-                recording.SaveGraphics(apng, GraphicsFormat.Apng);
+                recording.Save(gif, GraphicsFormat.Gif);
+                recording.Save(apng, GraphicsFormat.Apng);
                 byte[] bytes = File.ReadAllBytes(gif), png = File.ReadAllBytes(apng);
                 int width = bytes[6] | (bytes[7] << 8), height = bytes[8] | (bytes[9] << 8);
                 Assert.Equal(BigEndian(png, 16), width); Assert.Equal(BigEndian(png, 20), height);
@@ -199,7 +199,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             try {
                 var settings = new GraphicsExportOptions { Preset = GraphicsPreset.Slide16x9, Playback = new RecordingExportOptions { Pace = RecordingPace.Source } };
                 string gif = Path.Combine(folder, "slides.gif");
-                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                recording.Save(gif, GraphicsFormat.Gif, settings);
                 var bytes = File.ReadAllBytes(gif);
                 var delays = GifDelays(bytes, out int repetitions);
                 Assert.Equal(0, repetitions);
@@ -207,7 +207,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 var poster = RasterImageDecoder.Decode(bytes);
                 Assert.Equal(1920, poster.Width); Assert.Equal(1080, poster.Height);
                 settings.LoopCount = 1;
-                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
+                recording.Save(gif, GraphicsFormat.Gif, settings);
                 Assert.Equal(delays, GifDelays(File.ReadAllBytes(gif), out repetitions));
                 Assert.Equal(-1, repetitions);
             } finally { Directory.Delete(folder, true); }
@@ -222,8 +222,8 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
             try {
                 var settings = new GraphicsExportOptions { Playback = new RecordingExportOptions { Pace = RecordingPace.Source } };
                 string gif = Path.Combine(folder, "hold.gif"), apng = Path.Combine(folder, "hold.apng");
-                recording.SaveGraphics(gif, GraphicsFormat.Gif, settings);
-                recording.SaveGraphics(apng, GraphicsFormat.Apng, settings);
+                recording.Save(gif, GraphicsFormat.Gif, settings);
+                recording.Save(apng, GraphicsFormat.Apng, settings);
                 Assert.Equal(new[] { 400, 200 }, GifDelays(File.ReadAllBytes(gif), out _));
                 var delays = new List<int>();
                 byte[] png = File.ReadAllBytes(apng);
@@ -233,7 +233,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                     delays.Add(1000 * numerator / (denominator == 0 ? 100 : denominator));
                 }
                 Assert.Equal(new[] { 4000, 2000 }, delays);
-                Assert.Contains("\"duration\":6000", recording.ExportPlayerData(settings.Playback));
+                Assert.Contains("\"duration\":6000", recording.ToPlayerData(settings.Playback));
             } finally { Directory.Delete(folder, true); }
         }
 
@@ -243,7 +243,7 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 + "[0,\"cm\",\"{\\\"label\\\":\\\"Start\\\",\\\"hold\\\":3,\\\"pace\\\":null,\\\"chapter\\\":true}\"]\n[1,\"o\",\"Ready\"]\n[2,\"o\",\"\\rDone \"]\n"));
             string path = Path.Combine(Path.GetTempPath(), "cm-poster-hold-" + Guid.NewGuid().ToString("N") + ".gif");
             try {
-                recording.SaveGraphics(path, GraphicsFormat.Gif, new GraphicsExportOptions {
+                recording.Save(path, GraphicsFormat.Gif, new GraphicsExportOptions {
                     IdleLimit = TimeSpan.Zero, Playback = new RecordingExportOptions { Pace = RecordingPace.Source }
                 });
                 Assert.Equal(new[] { 400, 200 }, GifDelays(File.ReadAllBytes(path), out _));
@@ -265,8 +265,8 @@ namespace ConsoleMonster.Extensions.Tests.Graphics {
                 }
                 var settings = new GraphicsExportOptions { Frame = new ExportOptions { FontSize = 8 } };
                 string gif = Path.Combine(folder, "app.gif"), apng = Path.Combine(folder, "app.png");
-                frames.SaveGraphics(gif, GraphicsFormat.Gif, settings);
-                frames.SaveGraphics(apng, GraphicsFormat.Apng, settings);
+                frames.Save(gif, GraphicsFormat.Gif, settings);
+                frames.Save(apng, GraphicsFormat.Apng, settings);
 
                 byte[] gifBytes = File.ReadAllBytes(gif);
                 Assert.Equal("GIF89a", Encoding.ASCII.GetString(gifBytes, 0, 6));

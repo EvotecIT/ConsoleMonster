@@ -39,9 +39,9 @@ namespace ConsoleMonster.Widgets {
                 // cards remain the lossless fallback.
                 if (oversized && room >= 2) {
                     int valueWidth = System.Math.Min(minimum[columns[1]], room - 1);
-                    band.AddColumn(WrappingColumn(_columns[c], i == 0 ? room - valueWidth : valueWidth));
+                    band.Column(WrappingColumn(_columns[c], i == 0 ? room - valueWidth : valueWidth));
                 } else {
-                    band.AddColumn(_columns[c]);
+                    band.Column(_columns[c]);
                 }
             }
             band.AlwaysCards = oversized && room < 2;
@@ -49,16 +49,16 @@ namespace ConsoleMonster.Widgets {
             for (int r = 0; r < _rows.Count; r++) {
                 if (_rowGroups[r] != group) {
                     group = _rowGroups[r];
-                    if (group >= 0) band.AddGroup(_groups[group]);
+                    if (group >= 0) band.Group(_groups[group]);
                 }
                 TableCell[] cells = new TableCell[columns.Count];
                 for (int c = 0; c < columns.Count; c++) cells[c] = _rows[r][columns[c]];
-                band.AddRow(cells);
+                band.Row(cells);
             }
             if (_footer != null) {
                 TableCell[] footer = new TableCell[columns.Count];
                 for (int c = 0; c < columns.Count; c++) footer[c] = _footer[columns[c]];
-                band.SetFooter(footer);
+                band.Footer(footer);
             }
             return band;
         }

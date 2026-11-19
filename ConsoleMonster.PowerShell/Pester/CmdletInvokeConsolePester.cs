@@ -28,7 +28,8 @@ namespace ConsoleMonster.PowerShell.Pester {
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsolePester", DefaultParameterSetName = "Simple", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consolepester/")]
     [OutputType(typeof(PSObject))]
-    public sealed class CmdletInvokeConsolePester : NoPipelineInputCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.PowerShell.Pester.ConsolePesterOptions), Include = new[] { "Path", "ExcludePath", "TagFilter", "ExcludeTagFilter", "FullNameFilter", "Container", "Output" })]
+    public sealed partial class CmdletInvokeConsolePester : NoPipelineInputCmdlet {
         /// <summary><para type="description">Test files or folders; omitted uses Pester's current-folder default.</para></summary>
         [Parameter(Position = 0, ParameterSetName = "Simple")]
         public string[]? Path { get; set; }
@@ -107,13 +108,7 @@ namespace ConsoleMonster.PowerShell.Pester {
                 Title = Title, Live = !NoLive.IsPresent, FullScreen = FullScreen.IsPresent,
                 ExportHtml = ExportHtml, CI = CI.IsPresent, PassThru = PassThru.IsPresent, NoJobSummary = NoJobSummary.IsPresent
             };
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Path))) { options.Path = Path; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(ExcludePath))) { options.ExcludePath = ExcludePath; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(TagFilter))) { options.TagFilter = TagFilter; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(ExcludeTagFilter))) { options.ExcludeTagFilter = ExcludeTagFilter; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(FullNameFilter))) { options.FullNameFilter = FullNameFilter; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Container))) { options.Container = Container; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Output))) { options.Output = Output; }
+            ApplyParameters(options);
             using (var runner = new ConsolePester(this, options)) { runner.Run(); }
         }
     }

@@ -84,7 +84,7 @@ namespace ConsoleMonster.Widgets {
                 for (int i = 0; i < SampleRows && input.MoveNext(); i++) {
                     Entry entry = Project(input.Current);
                     sample.Enqueue(entry);
-                    measuring.AddRow(entry.Cells);
+                    measuring.Row(entry.Cells);
                 }
                 if (sample.Count == 0) yield break;
                 TableLayout layout = measuring.StreamingLayout(width, context);
@@ -146,10 +146,10 @@ namespace ConsoleMonster.Widgets {
                         TableCell cell = entry.Cells[c];
                         TableCell? previous = previousCells == null ? null : previousCells[c];
                         bool repeats = previous != null && cell.HasValue == previous.HasValue && (cell.HasValue ? Equals(cell.Value, previous.Value) : cell.Markup == previous.Markup);
-                        cells[v] = _columns[c].DimRepeats && repeats ? cell.WithTone(ThemeToken.Muted) : cell;
+                        cells[v] = _columns[c].DimRepeats && repeats ? cell.WithTone(Tone.Muted) : cell;
                     }
                     previousCells = entry.Cells;
-                    body.AddRow(cells);
+                    body.Row(cells);
                     yield return FrameComposer.RenderBlock(body, width, context);
                 }
                 if (hasGroup) {
@@ -164,7 +164,7 @@ namespace ConsoleMonster.Widgets {
                 Border = Border, RecordViewRows = 0, CardsBelow = 60, ShowHeader = header,
                 HeaderSeparator = Border == TableBorder.Rule, StableWidths = false, Presentation = Presentation
             };
-            foreach (TableColumn column in columns) table.AddColumn(column);
+            foreach (TableColumn column in columns) table.Column(column);
             return table;
         }
 

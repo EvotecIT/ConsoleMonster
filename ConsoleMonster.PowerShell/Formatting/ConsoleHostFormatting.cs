@@ -1,8 +1,10 @@
 using System;
 using System.Management.Automation;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>PowerShell session formatting configuration, shared by the cmdlets and C# runspace hosts.</summary>
+    [Fluent]
     public sealed class ConsoleFormattingOptions {
         /// <summary>Features to add to the default set.</summary>
         public ConsoleFormattingFeature[]? Include { get; set; }

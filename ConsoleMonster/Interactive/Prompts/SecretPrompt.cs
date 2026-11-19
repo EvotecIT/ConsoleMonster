@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -27,6 +28,7 @@ namespace ConsoleMonster.Interactive {
         public int MinLength { get; set; }
 
         /// <summary>A validator: returns an error message, or null.</summary>
+        [Fluent("Validate")]
         public Func<string, string?>? Validator { get; set; }
 
         /// <inheritdoc />

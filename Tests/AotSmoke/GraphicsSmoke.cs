@@ -22,10 +22,10 @@ internal static class GraphicsSmoke {
         Directory.CreateDirectory(directory);
         try {
             string gif = Path.Combine(directory, "recording.gif");
-            recording.SaveGraphics(gif, GraphicsFormat.Gif, options);
+            recording.Save(gif, GraphicsFormat.Gif, options);
             CheckHeader(File.ReadAllBytes(gif), Encoding.ASCII.GetBytes("GIF89a"));
             string apng = Path.Combine(directory, "recording.apng");
-            recording.SaveGraphics(apng, GraphicsFormat.Apng, options);
+            recording.Save(apng, GraphicsFormat.Apng, options);
             byte[] animation = File.ReadAllBytes(apng);
             CheckPng(animation);
             if (!Encoding.ASCII.GetString(animation).Contains("acTL", StringComparison.Ordinal)) {

@@ -28,10 +28,10 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("FontFace         Consolas", "FontFace         Cascadia Mono", "FontFace")]
+        [InlineData("FontFace    Consolas", "FontFace    Cascadia Mono", "FontFace")]
         [InlineData("  kind: Conhost", "  kind: Xterm", "kind")]
-        [InlineData("ColorDepth       TrueColor", "ColorDepth       Ansi256", "ColorDepth")]
-        [InlineData("Glyphs           Basic", "Glyphs           Full", "Glyphs")]
+        [InlineData("ColorDepth  TrueColor", "ColorDepth  Ansi256", "ColorDepth")]
+        [InlineData("Glyphs      Basic", "Glyphs      Full", "Glyphs")]
         [InlineData("  colour: TrueColor (Windows build >=14931)", "  colour: TrueColor (native reason)", "colour")]
         [InlineData("  glyphs: Basic (conhost font 'Consolas')", "  glyphs: Basic (native reason)", "glyphs")]
         public void EachDetectedValueIsIndividuallyReported(string before, string after, string key) {
@@ -44,10 +44,10 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("Mode             Interactive", "Mode             Stream")]
-        [InlineData("Width            100", "Width            99")]
-        [InlineData("Height           40", "Height           39")]
-        [InlineData("ThemePreference  Auto", "ThemePreference  Light")]
+        [InlineData("Mode        Interactive", "Mode        Stream")]
+        [InlineData("Width       100", "Width       99")]
+        [InlineData("Height      40", "Height      39")]
+        [InlineData("ThemeMode   Auto", "ThemeMode   Light")]
         [InlineData("  mode: Interactive (VT terminal)", "  mode: Stream (CI environment)")]
         [InlineData("  size: 100x40", "  size: 99x40")]
         [InlineData("  culture: en-US", "  culture: pl-PL")]
@@ -56,13 +56,13 @@ namespace SiteFrames.Tests {
         [InlineData("  width profile: emoji=2", "  width profile: emoji=1")]
         [InlineData("  probe widths: False", "  probe widths: True")]
         [InlineData("  VT: supported", "  VT: unavailable")]
-        [InlineData("  theme preference: Auto", "  theme preference: Dark")]
+        [InlineData("  theme mode: Auto, palette Default", "  theme mode: Dark, palette Default")]
         [InlineData("never redirected or CI)", "never redirected or XX)")]
         [InlineData("redirected or CI)", "redirected\r\nor CI)")]
         [InlineData("This console", "Other console")]
         [InlineData("  kind: Conhost", "  kind: Conhost\r\n  unexpected: value")]
         [InlineData("  kind: Conhost", "  kind: Conhost\r\n  kind: Xterm")]
-        [InlineData("FontFace         Consolas", "FontFace         Consolas\r\nFontFace         Other")]
+        [InlineData("FontFace    Consolas", "FontFace    Consolas\r\nFontFace    Other")]
         [InlineData("  culture: en-US (CONSOLEMONSTER_CULTURE)\r\n", "")]
         public void StableFieldsMissingDuplicateAndUnknownRowsFailClosed(string before, string after) {
             string a = ProfileRun("a", "macos", "profile-detected", ProfileText("profile-detected", false));
@@ -71,12 +71,12 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("profile", "ColorDepth       TrueColor", "ColorDepth       Ansi256")]
-        [InlineData("profile", "Glyphs           Full", "Glyphs           Basic")]
+        [InlineData("profile", "ColorDepth  TrueColor", "ColorDepth  Ansi256")]
+        [InlineData("profile", "Glyphs      Full", "Glyphs      Basic")]
         [InlineData("profile", "  colour: TrueColor (CONSOLEMONSTER_COLOR)", "  colour: TrueColor (native reason)")]
         [InlineData("profile", "  glyphs: Full (CONSOLEMONSTER_GLYPHS)", "  glyphs: Full (native reason)")]
-        [InlineData("profile-ci", "ColorDepth       – None", "ColorDepth       TrueColor")]
-        [InlineData("profile-ci", "Glyphs           Basic", "Glyphs           Full")]
+        [InlineData("profile-ci", "ColorDepth  – None", "ColorDepth  TrueColor")]
+        [InlineData("profile-ci", "Glyphs      Basic", "Glyphs      Full")]
         [InlineData("profile-ci", "  colour: None (NO_COLOR)", "  colour: TrueColor (native reason)")]
         [InlineData("profile-ci", "  glyphs: Basic (stream/CI)", "  glyphs: Full (native reason)")]
         public void PinnedAndCiColourAndGlyphFieldsAndDecisionsStayStrict(string name, string before, string after) {
@@ -179,7 +179,7 @@ namespace SiteFrames.Tests {
             string glyphs = ci || detected && windows ? "Basic" : "Full";
             string mode = ci ? "Stream" : "Interactive", theme = detected ? "Auto" : "Dark";
             string Field(string key, string value) {
-                string label = key.PadRight(17);
+                string label = key.PadRight(12);
                 if (paintLabels && !ci) { label = (detected && !windows ? "\u001b[38;5;245m" : "\u001b[38;2;139;143;154m") + label + "\u001b[0m"; }
                 return label + value;
             }
@@ -187,14 +187,14 @@ namespace SiteFrames.Tests {
             string glyphReason = ci ? "Basic (stream/CI)" : detected ? windows ? "Basic (conhost font 'Consolas')" : "Full (modern terminal, locale LC_ALL=en_US.UTF-8)" : "Full (CONSOLEMONSTER_GLYPHS)";
             return string.Join("\r\n", new[] {
                 "This console", Field("Mode", mode), Field("ColorDepth", depth), Field("Glyphs", glyphs), Field("Width", "100"),
-                Field("Height", "40"), Field("ThemePreference", theme)
+                Field("Height", "40"), Field("ThemeMode", theme), Field("Palette", "Default")
             }.Concat(windows ? new[] { Field("FontFace", "Consolas") } : Array.Empty<string>()).Concat(new[] {
                 "", "  CONSOLEMONSTER_EMOJI_WIDTH: 2", "  CONSOLEMONSTER_AMBIGUOUS_WIDTH: 1",
                 "  hyperlinks: False (terminal/CONSOLEMONSTER_HYPERLINKS; requires interactive VT, never redirected or CI)",
                 "  mode: " + mode + (ci ? " (CI environment)" : " (VT terminal)"), "  colour: " + colour, "  glyphs: " + glyphReason,
                 "  VT: supported", "  kind: " + (windows ? "Conhost" : "Xterm"),
                 "  width profile: emoji=2, ambiguous=1, zwj=Joined, flag=2, text=1 (environment)", "  probe widths: False",
-                "  theme preference: " + theme + " (CONSOLEMONSTER_THEME)", "  culture: en-US (CONSOLEMONSTER_CULTURE)",
+                "  theme mode: " + theme + ", palette Default (CONSOLEMONSTER_THEME)", "  culture: en-US (CONSOLEMONSTER_CULTURE)",
                 "  size: 100x40 (visible window or defaults)", ""
             }));
         }

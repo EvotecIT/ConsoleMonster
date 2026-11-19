@@ -35,10 +35,10 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private static CellBuffer Table() {
             Table table = new Table { Border = TableBorder.Rounded };
-            table.AddColumn("Owner").AddColumn("Site").AddColumn("Status").AddColumn("Count", HorizontalAlignment.Right);
-            table.AddPlainRow(Family + " family", Flag + " Warsaw", "▲ warn", "42");
-            table.AddPlainRow("张伟", "Tokyo", "ok", "7");
-            table.AddPlainRow("Ada", "London", "ok", "1234");
+            table.Column("Owner").Column("Site").Column("Status").Column("Count", HorizontalAlignment.Right);
+            table.PlainRow(Family + " family", Flag + " Warsaw", "▲ warn", "42");
+            table.PlainRow("张伟", "Tokyo", "ok", "7");
+            table.PlainRow("Ada", "London", "ok", "1234");
             RenderContext context = new RenderContext(TerminalProfile.Fixed(60, 10, ColorDepth.None, GlyphTier.Full), Theme.Dark);
             return FrameComposer.RenderBlock(table, 60, context);
         }

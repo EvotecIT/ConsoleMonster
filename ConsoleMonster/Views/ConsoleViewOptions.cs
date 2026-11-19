@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using ConsoleMonster.Data;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Values;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Views {
     /// <summary>Options for <see cref="ConsoleView"/>.</summary>
+    [Fluent]
     public sealed class ConsoleViewOptions {
         /// <summary>A view to use instead of the automatic choice.</summary>
         public ConsoleViewKind? View { get; set; }

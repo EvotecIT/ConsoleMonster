@@ -17,8 +17,8 @@ public sealed class ConsoleViewRoundThreeTests {
     [InlineData(GlyphTier.Ascii)]
     public void ConsoleView_HealthyWord_UsesTextWhileMarkerKeepsPass(GlyphTier tier) {
         Table table = new Table { ShowHeader = false, RecordViewRows = 0, Border = TableBorder.None };
-        table.AddColumn("State");
-        table.AddRow(TableCell.ForStatus(StatusKind.Pass, "running"));
+        table.Column("State");
+        table.Row(TableCell.ForStatus(StatusKind.Pass, "running"));
         Review184Capture capture = new Review184Capture(ConsoleViewStyle.Wrap(table), 60, tier, ColorDepth.TrueColor);
         Assert.Equal(ConsoleViewStyle.Apply(capture.Context).Style(ThemeToken.Pass).Color, capture.Raw[0, 0].Style.Color);
         Assert.Equal(ConsoleViewStyle.Apply(capture.Context).Style(ThemeToken.Text).Color, capture.Raw[2, 0].Style.Color);
@@ -49,9 +49,9 @@ public sealed class ConsoleViewRoundThreeTests {
     [InlineData(120, true)]
     public void Table_ColumnVisibility_UsesTheSameLayoutAsTheBody(int width, bool expected) {
         Table table = new Table { Border = TableBorder.Rule, RecordViewRows = 0, CardsBelow = 0 };
-        table.AddColumn(new TableColumn("Name") { IsKey = true, MinWidth = 30 });
-        table.AddColumn(new TableColumn("Settings") { MinWidth = 35, Priority = -1 });
-        table.AddRow("Default Domain Policy", "computer and user settings");
+        table.Column(new TableColumn("Name") { IsKey = true, MinWidth = 30 });
+        table.Column(new TableColumn("Settings") { MinWidth = 35, Priority = -1 });
+        table.Row("Default Domain Policy", "computer and user settings");
         var context = Terminal.CreateContext(TestTerminal.Profile(width));
         Assert.Equal(expected, table.DisplaysColumn("Settings", width, context));
         Assert.Equal(expected, TestTerminal.RenderText(table, width).Contains("computer and user settings"));

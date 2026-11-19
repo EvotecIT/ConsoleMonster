@@ -105,11 +105,11 @@ using (var session = new LiveSession(new Rows().Add(summary).Add(slot).Add(log))
     session.Run(s => {
         SummaryBarHandle totals = summary.Handle(s);
         Parallel.For(0, 8, worker => {
-            totals.SetCounter("Worker " + worker, 1, StatusKind.Pass);
+            totals.Counter("Worker " + worker, 1, StatusKind.Pass);
             log.Handle(s).Write("Worker " + worker + " finished");
             s.Region("main").Set(TextBlock.Plain("Latest worker: " + worker));
         });
-        totals.SetProgress(done: 8, total: 8);
+        totals.Progress(done: 8, total: 8);
     });
 }
 ```

@@ -69,7 +69,7 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Appends several values.</summary>
         /// <param name="values">The values.</param>
         /// <returns>This instance.</returns>
-        public Sparkline AddRange(IEnumerable<double> values) {
+        internal Sparkline Append(IEnumerable<double> values) {
             foreach (double value in values) {
                 Add(value);
             }
@@ -165,5 +165,15 @@ namespace ConsoleMonster.Widgets {
                 region.Write(region.Width - latestWidth, rows - 1, latest, context.Style(ThemeToken.Highlight));
             }
         }
+    }
+
+    /// <summary>The fluent methods of <see cref="Sparkline"/>: the generated property methods and appending values.</summary>
+    public static partial class SparklineFluent {
+        /// <summary>Appends several values.</summary>
+        /// <param name="sparkline">The sparkline.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>The same sparkline.</returns>
+        public static Sparkline Values(this Sparkline sparkline, IEnumerable<double> values) =>
+            (sparkline ?? throw new ArgumentNullException(nameof(sparkline))).Append(values);
     }
 }

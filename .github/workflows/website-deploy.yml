@@ -7,7 +7,6 @@ on:
       - 'Website/**'
       - 'ConsoleMonster/**'
       - 'ConsoleMonster.Examples/**'
-      - 'ConsoleMonster.Generators/**'
       - 'Module/en-US/**'
       - 'Directory.Build.props'
       - '.github/workflows/website-deploy.yml'

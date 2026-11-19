@@ -88,7 +88,7 @@ Table TableOf(string[] headers)
         RecordViewRows = 0
     };
     foreach (string header in headers)
-        table.AddColumn(header, HorizontalAlignment.Left);
+        table.Column(header, HorizontalAlignment.Left);
     return table;
 }
 
@@ -97,7 +97,7 @@ IWidget Findings(IEnumerable<Work> work)
     Table table = TableOf(new[] { "Server", "Task", "Expected", "Actual" });
     table.Columns[3].Flexible = true;
     foreach (Work w in work.Where(w => w.Status != StatusKind.Pass))
-        table.AddRow(
+        table.Row(
             w.Node.Name,
             w.Check.Name,
             w.Check.Expected,
@@ -111,7 +111,7 @@ IWidget History()
 {
     Table table = TableOf(new[] { "When", "Servers", "Tasks", "Result", "Duration" });
     foreach (HistoryRow h in history.AsEnumerable().Reverse())
-        table.AddRow(h.When, h.Servers.ToString(), h.Tasks.ToString(),
+        table.Row(h.When, h.Servers.ToString(), h.Tasks.ToString(),
             $"{h.Passed} passed · {h.Warnings} warn · {h.Failed} failed",
             h.Elapsed.ToString(@"hh\:mm\:ss"));
     return table;
@@ -140,10 +140,10 @@ IWidget Body(List<Work> work, int done, int phase)
     {
         Elapsed = TimeSpan.FromSeconds(done * .24 / parallel)
     }
-        .SetProgress(done, work.Count)
-        .SetCounter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
-        .SetCounter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
-        .SetCounter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
+        .Progress(done, work.Count)
+        .Counter("passed", finished.Count(w => w.Status == StatusKind.Pass), StatusKind.Pass)
+        .Counter("warnings", finished.Count(w => w.Status == StatusKind.Warn), StatusKind.Warn)
+        .Counter("failed", finished.Count(w => w.Status == StatusKind.Fail), StatusKind.Fail);
     Phases phases = new Phases();
     string[] names = { "Discover", "Connect", "Tasks", "Report" };
     for (int i = 0; i < names.Length; i++)
@@ -349,7 +349,7 @@ Menu menu = new Menu("Server toolbox")
 MenuItem targetItem = new MenuItem("Targets")
 {
     Hotkey = 't',
-    IconName = GlyphIcon.Targets,
+    Icon = Icons.Targets,
     Description = "Inventory grouped by site; unavailable servers stay visible.",
     LoadChoices = async (_, token) =>
     {
@@ -377,7 +377,7 @@ targetItem.Preview = c =>
 MenuItem taskItem = new MenuItem("Tasks")
 {
     Hotkey = 'k',
-    IconName = GlyphIcon.Tasks
+    Icon = Icons.Tasks
 }
     .MultiSelect(catalog.Select(c => new Choice(c.Id,
         c.Name)
@@ -396,7 +396,7 @@ menu.Add(taskItem);
 MenuItem optionItem = new MenuItem("Options")
 {
     Hotkey = 'o',
-    IconName = GlyphIcon.Settings
+    Icon = Icons.Settings
 }.Form(options, (_, result) => ApplyOptions(result.Values));
 menu.Add(optionItem);
 menu.Preset(
@@ -412,12 +412,12 @@ menu.Preset(
     "Health · all sites",
     p => p.Selection(targetItem, inventory.Where(n => n.Offline == "").Cast<object?>())
         .Selection(taskItem, new object? [] { "EventErrors", "Services", "DiskSpace", "Uptime" }));
-menu.Item("Presets", i => i.Hotkey('p').IconName(GlyphIcon.Favorite).Presets());
+menu.Item("Presets", i => i.Hotkey('p').Icon(Icons.Favorite).Presets());
 menu.Separator();
 menu.Item("Review & run", i =>
 {
     i.Hotkey = 'r';
-    i.IconName = GlyphIcon.Run;
+    i.Icon = Icons.Run;
     i.Review = _ =>
     {
         targets = inventory.Where(n => targetItem.GetSelection<Node>()
@@ -448,14 +448,14 @@ menu.Item("Review & run", i =>
         };
         review.Command = CommandLine.Build("Invoke-ServerToolbox",
             commandArguments) + " " + options.BuildCommand();
-        review.Run = ctx => Execute(ctx, Plan());
+        review.Action = ctx => Execute(ctx, Plan());
         return review;
     };
 });
 menu.Item("History", i =>
 {
     i.Hotkey = 'h';
-    i.IconName = GlyphIcon.List;
+    i.Icon = Icons.List;
     i.Page = _ => History();
     i.Detail = () => history.Count + " runs";
 });

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -34,6 +35,7 @@ namespace ConsoleMonster.Interactive {
         public string? PatternMessage { get; set; }
 
         /// <summary>A validator: returns an error message, or null when the answer is fine.</summary>
+        [Fluent("Validate")]
         public Func<string, string?>? Validator { get; set; }
 
         /// <summary>Earlier answers offered with Up and Down (oldest first).</summary>

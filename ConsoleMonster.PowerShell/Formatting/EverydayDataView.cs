@@ -58,7 +58,7 @@ namespace ConsoleMonster.PowerShell {
                 int index = c;
                 object?[] values = rows.Select(row => row[index]).Where(value => value != null && !(value is string text && string.IsNullOrWhiteSpace(text))).ToArray();
                 bool align = values.Length > 0 && values.All(IsNumberOrDate);
-                table.AddColumn(new TableColumn(Markup.Escape(BoundedText(names[c], 48))) {
+                table.Column(new TableColumn(Markup.Escape(BoundedText(names[c], 48))) {
                     // Status words and identifiers read as they do in Show-ConsoleTable (a marker before Pass, no separators in an Id).
                     Presenter = Presenters.CellPresenters.ForColumn(names[c], values.FirstOrDefault(value => !(value is TableCell))),
                     Alignment = align ? HorizontalAlignment.Right : HorizontalAlignment.Left,
@@ -67,7 +67,7 @@ namespace ConsoleMonster.PowerShell {
                     MaxLines = 2
                 });
             }
-            foreach (object?[] row in rows) { table.AddValues(row); }
+            foreach (object?[] row in rows) { table.Values(row); }
             List<string> hints = new List<string>();
             if (omittedRows > 0) { hints.Add(More(omittedRows, "rows")); }
             if (omittedColumns > 0) { hints.Add(More(omittedColumns, "fields")); }

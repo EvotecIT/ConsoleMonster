@@ -45,7 +45,7 @@ namespace ConsoleMonster.Export {
         /// <summary>
         /// The recording player script (a native asset, <c>player.js</c>): include it once on a page with
         /// <see cref="PlayerStyles"/>, then mark each player with <c>data-cm-recording</c> pointing at data from
-        /// <see cref="Recording.ExportPlayerData(IWidget, TextReader, RecordingExportOptions)"/> (a URL, or <c>#id</c> of an inline
+        /// <see cref="Recording.ToPlayerData(IWidget, TextReader, RecordingExportOptions)"/> (a URL, or <c>#id</c> of an inline
         /// <c>application/json</c> script element); <c>data-cm-autoplay</c> asks to autoplay. The HTML recording export embeds it.
         /// </summary>
         public static string PlayerScript => _playerScript ??= ReadAsset("player.js");
@@ -69,7 +69,7 @@ namespace ConsoleMonster.Export {
         /// <param name="widget">The widget.</param>
         /// <param name="options">Size, theme, font and window frame.</param>
         /// <returns>The HTML.</returns>
-        public static string ToHtml(IWidget widget, ExportOptions? options = null) {
+        public static string ToHtml(this IWidget widget, ExportOptions? options = null) {
             ExportOptions ready = Ready(options);
             return HtmlFrameWriter.Write(Layers(widget, ready), ready);
         }
@@ -78,7 +78,7 @@ namespace ConsoleMonster.Export {
         /// <param name="frame">The frame.</param>
         /// <param name="options">Theme, font and window frame (the size is the frame's).</param>
         /// <returns>The HTML.</returns>
-        public static string ToHtml(CellBuffer frame, ExportOptions? options = null) {
+        public static string ToHtml(this CellBuffer frame, ExportOptions? options = null) {
             ExportOptions ready = Ready(options);
             return HtmlFrameWriter.Write(Layers(frame, ready), ready);
         }
@@ -87,13 +87,13 @@ namespace ConsoleMonster.Export {
         /// <param name="session">The session.</param>
         /// <param name="options">Theme, font and window frame.</param>
         /// <returns>The HTML.</returns>
-        public static string ToHtml(LiveSession session, ExportOptions? options = null) => ToHtml(SnapshotOf(session), options);
+        public static string ToHtml(this LiveSession session, ExportOptions? options = null) => ToHtml(SnapshotOf(session), options);
 
         /// <summary>Exports a widget as an SVG image.</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="options">Size, theme, font and window frame.</param>
         /// <returns>The SVG.</returns>
-        public static string ToSvg(IWidget widget, ExportOptions? options = null) {
+        public static string ToSvg(this IWidget widget, ExportOptions? options = null) {
             ExportOptions ready = Ready(options);
             return SvgFrameWriter.Write(Layers(widget, ready), ready);
         }
@@ -102,7 +102,7 @@ namespace ConsoleMonster.Export {
         /// <param name="frame">The frame.</param>
         /// <param name="options">Theme, font and window frame.</param>
         /// <returns>The SVG.</returns>
-        public static string ToSvg(CellBuffer frame, ExportOptions? options = null) {
+        public static string ToSvg(this CellBuffer frame, ExportOptions? options = null) {
             ExportOptions ready = Ready(options);
             return SvgFrameWriter.Write(Layers(frame, ready), ready);
         }
@@ -111,13 +111,13 @@ namespace ConsoleMonster.Export {
         /// <param name="session">The session.</param>
         /// <param name="options">Theme, font and window frame.</param>
         /// <returns>The SVG.</returns>
-        public static string ToSvg(LiveSession session, ExportOptions? options = null) => ToSvg(SnapshotOf(session), options);
+        public static string ToSvg(this LiveSession session, ExportOptions? options = null) => ToSvg(SnapshotOf(session), options);
 
         /// <summary>Exports a widget as plain text (trailing spaces and empty last lines trimmed).</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="options">Size and glyph tier.</param>
         /// <returns>The text.</returns>
-        public static string ToText(IWidget widget, ExportOptions? options = null) {
+        public static string ToText(this IWidget widget, ExportOptions? options = null) {
             ExportOptions o = Ready(options);
             return ToText(Render(widget, o, o.DarkTheme ?? Theme.Dark));
         }
@@ -126,7 +126,7 @@ namespace ConsoleMonster.Export {
         /// <param name="frame">The frame.</param>
         /// <param name="options">Unused; for symmetry with the other formats.</param>
         /// <returns>The text.</returns>
-        public static string ToText(CellBuffer frame, ExportOptions? options = null) {
+        public static string ToText(this CellBuffer frame, ExportOptions? options = null) {
             if (frame == null) {
                 throw new ArgumentNullException(nameof(frame));
             }
@@ -146,71 +146,47 @@ namespace ConsoleMonster.Export {
         /// <param name="session">The session.</param>
         /// <param name="options">Unused; for symmetry with the other formats.</param>
         /// <returns>The text.</returns>
-        public static string ToText(LiveSession session, ExportOptions? options = null) => ToText(SnapshotOf(session), options);
+        public static string ToText(this LiveSession session, ExportOptions? options = null) => ToText(SnapshotOf(session), options);
 
-        /// <summary>Exports a widget in a format.</summary>
-        /// <param name="widget">The widget.</param>
-        /// <param name="format">Html, Svg or Text.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>The exported document.</returns>
-        public static string Export(IWidget widget, ExportFormat format, ExportOptions? options = null) {
+        // The built-in text formats; FrameExporter dispatches the add-on ones.
+        internal static string? Text(IWidget widget, OutputFormat format, ExportOptions? options) {
             switch (format) {
-                case ExportFormat.Html:
-                    return ToHtml(widget, options);
-                case ExportFormat.Svg:
-                    return ToSvg(widget, options);
-                case ExportFormat.Text:
-                    return ToText(widget, options);
-                default:
-                    throw new ArgumentException("Frames export to Html, Svg or Text. Markdown export requires the ConsoleMonster.Markdown package; Asciicast is for recordings.", nameof(format));
+                case OutputFormat.Html: return ToHtml(widget, options);
+                case OutputFormat.Svg: return ToSvg(widget, options);
+                case OutputFormat.Text: return ToText(widget, options);
+                default: return null;
             }
         }
 
-        /// <summary>Exports a frame in a format.</summary>
-        /// <param name="frame">The frame.</param>
-        /// <param name="format">Html, Svg or Text.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>The exported document.</returns>
-        public static string Export(CellBuffer frame, ExportFormat format, ExportOptions? options = null) {
+        internal static string? Text(CellBuffer frame, OutputFormat format, ExportOptions? options) {
             switch (format) {
-                case ExportFormat.Html:
-                    return ToHtml(frame, options);
-                case ExportFormat.Svg:
-                    return ToSvg(frame, options);
-                case ExportFormat.Text:
-                    return ToText(frame, options);
-                default:
-                    throw new ArgumentException("Frames export to Html, Svg or Text. Markdown export requires the ConsoleMonster.Markdown package; Asciicast is for recordings.", nameof(format));
+                case OutputFormat.Html: return ToHtml(frame, options);
+                case OutputFormat.Svg: return ToSvg(frame, options);
+                case OutputFormat.Text: return ToText(frame, options);
+                default: return null;
             }
-        }
-
-        /// <summary>Writes an export to a file as UTF-8 without a byte order mark.</summary>
-        /// <param name="widget">The widget.</param>
-        /// <param name="path">The file.</param>
-        /// <param name="format">The format; null picks it from the extension (.html/.htm, .svg, anything else text). Markdown paths require ConsoleMonster.Markdown.</param>
-        /// <param name="options">The options.</param>
-        public static void Save(IWidget widget, string path, ExportFormat? format = null, ExportOptions? options = null) {
-            File.WriteAllText(path ?? throw new ArgumentNullException(nameof(path)), Export(widget, format ?? FormatFor(path), options), new UTF8Encoding(false));
         }
 
         /// <summary>The format a file extension implies.</summary>
         /// <param name="path">The path.</param>
-        /// <returns>Html for .html/.htm, Svg for .svg, Asciicast for .cast, Text otherwise. Markdown paths require the ConsoleMonster.Markdown package.</returns>
-        public static ExportFormat FormatFor(string path) {
+        /// <returns>Html for .html/.htm, Svg for .svg, Asciicast for .cast, Markdown for .md/.markdown, Png for .png, Text otherwise.</returns>
+        public static OutputFormat FormatFor(string path) {
             string extension = Path.GetExtension(path ?? string.Empty).ToLowerInvariant();
             switch (extension) {
                 case ".html":
                 case ".htm":
-                    return ExportFormat.Html;
+                    return OutputFormat.Html;
                 case ".svg":
-                    return ExportFormat.Svg;
+                    return OutputFormat.Svg;
                 case ".cast":
-                    return ExportFormat.Asciicast;
+                    return OutputFormat.Asciicast;
                 case ".md":
                 case ".markdown":
-                    throw new NotSupportedException("Markdown export requires the ConsoleMonster.Markdown package. Use MarkdownExporter.Export from that add-on.");
+                    return OutputFormat.Markdown;
+                case ".png":
+                    return OutputFormat.Png;
                 default:
-                    return ExportFormat.Text;
+                    return OutputFormat.Text;
             }
         }
 

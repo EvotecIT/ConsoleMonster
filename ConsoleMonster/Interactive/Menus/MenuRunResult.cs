@@ -4,9 +4,11 @@ using System.Threading;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Live;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>The outcome of a run, shown by the menu afterwards: a status, a summary, key figures, details and next actions.</summary>
+    [Fluent]
     public sealed class MenuRunResult {
         /// <summary>Creates a result.</summary>
         /// <param name="title">The title ("Checks finished").</param>

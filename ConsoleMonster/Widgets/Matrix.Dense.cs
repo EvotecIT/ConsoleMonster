@@ -154,7 +154,7 @@ public sealed partial class Matrix {
     private static TextSpan DenseCell(MatrixCell? cell, RenderContext context) {
         if (cell?.Diagonal == true) return new TextSpan(OneCell(context.Glyphs.Get(Glyph.Self), "-"), context.Style(ThemeToken.Muted));
         if (cell == null) return new TextSpan(" ");
-        ThemeToken tone = cell.Tone ?? (cell.Status?.ToToken() ?? ThemeToken.Muted);
+        ThemeToken tone = cell.Tone.ToToken() ?? (cell.Status?.ToToken() ?? ThemeToken.Muted);
         // Healthy and queued cells form a quiet field; problems keep their own shapes, so they stand out without colour.
         if (cell.Marker == null && context.Glyphs.Tier != GlyphTier.Ascii) {
             if (cell.Status == StatusKind.Pass) return new TextSpan(OneCell("■", context.Glyphs.StatusSymbol(StatusKind.Pass)), context.Style(tone));

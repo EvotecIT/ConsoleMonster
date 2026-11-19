@@ -18,7 +18,7 @@ namespace SiteFrames.Pages {
             site.Write(site.Static("examples/recording/demo.ps1"), Site.ReadText(Path.Combine(site.Website, "examples", "recording", "demo.ps1")));
             File.Copy(Path.Combine(site.Website, "examples", "recording", "record-session.ps1"), site.Static("examples/recording/record-session.ps1"), true);
             RecordingExportOptions options = new RecordingExportOptions { Theme = ExportTheme.Dark, WindowChrome = true, Title = "Console session" };
-            string data = recording.ExportPlayerData(options);
+            string data = recording.ToPlayerData(options);
             List<TimedFrame> frames = new List<TimedFrame>();
             foreach (RecordedFrame frame in recording.CaptureFrames(options)) { frames.Add(new TimedFrame(frame.Start, frame.Frame)); }
             frames = ReplayFit.Trim(frames);
@@ -30,12 +30,12 @@ namespace SiteFrames.Pages {
             string siteData = PlayerData.Write(site, frames, "Console session", options.FramesPerSecond, 2000, out long duration, out _, markers);
             site.Write(site.Static("replays/session-recording.json"), siteData);
             site.Write(site.Static("recordings/session.cast"), recording.ToAsciicast());
-            site.Write(site.Static("recordings/session.html"), recording.Export(ExportFormat.Html, options));
-            site.Write(site.Static("recordings/session.svg"), recording.Export(ExportFormat.Svg, options));
-            site.Write(site.Static("recordings/session.txt"), recording.Export(ExportFormat.Text));
-            site.Write(site.Static("recordings/session.md"), ConsoleMonster.Markdown.MarkdownExporter.ExportRecording(recording));
+            site.Write(site.Static("recordings/session.html"), recording.Render(OutputFormat.Html, options).ToText());
+            site.Write(site.Static("recordings/session.svg"), recording.Render(OutputFormat.Svg, options).ToText());
+            site.Write(site.Static("recordings/session.txt"), recording.Render(OutputFormat.Text).ToText());
+            site.Write(site.Static("recordings/session.md"), ConsoleMonster.Markdown.MarkdownExporter.ToMarkdown(recording));
             foreach (ExportTheme theme in new[] { ExportTheme.Dark, ExportTheme.Light }) {
-                site.Write(site.Static("recordings/session-final-" + theme.ToString().ToLowerInvariant() + ".svg"), recording.ExportFinalSvg(new ExportOptions { Theme = theme, WindowChrome = true, Title = "Console session" }));
+                site.Write(site.Static("recordings/session-final-" + theme.ToString().ToLowerInvariant() + ".svg"), recording.ToFinalSvg(new ExportOptions { Theme = theme, WindowChrome = true, Title = "Console session" }));
             }
             JsonObject entry = new JsonObject {
                 ["title"] = "Console session", ["url"] = "/replays/session-recording.json",
@@ -49,7 +49,7 @@ namespace SiteFrames.Pages {
         private static void RenderFullScreenPreview(Site site) {
             SessionRecording recording = FullScreenPreview.Read(Path.Combine(site.Captures, "fullscreen", "service-browser.cast"));
             RecordingExportOptions playback = FullScreenPreview.Playback();
-            site.Write(site.Static("recordings/fullscreen/service-browser.html"), recording.Export(ExportFormat.Html, playback));
+            site.Write(site.Static("recordings/fullscreen/service-browser.html"), recording.Render(OutputFormat.Html, playback).ToText());
             site.Write(site.Static("recordings/fullscreen/service-browser.cast"), recording.ToAsciicast());
             string gif = site.Static("recordings/fullscreen/service-browser.gif");
             string? problem = FullScreenPreview.CheckGif(site);
@@ -58,7 +58,7 @@ namespace SiteFrames.Pages {
             site.Written.Add(Path.GetRelativePath(site.Website, gif).Replace('\\', '/'));
             SessionRecording ssh = FullScreenPreview.Read(Path.Combine(site.Captures, "fullscreen", "service-browser-ssh.cast"));
             site.Write(site.Static("recordings/fullscreen/service-browser-ssh.cast"), ssh.ToAsciicast());
-            site.Write(site.Static("recordings/fullscreen/service-browser-ssh.html"), ssh.Export(ExportFormat.Html, playback));
+            site.Write(site.Static("recordings/fullscreen/service-browser-ssh.html"), ssh.Render(OutputFormat.Html, playback).ToText());
         }
 
         private static void RenderCommandExample(Site site) {

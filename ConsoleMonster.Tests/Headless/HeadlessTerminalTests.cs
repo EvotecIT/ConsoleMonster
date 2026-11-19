@@ -129,7 +129,7 @@ namespace ConsoleMonster.Tests.Headless {
                 new RecordedFrame(new CellBuffer(10, 2), 100) { Duration = 100 },
                 new RecordedFrame(new CellBuffer(20, 4), 200) { Duration = 100 }
             };
-            string[] lines = Recording.Export(frames, ExportFormat.Asciicast).Trim().Split('\n');
+            string[] lines = Recording.Render(frames, OutputFormat.Asciicast).ToText().Trim().Split('\n');
             VtScreen screen = new VtScreen(20, 4);
             for (int i = 1; i <= frames.Length; i++) {
                 var output = (List<object?>)MiniJson.Read(lines[i])!;
@@ -230,7 +230,7 @@ namespace ConsoleMonster.Tests.Headless {
                 Live = new LiveSessionOptions { CaptureConsole = false, TaskbarProgress = false }
             });
             List<RecordedFrame> frames = capture.ToRecordedFrames(TimeSpan.FromMilliseconds(400), TimeSpan.FromSeconds(1));
-            System.Xml.Linq.XDocument svg = System.Xml.Linq.XDocument.Parse(Recording.Export(frames, ExportFormat.Svg));
+            System.Xml.Linq.XDocument svg = System.Xml.Linq.XDocument.Parse(Recording.Render(frames, OutputFormat.Svg).ToText());
             System.Xml.Linq.XNamespace ns = "http://www.w3.org/2000/svg";
             Assert.Equal(frames.Count, svg.Descendants(ns + "g").Single(g => (string?)g.Attribute("class") == "cm-strip").Elements(ns + "g").Count());
             Assert.Contains("@keyframes cm-play", svg.ToString());

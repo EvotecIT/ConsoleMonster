@@ -43,9 +43,9 @@ namespace ConsoleMonster.Tests.Rendering {
         [Fact]
         public void IdentifierLabels_AreNeverGrouped_InRecordsAndTrees() {
             RecordView record = new RecordView("server");
-            record.AddField("Port", 8080);
-            record.AddField("ProcessId", 127096);
-            record.AddField("Count", 127096);
+            record.Field("Port", 8080);
+            record.Field("ProcessId", 127096);
+            record.Field("Count", 127096);
             string text = string.Join("\n", Render(record, 60));
             Assert.Contains("8080", text);
             Assert.Contains("127096", text);

@@ -82,16 +82,16 @@ namespace ConsoleMonster.Tests.Building {
             try {
                 Panel panel = new Panel().Title("Build").Content(c => c.Text("Ready"));
                 var options = new ExportOptions { Width = 40 };
-                panel.Export(path, options: options);
-                Assert.Equal(FrameExporter.Export(panel, "Text", options), File.ReadAllBytes(path));
+                panel.Save(path, options: options);
+                Assert.Equal(FrameExporter.Render(panel, OutputFormat.Text, options).ToBytes(), File.ReadAllBytes(path));
             } finally { if (File.Exists(path)) { File.Delete(path); } }
         }
 
         [Theory]
-        [InlineData("Markdown", "ConsoleMonster.Markdown")]
-        [InlineData("Png", "ConsoleMonster.Graphics")]
-        public void OptionalFormatsNameTheirPackageWhenNoProviderIsAvailable(string format, string package) {
-            var error = Assert.Throws<NotSupportedException>(() => FrameExporter.Export(new TextBlock("Ready"), format));
+        [InlineData(OutputFormat.Markdown, "ConsoleMonster.Markdown")]
+        [InlineData(OutputFormat.Png, "ConsoleMonster.Graphics")]
+        public void OptionalFormatsNameTheirPackageWhenNoProviderIsAvailable(OutputFormat format, string package) {
+            var error = Assert.Throws<NotSupportedException>(() => FrameExporter.Render(new TextBlock("Ready"), format).ToBytes());
             Assert.Contains(package, error.Message);
         }
     }

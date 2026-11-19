@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -10,6 +11,7 @@ namespace ConsoleMonster.Interactive {
     /// fields it does not name keep their values). Configure it with the chainable methods:
     /// <c>preset.Selection(targets, "SRV01", "SRV02").Form(patch, values)</c>.
     /// </summary>
+    [Fluent]
     public sealed class MenuPreset {
         private readonly List<KeyValuePair<MenuItem, List<object?>>> _selections = new List<KeyValuePair<MenuItem, List<object?>>>();
         private readonly List<KeyValuePair<Form, IDictionary<string, object?>>> _forms = new List<KeyValuePair<Form, IDictionary<string, object?>>>();

@@ -5,9 +5,11 @@ using ConsoleMonster.PowerShell.Display;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Views;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Native output routing policy; the provenance fields are supplied only by a PowerShell host adapter.</summary>
+    [Fluent]
     public sealed class ConsoleDefaultOutputOptions {
         /// <summary>Renders registered views even outside a direct console.</summary>
         public bool Force { get; set; }

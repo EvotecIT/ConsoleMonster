@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Sessions {
     /// <summary>Local terminal recording settings. Input bytes are never recorded.</summary>
+    [Fluent]
     public sealed class SessionRecordingOptions {
         internal bool CaptureInitiallyEnabled { get; set; } = true;
         /// <summary>Native asciicast v2 output. Null creates a timestamped name in <see cref="Folder"/>.</summary>

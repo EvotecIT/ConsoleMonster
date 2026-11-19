@@ -361,10 +361,10 @@ namespace ConsoleMonster.Tests.Values {
         [Fact]
         public void Table_ArrayAndDictionaryCells_RenderTheirItems() {
             Table table = new Table();
-            table.AddColumn(new TableColumn("Tags"));
-            table.AddColumn(new TableColumn("Settings"));
-            table.AddValues(new[] { "a", "b" }, new OrderedDictionary { ["Port"] = 80 });
-            table.AddValues(new[] { "c" }, new OrderedDictionary { ["Port"] = 81 });
+            table.Column(new TableColumn("Tags"));
+            table.Column(new TableColumn("Settings"));
+            table.Values(new[] { "a", "b" }, new OrderedDictionary { ["Port"] = 80 });
+            table.Values(new[] { "c" }, new OrderedDictionary { ["Port"] = 81 });
             string text = TestTerminal.RenderText(table, 60);
             Assert.Contains("a, b", text);
             Assert.Contains("Port=80", text);

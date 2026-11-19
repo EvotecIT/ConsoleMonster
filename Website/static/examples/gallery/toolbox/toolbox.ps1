@@ -497,7 +497,7 @@ $options = New-ConsoleForm @formOptions
 $menuItemParameters = @{
     Label = 'Targets'
     Hotkey = 't'
-    IconName = 'Targets'
+    Icon = 'targets'
     Description = 'Inventory grouped by site; unavailable servers stay visible.'
     ArgumentList = (, $inventory)
     Display = 'Name'
@@ -523,7 +523,7 @@ $targetItem = New-ConsoleMenuItem @menuItemParameters -LoadChoices {
 $menuItemParameters = @{
     Label = 'Tasks'
     Hotkey = 'k'
-    IconName = 'Tasks'
+    Icon = 'tasks'
     MultiSelect = $catalog
     Display = 'Name'
     GroupBy = 'Category'
@@ -545,10 +545,10 @@ $menuParameters = @{
 $menu = New-ConsoleMenu @menuParameters -Content {
     $targetItem
     $taskItem
-    New-ConsoleMenuItem -Label Options -Hotkey o -IconName Settings -Form $options -OnSubmit {
+    New-ConsoleMenuItem -Label Options -Hotkey o -Icon settings -Form $options -OnSubmit {
         Set-Options -Values $Values
     }
-    New-ConsoleMenuItem -Label Presets -Hotkey p -IconName Favorite -Presets
+    New-ConsoleMenuItem -Label Presets -Hotkey p -Icon favorite -Presets
     [pscustomobject]@{ Name = 'Morning · Warsaw'; Form = $options; Values = @{
         Parallel = 2
         DryRun = $true
@@ -567,7 +567,7 @@ $menu = New-ConsoleMenu @menuParameters -Content {
             'DiskSpace', 'Uptime')
     } }
     New-ConsoleMenuItem -Separator
-    New-ConsoleMenuItem -Label 'Review & run' -Hotkey r -IconName Run -Review {
+    New-ConsoleMenuItem -Label 'Review & run' -Hotkey r -Icon run -Review {
         $plan.Targets = @($targetItem.Selection | ForEach-Object -Process { $_ })
         $plan.Checks = @($taskItem.Selection | ForEach-Object -Process { $_ })
         $values = $options.GetValues()
@@ -609,7 +609,7 @@ $menu = New-ConsoleMenu @menuParameters -Content {
             Run = { Invoke-Work -Context $MenuContext -Work @(Get-Work) }
         }
     }
-    New-ConsoleMenuItem -Label History -Hotkey h -IconName List -Detail {
+    New-ConsoleMenuItem -Label History -Hotkey h -Icon list -Detail {
         "$($plan.History.Count) runs"
     } -Page { Get-History }
     New-ConsoleMenuItem -Separator

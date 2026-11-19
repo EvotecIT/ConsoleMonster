@@ -12,11 +12,11 @@ namespace ConsoleMonster.Markdown {
         /// <summary>Whether widgets export as fenced terminal text.</summary>
         public bool Fenced { get; }
         /// <inheritdoc />
-        public string Format => Fenced ? "FencedText" : "Markdown";
+        public OutputFormat Format => Fenced ? OutputFormat.FencedText : OutputFormat.Markdown;
         /// <inheritdoc />
-        public byte[] Export(IWidget widget, ExportOptions? options = null) => new UTF8Encoding(false).GetBytes(MarkdownExporter.Export(widget, options, Fenced));
+        public byte[] Render(IWidget widget, ExportOptions? options = null) => new UTF8Encoding(false).GetBytes(MarkdownExporter.ToMarkdown(widget, options, Fenced));
         /// <inheritdoc />
-        public byte[] Export(CellBuffer frame, ExportOptions? options = null) => new UTF8Encoding(false).GetBytes(MarkdownExporter.Export(frame));
+        public byte[] Render(CellBuffer frame, ExportOptions? options = null) => new UTF8Encoding(false).GetBytes(MarkdownExporter.ToMarkdown(frame));
         /// <summary>Registers both Markdown formats for an application; safe under trimming and NativeAOT.</summary>
         public static void Register() {
             FrameExporter.Register(new MarkdownFrameExportProvider());

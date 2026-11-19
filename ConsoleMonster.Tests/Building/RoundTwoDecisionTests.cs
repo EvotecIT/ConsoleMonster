@@ -27,14 +27,14 @@ namespace ConsoleMonster.Tests.Building {
         [Fact]
         public void SelectQuestionReturnsTypedSingleAndMultipleAnswers() {
             Server[] servers = { new Server("FS01", "Warsaw"), new Server("FS11", "Berlin") };
-            Server one = Ui.SelectQuestion().Title("Target").AddChoices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers[1]).Show<Server>(Unattended);
+            Server one = Ui.SelectQuestion().Title("Target").Choices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers[1]).Show<Server>(Unattended);
             Assert.Same(servers[1], one);
-            IReadOnlyList<Server> many = Ui.SelectQuestion().Multiple().Title("Targets").AddChoices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers).ShowMany<Server>(Unattended);
+            IReadOnlyList<Server> many = Ui.SelectQuestion().Multiple().Title("Targets").Choices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers).ShowMany<Server>(Unattended);
             Assert.Equal(servers, many);
-            SelectQuestionOptions multiple = Ui.SelectQuestion().Multiple().Title("Targets").AddChoices(Choice.From(servers, s => s.Name, s => s.Site));
+            SelectQuestionOptions multiple = Ui.SelectQuestion().Multiple().Title("Targets").Choices(Choice.From(servers, s => s.Name, s => s.Site));
             Assert.Throws<InvalidOperationException>(() => multiple.Show<Server>(Unattended));
-            Assert.Throws<InvalidOperationException>(() => Ui.SelectQuestion().Title("Target").AddChoices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers[0]).ShowMany<Server>(Unattended));
-            Assert.Throws<InvalidCastException>(() => Ui.SelectQuestion().Title("Target").AddChoices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers[0]).Show<string>(Unattended));
+            Assert.Throws<InvalidOperationException>(() => Ui.SelectQuestion().Title("Target").Choices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers[0]).ShowMany<Server>(Unattended));
+            Assert.Throws<InvalidCastException>(() => Ui.SelectQuestion().Title("Target").Choices(Choice.From(servers, s => s.Name, s => s.Site)).Default(servers[0]).Show<string>(Unattended));
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Tests.Building {
 
         [Fact]
         public void ChartAddItemMatchesKeyValueAdd() {
-            ChartOptions options = Ui.Chart().Type(ChartType.Bar).AddItem("web01", 42).AddItem("db01", 97, ThemeToken.Fail, "db");
+            ChartOptions options = Ui.Chart().Type(ChartType.Bar).Item("web01", 42).Item("db01", 97, ThemeToken.Fail, "db");
             Assert.Equal(new[] { "web01", "db01" }, options.Items.Select(item => item.Label));
             Assert.Equal("db", options.Items[1].Key);
             string text = TestTerminal.RenderText(options.Build(), 40);

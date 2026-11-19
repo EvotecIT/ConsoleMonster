@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>How a form is shown on its own.</summary>
+    [Fluent]
     public sealed class FormOptions {
         /// <summary>Interaction settings (mode, input, profile, theme, labels).</summary>
         public InteractiveOptions? Interactive { get; set; }
@@ -29,6 +31,7 @@ namespace ConsoleMonster.Interactive {
         /// to run the work with a live dashboard in the form's own frame, ending on a results summary, so the last step,
         /// the run and the result read as one screen. The run's result is on <see cref="FormResult.RunResult"/>.
         /// </summary>
+        [Fluent("WhenSubmitted")]
         public System.Action<MenuContext>? AfterSubmit { get; set; }
 
         internal ChoiceStore? Store() => string.IsNullOrEmpty(AppName) ? null : new ChoiceStore(AppName!, StorageRoot);

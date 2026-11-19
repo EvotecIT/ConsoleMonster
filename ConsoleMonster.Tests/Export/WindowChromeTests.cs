@@ -138,7 +138,7 @@ namespace ConsoleMonster.Tests.Export {
                 Width = 1, Height = 1, Padding = padding, Theme = theme, WindowChrome = true, Title = "Chart", FramesPerSecond = 50
             };
             LiveEvent[] events = { new LiveEvent("log", "write", text: "x", time: 20) };
-            XElement svg = XElement.Parse(Recording.Export(new LogRegion("log"), events, ExportFormat.Svg, options));
+            XElement svg = XElement.Parse(Recording.Render(new LogRegion("log"), events, OutputFormat.Svg, options).ToText());
             Assert.Equal(92, Number(svg, "width"));
             XElement viewport = Assert.Single(svg.Descendants(), e => e.Name.LocalName == "svg");
             Assert.Equal(8, Number(viewport, "x"));

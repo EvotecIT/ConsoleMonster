@@ -6,8 +6,8 @@ LineChart chart = new LineChart()
 {
     Height = 7
 };
-chart.AddSeries("completed", ThemeToken.Accent);
-chart.AddSeries("failed", ThemeToken.Fail);
+chart.Series("completed", ThemeToken.Accent);
+chart.Series("failed", ThemeToken.Fail);
 for (int i = 0; i < 48; i++)
 {
     chart.Add("completed", 20 + (9 * Math.Sin(i / 7.0)) + (i % 3));

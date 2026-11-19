@@ -89,7 +89,7 @@ namespace ConsoleMonster.PowerShell {
                 }
             }
             if (PSText.Unwrap(Get(map, "Run")) is ScriptBlock run) {
-                review.Run = context => PSMenus.Invoke(run, context);
+                review.Action = context => PSMenus.Invoke(run, context);
             }
             return review;
         }

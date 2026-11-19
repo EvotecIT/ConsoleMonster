@@ -12,8 +12,8 @@ namespace ConsoleMonster.Tests.Widgets {
         private static Matrix Grid() {
             MatrixLabel[] rows = { new MatrixLabel("alpha", "North"), new MatrixLabel("beta", "South") };
             MatrixLabel[] columns = { new MatrixLabel("check-one", "Coverage"), new MatrixLabel("check-two", "Coverage") };
-            return new Matrix(rows, columns).SetCell(0, 0, null, diagonal: true)
-                .SetCell(0, 1, StatusKind.Pass, "3m").SetCell(1, 0, StatusKind.Fail, "2d");
+            return new Matrix(rows, columns).Cell(0, 0, null, diagonal: true)
+                .Cell(0, 1, StatusKind.Pass, "3m").Cell(1, 0, StatusKind.Fail, "2d");
         }
 
         [Theory]
@@ -50,7 +50,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Render_NarrowList_OrdersFailuresBeforeWarningsAndNamesOmissions() {
-            Matrix matrix = Grid().SetCell(1, 1, StatusKind.Warn, "waiting");
+            Matrix matrix = Grid().Cell(1, 1, StatusKind.Warn, "waiting");
             matrix.MaxListRows = 1;
             matrix.ShowLegend = false;
             string text = TestTerminal.RenderText(matrix, 45, glyphs: GlyphTier.Ascii);
@@ -78,8 +78,8 @@ namespace ConsoleMonster.Tests.Widgets {
         public void Render_HealthyMatrixInFrameSection_KeepsTheGridItMeasured(bool inlineAxes) {
             MatrixLabel[] dcs = { new MatrixLabel("AD1", "Warsaw"), new MatrixLabel("AD2", "Warsaw") };
             Matrix matrix = new Matrix(dcs, dcs) { InlineAxes = inlineAxes, RowAxisCaption = "destination", ColumnAxisCaption = "source" }
-                .SetCell(0, 0, null, diagonal: true).SetCell(1, 1, null, diagonal: true)
-                .SetCell(0, 1, StatusKind.Pass, "3 m").SetCell(1, 0, StatusKind.Pass, "13 m");
+                .Cell(0, 0, null, diagonal: true).Cell(1, 1, null, diagonal: true)
+                .Cell(0, 1, StatusKind.Pass, "3 m").Cell(1, 0, StatusKind.Pass, "13 m");
             // The frame gives a section exactly its measured width; the matrix must not change layout at that width.
             string text = TestTerminal.RenderText(Ui.DashboardFrame("Replication").Section("Who replicates from whom", c => c.Add(matrix)), 150);
             Assert.DoesNotContain("non-healthy", text);
@@ -97,7 +97,7 @@ namespace ConsoleMonster.Tests.Widgets {
             MatrixLabel[] dcs = new MatrixLabel[40];
             for (int i = 0; i < dcs.Length; i++) dcs[i] = new MatrixLabel("DC" + i, "site-" + (char)('A' + i / 10));
             Matrix matrix = new Matrix(new[] { new MatrixLabel("Replication") }, dcs) { Overflow = MatrixOverflow.Dense, ShowLegend = false };
-            for (int c = 0; c < dcs.Length; c++) matrix.SetCell(0, c, c == 25 ? StatusKind.Fail : StatusKind.Pass);
+            for (int c = 0; c < dcs.Length; c++) matrix.Cell(0, c, c == 25 ? StatusKind.Fail : StatusKind.Pass);
             bool full = expected.EndsWith("full glyphs", StringComparison.Ordinal);
             matrix.ShowLegend = full;
             string text = TestTerminal.RenderText(matrix, width, glyphs: full ? GlyphTier.Full : GlyphTier.Ascii);
@@ -133,10 +133,10 @@ namespace ConsoleMonster.Tests.Widgets {
             MatrixLabel[] dcs = new MatrixLabel[40];
             for (int i = 0; i < dcs.Length; i++) dcs[i] = new MatrixLabel("DC" + i, "site-" + (char)('A' + i / 10));
             Matrix matrix = new Matrix(new[] { new MatrixLabel("Replication") }, dcs) { Overflow = MatrixOverflow.Dense, ShowLegend = false };
-            for (int c = 0; c < dcs.Length; c++) matrix.SetCell(0, c, StatusKind.Pass);
+            for (int c = 0; c < dcs.Length; c++) matrix.Cell(0, c, StatusKind.Pass);
             int width = 58; // label 11 + gap + 40 cells + gap fits "x10 !10" only if the summary was reserved up front
             string before = TestTerminal.RenderText(matrix, width, glyphs: GlyphTier.Ascii);
-            for (int c = 0; c < 20; c++) matrix.SetCell(0, c * 2, c % 2 == 0 ? StatusKind.Fail : StatusKind.Warn);
+            for (int c = 0; c < 20; c++) matrix.Cell(0, c * 2, c % 2 == 0 ? StatusKind.Fail : StatusKind.Warn);
             string after = TestTerminal.RenderText(matrix, width, glyphs: GlyphTier.Ascii);
             string Form(string text) => Array.Find(text.Split('\n'), line => line.StartsWith("one cell per", StringComparison.Ordinal)) ?? string.Empty;
             Assert.NotEqual(string.Empty, Form(before));
@@ -146,10 +146,10 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void SetCell_RectangularAxes_DoesNotInferADiagonalFromMatchingIndexes() {
             Matrix matrix = new Matrix(new[] { new MatrixLabel("row[[literal]]") }, new[] { new MatrixLabel("column") });
-            matrix.SetCell(0, 0, StatusKind.Warn, "late");
+            matrix.Cell(0, 0, StatusKind.Warn, "late");
             Assert.False(matrix.GetCell(0, 0)!.Diagonal);
             Assert.Contains("row[[literal]]", TestTerminal.RenderText(matrix, 120));
-            Assert.Throws<ArgumentOutOfRangeException>(() => matrix.SetCell(1, 0, StatusKind.Pass));
+            Assert.Throws<ArgumentOutOfRangeException>(() => matrix.Cell(1, 0, StatusKind.Pass));
         }
     }
 }

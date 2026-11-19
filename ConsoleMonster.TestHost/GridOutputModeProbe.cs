@@ -29,7 +29,7 @@ namespace ConsoleMonster.TestHost {
             Verify(() => {
                 using (ScriptedInput input = new ScriptedInput(scenario == "accepted" ? "F10" : "Escape"))
                 using (CancellationTokenSource cancel = new CancellationTokenSource()) {
-                    Grid grid = new Grid("Mode restoration").AddColumn("Name").AddRow("alpha", "alpha");
+                    Grid grid = new Grid("Mode restoration").Column("Name").Row("alpha", "alpha");
                     InteractiveOptions interactive = new InteractiveOptions { Input = input, Mode = InteractionMode.Rich };
                     if (scenario == "unavailable") { interactive.Mode = InteractionMode.None; }
                     if (scenario == "cancelled") { cancel.Cancel(); }

@@ -26,7 +26,7 @@ namespace ConsoleMonster.Tests.Widgets {
         private static string Text(SummaryBar bar) => bar.Line(80, Context).PlainText;
 
         // A bar given the elapsed time directly: what the clocked bar must read like.
-        private static string Expected(double done, double total, double seconds) => Text(new SummaryBar { Elapsed = TimeSpan.FromSeconds(seconds) }.SetProgress(done, total).SetCounter("passed", (int)done, StatusKind.Pass));
+        private static string Expected(double done, double total, double seconds) => Text(new SummaryBar { Elapsed = TimeSpan.FromSeconds(seconds) }.Progress(done, total).Counter("passed", (int)done, StatusKind.Pass));
 
         [Theory]
         [InlineData(1)]
@@ -37,16 +37,16 @@ namespace ConsoleMonster.Tests.Widgets {
                 new LiveEvent("summary", "progress", value: 0, total: 10, time: 0),
                 new LiveEvent("summary", "progress", value: 10, total: 10, time: 1000)
             };
-            // Recording.Export uses RecordingFrames.Sample, whose first frame is tick 0 at time 0.
-            string cast = Recording.Export(bar, events, ExportFormat.Asciicast, new RecordingExportOptions {
+            // Recording.Render uses RecordingFrames.Sample, whose first frame is tick 0 at time 0.
+            string cast = Recording.Render(bar, events, OutputFormat.Asciicast, new RecordingExportOptions {
                 Width = 100, Height = 1, FramesPerSecond = framesPerSecond
-            });
+            }).ToText();
             Assert.Contains("in 1.0s", cast);
         }
 
         [Fact]
         public void Render_FirstFrameAtTickZero_StartsDirectProgress() {
-            SummaryBar bar = new SummaryBar().SetProgress(0, 10);
+            SummaryBar bar = new SummaryBar().Progress(0, 10);
             Draw(bar, 0, 0);
             bar.Apply(new LiveEvent("summary", "progress", value: 5, total: 10, time: 1000));
             Draw(bar, 1, 1);
@@ -64,16 +64,16 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Render_ClockedFrames_EstimateFromTheSessionClockAndFreezeTheDurationAtTheEnd() {
-            SummaryBar bar = new SummaryBar().SetProgress(0, 10).SetCounter("passed", 0, StatusKind.Pass);
+            SummaryBar bar = new SummaryBar().Progress(0, 10).Counter("passed", 0, StatusKind.Pass);
             Draw(bar, 1, 0);
             bar.Apply(new LiveEvent("summary", "progress", value: 5, total: 10, time: 30000));
-            bar.SetCounter("passed", 5, StatusKind.Pass);
+            bar.Counter("passed", 5, StatusKind.Pass);
             Draw(bar, 2, 30);
             Assert.Equal(TimeSpan.FromSeconds(30), bar.Remaining);
             Assert.Equal(Expected(5, 10, 30), Text(bar));
 
             bar.Apply(new LiveEvent("summary", "progress", value: 10, total: 10, time: 45000));
-            bar.SetCounter("passed", 10, StatusKind.Pass);
+            bar.Counter("passed", 10, StatusKind.Pass);
             Draw(bar, 3, 45);
             // The clock keeps going while the finished screen stays; the duration stays at the moment the run ended.
             Draw(bar, 4, 90);
@@ -85,7 +85,7 @@ namespace ConsoleMonster.Tests.Widgets {
         public void Render_ProgressSetDirectly_StartsAtTheNextClockedFrame() {
             SummaryBar bar = new SummaryBar();
             Draw(bar, 1, 4);
-            bar.SetProgress(2, 8);
+            bar.Progress(2, 8);
             Draw(bar, 2, 10);
             Draw(bar, 3, 16);
             // Started at 10 s (the first frame after the progress), 6 s for 2 of 8: 18 s left.
@@ -105,7 +105,7 @@ namespace ConsoleMonster.Tests.Widgets {
 
         [Fact]
         public void Render_ExplicitElapsed_WinsOverTheSessionClock() {
-            SummaryBar bar = new SummaryBar { Elapsed = TimeSpan.FromSeconds(8) }.SetProgress(4, 8);
+            SummaryBar bar = new SummaryBar { Elapsed = TimeSpan.FromSeconds(8) }.Progress(4, 8);
             Draw(bar, 5, 100);
             Assert.Equal(TimeSpan.FromSeconds(8), bar.Remaining);
         }
@@ -113,7 +113,7 @@ namespace ConsoleMonster.Tests.Widgets {
         [Fact]
         public void LiveSession_SimulatedClock_DrivesTheTimeLeftAndDuration() {
             long ticks = 0;
-            SummaryBar bar = new SummaryBar().SetProgress(0, 10).SetCounter("passed", 0, StatusKind.Pass);
+            SummaryBar bar = new SummaryBar().Progress(0, 10).Counter("passed", 0, StatusKind.Pass);
             FakeOutput output = new FakeOutput();
             LiveSessionOptions options = LiveSessionTests.Options(output);
             options.Clock = () => TimeSpan.FromTicks(Interlocked.Read(ref ticks));

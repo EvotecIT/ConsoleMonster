@@ -90,7 +90,7 @@ namespace ConsoleMonster.Widgets {
         /// <param name="status">An optional status.</param>
         /// <param name="key">Stable identity, or null to use the label.</param>
         /// <returns>This chart.</returns>
-        public BarChart AddMissing(string label, string? text = null, StatusKind? status = null, string? key = null) {
+        public BarChart Missing(string label, string? text = null, StatusKind? status = null, string? key = null) {
             Add(label, double.NaN, null, key);
             ChartItem item = Find(key ?? label)!;
             item.MissingText = text;

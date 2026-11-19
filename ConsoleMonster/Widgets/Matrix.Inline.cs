@@ -131,7 +131,7 @@ public sealed partial class Matrix {
             if (cell?.Diagonal == true) return StyledLine.From(context.Glyphs.Get(Glyph.Self), context.Style(ThemeToken.Muted));
             if (cell == null) return StyledLine.From(context.Glyphs.Get(Glyph.None), context.Style(ThemeToken.Subtle));
             string marker = CellMarker(cell, context);
-            ThemeToken tone = cell.Tone ?? (cell.Status?.ToToken() ?? ThemeToken.Muted);
+            ThemeToken tone = cell.Tone.ToToken() ?? (cell.Status?.ToToken() ?? ThemeToken.Muted);
             List<TextSpan> spans = new List<TextSpan> { new TextSpan(marker, context.Style(tone)) };
             string text = numbered ? cell.ShortText ?? cell.Text ?? string.Empty : cell.Text ?? string.Empty;
             if (text.Length > 0) spans.Add(new TextSpan(" " + text, context.Style(cell.Status == StatusKind.Pass ? ThemeToken.Text : tone)));

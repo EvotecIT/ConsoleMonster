@@ -11,14 +11,14 @@ namespace ConsoleMonster.Tests.Widgets {
     public sealed class ColumnBandRegressionTests {
         private static Table Bands(int rows = 3, bool grouped = false) {
             Table table = new Table { KeepAllColumns = true, RecordViewRows = 0, WrapHeaders = true, Title = "Inventory", Caption = "End of inventory" };
-            table.AddColumn(new TableColumn("Key") { IsKey = true });
-            table.AddColumn("First observation");
-            table.AddColumn("Second observation");
-            table.AddColumn("Third observation");
+            table.Column(new TableColumn("Key") { IsKey = true });
+            table.Column("First observation");
+            table.Column("Second observation");
+            table.Column("Third observation");
             table.GroupHeadersAsRows = grouped;
             for (int i = 0; i < rows; i++) {
-                if (grouped && i % 80 == 0) table.AddGroup("Group " + i);
-                table.AddValues("n" + i, "a" + i, "b" + i, "c" + i);
+                if (grouped && i % 80 == 0) table.Group("Group " + i);
+                table.Values("n" + i, "a" + i, "b" + i, "c" + i);
             }
             return table;
         }

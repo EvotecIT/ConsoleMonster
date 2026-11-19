@@ -20,16 +20,16 @@ namespace ConsoleMonster.PowerShell {
         private static void RegisterDiagrams() => global::ConsoleMonster.Graphics.DiagramRendererProvider.Register();
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static string Widget(IWidget widget, ExportOptions options, bool fenced) =>
-            System.Text.Encoding.UTF8.GetString(FrameExporter.Export(widget, fenced ? "FencedText" : "Markdown", options, new global::ConsoleMonster.Markdown.MarkdownFrameExportProvider(fenced)));
+            FrameExporter.Render(widget, fenced ? OutputFormat.FencedText : OutputFormat.Markdown, options, new global::ConsoleMonster.Markdown.MarkdownFrameExportProvider(fenced)).ToText();
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static string Frame(CellBuffer frame) => System.Text.Encoding.UTF8.GetString(FrameExporter.Export(frame, "Markdown", provider: new global::ConsoleMonster.Markdown.MarkdownFrameExportProvider()));
+        internal static string Frame(CellBuffer frame) => FrameExporter.Render(frame, OutputFormat.Markdown, provider: new global::ConsoleMonster.Markdown.MarkdownFrameExportProvider()).ToText();
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static string Recording(SessionRecording recording) => global::ConsoleMonster.Markdown.MarkdownExporter.ExportRecording(recording);
+        internal static string Recording(SessionRecording recording) => global::ConsoleMonster.Markdown.MarkdownExporter.ToMarkdown(recording);
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static string Dashboard(IWidget root, TextReader reader, RecordingExportOptions options) =>
-            global::ConsoleMonster.Markdown.MarkdownExporter.ExportRecording(root, LiveRecordingReader.Read(reader), options);
+            global::ConsoleMonster.Markdown.MarkdownExporter.ReplayToMarkdown(root, LiveRecordingReader.Read(reader), options);
     }
 }

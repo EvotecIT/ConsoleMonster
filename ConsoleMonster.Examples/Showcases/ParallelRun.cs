@@ -79,8 +79,8 @@ namespace ConsoleMonster.Examples.Showcases {
                 .Add("Targets done", "0 / 12")
                 .Add("Targets failing", "0");
             LineChart throughput = new LineChart("throughput") { Height = 7 };
-            throughput.AddSeries("completed", ThemeToken.Accent);
-            throughput.AddSeries("failed", ThemeToken.Fail);
+            throughput.Series("completed", ThemeToken.Accent);
+            throughput.Series("failed", ThemeToken.Fail);
             Histogram durations = new Histogram(new double[] { 0, 0.25, 0.5, 1, 2, 4, 8 }, "durations") { Height = 6, Unit = "s" };
             BarChart findings = new BarChart("findings") { Role = ThemeToken.Fail };
             foreach (string category in new[] { "Domain controllers", "Replication", "DNS", "Kerberos", "Security", "Group Policy", "Accounts", "PKI" }) {
@@ -140,26 +140,26 @@ namespace ConsoleMonster.Examples.Showcases {
 
             private IWidget Content() {
                 Table table = new Table { Border = TableBorder.Minimal, Title = "[bold]Run summary[/]" };
-                table.AddColumn(new TableColumn("Target") { Wrap = false });
-                table.AddColumn("Status");
-                table.AddColumn("Passed");
-                table.AddColumn("Failed");
-                table.AddColumn("Warnings");
-                table.AddColumn("Skipped");
-                table.AddColumn("Duration");
+                table.Column(new TableColumn("Target") { Wrap = false });
+                table.Column("Status");
+                table.Column("Passed");
+                table.Column("Failed");
+                table.Column("Warnings");
+                table.Column("Skipped");
+                table.Column("Duration");
                 int passed = 0;
                 int failed = 0;
                 int warned = 0;
                 int skipped = 0;
                 foreach (Lane lane in _lanes.Items) {
                     string duration = lane.Started.HasValue && lane.Finished.HasValue ? NumberFormat.Duration(lane.Finished.Value - lane.Started.Value) : "-";
-                    table.AddRow(Text.Markup.Escape(lane.Label), TableCell.ForStatus(lane.Status), lane.Passed.ToString(), lane.Failed.ToString(), lane.Warned.ToString(), lane.Skipped.ToString(), duration);
+                    table.Row(Text.Markup.Escape(lane.Label), TableCell.ForStatus(lane.Status), lane.Passed.ToString(), lane.Failed.ToString(), lane.Warned.ToString(), lane.Skipped.ToString(), duration);
                     passed += lane.Passed;
                     failed += lane.Failed;
                     warned += lane.Warned;
                     skipped += lane.Skipped;
                 }
-                table.SetFooter("[bold]Total[/]", string.Empty, passed.ToString(), failed.ToString(), warned.ToString(), skipped.ToString(), string.Empty);
+                table.Footer("[bold]Total[/]", string.Empty, passed.ToString(), failed.ToString(), warned.ToString(), skipped.ToString(), string.Empty);
                 return new Padding(table, 1, 1, 1, 1);
             }
         }

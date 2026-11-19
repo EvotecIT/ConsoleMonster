@@ -9,14 +9,14 @@ namespace ConsoleMonster.Tests.Rendering {
     internal static class TestScenes {
         public static IWidget Report() {
             Table table = new Table { Title = "[bold]Records[/]", Expand = true };
-            table.AddColumn(new TableColumn("Name") { Wrap = false });
-            table.AddColumn("Type");
-            table.AddColumn("TTL");
-            table.AddColumn(new TableColumn("Data") { Flexible = true });
-            table.AddPlainRow("evotec.xyz", "A", "300", "104.21.48.12");
-            table.AddPlainRow("evotec.xyz", "MX", "3600", "10 evotec-xyz.mail.protection.outlook.com");
-            table.AddPlainRow("evotec.xyz", "TXT", "3600", "v=spf1 include:spf.protection.outlook.com include:_spf.google.com -all");
-            table.AddRow("_dmarc.evotec.xyz", "TXT", "3600", TableCell.ForStatus(StatusKind.Pass, "p=reject"));
+            table.Column(new TableColumn("Name") { Wrap = false });
+            table.Column("Type");
+            table.Column("TTL");
+            table.Column(new TableColumn("Data") { Flexible = true });
+            table.PlainRow("evotec.xyz", "A", "300", "104.21.48.12");
+            table.PlainRow("evotec.xyz", "MX", "3600", "10 evotec-xyz.mail.protection.outlook.com");
+            table.PlainRow("evotec.xyz", "TXT", "3600", "v=spf1 include:spf.protection.outlook.com include:_spf.google.com -all");
+            table.Row("_dmarc.evotec.xyz", "TXT", "3600", TableCell.ForStatus(StatusKind.Pass, "p=reject"));
 
             Tree tree = new Tree("root");
             TreeNode child = tree.Add("xyz.", null, "2 servers");

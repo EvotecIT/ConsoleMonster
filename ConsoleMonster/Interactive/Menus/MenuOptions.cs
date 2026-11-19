@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>How a menu runs.</summary>
+    [Fluent]
     public sealed class MenuOptions {
         /// <summary>The layout.</summary>
         public MenuLayout Layout { get; set; } = MenuLayout.Auto;

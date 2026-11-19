@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using ConsoleMonster.Live;
 using ConsoleMonster.Input;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Input, live rendering and fallback settings for one application run.</summary>
+    [Fluent]
     public sealed class ConsoleAppOptions {
         /// <summary>Host navigation, cancellation and palette gestures. Set individual gestures to null to release them to the app registry.</summary>
         public AppHostKeys Keys { get; set; } = new AppHostKeys();
@@ -18,6 +20,7 @@ namespace ConsoleMonster.Interactive {
         /// </summary>
         public IList<KeyBinding> KeyBindings { get; } = new List<KeyBinding>();
         /// <summary>App-thread registry routing after modal and cancellation handling, before focused-input handling. Return true when consumed.</summary>
+        [Fluent("InterceptInput")]
         public Func<AppState, InputEvent, bool>? HandleInput { get; set; }
         /// <summary>Optional terminal handoff service, attached only for this run.</summary>
         public TerminalHandoff? TerminalHandoff { get; set; }
@@ -34,6 +37,7 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Passive commands shared by the app's buttons, palette and keyboard shortcuts.</summary>
         public IList<AppCommand> Command { get; } = new List<AppCommand>();
         /// <summary>Captures action rows on the app thread before confirmation. Null supplies an empty row set.</summary>
+        [Fluent("SelectionBy")]
         public Func<AppState, IReadOnlyList<object?>>? Selection { get; set; }
         /// <summary>State key supplying one selected row or a collection to commands when Selection is unset.</summary>
         public string? SelectionKey { get; set; }
@@ -64,6 +68,7 @@ namespace ConsoleMonster.Interactive {
         public int ReflowBelow { get; set; } = 60;
 
         /// <summary>Called on the owning input thread before the next read, for hosts that dispatch callbacks on that thread.</summary>
+        [Fluent("PumpEvents")]
         public Action<AppState>? ProcessEvents { get; set; }
     }
 }

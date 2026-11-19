@@ -3,9 +3,11 @@ using ConsoleMonster.Capabilities;
 using ConsoleMonster.Input;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live.Tails {
     /// <summary>Configuration for a synchronous, polling log-tail run.</summary>
+    [Fluent]
     public sealed class LogTailOptions {
         /// <summary>Maximum retained history lines (default 1000; minimum 1). Pending source updates are lossless.</summary>
         public int Capacity { get; set; } = 1000;
@@ -35,6 +37,7 @@ namespace ConsoleMonster.Live.Tails {
         public bool Live { get; set; } = true;
 
         /// <summary>Receives each original line in plain mode, without a terminator. Null uses the core terminal writer.</summary>
+        [Fluent("WriteTo")]
         public Action<string>? WriteLine { get; set; }
 
         /// <summary>Live layout, full screen by default. Plain fallback ignores this setting.</summary>

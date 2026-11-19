@@ -11,14 +11,25 @@ namespace ConsoleMonster.Tests.Building {
     /// <summary>The fluent entry point configures the same objects and preserves kind and identity at materialization.</summary>
     public sealed class UiFactoryTests {
         [Fact]
+        public void TitledFactoriesSetTheTitleBeforeTheConfigurationRuns() {
+            string? seen = null;
+            Panel panel = Ui.Panel("Build", p => seen = p.Title);
+            Assert.Equal("Build", panel.Title);
+            Assert.Equal("Build", seen);
+            Assert.Equal("Hosts", Ui.Table("Hosts").Title);
+            Assert.Equal("Main", Ui.Menu("Main").Title);
+            Assert.Equal("Orders", Ui.Chart("Orders").Title);
+        }
+
+        [Fact]
         public void RootAndNestedFactoryChainsRenderTheInitializerModel() {
-            var expected = new Rows(new Panel(new Rows(TextBlock.Plain("literal [text]"), new Rule("Build")), "Status"), new Table().AddColumn("Name").AddRow("API")) { Gap = 1 };
+            var expected = new Rows(new Panel(new Rows(TextBlock.Plain("literal [text]"), new Rule("Build")), "Status"), new Table().Column("Name").Row("API")) { Gap = 1 };
             var actual = Ui.Rows().Gap(1).Content(content => {
                 content.Panel(panel => panel.Title("Status").Content(children => {
                     children.Text("literal [text]");
                     children.Rule("Build");
                 }));
-                content.Table(table => table.AddColumn("Name").AddRow("API"));
+                content.Table(table => table.Column("Name").Row("API"));
             });
             Assert.Equal(ConsoleExporter.ToText(expected), ConsoleExporter.ToText(actual));
             Assert.Equal(ConsoleExporter.ToText(TextBlock.FromMarkup("[pass]Ready[/]")), ConsoleExporter.ToText(Ui.Text().Content("[pass]Ready[/]").Markup()));
@@ -30,7 +41,7 @@ namespace ConsoleMonster.Tests.Building {
             var result = await ConsoleMonster.Live.ConsoleRun.ForEachAsync(new[] { 1, 2 }, (int item, System.Threading.CancellationToken _) => Task.FromResult(item * 2), options => {
                 calls++;
                 Assert.Equal(Math.Max(1, Environment.ProcessorCount), options.ThrottleLimit);
-                options.ThrottleLimit(2).Title("Configured").Live(false).Configure(request => request.Print = _ => { });
+                options.ThrottleLimit(2).Title("Configured").Live(false).WriteTo(_ => { });
             });
             Assert.Equal(1, calls);
             Assert.Equal(2, result.Count);
@@ -60,7 +71,7 @@ namespace ConsoleMonster.Tests.Building {
             input.Key("other").Value("changed");
             Assert.Equal("query", text.Key);
             Assert.Equal("initial", text.Value);
-            var definition = Ui.Command().Key("run").Label("Run").Configure(command => command.Action = (_, __) => Task.CompletedTask);
+            var definition = Ui.Command().Key("run").Label("Run").Run((_, __) => Task.CompletedTask);
             AppCommand action = definition.Build();
             definition.Key("other").Label("Changed");
             Assert.Equal("run", action.Key);

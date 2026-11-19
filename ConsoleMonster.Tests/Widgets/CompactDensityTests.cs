@@ -18,7 +18,7 @@ namespace ConsoleMonster.Tests.Widgets {
             TestTerminal.Render(widget, width, glyphs: tier, theme: theme ?? Compact).ToPlainText();
 
         private static Table Checks(TableBorder border) => new Table { Border = border, Expand = false, CardsBelow = 0 }
-            .AddColumn("Check").AddColumn("State").AddRow("DNS", "Ready").AddRow("Backup", "Warn");
+            .Column("Check").Column("State").Row("DNS", "Ready").Row("Backup", "Warn");
 
         [Theory]
         [InlineData(GlyphTier.Full)]
@@ -51,10 +51,10 @@ namespace ConsoleMonster.Tests.Widgets {
         public void UnboxedTablesKeepExplicitColumnGaps() {
             foreach (TableBorder border in new[] { TableBorder.Rule, TableBorder.Minimal, TableBorder.None }) {
                 Table table = new Table { Border = border, ShowHeader = false, Expand = false, CardsBelow = 0 }
-                    .AddColumn("A").AddColumn(new TableColumn("B") { Gap = 2 }).AddRow("x", "y");
+                    .Column("A").Column(new TableColumn("B") { Gap = 2 }).Row("x", "y");
                 Assert.Equal("x  y", Render(table));
                 table = new Table { Border = border, ShowHeader = false, Expand = false, CardsBelow = 0 }
-                    .AddColumn("A").AddColumn("B").AddRow("x", "y");
+                    .Column("A").Column("B").Row("x", "y");
                 Assert.Equal("x y", Render(table));
             }
         }
@@ -94,8 +94,8 @@ namespace ConsoleMonster.Tests.Widgets {
         [InlineData(false)]
         [InlineData(true)]
         public void AdaptiveTableRecordsKeepSeparationEvenWithABoxedBorderSetting(bool grid) {
-            Table left = new Table { Title = "xxxxxxxxxx" }.AddColumn("A").AddColumn("B").AddColumn("C").AddRow("1", "2", "3");
-            Table right = new Table { Title = "y" }.AddColumn("A").AddColumn("B").AddColumn("C").AddRow("1", "2", "3");
+            Table left = new Table { Title = "xxxxxxxxxx" }.Column("A").Column("B").Column("C").Row("1", "2", "3");
+            Table right = new Table { Title = "y" }.Column("A").Column("B").Column("C").Row("1", "2", "3");
             IWidget layout = grid ? new LayoutGrid(2, left, right) { MinColumnWidth = 1 }
                 : new Columns { CollapseBelow = 0 }.Add(left, LayoutSize.Fixed(10)).Add(right, LayoutSize.Fixed(10));
             string text = Render(layout, 20);

@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Show work with no known total</para><code>New-ConsoleProgress resolve -Indeterminate -Label 'Resolving DNS' -Detail 'zone 4' | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleProgress", DefaultParameterSetName = "Bar", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleprogress/")]
     [OutputType(typeof(ProgressBar), typeof(Spinner))]
-    public sealed class CmdletNewConsoleProgress : NoPipelineInputCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Widgets.ProgressOptions), Include = new[] { "WidgetId", "Status", "Value", "Total", "Shape", "CountColumn", "LabelWidth" })]
+    public sealed partial class CmdletNewConsoleProgress : NoPipelineInputCmdlet {
         /// <summary><para type="description">The live identifier; default progress, or spinner with Indeterminate.</para></summary>
         [Parameter(Position = 0)]
         public string? WidgetId { get; set; }
@@ -73,18 +74,12 @@ namespace ConsoleMonster.PowerShell {
             var options = new ProgressOptions { Indeterminate = Indeterminate.IsPresent };
             if (MyInvocation.BoundParameters.ContainsKey(nameof(StartedSeconds))) { options.Started = StartedSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(StartedSeconds.Value) : null; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(FinishedSeconds))) { options.Finished = FinishedSeconds.HasValue ? (TimeSpan?)TimeSpan.FromSeconds(FinishedSeconds.Value) : null; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(WidgetId))) { options.WidgetId = WidgetId; }
+            ApplyParameters(options);
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Label))) { options.Label = PSText.Markup(Label) ?? string.Empty; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Status))) { options.Status = Status; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Detail))) { options.Detail = PSText.Markup(Detail); }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoElapsed))) { options.ShowElapsed = !NoElapsed.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Value))) { options.Value = Value; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Total))) { options.Total = Total; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Shape))) { options.Shape = Shape; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Columns))) { options.Columns = PSProgressColumns.Build(Columns); }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(CountColumn))) { options.CountColumn = CountColumn; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoCount))) { options.ShowCount = !NoCount.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(LabelWidth))) { options.LabelWidth = LabelWidth; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(RateWindowSeconds))) { options.RateWindow = TimeSpan.FromSeconds(RateWindowSeconds); }
             WriteObject(Widgets.Progress.Create(options));
         }

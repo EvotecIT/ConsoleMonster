@@ -6,6 +6,7 @@ using ConsoleMonster.Layout;
 using ConsoleMonster.Output;
 using ConsoleMonster.Rendering;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Live {
     /// <summary>Where a live session draws.</summary>
@@ -21,6 +22,7 @@ namespace ConsoleMonster.Live {
     }
 
     /// <summary>Configuration for a single-use live session. Set before starting the session.</summary>
+    [Fluent]
     public sealed class LiveSessionOptions {
         /// <summary>
         /// Full screen (default) or an inline area below the cursor. Without a VT console (CI, redirected output) both fall
@@ -212,6 +214,7 @@ namespace ConsoleMonster.Live {
         }
 
         /// <summary>Optional monotonic time source, sampled relative to its value at Start.</summary>
+        [NoFluent]
         public Func<TimeSpan>? Clock { get; set; }
 
         /// <summary>
@@ -220,6 +223,7 @@ namespace ConsoleMonster.Live {
         internal Func<int[]?>? WindowSource { get; set; }
 
         /// <summary>Optional replay delay implementation; receives the scaled interval and cancellation token.</summary>
+        [NoFluent]
         public Action<TimeSpan, CancellationToken>? ReplayDelay { get; set; }
     }
 }

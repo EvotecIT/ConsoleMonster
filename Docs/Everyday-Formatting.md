@@ -197,8 +197,8 @@ For a .NET application the same renderer is `ConsoleMonster.Interactive.Grid`:
 using ConsoleMonster.Interactive;
 
 Grid grid = new Grid("Choose nodes") { OutputMode = GridSelection.Single };
-grid.AddColumn("Name").AddColumn("Region");
-grid.AddRow("api-east", "api-east", "eu-west");
+grid.Column("Name").Column("Region");
+grid.Row("api-east", "api-east", "eu-west");
 GridResult selected = grid.Show();
 ```
 
@@ -259,15 +259,15 @@ using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
 var commands = new Table { RecordViewRows = 0 };
-commands.AddColumn(new TableColumn("CommandType") { Presenter = CellPresenters.Chip });
-commands.AddColumn("Name");
-commands.AddValues("Function", "Get-DemoItem");
+commands.Column(new TableColumn("CommandType") { Presenter = CellPresenters.Chip });
+commands.Column("Name");
+commands.Values("Function", "Get-DemoItem");
 Terminal.Write(commands);
 
 var members = new Table { RecordViewRows = 0 };
-members.AddColumn("Name");
-members.AddColumn(new TableColumn("Definition") { Presenter = CellPresenters.MemberSignature });
-members.AddValues("Substring", "string Substring(int startIndex)");
+members.Column("Name");
+members.Column(new TableColumn("Definition") { Presenter = CellPresenters.MemberSignature });
+members.Values("Substring", "string Substring(int startIndex)");
 Terminal.Write(members);
 ```
 
@@ -291,8 +291,8 @@ using ConsoleMonster.Export;
 using ConsoleMonster.Widgets;
 
 var table = new Table { RecordViewRows = 0 };
-table.AddColumn("Name").AddColumn("Id");
-table.AddValues("pwsh", 1234);
+table.Column("Name").Column("Id");
+table.Values("pwsh", 1234);
 ConsoleExporter.Save(table, "processes.html");
 ```
 

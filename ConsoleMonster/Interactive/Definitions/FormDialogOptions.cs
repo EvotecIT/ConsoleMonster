@@ -1,9 +1,11 @@
 using System;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>A composed modal form definition whose result contains its named field values.</summary>
+    [Fluent]
     public sealed class FormDialogOptions : IContentOwner {
         /// <summary>The visible dialog heading.</summary>
         public string Title { get; set; } = string.Empty;
@@ -21,11 +23,12 @@ namespace ConsoleMonster.Interactive {
         /// <summary>Maximum dialog width in cells.</summary>
         public int MaxWidth { get; set; } = 64;
         /// <summary>An app-thread validator; return an error to keep the form open.</summary>
-        public Func<AppState, string?>? Validate { get; set; }
+        [Fluent("Validate")]
+        public Func<AppState, string?>? Validator { get; set; }
         /// <summary>Builds a typed form without starting a nested input loop.</summary>
         public FormDialog<AppState> Build() => new FormDialog<AppState>(Title, Content, values => values) {
             AcceptText = AcceptText, CancelText = CancelText, DefaultAccept = DefaultAccept,
-            InitialFocus = InitialFocus, MaxWidth = MaxWidth, Validate = Validate
+            InitialFocus = InitialFocus, MaxWidth = MaxWidth, Validator = Validator
         };
     }
 }

@@ -71,7 +71,7 @@ IList<ProgressColumn> columns = ProgressColumns.Standard();     // spinner, desc
 columns.Insert(7, ProgressColumns.Rate(unit: "files"));         // "12 files/s"; Rate(bytes: true) shows "1.5 MB/s"
 Lanes lanes = Ui.Lanes()
     .Columns(columns)
-    .AddColumn(ProgressColumns.Custom("Phase", row => row.IsFinished ? "verified" : "copying"))
+    .Column(ProgressColumns.Custom("Phase", row => row.IsFinished ? "verified" : "copying"))
     .HideCompleted();                                           // finished lanes leave; the summary line counts them
 lanes.Add("dc01", "DC01", 40);
 lanes.Add("dc02", "DC02", 40);

@@ -109,8 +109,8 @@ using ConsoleMonster.Widgets;
 
 var widget = new TextBlock("Deployment complete") { IsMarkup = false };
 var options = new ExportOptions { Width = 90 };
-string markdown = MarkdownExporter.Export(widget, options);
-string html = ConsoleExporter.Export(widget, ExportFormat.Html, options);
+string markdown = MarkdownExporter.ToMarkdown(widget, options);
+string html = widget.ToHtml(options);
 System.IO.File.WriteAllText("status.md", markdown);
 
 var clipboard = new ClipboardService();

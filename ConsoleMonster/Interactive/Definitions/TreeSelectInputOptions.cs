@@ -1,7 +1,9 @@
 using System;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Named, lazy object-tree construction shared by Ui.TreeSelect and PowerShell.</summary>
+    [Fluent]
     public sealed class TreeSelectInputOptions : AppInputOptions {
         /// <summary>The explorer model with member adapters and expansion limits.</summary>
         public ObjectExplorer? Explorer { get; set; }

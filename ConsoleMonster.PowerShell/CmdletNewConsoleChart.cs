@@ -12,7 +12,8 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Show resolver latency</para><code>[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleChart", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolechart/")]
     [OutputType(typeof(IWidget))]
-    public sealed class CmdletNewConsoleChart : PSCmdlet {
+    [PowerForge.Fluent.FluentCmdlet(typeof(ChartOptions), Include = new[] { "WidgetId", "Unit", "Height", "Minimum", "Maximum", "Role", "Shape", "Warning", "Critical", "Edges", "Values", "ValueColumn", "CountColumn", "PercentColumn", "LabelColumn", "MaxLegendColumns", "Capacity" })]
+    public sealed partial class CmdletNewConsoleChart : PSCmdlet {
         private readonly List<object> _items = new List<object>();
         private int _nullInputs;
         private Presenters.ICellPresenter? _valuePresenter;
@@ -116,25 +117,9 @@ namespace ConsoleMonster.PowerShell {
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoValues))) { options.ShowValues = !NoValues.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Signed))) { options.Signed = Signed.IsPresent; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoLegend))) { options.ShowLegend = !NoLegend.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(MaxLegendColumns))) { options.MaxLegendColumns = MaxLegendColumns; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Capacity))) { options.Capacity = Capacity; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(WidgetId))) { options.WidgetId = WidgetId; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Unit))) { options.Unit = Unit; }
+            ApplyParameters(options);
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Title))) { options.Title = PSText.Markup(Title); }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Height))) { options.Height = Height; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Minimum))) { options.Minimum = Minimum; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Maximum))) { options.Maximum = Maximum; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Role))) { options.Role = Role; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Shape))) { options.Shape = Shape; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Warning))) { options.Warning = Warning; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Critical))) { options.Critical = Critical; }
             if (MyInvocation.BoundParameters.ContainsKey(nameof(NoLatest))) { options.ShowLatest = !NoLatest.IsPresent; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Edges))) { options.Edges = Edges; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(Values))) { options.Values = Values; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(ValueColumn))) { options.ValueColumn = ValueColumn; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(CountColumn))) { options.CountColumn = CountColumn; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(PercentColumn))) { options.PercentColumn = PercentColumn; }
-            if (MyInvocation.BoundParameters.ContainsKey(nameof(LabelColumn))) { options.LabelColumn = LabelColumn; }
             if (Labels != null) foreach (string label in Labels) options.Labels.Add(label);
             if (Series != null) {
                 if (Type != ChartType.Line && Type != ChartType.Scatter) { throw new PSArgumentException("Series applies to Line and Scatter charts."); }
@@ -182,7 +167,7 @@ namespace ConsoleMonster.PowerShell {
                 if (bytes && !(Presenters.CellPresenters.ForMember(value.Name, raw!.GetType(), PSFormatting.SourceType(item)) is Presenters.BytesPresenter)) { bytes = false; }
                 if (label == null) { samples.Add(number); continue; }
                 string text = Convert.ToString(name, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
-                options.AddItem(Chart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
+                options.Item(Chart.UniqueLabel(text.Length == 0 ? row.ToString(System.Globalization.CultureInfo.InvariantCulture) : text, labels), number);
             }
             if (Type != ChartType.Bar) { options.Values = samples.ToArray(); }
             if (bytes && charted > 0 && _valuePresenter == null) { _valuePresenter = Presenters.CellPresenters.Bytes; }

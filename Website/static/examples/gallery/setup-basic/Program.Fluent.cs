@@ -18,7 +18,7 @@ TextInput folder = ((TextInput)Ui.TextInput()
     .Build());
 Select component = ((Select)Ui.Select()
     .Key("Component")
-    .AddChoices(components.Select(name => new Choice(name)))
+    .Choices(components.Select(name => new Choice(name)))
     .Label("Component")
     .Value("Core")
     .Build());
@@ -35,7 +35,7 @@ Rows layout = Ui.Rows().Gap(1).Content(rowsContent2 =>
         .Add(back, LayoutSize.Fixed(12))
         .Add(next, LayoutSize.Fixed(24))
         .Fixed(1));
-    rowsContent2.Binding(binding => binding.Configure(o => o.Content = state =>
+    rowsContent2.Binding(binding => binding.ContentBy(state =>
     {
         string title = new[] { "1 / 3 · Location", "2 / 3 · Components", "3 / 3 · Review" }[page];
         IWidget content = page == 0

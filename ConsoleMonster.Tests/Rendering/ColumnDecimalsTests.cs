@@ -18,10 +18,10 @@ namespace ConsoleMonster.Tests.Rendering {
 
         private static Table Numbers(params object[] values) {
             Table table = new Table { Border = TableBorder.Rounded, RecordViewRows = 0 };
-            table.AddColumn(new TableColumn("Name"));
-            table.AddColumn(new TableColumn("Value"));
+            table.Column(new TableColumn("Name"));
+            table.Column(new TableColumn("Value"));
             for (int i = 0; i < values.Length; i++) {
-                table.AddValues("row" + i, values[i]);
+                table.Values("row" + i, values[i]);
             }
             return table;
         }

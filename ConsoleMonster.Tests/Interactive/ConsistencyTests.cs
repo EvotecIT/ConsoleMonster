@@ -250,7 +250,7 @@ namespace ConsoleMonster.Tests.Interactive
             menu.Item("Targets", i =>
             {
                 i.Hotkey = 't';
-                i.IconName = GlyphIcon.Targets;
+                i.Icon = Icons.Targets;
                 i.Action = ctx =>
                 {
                 };
@@ -258,7 +258,7 @@ namespace ConsoleMonster.Tests.Interactive
             menu.Item("Presets", i =>
             {
                 i.Hotkey = 'p';
-                i.IconName = GlyphIcon.Favorite;
+                i.Icon = Icons.Favorite;
                 i.Action = ctx =>
                 {
                 };
@@ -266,7 +266,7 @@ namespace ConsoleMonster.Tests.Interactive
             menu.Item("Custom", i =>
             {
                 i.Hotkey = 'c';
-                i.Icon = "@";
+                i.Mark = "@";
                 i.Action = ctx =>
                 {
                 };
@@ -275,13 +275,13 @@ namespace ConsoleMonster.Tests.Interactive
             menu.Run(new MenuOptions { Layout = MenuLayout.Shell, Interactive = Options(shell, "Ctrl+Q", tier), StorageRoot = Path.Combine(Path.GetTempPath(), "cm-consistency-" + Guid.NewGuid().ToString("N").Substring(0, 6)) });
             string text = shell.Frames[0].ToPlainText();
             IGlyphSet glyphs = GlyphSet.For(tier);
-            Assert.Contains(glyphs.Icon(GlyphIcon.Targets) + " Targets", text);
-            Assert.Contains(glyphs.Icon(GlyphIcon.Favorite) + " Presets", text);
+            Assert.Contains(glyphs.Icon(Icons.Targets) + " Targets", text);
+            Assert.Contains(glyphs.Icon(Icons.Favorite) + " Presets", text);
             Assert.Contains("@ Custom", text);
-            Assert.Equal(tier == GlyphTier.Full ? "★" : tier == GlyphTier.Basic ? "☼" : "*", glyphs.Icon(GlyphIcon.Favorite));
+            Assert.Equal(tier == GlyphTier.Full ? "★" : tier == GlyphTier.Basic ? "☼" : "*", glyphs.Icon(Icons.Favorite));
             if (tier == GlyphTier.Ascii)
             {
-                foreach (GlyphIcon icon in (GlyphIcon[])Enum.GetValues(typeof(GlyphIcon)))
+                foreach (Icon icon in Icons.All)
                 {
                     Assert.True(glyphs.Icon(icon).Length == 1 && glyphs.Icon(icon)[0] < 128, icon + " is not ASCII");
                 }

@@ -4,9 +4,11 @@ using System.Globalization;
 using System.Management.Automation;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>PowerShell member selection and registered-view settings shared by construction and display.</summary>
+    [Fluent]
     public sealed class ConsoleTableViewOptions {
         /// <summary>Property names, patterns or calculated column records.</summary>
         public object[]? Property { get; set; }

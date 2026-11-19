@@ -11,7 +11,7 @@ using ConsoleMonster.Text;
 namespace ConsoleMonster.Widgets {
     /// <summary>
     /// A step strip for pipelines: <c>✓ Restore 2.1s  ›  ✓ Build 12s  ›  ⠹ Test 64%  ›  ○ Pack</c>. The active phase is
-    /// emphasised; phases flow onto more lines when the width is short. A phase can carry items (<see cref="SetItem"/>);
+    /// emphasised; phases flow onto more lines when the width is short. A phase can carry items (<see cref="Item"/>);
     /// the running phase fans out to them under the strip (<see cref="FanOut"/>). <see cref="Compact"/> draws one line that
     /// folds to fit, and <see cref="StepCounter"/> a numbered ledger. Live operations (Key = phase): <c>add</c> (Text =
     /// label; for an existing phase it changes only the label), <c>insert</c> (Text = label, Value = position),
@@ -152,7 +152,7 @@ namespace ConsoleMonster.Widgets {
         /// Draws a numbered ledger with hanging labels and right-aligned details, placing a detail below its label when they
         /// cannot share a row. A running phase spins and shows its latest detail with the time it has been running (from
         /// the session clock); a finished phase keeps the duration it took (from its <c>state</c> events). A phase's items
-        /// (<see cref="SetItem"/>) are listed under it. When the ledger is taller than its space (an inline live area),
+        /// (<see cref="Item"/>) are listed under it. When the ledger is taller than its space (an inline live area),
         /// finished phases fold their items into a "done/total" count and running phases keep only their running and
         /// problem items; if that is still too tall, it shows whole phases around the furthest phase that has started, with
         /// the next phase below it, every running phase above pinned under "+N earlier", and "+N more" for the rest. The

@@ -11,57 +11,57 @@ Creates a menu item: an action, a submenu, a form, a selection, a page, a review
 ## SYNTAX
 ### Action (Default)
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] [[-Action] <scriptblock>] [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ### Submenu
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Submenu <Object> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Submenu <Object> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ### Form
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Form <Form> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-OnSubmit <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Form <Form> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-OnSubmit <scriptblock>] [<CommonParameters>]
 ```
 
 ### Select
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Select <Object[]> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### MultiSelect
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -MultiSelect <Object[]> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### LoadChoices
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -LoadChoices <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [-ArgumentList <Object[]>] [-Single] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-ChoiceBadge <Object>] [-ChoiceDisabledReason <Object>] [-Preview <scriptblock>] [-Selected <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-OnChange <scriptblock>] [<CommonParameters>]
 ```
 
 ### Page
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Page <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Page <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ### Review
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Review <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Review <scriptblock> [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ### Presets
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Presets [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Presets [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ### Separator
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Separator [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Separator [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ### Exit
 ```powershell
-New-ConsoleMenuItem [[-Label] <string>] -Exit [-Hotkey <Char>] [-Description <string>] [-Icon <string>] [-IconName <GlyphIcon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
+New-ConsoleMenuItem [[-Label] <string>] -Exit [-Hotkey <Char>] [-Description <string>] [-Mark <string>] [-Icon <Icon>] [-Badge <Object>] [-Detail <Object>] [-DisabledReason <Object>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -327,29 +327,13 @@ Accept wildcard characters: False
 ```
 
 ### -Icon
-A short mark before the title, as free text. Prefer -IconName, which follows the glyph tier.
+An icon catalog key that follows the glyph tier: item, targets, tasks, settings, favorite, run, back, list, help, warning, done or exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Mark.
 
 ```yaml
-Type: String
+Type: Icon
 Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
-Aliases: None
+Aliases: IconName
 Possible values:
-
-Required: False
-Position: named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -IconName
-A semantic icon that follows the glyph tier: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done or Exit (for example ● in modern fonts, o in ASCII). Takes precedence over -Icon.
-
-```yaml
-Type: GlyphIcon
-Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
-Aliases: None
-Possible values: Item, Targets, Tasks, Settings, Favorite, Run, Back, List, Help, Warning, Done, Exit
 
 Required: False
 Position: named
@@ -384,6 +368,22 @@ Aliases: None
 Possible values:
 
 Required: True
+Position: named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Mark
+A short mark before the title, as free text. Prefer -Icon, which follows the glyph tier.
+
+```yaml
+Type: String
+Parameter Sets: Action, Submenu, Form, Select, MultiSelect, LoadChoices, Page, Review, Presets, Separator, Exit
+Aliases: None
+Possible values:
+
+Required: False
 Position: named
 Default value: None
 Accept pipeline input: False

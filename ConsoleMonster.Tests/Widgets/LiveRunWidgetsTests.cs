@@ -122,10 +122,10 @@ namespace ConsoleMonster.Tests.LiveRuns {
         [Fact]
         public void SummaryBar_ShowsProgressPercentAndCounters_WithZerosKept() {
             SummaryBar bar = new SummaryBar { Elapsed = TimeSpan.FromSeconds(30) }
-                .SetProgress(30, 60)
-                .SetCounter("passed", 28, StatusKind.Pass)
-                .SetCounter("failed", 2, StatusKind.Fail)
-                .SetCounter("skipped", 0, StatusKind.Skip);
+                .Progress(30, 60)
+                .Counter("passed", 28, StatusKind.Pass)
+                .Counter("failed", 2, StatusKind.Fail)
+                .Counter("skipped", 0, StatusKind.Skip);
             string line = Render(bar, 100)[0];
             Assert.Contains("30/60", line);
             Assert.Contains("50%", line);

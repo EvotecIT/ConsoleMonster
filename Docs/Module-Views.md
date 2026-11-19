@@ -63,9 +63,9 @@ using ConsoleMonster.Presenters;
 using ConsoleMonster.Widgets;
 
 var table = new Table { RecordViewRows = 0 };
-table.AddColumn("Name");
-table.AddColumn(new TableColumn("Health") { Presenter = CellPresenters.StatusWord });
-table.AddValues("alpha", "Pass");
+table.Column("Name");
+table.Column(new TableColumn("Health") { Presenter = CellPresenters.StatusWord });
+table.Values("alpha", "Pass");
 ```
 
 The test fixture under `Module/Tests/Fixtures/EverydayViews` is a complete dependency-free example module. Product-specific ADX, Cx, CertNoob and TestimoX view designs are supplied by their owning modules.

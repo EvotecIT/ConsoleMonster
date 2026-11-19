@@ -25,10 +25,10 @@ Service[] services = {
         "Verifies nightly backup snapshots."),
 };
 var grid = new Grid("Service browser");
-grid.AddColumn("Name").AddColumn("Status").AddColumn("StartType").AddColumn("DisplayName")
-    .AddColumn("ProcessId").AddColumn("Account").AddColumn("DependsOn").AddColumn("Description");
+grid.Column("Name").Column("Status").Column("StartType").Column("DisplayName")
+    .Column("ProcessId").Column("Account").Column("DependsOn").Column("Description");
 foreach (var service in services) {
-    grid.AddRow(service, service.Name, service.Status, service.StartType, service.DisplayName,
+    grid.Row(service, service.Name, service.Status, service.StartType, service.DisplayName,
         service.ProcessId, service.Account, service.DependsOn, service.Description);
 }
 

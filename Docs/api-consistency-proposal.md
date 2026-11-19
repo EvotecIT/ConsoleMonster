@@ -672,7 +672,7 @@ This catalogue covers public type declarations in the shipped core and four add-
 | `ConsoleMonster.Clipboard` | `ClipboardService` |
 | `ConsoleMonster.Data` | `ColumnInference`, `IMemberSource`, `InspectCollection`, `InspectCycle`, `InspectError`, `InspectLimit`, `InspectMember`, `InspectNode`, `InspectNodeKind`, `InspectObject`, `InspectScalar`, `InspectorOptions`, `ObjectInspector` |
 | `ConsoleMonster.Demos` | `ConsoleDemo`, `DemoOptions`, `DemoPresenter`, `DemoPresenterAction`, `DemoScript`, `DemoStep`, `DemoStepKind`, `DemoTypingClock`, `SemanticPromptDetector` |
-| `ConsoleMonster.Export` | `ConsoleExporter`, `ExportFormat`, `ExportFrameSize`, `ExportOptions`, `ExportTheme`, `RecordedFrame`, `Recording`, `RecordingExportOptions`, `RecordingMarker`, `WindowChromeStyle` |
+| `ConsoleMonster.Export` | `ConsoleExporter`, `OutputFormat`, `ExportFrameSize`, `ExportOptions`, `ExportTheme`, `RecordedFrame`, `Recording`, `RecordingExportOptions`, `RecordingMarker`, `WindowChromeStyle` |
 | `ConsoleMonster.Extensions.Logging` | `ConsoleMonsterLoggerOptions`, `ConsoleMonsterLoggerProvider`, `ConsoleMonsterLoggingExtensions`, `LogCategoryFormat` |
 | `ConsoleMonster.Glyphs` | `BoxGlyphs`, `BoxStyle`, `Glyph`, `GlyphIcon`, `GlyphSet`, `GlyphSetExtensions`, `IGlyphSet`, `Shortcodes`, `SymbolFallback` |
 | `ConsoleMonster.Graphics` | `ConsoleGraphicsExtensions`, `GraphicsBackground`, `GraphicsExportOptions`, `GraphicsFit`, `GraphicsFormat`, `GraphicsPreset` |

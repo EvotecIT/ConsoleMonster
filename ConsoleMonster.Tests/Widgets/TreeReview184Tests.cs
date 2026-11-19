@@ -97,14 +97,14 @@ namespace ConsoleMonster.Tests.Widgets {
             TreeNode node = tree.Add("Unknown.Account", detail: "unknown");
             node.Marker = "?";
             node.AsciiMarker = "?";
-            node.MarkerTone = ThemeToken.Muted;
+            node.MarkerTone = Tone.Muted;
             Review184Capture capture = new Review184Capture(tree, 60, GlyphTier.Ascii, ColorDepth.TrueColor);
             int x = capture.Raw.ToPlainText().Split('\n')[0].IndexOf('?');
             Assert.True(x >= 0);
             Assert.Equal(capture.Context.Style(ThemeToken.Muted).Color, capture.Raw[x, 0].Style.Color);
             Assert.Null(node.Status);
             Assert.DoesNotContain("SKIP", capture.Decoded);
-            node.MarkerTone = null;
+            node.MarkerTone = Tone.None;
             Review184Capture defaults = new Review184Capture(tree, 60, GlyphTier.Ascii, ColorDepth.TrueColor);
             Assert.Equal(defaults.Context.Style(ThemeToken.Text).Color, defaults.Raw[x, 0].Style.Color);
         }

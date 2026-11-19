@@ -667,11 +667,11 @@ $menu = New-ConsoleMenu @menuParameters -Content {
         Servers = @('WEB01')
         Checks = @('CertExpiry', 'CertChain', 'ForwardRecord')
     } }
-    New-ConsoleMenuItem -Label Presets -Hotkey p -IconName Favorite -Presets
+    New-ConsoleMenuItem -Label Presets -Hotkey p -Icon favorite -Presets
     $menuItemParameters = @{
         Label = 'New check'
         Hotkey = 'n'
-        IconName = 'Run'
+        Icon = 'run'
         Description = 'Choose a domain, servers and checks; review the command and run.'
         Form = $checkForm
     }
@@ -684,7 +684,7 @@ $menu = New-ConsoleMenu @menuParameters -Content {
         Set-Options -Values $Values
         Invoke-Work -Context $MenuContext -Work @(Get-Work)
     }
-    New-ConsoleMenuItem -Label History -Hotkey h -IconName List -Detail {
+    New-ConsoleMenuItem -Label History -Hotkey h -Icon list -Detail {
         "$($plan.History.Count) runs"
     } -Page { Get-History }
     New-ConsoleMenuItem -Separator

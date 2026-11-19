@@ -18,7 +18,7 @@ namespace ConsoleMonster.Widgets {
     /// </summary>
     public sealed class MarkdownView : IContainer {
         private readonly List<IWidget> _blocks = new List<IWidget>();
-        private readonly List<Heading> _headings = new List<Heading>();
+        private readonly List<HeadingEntry> _headings = new List<HeadingEntry>();
 
         /// <summary>The rendered blocks, in document order.</summary>
         public IReadOnlyList<IWidget> Children => _blocks.AsReadOnly();
@@ -26,13 +26,13 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a paragraph. Literal segments remain literal; links get a visible URL on terminals without OSC 8.</summary>
         /// <param name="text">Parsed inline content.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddParagraph(RichText text) => AddBlock(new MarkdownText(text));
+        public MarkdownView Paragraph(RichText text) => Block(new MarkdownText(text));
 
         /// <summary>Adds a heading with a double rule for level one, a single rule for level two, and visible level markers below that.</summary>
         /// <param name="text">Parsed heading content.</param>
         /// <param name="level">The heading level, from one through six.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddHeading(RichText text, int level = 1) {
+        public MarkdownView Heading(RichText text, int level = 1) {
             if (level < 1 || level > 6) {
                 throw new ArgumentOutOfRangeException(nameof(level));
             }
@@ -42,8 +42,8 @@ namespace ConsoleMonster.Widgets {
             ThemeToken role = level <= 2 ? ThemeToken.Accent : level == 3 ? ThemeToken.Text : ThemeToken.Muted;
             RichText content = level <= 2 ? text : new RichTextBuilder().Append(new string('#', level) + " ").Append(text).Build();
             MarkdownText heading = new MarkdownText(content, new RichStyle(role, decoration: TextDecoration.Bold));
-            _headings.Add(new Heading(_blocks.Count, level, text));
-            return AddBlock(level <= 2
+            _headings.Add(new HeadingEntry(_blocks.Count, level, text));
+            return Block(level <= 2
                 ? new Rows(heading, new Rule { LineRole = ThemeToken.Accent, LineStyle = level == 1 ? BoxStyle.Double : (BoxStyle?)null })
                 : (IWidget)heading);
         }
@@ -51,9 +51,9 @@ namespace ConsoleMonster.Widgets {
         /// <summary>Adds a block quote, retaining nested blocks and wrapping beside a muted vertical bar.</summary>
         /// <param name="content">The quote's parsed blocks.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddQuote(MarkdownView content) {
+        public MarkdownView Quote(MarkdownView content) {
             RejectSelf(content);
-            return AddBlock(new MarkdownPrefix(content, null));
+            return Block(new MarkdownPrefix(content, null));
         }
 
         /// <summary>Adds a list with hanging indents and nested block support.</summary>
@@ -61,16 +61,16 @@ namespace ConsoleMonster.Widgets {
         /// <param name="start">The first ordered-list number, or null for bullets.</param>
         /// <param name="tight">Whether to omit blank rows between items.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddList(IEnumerable<MarkdownView> items, int? start = null, bool tight = true) {
+        public MarkdownView List(IEnumerable<MarkdownView> items, int? start = null, bool tight = true) {
             if (items == null) {
                 throw new ArgumentNullException(nameof(items));
             }
             List<MarkdownView> list = new List<MarkdownView>(items);
-            return AddList(list, new bool?[list.Count], start, tight);
+            return List(list, new bool?[list.Count], start, tight);
         }
 
         // Task items replace the bullet with a checked or open mark in the destination tier; null keeps the ordinary marker.
-        internal MarkdownView AddList(IReadOnlyList<MarkdownView> items, IReadOnlyList<bool?> tasks, int? start, bool tight) {
+        internal MarkdownView List(IReadOnlyList<MarkdownView> items, IReadOnlyList<bool?> tasks, int? start, bool tight) {
             Rows rows = new Rows { Gap = tight ? 0 : 1 };
             long number = start ?? 0;
             for (int i = 0; i < items.Count; i++) {
@@ -86,7 +86,7 @@ namespace ConsoleMonster.Widgets {
                     rows.Add(new MarkdownPrefix(item, glyphs => prefix + TaskMark(glyphs, done) + " ", false, done ? ThemeToken.Pass : ThemeToken.Muted));
                 }
             }
-            return AddBlock(rows);
+            return Block(rows);
         }
 
         private static string TaskMark(IGlyphSet glyphs, bool done) =>
@@ -100,14 +100,14 @@ namespace ConsoleMonster.Widgets {
             }
             IWidget heading = new MarkdownText(title, new RichStyle(role, decoration: TextDecoration.Bold));
             IWidget body = content.Children.Count == 0 ? heading : new Rows(heading, content);
-            return AddBlock(new MarkdownPrefix(body, MarkdownPrefix.Bar, true, role));
+            return Block(new MarkdownPrefix(body, MarkdownPrefix.Bar, true, role));
         }
 
         /// <summary>Adds literal code with a language label and the existing registered highlighter, when available.</summary>
         /// <param name="text">The source code, without fence delimiters.</param>
         /// <param name="language">The fence language. Unknown languages display plain code with their original label.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddCode(string text, string? language = null) {
+        public MarkdownView Code(string text, string? language = null) {
             if (text == null) {
                 throw new ArgumentNullException(nameof(text));
             }
@@ -116,7 +116,7 @@ namespace ConsoleMonster.Widgets {
             if (separator >= 0) {
                 label = label.Substring(0, separator);
             }
-            return AddBlock(new CodeView(text, Highlighters.Get(label)) {
+            return Block(new CodeView(text, Highlighters.Get(label)) {
                 Title = label,
                 Wrap = true,
                 MaxLines = int.MaxValue
@@ -128,17 +128,17 @@ namespace ConsoleMonster.Widgets {
         /// <param name="rows">Parsed body rows; each must have the same number of cells as the header.</param>
         /// <param name="alignments">Optional per-column alignment from the Markdown delimiter row.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddTable(IReadOnlyList<RichText> headers, IEnumerable<IReadOnlyList<RichText>> rows,
-            IReadOnlyList<HorizontalAlignment?>? alignments = null) => AddBlock(new MarkdownTable(headers, rows, alignments));
+        public MarkdownView Table(IReadOnlyList<RichText> headers, IEnumerable<IReadOnlyList<RichText>> rows,
+            IReadOnlyList<HorizontalAlignment?>? alignments = null) => Block(new MarkdownTable(headers, rows, alignments));
 
         /// <summary>Adds a thematic break.</summary>
         /// <returns>This view.</returns>
-        public MarkdownView AddRule() => AddBlock(new Rule());
+        public MarkdownView Rule() => Block(new Rule());
 
         /// <summary>Adds a native widget as a parsed document block.</summary>
         /// <param name="block">The block. The caller must not subsequently introduce a layout cycle.</param>
         /// <returns>This view.</returns>
-        public MarkdownView AddBlock(IWidget block) {
+        public MarkdownView Block(IWidget block) {
             if (block == null) {
                 throw new ArgumentNullException(nameof(block));
             }
@@ -158,10 +158,10 @@ namespace ConsoleMonster.Widgets {
         private Rows Layout() => new Rows(_blocks.ToArray()) { Gap = 1 };
 
         // The headings, by the index of the block that draws them, which the document viewer turns into its outline.
-        internal IReadOnlyList<Heading> Headings => _headings;
+        internal IReadOnlyList<HeadingEntry> Headings => _headings;
 
-        internal readonly struct Heading {
-            internal Heading(int block, int level, RichText text) { Block = block; Level = level; Text = text; }
+        internal readonly struct HeadingEntry {
+            internal HeadingEntry(int block, int level, RichText text) { Block = block; Level = level; Text = text; }
             internal int Block { get; }
             internal int Level { get; }
             internal RichText Text { get; }

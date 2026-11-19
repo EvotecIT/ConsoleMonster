@@ -1,9 +1,11 @@
 using System;
 using System.Globalization;
 using ConsoleMonster.Widgets;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Calendar display and ordinary-object member selectors shared with New-ConsoleCalendar.</summary>
+    [Fluent]
     public sealed class ConsoleCalendarOptions {
         /// <summary>The Gregorian year.</summary>
         public int Year { get; set; }

@@ -69,7 +69,7 @@ Menu menu = new Menu("Server toolbox")
 MenuItem targets = new MenuItem("Targets")
 {
     Hotkey = 't',
-    IconName = GlyphIcon.Targets,
+    Icon = Icons.Targets,
     Description = ("Servers the tasks run on. The list is loaded from the inventory; offline servers "
         + "cannot be picked."),
     LoadChoices = (context, token) => LoadServersAsync(token)
@@ -78,7 +78,7 @@ targets.Minimum = 1;
 MenuItem tasks = new MenuItem("Tasks")
 {
     Hotkey = 'k',
-    IconName = GlyphIcon.Tasks,
+    Icon = Icons.Tasks,
     Description = ("What to run on every target. Tasks marked 'changes' modify the servers; the rest "
         + "only read.")
 }.MultiSelect(allTasks, t => t.Name, t => t.Category, TaskPreview);
@@ -100,7 +100,7 @@ Form options = OptionsForm();
 MenuItem optionsItem = new MenuItem("Options")
 {
     Hotkey = 'o',
-    IconName = GlyphIcon.Settings,
+    Icon = Icons.Settings,
     Description = "How the run behaves: parallelism, the report and notifications."
 }.Form(options, (context, result) => context.Toast("Options saved"));
 menu.Add(targets);
@@ -109,7 +109,7 @@ menu.Add(optionsItem);
 menu.Item("Presets", i =>
 {
     i.Hotkey = 'p';
-    i.IconName = GlyphIcon.Favorite;
+    i.Icon = Icons.Favorite;
     i.Description = "Saved combinations of targets, tasks and options. Save one from Review & run.";
     i.Presets();
 });
@@ -117,7 +117,7 @@ menu.Separator();
 menu.Item("Review & run", i =>
 {
     i.Hotkey = 'r';
-    i.IconName = GlyphIcon.Run;
+    i.Icon = Icons.Run;
     i.Review = Review;
 });
 menu.Item("History", i =>
@@ -264,7 +264,7 @@ ReviewModel Review(MenuContext context)
     string optionArguments = options.BuildCommand();
     review.Command = CommandLine.Join("Invoke-ServerToolbox",
         arguments) + (optionArguments.Length > 0 ? " " + optionArguments : string.Empty);
-    review.Run = ctx => Execute(ctx, servers, selected, values);
+    review.Action = ctx => Execute(ctx, servers, selected, values);
     return review;
 }
 
@@ -315,9 +315,9 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
     {
         Border = TableBorder.Minimal
     };
-    failures.AddColumn("Server");
-    failures.AddColumn("Task");
-    failures.AddColumn(new TableColumn("Finding") { Flexible = true });
+    failures.Column("Server");
+    failures.Column("Task");
+    failures.Column(new TableColumn("Finding") { Flexible = true });
     Stopwatch watch = Stopwatch.StartNew();
     log.Write("Started " + selected.Count + " tasks on " + servers.Count + " servers, " + throttle
         + " at a time");
@@ -344,7 +344,7 @@ MenuRunResult Work(RunContext run, Lanes lanesWidget, ProgressBar overallWidget,
                 string finding = task.Category == "Security"
                     ? "3 updates missing for 41 days"
                     : "volume D: below 5% free";
-                failures.AddRow(server.Name, task.Name, finding);
+                failures.Row(server.Name, task.Name, finding);
                 log.Error(server.Name + " · " + task.Name + ": " + finding);
             }
             else if (outcome == StatusKind.Warn)
@@ -421,17 +421,17 @@ IWidget HistoryPage()
     {
         Border = TableBorder.Minimal
     };
-    table.AddColumn("When");
-    table.AddColumn(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
-    table.AddColumn(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
-    table.AddColumn("Result");
-    table.AddColumn(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
+    table.Column("When");
+    table.Column(new TableColumn("Servers") { Alignment = HorizontalAlignment.Right });
+    table.Column(new TableColumn("Tasks") { Alignment = HorizontalAlignment.Right });
+    table.Column("Result");
+    table.Column(new TableColumn("Duration") { Alignment = HorizontalAlignment.Right });
     foreach (PastRun past in Enumerable.Reverse(history))
     {
         StatusKind status = past.Failed > 0
             ? StatusKind.Fail
             : past.Warnings > 0 ? StatusKind.Warn : StatusKind.Pass;
-        table.AddRow(past.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture),
+        table.Row(past.When.ToString("ddd HH:mm", CultureInfo.CurrentCulture),
             past.Servers.ToString(CultureInfo.CurrentCulture),
             past.Tasks.ToString(CultureInfo.CurrentCulture),
             TableCell.ForStatus(status,

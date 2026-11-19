@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Styling;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>One definition for single and multiple persistent selection controls.</summary>
+    [Fluent]
     public sealed class SelectInputOptions : AppInputOptions {
         private readonly HashSet<string> _bound = new HashSet<string>(StringComparer.Ordinal);
         internal IEnumerable<string> Bound => _bound;

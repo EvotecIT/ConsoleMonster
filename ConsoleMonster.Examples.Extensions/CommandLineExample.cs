@@ -53,11 +53,11 @@ namespace ConsoleMonster.Examples.Extensions {
 
                 // The result: a table that fits the terminal's width.
                 Table table = new Table();
-                table.AddColumn(new TableColumn("Server") { IsKey = true });
-                table.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-                table.AddColumn(new TableColumn("Latency") { Presenter = new NumberPresenter("ms") });
+                table.Column(new TableColumn("Server") { IsKey = true });
+                table.Column(new TableColumn("Status") { Presenter = CellPresenters.Status });
+                table.Column(new TableColumn("Latency") { Presenter = new NumberPresenter("ms") });
                 for (int i = 0; i < names.Length; i++) {
-                    table.AddValues(names[i], StatusKind.Pass, 12 + i * 7);
+                    table.Values(names[i], StatusKind.Pass, 12 + i * 7);
                 }
                 Terminal.Write(table);
                 return 0;

@@ -38,7 +38,7 @@ namespace SiteFrames.Tests {
             Assert.Contains("\u001b[", raw);
             Assert.DoesNotContain("D:\\Dev\\", raw);
             Assert.DoesNotContain("demo-token", raw);
-            string transcript = SessionRecording.Read(path).Export(ExportFormat.Text);
+            string transcript = SessionRecording.Read(path).Render(OutputFormat.Text).ToText();
             string[] transcriptLines = transcript.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             Assert.Contains("Build report", transcriptLines);
             Assert.Contains("PS demo> git log --oneline --graph --color -5", transcriptLines);

@@ -1,8 +1,10 @@
 using System;
 using System.Management.Automation;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Explicit PowerShell operation inputs shared with New-ConsoleCommand.</summary>
+    [Fluent]
     public sealed class ConsoleCommandOptions {
         /// <summary>Stable action identity.</summary>
         public string Key { get; set; } = string.Empty;

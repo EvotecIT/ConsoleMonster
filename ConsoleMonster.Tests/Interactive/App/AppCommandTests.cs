@@ -187,7 +187,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData("Two", "two")]
         [InlineData("missing", null)]
         public void GridAction_CapturesTheLatestFilterBeforeAnotherPaint(string filter, string? expected) {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One"); grid.AddRow("two", "Two");
+            Grid grid = new Grid("Services"); grid.Column("Name"); grid.Row("one", "One"); grid.Row("two", "Two");
             IReadOnlyList<object?>? captured = null;
             AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5), ConfirmPrompt = "Run selected?" };
             command.CaptureRows = rows => { captured = rows.ToArray(); return captured; };
@@ -225,7 +225,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [Fact]
         public void GridResize_CancelsAPressedActionThroughTheProductionLoop() {
             int calls = 0;
-            Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One");
+            Grid grid = new Grid("Services"); grid.Column("Name"); grid.Row("one", "One");
             GridOptions options = new GridOptions();
             AppCommand command = new AppCommand("run", "Run", (_, __) => Task.CompletedTask);
             command.CaptureRows = rows => { calls++; return rows; };
@@ -243,7 +243,7 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public async Task GridAction_UsesMarkedRowsAndReturnsToGridAfterCompletion() {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name"); grid.AddRow("one", "One"); grid.AddRow("two", "Two");
+            Grid grid = new Grid("Services"); grid.Column("Name"); grid.Row("one", "One"); grid.Row("two", "Two");
             IReadOnlyList<object?>? received = null;
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("refresh", "Refresh", (context, token) => { received = context.Rows; context.Write("Refreshed"); return Task.CompletedTask; }) { Shortcut = new KeyChord(ConsoleKey.F5) });
@@ -268,8 +268,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(true)]
         [InlineData(false)]
         public async Task GridRefresh_UpdatesOnlyTheActedOnRowOnTheInputThread(bool succeeds) {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
-            grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000);
+            Grid grid = new Grid("Services"); grid.Column("Name").Column("ProcessId");
+            grid.Row("one", "One", 2456); grid.Row("two", "Two", 1000);
             TaskCompletionSource<bool> finish = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("restart", "Restart", (_, __) => finish.Task) { Shortcut = new KeyChord(ConsoleKey.F5) });
@@ -305,8 +305,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public void CompactActionGrid_ShowsItsVisibleRowRangeWhilePaging() {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name");
-            for (int i = 1; i <= 10; i++) { grid.AddRow(i, "Service" + i.ToString("00")); }
+            Grid grid = new Grid("Services"); grid.Column("Name");
+            for (int i = 1; i <= 10; i++) { grid.Row(i, "Service" + i.ToString("00")); }
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask));
             using GridView view = new GridView(grid, options, new PromptLabels());
@@ -323,8 +323,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(true)]
         public async Task GridRefresh_DoesNotRefreshASiblingWithTheSameItem(bool nullItem) {
             object? item = nullItem ? null : new object();
-            Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
-            grid.AddRow(item, "One", 2456); grid.AddRow(item, "Two", 1000);
+            Grid grid = new Grid("Services"); grid.Column("Name").Column("ProcessId");
+            grid.Row(item, "One", 2456); grid.Row(item, "Two", 1000);
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int calls = 0;
@@ -341,8 +341,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
 
         [Fact]
         public async Task GridRefresh_ReportsEachFailureAndContinuesRefreshingMarkedRows() {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name").AddColumn("ProcessId");
-            grid.AddRow("one", "One", 2456); grid.AddRow("two", "Two", 1000); grid.AddRow("three", "Three", 3000);
+            Grid grid = new Grid("Services"); grid.Column("Name").Column("ProcessId");
+            grid.Row("one", "One", 2456); grid.Row("two", "Two", 1000); grid.Row("three", "Three", 3000);
             GridOptions options = new GridOptions();
             options.Command.Add(new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) { Shortcut = new KeyChord(ConsoleKey.F5) });
             int calls = 0;
@@ -383,8 +383,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(false, "One")]
         [InlineData(true, "2 rows")]
         public void Confirmation_NamesCapturedMarksEvenWhenTheyAreFilteredOut(bool twoMarks, string target) {
-            Grid grid = new Grid("Services"); grid.AddColumn("Name");
-            grid.AddRow("one", "One"); grid.AddRow("two", "Two"); grid.AddRow("three", "Three");
+            Grid grid = new Grid("Services"); grid.Column("Name");
+            grid.Row("one", "One"); grid.Row("two", "Two"); grid.Row("three", "Three");
             IReadOnlyList<object?>? captured = null;
             AppCommand command = new AppCommand("restart", "Restart", (_, __) => Task.CompletedTask) {
                 Shortcut = new KeyChord(ConsoleKey.F5), ConfirmPrompt = "Restart {Selection}?"

@@ -18,8 +18,8 @@ namespace ConsoleMonster.Tests.Interactive.App {
         [InlineData(20, 6, GlyphTier.Ascii, false, true)]
         public void RegionAndContextBarStatesHaveStableFrames(int width, int height, GlyphTier tier, bool light, bool plain) {
             Grid Listing(string title) {
-                var model = new Grid(title); model.AddColumn(new TableColumn("Name") { IsKey = true }); model.AddColumn(new TableColumn("Size") { Priority = 5 }); model.AddColumn(new TableColumn("Modified") { Priority = 1 });
-                for (int i = 0; i < 8; i++) { model.AddRow(i, "entry-" + i + (i % 2 == 0 ? ".log" : ".json"), i * 1024, "2026-10-26"); }
+                var model = new Grid(title); model.Column(new TableColumn("Name") { IsKey = true }); model.Column(new TableColumn("Size") { Priority = 5 }); model.Column(new TableColumn("Modified") { Priority = 1 });
+                for (int i = 0; i < 8; i++) { model.Row(i, "entry-" + i + (i % 2 == 0 ? ".log" : ".json"), i * 1024, "2026-10-26"); }
                 return model;
             }
             using var left = new DataGrid("Left", Listing("Primary"));

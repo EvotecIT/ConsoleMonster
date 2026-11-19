@@ -1,8 +1,10 @@
 using System;
 using ConsoleMonster.Sessions;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Demos {
     /// <summary>Settings for scripted or stage-driven PowerShell demos.</summary>
+    [Fluent]
     public sealed class DemoOptions {
         /// <summary>PTY, output path, dimensions, environment, redaction and idle limit. Shell defaults to pwsh.</summary>
         public SessionRecordingOptions Recording { get; set; } = new SessionRecordingOptions { Shell = "pwsh" };
@@ -13,6 +15,7 @@ namespace ConsoleMonster.Demos {
         /// <summary>Maximum time to wait for a semantic prompt or output match.</summary>
         public TimeSpan StepTimeout { get; set; } = TimeSpan.FromSeconds(30);
         /// <summary>Live output callback. Called on the PTY reader thread; use a thread-safe relay from PowerShell.</summary>
+        [Fluent("WriteTo")]
         public Action<string>? Output { get; set; }
     }
     /// <summary>Seeded character delays, independent of operating system and System.Random implementation.</summary>

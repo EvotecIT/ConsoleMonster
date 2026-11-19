@@ -14,8 +14,8 @@ $global:AdaptiveRowBuilder=[Func[System.Collections.Generic.IReadOnlyList[object
     if($objects[0].Name -eq $global:AdaptiveThrowRow){throw 'Expected adaptive row failure.'}
     $table=[ConsoleMonster.Widgets.Table]::new();$table.Title='adaptive group'
     $column=[ConsoleMonster.Widgets.TableColumn]::new('AdaptiveName');$column.Width=24
-    $null=$table.AddColumn($column)
-    $null=$table.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name)))
+    $null=$table.Column($column)
+    $null=$table.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name)))
     $table
 }
 function global:Use-AdaptiveView {

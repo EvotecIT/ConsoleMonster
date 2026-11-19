@@ -592,6 +592,11 @@ Show-ConsoleMenu $menu -Layout Inline
             { Set-ConsoleFormValue $form 'text' -ErrorAction Stop } | Should -Throw '*hashtable*'
         }
 
+        It 'keeps a menu item mark unless an icon is given' {
+            (New-ConsoleMenuItem 'Example' -Mark '@').Mark | Should -Be '@'
+            (New-ConsoleMenuItem 'Example' -Mark '@' -Icon done).Mark | Should -BeNullOrEmpty
+        }
+
         It 'creates menu presets with form values, selections and a preview, and adds them to the menu' {
             $form = New-ConsoleForm 'Fleet' -Content { New-ConsoleField Checks 'Checks' -Kind Select -Multiple -Choices $script:Checks -Display Name -CommandValue Id }
             $targets = New-ConsoleMenuItem 'Targets' -MultiSelect ([pscustomobject] @{ Name = 'SRV01' }), ([pscustomobject] @{ Name = 'SRV02' }) -Display Name

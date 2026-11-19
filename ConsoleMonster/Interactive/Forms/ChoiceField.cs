@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using ConsoleMonster.Layout;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>
@@ -30,6 +31,7 @@ namespace ConsoleMonster.Interactive {
         public IList<Choice> Choices { get; } = new List<Choice>();
 
         /// <summary>Loads the choices from the current values (dependent fields).</summary>
+        [Fluent("ChoicesBy")]
         public Func<FormValues, CancellationToken, Task<IEnumerable<Choice>>>? LoadChoices { get; set; }
 
         /// <summary>The fewest values (multiple).</summary>
@@ -39,6 +41,7 @@ namespace ConsoleMonster.Interactive {
         public int? Maximum { get; set; }
 
         /// <summary>Preview content for the focused choice in the editor.</summary>
+        [Fluent("PreviewBy")]
         public Func<Choice, IWidget?>? Preview { get; set; }
 
         /// <summary>

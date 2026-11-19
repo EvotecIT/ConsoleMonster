@@ -17,12 +17,12 @@ Table targets = new Table
     Title = "Targets",
     Expand = true
 };
-targets.AddColumn(new TableColumn("Target") { IsKey = true });
-targets.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.StatusWord });
-targets.AddColumn(new TableColumn("Detail") { Flexible = true });
-targets.AddValues("api-east", "Pass", "Ready for rollout");
-targets.AddValues("api-west", "Fail", "Health probe timed out");
-targets.AddValues("worker-01", "Warn", "Restart scheduled");
+targets.Column(new TableColumn("Target") { IsKey = true });
+targets.Column(new TableColumn("Status") { Presenter = CellPresenters.StatusWord });
+targets.Column(new TableColumn("Detail") { Flexible = true });
+targets.Values("api-east", "Pass", "Ready for rollout");
+targets.Values("api-west", "Fail", "Health probe timed out");
+targets.Values("worker-01", "Warn", "Restart scheduled");
 LogRegion log = new LogRegion
 {
     PreferredHeight = 3

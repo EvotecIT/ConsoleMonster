@@ -10,9 +10,11 @@ using System.Threading;
 using ConsoleMonster.Layout;
 using ConsoleMonster.Serialization;
 using ConsoleMonster.Sessions;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Headless {
     /// <summary>Settings for <see cref="DebugSocket.Start"/>.</summary>
+    [Fluent]
     public sealed class DebugSocketOptions {
         /// <summary>The port on 127.0.0.1 (default 0: the system picks a free one; read it from <see cref="DebugSocket.Endpoint"/> or the discovery file).</summary>
         public int Port { get; set; }

@@ -81,10 +81,10 @@ namespace ConsoleMonster.Tests.Themes {
         [Fact]
         public void ColorBlindPreference_ResolvesItsLightAndDarkVariants() {
             TerminalProfile profile = TerminalProfile.Fixed(80, 10, ColorDepth.TrueColor, GlyphTier.Full);
-            Assert.Same(Theme.ColorBlindSafeLight, Terminal.ResolveTheme(profile.WithThemePreference(ThemePreference.ColorBlindLight)));
-            Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile.WithThemePreference(ThemePreference.ColorBlindDark)));
+            Assert.Same(Theme.ColorBlindSafeLight, Terminal.ResolveTheme(profile.WithThemeMode(ThemeMode.Light).WithPalette(ThemePalette.ColorBlind)));
+            Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile.WithThemeMode(ThemeMode.Dark).WithPalette(ThemePalette.ColorBlind)));
             // Non-interactive output has no detected background, so the automatic variant is the dark one.
-            Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile.WithThemePreference(ThemePreference.ColorBlind)));
+            Assert.Same(Theme.ColorBlindSafe, Terminal.ResolveTheme(profile.WithPalette(ThemePalette.ColorBlind)));
         }
 
     }

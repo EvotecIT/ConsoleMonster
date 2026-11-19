@@ -44,10 +44,10 @@ namespace ConsoleMonster.Tests.Text {
         [InlineData(GlyphTier.Basic)]
         [InlineData(GlyphTier.Ascii)]
         public void Table_WithEmoji_KeepsCellTextAndWidthsPerTier(GlyphTier tier) {
-            Table table = new Table().AddColumn("Check").AddColumn("Result");
-            table.AddValues("✅ backup", "ok");
-            table.AddValues("⚠️ disk", "80% full");
-            table.AddRow(new TableCell("[warn]❌ sync[/]"), "failed");
+            Table table = new Table().Column("Check").Column("Result");
+            table.Values("✅ backup", "ok");
+            table.Values("⚠️ disk", "80% full");
+            table.Row(new TableCell("[warn]❌ sync[/]"), "failed");
             string text = TestTerminal.RenderText(table, 40, glyphs: tier);
             Golden.Match("symbols.table." + tier.ToString().ToLowerInvariant() + ".txt", text);
             string[] lines = text.Split('\n');
@@ -67,8 +67,8 @@ namespace ConsoleMonster.Tests.Text {
 
         [Fact]
         public void EmojiPresenter_ReplacesShortcodesInColumnValues() {
-            Table table = new Table().AddColumn(new TableColumn("Step") { Presenter = CellPresenters.Emoji });
-            table.AddValues(":white_check_mark: deploy");
+            Table table = new Table().Column(new TableColumn("Step") { Presenter = CellPresenters.Emoji });
+            table.Values(":white_check_mark: deploy");
             Assert.Contains("[OK] deploy", TestTerminal.RenderText(table, 30, glyphs: GlyphTier.Ascii));
             Assert.Contains("✅ deploy", TestTerminal.RenderText(table, 30));
         }

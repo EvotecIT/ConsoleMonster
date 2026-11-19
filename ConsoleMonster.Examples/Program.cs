@@ -135,7 +135,7 @@ namespace ConsoleMonster.Examples {
                     Terminal.Write(new Layout.Rows(
                         new Widgets.KeyValueList()
                             .Add("Theme", "[bold]" + themeName + "[/]")
-                            .Add("Preference", Terminal.Profile.ThemePreference.ToString())
+                            .Add("Mode", Terminal.Profile.ThemeMode + " / " + Terminal.Profile.Palette)
                             .Add("Background", Text.Markup.Escape(background.Decision)),
                         TableShowcases.DomainChecks(),
                         TableShowcases.AssessmentSummary()) { Gap = 1 });

@@ -41,32 +41,32 @@
     }
   ],
   "stress": {
-    "line": "STRESS seconds=12.7 workers=32 posted=1021599 avgRate=80210/s peakRate=84781/s frames=191 fps=15.0 cpuOneCore=28.7% cpuMachine=0.9% captured=208 dropped=0 errors=0 runtime=.NET 8.0.34",
-    "seconds": "12.7",
+    "line": "STRESS seconds=13.1 workers=32 posted=1513842 avgRate=115443/s peakRate=283057/s frames=124 fps=9.5 cpuOneCore=39.6% cpuMachine=1.2% captured=196 dropped=0 errors=0 runtime=.NET 8.0.34",
+    "seconds": "13.1",
     "workers": "32",
-    "posted": "1021599",
-    "avgRate": "80210/s",
-    "peakRate": "84781/s",
-    "frames": "191",
-    "fps": "15.0",
-    "cpuOneCore": "28.7%",
-    "cpuMachine": "0.9%",
-    "captured": "208",
+    "posted": "1513842",
+    "avgRate": "115443/s",
+    "peakRate": "283057/s",
+    "frames": "124",
+    "fps": "9.5",
+    "cpuOneCore": "39.6%",
+    "cpuMachine": "1.2%",
+    "captured": "196",
     "dropped": "0",
     "errors": "0",
     "runtime": ".NET",
     "facts": [
       {
-        "label": "Updates posted in 12.7 s",
-        "value": "1,021,599"
+        "label": "Updates posted in 13.1 s",
+        "value": "1,513,842"
       },
       {
         "label": "Average update rate",
-        "value": "80,210/s"
+        "value": "115,443/s"
       },
       {
         "label": "Frames drawn",
-        "value": "191 (15.0 fps)"
+        "value": "124 (9.5 fps)"
       },
       {
         "label": "Dropped updates and errors",
@@ -74,7 +74,7 @@
       },
       {
         "label": "CPU, share of one core",
-        "value": "28.7%"
+        "value": "39.6%"
       }
     ]
   },
@@ -123,32 +123,32 @@
         }
       ],
       "stress": {
-        "line": "STRESS seconds=12.7 workers=32 posted=1021599 avgRate=80210/s peakRate=84781/s frames=191 fps=15.0 cpuOneCore=28.7% cpuMachine=0.9% captured=208 dropped=0 errors=0 runtime=.NET 8.0.34",
-        "seconds": "12.7",
+        "line": "STRESS seconds=13.1 workers=32 posted=1513842 avgRate=115443/s peakRate=283057/s frames=124 fps=9.5 cpuOneCore=39.6% cpuMachine=1.2% captured=196 dropped=0 errors=0 runtime=.NET 8.0.34",
+        "seconds": "13.1",
         "workers": "32",
-        "posted": "1021599",
-        "avgRate": "80210/s",
-        "peakRate": "84781/s",
-        "frames": "191",
-        "fps": "15.0",
-        "cpuOneCore": "28.7%",
-        "cpuMachine": "0.9%",
-        "captured": "208",
+        "posted": "1513842",
+        "avgRate": "115443/s",
+        "peakRate": "283057/s",
+        "frames": "124",
+        "fps": "9.5",
+        "cpuOneCore": "39.6%",
+        "cpuMachine": "1.2%",
+        "captured": "196",
         "dropped": "0",
         "errors": "0",
         "runtime": ".NET",
         "facts": [
           {
-            "label": "Updates posted in 12.7 s",
-            "value": "1,021,599"
+            "label": "Updates posted in 13.1 s",
+            "value": "1,513,842"
           },
           {
             "label": "Average update rate",
-            "value": "80,210/s"
+            "value": "115,443/s"
           },
           {
             "label": "Frames drawn",
-            "value": "191 (15.0 fps)"
+            "value": "124 (9.5 fps)"
           },
           {
             "label": "Dropped updates and errors",
@@ -156,7 +156,7 @@
           },
           {
             "label": "CPU, share of one core",
-            "value": "28.7%"
+            "value": "39.6%"
           }
         ]
       },

@@ -1,8 +1,8 @@
 function Get-ConsoleApiFluentTypeName {
     param([string] $TypeName)
-    $namespace = $TypeName.Substring(0, $TypeName.LastIndexOf('.'))
-    $name = $namespace.Substring($namespace.LastIndexOf('.') + 1)
-    return "$namespace.$($name)Fluent"
+    # PowerForge.Generators writes one <Type>Fluent class per model (a generic type drops its arity).
+    $name = $TypeName -replace '`\d+$', ''
+    return "$($name)Fluent"
 }
 
 function Get-ConsoleApiAssemblies {
