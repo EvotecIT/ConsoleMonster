@@ -347,9 +347,10 @@ namespace ConsoleMonster.Interactive {
             }
         }
 
+        // Close alone: on Linux and macOS, Stop followed by Close removes the listener from its port twice. The first removal
+        // closes the port; the second binds it again for a moment and throws when another socket has taken it meanwhile.
         public void Dispose() {
-            try { _listener.Stop(); } catch (ObjectDisposedException) { }
-            _listener.Close();
+            try { _listener.Close(); } catch (ObjectDisposedException) { }
         }
     }
 }
