@@ -8,18 +8,22 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using PowerForge.Fluent;
 
 namespace ConsoleMonster.Interactive {
     /// <summary>Options for <see cref="Grid.ShowInBrowser"/>.</summary>
+    [Fluent]
     public sealed class BrowserGridOptions {
         /// <summary>
         /// Opens the page; returns false when it could not. Null runs the command in the BROWSER environment variable
         /// when set, otherwise the default browser (Windows, macOS, or xdg-open on Linux). A launcher that exits with a
         /// failure code before the page answers counts as not opened.
         /// </summary>
+        [Fluent("OpenBy")]
         public Func<Uri, bool>? Open { get; set; }
 
         /// <summary>Called with the page address before the browser opens, for example to print it.</summary>
+        [Fluent("WhenOpened")]
         public Action<Uri>? Opened { get; set; }
 
         /// <summary>How long to wait for OK or Cancel; null waits until the page answers or the caller cancels.</summary>

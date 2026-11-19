@@ -24,12 +24,12 @@ namespace ConsoleMonster.Tests.Interactive {
 
         private static Grid Servers(GridSelection selection = GridSelection.Multiple) {
             Grid grid = new Grid("Servers") { OutputMode = selection, Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
-            grid.AddColumn("Name");
-            grid.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-            grid.AddColumn("CPU");
+            grid.Column("Name");
+            grid.Column(new TableColumn("Status") { Presenter = CellPresenters.Status });
+            grid.Column("CPU");
             Server[] servers = { new Server("web01", 12), new Server("sql01", 85), new Server("dc01", 3) };
             foreach (Server server in servers) {
-                grid.AddRow(server, server.Name, server.Cpu > 80 ? "Fail" : "Pass", server.Cpu);
+                grid.Row(server, server.Name, server.Cpu > 80 ? "Fail" : "Pass", server.Cpu);
             }
             return grid;
         }
@@ -39,7 +39,7 @@ namespace ConsoleMonster.Tests.Interactive {
             Interactive = new InteractiveOptions {
                 Mode = mode,
                 NonInteractive = nonInteractive,
-                Profile = ci ? new TerminalProfile(ColorDepth.TrueColor, GlyphTier.Full, OutputMode.Interactive, 120, 40, TerminalKind.Unknown, true, false, true, true, null, null, null, false, ThemePreference.Auto, CultureInfo.InvariantCulture) : TerminalProfile.Fixed(120, 40)
+                Profile = ci ? new TerminalProfile(ColorDepth.TrueColor, GlyphTier.Full, OutputMode.Interactive, 120, 40, TerminalKind.Unknown, true, false, true, true, null, null, null, false, ThemeMode.Auto, CultureInfo.InvariantCulture) : TerminalProfile.Fixed(120, 40)
             }
         };
 
@@ -114,9 +114,9 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void ThePageCarriesPresentedValuesAndCannotBeEscapedByRowText() {
             Grid grid = new Grid("Report") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
-            grid.AddColumn(new TableColumn("Status") { Presenter = CellPresenters.Status });
-            grid.AddColumn("Note");
-            grid.AddRow("item", "Fail", "</script><script>alert(1)</script>");
+            grid.Column(new TableColumn("Status") { Presenter = CellPresenters.Status });
+            grid.Column("Note");
+            grid.Row("item", "Fail", "</script><script>alert(1)</script>");
             string html = Page(grid);
 
             Assert.Contains("\"r\":\"fail\"", html);
@@ -129,9 +129,9 @@ namespace ConsoleMonster.Tests.Interactive {
             Grid grid = new Grid("Load") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
             TableColumn cpu = new TableColumn("CPU");
             cpu.RoleRules.Add(RoleRule.Above(80, ThemeToken.Fail));
-            grid.AddColumn(cpu);
-            grid.AddRow("busy", 95);
-            grid.AddRow("idle", 5);
+            grid.Column(cpu);
+            grid.Row("busy", 95);
+            grid.Row("idle", 5);
             string html = Page(grid);
 
             Assert.Contains("{\"t\":\"95\",\"k\":1,\"r\":\"fail\"}", html);
@@ -141,8 +141,8 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void LazyCellsShowTheirValuesNotPlaceholders() {
             Grid grid = new Grid("Sizes");
-            grid.AddColumn("Size");
-            grid.AddRow("folder", new DataGridCell(() => "42 files", "computing"));
+            grid.Column("Size");
+            grid.Row("folder", new DataGridCell(() => "42 files", "computing"));
             string html = Page(grid);
 
             Assert.Contains("\"t\":\"42 files\"", html);
@@ -152,8 +152,8 @@ namespace ConsoleMonster.Tests.Interactive {
         [Fact]
         public void TextSortsOrdinallyIgnoringCaseLikeTheScreenGrid() {
             Grid grid = new Grid("Names");
-            grid.AddColumn("Name");
-            foreach (string name in new[] { "a2", "B1", "a10" }) { grid.AddRow(name, name); }
+            grid.Column("Name");
+            foreach (string name in new[] { "a2", "B1", "a10" }) { grid.Row(name, name); }
             string html = Page(grid);
 
             // Ordinal order is a10, a2, B1: the rank of each row in its original position.
