@@ -50,5 +50,15 @@ namespace ConsoleMonster.Interactive {
             }
         }
         internal void Release(Action changed) { lock (_gate) { _changed.Remove(changed); } }
+
+        /// <summary>Starts the computation when nothing has started it yet and returns it, for callers that wait for the value.</summary>
+        internal Task<object?> Start(CancellationToken cancellation) {
+            lock (_gate) {
+                if (_work == null || _work.IsCanceled && !cancellation.IsCancellationRequested) {
+                    _work = Task.Run(() => _value(cancellation), cancellation);
+                }
+                return _work;
+            }
+        }
     }
 }

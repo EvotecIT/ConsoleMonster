@@ -34328,6 +34328,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
           </dev:type>
           <dev:defaultValue>Grid</dev:defaultValue>
         </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>Window</maml:name>
+          <maml:description>
+            <maml:para>Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. Sessions where nobody can answer (-Mode None, PowerShell -NonInteractive, CI) never open a browser and print the static view as without -Window. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$false</dev:defaultValue>
+        </command:parameter>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters>
@@ -34487,6 +34499,18 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         </dev:type>
         <dev:defaultValue>Grid</dev:defaultValue>
       </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>Window</maml:name>
+        <maml:description>
+          <maml:para>Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. Sessions where nobody can answer (-Mode None, PowerShell -NonInteractive, CI) never open a browser and print the static view as without -Window. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$false</dev:defaultValue>
+      </command:parameter>
     </command:parameters>
     <command:inputTypes>
       <command:inputType>
@@ -34524,6 +34548,13 @@ when there is nothing worth saying, for example for one or two objects.</maml:pa
         <dev:code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -Descending -OutputMode None</dev:code>
         <dev:remarks>
           <maml:para>Browse processes sorted by memory</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>Get-Service | Where-Object Status -eq Running | Show-ConsoleGrid -Property Name, DisplayName, Status -Title 'Stop services' -Window | Stop-Service -WhatIf</dev:code>
+        <dev:remarks>
+          <maml:para>Choose services in the browser and stop them</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>

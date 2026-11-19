@@ -11,7 +11,7 @@ Shows pipeline objects in an interactive grid and returns the rows you choose.
 ## SYNTAX
 ### __AllParameterSets
 ```powershell
-Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortColumn <string>] [-Descending] [-Exclude <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [<CommonParameters>]
+Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <string>] [-OutputMode <GridSelection>] [-Filter <string>] [-SortColumn <string>] [-Descending] [-Exclude <string[]>] [-Command <Object[]>] [-RefreshRow <scriptblock>] [-Culture <cultureinfo>] [-Mode <InteractionMode>] [-Window] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,6 +36,13 @@ Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expressio
 ```
 
 Browse processes sorted by memory
+
+### EXAMPLE 3
+```powershell
+Get-Service | Where-Object Status -eq Running | Show-ConsoleGrid -Property Name, DisplayName, Status -Title 'Stop services' -Window | Stop-Service -WhatIf
+```
+
+Choose services in the browser and stop them
 
 ## PARAMETERS
 
@@ -227,6 +234,22 @@ Possible values:
 Required: False
 Position: named
 Default value: Grid
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Window
+Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. Sessions where nobody can answer (-Mode None, PowerShell -NonInteractive, CI) never open a browser and print the static view as without -Window. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: __AllParameterSets
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $false
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

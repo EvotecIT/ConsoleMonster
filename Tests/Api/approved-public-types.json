@@ -211,6 +211,8 @@
     "ConsoleMonster.Interactive.BreadcrumbFluent",
     "ConsoleMonster.Interactive.BreadcrumbInputOptions",
     "ConsoleMonster.Interactive.BreadcrumbInputOptionsFluent",
+    "ConsoleMonster.Interactive.BrowserGridOptions",
+    "ConsoleMonster.Interactive.BrowserGridOptionsFluent",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonFluent",
     "ConsoleMonster.Interactive.ButtonInputOptions",
