@@ -146,7 +146,7 @@ namespace SiteFrames.Tests {
 
         [Fact]
         public void ContainerConstructorsBecomeNestedContentBuildersAndBooleanSwitches() {
-            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\ntable.AddColumn(\"Build\").AddRow(\"Passed\");\nvar report = new Rows(new Rule(\"Nightly\"), new Panel(table, \"Jobs\"), new TextBlock(\"Ready\")) { Gap = 1 };\nTerminal.Write(report);\n");
+            string path = Source("using ConsoleMonster;\nusing ConsoleMonster.Layout;\nusing ConsoleMonster.Widgets;\nvar table = new Table { Expand = true };\ntable.Column(\"Build\").Row(\"Passed\");\nvar report = new Rows(new Rule(\"Nightly\"), new Panel(table, \"Jobs\"), new TextBlock(\"Ready\")) { Gap = 1 };\nTerminal.Write(report);\n");
             string fluent = CSharpRunner.FluentSource(path);
             Assert.Contains(".Expand()", fluent, StringComparison.Ordinal);
             Assert.Contains(".Content(", fluent, StringComparison.Ordinal);
@@ -166,7 +166,7 @@ namespace SiteFrames.Tests {
                 using ConsoleMonster.Widgets;
                 var table = new Table();
                 table.Expand();
-                table.AddColumn("Build").AddRow("Passed");
+                table.Column("Build").Row("Passed");
                 var rows = new Rows(table, TextBlock.FromMarkup("[bold]Ready[/]"));
                 var result = await ConsoleRun.ForEachAsync(new[] { 1 }, (item, _) => Task.FromResult(item), new RunOptions { ThrottleLimit = 2, Title = "Run", Live = false, Print = _ => { } });
                 if (result.Count != 1) throw new System.InvalidOperationException("Lost operation");
@@ -174,7 +174,7 @@ namespace SiteFrames.Tests {
                 """);
             string fluent = CSharpRunner.FluentSource(path);
             CSharpRunner.Check(path, fluent);
-            Assert.Contains("Ui.Table().Expand().AddColumn", fluent, StringComparison.Ordinal);
+            Assert.Contains("Ui.Table().Expand().Column", fluent, StringComparison.Ordinal);
             Assert.DoesNotContain("table.Expand", fluent, StringComparison.Ordinal);
             Assert.Contains("options =>", fluent, StringComparison.Ordinal);
             Assert.DoesNotContain("configure:", fluent, StringComparison.Ordinal);
@@ -215,9 +215,9 @@ namespace SiteFrames.Tests {
                 if (trace != "LSW") throw new InvalidOperationException(trace);
                 """ : $$"""
                 string PathFor() { trace += "P"; return "{{output}}"; }
-                string FormatFor() { trace += "F"; return "Text"; }
+                OutputFormat FormatFor() { trace += "F"; return OutputFormat.Text; }
                 int Width() { trace += "W"; return 60; }
-                new TextBlock("Ready").Export(PathFor(), FormatFor(), new ExportOptions { Width = Width() });
+                new TextBlock("Ready").Save(PathFor(), FormatFor(), new ExportOptions { Width = Width() });
                 if (trace != "PFW" || !File.ReadAllText("{{output}}").Contains("Ready")) throw new InvalidOperationException(trace);
                 File.Delete("{{output}}");
                 """;
@@ -228,7 +228,9 @@ namespace SiteFrames.Tests {
             CSharpRunner.Check(path, fluent);
             Assert.DoesNotContain(Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText(fluent).GetRoot()
                 .DescendantNodes().OfType<Microsoft.CodeAnalysis.CSharp.Syntax.ArgumentSyntax>(), argument => argument.NameColon != null);
-            Assert.Contains("options =>", fluent, StringComparison.Ordinal);
+            // ConsoleApp.Run takes configure callbacks; Save(path, format, options) keeps its options object.
+            if (operation == "app") { Assert.Contains("options =>", fluent, StringComparison.Ordinal); }
+            else { Assert.Contains(".Save(PathFor(), FormatFor(), new ExportOptions().Width(Width()))", fluent, StringComparison.Ordinal); }
             var profile = CSharpRunner.Profile(60, 20, ColorDepth.TrueColor, GlyphTier.Full);
             Assert.Equal(CSharpRunner.Execute(path, profile, Theme.Dark, null).Output,
                 CSharpRunner.Execute(path, profile, Theme.Dark, null, fluent: true).Output);
@@ -268,11 +270,11 @@ namespace SiteFrames.Tests {
         public void MixedInitializersKeepCallbackAndPropertyOrder() {
             string path = Source("using ConsoleMonster.Interactive;\nvar item = new MenuItem(\"Build\") { Detail = () => \"Ready\", Action = _ => { }, Description = \"Run\" };\n");
             string fluent = CSharpRunner.FluentSource(path);
-            Assert.Contains("Detail = () => \"Ready\"", fluent, StringComparison.Ordinal);
-            Assert.Contains("Action = _ =>", fluent, StringComparison.Ordinal);
-            Assert.Contains(".Configure(", fluent, StringComparison.Ordinal);
-            Assert.True(fluent.IndexOf("Detail =", StringComparison.Ordinal) < fluent.IndexOf("Action =", StringComparison.Ordinal));
-            Assert.True(fluent.IndexOf("Action =", StringComparison.Ordinal) < fluent.IndexOf(".Description(", StringComparison.Ordinal));
+            Assert.Contains(".DetailBy(() => \"Ready\")", fluent, StringComparison.Ordinal);
+            Assert.Contains(".Run(_ =>", fluent, StringComparison.Ordinal);
+            Assert.DoesNotContain(".Configure(", fluent, StringComparison.Ordinal);
+            Assert.True(fluent.IndexOf(".DetailBy(", StringComparison.Ordinal) < fluent.IndexOf(".Run(", StringComparison.Ordinal));
+            Assert.True(fluent.IndexOf(".Run(", StringComparison.Ordinal) < fluent.IndexOf(".Description(", StringComparison.Ordinal));
             Assert.DoesNotContain(".Detail(\"Ready\")", fluent, StringComparison.Ordinal);
             CSharpRunner.Check(path, fluent);
         }

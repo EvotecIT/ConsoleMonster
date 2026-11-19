@@ -28,10 +28,10 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("FontFace         Consolas", "FontFace         Cascadia Mono", "FontFace")]
+        [InlineData("FontFace    Consolas", "FontFace    Cascadia Mono", "FontFace")]
         [InlineData("  kind: Conhost", "  kind: Xterm", "kind")]
-        [InlineData("ColorDepth       TrueColor", "ColorDepth       Ansi256", "ColorDepth")]
-        [InlineData("Glyphs           Basic", "Glyphs           Full", "Glyphs")]
+        [InlineData("ColorDepth  TrueColor", "ColorDepth  Ansi256", "ColorDepth")]
+        [InlineData("Glyphs      Basic", "Glyphs      Full", "Glyphs")]
         [InlineData("  colour: TrueColor (Windows build >=14931)", "  colour: TrueColor (native reason)", "colour")]
         [InlineData("  glyphs: Basic (conhost font 'Consolas')", "  glyphs: Basic (native reason)", "glyphs")]
         public void EachDetectedValueIsIndividuallyReported(string before, string after, string key) {
@@ -44,9 +44,9 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("Mode             Interactive", "Mode             Stream")]
-        [InlineData("Width            100", "Width            99")]
-        [InlineData("Height           40", "Height           39")]
+        [InlineData("Mode        Interactive", "Mode        Stream")]
+        [InlineData("Width       100", "Width       99")]
+        [InlineData("Height      40", "Height      39")]
         [InlineData("ThemeMode   Auto", "ThemeMode   Light")]
         [InlineData("  mode: Interactive (VT terminal)", "  mode: Stream (CI environment)")]
         [InlineData("  size: 100x40", "  size: 99x40")]
@@ -62,7 +62,7 @@ namespace SiteFrames.Tests {
         [InlineData("This console", "Other console")]
         [InlineData("  kind: Conhost", "  kind: Conhost\r\n  unexpected: value")]
         [InlineData("  kind: Conhost", "  kind: Conhost\r\n  kind: Xterm")]
-        [InlineData("FontFace         Consolas", "FontFace         Consolas\r\nFontFace         Other")]
+        [InlineData("FontFace    Consolas", "FontFace    Consolas\r\nFontFace    Other")]
         [InlineData("  culture: en-US (CONSOLEMONSTER_CULTURE)\r\n", "")]
         public void StableFieldsMissingDuplicateAndUnknownRowsFailClosed(string before, string after) {
             string a = ProfileRun("a", "macos", "profile-detected", ProfileText("profile-detected", false));
@@ -71,12 +71,12 @@ namespace SiteFrames.Tests {
         }
 
         [Theory]
-        [InlineData("profile", "ColorDepth       TrueColor", "ColorDepth       Ansi256")]
-        [InlineData("profile", "Glyphs           Full", "Glyphs           Basic")]
+        [InlineData("profile", "ColorDepth  TrueColor", "ColorDepth  Ansi256")]
+        [InlineData("profile", "Glyphs      Full", "Glyphs      Basic")]
         [InlineData("profile", "  colour: TrueColor (CONSOLEMONSTER_COLOR)", "  colour: TrueColor (native reason)")]
         [InlineData("profile", "  glyphs: Full (CONSOLEMONSTER_GLYPHS)", "  glyphs: Full (native reason)")]
-        [InlineData("profile-ci", "ColorDepth       – None", "ColorDepth       TrueColor")]
-        [InlineData("profile-ci", "Glyphs           Basic", "Glyphs           Full")]
+        [InlineData("profile-ci", "ColorDepth  – None", "ColorDepth  TrueColor")]
+        [InlineData("profile-ci", "Glyphs      Basic", "Glyphs      Full")]
         [InlineData("profile-ci", "  colour: None (NO_COLOR)", "  colour: TrueColor (native reason)")]
         [InlineData("profile-ci", "  glyphs: Basic (stream/CI)", "  glyphs: Full (native reason)")]
         public void PinnedAndCiColourAndGlyphFieldsAndDecisionsStayStrict(string name, string before, string after) {

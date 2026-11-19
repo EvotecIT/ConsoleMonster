@@ -88,20 +88,20 @@ namespace SiteFrames.Tests {
             var command = Assert.Single(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Interactive.GridOptions.Command")!;
             Assert.Equal("Show-ConsoleGrid -Command …", command["powershell"]!.GetValue<string>());
             Assert.Equal("Command = { … }", command["csharp"]!.GetValue<string>());
-            Assert.Equal(".AddCommand(…)", command["fluent"]!.GetValue<string>());
+            Assert.Equal(".Command(…)", command["fluent"]!.GetValue<string>());
             var hidden = Assert.Single(notes, row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Interactive.GridOptions.HiddenColumns")!;
-            Assert.Equal(".AddHiddenColumn(…)", hidden["fluent"]!.GetValue<string>());
+            Assert.Equal(".HiddenColumn(…)", hidden["fluent"]!.GetValue<string>());
         }
 
         [Fact]
-        public void CallbackNotesShowConfigureFromTheSameClassifiedExceptionAsTheParityGate() {
+        public void CallbackNotesShowTheDeclaredVerbFromTheSameClassifiedExceptionAsTheParityGate() {
             string source = Source("callback", "using ConsoleMonster.Interactive;\nusing ConsoleMonster.Widgets;\nvar options = new SelectQuestionOptions { Preview = value => new TextBlock(\"Ready\") };\n");
             string fluent = CSharpRunner.FluentSource(source);
-            Assert.Contains(".Configure(", fluent, StringComparison.Ordinal);
+            Assert.Contains(".PreviewBy(", fluent, StringComparison.Ordinal);
             CSharpRunner.Check(source, fluent);
             var note = Assert.Single(ApiMappingNotes.FromSource(Repository(), source, fluent), row => row!["memberId"]!.GetValue<string>() == "ConsoleMonster.Interactive.SelectQuestionOptions.Preview")!;
-            Assert.Equal(".Configure(item => item.Preview = …)", note["fluent"]!.GetValue<string>());
-            Assert.Contains("without invoking", note["note"]!.GetValue<string>());
+            Assert.Equal(".PreviewBy(callback)", note["fluent"]!.GetValue<string>());
+            Assert.StartsWith("C# invokes a delegate-valued property", note["note"]!.GetValue<string>(), StringComparison.Ordinal);
         }
 
         [Fact]
@@ -115,12 +115,12 @@ namespace SiteFrames.Tests {
         }
 
         [Fact]
-        public void OperationNotesConfigureDelegatePropertiesInsteadOfCallingThem() {
+        public void OperationNotesSetDelegatePropertiesThroughTheirVerbInsteadOfCallingThem() {
             string path = Source("operation-options", "using ConsoleMonster.Live;\nawait ConsoleRun.ForEachAsync(new[] { 1 }, (item, _) => Task.FromResult(item), new RunOptions { Title = \"Run\", Label = item => item?.ToString() ?? \"\" });\n");
             string fluent = CSharpRunner.FluentSource(path);
             CSharpRunner.Check(path, fluent);
             var row = Assert.Single(ApiMappingNotes.FromSource(Repository(), path, fluent), note => note!["memberId"]!.GetValue<string>() == "M:ConsoleMonster.Live.ConsoleRun.ForEachAsync")!;
-            Assert.Contains(".Configure(item => item.Label = …)", row["fluent"]!.GetValue<string>(), StringComparison.Ordinal);
+            Assert.Contains(".LabelBy(callback)", row["fluent"]!.GetValue<string>(), StringComparison.Ordinal);
             Assert.DoesNotContain(".Label(…)", row["fluent"]!.GetValue<string>(), StringComparison.Ordinal);
         }
 
