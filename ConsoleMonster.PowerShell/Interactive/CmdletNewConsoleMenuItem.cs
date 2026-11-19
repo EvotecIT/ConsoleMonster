@@ -199,9 +199,10 @@ namespace ConsoleMonster.PowerShell {
             MenuItem item = new MenuItem(Label ?? (Exit.IsPresent ? PromptLabels.Default.Exit : string.Empty)) {
                 Description = Description,
                 Mark = Mark,
-                Icon = Icon,
                 Hotkey = Hotkey
             };
+            // Setting Icon clears Mark, so only an -Icon the caller passed may replace a -Mark.
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(Icon))) { item.Icon = Icon; }
             ApplyDynamic(item);
             if (Separator.IsPresent) {
                 item.Kind = MenuItemKind.Separator;
