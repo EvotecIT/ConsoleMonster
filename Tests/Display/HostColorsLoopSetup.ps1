@@ -52,8 +52,8 @@ $global:ColorBuilder=[Func[System.Collections.Generic.IReadOnlyList[object],Cons
     if($global:ColorBroken){return [DisplayHostContract.BrokenWidget]::new()}
     if($global:ColorBatch -eq 'Stream'){
         $table=[ConsoleMonster.Widgets.Table]::new();$table.Title='LIGHT-GROUP'
-        $column=[ConsoleMonster.Widgets.TableColumn]::new('LIGHT-HEADER');$column.Width=28;$null=$table.AddColumn($column)
-        $null=$table.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name)))
+        $column=[ConsoleMonster.Widgets.TableColumn]::new('LIGHT-HEADER');$column.Width=28;$null=$table.Column($column)
+        $null=$table.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name)))
         return $table
     }
     [ConsoleMonster.Widgets.TextBlock]::new('[bold]LIGHT-FRAME[/] '+(($objects|ForEach-Object{$_.Name}) -join ','))

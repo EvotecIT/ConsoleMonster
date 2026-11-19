@@ -419,8 +419,8 @@ $absent=$null -eq [ConsoleMonster.PowerShell.Display.DefaultDisplay]::Resolve([D
             $table=[ConsoleMonster.Widgets.Table]::new()
             $table.Title='scope'
             $column=[ConsoleMonster.Widgets.TableColumn]::new('Name'); $column.Width=12
-            $null=$table.AddColumn($column)
-            $null=$table.AddRow([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name)))
+            $null=$table.Column($column)
+            $null=$table.Row([ConsoleMonster.Widgets.TableCell[]]@([ConsoleMonster.Widgets.TableCell]::FromValue($objects[0].Name)))
             return $table
         }
         $view=$lease.Register('DisplayContract.Row','stream.row',[version]'1.0.0','Stream',[string[]]@('Scope'),$rowBuilder,$null)
