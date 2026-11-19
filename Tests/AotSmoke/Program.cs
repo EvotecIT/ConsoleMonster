@@ -86,7 +86,7 @@ internal static class Program {
         Require(target.Output, "Build", "All checks passed");
         string path = Path.Combine(Path.GetTempPath(), "consolemonster-aot-" + Guid.NewGuid().ToString("N") + ".txt");
         try {
-            panel.Export(path, "Text", new ExportOptions { Width = 60 });
+            panel.Save(path, OutputFormat.Text, new ExportOptions { Width = 60 });
             Require(File.ReadAllText(path), "Build", "All checks passed");
         } finally { File.Delete(path); }
         RecordingSmoke.Run();
