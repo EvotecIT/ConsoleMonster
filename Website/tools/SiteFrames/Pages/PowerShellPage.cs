@@ -73,6 +73,8 @@ namespace SiteFrames.Pages {
             yield return new Run("everyday-commands", "light", PowerShellRunner.Environment("light"), PowerShellHost.All) { InteractiveSession = true, WindowsOnly = true, SetupFile = "EverydayWindows.ps1" };
             // Summary lines under default views and a recursive listing as one tree, typed at the prompt.
             yield return new Run("everyday-summaries", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true };
+            // Administration commands (path lists, drives, the OS, updates, features, firewall rules, a web response and a hash).
+            yield return new Run("everyday-admin", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true, SetupFile = "EverydayAdmin.ps1" };
             // Another module's command before and after registering a view with a summary.
             yield return new Run("restyle-commands", "rich", PowerShellRunner.Environment("dark"), new[] { PowerShellHost.Core }) { InteractiveSession = true };
         }

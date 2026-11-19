@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ConsoleMonster.Canvas;
 using ConsoleMonster.Layout;
 
@@ -19,6 +20,12 @@ namespace ConsoleMonster.Rendering {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context));
             }
+            using (Glyphs.SymbolFallback.KeepCodePageText(context.Profile)) {
+                return ComposeFrame(root, width, height, context, reuse);
+            }
+        }
+
+        private static CellBuffer ComposeFrame(IWidget root, int width, int height, RenderContext context, CellBuffer? reuse) {
             CellBuffer buffer = reuse ?? new CellBuffer(width, height);
             buffer.GlyphTier = context.Glyphs.Tier;
             if (buffer.Width != width || buffer.Height != height) {
@@ -35,6 +42,26 @@ namespace ConsoleMonster.Rendering {
             return buffer;
         }
 
+        /// <summary>
+        /// Renders streamed blocks (long tables) under the same rules as <see cref="RenderBlock"/>. The code page text scope
+        /// is per thread, so it covers each step of the enumeration and is never held across a yield.
+        /// </summary>
+        /// <param name="blocks">The lazily rendered blocks.</param>
+        /// <param name="context">The render context.</param>
+        /// <returns>The blocks, top to bottom.</returns>
+        internal static IEnumerable<CellBuffer> RenderStream(IEnumerable<CellBuffer> blocks, RenderContext context) {
+            using (IEnumerator<CellBuffer> enumerator = blocks.GetEnumerator()) {
+                while (true) {
+                    CellBuffer block;
+                    using (Glyphs.SymbolFallback.KeepCodePageText(context.Profile)) {
+                        if (!enumerator.MoveNext()) yield break;
+                        block = enumerator.Current;
+                    }
+                    yield return block;
+                }
+            }
+        }
+
         /// <summary>Renders a widget as a block exactly as tall as it measures at the given width.</summary>
         /// <param name="widget">The widget.</param>
         /// <param name="width">Available width.</param>
@@ -47,10 +74,12 @@ namespace ConsoleMonster.Rendering {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context));
             }
-            Size size = widget.Measure(new Constraints(width), context);
-            CellBuffer buffer = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
-            widget.Render(new Region(buffer), context);
-            return buffer;
+            using (Glyphs.SymbolFallback.KeepCodePageText(context.Profile)) {
+                Size size = widget.Measure(new Constraints(width), context);
+                CellBuffer buffer = new CellBuffer(width, size.Height) { GlyphTier = context.Glyphs.Tier };
+                widget.Render(new Region(buffer), context);
+                return buffer;
+            }
         }
     }
 }

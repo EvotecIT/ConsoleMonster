@@ -553,3 +553,238 @@ if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) {
         )
     }
 }
+
+# The views below match only the objects their commands return, so they register everywhere; synthetic objects test them on any platform.
+
+# Hashtable entries and Get-ChildItem Env:. Path lists (PATH, PSModulePath, ...DIRS) show one folder per line, missing folders muted.
+@{
+    TypeName = 'System.Collections.DictionaryEntry'
+    Group = 'DictionaryEntry'
+    Property = @(
+        @{ Label = 'Name'; Expression = { [string] $_.Key }; Priority = 10 }
+        @{ Label = 'Value'; Expression = {
+            $value = $_.Value
+            $name = [string] $_.Key
+            if ($value -isnot [string] -or [string] $_.PSDrive -ne 'Env' -or $name -notmatch '(?i)path$|dirs$' -or $value.IndexOf([IO.Path]::PathSeparator) -lt 0) { return $value }
+            $lines = foreach ($folder in $value.Split([IO.Path]::PathSeparator)) {
+                if (-not $folder) { continue }
+                $text = $folder.Replace('[', '[[').Replace(']', ']]')
+                $exists = try { [IO.Directory]::Exists([Environment]::ExpandEnvironmentVariables($folder)) } catch { $false }
+                if ($exists) { $text } else { '[muted]' + $text + '[/]' }
+            }
+            ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.TableCell'))::new(($lines -join "`n"))
+        }; MaxLines = 0 }
+    )
+}
+
+# Get-EventLog (Windows PowerShell): the same columns as Get-WinEvent.
+@{
+    TypeName = 'System.Diagnostics.EventLogEntry'
+    Group = 'EventLogEntry'
+    Property = @(
+        @{ Label = 'TimeGenerated'; Expression = 'TimeGenerated'; Presenter = 'Date'; Priority = 8 }
+        @{ Label = 'Id'; Expression = { $_.InstanceId -band 0xFFFF }; Presenter = 'Identifier'; Priority = 7 }
+        @{ Label = 'Level'; Expression = {
+            switch ([string] $_.EntryType) { 'SuccessAudit' { 'Audit success' } 'FailureAudit' { 'Audit failure' } { $_ -in '0', '' } { 'Information' } default { $_ } }
+        }; Presenter = 'StatusWord'; Priority = 9 }
+        @{ Label = 'Source'; Expression = 'Source'; Priority = 6; MaxLines = 1; Overflow = 'Truncate' }
+        @{ Label = 'Message'; Expression = { if ($_.Message) { ($_.Message -split '\r?\n')[0] } }; Priority = 10 }
+    )
+}
+
+# Get-CimInstance / Get-WmiObject Win32_LogicalDisk: drive, label, type, capacity and a usage bar.
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_LogicalDisk'
+        'Microsoft.Management.Infrastructure.CimInstance#Win32_LogicalDisk'
+        'System.Management.ManagementObject#root\cimv2\Win32_LogicalDisk'
+    )
+    Group = 'LogicalDisk'
+    Property = @(
+        @{ Label = 'Drive'; Expression = 'DeviceID'; Priority = 10 }
+        @{ Label = 'Label'; Expression = 'VolumeName'; Priority = 8 }
+        @{ Label = 'Type'; Expression = {
+            switch ([int] $_.DriveType) { 2 { 'Removable' } 3 { 'Local' } 4 { 'Network' } 5 { 'Optical' } 6 { 'RAM disk' } default { 'Unknown' } }
+        }; Presenter = 'Chip' }
+        @{ Label = 'File system'; Expression = 'FileSystem' }
+        @{ Label = 'Size'; Expression = 'Size'; Presenter = 'Bytes'; Priority = 6 }
+        @{ Label = 'Free'; Expression = 'FreeSpace'; Presenter = 'Bytes'; Priority = 7 }
+        @{ Label = 'Used'; Expression = {
+            if ($_.Size -gt 0 -and $null -ne $_.FreeSpace -and $_.FreeSpace -le $_.Size) { 1.0 - ([double] $_.FreeSpace / $_.Size) }
+        }; Presenter = 'Progress'; WarnAbove = 0.8; FailAbove = 0.95; Priority = 9 }
+    )
+    HideEmptyColumns = $true
+}
+
+# Get-CimInstance Win32_OperatingSystem: one record with the release, uptime and memory in use.
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_OperatingSystem'
+        'Microsoft.Management.Infrastructure.CimInstance#Win32_OperatingSystem'
+        'System.Management.ManagementObject#root\cimv2\Win32_OperatingSystem'
+    )
+    Group = 'OperatingSystem'
+    SingleRecord = $true
+    HideEmptyColumns = $true
+    Property = @(
+        @{ Label = 'Name'; Expression = { ([string] $_.Caption).Trim() }; Priority = 10 }
+        @{ Label = 'Version'; Expression = 'Version'; Priority = 9 }
+        @{ Label = 'Architecture'; Expression = 'OSArchitecture' }
+        @{ Label = 'Computer'; Expression = 'CSName'; Priority = 8 }
+        @{ Label = 'Installed'; Expression = {
+            $date = $_.InstallDate
+            # Get-WmiObject returns DMTF text; Get-CimInstance returns dates.
+            if ($date -is [string]) { try { [Management.ManagementDateTimeConverter]::ToDateTime($date) } catch { } } else { $date }
+        }; Presenter = 'Date' }
+        @{ Label = 'Last boot'; Expression = {
+            $date = $_.LastBootUpTime
+            if ($date -is [string]) { try { [Management.ManagementDateTimeConverter]::ToDateTime($date) } catch { } } else { $date }
+        }; Presenter = 'DateRelative'; Priority = 7 }
+        @{ Label = 'Memory'; Expression = { if ($_.TotalVisibleMemorySize) { [uint64] $_.TotalVisibleMemorySize * 1KB } }; Presenter = 'Bytes'; Priority = 6 }
+        @{ Label = 'Memory used'; Expression = {
+            if ($_.TotalVisibleMemorySize -gt 0 -and $null -ne $_.FreePhysicalMemory) { 1.0 - ([double] $_.FreePhysicalMemory / $_.TotalVisibleMemorySize) }
+        }; Presenter = 'Progress'; WarnAbove = 0.85; FailAbove = 0.95; Priority = 6 }
+    )
+}
+
+# Get-HotFix: update id, kind, when and by whom it was installed.
+@{
+    TypeName = @(
+        'System.Management.ManagementObject#root\cimv2\Win32_QuickFixEngineering'
+        'Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_QuickFixEngineering'
+        'Microsoft.Management.Infrastructure.CimInstance#Win32_QuickFixEngineering'
+    )
+    Group = 'HotFix'
+    Property = @(
+        @{ Label = 'HotFixID'; Expression = 'HotFixID'; Presenter = 'Identifier'; Priority = 10 }
+        @{ Label = 'Description'; Expression = 'Description'; Presenter = 'Chip'; Priority = 8 }
+        @{ Label = 'Installed'; Expression = 'InstalledOn'; Presenter = 'DateRelative'; Priority = 9 }
+        @{ Label = 'InstalledBy'; Expression = 'InstalledBy'; Overflow = 'TruncateMiddle' }
+        @{ Label = 'Computer'; Expression = 'CSName'; Priority = 5 }
+    )
+    HideEmptyColumns = $true
+}
+
+# Get-WindowsOptionalFeature: the feature and its state, enabled in the pass colour, disabled muted, pending as a warning.
+@{
+    TypeName = @(
+        'Microsoft.Dism.Commands.BasicFeatureObject'
+        'Microsoft.Dism.Commands.AdvancedFeatureObject'
+    )
+    Group = 'OptionalFeature'
+    Property = @(
+        @{ Label = 'Feature'; Expression = 'FeatureName'; Priority = 10 }
+        @{ Label = 'State'; Expression = {
+            $state = [string] $_.State
+            $words = ($state -creplace '(?<=[a-z])(?=[A-Z])', ' ') -split ' ', 2
+            $text = if ($words.Count -gt 1) { $words[0] + ' ' + $words[1].ToLowerInvariant() } else { $state }
+            if ($state -eq 'Enabled') { '[pass]' + $text + '[/]' } elseif ($state -like '*Pending') { '[warn]' + $text + '[/]' } else { '[muted]' + $text + '[/]' }
+        }; Presenter = 'Markup'; Priority = 9 }
+    )
+}
+
+# Get-NetFirewallRule: name, whether it is on, direction, action (allow in the pass colour, block in the fail colour) and profile.
+@{
+    TypeName = @(
+        'Microsoft.Management.Infrastructure.CimInstance#root/standardcimv2/MSFT_NetFirewallRule'
+        'Microsoft.Management.Infrastructure.CimInstance#MSFT_NetFirewallRule'
+    )
+    Group = 'FirewallRule'
+    Property = @(
+        @{ Label = 'Rule'; Expression = 'DisplayName'; Priority = 10 }
+        @{ Label = 'Enabled'; Expression = { [string] $_.Enabled -eq 'True' }; Presenter = 'Boolean'; Priority = 8; Role = @{ Equals = 'False'; Role = 'Muted' } }
+        @{ Label = 'Direction'; Expression = { [string] $_.Direction }; Presenter = 'Chip'; Priority = 7 }
+        @{ Label = 'Action'; Expression = {
+            $action = [string] $_.Action
+            if ($action -eq 'Allow') { '[pass]Allow[/]' } elseif ($action -eq 'Block') { '[fail]Block[/]' } else { $action.Replace('[', '[[').Replace(']', ']]') }
+        }; Presenter = 'Markup'; Priority = 9 }
+        @{ Label = 'Profile'; Expression = { [string] $_.Profile } }
+        @{ Label = 'Group'; Expression = 'DisplayGroup'; Overflow = 'Truncate'; Priority = 5 }
+    )
+    HideEmptyColumns = $true
+}
+
+# Get-ChildItem HKLM:\... : each key with its subkey count and its first values as name = data, under the parent key.
+@{
+    TypeName = 'Microsoft.Win32.RegistryKey'
+    Group = 'RegistryKey'
+    Title = { 'Hive: ' + (([string] $_.PSParentPath) -replace '^Microsoft\.PowerShell\.Core\\Registry::', '') }
+    Property = @(
+        @{ Label = 'Name'; Expression = { if ($_.PSChildName) { $_.PSChildName } else { ([string] $_.Name).Split('\')[-1] } }; Priority = 10 }
+        @{ Label = 'Subkeys'; Expression = 'SubKeyCount'; Alignment = 'Right'; Priority = 7 }
+        @{ Label = 'Values'; Expression = {
+            $key = $_
+            $tidy = { param($text) ([string] $text).Replace('[', '[[').Replace(']', ']]') }
+            $names = @(try { $key.GetValueNames() } catch { })
+            $shown = [Math]::Min(5, $names.Count)
+            $lines = [Collections.Generic.List[string]]::new()
+            for ($i = 0; $i -lt $shown; $i++) {
+                $name = $names[$i]
+                # Assigned inside try: a byte[] emitted from it would be enumerated into separate values.
+                $data = $null
+                try { $data = $key.GetValue($name, $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames) } catch { }
+                $text = if ($data -is [byte[]]) { (($data | Select-Object -First 16 | ForEach-Object { $_.ToString('x2') }) -join ' ') + $(if ($data.Length -gt 16) { ' …' }) }
+                    elseif ($data -is [array]) { $data -join ', ' } else { [string] $data }
+                if ($text.Length -gt 80) { $text = $text.Substring(0, 79) + '…' }
+                $lines.Add('[muted]' + (& $tidy $(if ($name) { $name } else { '(default)' })) + ' =[/] ' + (& $tidy $text))
+            }
+            if ($names.Count -gt $shown) { $lines.Add('[muted]+' + ($names.Count - $shown) + ' more[/]') }
+            if ($lines.Count) { ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Widgets.TableCell'))::new(($lines -join "`n")) }
+        }; MaxLines = 0; Priority = 8 }
+    )
+}
+
+# Invoke-WebRequest: the status in its class's colour, content type, size, server and the start of the content.
+@{
+    TypeName = @(
+        'Microsoft.PowerShell.Commands.BasicHtmlWebResponseObject'
+        'Microsoft.PowerShell.Commands.HtmlWebResponseObject'
+        'Microsoft.PowerShell.Commands.WebResponseObject'
+    )
+    Group = 'WebResponse'
+    SingleRecord = $true
+    HideEmptyColumns = $true
+    Property = @(
+        @{ Label = 'Status'; Expression = {
+            $code = [int] $_.StatusCode
+            $text = ([string] $code + ' ' + [string] $_.StatusDescription).Trim().Replace('[', '[[').Replace(']', ']]')
+            $role = if ($code -ge 500) { 'fail' } elseif ($code -ge 400) { 'warn' } elseif ($code -ge 300) { 'info' } else { 'pass' }
+            '[' + $role + ']' + $text + '[/]'
+        }; Presenter = 'Markup'; Priority = 10 }
+        @{ Label = 'Content type'; Expression = { $_.Headers['Content-Type'] -join ', ' }; Priority = 8 }
+        @{ Label = 'Size'; Expression = 'RawContentLength'; Presenter = 'Bytes'; Priority = 9 }
+        @{ Label = 'Server'; Expression = { $_.Headers['Server'] -join ', ' } }
+        @{ Label = 'Content'; Expression = {
+            $content = $_.Content
+            if ($content -is [string]) {
+                # Read only as far as the preview needs; a large body is not split or scanned.
+                $reader = [IO.StringReader]::new($content)
+                $lines = [Collections.Generic.List[string]]::new()
+                while ($lines.Count -lt 3 -and $null -ne ($line = $reader.ReadLine())) { if ($line.Trim()) { $lines.Add($line.Trim()) } }
+                $lines -join "`n"
+            }
+        }; MaxLines = 3; Overflow = 'Truncate'; Priority = 7 }
+    )
+}
+
+# Get-FileHash: the hash in full and the path relative to the current folder.
+@{
+    TypeName = @(
+        'Microsoft.PowerShell.Commands.FileHashInfo'
+        'Microsoft.Powershell.Utility.FileHash'
+    )
+    Group = 'FileHash'
+    Property = @(
+        @{ Label = 'Algorithm'; Expression = 'Algorithm'; Presenter = 'Chip'; Priority = 6 }
+        @{ Label = 'Hash'; Expression = 'Hash'; Presenter = 'Identifier'; Priority = 10; MaxLines = 0 }
+        @{ Label = 'Path'; Expression = {
+            $path = [string] $_.Path
+            if ($path -and $PWD.Provider.Name -eq 'FileSystem') {
+                $root = $PWD.ProviderPath.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+                $comparison = if ([IO.Path]::DirectorySeparatorChar -eq '\') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+                if ($path.StartsWith($root, $comparison)) { $path = $path.Substring($root.Length) }
+            }
+            $path
+        }; Overflow = 'TruncateMiddle'; Priority = 8 }
+    )
+}

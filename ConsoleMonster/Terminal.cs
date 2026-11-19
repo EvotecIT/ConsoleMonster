@@ -310,7 +310,7 @@ namespace ConsoleMonster {
                 throw new ArgumentNullException(nameof(context));
             }
             if (widget is Widgets.Table table && table.Rows.Count > StreamingRowThreshold) {
-                return table.RenderChunks(width, context, Math.Max(1, chunkLines));
+                return FrameComposer.RenderStream(table.RenderChunks(width, context, Math.Max(1, chunkLines)), context);
             }
             return new[] { FrameComposer.RenderBlock(widget, width, context) };
         }

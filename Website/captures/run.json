@@ -3,608 +3,169 @@
   "producer": "macos",
   "complete": true,
   "scope": "produced-only",
-  "requestedSet": "docs",
+  "requestedSet": "powershell",
   "filters": {},
   "allSetsCompleted": false,
   "files": {
-    "docs/diagram-1-dark-120.ps7.ansi": {
+    "powershell/compare-object.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "a01067340af110c21d7fe79707a718b95aec8bae5017d9db1a35ddf8c0173695",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-1-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "ffc8c572a73a7cf479e49d41368cb417f1620027e9a292d0d76bc4068c7e5100",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-2-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "31105070646af81b7eb7dd76f47ac5909d521b7e02a2cd5c6c95b89547f45b6f",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-2-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "c32ca4d01ff8d3b8bdaaa70beee293f9e44898126f71ccfcd98f5c6bc6eb796f",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-3-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "6709f2bde52d451a40e52271959958d3e704bfbc4ee15fc047c2fe6cdd968808",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-3-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "1c2e96a8dfaa9e961606b63a1677625a2850aa94cf4618785fd8e0d9978d67b2",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-4-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "a53202e82607f58f1e4a2bbc6a668467aee7872a25e02cbfccc5415144779226",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-4-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "823aa6fb709680921c0c62eee7c3e0d002c0701a1d8d2b6e9fe96a0e00954c76",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-5-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "8a4751daff772d43e3dfa1af0e5d2dd19b392e63015ec5366bd3fc054dea252e",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-5-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "03410def7957e5b6ca8dc2fe7276265880dbe8cac72d57907dd7f6010e1e1327",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-6-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "c3bd12e53a6b588d766dfd73b9a036d5e786ecb051622b2c6d8b2796b37864bd",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-6-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "4bde712e0786487bef3b1c7f0168893068e4fb39d5698a9b5f7899aaf944eeea",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-7-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "2622cd53738598d316c9ce1dae57505d762017a50f8ffdba40520435e17b00a1",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-7-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "18f8bbf297aacee32bc87bc2c9fdc56f7ca68386bb527688a5cb01e298b3586a",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-8-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "8326d7e0953068ec91598e4ba393ddef7bf8d6d6fa841068f35da6365474bb9a",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-8-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "2190d23c183ff594dcd9eeeb6af37dce3fc67cedc204795603dac1a6213d4d8d",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-9-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "c0892d12b41c5c94b29b44d85fe195343e86b7b06f06388d80b63279cfe1ee98",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/diagram-9-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "33583845f7188f52dc1ea538fb72f2c4649d0b45ffcfa34f07e180b6c186e413",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/headless-dark-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "272193ac9cd8f4c1470c6c37be392174ec746dc462002370b46a5b65679b13cd",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/how-it-works-dark-80.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "a5ea918864f24e9c1866b6c62b88e33cb83a657133733ba9ceee09613f6c8130",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "docs/layout-dark-80.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "9fdc43c2c6d92e5acf6a74e2e1c2f9a30020e472864f93d78a34bc863167f544",
-      "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "docs/markdown-16-colour-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "8c98b7737a876f86f3bdb1a21797e0fb8a64c1e777da1057acd7907ddf015091",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/markdown-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "cbda871a84ada37127605d3172fdb9041d712608918cdb03d413c73e8c980e50",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/markdown-dark-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "9d40cfc3235c990e48301fe59109875d1126ff22f593a67da16fa29a691b4116",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/markdown-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "33ab1ea48b2fb272f14a2f3856f56f87b24224e98291bcea3cc495883bd73b43",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/markdown-light-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "55154968661fa37ffd0a8a2c8e347c981b6fcb7b90e9bb35195eed4d8d954b00",
-      "screen": "light",
-      "width": 60,
-      "height": 80
-    },
-    "docs/markdown-no-colour-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "fa6836b83276f964d250db98722847b129739bff5db313ff5b7db063b1fb8451",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/object-drift-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "e39723330732213a3a688e2154043aa31b90d5616bd99d7c641a54cd868bfb32",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/object-drift-dark-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "32ccbc793ca5810509551906e1d2b2c39a75a6e28e25b3c668199d0a2a014eda",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/object-drift-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "1245fbd925c614b0fd0676b78a28c31a411b8a81b7a37a61f47d9f690bfa3f90",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/object-drift-light-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "965a8f25cf8a3d19e21ebbcf69d1f3b4aa71e84f434122e88a31b731d7785a19",
-      "screen": "light",
-      "width": 60,
-      "height": 80
-    },
-    "docs/pipeline-charts-16-colour-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "9ec82264d37148b827840bbf54f4f7202a3c19efa86f6795936573193758fb0f",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/pipeline-charts-dark-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "0e9d2da570a5ae811549bb29c15620151857ee200f5b231f0794ebafafb61b2f",
-      "screen": "dark",
-      "width": 120,
-      "height": 80
-    },
-    "docs/pipeline-charts-dark-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "fe2e0f4d8ca2e8e0c6838330c7e06116aae68cbf6dec7f94f9aa16592bb22841",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/pipeline-charts-light-120.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "b296325f3d519a41738f055b21d779de063cfc719c29984bce681f883f3b691c",
-      "screen": "light",
-      "width": 120,
-      "height": 80
-    },
-    "docs/pipeline-charts-light-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "09b7bd766b609bf6112ad1e7020837fa91d6b48eda42f4c75aa97d6d26808824",
-      "screen": "light",
-      "width": 60,
-      "height": 80
-    },
-    "docs/pipeline-charts-no-colour-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "d647d19b5dc36aca5df263b9979be739296db8212d40bca12a94edc5a727942b",
-      "screen": "dark",
-      "width": 60,
-      "height": 80
-    },
-    "docs/profile-ci.macos.ansi": {
-      "platform": "macos",
-      "category": "terminal-profile",
-      "sha256": "325d58484a3b641fc5217a02ab375f5846b33bd2303f5f1d1750cab542f5c84a",
+      "sha256": "959622420aee196e83e156b8fe0e798b0610d4c56ab0071b386a7f46ab0a0b57",
       "screen": "dark",
       "width": 100,
-      "height": 40
+      "height": 120
     },
-    "docs/profile-detected.macos.ansi": {
+    "powershell/everyday-admin.rich.ps7.ansi": {
       "platform": "macos",
-      "category": "terminal-profile",
-      "sha256": "88949b0820eff1dc8165a298fcf762c5642bd2b1c87c033fb326140beb2dfab0",
-      "width": 100,
-      "height": 40
-    },
-    "docs/profile.macos.ansi": {
-      "platform": "macos",
-      "category": "terminal-profile",
-      "sha256": "19df897616f7d87664551ffd1dc698d6f6c6f1d8d66ad6bc3a9e943b57e3277f",
+      "category": "neutral",
+      "sha256": "2a63e46067aa211dd1b67550dbc79d679142048a2a48512b852af8b3a307438a",
       "screen": "dark",
       "width": 100,
-      "height": 40
+      "height": 120
     },
-    "docs/text-diff-16-colour-60.ps7.ansi": {
+    "powershell/everyday-summaries.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "4d91a5e4ef63d59734b7fffebca2e70fd9f170c0f18c7d4c6370f05a1ca26380",
+      "sha256": "eb7b67bc2111e8d2c51c809826d037da08e8061504f187a1bbefbcebc6cb41f4",
       "screen": "dark",
-      "width": 60,
-      "height": 80
+      "width": 100,
+      "height": 120
     },
-    "docs/text-diff-dark-120.ps7.ansi": {
+    "powershell/export-markdown.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "a6115450ee19d13f96b8bc5c1870e84b2bda7cef3507ce85136c554489a033b3",
+      "sha256": "ba2d229601881321e12a4339fc555bfe9525cb4ec0bf358366fb0cfa4e307235",
       "screen": "dark",
-      "width": 120,
-      "height": 80
+      "width": 100,
+      "height": 120
     },
-    "docs/text-diff-dark-60.ps7.ansi": {
+    "powershell/files.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "7eba243f9195221e97fec0c524fb3407b61511d342b42671e5f15f8281f0ddfe",
+      "sha256": "3623bbea5416b540c7a5a5ed95e74566bc17112998c02e784926bb3a302a7b0b",
       "screen": "dark",
-      "width": 60,
-      "height": 80
+      "width": 100,
+      "height": 120
     },
-    "docs/text-diff-light-120.ps7.ansi": {
+    "powershell/format-consolelist.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "1e538438d4b0337ade7a508a901c899391541568a2a34d7499d7c2ce2bb2d780",
+      "sha256": "4c98e83bdd63fd4e555ff12469507fa8785d08ce1b7ac69ac6d95b58f3030ce2",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.narrow.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "d69c07ecd0a2b4b6e01d145a36810e271bef2848592ef70c6ff74452b13344a1",
+      "screen": "dark",
+      "width": 56,
+      "height": 120
+    },
+    "powershell/format-consoletable.nocolor.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "769becf6e4eca6229ffcfcf9dead5db4efec207d02a854c9ffea716f07ff2a70",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.plain.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "5600c4f84acff1c36cd3db2552689df4c08f869b324dc9a711ba7866bd4eacdf",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletable.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "73de699533e61a1b8e62f841396c7b311e374153544945eb310d2b43bd42644c",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-consoletree.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "72a2b2d6929562664afc65af874c1bdcdf215a76464d665c5ebda57b143de728",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-list.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "8a02be579c31c4a5f495b34c31d2542700bc94875c7f2fc4b4d8538705d1acd1",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/format-table.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "f2498b4710bc6ed81c35b0bd7e2a07d91ddffce890705c5ac74e09aafdf4dc66",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/job.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "e209afb1afa0427b41589172186278bb4bfe79a1ee62caf373c1a54c7292ac38",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/markup.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "87dcbd8ab83ce7c4bce64b7c91e91e9ff3a54a0f0625728917c1e82e8061980e",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/relative-dates.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "eee3d95bf065b69875303968958c64bc23221e4d66e46dd5d4683e24a4dfc3ee",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/restyle-commands.rich.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "0a2b7b836b54d24f5691d082168d8fd6d5a17e5566a4810885a52164b9581f63",
+      "screen": "dark",
+      "width": 100,
+      "height": 120
+    },
+    "powershell/streams.light.ps7.ansi": {
+      "platform": "macos",
+      "category": "neutral",
+      "sha256": "ee8157988d9bfb4dd3d718772789a7143220adda60405bd18b91788d0e9e2c3e",
       "screen": "light",
-      "width": 120,
-      "height": 80
+      "width": 100,
+      "height": 120
     },
-    "docs/text-diff-light-60.ps7.ansi": {
+    "powershell/streams.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "dbb1d84bbdcf0ed84b8df1ba4f0775ad615e7b20a1a2ef47a9d1fdd1427721c9",
-      "screen": "light",
-      "width": 60,
-      "height": 80
-    },
-    "docs/text-diff-no-colour-60.ps7.ansi": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "a690bb2e5739eec71cb12db8c9d5bd3aa81185141cd1ced681f4cc76aa436d38",
+      "sha256": "9105b30e6846ea2f4c3dba7d4e2627d7d0aed65418763caed66d21d8ebe51416",
       "screen": "dark",
-      "width": 60,
-      "height": 80
+      "width": 100,
+      "height": 120
     },
-    "guides/first-report-dark-80.ps7.ansi": {
+    "powershell/write-consoletext.rich.ps7.ansi": {
       "platform": "macos",
       "category": "neutral",
-      "sha256": "f7911dbcd54c61b5bae3fda998eb7e0233709813f807f9d57172c276c57d88f7",
+      "sha256": "d6c04671d4338e0ade2e2ffd8e8d0b803646bc047e50731f981bd6124e8f4283",
       "screen": "dark",
-      "width": 80,
-      "height": 80
-    },
-    "interactive/app-accordion-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "e4d0c573f8dd3271027c211f8a9b5034d9aed8925d01838eb398a48d70aba1ff",
-      "screen": "dark",
-      "width": 70,
-      "height": 8
-    },
-    "interactive/app-accordion-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "cbfcd67145addfe304d209551d2d69b8f1d8c35cf43602d3bf1fececec00b372",
-      "screen": "light",
-      "width": 70,
-      "height": 8
-    },
-    "interactive/app-chartview-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "9fd16bf7e9b5a1006f93367856783e0119b161a0ca085f4e0171d70c3a9d5c63",
-      "screen": "dark",
-      "width": 90,
-      "height": 12
-    },
-    "interactive/app-chartview-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "2c39f7f5bc06d1b1217273aacc39ce3b7be6c8c815fad23784a8e0abe1d10c72",
-      "screen": "light",
-      "width": 90,
-      "height": 12
-    },
-    "interactive/app-find-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "8d84bccee149df51e2236e5a9139431e7d38f7b671721d60861c63633be4687d",
-      "screen": "dark",
-      "width": 70,
-      "height": 12
-    },
-    "interactive/app-find-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "bb5de2d29af353a0a5312a969fb72af0c973f92c50fa53aec9b920ebbb291ce4",
-      "screen": "light",
-      "width": 70,
-      "height": 12
-    },
-    "interactive/app-outline-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "876d09195673fbd03c140cef777788a7842c80f0ea9f7effe19ce1c5df47de2f",
-      "screen": "dark",
-      "width": 60,
-      "height": 8
-    },
-    "interactive/app-outline-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "e6019f49b2d79454d712c208254a04954806f3974e8d040779d84e0de7dd7597",
-      "screen": "light",
-      "width": 60,
-      "height": 8
-    },
-    "interactive/app-splitter-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "f446899e5cb6376577dd30439a503ece8351119e30d8692f956eb3015f103996",
-      "screen": "dark",
-      "width": 80,
-      "height": 6
-    },
-    "interactive/app-splitter-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "8801281e5e078dfd41751cd6391c0f6b7faa2cbb12c0ec8706eb057f5497d543",
-      "screen": "light",
-      "width": 80,
-      "height": 6
-    },
-    "interactive/app-tabs-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "5363fb58bdac9ee6f54d3ec3011146794ae23cb2c19b474908777cc9e237b2f1",
-      "screen": "dark",
-      "width": 60,
-      "height": 5
-    },
-    "interactive/app-tabs-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "109c69b3cfec540dd5d1b82aa127353d27a0a13cd13b4f99530918b34a53831c",
-      "screen": "light",
-      "width": 60,
-      "height": 5
-    },
-    "interactive/object-explorer-16-colour-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "1653a8d5e07520ae23815f38c130d24de693ae268e1476c6385ec24bb58135c2",
-      "screen": "dark",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-dark-120.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "59be15a8a7e7ffc3a473a970a3d002484ce8dd8187d643646cfd0f457975dfb6",
-      "screen": "dark",
-      "width": 120,
-      "height": 20
-    },
-    "interactive/object-explorer-dark-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "554bf93dcec9532a385cb36f8a5dd87c77edda58d0ccce66aa3a4f5f32c11ee8",
-      "screen": "dark",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-drilled-dark-120.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "3aa6978d41545b3429421e53ac4ee7d1133a6337c89cd3180fcf92e469dbfd11",
-      "screen": "dark",
-      "width": 120,
-      "height": 20
-    },
-    "interactive/object-explorer-drilled-dark-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "af0ef2e14060789dd43e7fbe81fc436190d518247a4d79407b06e1f85c5d585a",
-      "screen": "dark",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-drilled-light-120.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "b8794d52ae394080a7373ca9eb17d179062ac1a25c625888f56e4775191c78a5",
-      "screen": "light",
-      "width": 120,
-      "height": 20
-    },
-    "interactive/object-explorer-drilled-light-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "bf1b0a0a49066bffbb0d1729c59987dc8f91c51bd9418944a3217756d90cfe7e",
-      "screen": "light",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-expanded-dark-120.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "906d9444e116bfb8838e397cd6b834bfafd25d95682cbdcd08208d80fd2b29fd",
-      "screen": "dark",
-      "width": 120,
-      "height": 20
-    },
-    "interactive/object-explorer-expanded-dark-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "ae4a3bcc7efdf889c739b6882f41d82dd0d62c52e6fc5a7ff91e064bb5d14c25",
-      "screen": "dark",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-expanded-light-120.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "c5242a3392096533347a5012ece43f0380a84671f5332490eced83a8e1bb5a97",
-      "screen": "light",
-      "width": 120,
-      "height": 20
-    },
-    "interactive/object-explorer-expanded-light-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "42a7a277dede244bc91423dbf43b5a38ce0abd1a6f26ba8200aa5f65e4b36248",
-      "screen": "light",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-light-120.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "c4ca5abec32678f8d0bc9136bf6b3ec78323ce5b65b4704747599a881e26d4b8",
-      "screen": "light",
-      "width": 120,
-      "height": 20
-    },
-    "interactive/object-explorer-light-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "94e78d56d9c00e1527497a8e480a7dc7e505415352b5cb9feff86ee3699ddf3d",
-      "screen": "light",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/object-explorer-no-colour-60.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "d8b9b52c8a7b5fc130fbd37f9f2736a5ab6773271b34560cd3509a87760a4b44",
-      "screen": "dark",
-      "width": 60,
-      "height": 20
-    },
-    "interactive/tree-dark.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "d53cd0ddb3f24c3a6b2e6c4eed246c06516b124a0658726cfc9510f15bb368b7",
-      "screen": "dark",
-      "width": 90,
-      "height": 16
-    },
-    "interactive/tree-light.ps7.txt": {
-      "platform": "macos",
-      "category": "neutral",
-      "sha256": "6ed4436d0c233b41053ba07106d471f8c3e2e7a1793ee72034d9bd8a04c99067",
-      "screen": "light",
-      "width": 90,
-      "height": 16
+      "width": 100,
+      "height": 120
     }
   }
 }

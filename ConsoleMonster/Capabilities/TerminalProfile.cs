@@ -157,6 +157,13 @@ namespace ConsoleMonster.Capabilities {
         /// <summary>The detected or configured image protocol before the output guards; half blocks unless detection found more.</summary>
         internal ImageProtocol ImageSupport { get; set; } = ImageProtocol.HalfBlock;
 
+        /// <summary>
+        /// The code page whose characters caller text keeps on the ASCII tier, or zero. Set when redirected Windows output on
+        /// a non-Unicode code page chose ASCII: decorations stay ASCII, while text the parent can decode stays as written.
+        /// Explicitly chosen ASCII (an environment variable, plain mode, WithGlyphs) keeps transliterating.
+        /// </summary>
+        internal int TextCodePage { get; set; }
+
         /// <summary>Where <see cref="ImageSupport"/> came from (an environment variable or WithImageProtocol), or null when nobody chose it.</summary>
         internal string? ImageSource { get; set; }
 
@@ -367,7 +374,8 @@ namespace ConsoleMonster.Capabilities {
             return new TerminalProfile(ColorDepth, Glyphs, Mode, Width, Height, Kind, SupportsVirtualTerminal, IsOutputRedirected,
                 IsConsoleHandle, IsContinuousIntegration, FontFace, _decisions, WidthProfile, ProbeWidths, ThemeMode, culture, _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground, WidthFromColumns = WidthFromColumns,
-                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density, Palette = Palette
+                ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density, Palette = Palette,
+                TextCodePage = TextCodePage
             };
         }
 
@@ -442,7 +450,9 @@ namespace ConsoleMonster.Capabilities {
                 themeMode ?? ThemeMode,
                 Culture, supportsHyperlinks ?? _supportsHyperlinks) {
                 Language = Language, DefaultForeground = DefaultForeground, DefaultBackground = DefaultBackground,
-                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density, Palette = Palette
+                WidthFromColumns = WidthFromColumns && (width ?? Width) == Width, ImageSupport = ImageSupport, ImageSource = ImageSource, IsAccessible = IsAccessible, ReducedMotion = ReducedMotion, MotionOverride = MotionOverride, Border = Border, StatusMarkers = StatusMarkers, Density = Density, Palette = Palette,
+                // A chosen glyph tier, plain mode or double-width ambiguous characters transliterate caller text again.
+                TextCodePage = glyphs.HasValue || (mode ?? Mode) == OutputMode.Plain || (widthProfile ?? WidthProfile).AmbiguousWidth == 2 ? 0 : TextCodePage
             };
         }
     }

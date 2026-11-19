@@ -62,6 +62,54 @@ Get-Process -Id $PID | Format-Table -Property Id, Handles
         ($text -split '--- explicit')[1] | Should -Match 'Handles'
     }
 
+    It 'colours file names by kind, the same in the table and the recursive tree' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
+        $root = Join-Path $TestDrive 'kinds'
+        $null = New-Item -ItemType Directory -Path (Join-Path $root 'folder') -Force
+        # A nested file gives the recursive listing two parent folders, so it draws the tree rather than the table.
+        [IO.File]::WriteAllText((Join-Path $root 'folder/nested.txt'), 'x')
+        foreach ($name in 'build.ps1', 'archive.zip', 'logo.png', 'debug.log', '.hidden', 'README.md', 'tool.sh') {
+            [IO.File]::WriteAllText((Join-Path $root $name), 'x')
+        }
+        & chmod +x (Join-Path $root 'tool.sh')
+        New-Item -ItemType SymbolicLink -Path (Join-Path $root 'link') -Target (Join-Path $root 'README.md') | Out-Null
+        $source = @'
+Import-Module '__MODULE__'
+Enable-ConsoleFormatting
+Write-Host '### table ###'
+Get-ChildItem '__ROOT__' -Force
+Write-Host '### tree ###'
+Get-ChildItem '__ROOT__' -Recurse -Force
+Write-Host '### end ###'
+'@
+        $source = $source.Replace('__MODULE__', $script:Module.Replace("'", "''")).Replace('__ROOT__', $root.Replace("'", "''"))
+        $file = Join-Path $TestDrive 'kinds.ps1'
+        $capture = Join-Path $TestDrive 'kinds.ansi'
+        [IO.File]::WriteAllText($file, $source)
+        & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --submissions
+        $LASTEXITCODE | Should -Be 0
+        # Links (OSC 8) are left out; the colour is the SGR sequence right before the name (none for plain text).
+        $text = [IO.File]::ReadAllText($capture) -replace '\x1b\]8;[^\x1b]*\x1b\\', ''
+        $colour = {
+            param($section, $name)
+            $part = (($text -split "### $section ###")[1] -split '### ')[0]
+            $match = [regex]::Match($part, '(?:\x1b\[([0-9;]*)m|\s)' + [regex]::Escape($name) + '(?=/|\s|\x1b)')
+            $match.Success | Should -BeTrue -Because "$name is listed in the $section"
+            # A bare reset before the name is plain text too.
+            if ($match.Groups[1].Value -eq '0') { '' } else { $match.Groups[1].Value }
+        }
+        $treePart = (($text -split '### tree ###')[1] -split '### ')[0]
+        $treePart | Should -Match '├──|└──' -Because 'the recursive listing is drawn as a tree'
+        $treePart | Should -Not -Match 'UnixMode'
+        $names = 'folder', 'link', 'tool.sh', '.hidden', 'build.ps1', 'archive.zip', 'logo.png', 'debug.log', 'README.md'
+        $table = @{}; $tree = @{}
+        foreach ($name in $names) { $table[$name] = & $colour 'table' $name; $tree[$name] = & $colour 'tree' $name }
+        foreach ($name in $names) { $tree[$name] | Should -BeExactly $table[$name] -Because "$name has one colour in both views" }
+        # Folder, link, executable, script, archive and image each stand out in their own colour; noise is muted and other files stay plain.
+        @('folder', 'link', 'tool.sh', 'build.ps1', 'archive.zip', 'logo.png', '.hidden' | ForEach-Object { $table[$_] } | Select-Object -Unique).Count | Should -Be 7
+        $table['debug.log'] | Should -BeExactly $table['.hidden']
+        $table['README.md'] | Should -Not -Match '38;'
+    }
+
     It 'asks a light terminal for its background before static output and leaves no reply in the input' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
         $source = @'
 Import-Module '__MODULE__'

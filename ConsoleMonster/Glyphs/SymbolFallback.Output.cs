@@ -9,25 +9,17 @@ namespace ConsoleMonster.Glyphs {
         /// <summary>Enforces the destination repertoire even for caller text and custom drawing code.</summary>
         internal static string Constrain(string text, GlyphTier tier) {
             if (tier == GlyphTier.Full || string.IsNullOrEmpty(text)) return text;
-            bool safe = true;
-            foreach (char c in text) {
-                if (!Allowed(c, tier)) { safe = false; break; }
-            }
-            if (safe) return text;
+            if (Kept(text, tier)) return text;
             var result = new StringBuilder(text.Length);
             foreach (TextCluster cluster in DisplayWidth.Clusters(text)) {
                 string glyph = text.Substring(cluster.Start, cluster.Length);
-                bool allowed = true;
-                foreach (char c in glyph) if (!Allowed(c, tier)) { allowed = false; break; }
-                if (allowed) { result.Append(glyph); continue; }
+                if (Kept(glyph, tier)) { result.Append(glyph); continue; }
                 if (TryGet(glyph, tier, out string fallback)) { result.Append(Safe(fallback, tier)); continue; }
                 // Invisible format characters (a byte order mark, zero-width spaces and joiners) take no cell: drop them
                 // rather than show a '?' for something the source never displayed.
                 string visible = WithoutFormatCharacters(glyph);
                 if (visible.Length == 0) continue;
-                allowed = true;
-                foreach (char c in visible) if (!Allowed(c, tier)) { allowed = false; break; }
-                result.Append(allowed ? visible : tier == GlyphTier.Ascii ? Transliterate(visible) : "?");
+                result.Append(Kept(visible, tier) ? visible : tier == GlyphTier.Ascii ? Transliterate(visible) : "?");
             }
             return result.ToString();
         }

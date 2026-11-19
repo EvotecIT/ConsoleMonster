@@ -10,9 +10,6 @@ namespace ConsoleMonster.PowerShell {
         // A directory entry's own byte count is not its contents' size. Links retain their own size, including directory links.
         internal const string FileSizeScript = "if (-not $_.PSIsContainer -or $_.UnixMode -like 'l*') { $_.UnixStat.Size }";
 
-        // Typed cells keep names literal while preserving Unix directory, link and executable cues.
-        internal static readonly string FileNameScript = PSScriptResources.Read("Formatting.UnixFileName.ps1");
-
         internal static NativeFormatDefinition? For(PSObject first, string kind) {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return null; }
             bool file = first.BaseObject is FileSystemInfo;
@@ -24,8 +21,16 @@ namespace ConsoleMonster.PowerShell {
                     : new[] { "UnixMode", "User", "LastWriteTime", "Length", "Name" }
                 : new[] { "Id", "ProcessName", "CPU", "WorkingSet64", "Threads" };
             foreach (string field in fields) {
+                if (file && field == "Name") {
+                    // Names stay literal and keep their kind's colour (FileKinds), as in the registered view.
+                    Hashtable name = ConsoleFormatting.FileName();
+                    name.Remove("Name");
+                    name["Label"] = "Name";
+                    result.Columns.Add(name);
+                    continue;
+                }
                 string label = field == "Length" ? "Size" : field == "WorkingSet64" ? "Memory" : field == "CPU" ? "CPU (s)" : field;
-                object expression = file && field == "Name" ? (object)ScriptBlock.Create(FileNameScript) : field == "Threads" ? (object)ScriptBlock.Create("$_.Threads.Count")
+                object expression = field == "Threads" ? (object)ScriptBlock.Create("$_.Threads.Count")
                     : field == "Length" ? ScriptBlock.Create(FileSizeScript) : field;
                 result.Columns.Add(new Hashtable(StringComparer.OrdinalIgnoreCase) { ["Label"] = label, ["Expression"] = expression });
             }

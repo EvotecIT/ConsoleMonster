@@ -81,17 +81,8 @@ namespace ConsoleMonster.PowerShell {
             return node;
         }
 
-        // The same cues as the Unix listing: folders in the accent colour, links in the second accent, executables as pass,
-        // and dot files muted. Names stay literal.
-        private static string Label(Entry entry) {
-            string name = Markup.Escape(entry.Name);
-            FileSystemInfo? item = entry.Item;
-            if (item != null && IsLink(item)) { return "[accent2]" + name + "[/]"; }
-            if (entry.IsFolder) { return "[accent]" + name + "/[/]"; }
-            if (entry.Name.StartsWith(".", StringComparison.Ordinal)) { return "[muted]" + name + "[/]"; }
-            if (item != null && IsExecutable(item)) { return "[pass]" + name + "[/]"; }
-            return name;
-        }
+        // The same colours as the table (FileKinds); folders keep a trailing slash. Names stay literal.
+        private static string Label(Entry entry) => FileKinds.Markup(entry.Item, entry.Name, entry.IsFolder, entry.IsFolder ? "/" : "");
 
         // Folders first, then files, each in the order they arrived (Get-ChildItem's own order).
         private static IEnumerable<Entry> Ordered(List<Entry> children) {
@@ -155,16 +146,6 @@ namespace ConsoleMonster.PowerShell {
         }
 
         private static bool IsLink(FileSystemInfo info) => (info.Attributes & FileAttributes.ReparsePoint) != 0;
-
-        private static bool IsExecutable(FileSystemInfo info) {
-            if (!(info is FileInfo) || RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) { return false; }
-#if NET7_0_OR_GREATER
-            try { return (info.UnixFileMode & (UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute)) != 0; }
-            catch (IOException) { return false; }
-#else
-            return false;
-#endif
-        }
 
         private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         private static StringComparison PathComparison => Windows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;

@@ -74,7 +74,7 @@ namespace ConsoleMonster.Widgets {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (width < 1) throw new ArgumentOutOfRangeException(nameof(width));
             if (context == null) throw new ArgumentNullException(nameof(context));
-            return Read(source, width, context);
+            return Rendering.FrameComposer.RenderStream(Read(source, width, context), context);
         }
 
         private IEnumerable<CellBuffer> Read(IEnumerable<T> source, int width, RenderContext context) {

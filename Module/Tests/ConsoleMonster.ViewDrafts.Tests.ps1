@@ -21,12 +21,12 @@ Describe 'Console view drafts' {
         $script:Rows = @(
             [pscustomobject][ordered]@{
                 PSTypeName = 'Contoso.Backup'; Server = 'alpha'; State = 'Completed'
-                Size = 1024L; Took = [timespan]::FromSeconds(5); Empty = $null
+                SizeBytes = 1024L; Took = [timespan]::FromSeconds(5); Empty = $null
                 PSComputerName = 'remote'; RunspaceId = 'id'; PSShowComputerName = $true
             }
             [pscustomobject][ordered]@{
                 PSTypeName = 'Contoso.Backup'; Server = 'bravo'; State = 'Failed'
-                Size = 32768L; Took = [timespan]::FromSeconds(10); Empty = ''
+                SizeBytes = 32768L; Took = [timespan]::FromSeconds(10); Empty = ''
                 PSComputerName = 'remote'; RunspaceId = 'id'; PSShowComputerName = $true
             }
         )
@@ -41,7 +41,7 @@ Describe 'Console view drafts' {
         $draft | Should -BeExactly @'
 # Contoso.Backup: keep these lines in your profile; ConvertTo-ConsoleView -AsDataFile makes the module form.
 $state = @{ Name = 'State'; Expression = 'State'; Presenter = 'StatusWord' }
-$size = @{ Name = 'Size'; Expression = 'Size'; Presenter = 'BytesBar' }
+$sizeBytes = @{ Name = 'SizeBytes'; Expression = 'SizeBytes'; Presenter = 'BytesBar' }
 $took = @{ Name = 'Took'; Expression = 'Took'; Presenter = 'Duration' }
 
 $summary = {
@@ -62,14 +62,14 @@ $summary = {
 # Drop -Summary $summary to leave the line out.
 $view = @{
     TypeName = 'Contoso.Backup'
-    Property = @('Server', $state, $size, $took)
+    Property = @('Server', $state, $sizeBytes, $took)
     Summary = $summary
 }
 Register-ConsoleView @view
 '@
         & ([scriptblock]::Create($draft))
         $text = Use-ConsoleTarget -Width 100 { $script:Rows | Out-DraftedView }
-        $text | Should -Match 'Server.*State.*Size.*Took'
+        $text | Should -Match 'Server.*State.*SizeBytes.*Took'
         $text | Should -Match 'alpha'
         $text | Should -Match 'bravo'
         $text | Should -Match '2 backups.*1 completed.*1 failed'
@@ -107,7 +107,7 @@ Register-ConsoleView -TypeName Contoso.Backup -Property Server -Summary $summary
             Property = @(
                 'Server'
                 @{ Name = 'State'; Expression = 'State'; Presenter = 'StatusWord' }
-                @{ Name = 'Size'; Expression = 'Size'; Presenter = 'BytesBar' }
+                @{ Name = 'SizeBytes'; Expression = 'SizeBytes'; Presenter = 'BytesBar' }
                 @{ Name = 'Took'; Expression = 'Took'; Presenter = 'Duration' }
             )
         }
@@ -117,11 +117,11 @@ Register-ConsoleView -TypeName Contoso.Backup -Property Server -Summary $summary
         $data | Set-Content -LiteralPath $path -Encoding UTF8
         $view = (Import-PowerShellDataFile -LiteralPath $path).Views[0]
         $view.TypeName | Should -BeExactly 'Contoso.Backup'
-        Get-DraftNames $view.Property | Should -BeExactly 'Server,State,Size,Took'
+        Get-DraftNames $view.Property | Should -BeExactly 'Server,State,SizeBytes,Took'
         @($view.Property.Expression | Where-Object { $_ -is [scriptblock] }).Count | Should -Be 0
         Register-ConsoleView -Path $path
         $text = $script:Rows | New-ConsoleTable | Export-ConsoleFrame -Format Text -Width 100
-        $text | Should -Match 'Server.*State.*Size.*Took'
+        $text | Should -Match 'Server.*State.*SizeBytes.*Took'
         $text | Should -Match 'bravo'
         $text | Should -Not -Match 'PSComputerName|Empty'
     }
@@ -130,7 +130,7 @@ Register-ConsoleView -TypeName Contoso.Backup -Property Server -Summary $summary
         $draft = $script:Rows | ConvertTo-ConsoleView -Register
         $draft | Should -BeExactly ($script:Rows | ConvertTo-ConsoleView)
         $text = Use-ConsoleTarget -Width 100 { $script:Rows | Out-DraftedView }
-        $text | Should -Match 'Server.*State.*Size.*Took'
+        $text | Should -Match 'Server.*State.*SizeBytes.*Took'
         $text | Should -Not -Match 'Empty|PSComputerName'
         $text | Should -Match '2 backups.*1 completed.*1 failed'
     }
@@ -239,13 +239,13 @@ Register-ConsoleView -TypeName Contoso.Backup -Property Server -Summary $summary
             [pscustomobject][ordered]@{
                 PSTypeName = 'Contoso.SampleLimit'; First = 1; Empty = $(if ($_ -eq 51) { 'late' })
                 A = 2; B = 3; C = 4; D = 5; E = 6; Name = 'alpha'
-                Size = $(if ($_ -eq 51) { 1000000L } else { 1024L })
+                SizeBytes = $(if ($_ -eq 51) { 1000000L } else { 1024L })
             }
         })
         $path = Join-Path $TestDrive 'Bounded.consoleviews.psd1'
         $rows | ConvertTo-ConsoleView -AsDataFile | Set-Content -LiteralPath $path -Encoding UTF8
         Get-DraftNames (Import-PowerShellDataFile $path).Views[0].Property | Should -BeExactly 'Name,First,A,B,C,D'
-        $rows | Select-Object Name, Size | ConvertTo-ConsoleView -WarningAction SilentlyContinue |
+        $rows | Select-Object Name, SizeBytes | ConvertTo-ConsoleView -WarningAction SilentlyContinue |
             Should -Not -Match 'BytesBar'
     }
 
@@ -259,19 +259,19 @@ Register-ConsoleView -TypeName Contoso.Backup -Property Server -Summary $summary
 
     It 'uses shared type inference and refines statuses, byte ranges and recent dates' {
         $rows = @(
-            [pscustomobject]@{ PSTypeName = 'Contoso.Values'; Id = 1234; Ready = $true; Size = 10L; Modified = [datetime]::UtcNow.AddDays(-1); Decision = 'Passed'; Took = [timespan]::FromSeconds(2) }
-            [pscustomobject]@{ PSTypeName = 'Contoso.Values'; Id = 1235; Ready = $false; Size = 100L; Modified = [datetime]::UtcNow.AddDays(-2); Decision = 'Warning'; Took = [timespan]::FromSeconds(3) }
+            [pscustomobject]@{ PSTypeName = 'Contoso.Values'; Id = 1234; Ready = $true; SizeBytes = 10L; Modified = [datetime]::UtcNow.AddDays(-1); Decision = 'Passed'; Took = [timespan]::FromSeconds(2) }
+            [pscustomobject]@{ PSTypeName = 'Contoso.Values'; Id = 1235; Ready = $false; SizeBytes = 100L; Modified = [datetime]::UtcNow.AddDays(-2); Decision = 'Warning'; Took = [timespan]::FromSeconds(3) }
         )
         $path = Join-Path $TestDrive 'Values.consoleviews.psd1'
         $rows | ConvertTo-ConsoleView -AsDataFile | Set-Content -LiteralPath $path -Encoding UTF8
         $columns = (Import-PowerShellDataFile $path).Views[0].Property
         $columns.Presenter -join ',' | Should -BeExactly 'Identifier,Boolean,Bytes,DateRelative,StatusWord,Duration'
-        $rows[1].Size = 101L
+        $rows[1].SizeBytes = 101L
         $rows[1].Modified = [datetime]::UtcNow.AddDays(-31)
         $rows[1].Decision = 'ordinary text'
         $rows | ConvertTo-ConsoleView -AsDataFile | Set-Content -LiteralPath $path -Encoding UTF8
         $columns = (Import-PowerShellDataFile $path).Views[0].Property
-        ($columns | Where-Object Name -EQ Size).Presenter | Should -BeExactly 'BytesBar'
+        ($columns | Where-Object Name -EQ SizeBytes).Presenter | Should -BeExactly 'BytesBar'
         ($columns | Where-Object Name -EQ Modified).Presenter | Should -BeExactly 'Date'
         $columns | Should -Contain 'Decision'
     }

@@ -45,7 +45,7 @@ namespace ConsoleMonster.PowerShell {
             if (specs.Length == 0) { return new ConsoleViewDraft(typeName, Array.Empty<object>(), null); }
             List<BoundColumn> columns = PropertyBinder.Bind(samples, specs).ToList();
             List<object?[]> rows = samples.Select(sample => columns.Select(column => ReadProperty(sample, column.Name)).ToArray()).ToList();
-            PSFormatting.ChoosePresenters(columns, rows, true);
+            PSFormatting.ChoosePresenters(columns, rows, true, PSFormatting.SharedSource(samples));
             List<int> selected = Enumerable.Range(0, columns.Count)
                 .Where(c => rows.Any(row => !Empty(row[c]))).ToList();
             int identity = ValueShaper.TitleIndex(selected.Select(c => columns[c].Name).ToList());
