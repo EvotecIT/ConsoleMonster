@@ -239,7 +239,7 @@ Accept wildcard characters: False
 ```
 
 ### -Window
-Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.
+Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. Sessions where nobody can answer (-Mode None, PowerShell -NonInteractive, CI) never open a browser and print the static view as without -Window. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.
 
 ```yaml
 Type: SwitchParameter

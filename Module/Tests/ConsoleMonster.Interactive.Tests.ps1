@@ -417,14 +417,56 @@ $null = Invoke-WebRequest -Uri ($Url + 'answer') -Method Post -Body 'ok:1' -Cont
                 chmod +x $browser
             }
             $lines = @(
+                # A person at a desktop: an interactive child, outside CI.
+                "foreach (`$n in 'CI', 'GITHUB_ACTIONS', 'TF_BUILD', 'CONSOLEMONSTER_NONINTERACTIVE') { [Environment]::SetEnvironmentVariable(`$n, `$null) }"
                 "`$env:BROWSER = '$($browser.Replace("'", "''"))'"
                 "Import-Module '$(Join-Path $PSScriptRoot '..\ConsoleMonster.psd1')' -Force"
                 "`$rows = @([pscustomobject] @{ Name = 'alpha'; Cpu = 3 }, [pscustomobject] @{ Name = 'beta'; Cpu = 85 })"
                 "`$picked = @(`$rows | Show-ConsoleGrid -Title 'Servers' -Window -InformationAction SilentlyContinue)"
                 "'PICKED=' + (`$picked.Name -join '+') + ' TYPE=' + `$picked[0].GetType().Name"
             )
-            $text = (Invoke-TestChild -Runtime $runtime -Script ($lines -join "`n")) -join "`n"
+            # Invoke-TestChild starts PowerShell with -NonInteractive, where -Window rightly never opens a browser.
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($lines -join "`n"))
+            $start = [System.Diagnostics.ProcessStartInfo]::new($runtime, "-NoLogo -NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded")
+            $start.UseShellExecute = $false
+            $start.CreateNoWindow = $true
+            $start.RedirectStandardOutput = $true
+            $start.RedirectStandardError = $true
+            $child = [System.Diagnostics.Process]::Start($start)
+            try {
+                $output = $child.StandardOutput.ReadToEndAsync()
+                $errors = $child.StandardError.ReadToEndAsync()
+                if (-not $child.WaitForExit(120000)) { $child.Kill(); throw 'The browser grid child did not finish.' }
+                $text = $output.Result + $errors.Result
+            } finally { $child.Dispose() }
             $text | Should -Match 'PICKED=beta TYPE=PSCustomObject'
+        }
+
+        It 'never opens a browser for -Window in a non-interactive session' {
+            . (Join-Path $PSScriptRoot 'Support\Invoke-TestChild.ps1')
+            $runtime = [System.Diagnostics.Process]::GetCurrentProcess().Path
+            $marker = Join-Path $TestDrive 'opened.txt'
+            $record = Join-Path $TestDrive 'record.ps1'
+            Set-Content -LiteralPath $record -Value "param(`$Url) Set-Content -LiteralPath '$($marker.Replace("'", "''"))' -Value `$Url"
+            if ([System.IO.Path]::DirectorySeparatorChar -eq '\') {
+                $browser = Join-Path $TestDrive 'record.cmd'
+                Set-Content -LiteralPath $browser -Value "@`"$runtime`" -NoProfile -ExecutionPolicy Bypass -File `"$record`" %1"
+            } else {
+                $browser = Join-Path $TestDrive 'record.sh'
+                Set-Content -LiteralPath $browser -Value "#!/bin/sh`nexec `"$runtime`" -NoProfile -File `"$record`" `"`$1`""
+                chmod +x $browser
+            }
+            $lines = @(
+                "`$env:BROWSER = '$($browser.Replace("'", "''"))'"
+                "Import-Module '$(Join-Path $PSScriptRoot '..\ConsoleMonster.psd1')' -Force"
+                "`$rows = @([pscustomobject] @{ Name = 'alpha'; Cpu = 3 }, [pscustomobject] @{ Name = 'beta'; Cpu = 85 })"
+                "`$picked = @(`$rows | Show-ConsoleGrid -Title 'Servers' -Window -WarningAction SilentlyContinue)"
+                "'PICKED=' + `$picked.Count"
+            )
+            $text = (Invoke-TestChild -Runtime $runtime -Script ($lines -join "`n")) -join "`n"
+            $text | Should -Match 'PICKED=0'
+            $text | Should -Match 'alpha'
+            Test-Path -LiteralPath $marker | Should -BeFalse
         }
 
         It 'cancels with a PromptCanceled error on Esc' {

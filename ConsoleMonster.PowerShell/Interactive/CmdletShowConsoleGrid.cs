@@ -84,7 +84,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public InteractionMode? Mode { get; set; }
 
-        /// <summary><para type="description">Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.</para></summary>
+        /// <summary><para type="description">Shows the grid in the default browser instead of the terminal, with the same columns, filter, sort and selection; the chosen rows return to the pipeline. The page is served from 127.0.0.1 behind a one-time address and loads nothing external. Ctrl+C or closing the tab cancels. When no browser can be opened, the terminal grid is shown instead. Sessions where nobody can answer (-Mode None, PowerShell -NonInteractive, CI) never open a browser and print the static view as without -Window. -Command and -RefreshRow apply to the terminal grid only. Set $PSDefaultParameterValues['Show-ConsoleGrid:Window'] = $true to use the browser by default, including for the Out-GridView fallback.</para></summary>
         [Parameter]
         [PSDefaultValue(Help = "$false")]
         public SwitchParameter Window { get; set; }
@@ -139,7 +139,8 @@ namespace ConsoleMonster.PowerShell {
             }
             GridResult result;
             CancellationToken stop = (_stop ??= new CancellationTokenSource()).Token;
-            if (Window.IsPresent && !options.Interactive.NonInteractive && TryShowInBrowser(grid, options, stop, out GridResult? browserResult)) {
+            // -Mode None, PowerShell -NonInteractive and CI print the static view below: nobody is there to answer a browser.
+            if (Window.IsPresent && BrowserGridServer.CanAsk(options.Interactive) && TryShowInBrowser(grid, options, stop, out GridResult? browserResult)) {
                 foreach (object? item in browserResult!.Items) {
                     WriteObject(item);
                 }
