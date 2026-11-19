@@ -19,8 +19,13 @@ namespace ConsoleMonster.Interactive {
         private sealed class Cell {
             public object? Value;
             public string Text = string.Empty;
+            // The screen grid filters and breaks sort ties on the raw value's text, not on what a presenter shows.
+            public string Search = string.Empty;
             public string? Role;
             public bool? Right;
+            public CellVisualKind Visual;
+            public double Fraction;
+            public IReadOnlyList<double>? Series;
         }
 
         public static string Build(Grid grid, GridOptions options, CancellationToken cancellationToken) {
@@ -30,13 +35,15 @@ namespace ConsoleMonster.Interactive {
             TerminalProfile profile = TerminalProfile.Fixed(200, 50, ColorDepth.TrueColor, GlyphTier.Full).WithCulture(interactive.ResolveProfile().Culture);
             RenderContext render = Terminal.CreateContext(profile, interactive.Theme ?? Terminal.Theme);
             PresenterContext presenter = grid.Presentation.CreateContext(render);
+            // The same culture the screen grid's filter uses.
+            CultureInfo searchCulture = grid.Presentation.Culture ?? CultureInfo.CurrentCulture;
             int columns = grid.Columns.Count;
             object?[][] values = ResolveValues(grid, cancellationToken);
             Cell[][] cells = new Cell[values.Length][];
             for (int r = 0; r < values.Length; r++) {
                 cells[r] = new Cell[columns];
                 for (int c = 0; c < columns; c++) {
-                    cells[r][c] = Present(grid.Columns[c], values[r][c], presenter);
+                    cells[r][c] = Present(grid.Columns[c], values[r][c], presenter, searchCulture);
                 }
             }
 
@@ -71,7 +78,9 @@ namespace ConsoleMonster.Interactive {
                     if (c > 0) { json.Append(','); }
                     Cell cell = cells[r][c];
                     json.Append("{\"t\":").Append(Quote(cell.Text)).Append(",\"k\":").Append(ranks[c][r].ToString(CultureInfo.InvariantCulture));
+                    if (cell.Search != cell.Text) { json.Append(",\"s\":").Append(Quote(cell.Search)); }
                     if (cell.Role != null) { json.Append(",\"r\":").Append(Quote(cell.Role)); }
+                    AppendVisual(json, cell);
                     json.Append('}');
                 }
                 json.Append(']');
@@ -111,13 +120,43 @@ namespace ConsoleMonster.Interactive {
         }
 
         // The shared presentation step, including the column's tone rules (FailAbove, WarnBelow, Role).
-        private static Cell Present(TableColumn column, object? value, PresenterContext presenter) {
+        private static Cell Present(TableColumn column, object? value, PresenterContext presenter, CultureInfo searchCulture) {
             PresentedValue presented = CellPresenters.Present(value, column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null, presenter);
-            Cell cell = new Cell { Value = value, Text = presented.Text, Role = presented.Role.HasValue ? Role(presented.Role.Value) : null };
-            if (cell.Text.Length > 0) {
+            Cell cell = new Cell {
+                Value = value,
+                Text = presented.Text,
+                Search = PresenterValues.ToText(value, searchCulture),
+                Role = presented.Role.HasValue ? Role(presented.Role.Value) : null,
+                Visual = presented.Visual,
+                Fraction = presented.Fraction,
+                Series = presented.Series
+            };
+            if (cell.Text.Length > 0 || cell.Visual != CellVisualKind.None) {
                 cell.Right = presented.Alignment == HorizontalAlignment.Right || (presented.Alignment == null && IsNumber(value));
             }
             return cell;
+        }
+
+        // Bars and progress carry their fraction (0 to 1); sparklines carry their series. The page draws them next to the text.
+        private static void AppendVisual(StringBuilder json, Cell cell) {
+            switch (cell.Visual) {
+                case CellVisualKind.Bar:
+                case CellVisualKind.Progress:
+                    double fraction = double.IsNaN(cell.Fraction) ? 0 : Math.Max(0, Math.Min(1, cell.Fraction));
+                    json.Append(",\"v\":").Append(cell.Visual == CellVisualKind.Bar ? "\"bar\"" : "\"progress\"")
+                        .Append(",\"p\":").Append(fraction.ToString("0.####", CultureInfo.InvariantCulture));
+                    break;
+                case CellVisualKind.Sparkline when cell.Series != null && cell.Series.Count > 0:
+                    json.Append(",\"v\":\"spark\",\"d\":[");
+                    bool first = true;
+                    foreach (double point in cell.Series) {
+                        if (!first) { json.Append(','); }
+                        first = false;
+                        json.Append(double.IsNaN(point) || double.IsInfinity(point) ? "null" : point.ToString("R", CultureInfo.InvariantCulture));
+                    }
+                    json.Append(']');
+                    break;
+            }
         }
 
         // Ranks follow the screen grid's comparison: empty values last, numbers numerically, values of one comparable type
@@ -143,7 +182,7 @@ namespace ConsoleMonster.Interactive {
             if (emptyX || emptyY) { return emptyX == emptyY ? 0 : emptyX ? 1 : -1; }
             if (!(x is string) && !(y is string) && PresenterValues.TryGetNumber(x, out double dx) && PresenterValues.TryGetNumber(y, out double dy)) { return dx.CompareTo(dy); }
             if (!(x is string) && x is IComparable comparable && y != null && x.GetType() == y.GetType()) { return comparable.CompareTo(y); }
-            return string.Compare(a.Text, b.Text, StringComparison.OrdinalIgnoreCase);
+            return string.Compare(a.Search, b.Search, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsNumber(object? value) => value is byte or sbyte or short or ushort or int or uint or long or ulong or float or double or decimal;
@@ -213,6 +252,9 @@ th:hover,th:focus-visible{color:var(--focus);outline:none}th[aria-sort=ascending
 td.right,th.right{text-align:right;font-variant-numeric:tabular-nums}td.center,th.center{text-align:center}
 tbody tr{cursor:default}tbody tr[aria-selected=true] td{background:var(--sel)}tbody tr.focus td:first-child{box-shadow:inset 3px 0 0 var(--focus)}
 .pass{color:var(--pass)}.fail{color:var(--fail)}.warn{color:var(--warn)}.info{color:var(--info)}.muted{color:var(--muted)}.accent{color:var(--accent)}
+.vis{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}.track{display:inline-block;width:80px;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.fill{display:block;height:100%;background:currentColor}td:not(.pass):not(.fail):not(.warn):not(.info):not(.muted) .fill{background:var(--accent)}
+.spark{width:80px;height:18px;overflow:visible}.spark polyline{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
 footer span{flex:1;color:var(--muted)}footer span.error{color:var(--fail)}
 button{font:inherit;padding:6px 16px;border-radius:6px;border:1px solid var(--line);background:var(--head);color:var(--fg);cursor:pointer}
 button.primary{background:var(--focus);border-color:var(--focus);color:#fff}button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -228,14 +270,24 @@ $('title').textContent=d.title;document.title=d.title;$('filter').value=d.filter
 if(d.mode==='None'){$('ok').textContent='Close';$('cancel').hidden=true}
 for(const c of cols){const th=document.createElement('th');th.textContent=c.name;th.tabIndex=0;if(c.align!=='left')th.className=c.align;
 th.onclick=()=>{desc=sort===c.i?!desc:false;sort=c.i;draw()};th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();th.click()}};$('head').appendChild(th)}
+const svg='http://www.w3.org/2000/svg';
+// Bars and progress draw their fraction; a sparkline draws its series as a line. The text stays next to it as the label.
+function cell(td,v){if(!v.v){td.textContent=v.t;return}
+const box=document.createElement('span');box.className='vis';
+if(v.v==='spark'){const pts=v.d.map((y,x)=>[x,y]).filter(p=>p[1]!==null),ys=pts.map(p=>p[1]),lo=Math.min(...ys),hi=Math.max(...ys),n=Math.max(v.d.length-1,1);
+const s=document.createElementNS(svg,'svg');s.setAttribute('class','spark');s.setAttribute('viewBox','0 0 80 18');s.setAttribute('role','img');s.setAttribute('aria-label',v.t||(v.d.length+' values'));
+const line=document.createElementNS(svg,'polyline');line.setAttribute('points',pts.map(p=>(p[0]/n*80).toFixed(1)+','+(hi===lo?9:16-(p[1]-lo)/(hi-lo)*14).toFixed(1)).join(' '));s.appendChild(line);box.appendChild(s)}
+else{const track=document.createElement('span');track.className='track';track.setAttribute('role','progressbar');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',Math.round(v.p*100));
+const fill=document.createElement('span');fill.className='fill';fill.style.width=(v.p*100)+'%';track.appendChild(fill);box.appendChild(track)}
+if(v.t){const label=document.createElement('span');label.textContent=v.t;box.appendChild(label)}td.appendChild(box)}
 const order=(a,b)=>{if(sort<0)return a-b;const k=d.rows[a][sort].k-d.rows[b][sort].k;return k===0?a-b:(desc?-k:k)};
 function draw(){const words=$('filter').value.toLowerCase().split(/[\s,]+/).filter(Boolean);
-shown=d.rows.map((r,i)=>i).filter(i=>words.every(w=>cols.some(c=>d.rows[i][c.i].t.toLowerCase().includes(w)))).sort(order);
+shown=d.rows.map((r,i)=>i).filter(i=>words.every(w=>cols.some(c=>{const v=d.rows[i][c.i];return (v.s??v.t).toLowerCase().includes(w)}))).sort(order);
 if(!shown.includes(focus))focus=shown.length?shown[0]:-1;
 [...$('head').children].forEach((th,k)=>th.setAttribute('aria-sort',cols[k].i===sort?(desc?'descending':'ascending'):'none'));
 const body=$('body');body.replaceChildren();
 for(const i of shown){const tr=document.createElement('tr');tr.setAttribute('aria-selected',single?i===focus:picked.has(i));if(i===focus)tr.className='focus';
-for(const c of cols){const v=d.rows[i][c.i],td=document.createElement('td');td.textContent=v.t;const cls=[c.align!=='left'?c.align:'',v.r||''].join(' ').trim();if(cls)td.className=cls;tr.appendChild(td)}
+for(const c of cols){const v=d.rows[i][c.i],td=document.createElement('td');cell(td,v);const cls=[c.align!=='left'?c.align:'',v.r||''].join(' ').trim();if(cls)td.className=cls;tr.appendChild(td)}
 tr.onclick=e=>choose(i,e.ctrlKey||e.metaKey,e.shiftKey);tr.ondblclick=()=>{if(d.mode!=='None'){focus=i;if(multiple)picked=new Set([i]);answer(true)}};body.appendChild(tr)}
 const count=single?(focus>=0?1:0):picked.size,s=$('status');s.className=failure?'error':'';s.textContent=failure||(shown.length+' of '+d.rows.length+' rows'+(multiple&&count?' \u00b7 '+count+' selected':''))}
 function choose(i,toggle,range){focus=i;if(!multiple){draw();return}
