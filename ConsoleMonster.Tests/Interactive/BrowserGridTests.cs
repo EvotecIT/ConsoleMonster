@@ -217,8 +217,8 @@ namespace ConsoleMonster.Tests.Interactive {
             string html = string.Empty;
             grid.ShowInBrowser(options, Browser((client, address) => Answer(client, address, "cancel"), page => html = page));
 
-            Assert.Contains("1234,5", html.Replace(".", string.Empty));
-            Assert.DoesNotContain("1234.5", html);
+            // The displayed text follows the profile culture; the filter text keeps the screen grid's culture.
+            Assert.Contains("\"t\":\"1.234,5\"", html);
         }
 
         [Fact]
