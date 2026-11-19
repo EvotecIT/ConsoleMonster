@@ -206,7 +206,11 @@ namespace ConsoleMonster.Interactive {
                         return false;
                     }
                     answer = ParseAnswer(body);
-                    Respond(response, 200, "text/plain", Encoding.UTF8.GetBytes("ok"));
+                    try {
+                        Respond(response, 200, "text/plain", Encoding.UTF8.GetBytes("ok"));
+                    } catch (Exception ex) when (ex is HttpListenerException || ex is IOException || ex is ObjectDisposedException) {
+                        // The answer counts once it is read: a closing tab's beacon never waits for this acknowledgement.
+                    }
                     return true;
                 }
                 Respond(response, 404, "text/plain", Encoding.UTF8.GetBytes("Not found"));
