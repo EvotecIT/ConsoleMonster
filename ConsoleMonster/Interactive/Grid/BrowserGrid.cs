@@ -205,7 +205,11 @@ namespace ConsoleMonster.Interactive {
                     if (body == null) {
                         return false;
                     }
-                    answer = ParseAnswer(body);
+                    if (!TryParseAnswer(body, out answer)) {
+                        // Only the page's own "ok:..." or "cancel" ends the grid; anything else is refused and the grid keeps waiting.
+                        Respond(response, 400, "text/plain", Encoding.UTF8.GetBytes("Bad answer"));
+                        return false;
+                    }
                     try {
                         Respond(response, 200, "text/plain", Encoding.UTF8.GetBytes("ok"));
                     } catch (Exception ex) when (ex is HttpListenerException || ex is IOException || ex is ObjectDisposedException) {
@@ -258,6 +262,11 @@ namespace ConsoleMonster.Interactive {
                     return null;
                 }
             }
+            if (request.ContentLength64 >= 0 && body.Length != request.ContentLength64) {
+                // A connection that ended before its whole body arrived carries no answer, not an empty one.
+                response.Abort();
+                return null;
+            }
             return Encoding.UTF8.GetString(body.ToArray());
         }
 
@@ -276,18 +285,26 @@ namespace ConsoleMonster.Interactive {
             return true;
         }
 
-        /// <summary>"ok:3,0,7" returns those indexes; anything else is a cancel.</summary>
-        internal static int[]? ParseAnswer(string body) {
+        /// <summary>"ok:3,0,7" gives those indexes (in that order, once each) and "cancel" gives null; anything else is not an answer.</summary>
+        internal static bool TryParseAnswer(string body, out int[]? answer) {
+            answer = null;
+            if (body == "cancel") {
+                return true;
+            }
             if (!body.StartsWith("ok:", StringComparison.Ordinal)) {
-                return null;
+                return false;
             }
             List<int> indexes = new List<int>();
             foreach (string part in body.Substring(3).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) {
-                if (int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out int index) && !indexes.Contains(index)) {
+                if (!int.TryParse(part, NumberStyles.None, CultureInfo.InvariantCulture, out int index)) {
+                    return false;
+                }
+                if (!indexes.Contains(index)) {
                     indexes.Add(index);
                 }
             }
-            return indexes.ToArray();
+            answer = indexes.ToArray();
+            return true;
         }
 
         private static void Respond(HttpListenerResponse response, int status, string contentType, byte[] body) {

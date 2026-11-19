@@ -116,16 +116,7 @@ namespace ConsoleMonster.Widgets {
                 return new CellContent(WidgetCellLayout.Lines(widget, context.Render.Profile.Width, context.Render), null, widget: widget);
             }
             if (cell.HasValue && !(cell.Value is RichText)) {
-                bool dataBar = presenter is DataBarPresenter;
-                PresentedValue presented = CellPresenters.Present(cell.Value, presenter, dataBar ? null : rules, context);
-                if (dataBar) {
-                    ThemeToken? tone = cell.RowRole?.Tone.ToToken();
-                    if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
-                        if (rule.Matches(cell.Value, presented.Number)) { tone = rule.Role; break; }
-                    }
-                    tone ??= presented.Role;
-                    if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render, ((DataBarPresenter)presenter!).ShowRoleMarker);
-                }
+                PresentedValue presented = Present(cell.Value, presenter, rules, context, cell.RowRole?.Tone.ToToken());
                 // A status word held as text ("Warning" in a State column) is as short as a status enum.
                 bool status = presented.Role.HasValue && (presenter is StatusEnumPresenter || presenter is StatusPresenter);
                 return new CellContent(new List<StyledLine> { presented.Line }, presented, (IsShortValue(cell.Value) || status) && presented.Line.Width <= ShortValueWidth);
@@ -153,6 +144,24 @@ namespace ConsoleMonster.Widgets {
             }
             // A status cell's word ("✓ Passed") is a short value too.
             return new CellContent(lines, null, (cell.Status.HasValue || cell.AssessmentSeverity.HasValue) && lines.Count == 1 && lines[0].Width <= ShortValueWidth);
+        }
+
+        /// <summary>
+        /// Presents one value with its column's presenter and tone rules. A data bar takes the row's tone, then the first
+        /// matching rule, then its own role, and shows that tone without colour too (a status symbol or word).
+        /// </summary>
+        internal static PresentedValue Present(object? value, ICellPresenter? presenter, IReadOnlyList<RoleRule>? rules, PresenterContext context, ThemeToken? rowTone = null) {
+            bool dataBar = presenter is DataBarPresenter;
+            PresentedValue presented = CellPresenters.Present(value, presenter, dataBar ? null : rules, context);
+            if (dataBar) {
+                ThemeToken? tone = rowTone;
+                if (!tone.HasValue && rules != null) foreach (RoleRule rule in rules) {
+                    if (rule.Matches(value, presented.Number)) { tone = rule.Role; break; }
+                }
+                tone ??= presented.Role;
+                if (tone.HasValue) presented = DataBarTone(presented, tone.Value, context.Render, ((DataBarPresenter)presenter!).ShowRoleMarker);
+            }
+            return presented;
         }
 
         // The widest a short value may be and still never break (a date with time and zone is about 25 cells).

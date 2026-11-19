@@ -98,10 +98,14 @@ namespace ConsoleMonster.Tests.Interactive {
             HttpStatusCode otherPath = 0, otherHost = 0;
             Grid grid = Servers();
             GridResult result = grid.ShowInBrowser(Interactive(), Browser(async (client, address) => {
-                otherPath = (await client.GetAsync(new Uri(address, "/not-the-token/")).ConfigureAwait(false)).StatusCode;
-                using HttpRequestMessage renamed = new HttpRequestMessage(HttpMethod.Post, new Uri(address, "answer")) { Content = new StringContent("ok:0") };
-                renamed.Headers.Host = "attacker.example";
-                otherHost = (await client.SendAsync(renamed).ConfigureAwait(false)).StatusCode;
+                // The refused requests come from another client, as they would from another page: the managed listener
+                // (Linux, macOS) may close the connection it refuses on, so the real answer must not share it.
+                using (HttpClient stranger = new HttpClient()) {
+                    otherPath = (await stranger.GetAsync(new Uri(address, "/not-the-token/")).ConfigureAwait(false)).StatusCode;
+                    using HttpRequestMessage renamed = new HttpRequestMessage(HttpMethod.Post, new Uri(address, "answer")) { Content = new StringContent("ok:0") };
+                    renamed.Headers.Host = "attacker.example";
+                    otherHost = (await stranger.SendAsync(renamed).ConfigureAwait(false)).StatusCode;
+                }
                 await Answer(client, address, "ok:2").ConfigureAwait(false);
             }));
 
@@ -109,6 +113,22 @@ namespace ConsoleMonster.Tests.Interactive {
             Assert.Equal(HttpStatusCode.NotFound, otherPath);
             Assert.InRange((int)otherHost, 400, 499);
             Assert.Same(grid.Rows[2].Item, result.Items.Single());
+        }
+
+        [Fact]
+        public void OnlyTheOkAndCancelAnswersEndTheGrid() {
+            HttpStatusCode empty = 0, garbled = 0;
+            Grid grid = Servers();
+            GridResult result = grid.ShowInBrowser(Interactive(), Browser(async (client, address) => {
+                empty = (await Answer(client, address, string.Empty).ConfigureAwait(false)).StatusCode;
+                garbled = (await Answer(client, address, "ok:1,x").ConfigureAwait(false)).StatusCode;
+                await Answer(client, address, "ok:1").ConfigureAwait(false);
+            }));
+
+            // An empty or garbled body is neither a choice nor a cancel; the grid waits for a real answer.
+            Assert.Equal(HttpStatusCode.BadRequest, empty);
+            Assert.Equal(HttpStatusCode.BadRequest, garbled);
+            Assert.Same(grid.Rows[1].Item, result.Items.Single());
         }
 
         [Fact]
@@ -336,6 +356,19 @@ namespace ConsoleMonster.Tests.Interactive {
 
             Assert.Contains("\"v\":\"bar\",\"p\":0.1", html);
             Assert.Contains("\"v\":\"bar\",\"p\":1", html);
+        }
+
+        [Fact]
+        public void DataBarsWithAHealthRuleNameTheirStatusInText() {
+            Grid grid = new Grid("Disks") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
+            TableColumn used = new TableColumn("Used") { Presenter = new DataBarPresenter { ShowRoleMarker = false } };
+            used.RoleRules.Add(RoleRule.Above(80, ThemeToken.Fail));
+            grid.Column(used);
+            grid.Row("C:", 90);
+            string html = Page(grid);
+
+            // Not only the colour: the label names the status, as the terminal's data bar does.
+            Assert.Matches("\"t\":\"90[^\"]*[A-Za-z][^\"]*\",\"k\":0,\"s\":\"90\",\"r\":\"fail\"", html);
         }
 
         [Fact]

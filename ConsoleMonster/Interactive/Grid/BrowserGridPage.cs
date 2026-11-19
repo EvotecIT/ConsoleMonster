@@ -141,7 +141,8 @@ namespace ConsoleMonster.Interactive {
 
         // The shared presentation step, including the column's tone rules (FailAbove, WarnBelow, Role).
         private static Cell Present(TableColumn column, object? value, PresenterContext presenter, CultureInfo searchCulture) {
-            PresentedValue presented = CellPresenters.Present(value, column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null, presenter);
+            // The terminal's step, so a data bar with a health rule keeps its status symbol or word, not only its colour.
+            PresentedValue presented = Widgets.CellRendering.Present(value, column.Presenter, column.RoleRules.Count > 0 ? new List<RoleRule>(column.RoleRules) : null, presenter);
             Cell cell = new Cell {
                 Value = value,
                 Text = presented.Text,
