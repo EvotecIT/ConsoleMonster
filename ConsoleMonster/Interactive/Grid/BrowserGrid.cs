@@ -14,7 +14,8 @@ namespace ConsoleMonster.Interactive {
     public sealed class BrowserGridOptions {
         /// <summary>
         /// Opens the page; returns false when it could not. Null runs the command in the BROWSER environment variable
-        /// when set, otherwise the default browser (Windows, macOS, or xdg-open on Linux).
+        /// when set, otherwise the default browser (Windows, macOS, or xdg-open on Linux). A launcher that exits with a
+        /// failure code before the page answers counts as not opened.
         /// </summary>
         public Func<Uri, bool>? Open { get; set; }
 
@@ -29,45 +30,58 @@ namespace ConsoleMonster.Interactive {
         /// <summary>
         /// Shows the grid in the default browser and returns the chosen rows' original objects. The page is served from
         /// 127.0.0.1 on a random port behind a one-time token, loads nothing external, and offers the same filter, sort
-        /// and selection as the screen grid. Commands and row refresh are screen-only.
+        /// and selection as the screen grid. Commands and row refresh are screen-only. Lazy cells are computed before the
+        /// page opens. Sessions where nobody can answer (<see cref="InteractionMode.None"/> or
+        /// <see cref="InteractionMode.Snapshot"/>, a non-interactive flag, or CI) never open a browser.
         /// </summary>
-        /// <param name="options">Filter, sort and hidden columns to start with; null for the defaults.</param>
+        /// <param name="options">Filter, sort, hidden columns and interaction options; null for the defaults.</param>
         /// <param name="browser">How the page opens and how long to wait; null for the defaults.</param>
         /// <param name="cancellationToken">Stops waiting and closes the listener.</param>
         /// <returns>Accepted with the chosen items, or not accepted when the page was cancelled or closed.</returns>
-        /// <exception cref="PromptUnavailableException">No browser could be opened.</exception>
+        /// <exception cref="PromptUnavailableException">Nobody can answer in this session, or no browser could be opened.</exception>
         /// <exception cref="TimeoutException">The page did not answer within <see cref="BrowserGridOptions.Timeout"/>.</exception>
         public GridResult ShowInBrowser(GridOptions? options = null, BrowserGridOptions? browser = null, CancellationToken cancellationToken = default) {
             options ??= new GridOptions();
             browser ??= new BrowserGridOptions();
-            string page = BrowserGridPage.Build(this, options);
+            if (!BrowserGridServer.CanAsk(options.Interactive ?? InteractiveOptions.Default)) {
+                throw new PromptUnavailableException("Nobody can answer the browser grid in a non-interactive session.");
+            }
+            string page = BrowserGridPage.Build(this, options, cancellationToken);
             using BrowserGridServer server = BrowserGridServer.Start(page);
             browser.Opened?.Invoke(server.Address);
-            Func<Uri, bool> open = browser.Open ?? BrowserGridServer.OpenDefaultBrowser;
-            if (!open(server.Address)) {
-                throw new PromptUnavailableException("No browser could be opened for the grid. Open " + server.Address + " or use the screen grid.");
-            }
-            int[]? chosen = server.WaitForAnswer(browser.Timeout, cancellationToken);
-            if (chosen == null) {
-                return new GridResult(false, Array.Empty<object?>());
-            }
-            List<object?> items = new List<object?>();
-            if (OutputMode != GridSelection.None) {
-                foreach (int index in chosen) {
-                    if (index >= 0 && index < Rows.Count) {
-                        items.Add(Rows[index].Item);
-                    }
-                    if (OutputMode == GridSelection.Single) {
-                        break;
+            Process? launcher = null;
+            try {
+                bool opened = browser.Open != null ? browser.Open(server.Address) : BrowserGridServer.Launch(server.Address, out launcher);
+                if (!opened) {
+                    throw new PromptUnavailableException("No browser could be opened for the grid. Open " + server.Address + " or use the screen grid.");
+                }
+                int[]? chosen = server.WaitForAnswer(browser.Timeout, cancellationToken, launcher);
+                if (chosen == null) {
+                    return new GridResult(false, Array.Empty<object?>());
+                }
+                List<object?> items = new List<object?>();
+                if (OutputMode != GridSelection.None) {
+                    foreach (int index in chosen) {
+                        if (index >= 0 && index < Rows.Count) {
+                            items.Add(Rows[index].Item);
+                        }
+                        if (OutputMode == GridSelection.Single) {
+                            break;
+                        }
                     }
                 }
+                return new GridResult(true, items);
+            } finally {
+                launcher?.Dispose();
             }
-            return new GridResult(true, items);
         }
     }
 
     /// <summary>Serves one page on loopback behind a random token and waits for its single answer.</summary>
     internal sealed class BrowserGridServer : IDisposable {
+        private const int MaxAnswerBytes = 64 * 1024;
+        private static readonly TimeSpan AnswerReadLimit = TimeSpan.FromSeconds(10);
+        private const int AccessDenied = 5;
         private readonly HttpListener _listener;
         private readonly byte[] _page;
         private readonly string _token;
@@ -82,10 +96,18 @@ namespace ConsoleMonster.Interactive {
 
         public Uri Address => new Uri("http://127.0.0.1:" + _port.ToString(CultureInfo.InvariantCulture) + "/" + _token + "/");
 
+        /// <summary>Whether anyone can answer: not an explicit None or Snapshot mode, not a non-interactive session, not CI.</summary>
+        /// <remarks>Redirected console output does not matter here: the person answers in the browser, not the console.</remarks>
+        internal static bool CanAsk(InteractiveOptions interactive) {
+            if (interactive.Mode == InteractionMode.None || interactive.Mode == InteractionMode.Snapshot || interactive.IsNonInteractive) {
+                return false;
+            }
+            return !interactive.ResolveProfile().IsContinuousIntegration;
+        }
+
         public static BrowserGridServer Start(string page) {
             string token = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
-            Exception? last = null;
-            for (int attempt = 0; attempt < 5; attempt++) {
+            for (int attempt = 0; ; attempt++) {
                 int port = FreePort();
                 HttpListener listener = new HttpListener();
                 listener.Prefixes.Add("http://127.0.0.1:" + port.ToString(CultureInfo.InvariantCulture) + "/" + token + "/");
@@ -93,14 +115,17 @@ namespace ConsoleMonster.Interactive {
                     listener.Start();
                     return new BrowserGridServer(listener, port, token, page);
                 } catch (HttpListenerException ex) {
-                    // Another process took the port between probing and binding.
-                    last = ex;
                     listener.Close();
+                    if (ex.ErrorCode == AccessDenied) {
+                        // Retrying cannot change a permission decision; report it once so the caller can fall back.
+                        throw new PromptUnavailableException("The browser grid is not allowed to listen on 127.0.0.1 for this account.", ex);
+                    }
+                    // Otherwise another process took the port between probing and binding: try another one.
+                    if (attempt >= 4) {
+                        throw new PromptUnavailableException("The browser grid could not listen on 127.0.0.1.", ex);
+                    }
                 }
             }
-            throw last == null
-                ? new PromptUnavailableException("The browser grid could not listen on 127.0.0.1.")
-                : new PromptUnavailableException("The browser grid could not listen on 127.0.0.1.", last);
         }
 
         private static int FreePort() {
@@ -110,24 +135,39 @@ namespace ConsoleMonster.Interactive {
         }
 
         /// <summary>Waits for OK (the chosen row indexes) or Cancel (null).</summary>
-        public int[]? WaitForAnswer(TimeSpan? timeout, CancellationToken cancellationToken) {
+        public int[]? WaitForAnswer(TimeSpan? timeout, CancellationToken cancellationToken, Process? launcher = null) {
             DateTime? deadline = timeout.HasValue ? DateTime.UtcNow + timeout.Value : (DateTime?)null;
+            Action check = () => {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (deadline.HasValue && DateTime.UtcNow >= deadline.Value) {
+                    throw new TimeoutException("The browser grid was not answered in time.");
+                }
+                if (launcher != null && LauncherFailed(launcher)) {
+                    throw new PromptUnavailableException("The browser could not be opened for the grid. Open " + Address + " or use the screen grid.");
+                }
+            };
             while (true) {
                 Task<HttpListenerContext> next = _listener.GetContextAsync();
                 while (!next.Wait(200)) {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    if (deadline.HasValue && DateTime.UtcNow >= deadline.Value) {
-                        throw new TimeoutException("The browser grid was not answered in time.");
-                    }
+                    check();
                 }
-                HttpListenerContext context = next.Result;
-                if (Handle(context, out int[]? answer)) {
+                if (Handle(next.Result, check, out int[]? answer)) {
                     return answer;
                 }
             }
         }
 
-        private bool Handle(HttpListenerContext context, out int[]? answer) {
+        // A launcher that already exited with a failure code (for example xdg-open without a working browser) never showed
+        // the page. One that is still running, or exited cleanly after handing the address to a browser, is fine.
+        private static bool LauncherFailed(Process launcher) {
+            try {
+                return launcher.HasExited && launcher.ExitCode != 0;
+            } catch (InvalidOperationException) {
+                return false;
+            }
+        }
+
+        private bool Handle(HttpListenerContext context, Action check, out int[]? answer) {
             answer = null;
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
@@ -153,9 +193,9 @@ namespace ConsoleMonster.Interactive {
                         Respond(response, 403, "text/plain", Encoding.UTF8.GetBytes("Forbidden"));
                         return false;
                     }
-                    string body;
-                    using (StreamReader reader = new StreamReader(request.InputStream, Encoding.UTF8)) {
-                        body = reader.ReadToEnd();
+                    string? body = ReadAnswer(request, response, check);
+                    if (body == null) {
+                        return false;
                     }
                     answer = ParseAnswer(body);
                     Respond(response, 200, "text/plain", Encoding.UTF8.GetBytes("ok"));
@@ -167,6 +207,42 @@ namespace ConsoleMonster.Interactive {
                 // The browser went away mid-response; keep waiting for an answer.
                 return false;
             }
+        }
+
+        // Reads at most 64 KB, gives a slow sender ten seconds, and keeps the caller's cancellation and timeout working.
+        // Returns null after rejecting or abandoning the request.
+        private static string? ReadAnswer(HttpListenerRequest request, HttpListenerResponse response, Action check) {
+            if (request.ContentLength64 > MaxAnswerBytes) {
+                Respond(response, 413, "text/plain", Encoding.UTF8.GetBytes("Too large"));
+                return null;
+            }
+            DateTime limit = DateTime.UtcNow + AnswerReadLimit;
+            using MemoryStream body = new MemoryStream();
+            byte[] chunk = new byte[4096];
+            while (true) {
+                Task<int> read = request.InputStream.ReadAsync(chunk, 0, chunk.Length);
+                while (!read.Wait(200)) {
+                    try {
+                        check();
+                    } catch {
+                        response.Abort();
+                        throw;
+                    }
+                    if (DateTime.UtcNow >= limit) {
+                        response.Abort();
+                        return null;
+                    }
+                }
+                if (read.Result == 0) {
+                    break;
+                }
+                body.Write(chunk, 0, read.Result);
+                if (body.Length > MaxAnswerBytes) {
+                    Respond(response, 413, "text/plain", Encoding.UTF8.GetBytes("Too large"));
+                    return null;
+                }
+            }
+            return Encoding.UTF8.GetString(body.ToArray());
         }
 
         /// <summary>"ok:3,0,7" returns those indexes; anything else is a cancel.</summary>
@@ -192,12 +268,16 @@ namespace ConsoleMonster.Interactive {
             response.Close();
         }
 
-        /// <summary>Opens a URL with the command named by BROWSER when set, otherwise the platform's default handler.</summary>
-        internal static bool OpenDefaultBrowser(Uri address) {
+        /// <summary>
+        /// Opens a URL with the command named by BROWSER when set, otherwise the platform's default handler. Returns the
+        /// launcher process when there is one, so a launcher that fails after starting is noticed while waiting.
+        /// </summary>
+        internal static bool Launch(Uri address, out Process? launcher) {
+            launcher = null;
             try {
                 ProcessStartInfo start;
-                // BROWSER is the common convention (xdg-open and Python honour it); the first of its ':'-separated commands is used.
-                string browser = (Environment.GetEnvironmentVariable("BROWSER") ?? string.Empty).Split(System.IO.Path.PathSeparator)[0].Trim();
+                // BROWSER is the common convention (xdg-open and Python honour it); the first of its separated commands is used.
+                string browser = (Environment.GetEnvironmentVariable("BROWSER") ?? string.Empty).Split(Path.PathSeparator)[0].Trim();
                 if (browser.Length > 0) {
                     start = new ProcessStartInfo(browser, "\"" + address.AbsoluteUri + "\"") { UseShellExecute = false };
                 } else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
@@ -210,9 +290,11 @@ namespace ConsoleMonster.Interactive {
                     }
                     start = new ProcessStartInfo("xdg-open", address.AbsoluteUri) { UseShellExecute = false };
                 }
-                using Process? process = Process.Start(start);
+                launcher = Process.Start(start);
                 return true;
             } catch (Exception ex) when (ex is System.ComponentModel.Win32Exception || ex is InvalidOperationException || ex is FileNotFoundException) {
+                launcher?.Dispose();
+                launcher = null;
                 return false;
             }
         }
