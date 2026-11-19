@@ -178,6 +178,7 @@
     "ConsoleMonster.Interactive.BindingOptions",
     "ConsoleMonster.Interactive.Breadcrumb",
     "ConsoleMonster.Interactive.BreadcrumbInputOptions",
+    "ConsoleMonster.Interactive.BrowserGridOptions",
     "ConsoleMonster.Interactive.Button",
     "ConsoleMonster.Interactive.ButtonInputOptions",
     "ConsoleMonster.Interactive.ChartPlot",
