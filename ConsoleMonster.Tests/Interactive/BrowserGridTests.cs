@@ -327,13 +327,38 @@ namespace ConsoleMonster.Tests.Interactive {
         }
 
         [Fact]
-        public void AnAnswerThatArrivesIsKeptWhenItsAcknowledgementCannotBeSent() {
+        public void DataBarsScaleToTheColumnsLargestValue() {
+            Grid grid = new Grid("Disks") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
+            grid.Column(new TableColumn("Used") { Presenter = CellPresenters.DataBar });
+            grid.Row("C:", 10);
+            grid.Row("D:", 100);
+            string html = Page(grid);
+
+            Assert.Contains("\"v\":\"bar\",\"p\":0.1", html);
+            Assert.Contains("\"v\":\"bar\",\"p\":1", html);
+        }
+
+        [Fact]
+        public void LongSparklinesAreReducedToWhatTheCellCanDraw() {
+            Grid grid = new Grid("Load") { Presentation = new PresentationOptions { Culture = CultureInfo.InvariantCulture } };
+            grid.Column(new TableColumn("Trend") { Presenter = CellPresenters.Sparkline });
+            grid.Row("cpu", Enumerable.Range(0, 200_000).Select(i => (double)(i % 7)).ToArray());
+            string html = Page(grid);
+
+            int start = html.IndexOf("\"d\":[", StringComparison.Ordinal) + 5;
+            string[] points = html.Substring(start, html.IndexOf(']', start) - start).Split(',');
+            Assert.Equal(BrowserGridPage.SparkLimit, points.Length);
+        }
+
+        [Fact]
+        public void AnAnswerIsKeptWhenTheSenderLeavesWithoutReadingTheReply() {
             Grid grid = Servers();
             GridResult result = grid.ShowInBrowser(Interactive(), Browser((client, address) => Task.Run(() => {
-                // Like a closing tab's beacon: sends the whole answer and leaves without reading the reply.
-                using System.Net.Sockets.TcpClient beacon = new System.Net.Sockets.TcpClient(address.Host, address.Port) { LingerState = new System.Net.Sockets.LingerOption(true, 0) };
+                // Like a closing tab's beacon: sends the whole answer, ends its side and leaves without reading the reply.
+                using System.Net.Sockets.TcpClient beacon = new System.Net.Sockets.TcpClient(address.Host, address.Port);
                 byte[] request = Encoding.ASCII.GetBytes("POST " + address.AbsolutePath + "answer HTTP/1.1\r\nHost: " + address.Authority + "\r\nContent-Length: 4\r\n\r\nok:0");
                 beacon.GetStream().Write(request, 0, request.Length);
+                beacon.Client.Shutdown(System.Net.Sockets.SocketShutdown.Send);
             })));
 
             Assert.True(result.Accepted);
