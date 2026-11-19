@@ -4487,7 +4487,7 @@
         {
           "powershell": "Show-ConsoleGrid -RefreshRow …",
           "csharp": "new GridOptions { … }",
-          "fluent": "grid.Show(options => options.{Verb}(callback))",
+          "fluent": "grid.Show(options => options.RefreshRowBy(callback))",
           "memberId": "M:ConsoleMonster.Interactive.Grid.Show",
           "note": "Configure fresh defaults once, then call the existing operation owner; object options remain supported."
         },
