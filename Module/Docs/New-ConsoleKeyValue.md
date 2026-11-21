@@ -39,12 +39,24 @@ Pairs with status marks
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleKeyValue -InputObject ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' }) -Content {
-    [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
-} | Show-Console
+$keyValueOptions = @{
+    InputObject = ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' })
+    Content = {
+        [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
+    }
+}
+New-ConsoleKeyValue @keyValueOptions | Show-Console
 ```
 
 A hashtable and pairs together
+
+### EXAMPLE 4
+```powershell
+Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'scheduled-tasks' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleKeyValue in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

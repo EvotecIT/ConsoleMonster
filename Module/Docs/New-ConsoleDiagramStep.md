@@ -21,20 +21,48 @@ From and To identify diagram nodes. Payload is a hashtable of fields shown with 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDiagramStep Web 'Orders API' 'create order' -Payload @{ sku = 'MUG-01'; qty = 2 }
+$diagramStepOptions = @{
+    From = 'Web'
+    To = 'Orders API'
+    Label = 'create order'
+    Payload = @{ sku = 'MUG-01'; qty = 2 }
+}
+New-ConsoleDiagramStep @diagramStepOptions
 ```
 
 A request payload.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDiagram -Title 'Checkout' -Content {
-                New-ConsoleDiagramNode -Id api -Label API
-                New-ConsoleDiagramNode -Id db -Label Database
-                New-ConsoleDiagramUseCase -Id order -Label 'Save order' -Content {
-                    New-ConsoleDiagramStep -From api -To db -Label 'Insert order'
+$diagramOptions = @{
+    Title = 'Checkout'
+    Content = {
+        $diagramNodeOptions2 = @{
+            Id = 'api'
+            Label = 'API'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions2
+        $diagramNodeOptions = @{
+            Id = 'db'
+            Label = 'Database'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions
+        $diagramUseCaseOptions = @{
+            Id = 'order'
+            Label = 'Save order'
+            Content = {
+                $diagramStepOptions = @{
+                    From = 'api'
+                    To = 'db'
+                    Label = 'Insert order'
                 }
-            } | Show-Console
+                New-ConsoleDiagramStep @diagramStepOptions
+            }
+        }
+        New-ConsoleDiagramUseCase @diagramUseCaseOptions
+    }
+}
+New-ConsoleDiagram @diagramOptions | Show-Console
 ```
 
 Compose an inventory diagram step

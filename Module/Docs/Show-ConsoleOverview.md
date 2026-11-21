@@ -33,14 +33,22 @@ Show the local login overview.
 
 ### EXAMPLE 2
 ```powershell
-$snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject
+$overviewOptions = @{
+    AsObject = $true
+    Section = @('Resources', 'Disks')
+}
+$snapshot = Show-ConsoleOverview @overviewOptions
 ```
 
 Return selected data for a script.
 
 ### EXAMPLE 3
 ```powershell
-Show-ConsoleOverview -Width 60 -AsWidget | Export-ConsoleFrame -Format Text
+$overviewOptions = @{
+    AsWidget = $true
+    Width = 60
+}
+Show-ConsoleOverview @overviewOptions | Export-ConsoleFrame -Format Text
 ```
 
 Capture a compact plain-text overview.

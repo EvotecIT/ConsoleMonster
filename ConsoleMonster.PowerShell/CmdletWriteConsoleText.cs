@@ -14,15 +14,36 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.</para></remarks>
     /// <example>
     ///   <para>Colour two pieces and indent the message</para>
-    ///   <code>Write-ConsoleText -Text 'Checking group: ', 'Operators' -Color Gray, Green -Indent 4</code>
+    ///   <code>$textOptions = @{
+    ///     Text = @('Checking group: ', 'Operators')
+    ///     Color = @('Gray', 'Green')
+    ///     Indent = 4
+    /// }
+    /// Write-ConsoleText @textOptions</code>
     /// </example>
     /// <example>
     ///   <para>Centre a heading within sixty columns</para>
-    ///   <code>Write-ConsoleText 'Maintenance complete' -Role Pass -Alignment Center -Width 60</code>
+    ///   <code>$textOptions = @{
+    ///     Text = @('Maintenance complete')
+    ///     Role = 'Pass'
+    ///     Alignment = 'Center'
+    ///     Width = 60
+    /// }
+    /// Write-ConsoleText @textOptions</code>
     /// </example>
     /// <example>
     ///   <para>A multi-line message aligned under the time stamp</para>
-    ///   <code>Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTimestamp -SplitLines "`n"</code>
+    ///   <code>$textOptions = @{
+    ///     ShowTimestamp = $true
+    ///     Text = @('[info] ', "Path exists`n2. line`n3. line")
+    ///     Color = @('Yellow', 'White')
+    ///     SplitLines = "`n"
+    /// }
+    /// Write-ConsoleText @textOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Write-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Write, "ConsoleText", HelpUri = "https://consolemonster.dev/powershell/commands/write-consoletext/")]
     public sealed class CmdletWriteConsoleText : PSCmdlet {

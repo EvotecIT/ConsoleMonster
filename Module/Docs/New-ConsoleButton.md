@@ -21,7 +21,11 @@ Emits a stable core Button widget. Place inputs in the outer layout, outside dep
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleButton -Key Apply -OnClick { $State.Applied = $true }
+$buttonOptions = @{
+    Key = 'Apply'
+    OnClick = { $State.Applied = $true }
+}
+New-ConsoleButton @buttonOptions
 ```
 
 Create an application input.
@@ -29,11 +33,28 @@ Create an application input.
 ### EXAMPLE 2
 ```powershell
 Show-ConsoleApp -Content {
-    New-ConsoleButton -Key inspect -Label 'Inspect inventory' -OnClick { Write-ConsoleLogEntry 'Inspection requested' }
+    $buttonOptions = @{
+        Key = 'inspect'
+        Label = 'Inspect inventory'
+        OnClick = {
+            $logEntryOptions = @{
+                Message = 'Inspection requested'
+            }
+            Write-ConsoleLogEntry @logEntryOptions
+        }
+    }
+    New-ConsoleButton @buttonOptions
 }
 ```
 
 Compose an inventory button
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'setup-basic' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see New-ConsoleButton in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

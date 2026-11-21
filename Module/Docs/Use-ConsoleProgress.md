@@ -21,12 +21,15 @@ The script runs on the pipeline thread with the caller's variables. While it run
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleProgress {
-    foreach ($i in 1..50) {
-        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
-        Start-Sleep -Milliseconds 50
+$progressOptions = @{
+    ScriptBlock = {
+        foreach ($i in 1..50) {
+            Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
+            Start-Sleep -Milliseconds 50
+        }
     }
 }
+Use-ConsoleProgress @progressOptions
 ```
 
 An existing loop, unchanged

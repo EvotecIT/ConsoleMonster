@@ -28,40 +28,72 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A live checklist: items start pending and are updated from the dashboard script</para>
-    ///   <code>
-    /// $steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
-    /// Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }</code>
+    ///   <code>$steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
+    /// $dashboardOptions = @{
+    ///     Dashboard = (New-ConsoleDashboard -Title 'Backup' -Content { $steps })
+    ///     ScriptBlock = {
+    ///         $updateConsoleOptions = @{
+    ///             WidgetId = 'status'
+    ///             Key = 'Scan files'
+    ///             Status = 'Pass'
+    ///             Detail = '2.4 s'
+    ///         }
+    ///         Update-Console @updateConsoleOptions
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     /// <example>
     /// <para>Show build phases as a compact strip</para>
-    /// <code>New-ConsoleStatusList -Layout Strip -StepCounter -Content {
-    ///     @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
-    ///     @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
-    ///     @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
-    /// } | Show-Console</code>
+    /// <code>$statusListOptions = @{
+    ///     StepCounter = $true
+    ///     Layout = 'Strip'
+    ///     Content = {
+    ///         @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
+    ///         @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
+    ///         @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
+    ///     }
+    /// }
+    /// New-ConsoleStatusList @statusListOptions | Show-Console</code>
     /// </example>
     /// <example>
     /// <para>The running phase fans out to the users it is migrating</para>
-    /// <code>New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
-    ///     @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
-    ///     @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
-    ///     @{ Key = 'verify'; Label = 'Verify' }
-    ///     'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
-    ///     @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
-    ///     @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
-    /// } | Show-Console</code>
+    /// <code>$statusListOptions = @{
+    ///     Layout = 'Strip'
+    ///     FanOut = 4
+    ///     Content = {
+    ///         @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
+    ///         @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
+    ///         @{ Key = 'verify'; Label = 'Verify' }
+    ///         'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
+    ///         @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
+    ///         @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
+    ///     }
+    /// }
+    /// New-ConsoleStatusList @statusListOptions | Show-Console</code>
     /// </example>
     /// <example>
     /// <para>Pipeline stages as one line in a table column</para>
-    /// <code>$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {
-    ///     @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
-    ///     @{ Key = 'build'; Label = 'Build'; Status = $Build }
-    ///     @{ Key = 'test'; Label = 'Test' }
-    /// } }
+    /// <code>$stages = { param($Build)
+    ///     $statusListOptions = @{
+    ///         Layout = 'Chain'
+    ///         Content = {
+    ///             @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
+    ///             @{ Key = 'build'; Label = 'Build'; Status = $Build }
+    ///             @{ Key = 'test'; Label = 'Test' }
+    ///         }
+    ///     }
+    ///     New-ConsoleStatusList @statusListOptions
+    /// }
     /// @(
     ///     [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = &amp; $stages 'Running' }
     ///     [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = &amp; $stages 'Fail' }
     /// ) | Show-ConsoleTable</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleStatusList in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'repository-status' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolestatuslist/")]
     [OutputType(typeof(StatusList), typeof(Phases))]

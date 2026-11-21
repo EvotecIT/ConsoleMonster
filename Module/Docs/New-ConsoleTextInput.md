@@ -26,7 +26,12 @@ Emits a stable core TextInput widget. Place inputs in the outer layout, outside 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTextInput -Key Query -Placeholder 'Filter' -OnChange { $State.Edits = 1 + $State.Edits }
+$textInputOptions = @{
+    Key = 'Query'
+    Placeholder = 'Filter'
+    OnChange = { $State.Edits = 1 + $State.Edits }
+}
+New-ConsoleTextInput @textInputOptions
 ```
 
 Create an application input.
@@ -34,11 +39,24 @@ Create an application input.
 ### EXAMPLE 2
 ```powershell
 Show-ConsoleApp -Content {
-    New-ConsoleTextInput -Key filter -Placeholder 'Server name' -Value web
+    $textInputOptions = @{
+        Key = 'filter'
+        Placeholder = 'Server name'
+        Value = 'web'
+    }
+    New-ConsoleTextInput @textInputOptions
 }
 ```
 
 Compose an inventory text input
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleTextInput in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

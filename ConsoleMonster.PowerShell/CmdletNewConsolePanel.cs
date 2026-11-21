@@ -9,14 +9,31 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.</para></remarks>
     /// <example>
     ///   <para>A panel holding a lanes widget, taking two shares of a row</para>
-    ///   <code>New-ConsolePanel -Title 'Targets' -Weight 2 -Content { New-ConsoleLanes -WidgetId targets }</code>
+    ///   <code>$panelOptions = @{
+    ///     Title = 'Targets'
+    ///     Weight = 2
+    ///     Content = { New-ConsoleLanes -WidgetId targets }
+    /// }
+    /// New-ConsolePanel @panelOptions</code>
     /// </example>
     /// <example>
     /// <para>Frame an inventory record with a heading</para>
-    /// <code>New-ConsolePanel -Title 'Inventory result' -Content {
-    ///     [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget
-    /// } | Show-Console
-    /// </code>
+    /// <code>$panelOptions = @{
+    ///     Title = 'Inventory result'
+    ///     Content = {
+    ///         $showConsoleOptions = @{
+    ///             AsWidget = $true
+    ///             View = 'List'
+    ///         }
+    ///         [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console @showConsoleOptions
+    ///     }
+    /// }
+    /// New-ConsolePanel @panelOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsolePanel in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsolePanel", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolepanel/")]
     [OutputType(typeof(IWidget))]

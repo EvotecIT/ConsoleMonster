@@ -8,12 +8,25 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) on modern and Consolas fonts, and with # in ASCII mode. Colours accept names, #hex or rgb().</para></remarks>
     /// <example>
     ///   <para>A banner with a tagline</para>
-    ///   <code>New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console</code>
+    ///   <code>$logoOptions = @{
+    ///     Text = 'DEPLOY'
+    ///     Tagline = 'production · 14 servers'
+    ///     StartColor = '#22d3ee'
+    ///     EndColor = '#a78bfa'
+    /// }
+    /// New-ConsoleLogo @logoOptions | Show-Console</code>
     /// </example>
     /// <example>
     /// <para>Print a fleet heading and tagline</para>
-    /// <code>New-ConsoleLogo -Text 'Fleet' -Tagline 'Inventory checks' | Show-Console
-    /// </code>
+    /// <code>$logoOptions = @{
+    ///     Text = 'Fleet'
+    ///     Tagline = 'Inventory checks'
+    /// }
+    /// New-ConsoleLogo @logoOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see New-ConsoleLogo in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'welcome-rich' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogo", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolelogo/")]
     [OutputType(typeof(Logo))]

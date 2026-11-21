@@ -21,8 +21,22 @@ The form opens on the alternate screen (or in the scrollback with -Inline). Fiel
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }
-$answers = Read-ConsoleForm $form
+$formOptions2 = @{
+    Title = 'Example'
+    Content = {
+        $fieldOptions = @{
+            Key = 'Name'
+            Label = 'Name'
+            Default = 'example'
+        }
+        New-ConsoleField @fieldOptions
+    }
+}
+$form = New-ConsoleForm @formOptions2
+$formOptions = @{
+    Form = $form
+}
+$answers = Read-ConsoleForm @formOptions
 if ($answers) { Write-Host "Selected $($answers.Name)" }
 ```
 
@@ -30,13 +44,33 @@ Run a wizard and use the answers
 
 ### EXAMPLE 2
 ```powershell
-$form = New-ConsoleForm 'Inspect inventory' -Content {
-    New-ConsoleField Server 'Server name' -Default web01 -Required
+$formOptions2 = @{
+    Title = 'Inspect inventory'
+    Content = {
+        $fieldOptions = @{
+            Required = $true
+            Key = 'Server'
+            Label = 'Server name'
+            Default = 'web01'
+        }
+        New-ConsoleField @fieldOptions
+    }
 }
-Read-ConsoleForm $form | Show-ConsoleTable
+$form = New-ConsoleForm @formOptions2
+$formOptions = @{
+    Form = $form
+}
+Read-ConsoleForm @formOptions | Show-ConsoleTable
 ```
 
 Collect a server name and display the submitted values
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Read-ConsoleForm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

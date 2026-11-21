@@ -9,19 +9,45 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Content emits New-ConsoleCollapsible sections. Opening one folds the others; while a header has focus, + expands every section for reading and - folds them all. Each section keeps its own key and state.</para></remarks>
     /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>Show-ConsoleApp -Content {
     ///     New-ConsoleAccordion -Content {
-    ///         New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
-    ///         New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-    ///             'Get-Process -Name pwsh'
-    ///             'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
+    ///         $collapsibleOptions2 = @{
+    ///             Expanded = $true
+    ///             Key = 'Synopsis'
+    ///             Content = { 'Gets the processes running on the computer.' }
     ///         }
+    ///         New-ConsoleCollapsible @collapsibleOptions2
+    ///         $collapsibleOptions = @{
+    ///             Key = 'Examples'
+    ///             Summary = '(2)'
+    ///             Content = {
+    ///                 'Get-Process -Name pwsh'
+    ///                 'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
+    ///             }
+    ///         }
+    ///         New-ConsoleCollapsible @collapsibleOptions
     ///     }
     /// }</code></example>
     /// <example>
     /// <para>Compose an inventory accordion</para>
     /// <code>New-ConsoleAccordion -Content {
-    ///     New-ConsoleCollapsible -Key network -Label Network -Expanded -Content { New-ConsoleText 'DNS reachable' -Role Pass }
-    /// } | Show-Console
-    /// </code>
+    ///     $collapsibleOptions = @{
+    ///         Expanded = $true
+    ///         Key = 'network'
+    ///         Label = 'Network'
+    ///         Content = {
+    ///             $textOptions = @{
+    ///                 Text = @('DNS reachable')
+    ///                 Role = 'Pass'
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    ///     New-ConsoleCollapsible @collapsibleOptions
+    /// } | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleAccordion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleAccordion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleaccordion/")]
     [OutputType(typeof(Accordion))]

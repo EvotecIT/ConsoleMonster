@@ -33,7 +33,11 @@ Check the active theme.
 
 ### EXAMPLE 2
 ```powershell
-Test-ConsoleTheme -Path ./team-theme.json -Strict
+$themeOptions = @{
+    Strict = $true
+    Path = './team-theme.json'
+}
+Test-ConsoleTheme @themeOptions
 ```
 
 Check a team theme in CI; any failure stops the script.
@@ -47,7 +51,11 @@ Inspect individual measurements as objects.
 
 ### EXAMPLE 4
 ```powershell
-Test-ConsoleTheme -Theme Dark -Detailed
+$themeOptions = @{
+    Detailed = $true
+    Theme = 'Dark'
+}
+Test-ConsoleTheme @themeOptions
 ```
 
 Show every measurement.

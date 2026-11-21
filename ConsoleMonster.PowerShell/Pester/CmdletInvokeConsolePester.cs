@@ -19,12 +19,17 @@ namespace ConsoleMonster.PowerShell.Pester {
     /// </example>
     /// <example>
     ///   <para>Preview running a configured suite and exporting its report</para>
-    ///   <code>
-    /// $configuration = @{
+    ///   <code>$configuration = @{
     ///     Run = @{ Path = './Tests'; PassThru = $true }
     ///     Filter = @{ Tag = 'Unit' }
     /// }
-    /// Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pester.html -WhatIf</code>
+    /// $pesterOptions = @{
+    ///     FullScreen = $true
+    ///     WhatIf = $true
+    ///     Configuration = $configuration
+    ///     ExportHtml = './pester.html'
+    /// }
+    /// Invoke-ConsolePester @pesterOptions</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsolePester", DefaultParameterSetName = "Simple", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consolepester/")]
     [OutputType(typeof(PSObject))]

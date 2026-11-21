@@ -15,7 +15,10 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged</para>
-    ///   <code>Enable-ConsoleFormatting -Include GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</code>
+    ///   <code>$formattingOptions = @{
+    ///     Include = @('GridView')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</code>
     /// </example>
     /// <example>
     ///   <para>Turn it on for the session</para>
@@ -23,27 +26,55 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Add a minimal themed shell prompt to the default formatting</para>
-    ///   <code>Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt</code>
+    ///   <code>Set-ConsoleTheme -Theme Dark;
+    /// $formattingOptions = @{
+    ///     Include = @('Prompt')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions</code>
     /// </example>
     /// <example>
     ///   <para>The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)</para>
-    ///   <code>Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet</code>
+    ///   <code>$themeOptions = @{
+    ///     Theme = 'ColorBlindSafe'
+    /// }
+    /// Set-ConsoleTheme @themeOptions; Enable-ConsoleFormatting -ProfileSnippet</code>
     /// </example>
     /// <example>
     ///   <para>Keep these features for every session: afterwards the profile needs only Enable-ConsoleFormatting</para>
-    ///   <code>Enable-ConsoleFormatting -Include Help, Progress -Save</code>
+    ///   <code>$formattingOptions = @{
+    ///     Save = $true
+    ///     Include = @('Help', 'Progress')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions</code>
     /// </example>
     /// <example>
     ///   <para>Exclude native format command styling from the default set</para>
-    ///   <code>Enable-ConsoleFormatting -Exclude FormatCommands</code>
+    ///   <code>$formattingOptions = @{
+    ///     Exclude = @('FormatCommands')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions</code>
     /// </example>
     /// <example>
     ///   <para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</para>
-    ///   <code>Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</code>
+    ///   <code>$themeOptions = @{
+    ///     Theme = 'Light'
+    /// }
+    /// Set-ConsoleTheme @themeOptions;
+    /// $formattingOptions = @{
+    ///     Include = @('Streams')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose</code>
     /// </example>
     /// <example>
     ///   <para>Theme the already loaded editor and native progress without replacing commands</para>
-    ///   <code>Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</code>
+    ///   <code>$themeOptions = @{
+    ///     Theme = 'Dark'
+    /// }
+    /// Set-ConsoleTheme @themeOptions;
+    /// $formattingOptions = @{
+    ///     Include = @('ReadLine', 'Streams')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Enable, "ConsoleFormatting", SupportsShouldProcess = true, DefaultParameterSetName = "Default", HelpUri = "https://consolemonster.dev/powershell/commands/enable-consoleformatting/")]
     public sealed class CmdletEnableConsoleFormatting : NoPipelineInputCmdlet {
@@ -152,7 +183,10 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Keep the views, go back to PowerShell's progress</para>
-    ///   <code>Disable-ConsoleFormatting -Feature Progress</code>
+    ///   <code>$formattingOptions = @{
+    ///     Feature = @('Progress')
+    /// }
+    /// Disable-ConsoleFormatting @formattingOptions</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Disable, "ConsoleFormatting", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/disable-consoleformatting/")]
     public sealed class CmdletDisableConsoleFormatting : NoPipelineInputCmdlet {
@@ -174,15 +208,24 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.</para></remarks>
     /// <example>
     ///   <para>Show a module's result objects as a table</para>
-    ///   <code>Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime</code>
+    ///   <code>$viewOptions = @{
+    ///     TypeName = @('Contoso.Server')
+    ///     View = 'Table'
+    ///     Property = @('Name', @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, 'Uptime')
+    /// }
+    /// Register-ConsoleView @viewOptions</code>
     /// </example>
     /// <example>
     /// <para>Register a table for typed inventory records</para>
-    /// <code>Register-ConsoleView -TypeName 'Inventory.Server' -View Table -Property Name, State
+    /// <code>$viewOptions = @{
+    ///     TypeName = @('Inventory.Server')
+    ///     View = 'Table'
+    ///     Property = @('Name', 'State')
+    /// }
+    /// Register-ConsoleView @viewOptions
     /// $server = [pscustomobject]@{ Name = 'web01'; State = 'Online' }
     /// $server.PSObject.TypeNames.Insert(0, 'Inventory.Server')
-    /// $server | Show-Console
-    /// </code>
+    /// $server | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Register, "ConsoleView", DefaultParameterSetName = "Register", HelpUri = "https://consolemonster.dev/powershell/commands/register-consoleview/")]
     public sealed class CmdletRegisterConsoleView : NoPipelineInputCmdlet {

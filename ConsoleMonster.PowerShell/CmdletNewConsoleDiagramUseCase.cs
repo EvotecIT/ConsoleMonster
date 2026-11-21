@@ -5,15 +5,56 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Builds a playable sequence of diagram interactions.</summary>
     /// <remarks><para>Content emits New-ConsoleDiagramStep values in playback order. Id defaults to Label. AutoPlay starts only when the keyboard view opens; static output keeps the selected step.</para></remarks>
-    /// <example><para>A request and reply.</para><code>New-ConsoleDiagramUseCase 'Place an order' { New-ConsoleDiagramStep Shopper Web 'POST /checkout'; New-ConsoleDiagramStep Web Shopper 'Thank you' -Reply }</code></example>
+    /// <example><para>A request and reply.</para><code>$diagramUseCaseOptions = @{
+    ///     Label = 'Place an order'
+    ///     Content = {
+    ///         $diagramStepOptions2 = @{
+    ///             From = 'Shopper'
+    ///             To = 'Web'
+    ///             Label = 'POST /checkout'
+    ///         }
+    ///         New-ConsoleDiagramStep @diagramStepOptions2;
+    ///         $diagramStepOptions = @{
+    ///             Reply = $true
+    ///             From = 'Web'
+    ///             To = 'Shopper'
+    ///             Label = 'Thank you'
+    ///         }
+    ///         New-ConsoleDiagramStep @diagramStepOptions
+    ///     }
+    /// }
+    /// New-ConsoleDiagramUseCase @diagramUseCaseOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram use case</para>
-    /// <code>New-ConsoleDiagram -Title 'Order processing' -Content {
-    ///     New-ConsoleDiagramNode -Id api -Label API
-    ///     New-ConsoleDiagramNode -Id db -Label Database
-    ///     New-ConsoleDiagramUseCase -Id save -Label 'Save order' -Content { New-ConsoleDiagramStep -From api -To db -Label Insert }
-    /// } | Show-Console
-    /// </code>
+    /// <code>$diagramOptions = @{
+    ///     Title = 'Order processing'
+    ///     Content = {
+    ///         $diagramNodeOptions2 = @{
+    ///             Id = 'api'
+    ///             Label = 'API'
+    ///         }
+    ///         New-ConsoleDiagramNode @diagramNodeOptions2
+    ///         $diagramNodeOptions = @{
+    ///             Id = 'db'
+    ///             Label = 'Database'
+    ///         }
+    ///         New-ConsoleDiagramNode @diagramNodeOptions
+    ///         $diagramUseCaseOptions = @{
+    ///             Id = 'save'
+    ///             Label = 'Save order'
+    ///             Content = {
+    ///                 $diagramStepOptions = @{
+    ///                     From = 'api'
+    ///                     To = 'db'
+    ///                     Label = 'Insert'
+    ///                 }
+    ///                 New-ConsoleDiagramStep @diagramStepOptions
+    ///             }
+    ///         }
+    ///         New-ConsoleDiagramUseCase @diagramUseCaseOptions
+    ///     }
+    /// }
+    /// New-ConsoleDiagram @diagramOptions | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDiagramUseCase", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolediagramusecase/")][OutputType(typeof(DiagramUseCase))]
     public sealed class CmdletNewConsoleDiagramUseCase : PSCmdlet {

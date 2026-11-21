@@ -11,11 +11,26 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
     /// )
-    /// $server = $servers | Read-ConsoleSelect 'Server to inspect' -Display Name -Describe Status -GroupBy Region</code>
+    /// $selectOptions = @{
+    ///     Title = 'Server to inspect'
+    ///     Display = 'Name'
+    ///     Describe = 'Status'
+    ///     GroupBy = 'Region'
+    /// }
+    /// $server = $servers | Read-ConsoleSelect @selectOptions</code>
     /// </example>
     /// <example>
     /// <para>Choose from strings with a default</para>
-    /// <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
+    /// <code>$selectOptions = @{
+    ///     Title = 'Environment'
+    ///     Choices = @('Production', 'Staging', 'Lab')
+    ///     Default = 'Staging'
+    /// }
+    /// $environment = Read-ConsoleSelect @selectOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleSelect in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleselect/")]
     [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Interactive.SelectQuestionOptions), Include = new[] { "PageSize", "Minimum", "Maximum" })]

@@ -7,18 +7,47 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Creates two panes with a divider that the mouse and keyboard can move.</summary>
     /// <remarks><para>The panes sit side by side, or top and bottom with -Vertical. Dragging the divider resizes them. Ctrl+Shift+Left/Right (Ctrl+Shift+Up/Down when vertical) also resizes when the focused input and configured keys leave those chords free; text editing and existing bindings take precedence. With -Key, the app state holds the ratio under that key, so a binding that rebuilds the splitter keeps it and a callback can read or set it. A vertical splitter is as tall as its panes; -Fill makes it use the available height.</para></remarks>
     /// <example><para>Show a list beside its details and let the reader widen either side.</para><code>Show-ConsoleApp -Content {
-    ///     New-ConsoleSplitter -Key Panes -Ratio 0.35 -Fill -First {
-    ///         New-ConsoleSelect -Key Server -Choices 'web-01', 'web-02', 'db-01'
-    ///     } -Second {
-    ///         New-ConsoleBinding -Content { param($State) "Details for $($State.Server)" }
+    ///     $splitterOptions = @{
+    ///         Fill = $true
+    ///         Key = 'Panes'
+    ///         Ratio = 0.35
+    ///         First = {
+    ///             $selectOptions = @{
+    ///                 Key = 'Server'
+    ///                 Choices = @('web-01', 'web-02', 'db-01')
+    ///             }
+    ///             New-ConsoleSelect @selectOptions
+    ///         }
+    ///         Second = {
+    ///             New-ConsoleBinding -Content { param($State) "Details for $($State.Server)" }
+    ///         }
     ///     }
+    ///     New-ConsoleSplitter @splitterOptions
     /// }</code></example>
     /// <example>
     /// <para>Compose an inventory splitter</para>
-    /// <code>New-ConsoleSplitter -Key inventory -First { New-ConsoleText 'web01' } -Second {
-    ///     New-ConsoleText 'State: Online' -Role Pass
-    /// } | Show-Console
-    /// </code>
+    /// <code>$splitterOptions = @{
+    ///     Key = 'inventory'
+    ///     First = {
+    ///         $textOptions2 = @{
+    ///             Text = @('web01')
+    ///         }
+    ///         New-ConsoleText @textOptions2
+    ///     }
+    ///     Second = {
+    ///         $textOptions = @{
+    ///             Text = @('State: Online')
+    ///             Role = 'Pass'
+    ///         }
+    ///         New-ConsoleText @textOptions
+    ///     }
+    /// }
+    /// New-ConsoleSplitter @splitterOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleSplitter in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSplitter", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolesplitter/")]
     [OutputType(typeof(IWidget))]

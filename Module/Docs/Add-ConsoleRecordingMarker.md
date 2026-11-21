@@ -21,7 +21,10 @@ Inside a recorded child shell, sends an OSC marker to the parent recorder. The m
 
 ### EXAMPLE 1
 ```powershell
-Add-ConsoleRecordingMarker 'Deploy'
+$recordingMarkerOptions = @{
+    Label = 'Deploy'
+}
+Add-ConsoleRecordingMarker @recordingMarkerOptions
 ```
 
 Mark a deployment step

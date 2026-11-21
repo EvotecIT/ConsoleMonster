@@ -30,17 +30,35 @@ $servers = @(
     [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
     [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
 )
-$server = $servers | Read-ConsoleSelect 'Server to inspect' -Display Name -Describe Status -GroupBy Region
+$selectOptions = @{
+    Title = 'Server to inspect'
+    Display = 'Name'
+    Describe = 'Status'
+    GroupBy = 'Region'
+}
+$server = $servers | Read-ConsoleSelect @selectOptions
 ```
 
 Pick an object from a small inventory
 
 ### EXAMPLE 2
 ```powershell
-$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'
+$selectOptions = @{
+    Title = 'Environment'
+    Choices = @('Production', 'Staging', 'Lab')
+    Default = 'Staging'
+}
+$environment = Read-ConsoleSelect @selectOptions
 ```
 
 Choose from strings with a default
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Read-ConsoleSelect in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

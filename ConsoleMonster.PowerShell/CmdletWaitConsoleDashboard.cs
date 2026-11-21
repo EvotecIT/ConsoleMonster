@@ -7,26 +7,65 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</para></remarks>
     /// <example>
     /// <para>Update progress between cancellable pauses</para>
-    /// <code>
-    /// $dashboard = New-ConsoleDashboard -Title 'Scan' -Content {
-    ///     New-ConsoleProgress -WidgetId overall -Label Targets -Total 3
-    /// }
-    /// Invoke-ConsoleDashboard -Dashboard $dashboard -ScriptBlock {
-    ///     foreach ($count in 1..3) {
-    ///         Update-Console -WidgetId overall -Value $count
-    ///         Wait-ConsoleDashboard -Seconds 0.25
+    /// <code>$dashboardOptions2 = @{
+    ///     Title = 'Scan'
+    ///     Content = {
+    ///         $progressOptions = @{
+    ///             WidgetId = 'overall'
+    ///             Label = 'Targets'
+    ///             Total = 3
+    ///         }
+    ///         New-ConsoleProgress @progressOptions
     ///     }
-    /// }</code>
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ScriptBlock = {
+    ///         foreach ($count in 1..3) {
+    ///             $updateConsoleOptions = @{
+    ///                 WidgetId = 'overall'
+    ///                 Value = $count
+    ///             }
+    ///             Update-Console @updateConsoleOptions
+    ///             Wait-ConsoleDashboard -Seconds 0.25
+    ///         }
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     /// <example>
     /// <para>Pause briefly between live server updates</para>
-    /// <code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleLanes -WidgetId servers }
-    /// Invoke-ConsoleDashboard $dashboard {
-    ///     Update-Console servers -Key web01 -Status Running
-    ///     Wait-ConsoleDashboard -Seconds 0.1
-    ///     Update-Console servers -Key web01 -Status Pass -Complete
+    /// <code>$dashboardOptions2 = @{
+    ///     Title = 'Inventory'
+    ///     Content = { New-ConsoleLanes -WidgetId servers }
     /// }
-    /// </code>
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ScriptBlock = {
+    ///         $updateConsoleOptions2 = @{
+    ///             WidgetId = 'servers'
+    ///             Key = 'web01'
+    ///             Status = 'Running'
+    ///         }
+    ///         Update-Console @updateConsoleOptions2
+    ///         Wait-ConsoleDashboard -Seconds 0.1
+    ///         $updateConsoleOptions = @{
+    ///             Complete = $true
+    ///             WidgetId = 'servers'
+    ///             Key = 'web01'
+    ///             Status = 'Pass'
+    ///         }
+    ///         Update-Console @updateConsoleOptions
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see Wait-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Wait, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/wait-consoledashboard/")]
     public sealed class CmdletWaitConsoleDashboard : NoPipelineLiveCmdlet {

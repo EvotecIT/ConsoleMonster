@@ -22,9 +22,24 @@ Marks unfinished items skipped, releases held log lines, restores the terminal a
 ### EXAMPLE 1
 ```powershell
 $checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
-$run = Start-ConsoleRun -InputObject $checks -Label Name -NoLive
-Update-Console -Run $run -Index 0 -Status Fail -Detail 'Sample failure'
-$summary = Complete-ConsoleRun $run -PassThru
+$runOptions2 = @{
+    NoLive = $true
+    InputObject = $checks
+    Label = 'Name'
+}
+$run = Start-ConsoleRun @runOptions2
+$updateConsoleOptions = @{
+    Run = $run
+    Index = @(0)
+    Status = 'Fail'
+    Detail = 'Sample failure'
+}
+Update-Console @updateConsoleOptions
+$runOptions = @{
+    PassThru = $true
+    Run = $run
+}
+$summary = Complete-ConsoleRun @runOptions
 $summary.Items | Where-Object Status -eq Fail
 ```
 
@@ -33,8 +48,21 @@ Return a structured summary of a completed run
 ### EXAMPLE 2
 ```powershell
 $servers = @([pscustomobject]@{ Name = 'web01' })
-$run = Start-ConsoleRun -InputObject $servers -Label Name -Title 'Inspect inventory'
-try { Update-Console -Run $run -Index 0 -Status Pass -Detail 'Inventory read' }
+$runOptions = @{
+    InputObject = $servers
+    Label = 'Name'
+    Title = 'Inspect inventory'
+}
+$run = Start-ConsoleRun @runOptions
+try {
+    $updateConsoleOptions = @{
+        Run = $run
+        Index = @(0)
+        Status = 'Pass'
+        Detail = 'Inventory read'
+    }
+    Update-Console @updateConsoleOptions
+}
 finally { Complete-ConsoleRun -Run $run }
 ```
 

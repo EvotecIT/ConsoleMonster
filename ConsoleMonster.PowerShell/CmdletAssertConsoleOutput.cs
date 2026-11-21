@@ -17,14 +17,27 @@ namespace ConsoleMonster.PowerShell {
     ///     if (-not (Test-Path -LiteralPath $goldenPath -PathType Leaf)) { throw 'Provide a reviewed golden file before running this example.' }
     ///     if ($env:CONSOLEMONSTER_UPDATE_GOLDEN -eq '1') { throw 'Golden updates must be disabled for this comparison.' }
     ///     $rows = @([pscustomobject]@{ Name = 'web01'; Status = 'Pass' })
-    ///     $rows | New-ConsoleTable | Assert-ConsoleOutput -GoldenPath $goldenPath -Width 80
+    ///     $outputOptions = @{
+    ///         GoldenPath = $goldenPath
+    ///         Width = 80
+    ///     }
+    ///     $rows | New-ConsoleTable | Assert-ConsoleOutput @outputOptions
     /// }</code>
     /// </example>
     /// <example>
     /// <para>Check an inventory panel against an existing baseline</para>
-    /// <code>$view = New-ConsolePanel 'Inventory' -Content { New-ConsoleText 'web01: Pass' }
-    /// Assert-ConsoleOutput -InputObject $view -GoldenPath ./inventory.txt -PassThru
-    /// </code>
+    /// <code>$view = New-ConsolePanel -Title 'Inventory' -Content {
+    ///     $textOptions = @{
+    ///         Text = @('web01: Pass')
+    ///     }
+    ///     New-ConsoleText @textOptions
+    /// }
+    /// $outputOptions = @{
+    ///     PassThru = $true
+    ///     InputObject = $view
+    ///     GoldenPath = './inventory.txt'
+    /// }
+    /// Assert-ConsoleOutput @outputOptions</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Assert, "ConsoleOutput", HelpUri = "https://consolemonster.dev/powershell/commands/assert-consoleoutput/")]
     [OutputType(typeof(string))]

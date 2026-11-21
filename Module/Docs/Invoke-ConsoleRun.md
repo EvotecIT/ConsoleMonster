@@ -23,34 +23,94 @@ $_ is the item, as in ForEach-Object. While it runs, a live view shows a summary
 
 ### EXAMPLE 1
 ```powershell
-$servers = 'web01', 'web02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -Label Name { $_.Name.ToUpperInvariant() }
+$servers = @(
+    [pscustomobject]@{ Name = 'web01' }
+    [pscustomobject]@{ Name = 'web02' }
+)
+$runOptions = @{
+    Parallel = $true
+    ThrottleLimit = 8
+    Label = 'Name'
+    ScriptBlock = { $_.Name.ToUpperInvariant() }
+}
+$servers | Invoke-ConsoleRun @runOptions
 ```
 
-Inspect items in parallel
+Inspect two records in parallel. The pipeline supplies one record per invocation of ScriptBlock. Label reads Name for the dashboard, while ScriptBlock returns the uppercased name to the PowerShell pipeline. ThrottleLimit is an upper bound, so this example starts at most two workers.
 
 ### EXAMPLE 2
 ```powershell
-Get-ChildItem -File | Select-Object -First 5 | Invoke-ConsoleRun { $_.Name }
+$servers = @('web-01', 'web-02', 'web-03')
+$runOptions = @{
+    Parallel = $true
+    ThrottleLimit = 3
+    TimeoutSeconds = 3
+    ErrorAction = 'SilentlyContinue'
+    ErrorVariable = 'failures'
+    ScriptBlock = {
+        if ($_ -eq 'web-03') { throw "$_ restart check failed" }
+        [pscustomobject]@{ Host = $_; Message = "$_ preview passed" }
+    }
+}
+$results = @($servers | Invoke-ConsoleRun @runOptions)
+$results
+$failures
 ```
 
-One at a time, in the current scope
+Separate successful results from error records, as in patch-progress. ErrorAction keeps the synthetic error off the display while ErrorVariable retains it. Output from the other preview checks remains available as ordinary PowerShell objects. The sample makes no changes to any host.
 
 ### EXAMPLE 3
 ```powershell
-1..40 | Invoke-ConsoleRun -Parallel -ThrottleLimit 8 -TimeoutSeconds 10 -Title 'Patching web farm' -Label { "web$('{0:d2}' -f $_)" } {
-    Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
-    if ($_ % 13 -eq 0) { throw "web$_ did not come back after the reboot" }
-}
+Get-ConsoleDemo -Slug 'patch-progress' | Select-Object -ExpandProperty Source
 ```
 
-Forty items in parallel with a title and a time limit: items that throw or run past 10 seconds are failures, listed when the run ends
+Read the full patch-progress example, which uses Invoke-ConsoleRun and renders a report from the retained successes and failures.
 
 ### EXAMPLE 4
 ```powershell
-$servers = 'server01', 'server02' | ForEach-Object { [pscustomobject]@{ Name = $_ } }; $servers | Invoke-ConsoleRun -Parallel -RetryCount 2 -RetryDelaySeconds 5 -Label Name { "Would restart $($_.Name)" }
+$runOptions = @{
+    ScriptBlock = { $_.Name }
+}
+Get-ChildItem -File | Select-Object -First 5 | Invoke-ConsoleRun @runOptions
 ```
 
-Retry flaky servers twice, five seconds apart
+Read up to five filenames sequentially. Each invocation sees the current FileInfo as $_ and emits its Name. Without Parallel, the script runs in the caller's scope.
+
+### EXAMPLE 5
+```powershell
+$runOptions = @{
+    Parallel = $true
+    ThrottleLimit = 8
+    TimeoutSeconds = 10
+    Title = 'Patching web farm'
+    Label = { 'web{0:d2}' -f $_ }
+    ScriptBlock = {
+        Start-Sleep -Milliseconds (Get-Random -Minimum 200 -Maximum 1500)
+        if ($_ % 13 -eq 0) { throw ('web{0:d2} did not come back after the reboot' -f $_) }
+    }
+}
+1..40 | Invoke-ConsoleRun @runOptions
+```
+
+Simulate a forty-host patch wave like the parallel-patch gallery demo. Up to eight items run at once with a ten-second limit per item in this example. Label maps each number to a display name. The synthetic failures on items 13, 26 and 39 produce error records and mark those items as failed.
+
+### EXAMPLE 6
+```powershell
+$servers = @(
+    [pscustomobject]@{ Name = 'server01' }
+    [pscustomobject]@{ Name = 'server02' }
+)
+$runOptions = @{
+    Parallel = $true
+    RetryCount = 2
+    RetryDelaySeconds = 5
+    Label = 'Name'
+    ScriptBlock = { "Would restart $($_.Name)" }
+}
+$servers | Invoke-ConsoleRun @runOptions
+```
+
+Configure up to two retries with a five-second delay after a failed attempt. The sample emits a message and succeeds on its first attempt. Use the same settings around a script block that can fail to exercise the retry path.
 
 ## PARAMETERS
 

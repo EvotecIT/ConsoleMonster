@@ -26,17 +26,34 @@ A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in t
 
 ### EXAMPLE 1
 ```powershell
-$name = Read-ConsoleText 'Server name' -Default 'srv01' -Pattern '[a-z][a-z0-9-]{1,14}' -PatternMessage 'Lower case letters, digits and dashes'
+$textOptions = @{
+    Title = 'Server name'
+    Default = 'srv01'
+    Pattern = '[a-z][a-z0-9-]{1,14}'
+    PatternMessage = 'Lower case letters, digits and dashes'
+}
+$name = Read-ConsoleText @textOptions
 ```
 
 A validated name
 
 ### EXAMPLE 2
 ```powershell
-Read-ConsoleText 'Email' -Validator { if ($_ -notmatch '@') { 'Enter an email address' } }
+$textOptions = @{
+    Title = 'Email'
+    Validator = { if ($_ -notmatch '@') { 'Enter an email address' } }
+}
+Read-ConsoleText @textOptions
 ```
 
 A scriptblock validator ($_ is the answer; return $true, $false or an error message)
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Read-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

@@ -9,19 +9,38 @@ using ConsoleMonster.Headless;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a script (usually an app) on a headless terminal with scripted input and returns the screens it drew.</summary>
     /// <remarks><para>The script runs in this session against a headless terminal of the given size, so apps, prompts, menus and dashboards draw there exactly as in a console window. The input is queued first in the recorder's grammar: key names (Down, Enter, Ctrl+K), quoted text, paste:, resize:WxH, wait:ms and the mouse at zero-based cells (click:x,y, dclick:, rclick:, move:, wheel:x,y,n, drag:x1,y1,x2,y2). Input ends after it, so an app that reads past the last key finishes. The result has the final screen's Text and Cells, every distinct screen in Frames and the script's Output, so a Pester test can assert on what the user would have seen. To watch an app in a browser or drive it from an agent, set CONSOLEMONSTER_HEADLESS and CONSOLEMONSTER_DEBUG_SOCKET before starting it; the browser host itself is a C# API.</para></remarks>
-    /// <example><para>Drive a list with a key and a click, then check the screen.</para><code>$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {
-    ///     Show-ConsoleApp -Content {
-    ///         New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01
-    ///         New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
+    /// <example><para>Drive a list with a key and a click, then check the screen.</para><code>$headlessOptions = @{
+    ///     Width = 56
+    ///     Height = 10
+    ///     InputScript = 'Down click:4,5 Escape'
+    ///     ScriptBlock = {
+    ///         Show-ConsoleApp -Content {
+    ///             $selectOptions = @{
+    ///                 Key = 'Server'
+    ///                 Choices = @('WEB01', 'SQL01', 'FS01')
+    ///             }
+    ///             New-ConsoleSelect @selectOptions
+    ///             New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
+    ///         }
     ///     }
     /// }
+    /// $result = Invoke-ConsoleHeadless @headlessOptions
     /// $result.Text | Should -Match 'Picked FS01'</code></example>
     /// <example>
     /// <para>Run a selection against scripted terminal input</para>
-    /// <code>Invoke-ConsoleHeadless -Width 60 -Height 12 -InputScript 'Enter' {
-    ///     Read-ConsoleSelect -Title 'Server' -Choices web01, web02
+    /// <code>$headlessOptions = @{
+    ///     Width = 60
+    ///     Height = 12
+    ///     InputScript = 'Enter'
+    ///     ScriptBlock = {
+    ///         $selectOptions = @{
+    ///             Title = 'Server'
+    ///             Choices = @('web01', 'web02')
+    ///         }
+    ///         Read-ConsoleSelect @selectOptions
+    ///     }
     /// }
-    /// </code>
+    /// Invoke-ConsoleHeadless @headlessOptions</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleHeadless", HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consoleheadless/")]
     [OutputType(typeof(ConsoleHeadlessResult))]

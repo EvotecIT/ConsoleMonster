@@ -39,7 +39,10 @@ Register the drafted columns and summary now, and return the compact script for 
 ### EXAMPLE 3
 ```powershell
 Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
-Register-ConsoleView -Path ./Processes.consoleviews.psd1
+            $viewOptions = @{
+                Path = @('./Processes.consoleviews.psd1')
+            }
+            Register-ConsoleView @viewOptions
 ```
 
 Save a data-only view and load it explicitly. Modules can ship a same-named file beside their manifest.

@@ -33,6 +33,13 @@ if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmatio
 
 A typed confirmation before deleting
 
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Read-ConsoleConfirm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
+
 ## PARAMETERS
 
 ### -Default

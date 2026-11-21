@@ -33,6 +33,15 @@ Get-ConsoleCapability | Select-Object Width, Height, Glyphs, ColorDepth | Show-C
 
 Inspect the current terminal dimensions and output tiers
 
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'readiness-report' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'welcome-rich' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see Get-ConsoleCapability in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
+
 ## PARAMETERS
 
 ### -Refresh

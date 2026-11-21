@@ -26,17 +26,44 @@ The listing retains original objects and stable row identities. Each grid has it
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleApp -Mode Snapshot -Content { New-ConsoleDataGrid -Key Inventory -Grid 'Inventory' -Height 18 }
+$appOptions = @{
+    Mode = 'Snapshot'
+    Content = {
+        $dataGridOptions = @{
+            Key = 'Inventory'
+            Grid = 'Inventory'
+            Height = 18
+        }
+        New-ConsoleDataGrid @dataGridOptions
+    }
+}
+Show-ConsoleApp @appOptions
 ```
 
 Embed an empty listing in an application
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleApp -Content { New-ConsoleDataGrid -Key Processes -InputObject (Get-Process) -Property Name, Id, CPU -Height 12 }
+Show-ConsoleApp -Content {
+    $dataGridOptions = @{
+        Key = 'Processes'
+        InputObject = @((Get-Process))
+        Property = @('Name', 'Id', 'CPU')
+        Height = 12
+    }
+    New-ConsoleDataGrid @dataGridOptions
+}
 ```
 
 List processes with three columns
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleDataGrid in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

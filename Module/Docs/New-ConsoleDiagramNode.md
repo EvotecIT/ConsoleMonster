@@ -21,16 +21,33 @@ Label is the connection identity unless Id is set. Subtitle is the second line a
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDiagramNode Router -Kind Gateway -Subtitle '192.168.1.1' -Value '1 ms' -Status Pass -To Internet
+$diagramNodeOptions = @{
+    Label = 'Router'
+    Kind = 'Gateway'
+    Subtitle = '192.168.1.1'
+    Value = '1 ms'
+    Status = 'Pass'
+    To = @('Internet')
+}
+New-ConsoleDiagramNode @diagramNodeOptions
 ```
 
 A monitored gateway.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDiagram -Title 'Request path' -Content {
-                New-ConsoleDiagramNode -Id api -Label 'Orders API' -Kind Service
-            } | Show-Console
+$diagramOptions = @{
+    Title = 'Request path'
+    Content = {
+        $diagramNodeOptions = @{
+            Id = 'api'
+            Label = 'Orders API'
+            Kind = 'Service'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions
+    }
+}
+New-ConsoleDiagram @diagramOptions | Show-Console
 ```
 
 Compose an inventory diagram node

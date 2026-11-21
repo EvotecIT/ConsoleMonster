@@ -15,24 +15,56 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }
     ///     [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
     /// )
-    /// $menu = New-ConsoleMenu 'Tasks' -Content {
-    ///     New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Selected { $_.Enabled }
-    ///     New-ConsoleMenuItem -Exit
+    /// $menuOptions2 = @{
+    ///     Title = 'Tasks'
+    ///     Content = {
+    ///         $menuItemOptions = @{
+    ///             Label = 'Tasks'
+    ///             Hotkey = 'k'
+    ///             MultiSelect = $tasks
+    ///             Display = 'Name'
+    ///             GroupBy = 'Category'
+    ///             Preview = { $_.Description }
+    ///             Selected = { $_.Enabled }
+    ///         }
+    ///         New-ConsoleMenuItem @menuItemOptions
+    ///         New-ConsoleMenuItem -Exit
+    ///     }
     /// }
-    /// Show-ConsoleMenu $menu</code>
+    /// $menu = New-ConsoleMenu @menuOptions2
+    /// $menuOptions = @{
+    ///     Menu = $menu
+    /// }
+    /// Show-ConsoleMenu @menuOptions</code>
     /// </example>
     /// <example>
     /// <para>Confirm an action and return a result record</para>
-    /// <code>$menu = New-ConsoleMenu 'Inventory' -Content {
-    ///     New-ConsoleMenuItem 'Preview refresh' -Action {
-    ///         if ($MenuContext.Confirm('Preview an inventory refresh?')) {
-    ///             $MenuContext.Toast('Preview ready')
-    ///             $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
+    /// <code>$menuOptions2 = @{
+    ///     Title = 'Inventory'
+    ///     Content = {
+    ///         $menuItemOptions = @{
+    ///             Label = 'Preview refresh'
+    ///             Action = {
+    ///                 if ($MenuContext.Confirm('Preview an inventory refresh?')) {
+    ///                     $MenuContext.Toast('Preview ready')
+    ///                     $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
+    ///                 }
+    ///             }
     ///         }
+    ///         New-ConsoleMenuItem @menuItemOptions
+    ///         New-ConsoleMenuItem -Exit
     ///     }
-    ///     New-ConsoleMenuItem -Exit
     /// }
-    /// Show-ConsoleMenu $menu</code>
+    /// $menu = New-ConsoleMenu @menuOptions2
+    /// $menuOptions = @{
+    ///     Menu = $menu
+    /// }
+    /// Show-ConsoleMenu @menuOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleMenuItem in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenuItem", DefaultParameterSetName = "Action", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolemenuitem/")]
     [OutputType(typeof(MenuItem))]

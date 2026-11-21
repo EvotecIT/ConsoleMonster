@@ -12,24 +12,52 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Name = 'web01'; Role = 'Web'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'sql01'; Role = 'Database'; Status = 'Fail' }
     /// )
-    /// Show-ConsoleApp -Title Servers -Content {
-    ///     New-ConsoleScreen -Key list -Title Servers -KeyBinding ([ordered]@{
-    ///         '1-2' = 'open', { param($Number, $State) $State.Server = $Number; $State.Screen = 'server' }
-    ///     }) -Content {
-    ///         'Type a number to open a server.'
-    ///         $servers | New-ConsoleTable -Property Name, Role, Status -StatusProperty Status
+    /// $appOptions = @{
+    ///     Title = 'Servers'
+    ///     Content = {
+    ///         $screenOptions2 = @{
+    ///             Key = 'list'
+    ///             Title = 'Servers'
+    ///             KeyBinding = ([ordered]@{
+    ///                     '1-2' = 'open', { param($Number, $State) $State.Server = $Number; $State.Screen = 'server' }
+    ///                 })
+    ///             Content = {
+    ///                 'Type a number to open a server.'
+    ///                 $tableOptions = @{
+    ///                     Property = @('Name', 'Role', 'Status')
+    ///                     StatusProperty = 'Status'
+    ///                 }
+    ///                 $servers | New-ConsoleTable @tableOptions
+    ///             }
+    ///         }
+    ///         New-ConsoleScreen @screenOptions2
+    ///         $screenOptions = @{
+    ///             Key = 'server'
+    ///             Title = { $servers[$State.Server - 1].Name }
+    ///             Content = {
+    ///                 New-ConsoleBinding -Content { $servers[$State.Server - 1] | New-ConsoleKeyValue }
+    ///             }
+    ///         }
+    ///         New-ConsoleScreen @screenOptions
     ///     }
-    ///     New-ConsoleScreen -Key server -Title { $servers[$State.Server - 1].Name } -Content {
-    ///         New-ConsoleBinding -Content { $servers[$State.Server - 1] | New-ConsoleKeyValue }
-    ///     }
-    /// }</code>
+    /// }
+    /// Show-ConsoleApp @appOptions</code>
     /// </example>
     /// <example>
     /// <para>Place an inventory page inside an application</para>
     /// <code>Show-ConsoleApp -Content {
-    ///     New-ConsoleScreen -Key inventory -Title Inventory -Content { New-ConsoleText 'web01: Online' }
-    /// }
-    /// </code>
+    ///     $screenOptions = @{
+    ///         Key = 'inventory'
+    ///         Title = 'Inventory'
+    ///         Content = {
+    ///             $textOptions = @{
+    ///                 Text = @('web01: Online')
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    ///     New-ConsoleScreen @screenOptions
+    /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleScreen", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolescreen/")]
     [OutputType(typeof(AppScreen))]

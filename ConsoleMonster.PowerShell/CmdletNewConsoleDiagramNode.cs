@@ -5,13 +5,29 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a diagram component.</summary>
     /// <remarks><para>Label is the connection identity unless Id is set. Subtitle is the second line and Value is the third. To adds unlabelled outgoing connections; missing destination nodes are created by the diagram.</para></remarks>
-    /// <example><para>A monitored gateway.</para><code>New-ConsoleDiagramNode Router -Kind Gateway -Subtitle '192.168.1.1' -Value '1 ms' -Status Pass -To Internet</code></example>
+    /// <example><para>A monitored gateway.</para><code>$diagramNodeOptions = @{
+    ///     Label = 'Router'
+    ///     Kind = 'Gateway'
+    ///     Subtitle = '192.168.1.1'
+    ///     Value = '1 ms'
+    ///     Status = 'Pass'
+    ///     To = @('Internet')
+    /// }
+    /// New-ConsoleDiagramNode @diagramNodeOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram node</para>
-    /// <code>New-ConsoleDiagram -Title 'Request path' -Content {
-    ///     New-ConsoleDiagramNode -Id api -Label 'Orders API' -Kind Service
-    /// } | Show-Console
-    /// </code>
+    /// <code>$diagramOptions = @{
+    ///     Title = 'Request path'
+    ///     Content = {
+    ///         $diagramNodeOptions = @{
+    ///             Id = 'api'
+    ///             Label = 'Orders API'
+    ///             Kind = 'Service'
+    ///         }
+    ///         New-ConsoleDiagramNode @diagramNodeOptions
+    ///     }
+    /// }
+    /// New-ConsoleDiagram @diagramOptions | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDiagramNode", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolediagramnode/")][OutputType(typeof(DiagramNode))]
     public sealed class CmdletNewConsoleDiagramNode : PSCmdlet {

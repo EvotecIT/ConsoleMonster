@@ -8,16 +8,33 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, grids and logs keep their own row windows for large data.</para></remarks>
     /// <example>
     /// <para>Build a scrollable detail pane</para>
-    /// <code>New-ConsoleScrollView -Content {
-    ///     1..20 | ForEach-Object { New-ConsoleText "Detail line $_" }
-    /// } -Height 12</code>
+    /// <code>$scrollViewOptions = @{
+    ///     Content = {
+    ///         1..20 | ForEach-Object {
+    ///             $textOptions = @{
+    ///                 Text = @("Detail line $_")
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    ///     Height = 12
+    /// }
+    /// New-ConsoleScrollView @scrollViewOptions</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory scroll view</para>
-    /// <code>New-ConsoleScrollView -Height 4 -Content {
-    ///     foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') { New-ConsoleText $server }
-    /// } | Show-Console
-    /// </code>
+    /// <code>$scrollViewOptions = @{
+    ///     Height = 4
+    ///     Content = {
+    ///         foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') {
+    ///             $textOptions = @{
+    ///                 Text = $server
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    /// }
+    /// New-ConsoleScrollView @scrollViewOptions | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleScrollView", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolescrollview/")]
     [OutputType(typeof(IWidget))]

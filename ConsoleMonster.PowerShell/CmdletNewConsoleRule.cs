@@ -12,10 +12,21 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Compose an inventory rule</para>
     /// <code>New-ConsoleRows -Content {
-    ///     New-ConsoleRule 'Inventory'
-    ///     New-ConsoleText '2 servers checked' -Role Pass
-    /// } | Show-Console
-    /// </code>
+    ///     $ruleOptions = @{
+    ///         Title = 'Inventory'
+    ///     }
+    ///     New-ConsoleRule @ruleOptions
+    ///     $textOptions = @{
+    ///         Text = @('2 servers checked')
+    ///         Role = 'Pass'
+    ///     }
+    ///     New-ConsoleText @textOptions
+    /// } | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleRule in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'backup-runner' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRule", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolerule/")]
     [OutputType(typeof(Rule))]

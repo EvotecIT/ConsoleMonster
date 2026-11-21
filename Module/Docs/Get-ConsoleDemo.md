@@ -28,17 +28,21 @@ Browse the gallery.
 
 ### EXAMPLE 2
 ```powershell
-Get-ConsoleDemo 'welcome-*'
+$demoOptions = @{
+    Slug = 'welcome-*'
+}
+Get-ConsoleDemo @demoOptions
 ```
 
 List the welcome demos.
 
 ### EXAMPLE 3
 ```powershell
-(Get-ConsoleDemo assessment).Source
+$demo = Get-ConsoleDemo -Slug 'assessment'
+$demo.Source
 ```
 
-Read a complete demo without running it.
+Read the complete assessment script. Source includes the sample data, layout and live updates as they are embedded in the module. Get-ConsoleDemo returns that text for inspection. Show-ConsoleDemo is the command that executes it.
 
 ## PARAMETERS
 

@@ -22,7 +22,11 @@ Reads a single Windows Terminal scheme object (or a settings.json with one schem
 ### EXAMPLE 1
 ```powershell
 # Requires an existing Windows Terminal scheme JSON file.
-            Import-ConsoleTheme -Path ./my-scheme.json -OutFile ./my-theme.json
+            $themeOptions = @{
+    Path = './my-scheme.json'
+    OutFile = './my-theme.json'
+}
+Import-ConsoleTheme @themeOptions
 ```
 
 Import a Windows Terminal scheme and inspect its verdict.
@@ -30,8 +34,13 @@ Import a Windows Terminal scheme and inspect its verdict.
 ### EXAMPLE 2
 ```powershell
 # Requires an existing sRGB iTerm2 .itermcolors file.
-            Import-ConsoleTheme -Path ./my-scheme.itermcolors -Accessible -OutFile ./my-theme.json
-            Set-ConsoleTheme -Path ./my-theme.json
+            $themeOptions = @{
+    Accessible = $true
+    Path = './my-scheme.itermcolors'
+    OutFile = './my-theme.json'
+}
+Import-ConsoleTheme @themeOptions
+Set-ConsoleTheme -Path ./my-theme.json
 ```
 
 Import an accessible variant, then use it.

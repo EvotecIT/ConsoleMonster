@@ -21,25 +21,62 @@ Content emits records with Title and Content, or an ordered dictionary mapping p
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleApp -Mode Snapshot -Content {
-    New-ConsoleTabs -Key Page -Content ([ordered]@{
-        Search = { New-ConsoleTextInput -Key Query }
-        About = { New-ConsoleText 'Inventory browser' }
-    })
+$appOptions = @{
+    Mode = 'Snapshot'
+    Content = {
+        $tabsOptions = @{
+            Key = 'Page'
+            Content = ([ordered]@{
+                    Search = { New-ConsoleTextInput -Key Query }
+                    About = {
+                        $textOptions = @{
+                            Text = @('Inventory browser')
+                        }
+                        New-ConsoleText @textOptions
+                    }
+                })
+        }
+        New-ConsoleTabs @tabsOptions
+    }
 }
+Show-ConsoleApp @appOptions
 ```
 
 Compose two retained pages.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleTabs -Key inventory -Content ([ordered]@{
-                Servers = { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget }
-                Summary = { New-ConsoleText 'One server online' -Role Pass }
-            }) | Show-Console
+$tabsOptions = @{
+    Key = 'inventory'
+    Content = ([ordered]@{
+            Servers = {
+                $showConsoleOptions = @{
+                    AsWidget = $true
+                    View = 'List'
+                }
+                [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console @showConsoleOptions
+            }
+            Summary = {
+                $textOptions = @{
+                    Text = @('One server online')
+                    Role = 'Pass'
+                }
+                New-ConsoleText @textOptions
+            }
+        })
+}
+New-ConsoleTabs @tabsOptions | Show-Console
 ```
 
 Compose two retained inventory pages
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleTabs in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

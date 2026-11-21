@@ -21,21 +21,38 @@ Like watch: every -PollIntervalSeconds seconds the script block runs and its out
 
 ### EXAMPLE 1
 ```powershell
-Watch-Console { Get-Process | Select-Object -First 5 Name, Id, CPU } -Count 3 -PollIntervalSeconds 1
+$watchConsoleOptions = @{
+    ScriptBlock = { Get-Process | Select-Object -First 5 Name, Id, CPU }
+    Count = 3
+    PollIntervalSeconds = 1
+}
+Watch-Console @watchConsoleOptions
 ```
 
 Watch a bounded process sample
 
 ### EXAMPLE 2
 ```powershell
-Watch-Console { Get-Process -Id $PID | Select-Object Name, Id, CPU } -Count 3 -PollIntervalSeconds 1 | Out-String
+$watchConsoleOptions = @{
+    ScriptBlock = { Get-Process -Id $PID | Select-Object Name, Id, CPU }
+    Count = 3
+    PollIntervalSeconds = 1
+}
+Watch-Console @watchConsoleOptions | Out-String
 ```
 
 Capture repeated process snapshots as text
 
 ### EXAMPLE 3
 ```powershell
-Watch-Console -Title 'Disk space' -PollIntervalSeconds 1 -Count 3 -Differences { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }
+$watchConsoleOptions = @{
+    Differences = $true
+    Title = 'Disk space'
+    PollIntervalSeconds = 1
+    Count = 3
+    ScriptBlock = { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }
+}
+Watch-Console @watchConsoleOptions
 ```
 
 Highlight changes in file-system drive space

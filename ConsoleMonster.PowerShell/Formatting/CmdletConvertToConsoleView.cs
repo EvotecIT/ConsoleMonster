@@ -19,10 +19,11 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Save a data-only view and load it explicitly. Modules can ship a same-named file beside their manifest.</para>
-    /// <code>
-    /// Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
-    /// Register-ConsoleView -Path ./Processes.consoleviews.psd1
-    /// </code>
+    /// <code>Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
+    /// $viewOptions = @{
+    ///     Path = @('./Processes.consoleviews.psd1')
+    /// }
+    /// Register-ConsoleView @viewOptions</code>
     /// </example>
     /// <example>
     /// <para>Keep a process draft in your profile. Plain columns remain names; the Id presenter and count summary are named variables. Remove the Summary entry to leave the count line out.</para>

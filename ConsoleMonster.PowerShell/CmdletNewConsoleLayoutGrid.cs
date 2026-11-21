@@ -7,15 +7,49 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.</para></remarks>
     /// <example>
     ///   <para>Three charts in a row</para>
-    ///   <code>New-ConsoleLayoutGrid -Columns 3 -Content { New-ConsoleChart -WidgetId a -Type Sparkline; New-ConsoleChart -WidgetId b -Type Sparkline; New-ConsoleChart -WidgetId c -Type Sparkline }</code>
+    ///   <code>$layoutGridOptions = @{
+    ///     Columns = 3
+    ///     Content = {
+    ///         $chartOptions3 = @{
+    ///             WidgetId = 'a'
+    ///             Type = 'Sparkline'
+    ///         }
+    ///         New-ConsoleChart @chartOptions3;
+    ///         $chartOptions2 = @{
+    ///             WidgetId = 'b'
+    ///             Type = 'Sparkline'
+    ///         }
+    ///         New-ConsoleChart @chartOptions2;
+    ///         $chartOptions = @{
+    ///             WidgetId = 'c'
+    ///             Type = 'Sparkline'
+    ///         }
+    ///         New-ConsoleChart @chartOptions
+    ///     }
+    /// }
+    /// New-ConsoleLayoutGrid @layoutGridOptions</code>
     /// </example>
     /// <example>
     /// <para>Arrange an inventory count beside its status</para>
-    /// <code>New-ConsoleLayoutGrid -Columns 2 -Content {
-    ///     New-ConsolePanel 'Inventory' -Content { New-ConsoleText '2 servers' }
-    ///     New-ConsolePanel 'Status' -Content { New-ConsoleText 'Online' -Role Pass }
-    /// } | Show-Console
-    /// </code>
+    /// <code>$layoutGridOptions = @{
+    ///     Columns = 2
+    ///     Content = {
+    ///         New-ConsolePanel -Title 'Inventory' -Content {
+    ///             $textOptions2 = @{
+    ///                 Text = @('2 servers')
+    ///             }
+    ///             New-ConsoleText @textOptions2
+    ///         }
+    ///         New-ConsolePanel -Title 'Status' -Content {
+    ///             $textOptions = @{
+    ///                 Text = @('Online')
+    ///                 Role = 'Pass'
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    /// }
+    /// New-ConsoleLayoutGrid @layoutGridOptions | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLayoutGrid", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolelayoutgrid/")]
     [OutputType(typeof(IWidget))]

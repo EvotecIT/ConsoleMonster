@@ -23,11 +23,21 @@ A section is a focusable header row with its content below. Enter, Space, Left/R
 ```powershell
 Show-ConsoleApp -Content {
     New-ConsoleAccordion -Content {
-        New-ConsoleCollapsible -Key Synopsis -Expanded -Content { 'Gets the processes running on the computer.' }
-        New-ConsoleCollapsible -Key Examples -Summary '(2)' -Content {
-            'Get-Process -Name pwsh'
-            'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
+        $collapsibleOptions2 = @{
+            Expanded = $true
+            Key = 'Synopsis'
+            Content = { 'Gets the processes running on the computer.' }
         }
+        New-ConsoleCollapsible @collapsibleOptions2
+        $collapsibleOptions = @{
+            Key = 'Examples'
+            Summary = '(2)'
+            Content = {
+                'Get-Process -Name pwsh'
+                'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5'
+            }
+        }
+        New-ConsoleCollapsible @collapsibleOptions
     }
 }
 ```
@@ -36,12 +46,30 @@ Fold long sections of a help page and keep one open at a time.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleCollapsible -Key servers -Label 'Checked servers' -Expanded -Content {
-                [pscustomobject]@{ Name = 'web01'; State = 'Pass' } | Show-Console -AsWidget -View List
-            } | Show-Console
+$collapsibleOptions = @{
+    Expanded = $true
+    Key = 'servers'
+    Label = 'Checked servers'
+    Content = {
+        $showConsoleOptions = @{
+            AsWidget = $true
+            View = 'List'
+        }
+        [pscustomobject]@{ Name = 'web01'; State = 'Pass' } | Show-Console @showConsoleOptions
+    }
+}
+New-ConsoleCollapsible @collapsibleOptions | Show-Console
 ```
 
 Compose an inventory collapsible
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleCollapsible in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

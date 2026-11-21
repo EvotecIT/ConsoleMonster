@@ -7,18 +7,37 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</para></remarks>
     /// <example>
     ///   <para>A chart with a status badge in its top-right corner</para>
-    ///   <code>
-    /// New-ConsoleStack -Content {
-    ///     New-ConsoleChart -WidgetId latency -Type Line
-    ///     New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
+    ///   <code>New-ConsoleStack -Content {
+    ///     $chartOptions = @{
+    ///         WidgetId = 'latency'
+    ///         Type = 'Line'
+    ///     }
+    ///     New-ConsoleChart @chartOptions
+    ///     $regionOptions = @{
+    ///         Horizontal = 'Right'
+    ///         Content = { New-ConsoleText -Markup '[pass]LIVE[/]' }
+    ///     }
+    ///     New-ConsoleRegion @regionOptions
     /// }</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory stack</para>
-    /// <code>New-ConsoleStack -Height 6 -Content {
-    ///     New-ConsolePanel -Title Inventory -Content { New-ConsoleText 'web01: Online' }
-    /// } | Show-Console
-    /// </code>
+    /// <code>$stackOptions = @{
+    ///     Height = 6
+    ///     Content = {
+    ///         $panelOptions = @{
+    ///             Title = 'Inventory'
+    ///             Content = {
+    ///                 $textOptions = @{
+    ///                     Text = @('web01: Online')
+    ///                 }
+    ///                 New-ConsoleText @textOptions
+    ///             }
+    ///         }
+    ///         New-ConsolePanel @panelOptions
+    ///     }
+    /// }
+    /// New-ConsoleStack @stackOptions | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStack", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolestack/")]
     [OutputType(typeof(IWidget))]

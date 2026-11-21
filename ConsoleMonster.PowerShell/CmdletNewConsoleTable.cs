@@ -7,22 +7,37 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a console table from pipeline objects.</summary>
     /// <remarks><para>Columns come from -Property or from the first object's properties (or hashtable keys). Property descriptors accept presenter names or configured C# ICellPresenter instances. Columns size to their content, numbers are right-aligned, long values wrap. A -StatusProperty column shows status markers (pass, fail, warn...) as the row's one colour signal.</para></remarks>
     /// <example>
-    /// <para>Build a table with a status column</para>
-    /// <code>@(
+    /// <para>Build a table widget from two server records and display it. Property orders the columns. StatusProperty maps the values in Status to markers. A dashboard or layout can consume the same widget in its Content block.</para>
+    /// <code>$tableOptions = @{
+    ///     Property = @('Name', 'Status', 'Region')
+    ///     StatusProperty = 'Status'
+    ///     Title = 'Servers'
+    /// }
+    /// @(
     ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
     ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
-    /// ) | New-ConsoleTable -Property Name, Status, Region -StatusProperty Status -Title 'Servers' | Show-Console</code>
+    /// ) | New-ConsoleTable @tableOptions | Show-Console</code>
     /// </example>
     /// <example>
-    /// <para>Filter objects from current application state</para>
+    /// <para>Filter rows as the app's Query field changes. New-ConsoleTextInput writes to the state key named Query. The Bind script block reads that key from the current $State hashtable and emits matching records, which the table turns into rows. Start with an empty query to see both rows, then type web02.</para>
     /// <code>$items = @(
     ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
     /// )
     /// Show-ConsoleApp -Content {
     ///     New-ConsoleTextInput -Key Query
-    ///     New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status
+    ///     $tableOptions = @{
+    ///         Bind = { $items | Where-Object Name -Like "*$($State.Query)*" }
+    ///         Property = @('Name', 'Status')
+    ///         StatusProperty = 'Status'
+    ///     }
+    ///     New-ConsoleTable @tableOptions
     /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleTable in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTable", DefaultParameterSetName = "Objects", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletable/")]
     [OutputType(typeof(Table), typeof(AppBinding))]

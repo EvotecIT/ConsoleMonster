@@ -21,17 +21,34 @@ Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLogo -Text 'DEPLOY' -Tagline 'production · 14 servers' -StartColor '#22d3ee' -EndColor '#a78bfa' | Show-Console
+$logoOptions = @{
+    Text = 'DEPLOY'
+    Tagline = 'production · 14 servers'
+    StartColor = '#22d3ee'
+    EndColor = '#a78bfa'
+}
+New-ConsoleLogo @logoOptions | Show-Console
 ```
 
 A banner with a tagline
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleLogo -Text 'Fleet' -Tagline 'Inventory checks' | Show-Console
+$logoOptions = @{
+    Text = 'Fleet'
+    Tagline = 'Inventory checks'
+}
+New-ConsoleLogo @logoOptions | Show-Console
 ```
 
 Print a fleet heading and tagline
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'welcome-rich' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see New-ConsoleLogo in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

@@ -21,16 +21,41 @@ Content emits New-ConsoleDiagramNode and New-ConsoleDiagramGroup objects. The gr
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDiagramGroup 'Office LAN' { New-ConsoleDiagramNode '12 PCs' -Kind Workstation -To Firewall }
+$diagramGroupOptions = @{
+    Label = 'Office LAN'
+    Content = {
+        $diagramNodeOptions = @{
+            Label = '12 PCs'
+            Kind = 'Workstation'
+            To = @('Firewall')
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions
+    }
+}
+New-ConsoleDiagramGroup @diagramGroupOptions
 ```
 
 Office components.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDiagram -Title 'Production services' -Content {
-                New-ConsoleDiagramGroup -Label Production -Content { New-ConsoleDiagramNode -Id api -Label 'Orders API' }
-            } | Show-Console
+$diagramOptions = @{
+    Title = 'Production services'
+    Content = {
+        $diagramGroupOptions = @{
+            Label = 'Production'
+            Content = {
+                $diagramNodeOptions = @{
+                    Id = 'api'
+                    Label = 'Orders API'
+                }
+                New-ConsoleDiagramNode @diagramNodeOptions
+            }
+        }
+        New-ConsoleDiagramGroup @diagramGroupOptions
+    }
+}
+New-ConsoleDiagram @diagramOptions | Show-Console
 ```
 
 Compose an inventory diagram group

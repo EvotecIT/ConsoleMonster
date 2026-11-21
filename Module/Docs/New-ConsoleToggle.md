@@ -21,7 +21,12 @@ Emits a stable core Toggle widget. Place inputs in the outer layout, outside dep
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleToggle -Key Enabled -Label 'Enable checks' -Value $true
+$toggleOptions = @{
+    Key = 'Enabled'
+    Label = 'Enable checks'
+    Value = $true
+}
+New-ConsoleToggle @toggleOptions
 ```
 
 Create an application input.
@@ -29,11 +34,23 @@ Create an application input.
 ### EXAMPLE 2
 ```powershell
 Show-ConsoleApp -Content {
-    New-ConsoleToggle -Key includeOffline -Label 'Include offline servers'
+    $toggleOptions = @{
+        Key = 'includeOffline'
+        Label = 'Include offline servers'
+    }
+    New-ConsoleToggle @toggleOptions
 }
 ```
 
 Compose an inventory toggle
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleToggle in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

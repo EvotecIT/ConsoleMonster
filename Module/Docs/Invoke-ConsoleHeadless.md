@@ -21,12 +21,22 @@ The script runs in this session against a headless terminal of the given size, s
 
 ### EXAMPLE 1
 ```powershell
-$result = Invoke-ConsoleHeadless -Width 56 -Height 10 -InputScript 'Down click:4,5 Escape' {
-    Show-ConsoleApp -Content {
-        New-ConsoleSelect -Key Server -Choices WEB01, SQL01, FS01
-        New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
+$headlessOptions = @{
+    Width = 56
+    Height = 10
+    InputScript = 'Down click:4,5 Escape'
+    ScriptBlock = {
+        Show-ConsoleApp -Content {
+            $selectOptions = @{
+                Key = 'Server'
+                Choices = @('WEB01', 'SQL01', 'FS01')
+            }
+            New-ConsoleSelect @selectOptions
+            New-ConsoleBinding -Content { param($State) "Picked $($State.Server)" }
+        }
     }
 }
+$result = Invoke-ConsoleHeadless @headlessOptions
 $result.Text | Should -Match 'Picked FS01'
 ```
 
@@ -34,9 +44,19 @@ Drive a list with a key and a click, then check the screen.
 
 ### EXAMPLE 2
 ```powershell
-Invoke-ConsoleHeadless -Width 60 -Height 12 -InputScript 'Enter' {
-    Read-ConsoleSelect -Title 'Server' -Choices web01, web02
+$headlessOptions = @{
+    Width = 60
+    Height = 12
+    InputScript = 'Enter'
+    ScriptBlock = {
+        $selectOptions = @{
+            Title = 'Server'
+            Choices = @('web01', 'web02')
+        }
+        Read-ConsoleSelect @selectOptions
+    }
 }
+Invoke-ConsoleHeadless @headlessOptions
 ```
 
 Run a selection against scripted terminal input

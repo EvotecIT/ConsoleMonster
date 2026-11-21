@@ -26,14 +26,36 @@ Inside layouts and live dashboards the image is drawn with half blocks on termin
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleColumns -Content { New-ConsolePanel -Title 'Latency' -Content { New-ConsoleImage -Path ./latency.png -Width 40 }; New-ConsolePanel -Title 'Summary' -Content { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) } } | Show-Console
+New-ConsoleColumns -Content {
+                $panelOptions2 = @{
+                    Title = 'Latency'
+                    Content = {
+                        $imageOptions = @{
+                            Path = './latency.png'
+                            Width = 40
+                        }
+                        New-ConsoleImage @imageOptions
+                    }
+                }
+                New-ConsolePanel @panelOptions2;
+                $panelOptions = @{
+                    Title = 'Summary'
+                    Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) }
+                }
+                New-ConsolePanel @panelOptions
+            } | Show-Console
 ```
 
 A chart next to its numbers
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40
+$imageOptions = @{
+    Bytes = $stream
+    Label = 'Chart'
+    Width = 40
+}
+New-ConsoleImage @imageOptions
 ```
 
 Create a widget from an open stream, leaving it open for the caller

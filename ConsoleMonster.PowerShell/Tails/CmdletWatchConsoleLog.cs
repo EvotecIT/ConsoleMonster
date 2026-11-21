@@ -13,16 +13,31 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Inspect an existing log and highlight a component</para>
     /// <code># Requires an existing service.log file; reads two snapshots without changing the file.
-    /// Watch-ConsoleLog -Path ./service.log -Highlight database -Count 2</code>
+    /// $logOptions = @{
+    ///     Path = './service.log'
+    ///     Highlight = 'database'
+    ///     Count = 2
+    /// }
+    /// Watch-ConsoleLog @logOptions</code>
     /// </example>
     /// <example>
     /// <para>Return matching lines from an existing log as strings</para>
     /// <code># Requires an existing service.log file.
-    /// Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1</code>
+    /// $logOptions = @{
+    ///     Path = './service.log'
+    ///     Tail = 50
+    ///     Filter = 'ERROR'
+    ///     Count = 1
+    /// }
+    /// Watch-ConsoleLog @logOptions</code>
     /// </example>
     /// <example>
     /// <para>Follow only warnings and errors from the System event log</para>
-    /// <code>Watch-ConsoleLog -LogName System -Level Warn</code>
+    /// <code>$logOptions = @{
+    ///     LogName = 'System'
+    ///     Level = 'Warn'
+    /// }
+    /// Watch-ConsoleLog @logOptions</code>
     /// </example>
     [Cmdlet(VerbsCommon.Watch, "ConsoleLog", DefaultParameterSetName = "Path", HelpUri = "https://consolemonster.dev/powershell/commands/watch-consolelog/")]
     [OutputType(typeof(string))]

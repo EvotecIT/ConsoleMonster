@@ -27,7 +27,11 @@ PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chap
 ### EXAMPLE 1
 ```powershell
 # Requires an existing session.cast recorded by Invoke-ConsoleRecording.
-            Export-ConsoleRecording -RecordingPath ./session.cast -Format Text
+            $recordingOptions = @{
+    RecordingPath = './session.cast'
+    Format = 'Text'
+}
+Export-ConsoleRecording @recordingOptions
 ```
 
 Return a text document from an existing terminal recording
@@ -35,9 +39,31 @@ Return a text document from an existing terminal recording
 ### EXAMPLE 2
 ```powershell
 # Requires run.jsonl recorded with this dashboard definition.
-            $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Svg
-Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Html -Width 120 -Height 36
+            $dashboardOptions = @{
+    Title = 'Build'
+    Content = {
+        $statusListOptions = @{
+            WidgetId = 'steps'
+            Content = { 'Compile' }
+        }
+        New-ConsoleStatusList @statusListOptions
+    }
+}
+$dashboard = New-ConsoleDashboard @dashboardOptions
+$recordingOptions2 = @{
+    Dashboard = $dashboard
+    RecordingPath = './run.jsonl'
+    Format = 'Svg'
+}
+Export-ConsoleRecording @recordingOptions2
+$recordingOptions = @{
+    Dashboard = $dashboard
+    RecordingPath = './run.jsonl'
+    Format = 'Html'
+    Width = 120
+    Height = 36
+}
+Export-ConsoleRecording @recordingOptions
 ```
 
 Return SVG and HTML from an existing matching dashboard recording

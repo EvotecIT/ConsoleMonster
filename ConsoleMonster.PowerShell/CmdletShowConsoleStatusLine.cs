@@ -14,14 +14,38 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Show progress through a sample inventory</para>
     /// <code>$servers = 'web01', 'web02', 'sql01'
     /// foreach ($server in $servers) {
-    ///     Show-ConsoleStatusLine 'Checking ', $server -Color Gray, Cyan -Spinner -ShowElapsed
+    ///     $statusLineOptions2 = @{
+    ///         Spinner = $true
+    ///         ShowElapsed = $true
+    ///         Text = @('Checking ', $server)
+    ///         Color = @('Gray', 'Cyan')
+    ///     }
+    ///     Show-ConsoleStatusLine @statusLineOptions2
     ///     Start-Sleep -Milliseconds 100
     /// }
-    /// Show-ConsoleStatusLine "Checked $($servers.Count) servers" -Status Pass -ShowElapsed -Complete</code>
+    /// $statusLineOptions = @{
+    ///     ShowElapsed = $true
+    ///     Complete = $true
+    ///     Text = @("Checked $($servers.Count) servers")
+    ///     Status = 'Pass'
+    /// }
+    /// Show-ConsoleStatusLine @statusLineOptions</code>
     /// </example>
     /// <example>
     /// <para>Show a waiting line with a clock</para>
-    /// <code>Show-ConsoleStatusLine 'Waiting' -Color Green -ShowTimestamp -ShowElapsed; Start-Sleep -Seconds 1; Show-ConsoleStatusLine 'Done' -Status Pass -Complete</code>
+    /// <code>$statusLineOptions2 = @{
+    ///     ShowTimestamp = $true
+    ///     ShowElapsed = $true
+    ///     Text = @('Waiting')
+    ///     Color = @('Green')
+    /// }
+    /// Show-ConsoleStatusLine @statusLineOptions2; Start-Sleep -Seconds 1;
+    /// $statusLineOptions = @{
+    ///     Complete = $true
+    ///     Text = @('Done')
+    ///     Status = 'Pass'
+    /// }
+    /// Show-ConsoleStatusLine @statusLineOptions</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleStatusLine", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolestatusline/")]
     public sealed class CmdletShowConsoleStatusLine : NoPipelineInputCmdlet {

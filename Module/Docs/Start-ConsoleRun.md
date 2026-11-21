@@ -24,13 +24,35 @@ Declares the queued items and returns a LiveRun handle. Use Update-Console as wo
 ### EXAMPLE 1
 ```powershell
 $files = @(Get-ChildItem -File | Select-Object -First 5)
-$run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName
+$runOptions2 = @{
+    InputObject = $files
+    Title = 'Inspect files'
+    Label = 'Name'
+    Target = 'DirectoryName'
+}
+$run = Start-ConsoleRun @runOptions2
 try {
     for ($i = 0; $i -lt $files.Count; $i++) {
-        Update-Console -Run $run -Index $i -Status Running
-        Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"
+        $updateConsoleOptions2 = @{
+            Run = $run
+            Index = $i
+            Status = 'Running'
+        }
+        Update-Console @updateConsoleOptions2
+        $updateConsoleOptions = @{
+            Run = $run
+            Index = $i
+            Status = 'Pass'
+            Detail = "$($files[$i].Length) bytes"
+        }
+        Update-Console @updateConsoleOptions
     }
-} finally { Complete-ConsoleRun $run }
+} finally {
+    $runOptions = @{
+        Run = $run
+    }
+    Complete-ConsoleRun @runOptions
+}
 ```
 
 Track file inspections without modifying the files
@@ -38,9 +60,25 @@ Track file inspections without modifying the files
 ### EXAMPLE 2
 ```powershell
 $checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
-$run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
-Update-Console -Run $run -Index 0 -Status Pass
-Complete-ConsoleRun $run
+$runOptions2 = @{
+    NoLive = $true
+    InputObject = $checks
+    Label = 'Name'
+    Target = 'Server'
+    Group = 'Category'
+    ProgressEvery = 20
+}
+$run = Start-ConsoleRun @runOptions2
+$updateConsoleOptions = @{
+    Run = $run
+    Index = @(0)
+    Status = 'Pass'
+}
+Update-Console @updateConsoleOptions
+$runOptions = @{
+    Run = $run
+}
+Complete-ConsoleRun @runOptions
 ```
 
 Use append-only progress output in CI

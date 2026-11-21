@@ -70,39 +70,125 @@ Update-Console [-WidgetId] <string> -Content <Object> [-Session <LiveSession>] [
 ```
 
 ## DESCRIPTION
-WidgetId is position zero. Fields are checked against the resolved widget before any events are posted. Structural sets separate table rows, cell batches, content replacement and run items. Unknown targets and unsupported fields are terminating errors.
+For a dashboard, pass the WidgetId assigned when the widget was built. Inside Invoke-ConsoleDashboard the command uses the current session. To update a caller-managed run, pass the handle returned by Start-ConsoleRun.
+
+The selected parameter set determines what the update addresses. Key identifies a row for RemoveRow. Row takes a record and projects it through the live table's KeyProperty and columns. Index is an integer array in both the Cells and Run sets. The Cells set applies one status to all the specified zero-based cell positions. The Run set uses exactly one entry in that array as the zero-based item position in the run's input.
+
+Fields are checked against the resolved widget before any events are posted. Unknown targets and unsupported fields are terminating errors.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-$dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleProgress -WidgetId build -Total 20 }
-Invoke-ConsoleDashboard $dashboard { Update-Console build -Value 5 -Total 20 -Label 'Compile' }
+$dashboardOptions = @{
+    Title = 'Build'
+    Content = {
+        New-ConsoleProgress -WidgetId 'build' -Total 20
+    }
+}
+$dashboard = New-ConsoleDashboard @dashboardOptions
+$invokeOptions = @{
+    Dashboard = $dashboard
+    ScriptBlock = {
+        $update = @{
+            WidgetId = 'build'
+            Value = 5
+            Label = 'Compile'
+        }
+        Update-Console @update
+    }
+}
+Invoke-ConsoleDashboard @invokeOptions
 ```
 
-Advance a progress widget and change its label
+Advance a progress widget and change its label. The WidgetId in the update matches the WidgetId on New-ConsoleProgress. Value sets the absolute progress to 5 out of the 20 steps already configured on the widget. The dashboard runner supplies the session.
 
 ### EXAMPLE 2
 ```powershell
-$dashboard = New-ConsoleDashboard -Title Results -Content {
-    New-ConsoleTable -WidgetId results -Live -Property Server, State, Ms -KeyProperty Server
+$dashboardOptions = @{
+    Title = 'Results'
+    Content = {
+        $tableOptions = @{
+            WidgetId = 'results'
+            Live = $true
+            Property = @('Server', 'State', 'Ms')
+            KeyProperty = 'Server'
+        }
+        New-ConsoleTable @tableOptions
+    }
 }
-Invoke-ConsoleDashboard $dashboard {
-    Update-Console results -Row ([pscustomobject]@{ Server = 'web01'; State = 'Pass'; Ms = 12 })
+$dashboard = New-ConsoleDashboard @dashboardOptions
+$invokeOptions = @{
+    Dashboard = $dashboard
+    ScriptBlock = {
+        $update = @{
+            WidgetId = 'results'
+            Row = [pscustomobject]@{ Server = 'web01'; State = 'Running'; Ms = 0 }
+        }
+        Update-Console @update
+
+        $update.Row = [pscustomobject]@{ Server = 'web01'; State = 'Pass'; Ms = 12 }
+        Update-Console @update
+    }
 }
+Invoke-ConsoleDashboard @invokeOptions
 ```
 
-Add or replace a live table row with an ordinary record
+Add a live table row, then replace it. Property declares the display columns in order. KeyProperty selects Server as the stable row identity. The two Row records both have Server set to web01, so the second update changes that row to Pass with 12 milliseconds.
 
 ### EXAMPLE 3
 ```powershell
-$items = @([pscustomobject]@{ Name = 'Report' })
-$run = Start-ConsoleRun -InputObject $items -Label Name -NoLive
-Update-Console -Run $run -Index 0 -Status Pass -Detail 'Uploaded'
-Complete-ConsoleRun $run
+$dashboardOptions = @{
+    Title = 'Checks'
+    Content = {
+        $mapOptions = @{
+            WidgetId = 'checks'
+            Count = 4
+            Columns = 2
+            RowLabels = @('web01', 'web02')
+        }
+        New-ConsoleCellMap @mapOptions
+    }
+}
+$dashboard = New-ConsoleDashboard @dashboardOptions
+$invokeOptions = @{
+    Dashboard = $dashboard
+    ScriptBlock = {
+        $update = @{
+            WidgetId = 'checks'
+            Index = @(0, 1)
+            Status = 'Pass'
+        }
+        Update-Console @update
+    }
+}
+Invoke-ConsoleDashboard @invokeOptions
 ```
 
-Finish one caller-managed run item
+Set two cells in a dashboard to Pass. This example uses the grid arrangement of a cell map, as in the parallel-patch gallery demo. A four-cell map with two columns places zero-based positions 0 and 1 in the first row. The update applies the same status to both cells and leaves the second row unchanged.
+
+### EXAMPLE 4
+```powershell
+$items = @(
+    [pscustomobject]@{ Name = 'Report' }
+)
+$runOptions = @{
+    InputObject = $items
+    Label = 'Name'
+    NoLive = $true
+}
+$run = Start-ConsoleRun @runOptions
+$update = @{
+    Run = $run
+    Index = @(0)
+    Status = 'Pass'
+    Detail = 'Uploaded'
+}
+Update-Console @update
+Complete-ConsoleRun -Run $run
+```
+
+Finish one caller-managed run item. Start-ConsoleRun receives an array containing one input record. The Run parameter set of Update-Console requires a one-element integer array for Index. Its value, 0, addresses the first input record, Report. The example records the result of a simulated upload and then completes the run.
 
 ## PARAMETERS
 
@@ -315,7 +401,7 @@ Accept wildcard characters: False
 ```
 
 ### -Index
-Zero-based cells; the Run set requires exactly one index.
+Array of zero-based positions. In the Cells set, each entry identifies a cell to receive Status. In the Run set, supply exactly one entry to identify an item by its position in the run input. Use @(0) for the first item.
 
 ```yaml
 Type: Int32[]

@@ -21,12 +21,42 @@ The current entry is marked. Up/Down, Home/End and the wheel move the selection;
 
 ### EXAMPLE 1
 ```powershell
-$proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
-$dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
+$collapsibleOptions2 = @{
+    Key = 'Proxy'
+    Content = {
+        $textInputOptions2 = @{
+            Key = 'ProxyServer'
+            Label = 'Server'
+        }
+        New-ConsoleTextInput @textInputOptions2
+    }
+}
+$proxy = New-ConsoleCollapsible @collapsibleOptions2
+$collapsibleOptions = @{
+    Key = 'Dns'
+    Label = 'DNS'
+    Content = {
+        $textInputOptions = @{
+            Key = 'DnsServers'
+            Label = 'Servers'
+        }
+        New-ConsoleTextInput @textInputOptions
+    }
+}
+$dns = New-ConsoleCollapsible @collapsibleOptions
 Show-ConsoleApp -Content {
-    New-ConsoleSplitter -Ratio 0.3 -First {
-        New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
-    } -Second { $proxy; $dns }
+    $splitterOptions = @{
+        Ratio = 0.3
+        First = {
+            $outlineOptions = @{
+                Key = 'Sections'
+                Items = @(([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns }))
+            }
+            New-ConsoleOutline @outlineOptions
+        }
+        Second = { $proxy; $dns }
+    }
+    New-ConsoleSplitter @splitterOptions
 }
 ```
 
@@ -34,10 +64,22 @@ Jump between the sections of a settings page.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleOutline -Key sections -Items Inventory, Network, Storage | Show-Console
+$outlineOptions = @{
+    Key = 'sections'
+    Items = @('Inventory', 'Network', 'Storage')
+}
+New-ConsoleOutline @outlineOptions | Show-Console
 ```
 
 Compose an inventory outline
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleOutline in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

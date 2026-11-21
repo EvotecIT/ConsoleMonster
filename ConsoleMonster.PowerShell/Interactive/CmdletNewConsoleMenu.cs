@@ -7,36 +7,122 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenu -Preset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.</para></remarks>
     /// <example>
     /// <para>Build a small script menu</para>
-    /// <code>$settings = New-ConsoleForm 'Settings' -Content {
-    ///     New-ConsoleField Target 'Target' -Default Weekly
-    ///     New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
-    /// }
-    /// $menu = New-ConsoleMenu 'Backup helper' -Content {
-    ///     New-ConsoleMenuItem 'Preview backup' -Hotkey b -Action {
-    ///         $dashboard = New-ConsoleDashboard -Title 'Backup preview' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Inspect plan' } }
-    ///         $null = $MenuContext.Run($dashboard, {
-    ///             Update-Console steps -Key 'Inspect plan' -Status Pass
-    ///             @{ Title = 'Backup preview'; Status = 'Pass'; Summary = 'No files were copied.' }
-    ///         })
+    /// <code>$formOptions = @{
+    ///     Title = 'Settings'
+    ///     Content = {
+    ///         $fieldOptions2 = @{
+    ///             Key = 'Target'
+    ///             Label = 'Target'
+    ///             Default = 'Weekly'
+    ///         }
+    ///         New-ConsoleField @fieldOptions2
+    ///         $fieldOptions = @{
+    ///             Key = 'Compress'
+    ///             Label = 'Compress'
+    ///             Kind = 'Toggle'
+    ///             Default = $true
+    ///         }
+    ///         New-ConsoleField @fieldOptions
     ///     }
-    ///     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
-    ///     New-ConsoleMenuItem -Exit
     /// }
-    /// Show-ConsoleMenu $menu -Layout Classic</code>
+    /// $settings = New-ConsoleForm @formOptions
+    /// $menuOptions2 = @{
+    ///     Title = 'Backup helper'
+    ///     Content = {
+    ///         $menuItemOptions2 = @{
+    ///             Label = 'Preview backup'
+    ///             Hotkey = 'b'
+    ///             Action = {
+    ///                 $dashboardOptions = @{
+    ///                     Title = 'Backup preview'
+    ///                     Content = {
+    ///                         $statusListOptions = @{
+    ///                             WidgetId = 'steps'
+    ///                             Content = { 'Inspect plan' }
+    ///                         }
+    ///                         New-ConsoleStatusList @statusListOptions
+    ///                     }
+    ///                 }
+    ///                 $dashboard = New-ConsoleDashboard @dashboardOptions
+    ///                 $null = $MenuContext.Run($dashboard, {
+    ///                         $updateConsoleOptions = @{
+    ///                             WidgetId = 'steps'
+    ///                             Key = 'Inspect plan'
+    ///                             Status = 'Pass'
+    ///                         }
+    ///                         Update-Console @updateConsoleOptions
+    ///                         @{ Title = 'Backup preview'; Status = 'Pass'; Summary = 'No files were copied.' }
+    ///                     })
+    ///             }
+    ///         }
+    ///         New-ConsoleMenuItem @menuItemOptions2
+    ///         $menuItemOptions = @{
+    ///             Label = 'Settings'
+    ///             Hotkey = 's'
+    ///             Form = $settings
+    ///         }
+    ///         New-ConsoleMenuItem @menuItemOptions
+    ///         New-ConsoleMenuItem -Exit
+    ///     }
+    /// }
+    /// $menu = New-ConsoleMenu @menuOptions2
+    /// $menuOptions = @{
+    ///     Menu = $menu
+    ///     Layout = 'Classic'
+    /// }
+    /// Show-ConsoleMenu @menuOptions</code>
     /// </example>
     /// <example>
     /// <para>Offer a preset for a menu form</para>
-    /// <code>$settings = New-ConsoleForm 'Settings' -Content {
-    ///     New-ConsoleField Target 'Target' -Default Weekly
-    ///     New-ConsoleField Compress 'Compress' -Kind Toggle -Default $true
+    /// <code>$formOptions = @{
+    ///     Title = 'Settings'
+    ///     Content = {
+    ///         $fieldOptions2 = @{
+    ///             Key = 'Target'
+    ///             Label = 'Target'
+    ///             Default = 'Weekly'
+    ///         }
+    ///         New-ConsoleField @fieldOptions2
+    ///         $fieldOptions = @{
+    ///             Key = 'Compress'
+    ///             Label = 'Compress'
+    ///             Kind = 'Toggle'
+    ///             Default = $true
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
     /// }
-    /// $menu = New-ConsoleMenu 'Backup helper' -Content {
-    ///     [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
-    ///     New-ConsoleMenuItem 'Presets' -Hotkey p -Presets
-    ///     New-ConsoleMenuItem 'Settings' -Hotkey s -Form $settings
-    ///     New-ConsoleMenuItem -Exit
+    /// $settings = New-ConsoleForm @formOptions
+    /// $menuOptions2 = @{
+    ///     Title = 'Backup helper'
+    ///     Content = {
+    ///         [pscustomobject]@{ Name = 'Weekly'; Form = $settings; Values = @{ Target = 'Weekly'; Compress = $true }; Description = 'The Sunday backup.' }
+    ///         $menuItemOptions2 = @{
+    ///             Presets = $true
+    ///             Label = 'Presets'
+    ///             Hotkey = 'p'
+    ///         }
+    ///         New-ConsoleMenuItem @menuItemOptions2
+    ///         $menuItemOptions = @{
+    ///             Label = 'Settings'
+    ///             Hotkey = 's'
+    ///             Form = $settings
+    ///         }
+    ///         New-ConsoleMenuItem @menuItemOptions
+    ///         New-ConsoleMenuItem -Exit
+    ///     }
     /// }
-    /// Show-ConsoleMenu $menu -Layout Shell</code>
+    /// $menu = New-ConsoleMenu @menuOptions2
+    /// $menuOptions = @{
+    ///     Menu = $menu
+    ///     Layout = 'Shell'
+    /// }
+    /// Show-ConsoleMenu @menuOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleMenu in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenu", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolemenu/")]
     [OutputType(typeof(Menu))]

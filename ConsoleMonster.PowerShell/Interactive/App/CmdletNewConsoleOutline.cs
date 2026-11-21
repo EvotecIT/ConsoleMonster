@@ -10,20 +10,56 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The current entry is marked. Up/Down, Home/End and the wheel move the selection; Enter or a click opens it, which makes it current (the final state holds its title). An entry with a Target leads to that control: opening it focuses the control, scrolling a surrounding scroll view to it, and unfolds it when it is a collapsible section. New-ConsoleBreadcrumb -Outline shows the path to the current entry.</para></remarks>
     /// <example>
     /// <para>Jump between the sections of a settings page.</para>
-    /// <code>
-    /// $proxy = New-ConsoleCollapsible -Key Proxy -Content { New-ConsoleTextInput -Key ProxyServer -Label 'Server' }
-    /// $dns = New-ConsoleCollapsible -Key Dns -Label 'DNS' -Content { New-ConsoleTextInput -Key DnsServers -Label 'Servers' }
-    /// Show-ConsoleApp -Content {
-    ///     New-ConsoleSplitter -Ratio 0.3 -First {
-    ///         New-ConsoleOutline -Key Sections -Items ([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns })
-    ///     } -Second { $proxy; $dns }
+    /// <code>$collapsibleOptions2 = @{
+    ///     Key = 'Proxy'
+    ///     Content = {
+    ///         $textInputOptions2 = @{
+    ///             Key = 'ProxyServer'
+    ///             Label = 'Server'
+    ///         }
+    ///         New-ConsoleTextInput @textInputOptions2
+    ///     }
     /// }
-    /// </code>
+    /// $proxy = New-ConsoleCollapsible @collapsibleOptions2
+    /// $collapsibleOptions = @{
+    ///     Key = 'Dns'
+    ///     Label = 'DNS'
+    ///     Content = {
+    ///         $textInputOptions = @{
+    ///             Key = 'DnsServers'
+    ///             Label = 'Servers'
+    ///         }
+    ///         New-ConsoleTextInput @textInputOptions
+    ///     }
+    /// }
+    /// $dns = New-ConsoleCollapsible @collapsibleOptions
+    /// Show-ConsoleApp -Content {
+    ///     $splitterOptions = @{
+    ///         Ratio = 0.3
+    ///         First = {
+    ///             $outlineOptions = @{
+    ///                 Key = 'Sections'
+    ///                 Items = @(([pscustomobject]@{ Title = 'Proxy'; Target = $proxy }), ([pscustomobject]@{ Title = 'DNS'; Target = $dns }))
+    ///             }
+    ///             New-ConsoleOutline @outlineOptions
+    ///         }
+    ///         Second = { $proxy; $dns }
+    ///     }
+    ///     New-ConsoleSplitter @splitterOptions
+    /// }</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory outline</para>
-    /// <code>New-ConsoleOutline -Key sections -Items Inventory, Network, Storage | Show-Console
-    /// </code>
+    /// <code>$outlineOptions = @{
+    ///     Key = 'sections'
+    ///     Items = @('Inventory', 'Network', 'Storage')
+    /// }
+    /// New-ConsoleOutline @outlineOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleOutline in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleOutline", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleoutline/")]
     [OutputType(typeof(Outline))]

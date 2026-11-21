@@ -21,20 +21,44 @@ Children emitted by the scriptblock are placed top to bottom. In a live dashboar
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleRows -Gap 1 -Content { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -InputObject @{ Total = 12 } }
+$rowsOptions = @{
+    Gap = 1
+    Content = { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -InputObject @{ Total = 12 } }
+}
+New-ConsoleRows @rowsOptions
 ```
 
 Two widgets stacked with a blank row between them
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleRows -Gap 1 -Content {
-                New-ConsoleText 'Inventory' -Decoration Bold
-                New-ConsoleText 'web01 and web02 are online' -Role Pass
-            } | Show-Console
+$rowsOptions = @{
+    Gap = 1
+    Content = {
+        $textOptions2 = @{
+            Text = @('Inventory')
+            Decoration = @('Bold')
+        }
+        New-ConsoleText @textOptions2
+        $textOptions = @{
+            Text = @('web01 and web02 are online')
+            Role = 'Pass'
+        }
+        New-ConsoleText @textOptions
+    }
+}
+New-ConsoleRows @rowsOptions | Show-Console
 ```
 
 Stack an inventory heading and result
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleRows in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

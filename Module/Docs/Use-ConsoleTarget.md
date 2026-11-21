@@ -36,14 +36,22 @@ Inside the script block every ConsoleMonster command (Write-ConsoleText, Show-Co
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleTarget -Width 120 { Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }
+$targetOptions = @{
+    Width = 120
+    ScriptBlock = { Get-Process | Select-Object -First 5 Name, Id | Show-ConsoleTable; Write-ConsoleText -Markup '[pass]done[/]' }
+}
+Use-ConsoleTarget @targetOptions
 ```
 
 Capture a report as plain text
 
 ### EXAMPLE 2
 ```powershell
-$text = Use-ConsoleTarget -Width 80 { Get-Process | Select-Object -First 5 | Show-ConsoleTable }
+$targetOptions = @{
+    Width = 80
+    ScriptBlock = { Get-Process | Select-Object -First 5 | Show-ConsoleTable }
+}
+$text = Use-ConsoleTarget @targetOptions
 ```
 
 Capture a table as a string

@@ -11,13 +11,43 @@ using DiagramWidget = ConsoleMonster.Widgets.Diagram;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.</summary>
-    /// <remarks><para>Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.</para>
-    /// <para type="description">Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Errors in the selected diagram stop the command with the file line and diagnostic code. Errors in other visual fences and markup warnings are written as PowerShell warnings. -Path reads one file and cannot be combined with pipeline input; pipe connection rows without -Path.</para></remarks>
+    /// <remarks>
+    /// <para>Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Path reads one Markdown file with ChartForgeX visual fences or one plain architecture file. Errors in the selected diagram stop the command with the file line and diagnostic code. Other visual-fence errors and markup warnings use the warning stream.</para>
+    /// <para>### Interactive diagram</para>
+    /// <para>The diagram shows boxes, routed connections, dashed groups and a legend. Nodes keep their subtitle and live value on separate lines. Use Up and Down to move between nodes or scroll a diagram taller than the viewport. Press D to inspect the focused node. The diagram starts on the first use case unless Scenario selects another. Left and Right step through its payloads and steps, Space plays it, and Tab switches use cases. The app footer shows the exit key.</para>
+    /// <para>### Static diagram</para>
+    /// <para>Redirected, CI, line and non-interactive sessions, or StaticSnapshot, print one view at the selected step. A narrow view becomes a grouped wrapping tree, retaining the connection labels. The Needs attention list shows non-Pass nodes and links. Use NoSummary to hide it.</para>
+    /// </remarks>
     /// <example><para>Explore a diagram and its use cases with the keyboard.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md</code></example>
-    /// <example><para>Print one step of a use case without reading keys.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot</code></example>
-    /// <example><para>Capture the diagram as plain text for a log or a ticket.</para><code>Show-ConsoleDiagram -Path ./tierbridge.md -Scenario blocked -Step 7 -Width 120 -AsString</code></example>
-    /// <example><para>Show connection rows using their standard columns.</para><code>$rows | Show-ConsoleDiagram -Title 'Replication' -StaticSnapshot</code></example>
-    /// <example><para>Select columns and calculate connection labels.</para><code>$rows | Show-ConsoleDiagram -From Source -To Destination -Label { $_.Lag.ToString() + ' min' } -Status Health -Group Site -AsString</code></example>
+    /// <example><para>Print one step of a use case without reading keys.</para><code>$diagramOptions = @{
+    ///     StaticSnapshot = $true
+    ///     Path = './ad-replication.md'
+    ///     Scenario = 'replicate'
+    ///     Step = 6
+    /// }
+    /// Show-ConsoleDiagram @diagramOptions</code></example>
+    /// <example><para>Capture the diagram as plain text for a log or a ticket.</para><code>$diagramOptions = @{
+    ///     AsString = $true
+    ///     Path = './tierbridge.md'
+    ///     Scenario = 'blocked'
+    ///     Step = 7
+    ///     Width = 120
+    /// }
+    /// Show-ConsoleDiagram @diagramOptions</code></example>
+    /// <example><para>Show connection rows using their standard columns.</para><code>$diagramOptions = @{
+    ///     StaticSnapshot = $true
+    ///     Title = 'Replication'
+    /// }
+    /// $rows | Show-ConsoleDiagram @diagramOptions</code></example>
+    /// <example><para>Select columns and calculate connection labels.</para><code>$diagramOptions = @{
+    ///     AsString = $true
+    ///     From = 'Source'
+    ///     To = 'Destination'
+    ///     Label = { $_.Lag.ToString() + ' min' }
+    ///     Status = 'Health'
+    ///     Group = 'Site'
+    /// }
+    /// $rows | Show-ConsoleDiagram @diagramOptions</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleDiagram", DefaultParameterSetName = "Rows", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolediagram/")]
     [OutputType(typeof(DiagramWidget), typeof(string))]
     public sealed class CmdletShowConsoleDiagram : DiagramContentCmdlet {

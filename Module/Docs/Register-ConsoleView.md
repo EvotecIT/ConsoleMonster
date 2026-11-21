@@ -26,17 +26,27 @@ Objects whose type names include -TypeName are shown in the given view when they
 
 ### EXAMPLE 1
 ```powershell
-Register-ConsoleView -TypeName 'Contoso.Server' -View Table -Property Name, @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, Uptime
+$viewOptions = @{
+    TypeName = @('Contoso.Server')
+    View = 'Table'
+    Property = @('Name', @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, 'Uptime')
+}
+Register-ConsoleView @viewOptions
 ```
 
 Show a module's result objects as a table
 
 ### EXAMPLE 2
 ```powershell
-Register-ConsoleView -TypeName 'Inventory.Server' -View Table -Property Name, State
-            $server = [pscustomobject]@{ Name = 'web01'; State = 'Online' }
-            $server.PSObject.TypeNames.Insert(0, 'Inventory.Server')
-            $server | Show-Console
+$viewOptions = @{
+    TypeName = @('Inventory.Server')
+    View = 'Table'
+    Property = @('Name', 'State')
+}
+Register-ConsoleView @viewOptions
+$server = [pscustomobject]@{ Name = 'web01'; State = 'Online' }
+$server.PSObject.TypeNames.Insert(0, 'Inventory.Server')
+$server | Show-Console
 ```
 
 Register a table for typed inventory records

@@ -21,15 +21,27 @@ Returns one DateTime at midnight with unspecified kind, or one DateRange with -R
 
 ### EXAMPLE 1
 ```powershell
-Read-ConsoleDate -Title Window -Range -Default ([datetime]'2026-10-08')
+$dateOptions = @{
+    Range = $true
+    Title = 'Window'
+    Default = ([datetime]'2026-10-08')
+}
+Read-ConsoleDate @dateOptions
 ```
 
 Read an inclusive maintenance window.
 
 ### EXAMPLE 2
 ```powershell
-$date = Read-ConsoleDate -Title 'Next maintenance date' -Default '2030-06-15'
-Write-ConsoleText "Maintenance: $date"
+$dateOptions = @{
+    Title = 'Next maintenance date'
+    Default = '2030-06-15'
+}
+$date = Read-ConsoleDate @dateOptions
+$textOptions = @{
+    Text = @("Maintenance: $date")
+}
+Write-ConsoleText @textOptions
 ```
 
 Choose a maintenance date

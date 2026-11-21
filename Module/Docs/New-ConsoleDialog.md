@@ -21,7 +21,12 @@ Construction does not read input. AppDialogs.Show hosts the form on the owning a
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDialog -Title Options -InitialFocus Destination -Content { New-ConsoleTextInput -Key Destination }
+$dialogOptions = @{
+    Title = 'Options'
+    InitialFocus = 'Destination'
+    Content = { New-ConsoleTextInput -Key Destination }
+}
+New-ConsoleDialog @dialogOptions
 ```
 
 Define fields for an app-owned dialog.
@@ -29,7 +34,17 @@ Define fields for an app-owned dialog.
 ### EXAMPLE 2
 ```powershell
 Show-ConsoleApp -Content {
-    New-ConsoleDialog -Title 'Inventory result' -Content { New-ConsoleText 'All checks passed' -Role Pass }
+    $dialogOptions = @{
+        Title = 'Inventory result'
+        Content = {
+            $textOptions = @{
+                Text = @('All checks passed')
+                Role = 'Pass'
+            }
+            New-ConsoleText @textOptions
+        }
+    }
+    New-ConsoleDialog @dialogOptions
 }
 ```
 

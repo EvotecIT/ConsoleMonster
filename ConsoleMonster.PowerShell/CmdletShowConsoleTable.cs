@@ -2,30 +2,93 @@ using System.Management.Automation;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Shows objects as a table with fitted columns, readable values and optional grouping.</summary>
-    /// <remarks><para>Pipe objects and choose columns with Property, including calculated properties. GroupBy adds group headings, ShowTotals sums numeric columns, and Wrap keeps long text readable. Narrow output uses labelled cards below CardsBelow. This command displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting is the separate opt-in for ordinary prompt output.</para></remarks>
-    /// <example><para>Show processes with the columns you need</para><code>Get-Process | Select-Object -First 8 |
-    ///     Show-ConsoleTable -Property ProcessName, Id, WorkingSet64 -Title 'Running processes'</code></example>
-    /// <example><para>Group a small inventory and total its numeric columns</para><code>$inventory = @(
+    /// <remarks>
+    /// <para>Pipe one object per row. Property is an ordered array: a string selects a property, and a hashtable configures a column. Name identifies the column and reads the like-named property by default. Expression can override the value with a different property name or with a script block that receives the row as $_.</para>
+    /// <para>Header changes the displayed heading. Presenter formats the cell value, such as rendering a byte count as a human-readable size. Priority affects which columns are kept when the grid has too little room. GroupBy adds group headings. ShowTotals sums numeric columns, and Wrap keeps long text readable. The renderer can use labelled cards for narrow output.</para>
+    /// <para>Show-ConsoleTable displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting opts into ConsoleMonster's display for ordinary prompt output.</para>
+    /// </remarks>
+    /// <example><para>Display up to eight processes with three columns in the order given by Property. The last column reads WorkingSet64 and automatically displays the byte count in a readable size. The pipeline supplies the process objects, while the splat supplies the table options.</para><code>$tableOptions = @{
+    ///     Property = @('ProcessName', 'Id', 'WorkingSet64')
+    ///     Title = 'Running processes'
+    /// }
+    /// Get-Process | Select-Object -First 8 |
+    ///     Show-ConsoleTable @tableOptions</code></example>
+    /// <example><para>Group the inventory by Site. Cores totals 16, with group subtotals of 12 for East and 4 for West. The sites appear in the group headings. Add ShowGroupColumn = $true to repeat Site in the rows.</para><code>$inventory = @(
     ///     [pscustomobject]@{ Site = 'East'; Server = 'WEB01'; Cores = 4 }
     ///     [pscustomobject]@{ Site = 'East'; Server = 'SQL01'; Cores = 8 }
     ///     [pscustomobject]@{ Site = 'West'; Server = 'WEB02'; Cores = 4 }
     /// )
-    /// $inventory | Show-ConsoleTable -Property Site, Server, Cores -GroupBy Site -ShowTotals</code></example>
-    /// <example><para>Calculate a memory column in megabytes</para><code>Get-Process | Select-Object -First 5 | Show-ConsoleTable -Property ProcessName, @{
-    ///     Name = 'MemoryMB'
-    ///     Expression = { [math]::Round($_.WorkingSet64 / 1MB, 1) }
-    /// }</code></example>
-    /// <example><para>Wrap long notes in a narrow report</para><code>@(
+    /// $tableOptions = @{
+    ///     ShowTotals = $true
+    ///     Property = @('Site', 'Server', 'Cores')
+    ///     GroupBy = 'Site'
+    /// }
+    /// $inventory | Show-ConsoleTable @tableOptions</code></example>
+    /// <example><para>Calculate memory in MiB. The Property array mixes a plain property name with a calculated-column descriptor. ConsoleMonster evaluates Expression with $_ set to the process for that row. It divides WorkingSet64 by PowerShell's 1MB multiplier (1,048,576 bytes) and rounds the result to one decimal place.</para><code>$tableOptions = @{
+    ///     Property = @(
+    ///         'ProcessName'
+    ///         @{
+    ///             Name = 'MemoryMiB'
+    ///             Expression = { [math]::Round($_.WorkingSet64 / 1MB, 1) }
+    ///         }
+    ///     )
+    /// }
+    /// Get-Process | Select-Object -First 5 | Show-ConsoleTable @tableOptions</code></example>
+    /// <example><para>Wrap long notes in a 60-cell report. CardsBelow = 0 disables the width-based switch to cards. Wrap lets the Notes value continue on following lines in the grid.</para><code>$tableOptions = @{
+    ///     Wrap = $true
+    ///     Property = @('Task', 'Notes')
+    ///     Width = 60
+    ///     CardsBelow = 0
+    /// }
+    /// @(
     ///     [pscustomobject]@{ Task = 'Backup'; Notes = 'Verified the report and checked the retained files.' }
     ///     [pscustomobject]@{ Task = 'Review'; Notes = 'Ready for the next scheduled maintenance window.' }
-    /// ) | Show-ConsoleTable -Property Task, Notes -Width 60 -CardsBelow 0 -Wrap</code></example>
-    /// <example><para>Give health states a visible status marker</para><code>@(
+    /// ) | Show-ConsoleTable @tableOptions</code></example>
+    /// <example><para>Render a visible marker beside the Pass and Warn values. The StatusProperty value names the input property whose values should be interpreted as statuses. Property still controls which columns are present and their order.</para><code>$tableOptions = @{
+    ///     Property = @('Check', 'Status', 'Detail')
+    ///     StatusProperty = 'Status'
+    /// }
+    /// @(
     ///     [pscustomobject]@{ Check = 'Storage'; Status = 'Pass'; Detail = '42 GB free' }
     ///     [pscustomobject]@{ Check = 'Queue'; Status = 'Warn'; Detail = '12 items waiting' }
-    /// ) | Show-ConsoleTable -Property Check, Status, Detail -StatusProperty Status</code></example>
-    /// <example><para>Display objects and keep them in the pipeline</para><code>Get-Process | Select-Object -First 5 |
-    ///     Show-ConsoleTable -Property ProcessName, Id -PassThru |
+    /// ) | Show-ConsoleTable @tableOptions</code></example>
+    /// <example><para>Display a table and pass the original process objects along. Measure-Object counts those process objects. It receives up to five of them because PassThru preserves the input after display.</para><code>$tableOptions = @{
+    ///     PassThru = $true
+    ///     Property = @('ProcessName', 'Id')
+    /// }
+    /// Get-Process | Select-Object -First 5 |
+    ///     Show-ConsoleTable @tableOptions |
     ///     Measure-Object</code></example>
+    /// <example>
+    /// <para>Give an event-count report a short heading and reserve lower priority for a long description. This adapts the event-log-summary gallery's table of top event IDs. Header changes Meaning to Description while Name still reads Meaning. The key column identifies each row. Reduce Width to see how the grid treats the description when it cannot fit.</para>
+    /// <code>$events = @(
+    ///     [pscustomobject]@{ Id = 1014; Count = 52; Meaning = 'Name resolution timed out' }
+    ///     [pscustomobject]@{ Id = 7031; Count = 48; Meaning = 'Service terminated unexpectedly' }
+    /// )
+    /// $tableOptions = @{
+    ///     Title = 'Top event IDs'
+    ///     Width = 70
+    ///     CardsBelow = 0
+    ///     Property = @(
+    ///         @{ Name = 'Id'; Key = $true }
+    ///         @{ Name = 'Count'; Priority = 10 }
+    ///         @{ Name = 'Meaning'; Header = 'Description'; Priority = 1; MinWidth = 25 }
+    ///     )
+    /// }
+    /// $events | Show-ConsoleTable @tableOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Display the two recorded times as 12:00 and 12:05 UTC regardless of the local time zone. Presentation takes a PresentationOptions object. PowerShell converts the nested hashtable to that object when binding the splat. TimeZone affects absolute timestamps, while Now is the optional reference time for relative dates.</para>
+    /// <code>$records = @(
+    ///     [pscustomobject]@{ Name = 'Build'; RecordedAt = [datetimeoffset]'2026-10-21T08:00:00-04:00' }
+    ///     [pscustomobject]@{ Name = 'Test'; RecordedAt = [datetimeoffset]'2026-10-21T08:05:00-04:00' }
+    /// )
+    /// $tableOptions = @{
+    ///     Property = @('Name', @{ Name = 'RecordedAt'; Presenter = 'Date' })
+    ///     Presentation = @{ TimeZone = [TimeZoneInfo]::Utc }
+    /// }
+    /// $records | Show-ConsoleTable @tableOptions</code>
+    /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleTable", DefaultParameterSetName = "Objects", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoletable/")]
     public sealed partial class CmdletShowConsoleTable : ConsoleDisplayCmdlet {
         /// <inheritdoc />

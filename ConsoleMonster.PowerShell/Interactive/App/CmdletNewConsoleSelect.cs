@@ -4,12 +4,28 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a named select input for Show-ConsoleApp.</summary>
     /// <remarks><para>Choices use the shared prompt conversion and retain original objects as values. Keep the input in the stable outer layout. Disabled choices cannot be selected.</para></remarks>
-    /// <example><para>Choose initial values.</para><code>New-ConsoleSelect -Key Environment -Choices 'Production', 'Staging' -Value Staging</code></example>
+    /// <example><para>Choose initial values.</para><code>$selectOptions = @{
+    ///     Key = 'Environment'
+    ///     Choices = @('Production', 'Staging')
+    ///     Value = 'Staging'
+    /// }
+    /// New-ConsoleSelect @selectOptions</code></example>
     /// <example>
     /// <para>Compose an inventory select</para>
     /// <code>$servers = @([pscustomobject]@{ Name = 'web01' }, [pscustomobject]@{ Name = 'web02' })
-    /// Show-ConsoleApp -Content { New-ConsoleSelect -Key server -Choices $servers -Display Name }
-    /// </code>
+    /// Show-ConsoleApp -Content {
+    ///     $selectOptions = @{
+    ///         Key = 'server'
+    ///         Choices = $servers
+    ///         Display = 'Name'
+    ///     }
+    ///     New-ConsoleSelect @selectOptions
+    /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleSelect in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'setup-basic' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSelect", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleselect/")]
     [OutputType(typeof(Select), typeof(MultiSelect))]

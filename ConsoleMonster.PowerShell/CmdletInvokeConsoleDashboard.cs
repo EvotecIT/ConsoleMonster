@@ -9,27 +9,120 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a console dashboard live while a script does the work.</summary>
     /// <remarks><para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.</para></remarks>
     /// <example>
-    /// <para>Process three sample servers in parallel</para>
-    /// <code>$dashboard = New-ConsoleDashboard -Title 'Checks' -Content {
-    ///     New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }
-    ///     New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
+    /// <para>Process three sample servers in parallel. Each string from the pipeline becomes the worker's first argument, $Server. The report uses the same value as the lane key. Update-Console assigns five planned checks to the lane, posts five passing results, and completes the lane. Worker messages appear in the log.</para>
+    /// <code>$dashboardOptions2 = @{
+    ///     Title = 'Checks'
+    ///     Content = {
+    ///         $panelOptions2 = @{
+    ///             Title = 'Servers'
+    ///             Content = { New-ConsoleLanes -WidgetId servers }
+    ///         }
+    ///         New-ConsolePanel @panelOptions2
+    ///         $panelOptions = @{
+    ///             Fill = $true
+    ///             Title = 'Log'
+    ///             Content = { New-ConsoleLogRegion }
+    ///         }
+    ///         New-ConsolePanel @panelOptions
+    ///     }
     /// }
-    /// 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard $dashboard -Parallel -ThrottleLimit 3 {
-    ///     param($Server)
-    ///     Update-Console servers -Key $Server -Status Running -Total 5
-    ///     1..5 | ForEach-Object { Update-Console servers -Key $Server -Result Pass }
-    ///     Write-Host "$Server checked"
-    ///     Update-Console servers -Key $Server -Complete
-    /// }</code>
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Parallel = $true
+    ///     Dashboard = $dashboard
+    ///     ThrottleLimit = 3
+    ///     ScriptBlock = {
+    ///         param($Server)
+    ///         $updateConsoleOptions3 = @{
+    ///             WidgetId = 'servers'
+    ///             Key = $Server
+    ///             Status = 'Running'
+    ///             Total = 5
+    ///         }
+    ///         Update-Console @updateConsoleOptions3
+    ///         1..5 | ForEach-Object {
+    ///             $updateConsoleOptions2 = @{
+    ///                 WidgetId = 'servers'
+    ///                 Key = $Server
+    ///                 Result = 'Pass'
+    ///             }
+    ///             Update-Console @updateConsoleOptions2
+    ///         }
+    ///         Write-Host "$Server checked"
+    ///         $updateConsoleOptions = @{
+    ///             Complete = $true
+    ///             WidgetId = 'servers'
+    ///             Key = $Server
+    ///         }
+    ///         Update-Console @updateConsoleOptions
+    ///     }
+    /// }
+    /// 'SRV1', 'SRV2', 'SRV3' | Invoke-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     /// <example>
-    /// <para>Use caller data and a helper function in the dashboard</para>
+    /// <para>Append two CPU samples. The dashboard script runs in a separate runspace. $using:frames copies the caller's data into that script, and ImportFunction names one function to bring into the runspace as a one-element array. Show-Frame then addresses the cpu chart by WidgetId and adds one sample per call.</para>
     /// <code>$frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })
-    /// $dashboard = New-ConsoleDashboard -Title 'CPU samples' -Content { New-ConsoleChart -WidgetId cpu -Type Sparkline }
-    /// function Show-Frame($Frame) { Update-Console cpu -Append -Value $Frame.Cpu }
-    /// Invoke-ConsoleDashboard $dashboard -ImportFunction Show-Frame {
-    ///     foreach ($frame in $using:frames) { Show-Frame $frame; Wait-ConsoleDashboard 0.5 }
-    /// }</code>
+    /// $dashboardOptions3 = @{
+    ///     Title = 'CPU samples'
+    ///     Content = {
+    ///         $chartOptions = @{
+    ///             WidgetId = 'cpu'
+    ///             Type = 'Sparkline'
+    ///         }
+    ///         New-ConsoleChart @chartOptions
+    ///     }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions3
+    /// function Show-Frame($Frame) {
+    ///     $updateConsoleOptions = @{
+    ///         Append = $true
+    ///         WidgetId = 'cpu'
+    ///         Value = $Frame.Cpu
+    ///     }
+    ///     Update-Console @updateConsoleOptions
+    /// }
+    /// $dashboardOptions2 = @{
+    ///     Dashboard = $dashboard
+    ///     ImportFunction = @('Show-Frame')
+    ///     ScriptBlock = {
+    ///         foreach ($frame in $using:frames) { Show-Frame $frame;
+    ///             $dashboardOptions = @{
+    ///                 Seconds = 0.5
+    ///             }
+    ///             Wait-ConsoleDashboard @dashboardOptions
+    ///         }
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions2</code>
+    /// </example>
+    /// <example>
+    /// <para>Pass a label into a sequential dashboard script. ArgumentList is an array of positional arguments. Here the one entry binds to the script's first parameter, $Phase. A parallel dashboard reserves that first argument for the pipeline item, so the entries in ArgumentList start at the second parameter in that mode.</para>
+    /// <code>$dashboardOptions = @{
+    ///     Title = 'Build'
+    ///     Content = { New-ConsoleProgress -WidgetId 'build' -Total 1 }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions
+    /// $invokeOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ArgumentList = @('Compile')
+    ///     ScriptBlock = {
+    ///         param($Phase)
+    ///         $update = @{
+    ///             WidgetId = 'build'
+    ///             Value = 1
+    ///             Label = $Phase
+    ///         }
+    ///         Update-Console @update
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @invokeOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see Invoke-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'container-status' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'process-monitor' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consoledashboard/")]
     public sealed class CmdletInvokeConsoleDashboard : PSCmdlet, IDisposable {

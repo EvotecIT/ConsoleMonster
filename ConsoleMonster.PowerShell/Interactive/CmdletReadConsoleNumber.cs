@@ -8,13 +8,32 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decimal]). -Minimum and -Maximum are shown as a hint and checked; Up and Down step by -Step (PgUp and PgDn by ten steps).</para></remarks>
     /// <example>
     ///   <para>A port number</para>
-    ///   <code>$port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443</code>
+    ///   <code>$numberOptions = @{
+    ///     Integer = $true
+    ///     Title = 'Port'
+    ///     Minimum = 1
+    ///     Maximum = 65535
+    ///     Default = 443
+    /// }
+    /// $port = Read-ConsoleNumber @numberOptions</code>
     /// </example>
     /// <example>
     /// <para>Choose a bounded batch size</para>
-    /// <code>$count = Read-ConsoleNumber -Title 'Servers per batch' -Default 5 -Minimum 1 -Maximum 20
-    /// Write-ConsoleText "Batch size: $count"
-    /// </code>
+    /// <code>$numberOptions = @{
+    ///     Title = 'Servers per batch'
+    ///     Default = 5
+    ///     Minimum = 1
+    ///     Maximum = 20
+    /// }
+    /// $count = Read-ConsoleNumber @numberOptions
+    /// $textOptions = @{
+    ///     Text = @("Batch size: $count")
+    /// }
+    /// Write-ConsoleText @textOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleNumber in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleNumber", HelpUri = "https://consolemonster.dev/powershell/commands/read-consolenumber/")]
     [OutputType(typeof(int), typeof(decimal))]

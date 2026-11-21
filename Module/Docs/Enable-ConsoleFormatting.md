@@ -32,7 +32,10 @@ Inspect members with the built-in view, while keeping an explicit native column 
 
 ### EXAMPLE 2
 ```powershell
-Enable-ConsoleFormatting -Include GridView; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
+$formattingOptions = @{
+    Include = @('GridView')
+}
+Enable-ConsoleFormatting @formattingOptions; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single
 ```
 
 Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged
@@ -46,42 +49,70 @@ Turn it on for the session
 
 ### EXAMPLE 4
 ```powershell
-Set-ConsoleTheme -Theme Dark; Enable-ConsoleFormatting -Include Prompt
+Set-ConsoleTheme -Theme Dark;
+            $formattingOptions = @{
+                Include = @('Prompt')
+            }
+            Enable-ConsoleFormatting @formattingOptions
 ```
 
 Add a minimal themed shell prompt to the default formatting
 
 ### EXAMPLE 5
 ```powershell
-Set-ConsoleTheme ColorBlindSafe; Enable-ConsoleFormatting -ProfileSnippet
+$themeOptions = @{
+    Theme = 'ColorBlindSafe'
+}
+Set-ConsoleTheme @themeOptions; Enable-ConsoleFormatting -ProfileSnippet
 ```
 
 The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)
 
 ### EXAMPLE 6
 ```powershell
-Enable-ConsoleFormatting -Include Help, Progress -Save
+$formattingOptions = @{
+    Save = $true
+    Include = @('Help', 'Progress')
+}
+Enable-ConsoleFormatting @formattingOptions
 ```
 
 Keep these features for every session: afterwards the profile needs only Enable-ConsoleFormatting
 
 ### EXAMPLE 7
 ```powershell
-Enable-ConsoleFormatting -Exclude FormatCommands
+$formattingOptions = @{
+    Exclude = @('FormatCommands')
+}
+Enable-ConsoleFormatting @formattingOptions
 ```
 
 Exclude native format command styling from the default set
 
 ### EXAMPLE 8
 ```powershell
-Set-ConsoleTheme Light; Enable-ConsoleFormatting -Include Streams; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose
+$themeOptions = @{
+    Theme = 'Light'
+}
+Set-ConsoleTheme @themeOptions;
+$formattingOptions = @{
+    Include = @('Streams')
+}
+Enable-ConsoleFormatting @formattingOptions; Write-Warning 'Disk space is low'; Write-Verbose 'Checking backup' -Verbose
 ```
 
 Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour
 
 ### EXAMPLE 9
 ```powershell
-Set-ConsoleTheme Dark; Enable-ConsoleFormatting -Include ReadLine, Streams; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed
+$themeOptions = @{
+    Theme = 'Dark'
+}
+Set-ConsoleTheme @themeOptions;
+$formattingOptions = @{
+    Include = @('ReadLine', 'Streams')
+}
+Enable-ConsoleFormatting @formattingOptions; Write-Progress -Activity 'Backup' -Status 'Copying archive.zip' -PercentComplete 42; Write-Progress -Activity 'Backup' -Completed
 ```
 
 Theme the already loaded editor and native progress without replacing commands

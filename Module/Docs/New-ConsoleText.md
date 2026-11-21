@@ -21,30 +21,57 @@ New-ConsoleText [[-Text] <Object[]>] [-Color <Object[]>] [-BackgroundColor <Obje
 
 ### EXAMPLE 1
 ```powershell
-@(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Fail' }
-            ) | Show-ConsoleTable -Property Name, @{
-                Name = 'Status'
-                Expression = { New-ConsoleText $_.Status -Role $_.Status -Decoration Bold }
+$tableOptions = @{
+    Property = @('Name', @{
+            Name = 'Status'
+            Expression = {
+                $textOptions = @{
+                    Text = @($_.Status)
+                    Role = $_.Status
+                    Decoration = @('Bold')
+                }
+                New-ConsoleText @textOptions
             }
+        })
+}
+@(
+    [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
+    [pscustomobject]@{ Name = 'web02'; Status = 'Fail' }
+) | Show-ConsoleTable @tableOptions
 ```
 
-Build status cells from a calculated property
+Build a rich text cell for each row. The table evaluates Expression with the current row as $_. Text receives a one-element array containing that row's Status. Role uses the same value to pick the theme color, and Decoration makes the cell bold.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleText 'SRV', '01', ' online' -Color Cyan, Yellow, Green | Show-Console
+$textOptions = @{
+    Text = @('SRV', '01', ' online')
+    Color = @('Cyan', 'Yellow', 'Green')
+}
+New-ConsoleText @textOptions | Show-Console
 ```
 
-Colour separate text pieces
+Colour separate text pieces. The Text and Color arrays pair by position: SRV is cyan, 01 is yellow, and the final piece is green. Spaces are part of the text pieces, so the leading space in the last entry separates online from the identifier.
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]'; New-ConsoleText 'ConsoleMonster' -Gradient '#00c6ff', '#ff00aa'
+New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]';
+            $textOptions = @{
+                Text = @('ConsoleMonster')
+                Gradient = @('#00c6ff', '#ff00aa')
+            }
+            New-ConsoleText @textOptions
 ```
 
-Use markup and a gradient
+Create two rich text values. Markup interprets the bold and muted tags. Gradient uses the first color as the starting point and the second as the end, across the characters of ConsoleMonster.
+
+### EXAMPLE 4
+```powershell
+Get-ConsoleDemo -Slug 'welcome-compact' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

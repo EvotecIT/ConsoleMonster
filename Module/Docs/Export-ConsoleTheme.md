@@ -21,14 +21,22 @@ Writes every semantic token, foreground/background colour, explicit fallback tie
 
 ### EXAMPLE 1
 ```powershell
-Export-ConsoleTheme -Path ./team-theme.json -WhatIf
+$themeOptions = @{
+    WhatIf = $true
+    Path = './team-theme.json'
+}
+Export-ConsoleTheme @themeOptions
 ```
 
 Preview exporting the current theme.
 
 ### EXAMPLE 2
 ```powershell
-Export-ConsoleTheme -Path ./accessible.psd1 -WhatIf
+$themeOptions = @{
+    WhatIf = $true
+    Path = './accessible.psd1'
+}
+Export-ConsoleTheme @themeOptions
 ```
 
 Preview exporting a PowerShell data file.

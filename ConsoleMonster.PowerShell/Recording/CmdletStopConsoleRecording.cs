@@ -9,9 +9,12 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>End a recording from inside the recorded shell</para>
     /// <code># In a shell started with Invoke-ConsoleRecording -Interactive:
-    /// Write-ConsoleText 'Inspection complete' -Role Pass
-    /// Stop-ConsoleRecording
-    /// </code>
+    /// $textOptions = @{
+    ///     Text = @('Inspection complete')
+    ///     Role = 'Pass'
+    /// }
+    /// Write-ConsoleText @textOptions
+    /// Stop-ConsoleRecording</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Stop, "ConsoleRecording", HelpUri = "https://consolemonster.dev/powershell/commands/stop-consolerecording/")]
     public sealed class CmdletStopConsoleRecording : NoPipelineInputCmdlet {

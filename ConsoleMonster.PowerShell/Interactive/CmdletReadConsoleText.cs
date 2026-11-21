@@ -8,11 +8,25 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para></remarks>
     /// <example>
     ///   <para>A validated name</para>
-    ///   <code>$name = Read-ConsoleText 'Server name' -Default 'srv01' -Pattern '[a-z][a-z0-9-]{1,14}' -PatternMessage 'Lower case letters, digits and dashes'</code>
+    ///   <code>$textOptions = @{
+    ///     Title = 'Server name'
+    ///     Default = 'srv01'
+    ///     Pattern = '[a-z][a-z0-9-]{1,14}'
+    ///     PatternMessage = 'Lower case letters, digits and dashes'
+    /// }
+    /// $name = Read-ConsoleText @textOptions</code>
     /// </example>
     /// <example>
     ///   <para>A scriptblock validator ($_ is the answer; return $true, $false or an error message)</para>
-    ///   <code>Read-ConsoleText 'Email' -Validator { if ($_ -notmatch '@') { 'Enter an email address' } }</code>
+    ///   <code>$textOptions = @{
+    ///     Title = 'Email'
+    ///     Validator = { if ($_ -notmatch '@') { 'Enter an email address' } }
+    /// }
+    /// Read-ConsoleText @textOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleText", DefaultParameterSetName = "Text", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoletext/")]
     [OutputType(typeof(string), typeof(System.Security.SecureString))]

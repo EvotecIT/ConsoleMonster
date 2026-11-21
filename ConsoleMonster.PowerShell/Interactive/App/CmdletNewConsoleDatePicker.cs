@@ -6,8 +6,18 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a persistent civil-date or inclusive range picker.</summary>
     /// <remarks><para>Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.</para></remarks>
-    /// <example><para>Choose a maintenance range.</para><code>New-ConsoleDatePicker -Key Window -Range -Value ([datetime]'2026-10-08')</code></example>
-    /// <example><para>Configure today and the first weekday with a hashtable.</para><code>New-ConsoleDatePicker -Key Window -Range -Selection @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }</code></example>
+    /// <example><para>Choose a maintenance range.</para><code>$datePickerOptions = @{
+    ///     Range = $true
+    ///     Key = 'Window'
+    ///     Value = ([datetime]'2026-10-08')
+    /// }
+    /// New-ConsoleDatePicker @datePickerOptions</code></example>
+    /// <example><para>Configure today and the first weekday with a hashtable.</para><code>$datePickerOptions = @{
+    ///     Range = $true
+    ///     Key = 'Window'
+    ///     Selection = @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }
+    /// }
+    /// New-ConsoleDatePicker @datePickerOptions</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleDatePicker", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledatepicker/")]
     [OutputType(typeof(DatePicker))]
     public sealed class CmdletNewConsoleDatePicker : AppInputCmdlet {

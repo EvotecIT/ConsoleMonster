@@ -26,21 +26,38 @@ Shows the reference and difference side by side at 120 columns or more, and inli
 
 ### EXAMPLE 1
 ```powershell
-Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -Context 1
+$textOptions = @{
+    ReferenceText = 'port=80'
+    DifferenceText = 'port=443'
+    Context = 1
+}
+Compare-ConsoleText @textOptions
 ```
 
 Compare configuration strings with one line of context.
 
 ### EXAMPLE 2
 ```powershell
-Compare-ConsoleText -ReferenceText 'port = 80' -DifferenceText 'port=80' -IgnoreWhitespace
+$textOptions = @{
+    IgnoreWhitespace = $true
+    ReferenceText = 'port = 80'
+    DifferenceText = 'port=80'
+}
+Compare-ConsoleText @textOptions
 ```
 
 Compare strings while ignoring whitespace within lines.
 
 ### EXAMPLE 3
 ```powershell
-Compare-ConsoleText -ReferenceText 'port=80' -DifferenceText 'port=443' -ReferenceLabel 'Deployed' -DifferenceLabel 'Proposed' -AsUnified
+$textOptions = @{
+    AsUnified = $true
+    ReferenceText = 'port=80'
+    DifferenceText = 'port=443'
+    ReferenceLabel = 'Deployed'
+    DifferenceLabel = 'Proposed'
+}
+Compare-ConsoleText @textOptions
 ```
 
 Return a unified diff with custom side names for storage or further processing.

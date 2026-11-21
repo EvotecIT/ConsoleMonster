@@ -9,9 +9,23 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Compose an inventory binding</para>
     /// <code>Show-ConsoleApp -Content {
-    ///     New-ConsoleBinding -WidgetId selection -Content { New-ConsoleText 'Choose a server to inspect' }
-    /// }
-    /// </code>
+    ///     $bindingOptions = @{
+    ///         WidgetId = 'selection'
+    ///         Content = {
+    ///             $textOptions = @{
+    ///                 Text = @('Choose a server to inspect')
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    ///     New-ConsoleBinding @bindingOptions
+    /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleBinding in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleBinding", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolebinding/")]
     [OutputType(typeof(AppBinding))]

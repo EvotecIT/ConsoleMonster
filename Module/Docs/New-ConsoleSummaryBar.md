@@ -21,17 +21,36 @@ The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin ba
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleSummaryBar -Value 30 -Total 40 -ElapsedSeconds 42 -Counter ([ordered] @{ passed = 27; failed = 2; skipped = 1 }) | Show-Console
+$summaryBarOptions = @{
+    Value = 30
+    Total = 40
+    ElapsedSeconds = 42
+    Counter = ([ordered] @{ passed = 27; failed = 2; skipped = 1 })
+}
+New-ConsoleSummaryBar @summaryBarOptions | Show-Console
 ```
 
 A run three quarters through
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleSummaryBar -Total 12 -Value 9 -Counter ([ordered]@{ passed = 8; warnings = 1 }) | Show-Console
+$summaryBarOptions = @{
+    Total = 12
+    Value = 9
+    Counter = ([ordered]@{ passed = 8; warnings = 1 })
+}
+New-ConsoleSummaryBar @summaryBarOptions | Show-Console
 ```
 
 Summarize completed inventory checks
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleSummaryBar in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

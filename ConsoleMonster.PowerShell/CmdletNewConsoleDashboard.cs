@@ -8,14 +8,49 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.</para></remarks>
     /// <example>
     ///   <para>A dashboard with lanes and a log that fills the rest of the screen</para>
-    ///   <code>$d = New-ConsoleDashboard -Title 'Deploy' -Content { New-ConsolePanel -Title 'Servers' -Content { New-ConsoleLanes -WidgetId servers }; New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion } }</code>
+    ///   <code>$dashboardOptions = @{
+    ///     Title = 'Deploy'
+    ///     Content = {
+    ///         $panelOptions2 = @{
+    ///             Title = 'Servers'
+    ///             Content = { New-ConsoleLanes -WidgetId servers }
+    ///         }
+    ///         New-ConsolePanel @panelOptions2;
+    ///         $panelOptions = @{
+    ///             Fill = $true
+    ///             Title = 'Log'
+    ///             Content = { New-ConsoleLogRegion }
+    ///         }
+    ///         New-ConsolePanel @panelOptions
+    ///     }
+    /// }
+    /// $d = New-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory dashboard</para>
-    /// <code>New-ConsoleDashboard -Title 'Inventory' -Content {
-    ///     New-ConsolePanel -Title 'Result' -Content { New-ConsoleText '2 servers online' -Role Pass }
-    /// } | Show-Console
-    /// </code>
+    /// <code>$dashboardOptions = @{
+    ///     Title = 'Inventory'
+    ///     Content = {
+    ///         $panelOptions = @{
+    ///             Title = 'Result'
+    ///             Content = {
+    ///                 $textOptions = @{
+    ///                     Text = @('2 servers online')
+    ///                     Role = 'Pass'
+    ///                 }
+    ///                 New-ConsoleText @textOptions
+    ///             }
+    ///         }
+    ///         New-ConsolePanel @panelOptions
+    ///     }
+    /// }
+    /// New-ConsoleDashboard @dashboardOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'stress' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'pipeline' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledashboard/")]
     [OutputType(typeof(Dashboard))]

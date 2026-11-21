@@ -7,18 +7,33 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.</para></remarks>
     /// <example>
     /// <para>Show where the reader is in an outline.</para>
-    /// <code>
-    /// $sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1
-    /// Show-ConsoleApp -Content {
-    ///     New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections
-    ///     $sections
+    /// <code>$outlineOptions = @{
+    ///     Key = 'Sections'
+    ///     Items = @('General', @{ Title = 'Proxy'; Level = 2 }, 'Logging')
+    ///     SelectedIndex = 1
     /// }
-    /// </code>
+    /// $sections = New-ConsoleOutline @outlineOptions
+    /// Show-ConsoleApp -Content {
+    ///     $breadcrumbOptions = @{
+    ///         Key = 'Where'
+    ///         Ancestors = @('Settings')
+    ///         Outline = $sections
+    ///     }
+    ///     New-ConsoleBreadcrumb @breadcrumbOptions
+    ///     $sections
+    /// }</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory breadcrumb</para>
-    /// <code>New-ConsoleBreadcrumb -Key location -Segments 'Inventory', 'Servers', 'web01' | Show-Console
-    /// </code>
+    /// <code>$breadcrumbOptions = @{
+    ///     Key = 'location'
+    ///     Segments = @('Inventory', 'Servers', 'web01')
+    /// }
+    /// New-ConsoleBreadcrumb @breadcrumbOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see New-ConsoleBreadcrumb in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleBreadcrumb", DefaultParameterSetName = SegmentSet, HelpUri = "https://consolemonster.dev/powershell/commands/new-consolebreadcrumb/")]
     [OutputType(typeof(Breadcrumb))]

@@ -39,7 +39,13 @@ $configuration = @{
     Run = @{ Path = './Tests'; PassThru = $true }
     Filter = @{ Tag = 'Unit' }
 }
-Invoke-ConsolePester -Configuration $configuration -FullScreen -ExportHtml ./pester.html -WhatIf
+$pesterOptions = @{
+    FullScreen = $true
+    WhatIf = $true
+    Configuration = $configuration
+    ExportHtml = './pester.html'
+}
+Invoke-ConsolePester @pesterOptions
 ```
 
 Preview running a configured suite and exporting its report

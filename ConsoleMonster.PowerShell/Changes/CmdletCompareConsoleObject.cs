@@ -13,13 +13,24 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Compare two small inventories</para>
     /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
     /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-    /// Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name</code>
+    /// $objectOptions = @{
+    ///     ReferenceObject = $before
+    ///     DifferenceObject = $after
+    ///     Key = @('Name')
+    /// }
+    /// Compare-ConsoleObject @objectOptions</code>
     /// </example>
     /// <example>
     /// <para>Ask before accepting a configuration change</para>
     /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
     /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-    /// $accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Question 'Accept these changes?'
+    /// $objectOptions = @{
+    ///     ReferenceObject = $before
+    ///     DifferenceObject = $after
+    ///     Key = @('Name')
+    ///     Question = 'Accept these changes?'
+    /// }
+    /// $accepted = Compare-ConsoleObject @objectOptions
     /// $accepted</code>
     /// </example>
     /// <example>
@@ -29,13 +40,32 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }
     ///     [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }
     /// )
-    /// $controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'</code>
+    /// $objectOptions = @{
+    ///     View = 'Baseline'
+    ///     Key = @('Name')
+    ///     Baseline = 'dc02'
+    ///     Ignore = @('Name')
+    ///     Title = 'Domain controllers'
+    /// }
+    /// $controllers | Compare-ConsoleObject @objectOptions</code>
     /// </example>
     /// <example>
     /// <para>Normalize host-specific noise while retaining the original displayed values.</para>
     /// <code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
-    /// $widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Normalize $normalizers -AsWidget
-    /// $widget | Export-ConsoleFrame -Format Html -Width 120 -Path ./comparison.html</code>
+    /// $objectOptions = @{
+    ///     AsWidget = $true
+    ///     ReferenceObject = $before
+    ///     DifferenceObject = $after
+    ///     Key = @('Name')
+    ///     Normalize = $normalizers
+    /// }
+    /// $widget = Compare-ConsoleObject @objectOptions
+    /// $frameOptions = @{
+    ///     Format = 'Html'
+    ///     Width = 120
+    ///     Path = './comparison.html'
+    /// }
+    /// $widget | Export-ConsoleFrame @frameOptions</code>
     /// </example>
     [Cmdlet(VerbsData.Compare, "ConsoleObject", DefaultParameterSetName = "Compare", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/compare-consoleobject/")]
     [OutputType(typeof(ObjectChange), typeof(BaselineRow), typeof(ChangeView), typeof(BaselineView), typeof(bool))]

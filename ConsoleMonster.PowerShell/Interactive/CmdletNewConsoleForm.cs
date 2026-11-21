@@ -8,29 +8,78 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.</para></remarks>
     /// <example>
     ///   <para>A two-page wizard</para>
-    ///   <code>
-    /// function New-SharePlan {
+    ///   <code>function New-SharePlan {
     ///     param([string]$Name, [string]$Path, [switch]$ReadOnly)
     ///     [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
     /// }
-    /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -PageDescriptions @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' } -Content {
-    ///     New-ConsoleField Name 'Share name' -Page Basics -Required -ParameterName Name
-    ///     New-ConsoleField Path 'Folder' -Kind Path -PathKind Folder -MustExist -Page Basics -ParameterName Path
-    ///     New-ConsoleField ReadOnly 'Read only' -Kind Toggle -Page Access -ParameterName ReadOnly
-    /// }</code>
+    /// $formOptions = @{
+    ///     Title = 'Share plan'
+    ///     Command = 'New-SharePlan'
+    ///     PageDescriptions = @{ Basics = 'Name and location of the share.'; Access = 'How people can use the share.' }
+    ///     Content = {
+    ///         $fieldOptions3 = @{
+    ///             Required = $true
+    ///             Key = 'Name'
+    ///             Label = 'Share name'
+    ///             Page = 'Basics'
+    ///             ParameterName = 'Name'
+    ///         }
+    ///         New-ConsoleField @fieldOptions3
+    ///         $fieldOptions2 = @{
+    ///             MustExist = $true
+    ///             Key = 'Path'
+    ///             Label = 'Folder'
+    ///             Kind = 'Path'
+    ///             PathKind = 'Folder'
+    ///             Page = 'Basics'
+    ///             ParameterName = 'Path'
+    ///         }
+    ///         New-ConsoleField @fieldOptions2
+    ///         $fieldOptions = @{
+    ///             Key = 'ReadOnly'
+    ///             Label = 'Read only'
+    ///             Kind = 'Toggle'
+    ///             Page = 'Access'
+    ///             ParameterName = 'ReadOnly'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
+    /// }
+    /// $form = New-ConsoleForm @formOptions</code>
     /// </example>
     /// <example>
     ///   <para>A form that comes with a preset</para>
-    ///   <code>
-    /// function New-SharePlan {
+    ///   <code>function New-SharePlan {
     ///     param([string]$Name, [string]$Path, [switch]$ReadOnly)
     ///     [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
     /// }
-    /// $form = New-ConsoleForm 'Share plan' -Command 'New-SharePlan' -Content {
-    ///     New-ConsoleField Name 'Share name' -Required -ParameterName Name
-    ///     New-ConsoleField ReadOnly 'Read only' -Kind Toggle -ParameterName ReadOnly
-    ///     [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
-    /// }</code>
+    /// $formOptions = @{
+    ///     Title = 'Share plan'
+    ///     Command = 'New-SharePlan'
+    ///     Content = {
+    ///         $fieldOptions2 = @{
+    ///             Required = $true
+    ///             Key = 'Name'
+    ///             Label = 'Share name'
+    ///             ParameterName = 'Name'
+    ///         }
+    ///         New-ConsoleField @fieldOptions2
+    ///         $fieldOptions = @{
+    ///             Key = 'ReadOnly'
+    ///             Label = 'Read only'
+    ///             Kind = 'Toggle'
+    ///             ParameterName = 'ReadOnly'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///         [pscustomobject]@{ Name = 'Archive'; Values = @{ Name = 'Archive'; ReadOnly = $true }; Description = 'A read-only archive share.' }
+    ///     }
+    /// }
+    /// $form = New-ConsoleForm @formOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleForm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleForm", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleform/")]
     [OutputType(typeof(Form))]

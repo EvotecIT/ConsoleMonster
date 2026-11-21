@@ -26,7 +26,11 @@ Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty 
 
 ### EXAMPLE 1
 ```powershell
-Show-ConsoleImage -Path ./chart.png -Width 40
+$imageOptions = @{
+    Path = './chart.png'
+    Width = 40
+}
+Show-ConsoleImage @imageOptions
 ```
 
 Show a chart 40 cells wide
@@ -40,21 +44,35 @@ Preview every screenshot in a folder
 
 ### EXAMPLE 3
 ```powershell
-Show-ConsoleImage -Path ./logo.png -Width 24 -Protocol HalfBlock
+$imageOptions = @{
+    Path = './logo.png'
+    Width = 24
+    Protocol = 'HalfBlock'
+}
+Show-ConsoleImage @imageOptions
 ```
 
 Use half blocks, for example over a connection that drops image sequences
 
 ### EXAMPLE 4
 ```powershell
-Show-ConsoleImage -Path ./diagram.png -Protocol Kitty
+$imageOptions = @{
+    Path = './diagram.png'
+    Protocol = 'Kitty'
+}
+Show-ConsoleImage @imageOptions
 ```
 
 Use Kitty graphics in a terminal that supports it but isn't detected
 
 ### EXAMPLE 5
 ```powershell
-Show-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40
+$imageOptions = @{
+    Bytes = $stream
+    Label = 'Chart'
+    Width = 40
+}
+Show-ConsoleImage @imageOptions
 ```
 
 Show an image from an open stream, leaving it open for the caller

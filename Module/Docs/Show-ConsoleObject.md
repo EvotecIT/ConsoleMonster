@@ -15,7 +15,17 @@ Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassT
 ```
 
 ## DESCRIPTION
-Arrows move, Right and Left expand and collapse, Enter drills into a member, Backspace returns to its parent, and / searches displayed names and values. Ctrl+Enter or F10 accepts the selected node; Esc cancels. Nested values are read lazily and cycles, depth and collection sizes are bounded. In redirected, CI, line and non-interactive sessions, a static inspector is printed and no selection is returned. Objects parsed by ConvertFrom-Json use the same PowerShell member adapter as other objects.
+Nested values are read lazily. The explorer limits recursion, collection sizes and the number of members read. Objects from ConvertFrom-Json use the same PowerShell member adapter as other objects.
+
+### Object explorer
+
+Use the arrows to move, expand or collapse. Enter drills into the focused member and Backspace returns to its parent. Press / to search the displayed names and values. Press F10 or Ctrl+Enter to accept the focused node, or Escape to cancel.
+
+With PassThru, accepting a selectable node returns its value to PowerShell. Set SelectionOutput to Path to receive the PowerShell expression instead. RootPath supplies the start of that expression.
+
+### Static inspector
+
+Redirected, CI, line and non-interactive sessions print an inspector view and return no selection.
 
 ## EXAMPLES
 
@@ -35,7 +45,13 @@ Return a selected member value
 
 ### EXAMPLE 3
 ```powershell
-$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -RootPath '$config' -PassThru Path
+$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } };
+$objectOptions = @{
+    PassThru = $true
+    RootPath = '$config'
+    SelectionOutput = 'Path'
+}
+$config | Show-ConsoleObject @objectOptions
 ```
 
 Return its PowerShell path

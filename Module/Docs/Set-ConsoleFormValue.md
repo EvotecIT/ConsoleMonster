@@ -21,23 +21,67 @@ Each named field takes its value and shows it at once, text and number boxes inc
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'Connection' -Content {
-    New-ConsoleField Domain 'Domain'
-    New-ConsoleField Parallel 'Parallel workers' -Kind Number -Integer -Minimum 1
+$formOptions2 = @{
+    Title = 'Connection'
+    Content = {
+        $fieldOptions2 = @{
+            Key = 'Domain'
+            Label = 'Domain'
+        }
+        New-ConsoleField @fieldOptions2
+        $fieldOptions = @{
+            Integer = $true
+            Key = 'Parallel'
+            Label = 'Parallel workers'
+            Kind = 'Number'
+            Minimum = 1
+        }
+        New-ConsoleField @fieldOptions
+    }
 }
-Set-ConsoleFormValue -Form $form -Values @{ Domain = 'lab.example.test'; Parallel = 2 }
-Read-ConsoleForm $form
+$form = New-ConsoleForm @formOptions2
+$formValueOptions = @{
+    Form = $form
+    Values = @{ Domain = 'lab.example.test'; Parallel = 2 }
+}
+Set-ConsoleFormValue @formValueOptions
+$formOptions = @{
+    Form = $form
+}
+Read-ConsoleForm @formOptions
 ```
 
 Apply a preset before showing a form
 
 ### EXAMPLE 2
 ```powershell
-$form = New-ConsoleForm 'Connection' -Content { New-ConsoleField Domain 'Domain' -Default 'lab.example.test' }
-$last = Read-ConsoleForm $form -PassThru
+$formOptions3 = @{
+    Title = 'Connection'
+    Content = {
+        $fieldOptions = @{
+            Key = 'Domain'
+            Label = 'Domain'
+            Default = 'lab.example.test'
+        }
+        New-ConsoleField @fieldOptions
+    }
+}
+$form = New-ConsoleForm @formOptions3
+$formOptions2 = @{
+    PassThru = $true
+    Form = $form
+}
+$last = Read-ConsoleForm @formOptions2
 if ($last) {
-    Set-ConsoleFormValue -Form $form -Values $last
-    Read-ConsoleForm $form
+    $formValueOptions = @{
+        Form = $form
+        Values = $last
+    }
+    Set-ConsoleFormValue @formValueOptions
+    $formOptions = @{
+        Form = $form
+    }
+    Read-ConsoleForm @formOptions
 }
 ```
 

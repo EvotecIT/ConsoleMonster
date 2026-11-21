@@ -28,7 +28,10 @@ Every setting and its source
 
 ### EXAMPLE 2
 ```powershell
-Get-ConsoleSetting Theme
+$settingOptions = @{
+    Name = @('Theme')
+}
+Get-ConsoleSetting @settingOptions
 ```
 
 One setting

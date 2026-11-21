@@ -48,43 +48,71 @@ Items from objects in the pipeline
 ### EXAMPLE 4
 ```powershell
 $steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
-Invoke-ConsoleDashboard (New-ConsoleDashboard -Title 'Backup' -Content { $steps }) { Update-Console status -Key 'Scan files' -Status Pass -Detail '2.4 s' }
+$dashboardOptions = @{
+    Dashboard = (New-ConsoleDashboard -Title 'Backup' -Content { $steps })
+    ScriptBlock = {
+        $updateConsoleOptions = @{
+            WidgetId = 'status'
+            Key = 'Scan files'
+            Status = 'Pass'
+            Detail = '2.4 s'
+        }
+        Update-Console @updateConsoleOptions
+    }
+}
+Invoke-ConsoleDashboard @dashboardOptions
 ```
 
 A live checklist: items start pending and are updated from the dashboard script
 
 ### EXAMPLE 5
 ```powershell
-New-ConsoleStatusList -Layout Strip -StepCounter -Content {
-                @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
-                @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
-                @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
-            } | Show-Console
+$statusListOptions = @{
+    StepCounter = $true
+    Layout = 'Strip'
+    Content = {
+        @{ Key = 'restore'; Label = 'Restore'; Status = 'Pass' }
+        @{ Key = 'build'; Label = 'Build'; Status = 'Running' }
+        @{ Key = 'test'; Label = 'Test'; Status = 'Pending' }
+    }
+}
+New-ConsoleStatusList @statusListOptions | Show-Console
 ```
 
 Show build phases as a compact strip
 
 ### EXAMPLE 6
 ```powershell
-New-ConsoleStatusList -Layout Strip -FanOut 4 -Content {
-                @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
-                @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
-                @{ Key = 'verify'; Label = 'Verify' }
-                'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
-                @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
-                @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
-            } | Show-Console
+$statusListOptions = @{
+    Layout = 'Strip'
+    FanOut = 4
+    Content = {
+        @{ Key = 'snapshot'; Label = 'Snapshot'; Status = 'Pass'; Detail = '12 s' }
+        @{ Key = 'migrate'; Label = 'Migrate'; Status = 'Running'; Detail = '6/14' }
+        @{ Key = 'verify'; Label = 'Verify' }
+        'alice', 'bob', 'carol', 'dave', 'erin' | ForEach-Object { @{ ParentKey = 'migrate'; Key = $_; Status = 'Pass' } }
+        @{ ParentKey = 'migrate'; Key = 'frank'; Status = 'Running'; Detail = '40%' }
+        @{ ParentKey = 'migrate'; Key = 'mallory'; Status = 'Fail'; Detail = 'access denied' }
+    }
+}
+New-ConsoleStatusList @statusListOptions | Show-Console
 ```
 
 The running phase fans out to the users it is migrating
 
 ### EXAMPLE 7
 ```powershell
-$stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {
-    @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
-    @{ Key = 'build'; Label = 'Build'; Status = $Build }
-    @{ Key = 'test'; Label = 'Test' }
-} }
+$stages = { param($Build)
+    $statusListOptions = @{
+        Layout = 'Chain'
+        Content = {
+            @{ Key = 'fetch'; Label = 'Fetch'; Status = 'Pass' }
+            @{ Key = 'build'; Label = 'Build'; Status = $Build }
+            @{ Key = 'test'; Label = 'Test' }
+        }
+    }
+    New-ConsoleStatusList @statusListOptions
+}
 @(
     [pscustomobject]@{ Repository = 'ConsoleMonster'; Stages = & $stages 'Running' }
     [pscustomobject]@{ Repository = 'PSPublishModule'; Stages = & $stages 'Fail' }
@@ -92,6 +120,14 @@ $stages = { param($Build) New-ConsoleStatusList -Layout Chain -Content {
 ```
 
 Pipeline stages as one line in a table column
+
+### EXAMPLE 8
+```powershell
+Get-ConsoleDemo -Slug 'repository-status' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleStatusList in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

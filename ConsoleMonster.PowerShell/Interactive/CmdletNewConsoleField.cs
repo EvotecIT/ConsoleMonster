@@ -9,33 +9,95 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>A field has a name (its key in the result), a label, help shown while it has focus, a default, validation (-Required, -Validator and the type's own checks) and the command-line parameter it supplies (-ParameterName) for the equivalent command. -VisibleWhen shows it only while a condition on the other values holds ($Values). -DependsOn resets it when those fields change; with -LoadChoices its options are loaded again in their own runspace (a spinner shows, Esc cancels), from the current values ($Values). Choices are built from any objects: -Display, -GroupBy, -Describe, -Badge and -DisabledReason read each object (a property name, or a scriptblock for choices given with -Choices; loaded choices take property names). For Select fields, -Default @{ Property = 'Online' } selects choices whose Online property is true; -Default also accepts initial values. -CommandValue picks the text the equivalent command shows and the field returns.</para></remarks>
     /// <example>
     /// <para>Load dependent choices from the selected site</para>
-    /// <code>$form = New-ConsoleForm 'Server selection' -Content {
-    ///     New-ConsoleField Site 'Site' -Kind Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
-    ///     New-ConsoleField Server 'Server' -Kind Select -DependsOn Site -LoadChoices {
-    ///         param($Values)
-    ///         [pscustomobject]@{ Name = "$($Values.Site)-web01" }
-    ///         [pscustomobject]@{ Name = "$($Values.Site)-web02" }
-    ///     } -Display Name -ParameterName Server
+    /// <code>$formOptions2 = @{
+    ///     Title = 'Server selection'
+    ///     Content = {
+    ///         $fieldOptions2 = @{
+    ///             Key = 'Site'
+    ///             Label = 'Site'
+    ///             Kind = 'Select'
+    ///             Choices = @('Warsaw', 'Berlin')
+    ///             Default = 'Warsaw'
+    ///         }
+    ///         New-ConsoleField @fieldOptions2
+    ///         $fieldOptions = @{
+    ///             Key = 'Server'
+    ///             Label = 'Server'
+    ///             Kind = 'Select'
+    ///             DependsOn = @('Site')
+    ///             LoadChoices = {
+    ///                 param($Values)
+    ///                 [pscustomobject]@{ Name = "$($Values.Site)-web01" }
+    ///                 [pscustomobject]@{ Name = "$($Values.Site)-web02" }
+    ///             }
+    ///             Display = 'Name'
+    ///             ParameterName = 'Server'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
     /// }
-    /// Read-ConsoleForm $form</code>
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// Read-ConsoleForm @formOptions</code>
     /// </example>
     /// <example>
     /// <para>Show a field only when a toggle is enabled</para>
-    /// <code>$form = New-ConsoleForm 'Notifications' -Content {
-    ///     New-ConsoleField Notify 'Send an email' -Kind Toggle
-    ///     New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
+    /// <code>$formOptions2 = @{
+    ///     Title = 'Notifications'
+    ///     Content = {
+    ///         $fieldOptions2 = @{
+    ///             Key = 'Notify'
+    ///             Label = 'Send an email'
+    ///             Kind = 'Toggle'
+    ///         }
+    ///         New-ConsoleField @fieldOptions2
+    ///         $fieldOptions = @{
+    ///             Key = 'Email'
+    ///             Label = 'Email'
+    ///             VisibleWhen = { $Values.Notify }
+    ///             Validator = { $_ -match '@' }
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
     /// }
-    /// Read-ConsoleForm $form</code>
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// Read-ConsoleForm @formOptions</code>
     /// </example>
     /// <example>
     /// <para>Group loaded choices, disable unavailable ones and select defaults by property</para>
-    /// <code>$form = New-ConsoleForm 'Servers' -Content {
-    ///     New-ConsoleField Servers 'Servers' -Kind Select -Multiple -ParameterName ComputerName -LoadChoices {
-    ///         [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
-    ///         [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
-    ///     } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
+    /// <code>$formOptions2 = @{
+    ///     Title = 'Servers'
+    ///     Content = {
+    ///         $fieldOptions = @{
+    ///             Multiple = $true
+    ///             Key = 'Servers'
+    ///             Label = 'Servers'
+    ///             Kind = 'Select'
+    ///             ParameterName = 'ComputerName'
+    ///             LoadChoices = {
+    ///                 [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
+    ///                 [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
+    ///             }
+    ///             Display = 'Name'
+    ///             CommandValue = 'Name'
+    ///             GroupBy = 'Site'
+    ///             Badge = 'Role'
+    ///             DisabledReason = 'Offline'
+    ///             Default = @{ Property = 'Online' }
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
     /// }
-    /// Read-ConsoleForm $form</code>
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// Read-ConsoleForm @formOptions</code>
     /// </example>
     /// <example>
     /// <para>Return choice identifiers and show a duration badge</para>
@@ -43,7 +105,24 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }
     ///     [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }
     /// )
-    /// New-ConsoleField Checks 'Checks' -Kind Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check</code>
+    /// $fieldOptions = @{
+    ///     Multiple = $true
+    ///     Key = 'Checks'
+    ///     Label = 'Checks'
+    ///     Kind = 'Select'
+    ///     Choices = $checks
+    ///     Display = 'Name'
+    ///     CommandValue = 'Id'
+    ///     GroupBy = 'Category'
+    ///     Badge = { "~$($_.Seconds) s" }
+    ///     ParameterName = 'Check'
+    /// }
+    /// New-ConsoleField @fieldOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleField in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleField", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolefield/")]
     [OutputType(typeof(Field))]

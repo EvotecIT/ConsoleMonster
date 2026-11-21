@@ -22,7 +22,13 @@ Uses the same member adapters, paths, cycle guards and expansion budget as Show-
 ### EXAMPLE 1
 ```powershell
 $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
-Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $config }
+Show-ConsoleApp -Content {
+    $treeSelectOptions = @{
+        Key = 'Members'
+        InputObject = $config
+    }
+    New-ConsoleTreeSelect @treeSelectOptions
+}
 ```
 
 Browse a nested configuration
@@ -30,7 +36,12 @@ Browse a nested configuration
 ### EXAMPLE 2
 ```powershell
 $inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
-New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console
+$treeSelectOptions = @{
+    Key = 'inventory'
+    InputObject = $inventory
+    Depth = 3
+}
+New-ConsoleTreeSelect @treeSelectOptions | Show-Console
 ```
 
 Compose an inventory tree select

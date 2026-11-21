@@ -21,24 +21,60 @@ Creates a passive command definition. Work runs in an isolated runspace with exp
 
 ### EXAMPLE 1
 ```powershell
-$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Shortcut Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {
-    param($Row)
-    $Row | Select-Object Name, Id
+$commandOptions = @{
+    Key = 'Inspect'
+    Label = 'Inspect process'
+    Shortcut = 'Ctrl+I'
+    ConfirmPrompt = 'Inspect the selected process?'
+    ScriptBlock = {
+        param($Row)
+        $Row | Select-Object Name, Id
+    }
 }
-Get-Process | Select-Object -First 8 | Show-ConsoleGrid -Command $inspect
+$inspect = New-ConsoleCommand @commandOptions
+$gridOptions = @{
+    Command = $inspect
+}
+Get-Process | Select-Object -First 8 | Show-ConsoleGrid @gridOptions
 ```
 
 Confirm before inspecting a selected object
 
 ### EXAMPLE 2
 ```powershell
-$refresh = New-ConsoleCommand -Key refresh -Label 'Refresh inventory' -Shortcut F5 -ScriptBlock {
-    Write-ConsoleLogEntry 'Inventory refreshed' -Level Info
+$commandOptions = @{
+    Key = 'refresh'
+    Label = 'Refresh inventory'
+    Shortcut = 'F5'
+    ScriptBlock = {
+        $logEntryOptions = @{
+            Message = 'Inventory refreshed'
+            Level = 'Info'
+        }
+        Write-ConsoleLogEntry @logEntryOptions
+    }
 }
-Show-ConsoleApp -Command $refresh -Content { New-ConsoleText 'Press F5 to refresh' }
+$refresh = New-ConsoleCommand @commandOptions
+$appOptions = @{
+    Command = $refresh
+    Content = {
+        $textOptions = @{
+            Text = @('Press F5 to refresh')
+        }
+        New-ConsoleText @textOptions
+    }
+}
+Show-ConsoleApp @appOptions
 ```
 
 Compose an inventory command
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'service-browser' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see New-ConsoleCommand in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

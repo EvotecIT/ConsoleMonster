@@ -29,12 +29,27 @@ A titled separator
 ### EXAMPLE 2
 ```powershell
 New-ConsoleRows -Content {
-                New-ConsoleRule 'Inventory'
-                New-ConsoleText '2 servers checked' -Role Pass
+                $ruleOptions = @{
+                    Title = 'Inventory'
+                }
+                New-ConsoleRule @ruleOptions
+                $textOptions = @{
+                    Text = @('2 servers checked')
+                    Role = 'Pass'
+                }
+                New-ConsoleText @textOptions
             } | Show-Console
 ```
 
 Compose an inventory rule
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'backup-runner' | Select-Object -ExpandProperty Source
+            Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleRule in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

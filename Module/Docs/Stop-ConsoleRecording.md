@@ -30,8 +30,12 @@ Finish from inside the recorded child shell
 ### EXAMPLE 2
 ```powershell
 # In a shell started with Invoke-ConsoleRecording -Interactive:
-            Write-ConsoleText 'Inspection complete' -Role Pass
-            Stop-ConsoleRecording
+            $textOptions = @{
+    Text = @('Inspection complete')
+    Role = 'Pass'
+}
+Write-ConsoleText @textOptions
+Stop-ConsoleRecording
 ```
 
 End a recording from inside the recorded shell

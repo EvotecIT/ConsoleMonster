@@ -26,15 +26,22 @@ Names the registered types directly or reads their names from a validated data-o
 
 ### EXAMPLE 1
 ```powershell
-Unregister-ConsoleView -TypeName 'Contoso.Server'
+$viewOptions = @{
+    TypeName = @('Contoso.Server')
+}
+Unregister-ConsoleView @viewOptions
 ```
 
 Remove a custom result view.
 
 ### EXAMPLE 2
 ```powershell
-Unregister-ConsoleView -TypeName 'Inventory.Server' -WhatIf
-            Get-ConsoleFormatting
+$viewOptions = @{
+    WhatIf = $true
+    TypeName = @('Inventory.Server')
+}
+Unregister-ConsoleView @viewOptions
+Get-ConsoleFormatting
 ```
 
 Preview removing a registered inventory view

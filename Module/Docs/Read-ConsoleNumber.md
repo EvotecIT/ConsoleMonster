@@ -21,18 +21,41 @@ Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decima
 
 ### EXAMPLE 1
 ```powershell
-$port = Read-ConsoleNumber 'Port' -Integer -Minimum 1 -Maximum 65535 -Default 443
+$numberOptions = @{
+    Integer = $true
+    Title = 'Port'
+    Minimum = 1
+    Maximum = 65535
+    Default = 443
+}
+$port = Read-ConsoleNumber @numberOptions
 ```
 
 A port number
 
 ### EXAMPLE 2
 ```powershell
-$count = Read-ConsoleNumber -Title 'Servers per batch' -Default 5 -Minimum 1 -Maximum 20
-Write-ConsoleText "Batch size: $count"
+$numberOptions = @{
+    Title = 'Servers per batch'
+    Default = 5
+    Minimum = 1
+    Maximum = 20
+}
+$count = Read-ConsoleNumber @numberOptions
+$textOptions = @{
+    Text = @("Batch size: $count")
+}
+Write-ConsoleText @textOptions
 ```
 
 Choose a bounded batch size
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Read-ConsoleNumber in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

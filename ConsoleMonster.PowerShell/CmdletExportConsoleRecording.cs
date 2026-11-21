@@ -11,14 +11,40 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Return a text document from an existing terminal recording</para>
     /// <code># Requires an existing session.cast recorded by Invoke-ConsoleRecording.
-    /// Export-ConsoleRecording -RecordingPath ./session.cast -Format Text</code>
+    /// $recordingOptions = @{
+    ///     RecordingPath = './session.cast'
+    ///     Format = 'Text'
+    /// }
+    /// Export-ConsoleRecording @recordingOptions</code>
     /// </example>
     /// <example>
     /// <para>Return SVG and HTML from an existing matching dashboard recording</para>
     /// <code># Requires run.jsonl recorded with this dashboard definition.
-    /// $dashboard = New-ConsoleDashboard -Title 'Build' -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-    /// Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Svg
-    /// Export-ConsoleRecording -Dashboard $dashboard -RecordingPath ./run.jsonl -Format Html -Width 120 -Height 36</code>
+    /// $dashboardOptions = @{
+    ///     Title = 'Build'
+    ///     Content = {
+    ///         $statusListOptions = @{
+    ///             WidgetId = 'steps'
+    ///             Content = { 'Compile' }
+    ///         }
+    ///         New-ConsoleStatusList @statusListOptions
+    ///     }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions
+    /// $recordingOptions2 = @{
+    ///     Dashboard = $dashboard
+    ///     RecordingPath = './run.jsonl'
+    ///     Format = 'Svg'
+    /// }
+    /// Export-ConsoleRecording @recordingOptions2
+    /// $recordingOptions = @{
+    ///     Dashboard = $dashboard
+    ///     RecordingPath = './run.jsonl'
+    ///     Format = 'Html'
+    ///     Width = 120
+    ///     Height = 36
+    /// }
+    /// Export-ConsoleRecording @recordingOptions</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleRecording", DefaultParameterSetName = "Session", HelpUri = "https://consolemonster.dev/powershell/commands/export-consolerecording/")]
     [OutputType(typeof(string), typeof(FileInfo))]

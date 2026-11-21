@@ -4,12 +4,23 @@ using ConsoleMonster.PowerShell.Display;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Writes a CI error, warning or notice, or a styled terminal status line.</summary>
     /// <remarks><para>GitHub Actions and Azure Pipelines receive native annotations with escaped literal text. Azure notices and GitLab annotations are ordinary lines. Other hosts show a status line with a source-file link where supported. This command does not change the process exit code or write to PowerShell's error stream.</para></remarks>
-    /// <example><para>Point to a build error</para><code>Write-ConsoleAnnotation -Level Error -Message 'Missing configuration' -File ./build.ps1 -Line 12 -Column 5</code></example>
+    /// <example><para>Point to a build error</para><code>$annotationOptions = @{
+    ///     Level = 'Error'
+    ///     Message = 'Missing configuration'
+    ///     File = './build.ps1'
+    ///     Line = 12
+    ///     Column = 5
+    /// }
+    /// Write-ConsoleAnnotation @annotationOptions</code></example>
     /// <example>
     /// <para>Highlight an inventory warning in a CI log</para>
     /// <code>$result = [pscustomobject]@{ Name = 'Inventory'; Detail = 'Two servers need an update' }
-    /// Write-ConsoleAnnotation -Level Warning -Title $result.Name -Message $result.Detail
-    /// </code>
+    /// $annotationOptions = @{
+    ///     Level = 'Warning'
+    ///     Title = $result.Name
+    ///     Message = $result.Detail
+    /// }
+    /// Write-ConsoleAnnotation @annotationOptions</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Write, "ConsoleAnnotation", HelpUri = "https://consolemonster.dev/powershell/commands/write-consoleannotation/")]
     [OutputType(typeof(void))]

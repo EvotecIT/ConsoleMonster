@@ -21,16 +21,24 @@ Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOL
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleGroup 'Build' { dotnet build }
+$groupOptions = @{
+    Title = 'Build'
+    ScriptBlock = { dotnet build }
+}
+Use-ConsoleGroup @groupOptions
 ```
 
 Group a build log
 
 ### EXAMPLE 2
 ```powershell
-Use-ConsoleGroup 'Check sample inventory' {
-    [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable
+$groupOptions = @{
+    Title = 'Check sample inventory'
+    ScriptBlock = {
+        [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable
+    }
 }
+Use-ConsoleGroup @groupOptions
 ```
 
 Group a sample inventory in a CI log

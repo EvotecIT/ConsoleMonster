@@ -7,12 +7,44 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a named region whose content can be replaced while a dashboard runs.</summary>
     /// <remarks><para>Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.</para></remarks>
     /// <example>
-    ///   <para>A panel whose content switches from a spinner to a table</para>
-    ///   <code>New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }</code>
+    ///   <para>Build a panel with an indeterminate spinner as its initial content. WidgetId main identifies the region for a later Update-Console -Content call. WidgetId spinner identifies the progress widget currently inside it.</para>
+    ///   <code>$panelOptions = @{
+    ///     Title = 'Result'
+    ///     Content = {
+    ///         $regionOptions = @{
+    ///             WidgetId = 'main'
+    ///             Content = {
+    ///                 $progressOptions = @{
+    ///                     Indeterminate = $true
+    ///                     Label = 'Querying'
+    ///                     WidgetId = 'spinner'
+    ///                 }
+    ///                 New-ConsoleProgress @progressOptions
+    ///             }
+    ///         }
+    ///         New-ConsoleRegion @regionOptions
+    ///     }
+    /// }
+    /// New-ConsolePanel @panelOptions</code>
     /// </example>
     /// <example>
-    /// <para>Align content inside a padded region</para>
-    /// <code>New-ConsoleRegion -Horizontal Center -Padding 1 -Content { New-ConsoleText 'Ready' } | Show-Console</code>
+    /// <para>Center Ready and leave one cell of padding on each side. Padding is an integer array. The one-entry form uses that entry for all four sides. With two entries the order is horizontal then vertical. With four entries it is left, top, right, bottom.</para>
+    /// <code>$regionOptions = @{
+    ///     Horizontal = 'Center'
+    ///     Padding = @(1)
+    ///     Content = {
+    ///         $textOptions = @{
+    ///             Text = @('Ready')
+    ///         }
+    ///         New-ConsoleText @textOptions
+    ///     }
+    /// }
+    /// New-ConsoleRegion @regionOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleRegion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRegion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleregion/")]
     [OutputType(typeof(IWidget))]

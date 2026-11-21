@@ -8,18 +8,47 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\&lt;app&gt;. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.</para></remarks>
     /// <example>
     ///   <para>Run a wizard and use the answers</para>
-    ///   <code>
-    /// $form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }
-    /// $answers = Read-ConsoleForm $form
+    ///   <code>$formOptions2 = @{
+    ///     Title = 'Example'
+    ///     Content = {
+    ///         $fieldOptions = @{
+    ///             Key = 'Name'
+    ///             Label = 'Name'
+    ///             Default = 'example'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
+    /// }
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// $answers = Read-ConsoleForm @formOptions
     /// if ($answers) { Write-Host "Selected $($answers.Name)" }</code>
     /// </example>
     /// <example>
     /// <para>Collect a server name and display the submitted values</para>
-    /// <code>$form = New-ConsoleForm 'Inspect inventory' -Content {
-    ///     New-ConsoleField Server 'Server name' -Default web01 -Required
+    /// <code>$formOptions2 = @{
+    ///     Title = 'Inspect inventory'
+    ///     Content = {
+    ///         $fieldOptions = @{
+    ///             Required = $true
+    ///             Key = 'Server'
+    ///             Label = 'Server name'
+    ///             Default = 'web01'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
     /// }
-    /// Read-ConsoleForm $form | Show-ConsoleTable
-    /// </code>
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// Read-ConsoleForm @formOptions | Show-ConsoleTable</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleForm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleForm", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleform/")]
     [OutputType(typeof(PSObject), typeof(FormResult))]
