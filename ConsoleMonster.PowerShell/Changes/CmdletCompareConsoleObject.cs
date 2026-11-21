@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>ReferenceObject and DifferenceObject are matched by Key (or Id, Key, Name and similar members), then compared by nested property path. Keys and string values compare case-insensitively by default; CaseSensitive applies to both. Case-only differences remain visible with IsCaseOnly and do not increase changed counts. Missing properties use a localized marker, distinct from present null or empty values. Normalize maps exact paths to scriptblocks receiving $_ or $PSItem; comparison uses their results while display retains the originals. Full, Summary, Table, SideBySide and Unified show two-set comparisons, including line diffs of long values. InputObject selects a baseline matrix with one property per row and one object per column. Baseline chooses a column by name or zero-based integer index; Name or Key sets headings. Equal rows are hidden unless IncludeUnchanged is set; case-only rows remain visible. PassThru returns ObjectChange records or BaselineRow records without drawing. AsWidget returns an IWidget for Show-ConsoleApp layouts and Export-ConsoleFrame.</para></remarks>
     /// <example>
     /// <para>Compare two small inventories</para>
-    /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
+    /// <code>
+    /// $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
     /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
     /// $objectOptions = @{
     ///     ReferenceObject = $before
@@ -22,7 +23,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Ask before accepting a configuration change</para>
-    /// <code>$before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
+    /// <code>
+    /// $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
     /// $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
     /// $objectOptions = @{
     ///     ReferenceObject = $before
@@ -35,7 +37,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compare three domain controller settings against dc02.</para>
-    /// <code>$controllers = @(
+    /// <code>
+    /// $controllers = @(
     ///     [pscustomobject]@{ Name = 'dc01'; Site = 'HQ'; LdapPort = 389 }
     ///     [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }
     ///     [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }
@@ -51,7 +54,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Normalize host-specific noise while retaining the original displayed values.</para>
-    /// <code>$normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
+    /// <code>
+    /// $normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
     /// $objectOptions = @{
     ///     AsWidget = $true
     ///     ReferenceObject = $before

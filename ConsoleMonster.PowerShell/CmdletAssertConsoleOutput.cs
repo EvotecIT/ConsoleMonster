@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Renders a widget at a fixed width, glyph tier and culture (invariant by default), so the result does not depend on the machine, and compares the text with a golden file. The first run writes the file and fails so it can be reviewed; a difference fails with the first differing line, both versions and the column where they part. Set CONSOLEMONSTER_UPDATE_GOLDEN=1 to rewrite golden files after an intended change. Strings are compared as they are. In Pester the thrown error fails the test; see the README for a Should operator built on it.</para></remarks>
     /// <example>
     /// <para>Compare a table with an existing Pester golden file</para>
-    /// <code># Requires Pester and the reviewed Golden/report.txt snapshot beside the test file.
+    /// <code>
+    /// # Requires Pester and the reviewed Golden/report.txt snapshot beside the test file.
     /// It 'renders the report table' {
     ///     $goldenPath = Join-Path $PSScriptRoot 'Golden/report.txt'
     ///     if (-not (Test-Path -LiteralPath $goldenPath -PathType Leaf)) { throw 'Provide a reviewed golden file before running this example.' }
@@ -26,7 +27,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Check an inventory panel against an existing baseline</para>
-    /// <code>$view = New-ConsolePanel -Title 'Inventory' -Content {
+    /// <code>
+    /// $view = New-ConsolePanel -Title 'Inventory' -Content {
     ///     $textOptions = @{
     ///         Text = @('web01: Pass')
     ///     }

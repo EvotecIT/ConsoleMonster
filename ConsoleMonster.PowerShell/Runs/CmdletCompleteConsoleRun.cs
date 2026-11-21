@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para></remarks>
     /// <example>
     /// <para>Return a structured summary of a completed run</para>
-    /// <code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
+    /// <code>
+    /// $checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
     /// $runOptions2 = @{
     ///     NoLive = $true
     ///     InputObject = $checks
@@ -31,7 +32,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Finish a run even when inspection fails</para>
-    /// <code>$servers = @([pscustomobject]@{ Name = 'web01' })
+    /// <code>
+    /// $servers = @([pscustomobject]@{ Name = 'web01' })
     /// $runOptions = @{
     ///     InputObject = $servers
     ///     Label = 'Name'

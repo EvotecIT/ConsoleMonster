@@ -11,12 +11,14 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Inspect the current terminal dimensions and output tiers</para>
-    /// <code>Get-ConsoleCapability | Select-Object Width, Height, Glyphs, ColorDepth | Show-ConsoleTable
+    /// <code>
+    /// Get-ConsoleCapability | Select-Object Width, Height, Glyphs, ColorDepth | Show-ConsoleTable
     /// </code>
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see Get-ConsoleCapability in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'readiness-report' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'welcome-rich' | Select-Object -ExpandProperty Source</code>
     /// </example>

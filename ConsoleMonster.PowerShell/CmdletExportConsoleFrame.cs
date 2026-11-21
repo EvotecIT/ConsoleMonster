@@ -13,7 +13,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Export an SVG with a dark window frame</para>
-    /// <code>$frameOptions = @{
+    /// <code>
+    /// $frameOptions = @{
     ///     Format = 'Svg'
     ///     Width = 120
     ///     Height = 36

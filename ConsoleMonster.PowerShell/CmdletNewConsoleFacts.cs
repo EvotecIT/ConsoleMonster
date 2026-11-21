@@ -11,13 +11,15 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Show the number of online servers</para>
-    /// <code>$summary = [pscustomobject]@{ Value = 4; Label = 'servers online'; Role = 'Pass' }
+    /// <code>
+    /// $summary = [pscustomobject]@{ Value = 4; Label = 'servers online'; Role = 'Pass' }
     /// $summary | New-ConsoleFacts | Show-Console
     /// </code>
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleFacts in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'event-log-summary' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'port-matrix' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'backup-runner' | Select-Object -ExpandProperty Source</code>

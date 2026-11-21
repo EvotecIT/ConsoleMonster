@@ -22,11 +22,13 @@ Show-ConsoleDiagram [-Path] <string> [-Diagram <string>] [-Scenario <string>] [-
 ## DESCRIPTION
 Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Path reads one Markdown file with ChartForgeX visual fences or one plain architecture file. Errors in the selected diagram stop the command with the file line and diagnostic code. Other visual-fence errors and markup warnings use the warning stream.
 
-### Interactive diagram
+Interactive diagram
+-------------------
 
 The diagram shows boxes, routed connections, dashed groups and a legend. Nodes keep their subtitle and live value on separate lines. Use Up and Down to move between nodes or scroll a diagram taller than the viewport. Press D to inspect the focused node. The diagram starts on the first use case unless Scenario selects another. Left and Right step through its payloads and steps, Space plays it, and Tab switches use cases. The app footer shows the exit key.
 
-### Static diagram
+Static diagram
+--------------
 
 Redirected, CI, line and non-interactive sessions, or StaticSnapshot, print one view at the selected step. A narrow view becomes a grouped wrapping tree, retaining the connection labels. The Needs attention list shows non-Pass nodes and links. Use NoSummary to hide it.
 

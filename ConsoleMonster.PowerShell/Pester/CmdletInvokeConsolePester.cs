@@ -19,7 +19,8 @@ namespace ConsoleMonster.PowerShell.Pester {
     /// </example>
     /// <example>
     ///   <para>Preview running a configured suite and exporting its report</para>
-    ///   <code>$configuration = @{
+    ///   <code>
+    /// $configuration = @{
     ///     Run = @{ Path = './Tests'; PassThru = $true }
     ///     Filter = @{ Tag = 'Unit' }
     /// }

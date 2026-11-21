@@ -17,11 +17,13 @@ Show-ConsoleReplay [-Dashboard] <IWidget> [[-RecordingPath] <string>] [-Title <s
 ## DESCRIPTION
 Plays a dashboard recording created with RecordingPath or AutoRecord on Invoke-ConsoleDashboard. Without RecordingPath, it uses the newest automatic recording.
 
-### Replay player
+Replay player
+-------------
 
 The player displays the reconstructed dashboard and a timeline with the recording's markers. Space plays or pauses. Left and Right step through frames, PgUp and PgDn scrub, Home and End jump to the ends, and + or - changes speed. Use n or p for the next or previous marker, f or Shift+F for failures, w or Shift+W for warnings, and l or Shift+L for log entries. Press / to search log text and Enter for the next match. Press q to close the player. Inline places it below the current cursor.
 
-### Unattended playback and marker output
+Unattended playback and marker output
+-------------------------------------
 
 PlaybackMode Automatic replays without reading keys. When interactive playback is requested in a session without an interactive console, the command prints the markers as lines.
 
@@ -30,7 +32,7 @@ PlaybackMode Automatic replays without reading keys. When interactive playback i
 ### EXAMPLE 1
 ```powershell
 # Requires build.jsonl recorded with this dashboard definition.
-            $dashboardOptions = @{
+$dashboardOptions = @{
     Title = 'Build'
     Content = {
         $statusListOptions = @{
@@ -53,7 +55,7 @@ Play an existing matching dashboard recording
 ### EXAMPLE 2
 ```powershell
 # Requires build.jsonl recorded with this dashboard definition.
-            $dashboardOptions = @{
+$dashboardOptions = @{
     Title = 'Build'
     Content = {
         $statusListOptions = @{

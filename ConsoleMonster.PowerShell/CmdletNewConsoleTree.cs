@@ -10,7 +10,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Three ways in, one tree out. Nodes: a script block of Label/Children records calls, each with its own status, detail and children (strings become leaves shown literally); nodes can also be piped in. Objects: pipe hierarchical objects (groups and members, folders and files) and name their children with -ChildrenProperty or a -Children script block ($_ is the parent); -LabelProperty, -StatusProperty and -DetailProperty pick what each node shows, and -Depth, -MaxItems and -MaxNodes keep a large or cyclic hierarchy bounded and mark what was left out (a repeated item is shown once with "(cycle)"). Hashtables: -InputObject maps keys to nested hashtables (child nodes), arrays (leaves) or other values (a muted note); use [ordered] to keep order. The title (markup allowed) is the root; without it the top-level nodes are the roots.</para></remarks>
     /// <example>
     ///   <para>A mail domain with records and their state</para>
-    ///   <code>$treeOptions = @{
+    ///   <code>
+    /// $treeOptions = @{
     ///     Title = '[bold]evotec.xyz[/]'
     ///     Content = {
     ///         [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(&amp; {
@@ -27,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Folders and files from the pipeline, three levels deep</para>
-    ///   <code>$treeOptions = @{
+    ///   <code>
+    /// $treeOptions = @{
     ///     Children = { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } }
     ///     Depth = 3
     /// }
@@ -35,7 +37,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Hierarchical objects with a status per node</para>
-    ///   <code>$groups = @(
+    ///   <code>
+    /// $groups = @(
     ///     [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(
     ///             [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }
     ///             [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }
@@ -51,7 +54,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A DNS delegation from nested hashtables</para>
-    ///   <code>$treeOptions = @{
+    ///   <code>
+    /// $treeOptions = @{
     ///     Title = 'evotec.xyz'
     ///     InputObject = ([ordered] @{ NS = @('dana.ns.cloudflare.com', 'kirk.ns.cloudflare.com'); MX = [ordered] @{ 'mail.protection.outlook.com' = '52.101.68.17' } })
     /// }
@@ -59,7 +63,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleTree in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'query' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTree", DefaultParameterSetName = NodesSet, HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletree/")]

@@ -22,7 +22,7 @@ Reads a single Windows Terminal scheme object (or a settings.json with one schem
 ### EXAMPLE 1
 ```powershell
 # Requires an existing Windows Terminal scheme JSON file.
-            $themeOptions = @{
+$themeOptions = @{
     Path = './my-scheme.json'
     OutFile = './my-theme.json'
 }
@@ -34,7 +34,7 @@ Import a Windows Terminal scheme and inspect its verdict.
 ### EXAMPLE 2
 ```powershell
 # Requires an existing sRGB iTerm2 .itermcolors file.
-            $themeOptions = @{
+$themeOptions = @{
     Accessible = $true
     Path = './my-scheme.itermcolors'
     OutFile = './my-theme.json'

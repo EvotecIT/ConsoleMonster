@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The last segment is where you are. With -Outline it follows that outline's current entry, after any -Ancestors segments, and opening a heading in it opens that outline entry. When the row is too narrow the leading segments give way to an ellipsis. It is a focus stop that initial focus skips: Left/Right choose a segment and Enter or a click opens it; the final state holds the last segment opened.</para></remarks>
     /// <example>
     /// <para>Show where the reader is in an outline.</para>
-    /// <code>$outlineOptions = @{
+    /// <code>
+    /// $outlineOptions = @{
     ///     Key = 'Sections'
     ///     Items = @('General', @{ Title = 'Proxy'; Level = 2 }, 'Logging')
     ///     SelectedIndex = 1
@@ -25,7 +26,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory breadcrumb</para>
-    /// <code>$breadcrumbOptions = @{
+    /// <code>
+    /// $breadcrumbOptions = @{
     ///     Key = 'location'
     ///     Segments = @('Inventory', 'Servers', 'web01')
     /// }

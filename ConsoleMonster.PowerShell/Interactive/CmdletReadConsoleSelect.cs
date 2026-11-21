@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.</para></remarks>
     /// <example>
     /// <para>Pick an object from a small inventory</para>
-    /// <code>$servers = @(
+    /// <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
     /// )
@@ -21,7 +22,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Choose from strings with a default</para>
-    /// <code>$selectOptions = @{
+    /// <code>
+    /// $selectOptions = @{
     ///     Title = 'Environment'
     ///     Choices = @('Production', 'Staging', 'Lab')
     ///     Default = 'Staging'

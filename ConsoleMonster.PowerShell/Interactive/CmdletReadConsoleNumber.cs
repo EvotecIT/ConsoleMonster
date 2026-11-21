@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Whole numbers with -Integer (returns [int]), decimals otherwise (returns [decimal]). -Minimum and -Maximum are shown as a hint and checked; Up and Down step by -Step (PgUp and PgDn by ten steps).</para></remarks>
     /// <example>
     ///   <para>A port number</para>
-    ///   <code>$numberOptions = @{
+    ///   <code>
+    /// $numberOptions = @{
     ///     Integer = $true
     ///     Title = 'Port'
     ///     Minimum = 1
@@ -19,7 +20,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Choose a bounded batch size</para>
-    /// <code>$numberOptions = @{
+    /// <code>
+    /// $numberOptions = @{
     ///     Title = 'Servers per batch'
     ///     Default = 5
     ///     Minimum = 1

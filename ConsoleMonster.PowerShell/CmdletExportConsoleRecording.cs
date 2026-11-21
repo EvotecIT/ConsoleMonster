@@ -10,7 +10,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chapter, or -PerChapter numbered slides. GIF and APNG are managed animations without an external executable. Without -Dashboard, reads a whole-session asciicast v2 from Invoke-ConsoleRecording -Interactive or Invoke-ConsoleRecording. Html writes a self-contained player with chapters, speed, scrubbing and copy text; Svg is animated; Text and Markdown include scrollback; -FinalFrame writes a static SVG. With -Dashboard, replays Invoke-ConsoleDashboard widget updates into the same definition, preserving the dashboard HTML, SVG and asciicast v3 exports; Markdown writes timestamped fenced frames through the bundled add-on. Add #t=30000 to an HTML address to open at 30 seconds.</para></remarks>
     /// <example>
     /// <para>Return a text document from an existing terminal recording</para>
-    /// <code># Requires an existing session.cast recorded by Invoke-ConsoleRecording.
+    /// <code>
+    /// # Requires an existing session.cast recorded by Invoke-ConsoleRecording.
     /// $recordingOptions = @{
     ///     RecordingPath = './session.cast'
     ///     Format = 'Text'
@@ -19,7 +20,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Return SVG and HTML from an existing matching dashboard recording</para>
-    /// <code># Requires run.jsonl recorded with this dashboard definition.
+    /// <code>
+    /// # Requires run.jsonl recorded with this dashboard definition.
     /// $dashboardOptions = @{
     ///     Title = 'Build'
     ///     Content = {

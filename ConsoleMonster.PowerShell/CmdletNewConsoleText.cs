@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Text takes pieces that are shown literally (data is never interpreted); -Color and -BackgroundColor take one colour per piece, and pieces beyond the colours use the first colour, as Write-Color does. Colours are ConsoleColor names exactly as Write-Host shows them, theme roles (Pass, Fail, Warn, Info, Muted, Accent) that follow the light or dark theme, #RRGGBB, rgb(r,g,b) or r,g,b. -Markup adds Spectre-compatible markup ([bold lime]Ready[/]); -Decoration adds Bold, Dim, Italic, Underline, Strikethrough or Invert; -Link makes the text a hyperlink where the terminal supports it; -Gradient colours the text from one colour to another. The result works as a cell value (also from a calculated property), as the title or label of any widget, with Write-ConsoleLogEntry and Update-Console, and with Show-Console. Without colour (NO_COLOR, redirected output) the text stays plain.</para></remarks>
     /// <example>
     /// <para>Build a rich text cell for each row. The table evaluates Expression with the current row as $_. Text receives a one-element array containing that row's Status. Role uses the same value to pick the theme color, and Decoration makes the cell bold.</para>
-    /// <code>$tableOptions = @{
+    /// <code>
+    /// $tableOptions = @{
     ///     Property = @('Name', @{
     ///             Name = 'Status'
     ///             Expression = {
@@ -28,7 +29,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Colour separate text pieces. The Text and Color arrays pair by position: SRV is cyan, 01 is yellow, and the final piece is green. Spaces are part of the text pieces, so the leading space in the last entry separates online from the identifier.</para>
-    /// <code>$textOptions = @{
+    /// <code>
+    /// $textOptions = @{
     ///     Text = @('SRV', '01', ' online')
     ///     Color = @('Cyan', 'Yellow', 'Green')
     /// }
@@ -36,7 +38,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Create two rich text values. Markup interprets the bold and muted tags. Gradient uses the first color as the starting point and the second as the end, across the characters of ConsoleMonster.</para>
-    /// <code>New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]';
+    /// <code>
+    /// New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]';
     /// $textOptions = @{
     ///     Text = @('ConsoleMonster')
     ///     Gradient = @('#00c6ff', '#ff00aa')
@@ -45,7 +48,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'welcome-compact' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'welcome-compact' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleText", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletext/")]

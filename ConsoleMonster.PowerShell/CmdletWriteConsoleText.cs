@@ -14,7 +14,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Link and Gradient apply to the message. Indent adds spaces and Alignment places text within Width. ShowTimestamp adds a timestamp. NoNewLine continues the current line. LogFile appends plain text with timestamps; new logs use UTF-8 and existing logs retain their encoding. Redirected output is plain text.</para></remarks>
     /// <example>
     ///   <para>Colour two pieces and indent the message</para>
-    ///   <code>$textOptions = @{
+    ///   <code>
+    /// $textOptions = @{
     ///     Text = @('Checking group: ', 'Operators')
     ///     Color = @('Gray', 'Green')
     ///     Indent = 4
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Centre a heading within sixty columns</para>
-    ///   <code>$textOptions = @{
+    ///   <code>
+    /// $textOptions = @{
     ///     Text = @('Maintenance complete')
     ///     Role = 'Pass'
     ///     Alignment = 'Center'
@@ -33,7 +35,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A multi-line message aligned under the time stamp</para>
-    ///   <code>$textOptions = @{
+    ///   <code>
+    /// $textOptions = @{
     ///     ShowTimestamp = $true
     ///     Text = @('[info] ', "Path exists`n2. line`n3. line")
     ///     Color = @('Yellow', 'White')

@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel). Other terminals with 256 colours or more get half blocks. Redirected, CI, remote, 16-colour and no-colour output, the ISE and sessions with a transcript running get one line, [image: name WxH]. Get-ConsoleCapability shows the protocol in ImageProtocol. The aspect ratio is always kept. To put an image inside a panel or dashboard, use New-ConsoleImage.</para></remarks>
     /// <example>
     ///   <para>Show a chart 40 cells wide</para>
-    ///   <code>$imageOptions = @{
+    ///   <code>
+    /// $imageOptions = @{
     ///     Path = './chart.png'
     ///     Width = 40
     /// }
@@ -20,7 +21,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use half blocks, for example over a connection that drops image sequences</para>
-    ///   <code>$imageOptions = @{
+    ///   <code>
+    /// $imageOptions = @{
     ///     Path = './logo.png'
     ///     Width = 24
     ///     Protocol = 'HalfBlock'
@@ -29,7 +31,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use Kitty graphics in a terminal that supports it but isn't detected</para>
-    ///   <code>$imageOptions = @{
+    ///   <code>
+    /// $imageOptions = @{
     ///     Path = './diagram.png'
     ///     Protocol = 'Kitty'
     /// }
@@ -37,7 +40,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Show an image from an open stream, leaving it open for the caller</para>
-    ///   <code>$imageOptions = @{
+    ///   <code>
+    /// $imageOptions = @{
     ///     Bytes = $stream
     ///     Label = 'Chart'
     ///     Width = 40

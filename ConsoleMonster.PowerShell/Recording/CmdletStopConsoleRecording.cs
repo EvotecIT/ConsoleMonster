@@ -4,11 +4,13 @@ using ConsoleMonster.Sessions;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Stops recording from inside the recorded child shell.</summary>
     /// <remarks><para>Sends a private terminal control to the parent recorder, which finalizes local files and closes this recorded child terminal. Run it inside a Invoke-ConsoleRecording -Interactive session.</para></remarks>
-    /// <example><para>Finish from inside the recorded child shell</para><code>Write-Host 'Deployment finished'
+    /// <example><para>Finish from inside the recorded child shell</para><code>
+    /// Write-Host 'Deployment finished'
     /// Stop-ConsoleRecording</code></example>
     /// <example>
     /// <para>End a recording from inside the recorded shell</para>
-    /// <code># In a shell started with Invoke-ConsoleRecording -Interactive:
+    /// <code>
+    /// # In a shell started with Invoke-ConsoleRecording -Interactive:
     /// $textOptions = @{
     ///     Text = @('Inspection complete')
     ///     Role = 'Pass'

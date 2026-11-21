@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Children fill the grid row by row. When columns would become narrower than 24 cells the grid uses fewer columns.</para></remarks>
     /// <example>
     ///   <para>Three charts in a row</para>
-    ///   <code>$layoutGridOptions = @{
+    ///   <code>
+    /// $layoutGridOptions = @{
     ///     Columns = 3
     ///     Content = {
     ///         $chartOptions3 = @{
@@ -31,7 +32,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Arrange an inventory count beside its status</para>
-    /// <code>$layoutGridOptions = @{
+    /// <code>
+    /// $layoutGridOptions = @{
     ///     Columns = 2
     ///     Content = {
     ///         New-ConsolePanel -Title 'Inventory' -Content {

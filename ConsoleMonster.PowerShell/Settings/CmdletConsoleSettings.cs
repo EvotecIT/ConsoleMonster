@@ -17,7 +17,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>One setting</para>
-    ///   <code>$settingOptions = @{
+    ///   <code>
+    /// $settingOptions = @{
     ///     Name = @('Theme')
     /// }
     /// Get-ConsoleSetting @settingOptions</code>
@@ -51,7 +52,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Accessible, Hyperlinks, Language or Culture. Border, Density and StatusMarkers override the theme's own style: the frame around panels, tables and inputs, Comfortable or Compact spacing, and Symbols or Words ([OK] [FAIL] [WARN]) for statuses. Compact reduces default padding and gaps; explicit spacing stays as authored. The value applies at once to everything ConsoleMonster draws in this session, above any CONSOLEMONSTER_* environment variable. -Save also writes it to the settings file, so new sessions and other tools built on ConsoleMonster use it too; nothing needs to be added to your profile. Theme takes a built-in theme, a catalogue scheme or paired family, or the path of a .json or .psd1 theme file (see Export-ConsoleTheme). Store an accessible catalogue choice with its suffix, for example Dracula · accessible. Show-ConsoleSetting chooses settings with a live preview.</para></remarks>
     /// <example>
     ///   <para>Use the colour-blind-safe theme from now on</para>
-    ///   <code>$settingOptions = @{
+    ///   <code>
+    /// $settingOptions = @{
     ///     Save = $true
     ///     Name = 'Theme'
     ///     Value = 'ColorBlindSafe'
@@ -60,7 +62,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Keep animations still and leave the mouse to the terminal, for this session only</para>
-    ///   <code>$settingOptions2 = @{
+    ///   <code>
+    /// $settingOptions2 = @{
     ///     Name = 'Motion'
     ///     Value = 'Reduced'
     /// }
@@ -73,7 +76,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Square frames and status words instead of symbols, from now on</para>
-    ///   <code>$settingOptions2 = @{
+    ///   <code>
+    /// $settingOptions2 = @{
     ///     Save = $true
     ///     Name = 'Border'
     ///     Value = 'Single'
@@ -88,7 +92,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use a team theme file in every session</para>
-    ///   <code># Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
+    ///   <code>
+    /// # Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
     /// $settingOptions = @{
     ///     Save = $true
     ///     Name = 'Theme'
@@ -140,7 +145,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Without -Name every setting is reset. Afterwards the next source applies: an environment variable, the settings file, or detection.</para></remarks>
     /// <example>
     ///   <para>Go back to the saved theme</para>
-    ///   <code>$settingOptions = @{
+    ///   <code>
+    /// $settingOptions = @{
     ///     Name = @('Theme')
     /// }
     /// Reset-ConsoleSetting @settingOptions</code>
@@ -179,10 +185,12 @@ namespace ConsoleMonster.PowerShell {
 
     /// <summary>Chooses ConsoleMonster's settings in the terminal with a live preview.</summary>
     /// <remarks>
-    /// <para>### Settings picker</para>
+    /// <para>Settings picker
+    /// ---------------</para>
     /// <para>The list on the left shows settings and their available values. The preview on the right redraws sample tables, statuses, progress, charts and errors with the current choices. An environment-controlled setting displays its variable name and is locked.</para>
     /// <para>Choose Use now to apply the choices to this session. Choose Save to apply and persist them for future sessions. Escape and Cancel discard changes. The picker closes without returning setting objects.</para>
-    /// <para>### Settings list</para>
+    /// <para>Settings list
+    /// -------------</para>
     /// <para>When a full-screen picker is unavailable, the command returns the current setting objects and shows how to change a setting with Set-ConsoleSetting.</para>
     /// </remarks>
     /// <example>
@@ -191,7 +199,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Choose settings and inspect the resulting theme</para>
-    /// <code>Show-ConsoleSetting
+    /// <code>
+    /// Show-ConsoleSetting
     /// $settingOptions = @{
     ///     Name = @('Theme')
     /// }

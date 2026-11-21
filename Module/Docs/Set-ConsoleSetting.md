@@ -68,7 +68,7 @@ Square frames and status words instead of symbols, from now on
 ### EXAMPLE 4
 ```powershell
 # Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
-            $settingOptions = @{
+$settingOptions = @{
     Save = $true
     Name = 'Theme'
     Value = './team-theme.json'

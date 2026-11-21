@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.</para></remarks>
     /// <example>
     /// <para>Confirm before inspecting a selected object</para>
-    /// <code>$commandOptions = @{
+    /// <code>
+    /// $commandOptions = @{
     ///     Key = 'Inspect'
     ///     Label = 'Inspect process'
     ///     Shortcut = 'Ctrl+I'
@@ -26,7 +27,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory command</para>
-    /// <code>$commandOptions = @{
+    /// <code>
+    /// $commandOptions = @{
     ///     Key = 'refresh'
     ///     Label = 'Refresh inventory'
     ///     Shortcut = 'F5'

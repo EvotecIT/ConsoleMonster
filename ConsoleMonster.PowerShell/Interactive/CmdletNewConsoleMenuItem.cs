@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>What the item does follows from the parameter you give: -Action (a scriptblock, run on the pipeline thread with $MenuContext), -Submenu (a menu or a scriptblock of items), -Form (with -OnSubmit, which gets $Values and $FormResult), -Select or -MultiSelect (the chosen objects stay on the item: $item.Selection), -LoadChoices (loaded in its own runspace with a spinner), -Page (content built each time it shows), -Review (a summary with the equivalent command and Run), -Presets, -Separator or -Exit. -Badge and -Detail can be scriptblocks, recomputed every time the menu draws; -DisabledReason returns why the item is unavailable.</para></remarks>
     /// <example>
     /// <para>Build a multiple-choice item with an initial selection</para>
-    /// <code>$tasks = @(
+    /// <code>
+    /// $tasks = @(
     ///     [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }
     ///     [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
     /// )
@@ -39,7 +40,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Confirm an action and return a result record</para>
-    /// <code>$menuOptions2 = @{
+    /// <code>
+    /// $menuOptions2 = @{
     ///     Title = 'Inventory'
     ///     Content = {
     ///         $menuItemOptions = @{
@@ -63,7 +65,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleMenuItem in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenuItem", DefaultParameterSetName = "Action", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolemenuitem/")]

@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Children share the width equally unless they were created with -Weight. -FixedWidth gives children a fixed width in cells instead, by position (a narrow histogram beside two tables). Children in a row share their height. On narrow terminals the columns stack vertically instead of squeezing content: by default below the sum of the children's minimum widths, or below -CollapseBelow cells.</para></remarks>
     /// <example>
     ///   <para>Two panels, the first twice as wide</para>
-    ///   <code>New-ConsoleColumns -Content {
+    ///   <code>
+    /// New-ConsoleColumns -Content {
     ///     $panelOptions2 = @{
     ///         Title = 'Steps'
     ///         Weight = 2
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Keep the histogram at 17 cells and distribute the rest of the width between the two tables. FixedWidth is indexed in the order that Content emits its children: 0 leaves Failures and Slowest on their weighted shares, and 17 fixes Durations. Below 90 cells, CollapseBelow stacks the three children vertically.</para>
-    ///   <code>$columnsOptions = @{
+    ///   <code>
+    /// $columnsOptions = @{
     ///     FixedWidth = @(0, 0, 17)
     ///     CollapseBelow = 90
     ///     Content = {
@@ -71,7 +73,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleColumns in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'event-log-summary' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleColumns", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecolumns/")]

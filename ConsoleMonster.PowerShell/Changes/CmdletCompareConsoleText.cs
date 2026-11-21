@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Shows the reference and difference side by side at 120 columns or more, and inline in narrower terminals. Text headings default to Before and After; file headings use the resolved filenames. ReferenceLabel and DifferenceLabel override these headings in both the widget and unified output. Minus and plus markers distinguish changes without colour. Context controls the unchanged lines around changes. CRLF, LF and CR endings compare equally; a missing final newline remains significant. Large inputs use bounded comparison work and linear auxiliary memory, so a large changed range may produce a non-minimal diff. AsUnified returns plain unified diff text instead of rendering.</para></remarks>
     /// <example>
     /// <para>Compare configuration strings with one line of context.</para>
-    /// <code>$textOptions = @{
+    /// <code>
+    /// $textOptions = @{
     ///     ReferenceText = 'port=80'
     ///     DifferenceText = 'port=443'
     ///     Context = 1
@@ -17,7 +18,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compare strings while ignoring whitespace within lines.</para>
-    /// <code>$textOptions = @{
+    /// <code>
+    /// $textOptions = @{
     ///     IgnoreWhitespace = $true
     ///     ReferenceText = 'port = 80'
     ///     DifferenceText = 'port=80'
@@ -26,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Return a unified diff with custom side names for storage or further processing.</para>
-    /// <code>$textOptions = @{
+    /// <code>
+    /// $textOptions = @{
     ///     AsUnified = $true
     ///     ReferenceText = 'port=80'
     ///     DifferenceText = 'port=443'

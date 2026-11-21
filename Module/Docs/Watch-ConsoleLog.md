@@ -27,7 +27,7 @@ File lines are decoded incrementally and followed across observed truncation and
 ### EXAMPLE 1
 ```powershell
 # Requires an existing service.log file; reads two snapshots without changing the file.
-            $logOptions = @{
+$logOptions = @{
     Path = './service.log'
     Highlight = 'database'
     Count = 2
@@ -40,7 +40,7 @@ Inspect an existing log and highlight a component
 ### EXAMPLE 2
 ```powershell
 # Requires an existing service.log file.
-            $logOptions = @{
+$logOptions = @{
     Path = './service.log'
     Tail = 50
     Filter = 'ERROR'

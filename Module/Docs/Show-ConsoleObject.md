@@ -17,13 +17,15 @@ Show-ConsoleObject [[-SelectionOutput] <string>] -InputObject <psobject> [-PassT
 ## DESCRIPTION
 Nested values are read lazily. The explorer limits recursion, collection sizes and the number of members read. Objects from ConvertFrom-Json use the same PowerShell member adapter as other objects.
 
-### Object explorer
+Object explorer
+---------------
 
 Use the arrows to move, expand or collapse. Enter drills into the focused member and Backspace returns to its parent. Press / to search the displayed names and values. Press F10 or Ctrl+Enter to accept the focused node, or Escape to cancel.
 
 With PassThru, accepting a selectable node returns its value to PowerShell. Set SelectionOutput to Path to receive the PowerShell expression instead. RootPath supplies the start of that expression.
 
-### Static inspector
+Static inspector
+----------------
 
 Redirected, CI, line and non-interactive sessions print an inspector view and return no selection.
 

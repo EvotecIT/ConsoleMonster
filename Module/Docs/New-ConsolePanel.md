@@ -51,7 +51,7 @@ Frame an inventory record with a heading
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsolePanel in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

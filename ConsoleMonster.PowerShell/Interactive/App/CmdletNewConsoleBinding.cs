@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <example><para>Display the current input.</para><code>Show-ConsoleApp -Content { New-ConsoleTextInput -Key Query; New-ConsoleBinding -Content { "Query: $($State.Query)" } }</code></example>
     /// <example>
     /// <para>Compose an inventory binding</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <code>
+    /// Show-ConsoleApp -Content {
     ///     $bindingOptions = @{
     ///         WidgetId = 'selection'
     ///         Content = {
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleBinding in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source</code>
     /// </example>

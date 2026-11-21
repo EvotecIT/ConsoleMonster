@@ -64,7 +64,7 @@ Keep the accessible Dracula scheme in every session
 ### EXAMPLE 5
 ```powershell
 # Requires an existing team-theme.psd1 file. Changes the active session theme.
-            Set-ConsoleTheme -Path ./team-theme.psd1
+Set-ConsoleTheme -Path ./team-theme.psd1
 ```
 
 Load an existing theme exported by Export-ConsoleTheme

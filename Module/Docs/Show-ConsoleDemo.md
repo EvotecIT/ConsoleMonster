@@ -15,15 +15,18 @@ Show-ConsoleDemo [[-Slug] <string>] [-Mode <InteractionMode>] [-Step <int>] [<Co
 ```
 
 ## DESCRIPTION
-### Gallery picker
+Gallery picker
+--------------
 
 Omitting Slug opens a picker grouped by category. Type to filter. Focus a demo and press Enter to run it. Escape closes the picker without running a demo. In a session that cannot ask for a selection, supply a slug from Get-ConsoleDemo.
 
-### Demo run
+Demo run
+--------
 
 Supplying Slug runs the chosen demo directly. Each script defines its own output and interaction. It runs in a child scope of the current PowerShell runspace and uses the current host and loaded ConsoleMonster commands. Get-ConsoleDemo exposes the same script in its Source property. Output and errors follow the normal PowerShell streams.
 
-### Snapshot
+Snapshot
+--------
 
 Mode Snapshot displays one recorded state selected by Step. The runner supplies the scripted input or queued live updates for that state. The copied demo source has no capture parameters.
 

@@ -10,7 +10,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The current entry is marked. Up/Down, Home/End and the wheel move the selection; Enter or a click opens it, which makes it current (the final state holds its title). An entry with a Target leads to that control: opening it focuses the control, scrolling a surrounding scroll view to it, and unfolds it when it is a collapsible section. New-ConsoleBreadcrumb -Outline shows the path to the current entry.</para></remarks>
     /// <example>
     /// <para>Jump between the sections of a settings page.</para>
-    /// <code>$collapsibleOptions2 = @{
+    /// <code>
+    /// $collapsibleOptions2 = @{
     ///     Key = 'Proxy'
     ///     Content = {
     ///         $textInputOptions2 = @{
@@ -50,7 +51,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory outline</para>
-    /// <code>$outlineOptions = @{
+    /// <code>
+    /// $outlineOptions = @{
     ///     Key = 'sections'
     ///     Items = @('Inventory', 'Network', 'Storage')
     /// }
@@ -58,7 +60,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleOutline in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleOutline", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleoutline/")]

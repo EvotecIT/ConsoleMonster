@@ -5,7 +5,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Connects two diagram components.</summary>
     /// <remarks><para>From and To identify nodes by their label or explicit Id. The containing diagram creates undeclared endpoints. Labels are literal, Status uses the shared ConsoleMonster health states, and Both adds an arrow at each end.</para></remarks>
-    /// <example><para>A failing backup connection.</para><code>$diagramLinkOptions = @{
+    /// <example><para>A failing backup connection.</para><code>
+    /// $diagramLinkOptions = @{
     ///     From = 'File server'
     ///     To = 'Backup'
     ///     Label = 'nightly'
@@ -15,7 +16,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleDiagramLink @diagramLinkOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram link</para>
-    /// <code>$diagramOptions = @{
+    /// <code>
+    /// $diagramOptions = @{
     ///     Title = 'Service dependencies'
     ///     Content = {
     ///         $diagramNodeOptions2 = @{

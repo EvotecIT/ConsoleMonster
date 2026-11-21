@@ -11,21 +11,25 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shows a command's help: synopsis, highlighted syntax, a parameter table and highlighted examples.</summary>
     /// <remarks>
     /// <para>Reads the available Get-Help -Full content, including cmdlet help files, comment-based help and PowerShell's generated help. It includes syntax by parameter set, parameter details, highlighted PowerShell examples, inputs, outputs, notes and related links. About topics use the shared Markdown reader, retaining literal HTML and safe link handling. The help is available in Windows PowerShell 5.1 and PowerShell 7.</para>
-    /// <para>### Help viewer</para>
+    /// <para>Help viewer
+    /// -----------</para>
     /// <para>On an interactive terminal, help longer than the screen can open a document viewer. The Overview, Parameters, Examples and Related tabs organize the help. Use the outline and folding sections to navigate, / to find text, or Ctrl+K to jump to a section or parameter. Open related command help in the same viewer and use Alt+Left or Alt+Right to move through the history. Press q to close the viewer and return to PowerShell.</para>
-    /// <para>### Direct help output</para>
+    /// <para>Direct help output
+    /// ------------------</para>
     /// <para>NoPager writes the help directly. When you pipe the output to another command such as more, Out-Host -Paging or Out-File, it emits plain lines suitable for that destination.</para>
     /// </remarks>
     /// <example>
     ///   <para>A cmdlet</para>
-    ///   <code>$helpOptions = @{
+    ///   <code>
+    /// $helpOptions = @{
     ///     Name = 'Get-ChildItem'
     /// }
     /// Show-ConsoleHelp @helpOptions</code>
     /// </example>
     /// <example>
     ///   <para>Through a pager</para>
-    ///   <code>$helpOptions = @{
+    ///   <code>
+    /// $helpOptions = @{
     ///     AsWidget = $true
     ///     Name = 'Show-ConsoleTable'
     /// }

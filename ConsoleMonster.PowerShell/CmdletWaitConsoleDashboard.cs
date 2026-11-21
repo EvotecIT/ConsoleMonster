@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Waits cancellably on the resolved live session and writes no output. A recording target with SkipDelays enabled captures earlier queued updates instead of waiting.</para></remarks>
     /// <example>
     /// <para>Update progress between cancellable pauses</para>
-    /// <code>$dashboardOptions2 = @{
+    /// <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Scan'
     ///     Content = {
     ///         $progressOptions = @{
@@ -36,7 +37,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Pause briefly between live server updates</para>
-    /// <code>$dashboardOptions2 = @{
+    /// <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Inventory'
     ///     Content = { New-ConsoleLanes -WidgetId servers }
     /// }
@@ -64,7 +66,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see Wait-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Wait, "ConsoleDashboard", HelpUri = "https://consolemonster.dev/powershell/commands/wait-consoledashboard/")]

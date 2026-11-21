@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The script runs on the pipeline thread with the caller's variables. While it runs, Write-Progress (Activity, Status, CurrentOperation, PercentComplete, SecondsRemaining, Id and ParentId nesting, -Completed) is drawn as nested activities with bars, below the cursor and without the alternate screen; Write-Host and console output scroll above the area. When the script ends the final state stays (or disappears with -PrintFinalState:$false) and the script's output is returned. Calls the script makes directly are covered; commands inside other modules call their own Write-Progress, which PowerShell shows as usual. Inside the script, $ConsoleSession is this progress area's session, so Wait-ConsoleDashboard can capture or pause it. In jobs, remoting, the ISE and redirected output the script simply runs with $ConsoleSession set to null. If another runspace owns the terminal's progress area, the script also runs with PowerShell's native progress. Works on Windows PowerShell 5.1 and PowerShell 7.</para></remarks>
     /// <example>
     ///   <para>An existing loop, unchanged</para>
-    ///   <code>$progressOptions = @{
+    ///   <code>
+    /// $progressOptions = @{
     ///     ScriptBlock = {
     ///         foreach ($i in 1..50) {
     ///             Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Return server results and suppress the final progress area</para>
-    /// <code>Use-ConsoleProgress -PrintFinalState:$false {
+    /// <code>
+    /// Use-ConsoleProgress -PrintFinalState:$false {
     ///     foreach ($server in 'web01', 'web02') {
     ///         Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
     ///         [pscustomobject]@{ Server = $server; Result = 'Pass' }

@@ -7,7 +7,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Builds a diagram from a script block or connection rows.</summary>
     /// <remarks><para>Emit New-ConsoleDiagramNode, Link, Group and UseCase objects in Content. A node's label is its id unless Id is given. Pipeline rows use From, To, Label, Status and Group; selectors accept property names or script blocks using $_. Connections create undeclared endpoints. Graphics is optional for C#; the module includes it and registers its renderer.</para></remarks>
-    /// <example><para>A home network.</para><code>$diagramOptions = @{
+    /// <example><para>A home network.</para><code>
+    /// $diagramOptions = @{
     ///     Title = 'Home'
     ///     Content = {
     ///         $diagramNodeOptions2 = @{
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     ///     }
     /// }
     /// New-ConsoleDiagram @diagramOptions | Show-Console</code></example>
-    /// <example><para>Connection rows.</para><code>$diagramOptions = @{
+    /// <example><para>Connection rows.</para><code>
+    /// $diagramOptions = @{
     ///     Title = 'Replication'
     ///     From = 'Source'
     ///     To = 'Destination'

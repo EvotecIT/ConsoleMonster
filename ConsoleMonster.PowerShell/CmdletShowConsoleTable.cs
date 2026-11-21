@@ -7,13 +7,15 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Header changes the displayed heading. Presenter formats the cell value, such as rendering a byte count as a human-readable size. Priority affects which columns are kept when the grid has too little room. GroupBy adds group headings. ShowTotals sums numeric columns, and Wrap keeps long text readable. The renderer can use labelled cards for narrow output.</para>
     /// <para>Show-ConsoleTable displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting opts into ConsoleMonster's display for ordinary prompt output.</para>
     /// </remarks>
-    /// <example><para>Display up to eight processes with three columns in the order given by Property. The last column reads WorkingSet64 and automatically displays the byte count in a readable size. The pipeline supplies the process objects, while the splat supplies the table options.</para><code>$tableOptions = @{
+    /// <example><para>Display up to eight processes with three columns in the order given by Property. The last column reads WorkingSet64 and automatically displays the byte count in a readable size. The pipeline supplies the process objects, while the splat supplies the table options.</para><code>
+    /// $tableOptions = @{
     ///     Property = @('ProcessName', 'Id', 'WorkingSet64')
     ///     Title = 'Running processes'
     /// }
     /// Get-Process | Select-Object -First 8 |
     ///     Show-ConsoleTable @tableOptions</code></example>
-    /// <example><para>Group the inventory by Site. Cores totals 16, with group subtotals of 12 for East and 4 for West. The sites appear in the group headings. Add ShowGroupColumn = $true to repeat Site in the rows.</para><code>$inventory = @(
+    /// <example><para>Group the inventory by Site. Cores totals 16, with group subtotals of 12 for East and 4 for West. The sites appear in the group headings. Add ShowGroupColumn = $true to repeat Site in the rows.</para><code>
+    /// $inventory = @(
     ///     [pscustomobject]@{ Site = 'East'; Server = 'WEB01'; Cores = 4 }
     ///     [pscustomobject]@{ Site = 'East'; Server = 'SQL01'; Cores = 8 }
     ///     [pscustomobject]@{ Site = 'West'; Server = 'WEB02'; Cores = 4 }
@@ -24,7 +26,8 @@ namespace ConsoleMonster.PowerShell {
     ///     GroupBy = 'Site'
     /// }
     /// $inventory | Show-ConsoleTable @tableOptions</code></example>
-    /// <example><para>Calculate memory in MiB. The Property array mixes a plain property name with a calculated-column descriptor. ConsoleMonster evaluates Expression with $_ set to the process for that row. It divides WorkingSet64 by PowerShell's 1MB multiplier (1,048,576 bytes) and rounds the result to one decimal place.</para><code>$tableOptions = @{
+    /// <example><para>Calculate memory in MiB. The Property array mixes a plain property name with a calculated-column descriptor. ConsoleMonster evaluates Expression with $_ set to the process for that row. It divides WorkingSet64 by PowerShell's 1MB multiplier (1,048,576 bytes) and rounds the result to one decimal place.</para><code>
+    /// $tableOptions = @{
     ///     Property = @(
     ///         'ProcessName'
     ///         @{
@@ -34,7 +37,8 @@ namespace ConsoleMonster.PowerShell {
     ///     )
     /// }
     /// Get-Process | Select-Object -First 5 | Show-ConsoleTable @tableOptions</code></example>
-    /// <example><para>Wrap long notes in a 60-cell report. CardsBelow = 0 disables the width-based switch to cards. Wrap lets the Notes value continue on following lines in the grid.</para><code>$tableOptions = @{
+    /// <example><para>Wrap long notes in a 60-cell report. CardsBelow = 0 disables the width-based switch to cards. Wrap lets the Notes value continue on following lines in the grid.</para><code>
+    /// $tableOptions = @{
     ///     Wrap = $true
     ///     Property = @('Task', 'Notes')
     ///     Width = 60
@@ -44,7 +48,8 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Task = 'Backup'; Notes = 'Verified the report and checked the retained files.' }
     ///     [pscustomobject]@{ Task = 'Review'; Notes = 'Ready for the next scheduled maintenance window.' }
     /// ) | Show-ConsoleTable @tableOptions</code></example>
-    /// <example><para>Render a visible marker beside the Pass and Warn values. The StatusProperty value names the input property whose values should be interpreted as statuses. Property still controls which columns are present and their order.</para><code>$tableOptions = @{
+    /// <example><para>Render a visible marker beside the Pass and Warn values. The StatusProperty value names the input property whose values should be interpreted as statuses. Property still controls which columns are present and their order.</para><code>
+    /// $tableOptions = @{
     ///     Property = @('Check', 'Status', 'Detail')
     ///     StatusProperty = 'Status'
     /// }
@@ -52,7 +57,8 @@ namespace ConsoleMonster.PowerShell {
     ///     [pscustomobject]@{ Check = 'Storage'; Status = 'Pass'; Detail = '42 GB free' }
     ///     [pscustomobject]@{ Check = 'Queue'; Status = 'Warn'; Detail = '12 items waiting' }
     /// ) | Show-ConsoleTable @tableOptions</code></example>
-    /// <example><para>Display a table and pass the original process objects along. Measure-Object counts those process objects. It receives up to five of them because PassThru preserves the input after display.</para><code>$tableOptions = @{
+    /// <example><para>Display a table and pass the original process objects along. Measure-Object counts those process objects. It receives up to five of them because PassThru preserves the input after display.</para><code>
+    /// $tableOptions = @{
     ///     PassThru = $true
     ///     Property = @('ProcessName', 'Id')
     /// }
@@ -61,7 +67,8 @@ namespace ConsoleMonster.PowerShell {
     ///     Measure-Object</code></example>
     /// <example>
     /// <para>Give an event-count report a short heading and reserve lower priority for a long description. This adapts the event-log-summary gallery's table of top event IDs. Header changes Meaning to Description while Name still reads Meaning. The key column identifies each row. Reduce Width to see how the grid treats the description when it cannot fit.</para>
-    /// <code>$events = @(
+    /// <code>
+    /// $events = @(
     ///     [pscustomobject]@{ Id = 1014; Count = 52; Meaning = 'Name resolution timed out' }
     ///     [pscustomobject]@{ Id = 7031; Count = 48; Meaning = 'Service terminated unexpectedly' }
     /// )
@@ -79,7 +86,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Display the two recorded times as 12:00 and 12:05 UTC regardless of the local time zone. Presentation takes a PresentationOptions object. PowerShell converts the nested hashtable to that object when binding the splat. TimeZone affects absolute timestamps, while Now is the optional reference time for relative dates.</para>
-    /// <code>$records = @(
+    /// <code>
+    /// $records = @(
     ///     [pscustomobject]@{ Name = 'Build'; RecordedAt = [datetimeoffset]'2026-10-21T08:00:00-04:00' }
     ///     [pscustomobject]@{ Name = 'Test'; RecordedAt = [datetimeoffset]'2026-10-21T08:05:00-04:00' }
     /// )

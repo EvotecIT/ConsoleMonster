@@ -47,8 +47,8 @@ Compose an inventory binding
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleBinding in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

@@ -56,11 +56,11 @@ Colour separate text pieces. The Text and Color arrays pair by position: SRV is 
 ### EXAMPLE 3
 ```powershell
 New-ConsoleText -Markup '[bold]ConsoleMonster[/] [muted]ready[/]';
-            $textOptions = @{
-                Text = @('ConsoleMonster')
-                Gradient = @('#00c6ff', '#ff00aa')
-            }
-            New-ConsoleText @textOptions
+$textOptions = @{
+    Text = @('ConsoleMonster')
+    Gradient = @('#00c6ff', '#ff00aa')
+}
+New-ConsoleText @textOptions
 ```
 
 Create two rich text values. Markup interprets the bold and muted tags. Gradient uses the first color as the starting point and the second as the end, across the characters of ConsoleMonster.
@@ -68,7 +68,7 @@ Create two rich text values. Markup interprets the bold and muted tags. Gradient
 ### EXAMPLE 4
 ```powershell
 Get-ConsoleDemo -Slug 'welcome-compact' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

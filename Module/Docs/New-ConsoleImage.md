@@ -27,23 +27,23 @@ Inside layouts and live dashboards the image is drawn with half blocks on termin
 ### EXAMPLE 1
 ```powershell
 New-ConsoleColumns -Content {
-                $panelOptions2 = @{
-                    Title = 'Latency'
-                    Content = {
-                        $imageOptions = @{
-                            Path = './latency.png'
-                            Width = 40
-                        }
-                        New-ConsoleImage @imageOptions
-                    }
-                }
-                New-ConsolePanel @panelOptions2;
-                $panelOptions = @{
-                    Title = 'Summary'
-                    Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) }
-                }
-                New-ConsolePanel @panelOptions
-            } | Show-Console
+    $panelOptions2 = @{
+        Title = 'Latency'
+        Content = {
+            $imageOptions = @{
+                Path = './latency.png'
+                Width = 40
+            }
+            New-ConsoleImage @imageOptions
+        }
+    }
+    New-ConsolePanel @panelOptions2;
+    $panelOptions = @{
+        Title = 'Summary'
+        Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ P50 = '41 ms'; P99 = '180 ms' }) }
+    }
+    New-ConsolePanel @panelOptions
+} | Show-Console
 ```
 
 A chart next to its numbers

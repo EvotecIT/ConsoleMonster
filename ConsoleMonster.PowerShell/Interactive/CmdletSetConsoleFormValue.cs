@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Each named field takes its value and shows it at once, text and number boxes included; fields not named keep theirs. -Values maps field names (ignoring case) to values: a string, a number, a bool, or a list for a multi-choice field; a value that names a choice (the object, its title or its text) takes that choice. Choice fields whose options load from a field that changed load again, and a value given for such a field is chosen once its options arrive. Unknown names and values a field cannot take are ignored. -Values also takes the result of an earlier run of the form (Read-ConsoleForm -PassThru, or $FormResult in -OnSubmit) to fill in every field again. Call it from a menu action or handler while the menu runs, or before the form is shown.</para></remarks>
     /// <example>
     /// <para>Apply a preset before showing a form</para>
-    /// <code>$formOptions2 = @{
+    /// <code>
+    /// $formOptions2 = @{
     ///     Title = 'Connection'
     ///     Content = {
     ///         $fieldOptions2 = @{
@@ -38,7 +39,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Start a form from the answers of its last run</para>
-    /// <code>$formOptions3 = @{
+    /// <code>
+    /// $formOptions3 = @{
     ///     Title = 'Connection'
     ///     Content = {
     ///         $fieldOptions = @{

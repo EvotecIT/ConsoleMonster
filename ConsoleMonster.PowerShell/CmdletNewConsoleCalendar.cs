@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Returns a passive widget. Pipeline rows provide Date, Status and Label properties, with explicit property overrides. Duplicate dates retain every row; the displayed status uses Fail, Warn, Running, Pending, Pass, Info, Skip precedence. Dates retain calendar components without time-zone conversion. ISO week labels describe the Monday in each row, including with a Sunday-first display.</para></remarks>
     /// <example>
     /// <para>Display backup outcomes for October</para>
-    /// <code>$backups = @(
+    /// <code>
+    /// $backups = @(
     ///     [pscustomobject]@{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'Backup verified' }
     ///     [pscustomobject]@{ Date = [datetime]'2026-10-02'; Status = 'Warn'; Label = 'Backup delayed' }
     /// )
@@ -27,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Build a year view with Monday-first weeks</para>
-    /// <code>$calendarOptions = @{
+    /// <code>
+    /// $calendarOptions = @{
     ///     Year = 2026
     ///     View = 'Year'
     ///     FirstDayOfWeek = 'Monday'
@@ -36,7 +38,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleCalendar in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'operations-calendar' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'operations-calendar' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'stale-accounts' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCalendar", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecalendar/")]

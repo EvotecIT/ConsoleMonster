@@ -22,7 +22,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A hashtable and pairs together</para>
-    ///   <code>$keyValueOptions = @{
+    ///   <code>
+    /// $keyValueOptions = @{
     ///     InputObject = ([ordered] @{ Module = 'ConsoleMonster'; Frameworks = 'net472, net8.0' })
     ///     Content = {
     ///         [pscustomobject]@{ Key = 'Signing'; Value = 'skipped'; Status = 'Skip' }
@@ -32,7 +33,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleKeyValue in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'scheduled-tasks' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleKeyValue", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolekeyvalue/")]

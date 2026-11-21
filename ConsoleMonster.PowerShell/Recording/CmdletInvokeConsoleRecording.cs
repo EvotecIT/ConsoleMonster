@@ -9,7 +9,8 @@ using ConsoleMonster.Sessions;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Records a script, an app on a headless terminal, or an interactive child shell and saves the result.</summary>
     /// <remarks><para>Runs the script in an isolated child process, or opens a child shell with Interactive until it exits. Caller variables and functions are not inherited. The selected shell must be pwsh or powershell. With -Headless the script runs here, against a headless terminal of -Width by -Height cells, and -InputScript drives it (key names, quoted text, wait:250 pauses, resize:80x24); the recording holds exactly what an app shows, including its log panel, footer and dialogs, and the app ends when the keys run out. Saves a local v2 cast plus metadata, then uses the existing renderer for an HTML player, animated SVG, text, Markdown or a final-frame SVG; Export-ConsoleRecording turns the cast into GIF or APNG. -InProcess explicitly selects the limited PowerShell output fallback.</para></remarks>
-    /// <example><para>Preview recording coloured output and a chapter</para><code>$recordingOptions = @{
+    /// <example><para>Preview recording coloured output and a chapter</para><code>
+    /// $recordingOptions = @{
     ///     WhatIf = $true
     ///     ScriptBlock = {
     ///         $recordingMarkerOptions = @{
@@ -19,13 +20,15 @@ namespace ConsoleMonster.PowerShell {
     ///     Path = './demo.html'
     /// }
     /// Invoke-ConsoleRecording @recordingOptions</code></example>
-    /// <example><para>Preview recording a child shell</para><code>$recordingOptions = @{
+    /// <example><para>Preview recording a child shell</para><code>
+    /// $recordingOptions = @{
     ///     Interactive = $true
     ///     WhatIf = $true
     ///     Path = './session.cast'
     /// }
     /// Invoke-ConsoleRecording @recordingOptions</code></example>
-    /// <example><para>Preview recording an app driven by keys, then make a GIF of it</para><code>$recordingOptions2 = @{
+    /// <example><para>Preview recording an app driven by keys, then make a GIF of it</para><code>
+    /// $recordingOptions2 = @{
     ///     Headless = $true
     ///     WhatIf = $true
     ///     Width = 100

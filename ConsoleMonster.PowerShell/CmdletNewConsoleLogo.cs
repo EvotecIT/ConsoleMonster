@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Letters A-Z, digits and - . : ! / _ are drawn with half blocks (four rows tall) on modern and Consolas fonts, and with # in ASCII mode. Colours accept names, #hex or rgb().</para></remarks>
     /// <example>
     ///   <para>A banner with a tagline</para>
-    ///   <code>$logoOptions = @{
+    ///   <code>
+    /// $logoOptions = @{
     ///     Text = 'DEPLOY'
     ///     Tagline = 'production · 14 servers'
     ///     StartColor = '#22d3ee'
@@ -18,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Print a fleet heading and tagline</para>
-    /// <code>$logoOptions = @{
+    /// <code>
+    /// $logoOptions = @{
     ///     Text = 'Fleet'
     ///     Tagline = 'Inventory checks'
     /// }

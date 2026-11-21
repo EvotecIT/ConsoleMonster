@@ -12,7 +12,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>File lines are decoded incrementally and followed across observed truncation and rotation. Event logs use Get-WinEvent on Windows. The view follows new entries; scrolling pauses following and End resumes it. Filter and Highlight are literal case-insensitive substrings. Piped, redirected, CI and -NoLive output is ordinary literal text and never reads keyboard input. Count is source polls, as in Watch-Console: one takes a snapshot, zero follows interactively until q, Escape or Ctrl+C and reads one snapshot without a user. Capacity bounds retained history. The default interval is 0.25 seconds.</para></remarks>
     /// <example>
     /// <para>Inspect an existing log and highlight a component</para>
-    /// <code># Requires an existing service.log file; reads two snapshots without changing the file.
+    /// <code>
+    /// # Requires an existing service.log file; reads two snapshots without changing the file.
     /// $logOptions = @{
     ///     Path = './service.log'
     ///     Highlight = 'database'
@@ -22,7 +23,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Return matching lines from an existing log as strings</para>
-    /// <code># Requires an existing service.log file.
+    /// <code>
+    /// # Requires an existing service.log file.
     /// $logOptions = @{
     ///     Path = './service.log'
     ///     Tail = 50
@@ -33,7 +35,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Follow only warnings and errors from the System event log</para>
-    /// <code>$logOptions = @{
+    /// <code>
+    /// $logOptions = @{
     ///     LogName = 'System'
     ///     Level = 'Warn'
     /// }

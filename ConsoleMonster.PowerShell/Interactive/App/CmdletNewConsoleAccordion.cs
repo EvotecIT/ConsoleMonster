@@ -7,7 +7,8 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates an accordion for Show-ConsoleApp: collapsible sections that keep one open.</summary>
     /// <remarks><para>-Content emits New-ConsoleCollapsible sections. Opening one folds the others; while a header has focus, + expands every section for reading and - folds them all. Each section keeps its own key and state.</para></remarks>
-    /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>Show-ConsoleApp -Content {
+    /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>
+    /// Show-ConsoleApp -Content {
     ///     New-ConsoleAccordion -Content {
     ///         $collapsibleOptions2 = @{
     ///             Expanded = $true
@@ -28,7 +29,8 @@ namespace ConsoleMonster.PowerShell {
     /// }</code></example>
     /// <example>
     /// <para>Compose an inventory accordion</para>
-    /// <code>New-ConsoleAccordion -Content {
+    /// <code>
+    /// New-ConsoleAccordion -Content {
     ///     $collapsibleOptions = @{
     ///         Expanded = $true
     ///         Key = 'network'
@@ -46,7 +48,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleAccordion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleAccordion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleaccordion/")]

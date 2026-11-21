@@ -10,7 +10,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The script runs in a runspace the module owns (or, with -Parallel, once per input item on a runspace pool, started as items arrive and limited by -ThrottleLimit). Inside it, $ConsoleSession, Update-Console and Write-ConsoleLogEntry update the screen; Write-Host, Write-Warning, Write-Verbose, errors and Console.WriteLine go to the dashboard's log region instead of scribbling over the screen. The screen is redrawn at about 15 frames per second however many updates arrive. Ctrl+C stops the script and always restores the terminal; the dashboard then leaves the alternate screen and prints its final state (or -Summary). Script output is returned when the dashboard ends. In redirected or CI output the dashboard becomes append-only lines. Variables and functions from the caller are not visible inside the script: read a variable with $using:name (as with ForEach-Object -Parallel), bring functions in with -ImportFunction, or pass values with -ArgumentList and a param() block.</para></remarks>
     /// <example>
     /// <para>Process three sample servers in parallel. Each string from the pipeline becomes the worker's first argument, $Server. The report uses the same value as the lane key. Update-Console assigns five planned checks to the lane, posts five passing results, and completes the lane. Worker messages appear in the log.</para>
-    /// <code>$dashboardOptions2 = @{
+    /// <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Checks'
     ///     Content = {
     ///         $panelOptions2 = @{
@@ -61,7 +62,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Append two CPU samples. The dashboard script runs in a separate runspace. $using:frames copies the caller's data into that script, and ImportFunction names one function to bring into the runspace as a one-element array. Show-Frame then addresses the cpu chart by WidgetId and adds one sample per call.</para>
-    /// <code>$frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })
+    /// <code>
+    /// $frames = @([pscustomobject]@{ Cpu = 20 }, [pscustomobject]@{ Cpu = 45 })
     /// $dashboardOptions3 = @{
     ///     Title = 'CPU samples'
     ///     Content = {
@@ -97,7 +99,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Pass a label into a sequential dashboard script. ArgumentList is an array of positional arguments. Here the one entry binds to the script's first parameter, $Phase. A parallel dashboard reserves that first argument for the pipeline item, so the entries in ArgumentList start at the second parameter in that mode.</para>
-    /// <code>$dashboardOptions = @{
+    /// <code>
+    /// $dashboardOptions = @{
     ///     Title = 'Build'
     ///     Content = { New-ConsoleProgress -WidgetId 'build' -Total 1 }
     /// }
@@ -119,7 +122,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see Invoke-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'container-status' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'container-status' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'process-monitor' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source</code>

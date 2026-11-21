@@ -13,20 +13,24 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shows a diagram from connection rows, a Diagram widget or a ChartForgeX file, with use case playback.</summary>
     /// <remarks>
     /// <para>Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Path reads one Markdown file with ChartForgeX visual fences or one plain architecture file. Errors in the selected diagram stop the command with the file line and diagnostic code. Other visual-fence errors and markup warnings use the warning stream.</para>
-    /// <para>### Interactive diagram</para>
+    /// <para>Interactive diagram
+    /// -------------------</para>
     /// <para>The diagram shows boxes, routed connections, dashed groups and a legend. Nodes keep their subtitle and live value on separate lines. Use Up and Down to move between nodes or scroll a diagram taller than the viewport. Press D to inspect the focused node. The diagram starts on the first use case unless Scenario selects another. Left and Right step through its payloads and steps, Space plays it, and Tab switches use cases. The app footer shows the exit key.</para>
-    /// <para>### Static diagram</para>
+    /// <para>Static diagram
+    /// --------------</para>
     /// <para>Redirected, CI, line and non-interactive sessions, or StaticSnapshot, print one view at the selected step. A narrow view becomes a grouped wrapping tree, retaining the connection labels. The Needs attention list shows non-Pass nodes and links. Use NoSummary to hide it.</para>
     /// </remarks>
     /// <example><para>Explore a diagram and its use cases with the keyboard.</para><code>Show-ConsoleDiagram -Path ./ad-replication.md</code></example>
-    /// <example><para>Print one step of a use case without reading keys.</para><code>$diagramOptions = @{
+    /// <example><para>Print one step of a use case without reading keys.</para><code>
+    /// $diagramOptions = @{
     ///     StaticSnapshot = $true
     ///     Path = './ad-replication.md'
     ///     Scenario = 'replicate'
     ///     Step = 6
     /// }
     /// Show-ConsoleDiagram @diagramOptions</code></example>
-    /// <example><para>Capture the diagram as plain text for a log or a ticket.</para><code>$diagramOptions = @{
+    /// <example><para>Capture the diagram as plain text for a log or a ticket.</para><code>
+    /// $diagramOptions = @{
     ///     AsString = $true
     ///     Path = './tierbridge.md'
     ///     Scenario = 'blocked'
@@ -34,12 +38,14 @@ namespace ConsoleMonster.PowerShell {
     ///     Width = 120
     /// }
     /// Show-ConsoleDiagram @diagramOptions</code></example>
-    /// <example><para>Show connection rows using their standard columns.</para><code>$diagramOptions = @{
+    /// <example><para>Show connection rows using their standard columns.</para><code>
+    /// $diagramOptions = @{
     ///     StaticSnapshot = $true
     ///     Title = 'Replication'
     /// }
     /// $rows | Show-ConsoleDiagram @diagramOptions</code></example>
-    /// <example><para>Select columns and calculate connection labels.</para><code>$diagramOptions = @{
+    /// <example><para>Select columns and calculate connection labels.</para><code>
+    /// $diagramOptions = @{
     ///     AsString = $true
     ///     From = 'Source'
     ///     To = 'Destination'

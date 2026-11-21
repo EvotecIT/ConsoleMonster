@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The form opens on the alternate screen (or in the scrollback with -Inline). Fields are edited in place; choice fields open a filterable list; dependent options load with a spinner. The review page shows every answer and the equivalent command (copy it, save the answers as a named preset, or run). The answers come back as one object with a property per visible field (secrets as SecureString unless -AsPlainText); -PassThru returns the full result (Submitted, Values, CommandLine) instead. Cancelling returns nothing. -AppName stores presets, and with -RememberLastChoices the last answers, per user under %APPDATA%\ConsoleMonster\&lt;app&gt;. In remoting and the ISE the fields are asked one by one; without a user the defaults are used, or an error names the first field that needs a value.</para></remarks>
     /// <example>
     ///   <para>Run a wizard and use the answers</para>
-    ///   <code>$formOptions2 = @{
+    ///   <code>
+    /// $formOptions2 = @{
     ///     Title = 'Example'
     ///     Content = {
     ///         $fieldOptions = @{
@@ -28,7 +29,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Collect a server name and display the submitted values</para>
-    /// <code>$formOptions2 = @{
+    /// <code>
+    /// $formOptions2 = @{
     ///     Title = 'Inspect inventory'
     ///     Content = {
     ///         $fieldOptions = @{

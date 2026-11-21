@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The scriptblock's New-ConsoleField output becomes the fields. Fields with -Page are grouped into pages in the order the page names first appear, which turns the form into a wizard with a progress strip. Use -PageDescriptions to give each page its own sentence under the title. Unless -NoReview is given, a review page follows: every answer, the equivalent command line (from -Command and each field's -Parameter), Run, Copy command, Save preset and Back. Presets the form comes with (New-ConsoleForm -Preset, in the scriptblock or -Preset) are listed before the saved ones.</para></remarks>
     /// <example>
     ///   <para>A two-page wizard</para>
-    ///   <code>function New-SharePlan {
+    ///   <code>
+    /// function New-SharePlan {
     ///     param([string]$Name, [string]$Path, [switch]$ReadOnly)
     ///     [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
     /// }
@@ -49,7 +50,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A form that comes with a preset</para>
-    ///   <code>function New-SharePlan {
+    ///   <code>
+    /// function New-SharePlan {
     ///     param([string]$Name, [string]$Path, [switch]$ReadOnly)
     ///     [pscustomobject]@{ Name = $Name; Path = $Path; ReadOnly = [bool]$ReadOnly }
     /// }
@@ -78,7 +80,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleForm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleForm", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleform/")]

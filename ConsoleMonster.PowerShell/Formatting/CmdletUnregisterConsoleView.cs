@@ -4,13 +4,15 @@ using System.Management.Automation;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Removes registered ConsoleMonster views and value shapers.</summary>
     /// <remarks><para>Names the registered types directly or reads their names from a validated data-only .consoleviews.psd1 file. Does not remove or execute the file.</para></remarks>
-    /// <example><para>Remove a custom result view.</para><code>$viewOptions = @{
+    /// <example><para>Remove a custom result view.</para><code>
+    /// $viewOptions = @{
     ///     TypeName = @('Contoso.Server')
     /// }
     /// Unregister-ConsoleView @viewOptions</code></example>
     /// <example>
     /// <para>Preview removing a registered inventory view</para>
-    /// <code>$viewOptions = @{
+    /// <code>
+    /// $viewOptions = @{
     ///     WhatIf = $true
     ///     TypeName = @('Inventory.Server')
     /// }

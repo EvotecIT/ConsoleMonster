@@ -6,13 +6,15 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a persistent civil-date or inclusive range picker.</summary>
     /// <remarks><para>Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, PageUp/PageDown change month, Ctrl+PageUp/PageDown change year, and Enter commits. In range mode Space anchors a range and Shift+arrows extend it. Bounds and unavailable dates reject a whole invalid range.</para></remarks>
-    /// <example><para>Choose a maintenance range.</para><code>$datePickerOptions = @{
+    /// <example><para>Choose a maintenance range.</para><code>
+    /// $datePickerOptions = @{
     ///     Range = $true
     ///     Key = 'Window'
     ///     Value = ([datetime]'2026-10-08')
     /// }
     /// New-ConsoleDatePicker @datePickerOptions</code></example>
-    /// <example><para>Configure today and the first weekday with a hashtable.</para><code>$datePickerOptions = @{
+    /// <example><para>Configure today and the first weekday with a hashtable.</para><code>
+    /// $datePickerOptions = @{
     ///     Range = $true
     ///     Key = 'Window'
     ///     Selection = @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }

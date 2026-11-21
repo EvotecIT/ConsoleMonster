@@ -27,7 +27,7 @@ PNG selects the final frame, -AtSeconds a source time, -Chapter a completed chap
 ### EXAMPLE 1
 ```powershell
 # Requires an existing session.cast recorded by Invoke-ConsoleRecording.
-            $recordingOptions = @{
+$recordingOptions = @{
     RecordingPath = './session.cast'
     Format = 'Text'
 }
@@ -39,7 +39,7 @@ Return a text document from an existing terminal recording
 ### EXAMPLE 2
 ```powershell
 # Requires run.jsonl recorded with this dashboard definition.
-            $dashboardOptions = @{
+$dashboardOptions = @{
     Title = 'Build'
     Content = {
         $statusListOptions = @{

@@ -12,7 +12,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Each call replaces the line (Write-Color style pieces, colours, -Markup, -Decoration and -Role as in Write-ConsoleText). -Spinner, -ShowTimestamp and -ShowElapsed keep refreshing about ten times a second between calls. -Complete writes the final line (with -Status Pass, Fail or Warn for a marker) and moves on. The refresh stops by itself when other output or the prompt moves the cursor, so it never draws over them. In redirected output, CI, transcripts, jobs and other non-console hosts each call writes a normal line instead (unchanged repeats are skipped).</para></remarks>
     /// <example>
     /// <para>Show progress through a sample inventory</para>
-    /// <code>$servers = 'web01', 'web02', 'sql01'
+    /// <code>
+    /// $servers = 'web01', 'web02', 'sql01'
     /// foreach ($server in $servers) {
     ///     $statusLineOptions2 = @{
     ///         Spinner = $true
@@ -33,7 +34,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Show a waiting line with a clock</para>
-    /// <code>$statusLineOptions2 = @{
+    /// <code>
+    /// $statusLineOptions2 = @{
     ///     ShowTimestamp = $true
     ///     ShowElapsed = $true
     ///     Text = @('Waiting')

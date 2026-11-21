@@ -14,7 +14,8 @@ namespace ConsoleMonster.PowerShell {
     /// }</code></example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleFlow in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'scheduled-tasks' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'scheduled-tasks' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'tls-verdict' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleFlow", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleflow/")]

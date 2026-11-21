@@ -12,20 +12,25 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shows pipeline objects in an interactive grid and returns the rows you choose.</summary>
     /// <remarks>
     /// <para>Show-ConsoleGrid displays objects in Windows PowerShell 5.1 and PowerShell 7. Property configures the displayed columns using the same presenters, priorities and widths as Show-ConsoleTable. A selection returns the underlying objects to PowerShell.</para>
-    /// <para>### Terminal grid</para>
+    /// <para>Terminal grid
+    /// -------------</para>
     /// <para>Use the arrow keys to focus a row. Press F10 or Ctrl+Enter to accept the selection and resume the PowerShell pipeline. Single returns the focused row. In Multiple mode, Space toggles the mark on the focused row and Ctrl+A marks all visible rows. Accept returns the marked rows, or the focused row if none are marked. In None mode, the accept keys are disabled and the grid is browse-only.</para>
     /// <para>Use PgUp and PgDn to move a page at a time, or Ctrl+Home and Ctrl+End to move to the first or last row. Press Enter to inspect every column on the focused row. Type to filter. Each search word must appear in a displayed column. Press F2 to choose columns, F3 or Shift+F3 to cycle the sort column, and F4 to reverse the sort. Esc first clears an active filter. With the filter empty, Esc closes the grid without returning any objects.</para>
     /// <para>When Command supplies actions, Ctrl+K opens the action list and F6 cancels work in progress. Actions run inside the grid. Accepting a selection returns the rows to the calling script.</para>
-    /// <para>### Browser grid</para>
+    /// <para>Browser grid
+    /// ------------</para>
     /// <para>With Window, the browser tab has a filter, sortable column headings and a table. Click a row to focus it. In Multiple mode, hold Ctrl or Command when clicking to toggle a row, or Shift-click to mark a range. Click OK to send the selection back to PowerShell. Browse-only mode has a Close button. Click Cancel or press Esc in the page to return without a selection. If the browser cannot open, the command warns and falls back to the terminal grid.</para>
-    /// <para>### Numbered list</para>
+    /// <para>Numbered list
+    /// -------------</para>
     /// <para>Line mode prints numbered rows and prompts for a response. In Single mode, enter one row number or press Enter with an empty response to choose the first row. In Multiple mode, enter a comma-separated list of numbers, such as 1,3. An empty response with no preselection returns nothing.</para>
-    /// <para>### Static output</para>
+    /// <para>Static output
+    /// -------------</para>
     /// <para>With Mode None, or when the command resolves to unattended output, it prints a static grid using the initial filter, sort and visible columns. It returns no selection.</para>
     /// </remarks>
     /// <example>
     /// <para>Inspect a server inside the terminal grid. Press Ctrl+K and choose Inspect to run the command against the focused or marked rows. Press F10 or Ctrl+Enter when you want to close the grid and return the selected rows to PowerShell.</para>
-    /// <code>$servers = @(
+    /// <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
     ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
     /// )
@@ -38,7 +43,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Browse processes sorted by memory. None turns off selection output. Press Enter to inspect a row and Esc to leave the grid.</para>
-    /// <code>$gridOptions = @{
+    /// <code>
+    /// $gridOptions = @{
     ///     Descending = $true
     ///     Property = @('Name', 'Id', @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' })
     ///     SortColumn = 'Memory'
@@ -48,7 +54,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Preview stopping one process from the terminal grid. Use the arrows to focus a process, then press F10 or Ctrl+Enter. PowerShell resumes with the original Process object. Stop-Process receives that object, and WhatIf previews the stop. Cancelling the grid skips the preview.</para>
-    /// <code>$gridOptions = @{
+    /// <code>
+    /// $gridOptions = @{
     ///     Title = 'Preview stopping a process'
     ///     Property = @('ProcessName', 'Id', 'CPU')
     ///     SortColumn = 'ProcessName'
@@ -62,7 +69,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Preview stopping services from the browser grid. Choose rows and click OK to pass the original service objects to Stop-Service. WhatIf previews the operation for each selected service.</para>
-    /// <code>$gridOptions = @{
+    /// <code>
+    /// $gridOptions = @{
     ///     Window = $true
     ///     Property = @('Name', 'DisplayName', 'Status')
     ///     Title = 'Stop services'

@@ -9,7 +9,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The line Invoke-ConsoleRun ends its view with, as a widget of its own: a thin bar, done of total, the percentage, the time left (estimated from -ElapsedSeconds and the share done) and counters in a fixed order with zeros dimmed rather than hidden. -Counter maps labels to counts; a label that is a status word (passed, failed, warnings, skipped, running) takes that status's symbol and colour. Without -Total only the count done shows.</para></remarks>
     /// <example>
     ///   <para>A run three quarters through</para>
-    ///   <code>$summaryBarOptions = @{
+    ///   <code>
+    /// $summaryBarOptions = @{
     ///     Value = 30
     ///     Total = 40
     ///     ElapsedSeconds = 42
@@ -19,7 +20,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Summarize completed inventory checks</para>
-    /// <code>$summaryBarOptions = @{
+    /// <code>
+    /// $summaryBarOptions = @{
     ///     Total = 12
     ///     Value = 9
     ///     Counter = ([ordered]@{ passed = 8; warnings = 1 })
@@ -28,7 +30,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleSummaryBar in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleSummaryBar", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolesummarybar/")]

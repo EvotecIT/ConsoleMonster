@@ -4,14 +4,16 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a named action button for Show-ConsoleApp.</summary>
     /// <remarks><para>Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para></remarks>
-    /// <example><para>Create an application input.</para><code>$buttonOptions = @{
+    /// <example><para>Create an application input.</para><code>
+    /// $buttonOptions = @{
     ///     Key = 'Apply'
     ///     OnClick = { $State.Applied = $true }
     /// }
     /// New-ConsoleButton @buttonOptions</code></example>
     /// <example>
     /// <para>Compose an inventory button</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <code>
+    /// Show-ConsoleApp -Content {
     ///     $buttonOptions = @{
     ///         Key = 'inspect'
     ///         Label = 'Inspect inventory'

@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The scriptblock emits the body widgets top to bottom. Pass the result to Invoke-ConsoleDashboard to run it live, or to Show-Console to print it once.</para></remarks>
     /// <example>
     ///   <para>A dashboard with lanes and a log that fills the rest of the screen</para>
-    ///   <code>$dashboardOptions = @{
+    ///   <code>
+    /// $dashboardOptions = @{
     ///     Title = 'Deploy'
     ///     Content = {
     ///         $panelOptions2 = @{
@@ -28,7 +29,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory dashboard</para>
-    /// <code>$dashboardOptions = @{
+    /// <code>
+    /// $dashboardOptions = @{
     ///     Title = 'Inventory'
     ///     Content = {
     ///         $panelOptions = @{
@@ -48,7 +50,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'stress' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'pipeline' | Select-Object -ExpandProperty Source</code>
     /// </example>

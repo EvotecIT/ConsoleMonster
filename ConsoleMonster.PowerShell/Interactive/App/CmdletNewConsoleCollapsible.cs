@@ -7,7 +7,8 @@ using ConsoleMonster.Layout;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a collapsible section for Show-ConsoleApp.</summary>
     /// <remarks><para>A section is a focusable header row with its content below. Enter, Space, Left/Right and a click on the header fold and unfold it; while it is collapsed the header shows -Summary and the content's inputs leave the focus order. The final state holds whether each section is expanded. New-ConsoleAccordion groups sections so that opening one folds the others.</para></remarks>
-    /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>Show-ConsoleApp -Content {
+    /// <example><para>Fold long sections of a help page and keep one open at a time.</para><code>
+    /// Show-ConsoleApp -Content {
     ///     New-ConsoleAccordion -Content {
     ///         $collapsibleOptions2 = @{
     ///             Expanded = $true
@@ -28,7 +29,8 @@ namespace ConsoleMonster.PowerShell {
     /// }</code></example>
     /// <example>
     /// <para>Compose an inventory collapsible</para>
-    /// <code>$collapsibleOptions = @{
+    /// <code>
+    /// $collapsibleOptions = @{
     ///     Expanded = $true
     ///     Key = 'servers'
     ///     Label = 'Checked servers'
@@ -44,7 +46,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleCollapsible in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCollapsible", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecollapsible/")]

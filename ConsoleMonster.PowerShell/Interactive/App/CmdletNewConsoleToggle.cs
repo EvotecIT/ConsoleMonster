@@ -4,7 +4,8 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a named Boolean toggle for Show-ConsoleApp.</summary>
     /// <remarks><para>Emits a stable core Toggle widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para></remarks>
-    /// <example><para>Create an application input.</para><code>$toggleOptions = @{
+    /// <example><para>Create an application input.</para><code>
+    /// $toggleOptions = @{
     ///     Key = 'Enabled'
     ///     Label = 'Enable checks'
     ///     Value = $true
@@ -12,7 +13,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleToggle @toggleOptions</code></example>
     /// <example>
     /// <para>Compose an inventory toggle</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <code>
+    /// Show-ConsoleApp -Content {
     ///     $toggleOptions = @{
     ///         Key = 'includeOffline'
     ///         Label = 'Include offline servers'
@@ -22,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleToggle in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleToggle", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletoggle/")]

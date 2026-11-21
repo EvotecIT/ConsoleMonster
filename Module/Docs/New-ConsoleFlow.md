@@ -40,7 +40,7 @@ A certificate path with a broken connection
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'scheduled-tasks' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'tls-verdict' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'tls-verdict' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleFlow in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

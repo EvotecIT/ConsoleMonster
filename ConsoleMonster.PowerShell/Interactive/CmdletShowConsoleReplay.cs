@@ -13,14 +13,17 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</summary>
     /// <remarks>
     /// <para>Plays a dashboard recording created with RecordingPath or AutoRecord on Invoke-ConsoleDashboard. Without RecordingPath, it uses the newest automatic recording.</para>
-    /// <para>### Replay player</para>
+    /// <para>Replay player
+    /// -------------</para>
     /// <para>The player displays the reconstructed dashboard and a timeline with the recording's markers. Space plays or pauses. Left and Right step through frames, PgUp and PgDn scrub, Home and End jump to the ends, and + or - changes speed. Use n or p for the next or previous marker, f or Shift+F for failures, w or Shift+W for warnings, and l or Shift+L for log entries. Press / to search log text and Enter for the next match. Press q to close the player. Inline places it below the current cursor.</para>
-    /// <para>### Unattended playback and marker output</para>
+    /// <para>Unattended playback and marker output
+    /// -------------------------------------</para>
     /// <para>PlaybackMode Automatic replays without reading keys. When interactive playback is requested in a session without an interactive console, the command prints the markers as lines.</para>
     /// </remarks>
     /// <example>
     /// <para>Play an existing matching dashboard recording</para>
-    /// <code># Requires build.jsonl recorded with this dashboard definition.
+    /// <code>
+    /// # Requires build.jsonl recorded with this dashboard definition.
     /// $dashboardOptions = @{
     ///     Title = 'Build'
     ///     Content = {
@@ -40,7 +43,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Open an existing recording inline and paused. Press Right to step one frame, Space to play or pause, and q to close the player.</para>
-    /// <code># Requires build.jsonl recorded with this dashboard definition.
+    /// <code>
+    /// # Requires build.jsonl recorded with this dashboard definition.
     /// $dashboardOptions = @{
     ///     Title = 'Build'
     ///     Content = {

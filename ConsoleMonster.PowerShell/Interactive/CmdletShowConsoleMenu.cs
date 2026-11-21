@@ -7,18 +7,23 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shows a menu until the user exits.</summary>
     /// <remarks>
     /// <para>Menu actions run on the pipeline thread. Selections and form values survive navigation. AppName stores presets, and RememberLastChoices also stores the last choices.</para>
-    /// <para>### Shell menu</para>
+    /// <para>Shell menu
+    /// ----------</para>
     /// <para>The title bar shows the breadcrumb. The sidebar lists items and folds into the breadcrumb in narrow windows. The content pane shows the open list, form, page or review. The footer lists the current keys. Use Escape to go back and Ctrl+Q to exit.</para>
-    /// <para>### Classic menu</para>
+    /// <para>Classic menu
+    /// ------------</para>
     /// <para>Classic shows a centred menu. Escape returns from a submenu and exits from the root. Both full-screen layouts show the key map with ?. When enabled, Ctrl+K opens the command palette. A colon also opens it when focus is outside a text input. Ctrl+Q asks before discarding unsaved form edits.</para>
-    /// <para>### Inline menu</para>
+    /// <para>Inline menu
+    /// -----------</para>
     /// <para>Inline displays one selection prompt at a time in the scrollback. In line mode, respond with the numbered choice. Actions write their output in the scrollback and the menu returns after the action. Use Back in a submenu or choose an Exit item to leave.</para>
-    /// <para>### Static menu</para>
+    /// <para>Static menu
+    /// -----------</para>
     /// <para>Redirected output, CI, Mode None and non-interactive sessions print the current menu once. The static view executes no actions.</para>
     /// </remarks>
     /// <example>
     /// <para>Run a menu as an application</para>
-    /// <code>$menuOptions2 = @{
+    /// <code>
+    /// $menuOptions2 = @{
     ///     Title = 'Server toolbox'
     ///     Content = {
     ///         $menuItemOptions = @{
@@ -38,7 +43,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Choose an inventory action from a menu</para>
-    /// <code>$menuOptions2 = @{
+    /// <code>
+    /// $menuOptions2 = @{
     ///     Title = 'Inventory'
     ///     Content = {
     ///         $menuItemOptions = @{
@@ -57,7 +63,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see Show-ConsoleMenu in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleMenu", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolemenu/")]

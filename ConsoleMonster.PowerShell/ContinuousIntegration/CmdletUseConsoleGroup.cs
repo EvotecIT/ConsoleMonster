@@ -5,14 +5,16 @@ using ConsoleMonster.PowerShell.Display;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs a script inside a collapsible CI log group or beneath a muted terminal heading.</summary>
     /// <remarks><para>Uses GitHub Actions, Azure Pipelines or GitLab CI commands when detected. CONSOLEMONSTER_CI can force github, azure, gitlab or none. Groups nest and close in finally, including when the script throws. The script runs with the caller's variables and returns its output.</para></remarks>
-    /// <example><para>Group a build log</para><code>$groupOptions = @{
+    /// <example><para>Group a build log</para><code>
+    /// $groupOptions = @{
     ///     Title = 'Build'
     ///     ScriptBlock = { dotnet build }
     /// }
     /// Use-ConsoleGroup @groupOptions</code></example>
     /// <example>
     /// <para>Group a sample inventory in a CI log</para>
-    /// <code>$groupOptions = @{
+    /// <code>
+    /// $groupOptions = @{
     ///     Title = 'Check sample inventory'
     ///     ScriptBlock = {
     ///         [pscustomobject]@{ Server = 'web01'; Result = 'Pass' } | Show-ConsoleTable

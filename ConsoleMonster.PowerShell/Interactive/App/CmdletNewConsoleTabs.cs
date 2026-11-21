@@ -9,7 +9,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates retained tabs with keyboard and pointer navigation.</summary>
     /// <remarks><para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</para></remarks>
-    /// <example><para>Compose two retained pages.</para><code>$appOptions = @{
+    /// <example><para>Compose two retained pages.</para><code>
+    /// $appOptions = @{
     ///     Mode = 'Snapshot'
     ///     Content = {
     ///         $tabsOptions = @{
@@ -30,7 +31,8 @@ namespace ConsoleMonster.PowerShell {
     /// Show-ConsoleApp @appOptions</code></example>
     /// <example>
     /// <para>Compose two retained inventory pages</para>
-    /// <code>$tabsOptions = @{
+    /// <code>
+    /// $tabsOptions = @{
     ///     Key = 'inventory'
     ///     Content = ([ordered]@{
     ///             Servers = {
@@ -53,7 +55,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleTabs in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTabs", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletabs/")]

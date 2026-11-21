@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).</para></remarks>
     /// <example>
     ///   <para>An existing CSV file</para>
-    ///   <code>$pathOptions = @{
+    ///   <code>
+    /// $pathOptions = @{
     ///     MustExist = $true
     ///     Title = 'Import file'
     ///     Kind = 'File'
@@ -18,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Select an existing inventory directory</para>
-    /// <code>$pathOptions = @{
+    /// <code>
+    /// $pathOptions = @{
     ///     MustExist = $true
     ///     Title = 'Inventory folder'
     ///     Default = '.'

@@ -37,11 +37,11 @@ An existing loop, unchanged
 ### EXAMPLE 2
 ```powershell
 Use-ConsoleProgress -PrintFinalState:$false {
-                foreach ($server in 'web01', 'web02') {
-                    Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
-                    [pscustomobject]@{ Server = $server; Result = 'Pass' }
-                }
-            } | Show-ConsoleTable
+    foreach ($server in 'web01', 'web02') {
+        Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
+        [pscustomobject]@{ Server = $server; Result = 'Pass' }
+    }
+} | Show-ConsoleTable
 ```
 
 Return server results and suppress the final progress area

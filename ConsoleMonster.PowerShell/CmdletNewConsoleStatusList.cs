@@ -28,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A live checklist: items start pending and are updated from the dashboard script</para>
-    ///   <code>$steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
+    ///   <code>
+    /// $steps = 'Scan files', 'Copy changes', 'Verify' | New-ConsoleStatusList -WidgetId status
     /// $dashboardOptions = @{
     ///     Dashboard = (New-ConsoleDashboard -Title 'Backup' -Content { $steps })
     ///     ScriptBlock = {
@@ -45,7 +46,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Show build phases as a compact strip</para>
-    /// <code>$statusListOptions = @{
+    /// <code>
+    /// $statusListOptions = @{
     ///     StepCounter = $true
     ///     Layout = 'Strip'
     ///     Content = {
@@ -58,7 +60,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>The running phase fans out to the users it is migrating</para>
-    /// <code>$statusListOptions = @{
+    /// <code>
+    /// $statusListOptions = @{
     ///     Layout = 'Strip'
     ///     FanOut = 4
     ///     Content = {
@@ -74,7 +77,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Pipeline stages as one line in a table column</para>
-    /// <code>$stages = { param($Build)
+    /// <code>
+    /// $stages = { param($Build)
     ///     $statusListOptions = @{
     ///         Layout = 'Chain'
     ///         Content = {
@@ -92,7 +96,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleStatusList in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'repository-status' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'repository-status' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleStatusList", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolestatuslist/")]

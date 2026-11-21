@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, grids and logs keep their own row windows for large data.</para></remarks>
     /// <example>
     /// <para>Build a scrollable detail pane</para>
-    /// <code>$scrollViewOptions = @{
+    /// <code>
+    /// $scrollViewOptions = @{
     ///     Content = {
     ///         1..20 | ForEach-Object {
     ///             $textOptions = @{
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory scroll view</para>
-    /// <code>$scrollViewOptions = @{
+    /// <code>
+    /// $scrollViewOptions = @{
     ///     Height = 4
     ///     Content = {
     ///         foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') {

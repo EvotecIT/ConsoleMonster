@@ -8,7 +8,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a typed modal form for the running app's dialog service.</summary>
     /// <remarks><para>Construction does not read input. AppDialogs.Show hosts the form on the owning application thread and returns DialogResult of AppState through its completion callback.</para></remarks>
-    /// <example><para>Define fields for an app-owned dialog.</para><code>$dialogOptions = @{
+    /// <example><para>Define fields for an app-owned dialog.</para><code>
+    /// $dialogOptions = @{
     ///     Title = 'Options'
     ///     InitialFocus = 'Destination'
     ///     Content = { New-ConsoleTextInput -Key Destination }
@@ -16,7 +17,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleDialog @dialogOptions</code></example>
     /// <example>
     /// <para>Compose an inventory dialog</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <code>
+    /// Show-ConsoleApp -Content {
     ///     $dialogOptions = @{
     ///         Title = 'Inventory result'
     ///         Content = {

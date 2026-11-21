@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The listing retains original objects and stable row identities. Each grid has its own cursor, marks and prefix search. Rows and lazy cells are rendered through the shared DataGrid control. -InputObject lists ordinary objects with the same columns as Show-ConsoleGrid (-Property picks them); -Grid embeds a listing prepared in .NET.</para></remarks>
     /// <example>
     /// <para>Embed an empty listing in an application</para>
-    /// <code>$appOptions = @{
+    /// <code>
+    /// $appOptions = @{
     ///     Mode = 'Snapshot'
     ///     Content = {
     ///         $dataGridOptions = @{
@@ -23,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>List processes with three columns</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <code>
+    /// Show-ConsoleApp -Content {
     ///     $dataGridOptions = @{
     ///         Key = 'Processes'
     ///         InputObject = @((Get-Process))
@@ -35,7 +37,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleDataGrid in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDataGrid", DefaultParameterSetName = GridSet, HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledatagrid/")]

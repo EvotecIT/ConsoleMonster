@@ -15,13 +15,15 @@ Show-ConsoleSetting [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-### Settings picker
+Settings picker
+---------------
 
 The list on the left shows settings and their available values. The preview on the right redraws sample tables, statuses, progress, charts and errors with the current choices. An environment-controlled setting displays its variable name and is locked.
 
 Choose Use now to apply the choices to this session. Choose Save to apply and persist them for future sessions. Escape and Cancel discard changes. The picker closes without returning setting objects.
 
-### Settings list
+Settings list
+-------------
 
 When a full-screen picker is unavailable, the command returns the current setting objects and shows how to change a setting with Set-ConsoleSetting.
 
@@ -37,10 +39,10 @@ Choose with the preview, then list what applies now and where each value came fr
 ### EXAMPLE 2
 ```powershell
 Show-ConsoleSetting
-            $settingOptions = @{
-                Name = @('Theme')
-            }
-            Get-ConsoleSetting @settingOptions | Show-ConsoleTable
+$settingOptions = @{
+    Name = @('Theme')
+}
+Get-ConsoleSetting @settingOptions | Show-ConsoleTable
 ```
 
 Choose settings and inspect the resulting theme

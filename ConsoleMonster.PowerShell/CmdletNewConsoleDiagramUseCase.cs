@@ -5,7 +5,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Builds a playable sequence of diagram interactions.</summary>
     /// <remarks><para>Content emits New-ConsoleDiagramStep values in playback order. Id defaults to Label. AutoPlay starts only when the keyboard view opens; static output keeps the selected step.</para></remarks>
-    /// <example><para>A request and reply.</para><code>$diagramUseCaseOptions = @{
+    /// <example><para>A request and reply.</para><code>
+    /// $diagramUseCaseOptions = @{
     ///     Label = 'Place an order'
     ///     Content = {
     ///         $diagramStepOptions2 = @{
@@ -26,7 +27,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleDiagramUseCase @diagramUseCaseOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram use case</para>
-    /// <code>$diagramOptions = @{
+    /// <code>
+    /// $diagramOptions = @{
     ///     Title = 'Order processing'
     ///     Content = {
     ///         $diagramNodeOptions2 = @{

@@ -6,7 +6,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.</para></remarks>
     /// <example>
     ///   <para>Log a warning</para>
-    ///   <code>$dashboardOptions2 = @{
+    ///   <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Connectivity'
     ///     Content = { New-ConsoleLogRegion }
     /// }
@@ -25,7 +26,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Tag lines with the server they came from</para>
-    ///   <code>$dashboardOptions2 = @{
+    ///   <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Patching'
     ///     Content = { New-ConsoleLogRegion -NoElapsed }
     /// }

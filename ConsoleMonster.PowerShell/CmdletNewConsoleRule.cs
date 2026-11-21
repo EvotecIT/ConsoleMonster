@@ -11,7 +11,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory rule</para>
-    /// <code>New-ConsoleRows -Content {
+    /// <code>
+    /// New-ConsoleRows -Content {
     ///     $ruleOptions = @{
     ///         Title = 'Inventory'
     ///     }
@@ -25,7 +26,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleRule in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'backup-runner' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'backup-runner' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'everyday-formatting' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRule", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolerule/")]

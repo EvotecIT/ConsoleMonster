@@ -15,7 +15,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use the terminal grid where Out-GridView is unavailable; working native commands stay unchanged</para>
-    ///   <code>$formattingOptions = @{
+    ///   <code>
+    /// $formattingOptions = @{
     ///     Include = @('GridView')
     /// }
     /// Enable-ConsoleFormatting @formattingOptions; Get-Process | Out-GridView -Title 'Choose processes' -OutputMode Single</code>
@@ -26,7 +27,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Add a minimal themed shell prompt to the default formatting</para>
-    ///   <code>Set-ConsoleTheme -Theme Dark;
+    ///   <code>
+    /// Set-ConsoleTheme -Theme Dark;
     /// $formattingOptions = @{
     ///     Include = @('Prompt')
     /// }
@@ -34,14 +36,16 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>The lines to keep it on in every session with a colour-blind-safe theme (printed, never written to the profile)</para>
-    ///   <code>$themeOptions = @{
+    ///   <code>
+    /// $themeOptions = @{
     ///     Theme = 'ColorBlindSafe'
     /// }
     /// Set-ConsoleTheme @themeOptions; Enable-ConsoleFormatting -ProfileSnippet</code>
     /// </example>
     /// <example>
     ///   <para>Keep these features for every session: afterwards the profile needs only Enable-ConsoleFormatting</para>
-    ///   <code>$formattingOptions = @{
+    ///   <code>
+    /// $formattingOptions = @{
     ///     Save = $true
     ///     Include = @('Help', 'Progress')
     /// }
@@ -49,14 +53,16 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Exclude native format command styling from the default set</para>
-    ///   <code>$formattingOptions = @{
+    ///   <code>
+    /// $formattingOptions = @{
     ///     Exclude = @('FormatCommands')
     /// }
     /// Enable-ConsoleFormatting @formattingOptions</code>
     /// </example>
     /// <example>
     ///   <para>Use the active theme for native stream messages, keeping PowerShell's prefixes and stream behaviour</para>
-    ///   <code>$themeOptions = @{
+    ///   <code>
+    /// $themeOptions = @{
     ///     Theme = 'Light'
     /// }
     /// Set-ConsoleTheme @themeOptions;
@@ -67,7 +73,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Theme the already loaded editor and native progress without replacing commands</para>
-    ///   <code>$themeOptions = @{
+    ///   <code>
+    /// $themeOptions = @{
     ///     Theme = 'Dark'
     /// }
     /// Set-ConsoleTheme @themeOptions;
@@ -183,7 +190,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Keep the views, go back to PowerShell's progress</para>
-    ///   <code>$formattingOptions = @{
+    ///   <code>
+    /// $formattingOptions = @{
     ///     Feature = @('Progress')
     /// }
     /// Disable-ConsoleFormatting @formattingOptions</code>
@@ -208,7 +216,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Objects whose type names include -TypeName are shown in the given view when they reach the console. -Property picks the columns as in Show-ConsoleTable (names, calculated properties with Presenter options), -GroupBy groups rows under headings, and types with the same -Group are shown together (files and folders). Unregister-ConsoleView removes a registration. Modules can register their own types when they load, or ship a data-only ModuleName.consoleviews.psd1 file without a dependency on ConsoleMonster. Use -Path to import a view file explicitly.</para></remarks>
     /// <example>
     ///   <para>Show a module's result objects as a table</para>
-    ///   <code>$viewOptions = @{
+    ///   <code>
+    /// $viewOptions = @{
     ///     TypeName = @('Contoso.Server')
     ///     View = 'Table'
     ///     Property = @('Name', @{ Name = 'State'; Expression = { $_.State }; Presenter = 'StatusWord' }, 'Uptime')
@@ -217,7 +226,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Register a table for typed inventory records</para>
-    /// <code>$viewOptions = @{
+    /// <code>
+    /// $viewOptions = @{
     ///     TypeName = @('Inventory.Server')
     ///     View = 'Table'
     ///     Property = @('Name', 'State')

@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Each widget the scriptblock emits is a layer, bottom first; later layers paint over earlier ones and replace only the cells they write. Combine with New-ConsoleRegion to place an overlay, such as a badge in a corner of a chart. To place widgets one below another, use New-ConsoleRows.</para></remarks>
     /// <example>
     ///   <para>A chart with a status badge in its top-right corner</para>
-    ///   <code>New-ConsoleStack -Content {
+    ///   <code>
+    /// New-ConsoleStack -Content {
     ///     $chartOptions = @{
     ///         WidgetId = 'latency'
     ///         Type = 'Line'
@@ -22,7 +23,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory stack</para>
-    /// <code>$stackOptions = @{
+    /// <code>
+    /// $stackOptions = @{
     ///     Height = 6
     ///     Content = {
     ///         $panelOptions = @{

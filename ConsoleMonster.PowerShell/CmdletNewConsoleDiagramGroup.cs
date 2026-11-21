@@ -5,7 +5,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Groups components and nested diagram groups.</summary>
     /// <remarks><para>Content emits New-ConsoleDiagramNode and New-ConsoleDiagramGroup objects. The grouped tree keeps all children at narrow widths. Boundary controls the topology outline.</para></remarks>
-    /// <example><para>Office components.</para><code>$diagramGroupOptions = @{
+    /// <example><para>Office components.</para><code>
+    /// $diagramGroupOptions = @{
     ///     Label = 'Office LAN'
     ///     Content = {
     ///         $diagramNodeOptions = @{
@@ -19,7 +20,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleDiagramGroup @diagramGroupOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram group</para>
-    /// <code>$diagramOptions = @{
+    /// <code>
+    /// $diagramOptions = @{
     ///     Title = 'Production services'
     ///     Content = {
     ///         $diagramGroupOptions = @{

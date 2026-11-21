@@ -17,11 +17,13 @@ Show-ConsolePresentation [-ScriptPath] <string> [-Path <string>] [-Width <int>] 
 ## DESCRIPTION
 ScriptPath selects the demo script that runs in a child PowerShell process.
 
-### Step-through presentation
+Step-through presentation
+-------------------------
 
 Run without Path to control the steps from the terminal. Enter types and runs the current command. Space types it without running it, b moves back, s skips a step and q quits. The title shows the step counter. Moving back preserves effects from commands already run. Stop or cancellation ends the owned child process and restores the terminal title. Temporary capture files are removed on exit.
 
-### Unattended recording
+Unattended recording
+--------------------
 
 Supplying Path runs the complete presentation unattended, saves the child output as an asciicast, and returns a FileInfo for the recording.
 
@@ -30,7 +32,7 @@ Supplying Path runs the complete presentation unattended, saves the child output
 ### EXAMPLE 1
 ```powershell
 # WhatIf previews the operation without executing the script or writing the recording.
-            $presentationOptions = @{
+$presentationOptions = @{
     WhatIf = $true
     ScriptPath = './demo.ps1'
     Path = './talk.cast'

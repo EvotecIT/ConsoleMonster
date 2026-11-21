@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Printed once, the lines come from a script block of Message/Level records calls (each with a level, a time and an optional Tag naming its source) or from the pipeline. In a live dashboard the log region receives Write-Host, Write-Information, Write-Warning, Write-Verbose and error output from the runspaces Invoke-ConsoleDashboard owns, plus Console.WriteLine from .NET code, so nothing scribbles over the screen; write to it explicitly with Write-ConsoleLogEntry. -Tag, -Level and -Filter show part of the log; hidden lines are kept. Inside Show-ConsoleApp content it becomes a retained log the reader can scroll and search: / or Ctrl+F opens a find bar, Enter moves through the matches and n and N keep moving after the bar closes.</para></remarks>
     /// <example>
     ///   <para>A short log printed once</para>
-    ///   <code>$logRegionOptions = @{
+    ///   <code>
+    /// $logRegionOptions = @{
     ///     Height = 5
     ///     Content = {
     ///         [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
@@ -19,7 +20,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A log that fills the rest of a dashboard</para>
-    ///   <code>$panelOptions = @{
+    ///   <code>
+    /// $panelOptions = @{
     ///     Fill = $true
     ///     Title = 'Log'
     ///     Content = { New-ConsoleLogRegion }
@@ -28,7 +30,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Only warnings and errors from one job</para>
-    ///   <code>$logRegionOptions = @{
+    ///   <code>
+    /// $logRegionOptions = @{
     ///     NoElapsed = $true
     ///     Tag = 'sql-index'
     ///     Level = 'Warn'
@@ -42,7 +45,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleLogRegion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogRegion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolelogregion/")]

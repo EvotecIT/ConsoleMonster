@@ -5,7 +5,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a diagram component.</summary>
     /// <remarks><para>Label is the connection identity unless Id is set. Subtitle is the second line and Value is the third. To adds unlabelled outgoing connections; missing destination nodes are created by the diagram.</para></remarks>
-    /// <example><para>A monitored gateway.</para><code>$diagramNodeOptions = @{
+    /// <example><para>A monitored gateway.</para><code>
+    /// $diagramNodeOptions = @{
     ///     Label = 'Router'
     ///     Kind = 'Gateway'
     ///     Subtitle = '192.168.1.1'
@@ -16,7 +17,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleDiagramNode @diagramNodeOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram node</para>
-    /// <code>$diagramOptions = @{
+    /// <code>
+    /// $diagramOptions = @{
     ///     Title = 'Request path'
     ///     Content = {
     ///         $diagramNodeOptions = @{

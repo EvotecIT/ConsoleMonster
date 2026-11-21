@@ -10,15 +10,18 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Explores an object's members with the keyboard.</summary>
     /// <remarks>
     /// <para>Nested values are read lazily. The explorer limits recursion, collection sizes and the number of members read. Objects from ConvertFrom-Json use the same PowerShell member adapter as other objects.</para>
-    /// <para>### Object explorer</para>
+    /// <para>Object explorer
+    /// ---------------</para>
     /// <para>Use the arrows to move, expand or collapse. Enter drills into the focused member and Backspace returns to its parent. Press / to search the displayed names and values. Press F10 or Ctrl+Enter to accept the focused node, or Escape to cancel.</para>
     /// <para>With PassThru, accepting a selectable node returns its value to PowerShell. Set SelectionOutput to Path to receive the PowerShell expression instead. RootPath supplies the start of that expression.</para>
-    /// <para>### Static inspector</para>
+    /// <para>Static inspector
+    /// ----------------</para>
     /// <para>Redirected, CI, line and non-interactive sessions print an inspector view and return no selection.</para>
     /// </remarks>
     /// <example><para>Browse a nested configuration</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject</code></example>
     /// <example><para>Return a selected member value</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } }; $config | Show-ConsoleObject -PassThru</code></example>
-    /// <example><para>Return its PowerShell path</para><code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } };
+    /// <example><para>Return its PowerShell path</para><code>
+    /// $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443 } };
     /// $objectOptions = @{
     ///     PassThru = $true
     ///     RootPath = '$config'

@@ -21,7 +21,8 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">$_ is the item, as in ForEach-Object. While it runs, a live view shows a summary line (done of total, percentage, time left, counts), one cell per item, the running items with their elapsed time and the failures; without an interactive console (redirected output, CI, a job) it prints one line per finished item and a summary instead. The output is the script block's ordinary output, in input order (or as each item finishes with -Unordered); an item's errors are written as error records and mark it as failed. While the live view is showing, ordinary output and native stream records are delivered when it ends. With -Parallel, while the live view is showing, host messages, warnings, information, verbose and debug messages, and errors also appear immediately in its log; Write-Progress appears in an activity list, with independent parent and child activities per worker. Without -Parallel, progress bars from the script block are hidden while the live view is showing. Without -Parallel the items run one at a time in the caller's scope, as with ForEach-Object, so variables set in the script block stay. -Parallel runs up to -ThrottleLimit items at a time in their own runspaces on Windows PowerShell 5.1 and PowerShell 7: variables of the caller are passed with $using:name, and -TimeoutSeconds stops an item that runs too long. -Label sets each item's label: a property name or a script block. -RetryCount runs a failed or timed-out item again (after -RetryDelaySeconds); only the last attempt's output and errors are kept, the item's cell shows the retry and the summary counts retried items. Ctrl+C stops the run: running items are stopped and the rest are counted as skipped.</para></remarks>
     /// <example>
     ///   <para>Inspect two records in parallel. The pipeline supplies one record per invocation of ScriptBlock. Label reads Name for the dashboard, while ScriptBlock returns the uppercased name to the PowerShell pipeline. ThrottleLimit is an upper bound, so this example starts at most two workers.</para>
-    ///   <code>$servers = @(
+    ///   <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01' }
     ///     [pscustomobject]@{ Name = 'web02' }
     /// )
@@ -35,7 +36,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Separate successful results from error records, as in patch-progress. ErrorAction keeps the synthetic error off the display while ErrorVariable retains it. Output from the other preview checks remains available as ordinary PowerShell objects. The sample makes no changes to any host.</para>
-    /// <code>$servers = @('web-01', 'web-02', 'web-03')
+    /// <code>
+    /// $servers = @('web-01', 'web-02', 'web-03')
     /// $runOptions = @{
     ///     Parallel = $true
     ///     ThrottleLimit = 3
@@ -57,14 +59,16 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Read up to five filenames sequentially. Each invocation sees the current FileInfo as $_ and emits its Name. Without Parallel, the script runs in the caller's scope.</para>
-    ///   <code>$runOptions = @{
+    ///   <code>
+    /// $runOptions = @{
     ///     ScriptBlock = { $_.Name }
     /// }
     /// Get-ChildItem -File | Select-Object -First 5 | Invoke-ConsoleRun @runOptions</code>
     /// </example>
     /// <example>
     ///   <para>Simulate a forty-host patch wave like the parallel-patch gallery demo. Up to eight items run at once with a ten-second limit per item in this example. Label maps each number to a display name. The synthetic failures on items 13, 26 and 39 produce error records and mark those items as failed.</para>
-    ///   <code>$runOptions = @{
+    ///   <code>
+    /// $runOptions = @{
     ///     Parallel = $true
     ///     ThrottleLimit = 8
     ///     TimeoutSeconds = 10
@@ -79,7 +83,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Configure up to two retries with a five-second delay after a failed attempt. The sample emits a message and succeeds on its first attempt. Use the same settings around a script block that can fail to exercise the retry path.</para>
-    ///   <code>$servers = @(
+    ///   <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'server01' }
     ///     [pscustomobject]@{ Name = 'server02' }
     /// )

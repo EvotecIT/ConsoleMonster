@@ -7,7 +7,8 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Asks for one civil date or inclusive date range.</summary>
     /// <remarks><para>Returns one DateTime at midnight with unspecified kind, or one DateRange with -Range. Escape follows the normal prompt cancellation policy. Line and accessible modes accept yyyy-MM-dd and culture-aware dates; non-interactive mode requires a valid explicit default.</para></remarks>
-    /// <example><para>Read an inclusive maintenance window.</para><code>$dateOptions = @{
+    /// <example><para>Read an inclusive maintenance window.</para><code>
+    /// $dateOptions = @{
     ///     Range = $true
     ///     Title = 'Window'
     ///     Default = ([datetime]'2026-10-08')
@@ -15,7 +16,8 @@ namespace ConsoleMonster.PowerShell {
     /// Read-ConsoleDate @dateOptions</code></example>
     /// <example>
     /// <para>Choose a maintenance date</para>
-    /// <code>$dateOptions = @{
+    /// <code>
+    /// $dateOptions = @{
     ///     Title = 'Next maintenance date'
     ///     Default = '2030-06-15'
     /// }

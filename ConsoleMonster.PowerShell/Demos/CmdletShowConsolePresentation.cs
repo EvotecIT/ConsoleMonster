@@ -5,14 +5,17 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Presents a scripted demo one command at a time in a real shell.</summary>
     /// <remarks>
     /// <para>ScriptPath selects the demo script that runs in a child PowerShell process.</para>
-    /// <para>### Step-through presentation</para>
+    /// <para>Step-through presentation
+    /// -------------------------</para>
     /// <para>Run without Path to control the steps from the terminal. Enter types and runs the current command. Space types it without running it, b moves back, s skips a step and q quits. The title shows the step counter. Moving back preserves effects from commands already run. Stop or cancellation ends the owned child process and restores the terminal title. Temporary capture files are removed on exit.</para>
-    /// <para>### Unattended recording</para>
+    /// <para>Unattended recording
+    /// --------------------</para>
     /// <para>Supplying Path runs the complete presentation unattended, saves the child output as an asciicast, and returns a FileInfo for the recording.</para>
     /// </remarks>
     /// <example>
     /// <para>Preview presenting and recording a demo script</para>
-    /// <code># WhatIf previews the operation without executing the script or writing the recording.
+    /// <code>
+    /// # WhatIf previews the operation without executing the script or writing the recording.
     /// $presentationOptions = @{
     ///     WhatIf = $true
     ///     ScriptPath = './demo.ps1'
@@ -22,7 +25,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Preview presenting an inventory demonstration</para>
-    /// <code>$presentationOptions = @{
+    /// <code>
+    /// $presentationOptions = @{
     ///     WhatIf = $true
     ///     ScriptPath = './inventory-demo.ps1'
     /// }

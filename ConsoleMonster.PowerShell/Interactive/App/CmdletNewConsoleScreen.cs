@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Put New-ConsoleScreen commands next to each other in the app content: together they are one screen stack, and the first is where the app starts. To open a screen, assign its key to $State.Screen in a key binding or callback; assigning a screen that is already open goes back to it. Escape or Backspace returns to the previous screen when the focused input does not use them. Inputs inside a screen keep their values while other screens show, and each screen remembers its focused input. The app header (Show-ConsoleApp -Title) shows the open screens as breadcrumbs, and the footer lists the keys that work on the current screen.</para></remarks>
     /// <example>
     /// <para>Open a server from a numbered list, and go back with Escape</para>
-    /// <code>$servers = @(
+    /// <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Role = 'Web'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'sql01'; Role = 'Database'; Status = 'Fail' }
     /// )
@@ -45,7 +46,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Place an inventory page inside an application</para>
-    /// <code>Show-ConsoleApp -Content {
+    /// <code>
+    /// Show-ConsoleApp -Content {
     ///     $screenOptions = @{
     ///         Key = 'inventory'
     ///         Title = 'Inventory'

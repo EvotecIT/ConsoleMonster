@@ -69,7 +69,7 @@ Compose an inventory splitter
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleSplitter in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

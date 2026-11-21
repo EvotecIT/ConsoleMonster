@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Children emitted by the scriptblock are placed top to bottom. In a live dashboard, children created with -Fill or -Weight share the remaining height.</para></remarks>
     /// <example>
     ///   <para>Two widgets stacked with a blank row between them</para>
-    ///   <code>$rowsOptions = @{
+    ///   <code>
+    /// $rowsOptions = @{
     ///     Gap = 1
     ///     Content = { New-ConsoleRule -Title 'Summary'; New-ConsoleKeyValue -InputObject @{ Total = 12 } }
     /// }
@@ -15,7 +16,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Stack an inventory heading and result</para>
-    /// <code>$rowsOptions = @{
+    /// <code>
+    /// $rowsOptions = @{
     ///     Gap = 1
     ///     Content = {
     ///         $textOptions2 = @{
@@ -34,7 +36,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleRows in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRows", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolerows/")]

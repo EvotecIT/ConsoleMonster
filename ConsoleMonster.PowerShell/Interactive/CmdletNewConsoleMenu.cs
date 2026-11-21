@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The scriptblock runs once and its New-ConsoleMenuItem output becomes the items, in order. A menu can be shown as an app (Shell: title bar with the breadcrumb, sidebar, content pane, key footer), a centred menu (Classic) or a list in the scrollback (Inline); the layout can be set here or on Show-ConsoleMenu. Presets the app comes with (New-ConsoleMenu -Preset, emitted in the scriptblock or given with -Preset) are listed first by a New-ConsoleMenuItem -Presets item, marked as built in.</para></remarks>
     /// <example>
     /// <para>Build a small script menu</para>
-    /// <code>$formOptions = @{
+    /// <code>
+    /// $formOptions = @{
     ///     Title = 'Settings'
     ///     Content = {
     ///         $fieldOptions2 = @{
@@ -74,7 +75,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Offer a preset for a menu form</para>
-    /// <code>$formOptions = @{
+    /// <code>
+    /// $formOptions = @{
     ///     Title = 'Settings'
     ///     Content = {
     ///         $fieldOptions2 = @{
@@ -121,7 +123,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleMenu in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleMenu", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolemenu/")]

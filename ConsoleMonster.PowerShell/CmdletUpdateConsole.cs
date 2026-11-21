@@ -16,7 +16,8 @@ namespace ConsoleMonster.PowerShell {
     /// </remarks>
     /// <example>
     /// <para>Advance a progress widget and change its label. The WidgetId in the update matches the WidgetId on New-ConsoleProgress. Value sets the absolute progress to 5 out of the 20 steps already configured on the widget. The dashboard runner supplies the session.</para>
-    /// <code>$dashboardOptions = @{
+    /// <code>
+    /// $dashboardOptions = @{
     ///     Title = 'Build'
     ///     Content = {
     ///         New-ConsoleProgress -WidgetId 'build' -Total 20
@@ -38,7 +39,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Add a live table row, then replace it. Property declares the display columns in order. KeyProperty selects Server as the stable row identity. The two Row records both have Server set to web01, so the second update changes that row to Pass with 12 milliseconds.</para>
-    /// <code>$dashboardOptions = @{
+    /// <code>
+    /// $dashboardOptions = @{
     ///     Title = 'Results'
     ///     Content = {
     ///         $tableOptions = @{
@@ -68,7 +70,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Set two cells in a dashboard to Pass. This example uses the grid arrangement of a cell map, as in the parallel-patch gallery demo. A four-cell map with two columns places zero-based positions 0 and 1 in the first row. The update applies the same status to both cells and leaves the second row unchanged.</para>
-    /// <code>$dashboardOptions = @{
+    /// <code>
+    /// $dashboardOptions = @{
     ///     Title = 'Checks'
     ///     Content = {
     ///         $mapOptions = @{
@@ -96,7 +99,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Finish one caller-managed run item. Start-ConsoleRun receives an array containing one input record. The Run parameter set of Update-Console requires a one-element integer array for Index. Its value, 0, addresses the first input record, Report. The example records the result of a simulated upload and then completes the run.</para>
-    /// <code>$items = @(
+    /// <code>
+    /// $items = @(
     ///     [pscustomobject]@{ Name = 'Report' }
     /// )
     /// $runOptions = @{

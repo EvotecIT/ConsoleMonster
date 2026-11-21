@@ -19,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Save a data-only view and load it explicitly. Modules can ship a same-named file beside their manifest.</para>
-    /// <code>Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
+    /// <code>
+    /// Get-Process | ConvertTo-ConsoleView -AsDataFile | Set-Content Processes.consoleviews.psd1 -Encoding UTF8
     /// $viewOptions = @{
     ///     Path = @('./Processes.consoleviews.psd1')
     /// }

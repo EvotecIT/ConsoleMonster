@@ -27,15 +27,18 @@ Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy
 ## DESCRIPTION
 Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields and Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets.
 
-### Markdown document viewer
+Markdown document viewer
+------------------------
 
 When Markdown with headings exceeds the screen height and goes directly to a rich terminal, the document viewer opens. It shows an outline and lets you fold sections. Press Ctrl+K to jump to a heading, / or Ctrl+F to search, and q to return to PowerShell.
 
-### Markdown pager
+Markdown pager
+--------------
 
 Long Markdown without headings uses a scrolling pager in the same terminal conditions. Use Up and Down to scroll, PgUp and PgDn to move a page, and Home or End to jump to either end. Press / or Ctrl+F to search. After closing the search bar, use n and Shift+N to move between matches. Press q to return to PowerShell.
 
-### Direct output and widget output
+Direct output and widget output
+-------------------------------
 
 Use NoPager to print Markdown directly. Short Markdown and output routed away from the interactive terminal also use direct output. AsWidget returns the view for composition or export. PassThru returns the original objects on the direct rendering path.
 
@@ -145,7 +148,7 @@ Open a Markdown document with two headings. If it exceeds the terminal height, p
 ### EXAMPLE 8
 ```powershell
 Get-ConsoleDemo -Slug 'welcome-compact' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see Show-Console in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

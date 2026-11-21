@@ -85,7 +85,7 @@ Pause briefly between live server updates
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see Wait-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

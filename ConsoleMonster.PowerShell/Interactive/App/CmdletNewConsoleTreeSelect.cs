@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.</para></remarks>
     /// <example>
     /// <para>Browse a nested configuration</para>
-    /// <code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
+    /// <code>
+    /// $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
     /// Show-ConsoleApp -Content {
     ///     $treeSelectOptions = @{
     ///         Key = 'Members'
@@ -18,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Compose an inventory tree select</para>
-    /// <code>$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
+    /// <code>
+    /// $inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
     /// $treeSelectOptions = @{
     ///     Key = 'inventory'
     ///     InputObject = $inventory

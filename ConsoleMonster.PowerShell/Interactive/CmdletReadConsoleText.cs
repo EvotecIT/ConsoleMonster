@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>A default is shown as a hint (Enter on an empty box accepts it, Tab puts it in the box to edit). -Required, -MinLength, -MaxLength, -Pattern and -Validator check the answer; problems show inline under the box until fixed. -History offers earlier answers with Up and Down.</para></remarks>
     /// <example>
     ///   <para>A validated name</para>
-    ///   <code>$textOptions = @{
+    ///   <code>
+    /// $textOptions = @{
     ///     Title = 'Server name'
     ///     Default = 'srv01'
     ///     Pattern = '[a-z][a-z0-9-]{1,14}'
@@ -18,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A scriptblock validator ($_ is the answer; return $true, $false or an error message)</para>
-    ///   <code>$textOptions = @{
+    ///   <code>
+    /// $textOptions = @{
     ///     Title = 'Email'
     ///     Validator = { if ($_ -notmatch '@') { 'Enter an email address' } }
     /// }

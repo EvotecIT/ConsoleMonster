@@ -17,7 +17,8 @@ Show-ConsoleGrid [[-Property] <Object[]>] [-InputObject <psobject>] [-Title <str
 ## DESCRIPTION
 Show-ConsoleGrid displays objects in Windows PowerShell 5.1 and PowerShell 7. Property configures the displayed columns using the same presenters, priorities and widths as Show-ConsoleTable. A selection returns the underlying objects to PowerShell.
 
-### Terminal grid
+Terminal grid
+-------------
 
 Use the arrow keys to focus a row. Press F10 or Ctrl+Enter to accept the selection and resume the PowerShell pipeline. Single returns the focused row. In Multiple mode, Space toggles the mark on the focused row and Ctrl+A marks all visible rows. Accept returns the marked rows, or the focused row if none are marked. In None mode, the accept keys are disabled and the grid is browse-only.
 
@@ -25,15 +26,18 @@ Use PgUp and PgDn to move a page at a time, or Ctrl+Home and Ctrl+End to move to
 
 When Command supplies actions, Ctrl+K opens the action list and F6 cancels work in progress. Actions run inside the grid. Accepting a selection returns the rows to the calling script.
 
-### Browser grid
+Browser grid
+------------
 
 With Window, the browser tab has a filter, sortable column headings and a table. Click a row to focus it. In Multiple mode, hold Ctrl or Command when clicking to toggle a row, or Shift-click to mark a range. Click OK to send the selection back to PowerShell. Browse-only mode has a Close button. Click Cancel or press Esc in the page to return without a selection. If the browser cannot open, the command warns and falls back to the terminal grid.
 
-### Numbered list
+Numbered list
+-------------
 
 Line mode prints numbered rows and prompts for a response. In Single mode, enter one row number or press Enter with an empty response to choose the first row. In Multiple mode, enter a comma-separated list of numbers, such as 1,3. An empty response with no preselection returns nothing.
 
-### Static output
+Static output
+-------------
 
 With Mode None, or when the command resolves to unattended output, it prints a static grid using the initial filter, sort and visible columns. It returns no selection.
 

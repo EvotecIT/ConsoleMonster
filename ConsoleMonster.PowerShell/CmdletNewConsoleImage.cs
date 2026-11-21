@@ -6,7 +6,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Inside layouts and live dashboards the image is drawn with half blocks on terminals with 256 colours or more, so it redraws cleanly with the rest of the screen; redirected and no-colour output gets [image: name WxH]. To print an image on its own with the terminal's real pixels, use Show-ConsoleImage.</para></remarks>
     /// <example>
     ///   <para>A chart next to its numbers</para>
-    ///   <code>New-ConsoleColumns -Content {
+    ///   <code>
+    /// New-ConsoleColumns -Content {
     ///     $panelOptions2 = @{
     ///         Title = 'Latency'
     ///         Content = {
@@ -27,7 +28,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Create a widget from an open stream, leaving it open for the caller</para>
-    ///   <code>$imageOptions = @{
+    ///   <code>
+    /// $imageOptions = @{
     ///     Bytes = $stream
     ///     Label = 'Chart'
     ///     Width = 40

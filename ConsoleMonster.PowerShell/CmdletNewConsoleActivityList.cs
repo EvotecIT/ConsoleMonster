@@ -7,7 +7,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Each activity has an id, a title, an optional status, a percentage (or none, which spins) and an optional parent it is indented under; finished activities disappear, and an empty list takes no space. Update it with Update-Console from the script of a running dashboard or menu run. -MaxVisible caps the rows (more are summed up in one line). The default name, $progress, is also where Write-Progress goes in Invoke-ConsoleDashboard, so a list with that name shows the script's progress records; give another name for activities of your own.</para></remarks>
     /// <example>
     ///   <para>The checks running on four workers</para>
-    ///   <code>$dashboardOptions2 = @{
+    ///   <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Checks'
     ///     Content = {
     ///         $panelOptions = @{
@@ -46,7 +47,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Limit the number of visible live activities</para>
-    /// <code>$dashboardOptions2 = @{
+    /// <code>
+    /// $dashboardOptions2 = @{
     ///     Title = 'Inventory'
     ///     Content = { New-ConsoleActivityList -MaxVisible 3 }
     /// }

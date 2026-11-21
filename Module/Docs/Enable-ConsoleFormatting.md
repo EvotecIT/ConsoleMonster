@@ -50,10 +50,10 @@ Turn it on for the session
 ### EXAMPLE 4
 ```powershell
 Set-ConsoleTheme -Theme Dark;
-            $formattingOptions = @{
-                Include = @('Prompt')
-            }
-            Enable-ConsoleFormatting @formattingOptions
+$formattingOptions = @{
+    Include = @('Prompt')
+}
+Enable-ConsoleFormatting @formattingOptions
 ```
 
 Add a minimal themed shell prompt to the default formatting

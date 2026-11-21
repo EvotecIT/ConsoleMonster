@@ -7,13 +7,15 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a progress bar or an indeterminate activity indicator.</summary>
     /// <remarks><para>The default bar represents a known total. Indeterminate creates a spinner. Update either through Update-Console. Structural parameter sets reject bar-only options on a spinner and spinner-only options on a bar; the shared C# Progress factory validates the same contract.</para></remarks>
-    /// <example><para>Show completed work</para><code>$progressOptions = @{
+    /// <example><para>Show completed work</para><code>
+    /// $progressOptions = @{
     ///     Label = 'Upload'
     ///     Value = 64
     ///     Total = 100
     /// }
     /// New-ConsoleProgress @progressOptions | Show-Console</code></example>
-    /// <example><para>Show work with no known total</para><code>$progressOptions = @{
+    /// <example><para>Show work with no known total</para><code>
+    /// $progressOptions = @{
     ///     Indeterminate = $true
     ///     WidgetId = 'resolve'
     ///     Label = 'Resolving DNS'
@@ -22,7 +24,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleProgress @progressOptions | Show-Console</code></example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleProgress in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'pipeline' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'worker-progress' | Select-Object -ExpandProperty Source</code>
     /// </example>

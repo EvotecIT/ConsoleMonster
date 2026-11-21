@@ -8,7 +8,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates one numeric chart representation from records or samples.</summary>
     /// <remarks><para>Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# Chart factory rejects options that do not apply to the selected kind. InputObject accepts chart records (Label and Value; Key, Label, Values and Role for series); Content emits the same records. For Bar, Histogram and Sparkline, -Property picks the number from ordinary objects and -Label (Bar only, default Name) their label. Use Update-Console for live changes.</para></remarks>
-    /// <example><para>Draw two bars from ordinary records. Property is a one-element array in this input mode. Its first entry selects Cpu, the numeric value for each bar. Label selects Name for the bar labels. The command returns a chart widget; Show-Console renders it outside a layout.</para><code>$servers = @(
+    /// <example><para>Draw two bars from ordinary records. Property is a one-element array in this input mode. Its first entry selects Cpu, the numeric value for each bar. Label selects Name for the bar labels. The command returns a chart widget; Show-Console renders it outside a layout.</para><code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Cpu = 42 }
     ///     [pscustomobject]@{ Name = 'web02'; Cpu = 27 }
     /// )
@@ -18,14 +19,16 @@ namespace ConsoleMonster.PowerShell {
     ///     Unit = '%'
     /// }
     /// $servers | New-ConsoleChart @chartOptions | Show-Console</code></example>
-    /// <example><para>Show resolver latency</para><code>$chartOptions = @{
+    /// <example><para>Show resolver latency</para><code>
+    /// $chartOptions = @{
     ///     Type = 'Bar'
     ///     Unit = ' ms'
     /// }
     /// [pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart @chartOptions | Show-Console</code></example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleChart in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'license-usage' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'license-usage' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'update-compliance' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source</code>

@@ -8,7 +8,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), then call Update-Console -WidgetId with a new widget from the dashboard script. The swap is queued like every update, lands between frames and redraws only what changed.</para></remarks>
     /// <example>
     ///   <para>Build a panel with an indeterminate spinner as its initial content. WidgetId main identifies the region for a later Update-Console -Content call. WidgetId spinner identifies the progress widget currently inside it.</para>
-    ///   <code>$panelOptions = @{
+    ///   <code>
+    /// $panelOptions = @{
     ///     Title = 'Result'
     ///     Content = {
     ///         $regionOptions = @{
@@ -29,7 +30,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Center Ready and leave one cell of padding on each side. Padding is an integer array. The one-entry form uses that entry for all four sides. With two entries the order is horizontal then vertical. With four entries it is left, top, right, bottom.</para>
-    /// <code>$regionOptions = @{
+    /// <code>
+    /// $regionOptions = @{
     ///     Horizontal = 'Center'
     ///     Padding = @(1)
     ///     Content = {
@@ -43,7 +45,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleRegion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleRegion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleregion/")]

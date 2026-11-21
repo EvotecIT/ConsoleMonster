@@ -66,7 +66,7 @@ Filter rows as the app's Query field changes. New-ConsoleTextInput writes to the
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleTable in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

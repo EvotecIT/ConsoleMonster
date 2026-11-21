@@ -17,11 +17,13 @@ Show-ConsoleApp [-Content] <scriptblock> [-Keys <AppHostKeys>] [-SignalKeys] [-K
 ## DESCRIPTION
 Show-ConsoleApp builds the layout once. Input, control callbacks, dependent builders and key bindings run on the caller's PowerShell thread.
 
-### App screens
+App screens
+-----------
 
 Adjacent New-ConsoleScreen commands form a screen stack. The footer shows keys available to the focused control, the current screen and the app, including keys supplied through KeyBinding. Escape exits from the first screen. Cancellation restores the terminal. Use PassThru to receive the final app state as one ordinary hashtable when the app exits.
 
-### Static snapshot
+Static snapshot
+---------------
 
 Redirected output, CI and non-interactive sessions render the initialized app once. Mode Snapshot requests that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects it when there is no input source. CONSOLEMONSTER_INPUT supplies scripted keys for an app run.
 
@@ -94,7 +96,7 @@ Print initialized values without reading keyboard input
 ### EXAMPLE 4
 ```powershell
 Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see Show-ConsoleApp in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

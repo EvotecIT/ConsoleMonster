@@ -40,7 +40,7 @@ Lanes at different points, printed once
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleLanes in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

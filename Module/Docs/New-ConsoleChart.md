@@ -49,9 +49,9 @@ Show resolver latency
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'license-usage' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'update-compliance' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'update-compliance' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleChart in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

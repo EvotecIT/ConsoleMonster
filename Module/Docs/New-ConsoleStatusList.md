@@ -124,7 +124,7 @@ Pipeline stages as one line in a table column
 ### EXAMPLE 8
 ```powershell
 Get-ConsoleDemo -Slug 'repository-status' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'certificate-expiry' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleStatusList in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

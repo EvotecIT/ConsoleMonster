@@ -68,8 +68,8 @@ Compose an inventory dashboard
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'stress' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'pipeline' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'stress' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'pipeline' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

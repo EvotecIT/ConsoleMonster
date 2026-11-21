@@ -9,7 +9,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Content is a scriptblock, a widget, text or any objects (objects are shown as a record or a table; several pieces are stacked vertically). Borders follow the detected glyph tier: rounded on modern fonts, single lines on Consolas, +-| in ASCII mode. Inside New-ConsoleColumns, panels share the row height.</para></remarks>
     /// <example>
     ///   <para>A panel holding a lanes widget, taking two shares of a row</para>
-    ///   <code>$panelOptions = @{
+    ///   <code>
+    /// $panelOptions = @{
     ///     Title = 'Targets'
     ///     Weight = 2
     ///     Content = { New-ConsoleLanes -WidgetId targets }
@@ -18,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Frame an inventory record with a heading</para>
-    /// <code>$panelOptions = @{
+    /// <code>
+    /// $panelOptions = @{
     ///     Title = 'Inventory result'
     ///     Content = {
     ///         $showConsoleOptions = @{
@@ -32,7 +34,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsolePanel in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsolePanel", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolepanel/")]

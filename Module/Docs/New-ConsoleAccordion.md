@@ -47,20 +47,20 @@ Fold long sections of a help page and keep one open at a time.
 ### EXAMPLE 2
 ```powershell
 New-ConsoleAccordion -Content {
-                $collapsibleOptions = @{
-                    Expanded = $true
-                    Key = 'network'
-                    Label = 'Network'
-                    Content = {
-                        $textOptions = @{
-                            Text = @('DNS reachable')
-                            Role = 'Pass'
-                        }
-                        New-ConsoleText @textOptions
-                    }
-                }
-                New-ConsoleCollapsible @collapsibleOptions
-            } | Show-Console
+    $collapsibleOptions = @{
+        Expanded = $true
+        Key = 'network'
+        Label = 'Network'
+        Content = {
+            $textOptions = @{
+                Text = @('DNS reachable')
+                Role = 'Pass'
+            }
+            New-ConsoleText @textOptions
+        }
+    }
+    New-ConsoleCollapsible @collapsibleOptions
+} | Show-Console
 ```
 
 Compose an inventory accordion
@@ -68,7 +68,7 @@ Compose an inventory accordion
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleAccordion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

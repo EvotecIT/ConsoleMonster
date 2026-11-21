@@ -49,7 +49,7 @@ Compose an inventory select
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'setup-basic' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'setup-basic' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleSelect in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

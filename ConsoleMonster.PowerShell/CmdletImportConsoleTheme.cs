@@ -7,13 +7,15 @@ using ConsoleMonster.Styling;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Imports a terminal colour scheme as a version 3 ConsoleMonster theme.</summary>
     /// <remarks><para>Reads a single Windows Terminal scheme object (or a settings.json with one schemes entry), an XML iTerm2 .itermcolors file, or a flat base16 YAML scheme. The generated JSON embeds the scheme so its roles are derived when loaded. Accessible first chooses status colours from the palette, then adjusts OKLCH lightness where needed. The command writes the file and returns Test-ConsoleTheme's report and verdict lines, including adjusted tokens; failing checks never prevent import. It does not change the active theme or settings.</para></remarks>
-    /// <example><para>Import a Windows Terminal scheme and inspect its verdict.</para><code># Requires an existing Windows Terminal scheme JSON file.
+    /// <example><para>Import a Windows Terminal scheme and inspect its verdict.</para><code>
+    /// # Requires an existing Windows Terminal scheme JSON file.
     /// $themeOptions = @{
     ///     Path = './my-scheme.json'
     ///     OutFile = './my-theme.json'
     /// }
     /// Import-ConsoleTheme @themeOptions</code></example>
-    /// <example><para>Import an accessible variant, then use it.</para><code># Requires an existing sRGB iTerm2 .itermcolors file.
+    /// <example><para>Import an accessible variant, then use it.</para><code>
+    /// # Requires an existing sRGB iTerm2 .itermcolors file.
     /// $themeOptions = @{
     ///     Accessible = $true
     ///     Path = './my-scheme.itermcolors'

@@ -140,9 +140,9 @@ Pass a label into a sequential dashboard script. ArgumentList is an array of pos
 ### EXAMPLE 4
 ```powershell
 Get-ConsoleDemo -Slug 'container-status' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'process-monitor' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'process-monitor' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see Invoke-ConsoleDashboard in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

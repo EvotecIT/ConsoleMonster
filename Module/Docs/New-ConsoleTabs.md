@@ -73,7 +73,7 @@ Compose two retained inventory pages
 ### EXAMPLE 3
 ```powershell
 Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
-            Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
 ```
 
 Read any of these gallery scripts to see New-ConsoleTabs in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.

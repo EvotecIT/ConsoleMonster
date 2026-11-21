@@ -6,7 +6,8 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a request, message, reply or failed interaction.</summary>
     /// <remarks><para>From and To identify diagram nodes. Payload is a hashtable of fields shown with the active step. Reply and Failed are shorthand for Kind; choose one interaction kind.</para></remarks>
-    /// <example><para>A request payload.</para><code>$diagramStepOptions = @{
+    /// <example><para>A request payload.</para><code>
+    /// $diagramStepOptions = @{
     ///     From = 'Web'
     ///     To = 'Orders API'
     ///     Label = 'create order'
@@ -15,7 +16,8 @@ namespace ConsoleMonster.PowerShell {
     /// New-ConsoleDiagramStep @diagramStepOptions</code></example>
     /// <example>
     /// <para>Compose an inventory diagram step</para>
-    /// <code>$diagramOptions = @{
+    /// <code>
+    /// $diagramOptions = @{
     ///     Title = 'Checkout'
     ///     Content = {
     ///         $diagramNodeOptions2 = @{

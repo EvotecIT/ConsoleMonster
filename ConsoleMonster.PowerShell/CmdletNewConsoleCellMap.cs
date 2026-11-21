@@ -9,7 +9,8 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>The map Invoke-ConsoleRun shows for many items, as a widget of its own: each item is one cell in its status colour (pass, fail, warn, skip, running, pending), wrapping to the width, followed by a legend with each state's count. States come from -InputObject or the pipeline, in the shared status vocabulary (PowerShell's words such as Success and Error work too). -Count adds pending cells for items not started yet. -Columns and -RowLabels turn it into a labelled grid (one row per server, one column per check) with one legend below, which -LegendLines lets wrap. In a live dashboard, update cells with Update-Console.</para></remarks>
     /// <example>
     ///   <para>Forty items part-way through a run</para>
-    ///   <code>$states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
+    ///   <code>
+    /// $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
     /// $cellMapOptions = @{
     ///     InputObject = $states
     ///     Count = 40
@@ -22,7 +23,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A grid of three servers by four checks, with the server names beside the rows</para>
-    ///   <code>$cellMapOptions = @{
+    ///   <code>
+    /// $cellMapOptions = @{
     ///     WidgetId = 'checks'
     ///     Count = 12
     ///     Columns = 4
@@ -34,7 +36,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleCellMap in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCellMap", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecellmap/")]

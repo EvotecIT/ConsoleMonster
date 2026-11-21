@@ -19,7 +19,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Read any of these gallery scripts to see New-ConsoleLanes in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
-    /// <code>Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source
     /// Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLanes", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolelanes/")]

@@ -13,7 +13,8 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para></remarks>
     /// <example>
     /// <para>Track file inspections without modifying the files</para>
-    /// <code>$files = @(Get-ChildItem -File | Select-Object -First 5)
+    /// <code>
+    /// $files = @(Get-ChildItem -File | Select-Object -First 5)
     /// $runOptions2 = @{
     ///     InputObject = $files
     ///     Title = 'Inspect files'
@@ -46,7 +47,8 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Use append-only progress output in CI</para>
-    /// <code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
+    /// <code>
+    /// $checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
     /// $runOptions2 = @{
     ///     NoLive = $true
     ///     InputObject = $checks
