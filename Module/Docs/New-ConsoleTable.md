@@ -31,13 +31,18 @@ Columns come from -Property or from the first object's properties (or hashtable 
 
 ### EXAMPLE 1
 ```powershell
+$tableOptions = @{
+    Property = @('Name', 'Status', 'Region')
+    StatusProperty = 'Status'
+    Title = 'Servers'
+}
 @(
-                [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
-                [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
-            ) | New-ConsoleTable -Property Name, Status, Region -StatusProperty Status -Title 'Servers' | Show-Console
+    [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
+    [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
+) | New-ConsoleTable @tableOptions | Show-Console
 ```
 
-Build a table with a status column
+Build a table widget from two server records and display it. Property orders the columns. StatusProperty maps the values in Status to markers. A dashboard or layout can consume the same widget in its Content block.
 
 ### EXAMPLE 2
 ```powershell
@@ -47,11 +52,24 @@ $items = @(
 )
 Show-ConsoleApp -Content {
     New-ConsoleTextInput -Key Query
-    New-ConsoleTable -Bind { $items | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status -StatusProperty Status
+    $tableOptions = @{
+        Bind = { $items | Where-Object Name -Like "*$($State.Query)*" }
+        Property = @('Name', 'Status')
+        StatusProperty = 'Status'
+    }
+    New-ConsoleTable @tableOptions
 }
 ```
 
-Filter objects from current application state
+Filter rows as the app's Query field changes. New-ConsoleTextInput writes to the state key named Query. The Bind script block reads that key from the current $State hashtable and emits matching records, which the table turns into rows. Start with an empty query to see both rows, then type web02.
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleTable in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

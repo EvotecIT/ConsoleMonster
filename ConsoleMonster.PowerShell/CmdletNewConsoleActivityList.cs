@@ -8,21 +8,59 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>The checks running on four workers</para>
     ///   <code>
-    /// $dashboard = New-ConsoleDashboard -Title 'Checks' -Content { New-ConsolePanel -Title 'Running' -Content { New-ConsoleActivityList -WidgetId running -MaxVisible 4 } }
-    /// Invoke-ConsoleDashboard $dashboard {
-    ///     Update-Console -WidgetId running -Key 1 -Label 'SRV01 · Free space'
-    ///     Start-Sleep -Seconds 1
-    ///     Update-Console -WidgetId running -Key 1 -Complete
-    /// }</code>
+    /// $dashboardOptions2 = @{
+    ///     Title = 'Checks'
+    ///     Content = {
+    ///         $panelOptions = @{
+    ///             Title = 'Running'
+    ///             Content = {
+    ///                 $activityListOptions = @{
+    ///                     WidgetId = 'running'
+    ///                     MaxVisible = 4
+    ///                 }
+    ///                 New-ConsoleActivityList @activityListOptions
+    ///             }
+    ///         }
+    ///         New-ConsolePanel @panelOptions
+    ///     }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ScriptBlock = {
+    ///         $updateConsoleOptions2 = @{
+    ///             WidgetId = 'running'
+    ///             Key = 1
+    ///             Label = 'SRV01 · Free space'
+    ///         }
+    ///         Update-Console @updateConsoleOptions2
+    ///         Start-Sleep -Seconds 1
+    ///         $updateConsoleOptions = @{
+    ///             Complete = $true
+    ///             WidgetId = 'running'
+    ///             Key = 1
+    ///         }
+    ///         Update-Console @updateConsoleOptions
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     /// <example>
     /// <para>Limit the number of visible live activities</para>
-    /// <code>$dashboard = New-ConsoleDashboard -Title 'Inventory' -Content { New-ConsoleActivityList -MaxVisible 3 }
-    /// Invoke-ConsoleDashboard $dashboard {
-    ///     Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50
-    ///     Wait-ConsoleDashboard -Seconds 0.2
+    /// <code>
+    /// $dashboardOptions2 = @{
+    ///     Title = 'Inventory'
+    ///     Content = { New-ConsoleActivityList -MaxVisible 3 }
     /// }
-    /// </code>
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ScriptBlock = {
+    ///         Write-Progress -Activity 'Inspect web01' -Status 'Reading inventory' -PercentComplete 50
+    ///         Wait-ConsoleDashboard -Seconds 0.2
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleActivityList", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoleactivitylist/")]
     [OutputType(typeof(ActivityList))]

@@ -13,15 +13,35 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Like watch: every -PollIntervalSeconds seconds the script block runs and its output replaces the previous one, shaped as Show-ConsoleTable and the other commands shape it (objects as a table, one dictionary as a record, text as it is). The heading shows the interval, -Title, the run number and the time. -Differences highlights the cells that changed since the previous run. A run that fails shows its error and the watch goes on. Warnings, errors and Write-Host text from the script block are shown under its output in the view (an error marks the run in the heading) instead of interrupting it. Ctrl+C ends the watch and the last frame stays in the scrollback; -Count ends it after that many runs. Without an interactive console (redirected output, CI, a job), the current view is printed once by default; an explicit finite -Count prints that many runs. Piped output is append-only; assigning the result to a variable at the prompt does not capture the live view, so pipe it instead.</para></remarks>
     /// <example>
     /// <para>Watch a bounded process sample</para>
-    /// <code>Watch-Console { Get-Process | Select-Object -First 5 Name, Id, CPU } -Count 3 -PollIntervalSeconds 1</code>
+    /// <code>
+    /// $watchConsoleOptions = @{
+    ///     ScriptBlock = { Get-Process | Select-Object -First 5 Name, Id, CPU }
+    ///     Count = 3
+    ///     PollIntervalSeconds = 1
+    /// }
+    /// Watch-Console @watchConsoleOptions</code>
     /// </example>
     /// <example>
     /// <para>Capture repeated process snapshots as text</para>
-    /// <code>Watch-Console { Get-Process -Id $PID | Select-Object Name, Id, CPU } -Count 3 -PollIntervalSeconds 1 | Out-String</code>
+    /// <code>
+    /// $watchConsoleOptions = @{
+    ///     ScriptBlock = { Get-Process -Id $PID | Select-Object Name, Id, CPU }
+    ///     Count = 3
+    ///     PollIntervalSeconds = 1
+    /// }
+    /// Watch-Console @watchConsoleOptions | Out-String</code>
     /// </example>
     /// <example>
     /// <para>Highlight changes in file-system drive space</para>
-    /// <code>Watch-Console -Title 'Disk space' -PollIntervalSeconds 1 -Count 3 -Differences { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }</code>
+    /// <code>
+    /// $watchConsoleOptions = @{
+    ///     Differences = $true
+    ///     Title = 'Disk space'
+    ///     PollIntervalSeconds = 1
+    ///     Count = 3
+    ///     ScriptBlock = { Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free }
+    /// }
+    /// Watch-Console @watchConsoleOptions</code>
     /// </example>
     [Cmdlet(VerbsCommon.Watch, "Console", HelpUri = "https://consolemonster.dev/powershell/commands/watch-console/")]
     public sealed class CmdletWatchConsole : NoPipelineInputCmdlet {

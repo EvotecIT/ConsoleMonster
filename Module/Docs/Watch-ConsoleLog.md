@@ -27,7 +27,12 @@ File lines are decoded incrementally and followed across observed truncation and
 ### EXAMPLE 1
 ```powershell
 # Requires an existing service.log file; reads two snapshots without changing the file.
-            Watch-ConsoleLog -Path ./service.log -Highlight database -Count 2
+$logOptions = @{
+    Path = './service.log'
+    Highlight = 'database'
+    Count = 2
+}
+Watch-ConsoleLog @logOptions
 ```
 
 Inspect an existing log and highlight a component
@@ -35,14 +40,24 @@ Inspect an existing log and highlight a component
 ### EXAMPLE 2
 ```powershell
 # Requires an existing service.log file.
-            Watch-ConsoleLog -Path ./service.log -Tail 50 -Filter ERROR -Count 1
+$logOptions = @{
+    Path = './service.log'
+    Tail = 50
+    Filter = 'ERROR'
+    Count = 1
+}
+Watch-ConsoleLog @logOptions
 ```
 
 Return matching lines from an existing log as strings
 
 ### EXAMPLE 3
 ```powershell
-Watch-ConsoleLog -LogName System -Level Warn
+$logOptions = @{
+    LogName = 'System'
+    Level = 'Warn'
+}
+Watch-ConsoleLog @logOptions
 ```
 
 Follow only warnings and errors from the System event log

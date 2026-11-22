@@ -21,18 +21,60 @@ Content emits New-ConsoleDiagramStep values in playback order. Id defaults to La
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDiagramUseCase 'Place an order' { New-ConsoleDiagramStep Shopper Web 'POST /checkout'; New-ConsoleDiagramStep Web Shopper 'Thank you' -Reply }
+$diagramUseCaseOptions = @{
+    Label = 'Place an order'
+    Content = {
+        $diagramStepOptions2 = @{
+            From = 'Shopper'
+            To = 'Web'
+            Label = 'POST /checkout'
+        }
+        New-ConsoleDiagramStep @diagramStepOptions2;
+        $diagramStepOptions = @{
+            Reply = $true
+            From = 'Web'
+            To = 'Shopper'
+            Label = 'Thank you'
+        }
+        New-ConsoleDiagramStep @diagramStepOptions
+    }
+}
+New-ConsoleDiagramUseCase @diagramUseCaseOptions
 ```
 
 A request and reply.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDiagram -Title 'Order processing' -Content {
-                New-ConsoleDiagramNode -Id api -Label API
-                New-ConsoleDiagramNode -Id db -Label Database
-                New-ConsoleDiagramUseCase -Id save -Label 'Save order' -Content { New-ConsoleDiagramStep -From api -To db -Label Insert }
-            } | Show-Console
+$diagramOptions = @{
+    Title = 'Order processing'
+    Content = {
+        $diagramNodeOptions2 = @{
+            Id = 'api'
+            Label = 'API'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions2
+        $diagramNodeOptions = @{
+            Id = 'db'
+            Label = 'Database'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions
+        $diagramUseCaseOptions = @{
+            Id = 'save'
+            Label = 'Save order'
+            Content = {
+                $diagramStepOptions = @{
+                    From = 'api'
+                    To = 'db'
+                    Label = 'Insert'
+                }
+                New-ConsoleDiagramStep @diagramStepOptions
+            }
+        }
+        New-ConsoleDiagramUseCase @diagramUseCaseOptions
+    }
+}
+New-ConsoleDiagram @diagramOptions | Show-Console
 ```
 
 Compose an inventory diagram use case

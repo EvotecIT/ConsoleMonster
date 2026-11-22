@@ -21,18 +21,25 @@ Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends 
 
 ### EXAMPLE 1
 ```powershell
-@([pscustomobject]@{ Check = 'Build'; Result = 'Passed' }) | Add-ConsoleJobSummary
+$result = [pscustomobject]@{ Check = 'Build'; Result = 'Passed' }
+$result | Add-ConsoleJobSummary
 ```
 
-Add a result table to the job summary
+Turn a build result into job-summary Markdown. The pipeline supplies one ordinary record. Add-ConsoleJobSummary selects its automatic view. In a local shell, the generated Markdown is available as pipeline output.
 
 ### EXAMPLE 2
 ```powershell
-$servers = @([pscustomobject]@{ Name = 'web01'; State = 'Pass' })
-$servers | New-ConsoleTable | Add-ConsoleJobSummary
+$servers = @(
+    [pscustomobject]@{ Name = 'web01'; State = 'Pass' }
+)
+$tableOptions = @{
+    Property = @('Name', 'State')
+    Title = 'Inventory'
+}
+$servers | New-ConsoleTable @tableOptions | Add-ConsoleJobSummary
 ```
 
-Add an inventory table to the CI summary
+Choose the inventory columns and title before handing the table widget to the summary command. The Markdown exporter uses that table structure. GitHub Actions appends the Markdown to the step-summary file. Azure Pipelines uploads a summary from a file in the job workspace.
 
 ## PARAMETERS
 

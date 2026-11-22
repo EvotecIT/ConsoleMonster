@@ -21,18 +21,42 @@ From and To identify nodes by their label or explicit Id. The containing diagram
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDiagramLink 'File server' Backup -Label nightly -Status Fail -Style Dashed
+$diagramLinkOptions = @{
+    From = 'File server'
+    To = 'Backup'
+    Label = 'nightly'
+    Status = 'Fail'
+    Style = 'Dashed'
+}
+New-ConsoleDiagramLink @diagramLinkOptions
 ```
 
 A failing backup connection.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDiagram -Title 'Service dependencies' -Content {
-                New-ConsoleDiagramNode -Id api -Label API
-                New-ConsoleDiagramNode -Id db -Label Database
-                New-ConsoleDiagramLink -From api -To db -Label SQL
-            } | Show-Console
+$diagramOptions = @{
+    Title = 'Service dependencies'
+    Content = {
+        $diagramNodeOptions2 = @{
+            Id = 'api'
+            Label = 'API'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions2
+        $diagramNodeOptions = @{
+            Id = 'db'
+            Label = 'Database'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions
+        $diagramLinkOptions = @{
+            From = 'api'
+            To = 'db'
+            Label = 'SQL'
+        }
+        New-ConsoleDiagramLink @diagramLinkOptions
+    }
+}
+New-ConsoleDiagram @diagramOptions | Show-Console
 ```
 
 Compose an inventory diagram link

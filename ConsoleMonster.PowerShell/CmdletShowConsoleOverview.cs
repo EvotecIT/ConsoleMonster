@@ -7,8 +7,18 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Shows a compact, read-only summary of the local host.</summary>
     /// <remarks><para>Collects CPU, memory, local fixed disks, network addresses and safely available services, update/reboot and security observations. Unavailable panels are hidden. Slow sections show a pending marker after the caller budget; each probe receives a two-second cooperative timeout. At 80 columns or more panels use two columns and at most 24 rows. Below 80 columns panels stack at their natural height, preserving volumes and login rows; terminal scrolling is allowed. No elevation, child processes, remote access or system changes are used. Security data requires existing read access. Linux update and security support depends on local update-notifier and auth.log facilities; macOS optional service, update and security panels are hidden. Register application sections through OverviewSectionRegistry.Default.Register. Custom providers must honor cancellation and release their resources.</para></remarks>
     /// <example><para>Show the local login overview.</para><code>Show-ConsoleOverview</code></example>
-    /// <example><para>Return selected data for a script.</para><code>$snapshot = Show-ConsoleOverview -Section Resources,Disks -AsObject</code></example>
-    /// <example><para>Capture a compact plain-text overview.</para><code>Show-ConsoleOverview -Width 60 -AsWidget | Export-ConsoleFrame -Format Text</code></example>
+    /// <example><para>Return selected data for a script.</para><code>
+    /// $overviewOptions = @{
+    ///     AsObject = $true
+    ///     Section = @('Resources', 'Disks')
+    /// }
+    /// $snapshot = Show-ConsoleOverview @overviewOptions</code></example>
+    /// <example><para>Capture a compact plain-text overview.</para><code>
+    /// $overviewOptions = @{
+    ///     AsWidget = $true
+    ///     Width = 60
+    /// }
+    /// Show-ConsoleOverview @overviewOptions | Export-ConsoleFrame -Format Text</code></example>
     [Cmdlet(VerbsCommon.Show, "ConsoleOverview", DefaultParameterSetName = "Render", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoleoverview/")]
     [OutputType(typeof(OverviewSnapshot), typeof(string))]
     public sealed class CmdletShowConsoleOverview : NoPipelineInputCmdlet {

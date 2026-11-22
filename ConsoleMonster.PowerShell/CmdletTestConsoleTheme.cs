@@ -9,9 +9,19 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Checks a theme's text contrast, status colours, markers and critical fill.</summary>
     /// <remarks><para>Checks the active theme, a named preset, or a JSON/PSD1 file without changing settings. Text needs WCAG contrast of 4.5:1 against its own fill or the page background. Pass, warning and fail need CIELAB distance 25 in normal vision and full-severity Machado protanopia, deuteranopia and tritanopia simulations. Markers must differ without colour. Critical may share Fail's hue when it has a distinct fill. The Terminal preset is measured against the startup palette when the terminal answers OSC 4/10/11. Otherwise the actual colours of palette indexes, terminal-default text and terminal-dependent dimming cannot be measured; Unknown prevents a confirmed pass but is not a failure. The output report has Passed and Results properties and a verdict-first default view showing problems and unknowns. Use -Detailed for every check. Dark and Light are not colour-blind-safe presets.</para></remarks>
     /// <example><para>Check the active theme.</para><code>Test-ConsoleTheme</code></example>
-    /// <example><para>Check a team theme in CI; any failure stops the script.</para><code>Test-ConsoleTheme -Path ./team-theme.json -Strict</code></example>
+    /// <example><para>Check a team theme in CI; any failure stops the script.</para><code>
+    /// $themeOptions = @{
+    ///     Strict = $true
+    ///     Path = './team-theme.json'
+    /// }
+    /// Test-ConsoleTheme @themeOptions</code></example>
     /// <example><para>Inspect individual measurements as objects.</para><code>(Test-ConsoleTheme -Theme Light -Background '#ffffff').Results | Where-Object Outcome -EQ Fail</code></example>
-    /// <example><para>Show every measurement.</para><code>Test-ConsoleTheme -Theme Dark -Detailed</code></example>
+    /// <example><para>Show every measurement.</para><code>
+    /// $themeOptions = @{
+    ///     Detailed = $true
+    ///     Theme = 'Dark'
+    /// }
+    /// Test-ConsoleTheme @themeOptions</code></example>
     [Cmdlet(VerbsDiagnostic.Test, "ConsoleTheme", DefaultParameterSetName = "Name", HelpUri = "https://consolemonster.dev/powershell/commands/test-consoletheme/")]
     [OutputType(typeof(ThemeCheckReport))]
     public sealed class CmdletTestConsoleTheme : NoPipelineInputCmdlet {

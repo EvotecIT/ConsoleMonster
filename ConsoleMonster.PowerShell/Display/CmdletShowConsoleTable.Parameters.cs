@@ -44,7 +44,7 @@ namespace ConsoleMonster.PowerShell {
         [PSDefaultValue(Help = "$false")]
         public override SwitchParameter PassThru { get; set; }
 
-        /// <summary><para type="description">Shows a totals row for numeric columns.</para></summary>
+        /// <summary><para type="description">Shows a totals row. The automatic sum skips the key column and columns using the Identifier presenter. A numeric column with an explicit Number presenter can be summed even if its name usually selects the Identifier presenter. An explicit Aggregate controls the total for its column.</para></summary>
         [Parameter]
         [PSDefaultValue(Help = "$false")]
         public override SwitchParameter ShowTotals { get; set; }

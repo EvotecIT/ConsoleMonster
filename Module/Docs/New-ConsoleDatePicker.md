@@ -21,14 +21,24 @@ Uses Gregorian arithmetic with culture-aware labels. Arrows move the cursor, Pag
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDatePicker -Key Window -Range -Value ([datetime]'2026-10-08')
+$datePickerOptions = @{
+    Range = $true
+    Key = 'Window'
+    Value = ([datetime]'2026-10-08')
+}
+New-ConsoleDatePicker @datePickerOptions
 ```
 
 Choose a maintenance range.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDatePicker -Key Window -Range -Selection @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }
+$datePickerOptions = @{
+    Range = $true
+    Key = 'Window'
+    Selection = @{ Today = [datetime]'2026-10-08'; FirstDayOfWeek = 'Monday' }
+}
+New-ConsoleDatePicker @datePickerOptions
 ```
 
 Configure today and the first weekday with a hashtable.

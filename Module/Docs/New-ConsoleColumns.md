@@ -21,21 +21,81 @@ Children share the width equally unless they were created with -Weight. -FixedWi
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleColumns -Content { New-ConsolePanel -Title 'Steps' -Weight 2 -Content { New-ConsoleStatusList -WidgetId steps }; New-ConsolePanel -Title 'Info' -Content { New-ConsoleKeyValue -WidgetId info } }
+New-ConsoleColumns -Content {
+    $panelOptions2 = @{
+        Title = 'Steps'
+        Weight = 2
+        Content = { New-ConsoleStatusList -WidgetId steps }
+    }
+    New-ConsolePanel @panelOptions2;
+    $panelOptions = @{
+        Title = 'Info'
+        Content = { New-ConsoleKeyValue -WidgetId info }
+    }
+    New-ConsolePanel @panelOptions
+}
 ```
 
 Two panels, the first twice as wide
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleColumns -FixedWidth 0, 0, 17 -CollapseBelow 90 -Content {
-    New-ConsolePanel -Title 'Failures' -Weight 1.5 -Content { New-ConsoleTable -WidgetId failures -Live -Property 'Server', 'Check' }
-    New-ConsolePanel -Title 'Slowest' -Content { New-ConsoleTable -WidgetId slowest -Live -Property 'Check', 'Took' }
-    New-ConsolePanel -Title 'Durations' -Content { New-ConsoleChart -WidgetId durations -Height 5 -Type Histogram -Edges 0, 2, 4, 8 }
+$columnsOptions = @{
+    FixedWidth = @(0, 0, 17)
+    CollapseBelow = 90
+    Content = {
+        $panelOptions3 = @{
+            Title = 'Failures'
+            Weight = 1.5
+            Content = {
+                $tableOptions2 = @{
+                    Live = $true
+                    WidgetId = 'failures'
+                    Property = @('Server', 'Check')
+                }
+                New-ConsoleTable @tableOptions2
+            }
+        }
+        New-ConsolePanel @panelOptions3
+        $panelOptions2 = @{
+            Title = 'Slowest'
+            Content = {
+                $tableOptions = @{
+                    Live = $true
+                    WidgetId = 'slowest'
+                    Property = @('Check', 'Took')
+                }
+                New-ConsoleTable @tableOptions
+            }
+        }
+        New-ConsolePanel @panelOptions2
+        $panelOptions = @{
+            Title = 'Durations'
+            Content = {
+                $chartOptions = @{
+                    WidgetId = 'durations'
+                    Height = 5
+                    Type = 'Histogram'
+                    Edges = @(0, 2, 4, 8)
+                }
+                New-ConsoleChart @chartOptions
+            }
+        }
+        New-ConsolePanel @panelOptions
+    }
 }
+New-ConsoleColumns @columnsOptions
 ```
 
-Two tables sharing the width and a histogram 17 cells wide, stacking below 90 cells
+Keep the histogram at 17 cells and distribute the rest of the width between the two tables. FixedWidth is indexed in the order that Content emits its children: 0 leaves Failures and Slowest on their weighted shares, and 17 fixes Durations. Below 90 cells, CollapseBelow stacks the three children vertically.
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'event-log-summary' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleColumns in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

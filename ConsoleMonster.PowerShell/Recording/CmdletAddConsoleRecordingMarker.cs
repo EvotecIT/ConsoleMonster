@@ -5,7 +5,11 @@ using ConsoleMonster.Export;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Adds a chapter or an export hold to a recorded terminal session.</summary>
     /// <remarks><para>Inside a recorded child shell, sends an OSC marker to the parent recorder. The marker becomes an asciicast v2 event and an HTML chapter. In-process fallback records the chapter directly.</para></remarks>
-    /// <example><para>Mark a deployment step</para><code>Add-ConsoleRecordingMarker 'Deploy'</code></example>
+    /// <example><para>Mark a deployment step</para><code>
+    /// $recordingMarkerOptions = @{
+    ///     Label = 'Deploy'
+    /// }
+    /// Add-ConsoleRecordingMarker @recordingMarkerOptions</code></example>
     /// <example><para>Hold this screen during export without waiting while recording</para><code>Add-ConsoleRecordingMarker -HoldSeconds 3</code></example>
     [Cmdlet(VerbsCommon.Add, "ConsoleRecordingMarker", HelpUri = "https://consolemonster.dev/powershell/commands/add-consolerecordingmarker/")]
     public sealed class CmdletAddConsoleRecordingMarker : NoPipelineInputCmdlet {

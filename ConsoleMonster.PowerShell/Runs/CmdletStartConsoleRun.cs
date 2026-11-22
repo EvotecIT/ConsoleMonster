@@ -13,21 +13,61 @@ namespace ConsoleMonster.PowerShell {
     /// <para type="description">Declares the queued items and returns a LiveRun handle. Use Update-Console as workers start or finish and Complete-ConsoleRun in a finally block. Finished items stream above the live dashboard; failures and warnings remain pinned. The dashboard uses at most 40 percent of terminal height by default. CI and redirected hosts use append-only lines with periodic totals. This command does not execute work or change its results or exit code. Name, Target and Group accept property names or script blocks evaluated once, before the session starts. Interactive keys are opt-in: p pauses the log, f filters it to problems, g toggles groups, and ? shows help.</para></remarks>
     /// <example>
     /// <para>Track file inspections without modifying the files</para>
-    /// <code>$files = @(Get-ChildItem -File | Select-Object -First 5)
-    /// $run = Start-ConsoleRun -InputObject $files -Title 'Inspect files' -Label Name -Target DirectoryName
+    /// <code>
+    /// $files = @(Get-ChildItem -File | Select-Object -First 5)
+    /// $runOptions2 = @{
+    ///     InputObject = $files
+    ///     Title = 'Inspect files'
+    ///     Label = 'Name'
+    ///     Target = 'DirectoryName'
+    /// }
+    /// $run = Start-ConsoleRun @runOptions2
     /// try {
     ///     for ($i = 0; $i -lt $files.Count; $i++) {
-    ///         Update-Console -Run $run -Index $i -Status Running
-    ///         Update-Console -Run $run -Index $i -Status Pass -Detail "$($files[$i].Length) bytes"
+    ///         $updateConsoleOptions2 = @{
+    ///             Run = $run
+    ///             Index = $i
+    ///             Status = 'Running'
+    ///         }
+    ///         Update-Console @updateConsoleOptions2
+    ///         $updateConsoleOptions = @{
+    ///             Run = $run
+    ///             Index = $i
+    ///             Status = 'Pass'
+    ///             Detail = "$($files[$i].Length) bytes"
+    ///         }
+    ///         Update-Console @updateConsoleOptions
     ///     }
-    /// } finally { Complete-ConsoleRun $run }</code>
+    /// } finally {
+    ///     $runOptions = @{
+    ///         Run = $run
+    ///     }
+    ///     Complete-ConsoleRun @runOptions
+    /// }</code>
     /// </example>
     /// <example>
     /// <para>Use append-only progress output in CI</para>
-    /// <code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
-    /// $run = Start-ConsoleRun -InputObject $checks -Label Name -Target Server -Group Category -NoLive -ProgressEvery 20
-    /// Update-Console -Run $run -Index 0 -Status Pass
-    /// Complete-ConsoleRun $run</code>
+    /// <code>
+    /// $checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01'; Category = 'Network' })
+    /// $runOptions2 = @{
+    ///     NoLive = $true
+    ///     InputObject = $checks
+    ///     Label = 'Name'
+    ///     Target = 'Server'
+    ///     Group = 'Category'
+    ///     ProgressEvery = 20
+    /// }
+    /// $run = Start-ConsoleRun @runOptions2
+    /// $updateConsoleOptions = @{
+    ///     Run = $run
+    ///     Index = @(0)
+    ///     Status = 'Pass'
+    /// }
+    /// Update-Console @updateConsoleOptions
+    /// $runOptions = @{
+    ///     Run = $run
+    /// }
+    /// Complete-ConsoleRun @runOptions</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Start, "ConsoleRun", HelpUri = "https://consolemonster.dev/powershell/commands/start-consolerun/")]
     [OutputType(typeof(LiveRun))]

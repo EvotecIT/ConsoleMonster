@@ -21,24 +21,62 @@ Write-ConsoleLogEntry [-Message] <Object> [-Level <string>] [-WidgetId <string>]
 
 ### EXAMPLE 1
 ```powershell
-$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }
-Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn }
+$dashboardOptions2 = @{
+    Title = 'Connectivity'
+    Content = { New-ConsoleLogRegion }
+}
+$dashboard = New-ConsoleDashboard @dashboardOptions2
+$dashboardOptions = @{
+    Dashboard = $dashboard
+    ScriptBlock = {
+        $logEntryOptions = @{
+            Message = 'DC03 responded slowly'
+            Level = 'warn'
+        }
+        Write-ConsoleLogEntry @logEntryOptions
+    }
+}
+Invoke-ConsoleDashboard @dashboardOptions
 ```
 
 Log a warning
 
 ### EXAMPLE 2
 ```powershell
-$dashboard = New-ConsoleDashboard -Title 'Patching' -Content { New-ConsoleLogRegion -NoElapsed }
-Invoke-ConsoleDashboard $dashboard {
-    foreach ($server in 'DC01', 'DC02', 'FS01') {
-        Write-ConsoleLogEntry 'Installing KB5044284' -Tag $server
-    }
-    Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'
+$dashboardOptions2 = @{
+    Title = 'Patching'
+    Content = { New-ConsoleLogRegion -NoElapsed }
 }
+$dashboard = New-ConsoleDashboard @dashboardOptions2
+$dashboardOptions = @{
+    Dashboard = $dashboard
+    ScriptBlock = {
+        foreach ($server in 'DC01', 'DC02', 'FS01') {
+            $logEntryOptions2 = @{
+                Message = 'Installing KB5044284'
+                Tag = $server
+            }
+            Write-ConsoleLogEntry @logEntryOptions2
+        }
+        $logEntryOptions = @{
+            Message = 'Reboot pending'
+            Level = 'warn'
+            Tag = 'FS01'
+        }
+        Write-ConsoleLogEntry @logEntryOptions
+    }
+}
+Invoke-ConsoleDashboard @dashboardOptions
 ```
 
 Tag lines with the server they came from
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Write-ConsoleLogEntry in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

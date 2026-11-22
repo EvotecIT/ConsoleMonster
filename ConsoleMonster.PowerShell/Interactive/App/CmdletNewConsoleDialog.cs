@@ -8,13 +8,29 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a typed modal form for the running app's dialog service.</summary>
     /// <remarks><para>Construction does not read input. AppDialogs.Show hosts the form on the owning application thread and returns DialogResult of AppState through its completion callback.</para></remarks>
-    /// <example><para>Define fields for an app-owned dialog.</para><code>New-ConsoleDialog -Title Options -InitialFocus Destination -Content { New-ConsoleTextInput -Key Destination }</code></example>
+    /// <example><para>Define fields for an app-owned dialog.</para><code>
+    /// $dialogOptions = @{
+    ///     Title = 'Options'
+    ///     InitialFocus = 'Destination'
+    ///     Content = { New-ConsoleTextInput -Key Destination }
+    /// }
+    /// New-ConsoleDialog @dialogOptions</code></example>
     /// <example>
     /// <para>Compose an inventory dialog</para>
-    /// <code>Show-ConsoleApp -Content {
-    ///     New-ConsoleDialog -Title 'Inventory result' -Content { New-ConsoleText 'All checks passed' -Role Pass }
-    /// }
-    /// </code>
+    /// <code>
+    /// Show-ConsoleApp -Content {
+    ///     $dialogOptions = @{
+    ///         Title = 'Inventory result'
+    ///         Content = {
+    ///             $textOptions = @{
+    ///                 Text = @('All checks passed')
+    ///                 Role = 'Pass'
+    ///             }
+    ///             New-ConsoleText @textOptions
+    ///         }
+    ///     }
+    ///     New-ConsoleDialog @dialogOptions
+    /// }</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDialog", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledialog/")]
     [OutputType(typeof(FormDialog<AppState>))]

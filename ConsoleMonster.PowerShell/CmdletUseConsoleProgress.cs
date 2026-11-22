@@ -12,16 +12,20 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>An existing loop, unchanged</para>
     ///   <code>
-    /// Use-ConsoleProgress {
-    ///     foreach ($i in 1..50) {
-    ///         Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
-    ///         Start-Sleep -Milliseconds 50
+    /// $progressOptions = @{
+    ///     ScriptBlock = {
+    ///         foreach ($i in 1..50) {
+    ///             Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
+    ///             Start-Sleep -Milliseconds 50
+    ///         }
     ///     }
-    /// }</code>
+    /// }
+    /// Use-ConsoleProgress @progressOptions</code>
     /// </example>
     /// <example>
     /// <para>Return server results and suppress the final progress area</para>
-    /// <code>Use-ConsoleProgress -PrintFinalState:$false {
+    /// <code>
+    /// Use-ConsoleProgress -PrintFinalState:$false {
     ///     foreach ($server in 'web01', 'web02') {
     ///         Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
     ///         [pscustomobject]@{ Server = $server; Result = 'Pass' }

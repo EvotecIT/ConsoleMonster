@@ -26,17 +26,37 @@ The default bar represents a known total. Indeterminate creates a spinner. Updat
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleProgress -Label 'Upload' -Value 64 -Total 100 | Show-Console
+$progressOptions = @{
+    Label = 'Upload'
+    Value = 64
+    Total = 100
+}
+New-ConsoleProgress @progressOptions | Show-Console
 ```
 
 Show completed work
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleProgress resolve -Indeterminate -Label 'Resolving DNS' -Detail 'zone 4' | Show-Console
+$progressOptions = @{
+    Indeterminate = $true
+    WidgetId = 'resolve'
+    Label = 'Resolving DNS'
+    Detail = 'zone 4'
+}
+New-ConsoleProgress @progressOptions | Show-Console
 ```
 
 Show work with no known total
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'pipeline' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'worker-progress' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleProgress in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

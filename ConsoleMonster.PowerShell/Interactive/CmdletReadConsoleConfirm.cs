@@ -14,6 +14,10 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>A typed confirmation before deleting</para>
     ///   <code>if (Read-ConsoleConfirm 'Remove 3 servers from the inventory?' -TypedConfirmation 'inventory' -Warning 'This cannot be undone.') { Write-Host 'Would remove servers from the inventory' }</code>
     /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleConfirm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
+    /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleConfirm", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleconfirm/")]
     [OutputType(typeof(bool))]
     public sealed class CmdletReadConsoleConfirm : NonSelectionPromptCmdlet {

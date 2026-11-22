@@ -26,23 +26,31 @@ Three ways in, one tree out. Nodes: a script block of Label/Children records cal
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleTree '[bold]evotec.xyz[/]' -Content {
-    [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& {
-        [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
-    }) }
-    [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(& {
-        'include:spf.protection.outlook.com'
-        'include:_spf.salesforce.com'
-    }) }
-    [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
-} | Show-Console
+$treeOptions = @{
+    Title = '[bold]evotec.xyz[/]'
+    Content = {
+        [pscustomobject]@{ Label = 'MX'; Status = 'Pass'; Detail = '2 records'; Children = @(& {
+                    [pscustomobject]@{ Label = 'evotec-xyz.mail.protection.outlook.com'; Detail = 'priority 0' }
+                }) }
+        [pscustomobject]@{ Label = 'SPF'; Status = 'Warn'; Detail = '9 of 10 DNS lookups'; Children = @(& {
+                    'include:spf.protection.outlook.com'
+                    'include:_spf.salesforce.com'
+                }) }
+        [pscustomobject]@{ Label = 'DMARC'; Status = 'Fail'; Detail = 'p=none' }
+    }
+}
+New-ConsoleTree @treeOptions | Show-Console
 ```
 
 A mail domain with records and their state
 
 ### EXAMPLE 2
 ```powershell
-Get-Item . | New-ConsoleTree -Children { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } } -Depth 3 | Show-Console
+$treeOptions = @{
+    Children = { if ($_.PSIsContainer) { Get-ChildItem $_.FullName } }
+    Depth = 3
+}
+Get-Item . | New-ConsoleTree @treeOptions | Show-Console
 ```
 
 Folders and files from the pipeline, three levels deep
@@ -51,21 +59,39 @@ Folders and files from the pipeline, three levels deep
 ```powershell
 $groups = @(
     [pscustomobject] @{ Name = 'Domain Admins'; Health = 'Warn'; Note = '6 members'; Members = @(
-        [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }
-        [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }
-    ) }
+            [pscustomobject] @{ Name = 'Tier 0 operators'; Health = 'Pass'; Members = @([pscustomobject] @{ Name = 'anna.k' }) }
+            [pscustomobject] @{ Name = 'svc-backup'; Health = 'Fail'; Note = 'password never expires' }
+        ) }
 )
-$groups | New-ConsoleTree 'Privileged groups' -ChildrenProperty Members -StatusProperty Health -DetailProperty Note | Show-Console
+$treeOptions = @{
+    Title = 'Privileged groups'
+    ChildrenProperty = 'Members'
+    StatusProperty = 'Health'
+    DetailProperty = 'Note'
+}
+$groups | New-ConsoleTree @treeOptions | Show-Console
 ```
 
 Hierarchical objects with a status per node
 
 ### EXAMPLE 4
 ```powershell
-New-ConsoleTree -Title 'evotec.xyz' -InputObject ([ordered] @{ NS = @('dana.ns.cloudflare.com', 'kirk.ns.cloudflare.com'); MX = [ordered] @{ 'mail.protection.outlook.com' = '52.101.68.17' } }) | Show-Console
+$treeOptions = @{
+    Title = 'evotec.xyz'
+    InputObject = ([ordered] @{ NS = @('dana.ns.cloudflare.com', 'kirk.ns.cloudflare.com'); MX = [ordered] @{ 'mail.protection.outlook.com' = '52.101.68.17' } })
+}
+New-ConsoleTree @treeOptions | Show-Console
 ```
 
 A DNS delegation from nested hashtables
+
+### EXAMPLE 5
+```powershell
+Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'query' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleTree in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

@@ -6,18 +6,55 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>-Level sets the tag: info, warn, err, verbose, debug, pass or skip, or PowerShell's words (Information, Warning, Error, Success...). Errors, warnings, passes and skips carry a status marker; only warnings and errors are coloured. Write-Host in a dashboard runspace reaches the same log automatically.</para></remarks>
     /// <example>
     ///   <para>Log a warning</para>
-    ///   <code>$dashboard = New-ConsoleDashboard -Title 'Connectivity' -Content { New-ConsoleLogRegion }
-    /// Invoke-ConsoleDashboard $dashboard { Write-ConsoleLogEntry 'DC03 responded slowly' -Level warn }</code>
+    ///   <code>
+    /// $dashboardOptions2 = @{
+    ///     Title = 'Connectivity'
+    ///     Content = { New-ConsoleLogRegion }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ScriptBlock = {
+    ///         $logEntryOptions = @{
+    ///             Message = 'DC03 responded slowly'
+    ///             Level = 'warn'
+    ///         }
+    ///         Write-ConsoleLogEntry @logEntryOptions
+    ///     }
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
     /// </example>
     /// <example>
     ///   <para>Tag lines with the server they came from</para>
-    ///   <code>$dashboard = New-ConsoleDashboard -Title 'Patching' -Content { New-ConsoleLogRegion -NoElapsed }
-    /// Invoke-ConsoleDashboard $dashboard {
-    ///     foreach ($server in 'DC01', 'DC02', 'FS01') {
-    ///         Write-ConsoleLogEntry 'Installing KB5044284' -Tag $server
+    ///   <code>
+    /// $dashboardOptions2 = @{
+    ///     Title = 'Patching'
+    ///     Content = { New-ConsoleLogRegion -NoElapsed }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions2
+    /// $dashboardOptions = @{
+    ///     Dashboard = $dashboard
+    ///     ScriptBlock = {
+    ///         foreach ($server in 'DC01', 'DC02', 'FS01') {
+    ///             $logEntryOptions2 = @{
+    ///                 Message = 'Installing KB5044284'
+    ///                 Tag = $server
+    ///             }
+    ///             Write-ConsoleLogEntry @logEntryOptions2
+    ///         }
+    ///         $logEntryOptions = @{
+    ///             Message = 'Reboot pending'
+    ///             Level = 'warn'
+    ///             Tag = 'FS01'
+    ///         }
+    ///         Write-ConsoleLogEntry @logEntryOptions
     ///     }
-    ///     Write-ConsoleLogEntry 'Reboot pending' -Level warn -Tag 'FS01'
-    /// }</code>
+    /// }
+    /// Invoke-ConsoleDashboard @dashboardOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Write-ConsoleLogEntry in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Write, "ConsoleLogEntry", HelpUri = "https://consolemonster.dev/powershell/commands/write-consolelogentry/")]
     public sealed class CmdletWriteConsoleLogEntry : LiveCmdlet {

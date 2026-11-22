@@ -21,21 +21,46 @@ Sets Theme, Color, Glyphs, Border, Density, StatusMarkers, Motion, Mouse, Access
 
 ### EXAMPLE 1
 ```powershell
-Set-ConsoleSetting Theme ColorBlindSafe -Save
+$settingOptions = @{
+    Save = $true
+    Name = 'Theme'
+    Value = 'ColorBlindSafe'
+}
+Set-ConsoleSetting @settingOptions
 ```
 
 Use the colour-blind-safe theme from now on
 
 ### EXAMPLE 2
 ```powershell
-Set-ConsoleSetting Motion Reduced; Set-ConsoleSetting Mouse Off
+$settingOptions2 = @{
+    Name = 'Motion'
+    Value = 'Reduced'
+}
+Set-ConsoleSetting @settingOptions2;
+$settingOptions = @{
+    Name = 'Mouse'
+    Value = 'Off'
+}
+Set-ConsoleSetting @settingOptions
 ```
 
 Keep animations still and leave the mouse to the terminal, for this session only
 
 ### EXAMPLE 3
 ```powershell
-Set-ConsoleSetting Border Single -Save; Set-ConsoleSetting StatusMarkers Words -Save
+$settingOptions2 = @{
+    Save = $true
+    Name = 'Border'
+    Value = 'Single'
+}
+Set-ConsoleSetting @settingOptions2;
+$settingOptions = @{
+    Save = $true
+    Name = 'StatusMarkers'
+    Value = 'Words'
+}
+Set-ConsoleSetting @settingOptions
 ```
 
 Square frames and status words instead of symbols, from now on
@@ -43,7 +68,12 @@ Square frames and status words instead of symbols, from now on
 ### EXAMPLE 4
 ```powershell
 # Requires an existing team-theme.json file, for example from Export-ConsoleTheme.
-            Set-ConsoleSetting Theme ./team-theme.json -Save
+$settingOptions = @{
+    Save = $true
+    Name = 'Theme'
+    Value = './team-theme.json'
+}
+Set-ConsoleSetting @settingOptions
 ```
 
 Use a team theme file in every session

@@ -11,18 +11,58 @@ using ConsoleMonster.Replay;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Rewinds a recorded run: an in-terminal player with a timeline, markers, failures, warnings and log search.</summary>
-    /// <remarks><para>Plays a recording (written by Invoke-ConsoleDashboard -RecordingPath or -AutoRecord) into the same dashboard and lets you move through it: space plays and pauses, left and right step frame by frame, + and - change the speed, PgUp and PgDn scrub, Home and End jump to the ends, n/p jump to the next or previous marker, f/F to failures, w/W to warnings, l/L to log entries, and / searches the log text (Enter for the next match). The replay timeline includes markers already present in the dashboard recording. Without -RecordingPath the newest automatic recording is played. Without an interactive console the markers are printed as lines.</para></remarks>
+    /// <remarks>
+    /// <para>Plays a dashboard recording created with RecordingPath or AutoRecord on Invoke-ConsoleDashboard. Without RecordingPath, it uses the newest automatic recording.</para>
+    /// <para>Replay player
+    /// -------------</para>
+    /// <para>The player displays the reconstructed dashboard and a timeline with the recording's markers. Space plays or pauses. Left and Right step through frames, PgUp and PgDn scrub, Home and End jump to the ends, and + or - changes speed. Use n or p for the next or previous marker, f or Shift+F for failures, w or Shift+W for warnings, and l or Shift+L for log entries. Press / to search log text and Enter for the next match. Press q to close the player. Inline places it below the current cursor.</para>
+    /// <para>Unattended playback and marker output
+    /// -------------------------------------</para>
+    /// <para>PlaybackMode Automatic replays without reading keys. When interactive playback is requested in a session without an interactive console, the command prints the markers as lines.</para>
+    /// </remarks>
     /// <example>
     /// <para>Play an existing matching dashboard recording</para>
-    /// <code># Requires build.jsonl recorded with this dashboard definition.
-    /// $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl</code>
+    /// <code>
+    /// # Requires build.jsonl recorded with this dashboard definition.
+    /// $dashboardOptions = @{
+    ///     Title = 'Build'
+    ///     Content = {
+    ///         $statusListOptions = @{
+    ///             WidgetId = 'steps'
+    ///             Content = { 'Compile' }
+    ///         }
+    ///         New-ConsoleStatusList @statusListOptions
+    ///     }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions
+    /// $replayOptions = @{
+    ///     Dashboard = $dashboard
+    ///     RecordingPath = './build.jsonl'
+    /// }
+    /// Show-ConsoleReplay @replayOptions</code>
     /// </example>
     /// <example>
-    /// <para>Start an existing recording inline and paused</para>
-    /// <code># Requires build.jsonl recorded with this dashboard definition.
-    /// $dashboard = New-ConsoleDashboard -Title Build -Content { New-ConsoleStatusList -WidgetId steps -Content { 'Compile' } }
-    /// Show-ConsoleReplay -Dashboard $dashboard -RecordingPath ./build.jsonl -Inline -AutoPlay:$false</code>
+    /// <para>Open an existing recording inline and paused. Press Right to step one frame, Space to play or pause, and q to close the player.</para>
+    /// <code>
+    /// # Requires build.jsonl recorded with this dashboard definition.
+    /// $dashboardOptions = @{
+    ///     Title = 'Build'
+    ///     Content = {
+    ///         $statusListOptions = @{
+    ///             WidgetId = 'steps'
+    ///             Content = { 'Compile' }
+    ///         }
+    ///         New-ConsoleStatusList @statusListOptions
+    ///     }
+    /// }
+    /// $dashboard = New-ConsoleDashboard @dashboardOptions
+    /// $replayOptions = @{
+    ///     Inline = $true
+    ///     AutoPlay = $false
+    ///     Dashboard = $dashboard
+    ///     RecordingPath = './build.jsonl'
+    /// }
+    /// Show-ConsoleReplay @replayOptions</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleReplay", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolereplay/")]
     public sealed partial class CmdletShowConsoleReplay : NoPipelineInputCmdlet {

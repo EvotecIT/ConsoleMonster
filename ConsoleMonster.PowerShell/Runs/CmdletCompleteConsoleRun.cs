@@ -8,19 +8,48 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Marks unfinished items skipped, releases held log lines, restores the terminal and prints totals, groups, full wrapped problems and the report path. Safe to call more than once. If deferred host output cannot finish within five seconds, reports a timeout and retains it for a later call. Put it in finally so cancellation or errors restore the terminal. PassThru returns the structured snapshot; ordinary results and the script's exit code are unchanged.</para></remarks>
     /// <example>
     /// <para>Return a structured summary of a completed run</para>
-    /// <code>$checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
-    /// $run = Start-ConsoleRun -InputObject $checks -Label Name -NoLive
-    /// Update-Console -Run $run -Index 0 -Status Fail -Detail 'Sample failure'
-    /// $summary = Complete-ConsoleRun $run -PassThru
+    /// <code>
+    /// $checks = @([pscustomobject]@{ Name = 'DNS'; Server = 'web01' })
+    /// $runOptions2 = @{
+    ///     NoLive = $true
+    ///     InputObject = $checks
+    ///     Label = 'Name'
+    /// }
+    /// $run = Start-ConsoleRun @runOptions2
+    /// $updateConsoleOptions = @{
+    ///     Run = $run
+    ///     Index = @(0)
+    ///     Status = 'Fail'
+    ///     Detail = 'Sample failure'
+    /// }
+    /// Update-Console @updateConsoleOptions
+    /// $runOptions = @{
+    ///     PassThru = $true
+    ///     Run = $run
+    /// }
+    /// $summary = Complete-ConsoleRun @runOptions
     /// $summary.Items | Where-Object Status -eq Fail</code>
     /// </example>
     /// <example>
     /// <para>Finish a run even when inspection fails</para>
-    /// <code>$servers = @([pscustomobject]@{ Name = 'web01' })
-    /// $run = Start-ConsoleRun -InputObject $servers -Label Name -Title 'Inspect inventory'
-    /// try { Update-Console -Run $run -Index 0 -Status Pass -Detail 'Inventory read' }
-    /// finally { Complete-ConsoleRun -Run $run }
-    /// </code>
+    /// <code>
+    /// $servers = @([pscustomobject]@{ Name = 'web01' })
+    /// $runOptions = @{
+    ///     InputObject = $servers
+    ///     Label = 'Name'
+    ///     Title = 'Inspect inventory'
+    /// }
+    /// $run = Start-ConsoleRun @runOptions
+    /// try {
+    ///     $updateConsoleOptions = @{
+    ///         Run = $run
+    ///         Index = @(0)
+    ///         Status = 'Pass'
+    ///         Detail = 'Inventory read'
+    ///     }
+    ///     Update-Console @updateConsoleOptions
+    /// }
+    /// finally { Complete-ConsoleRun -Run $run }</code>
     /// </example>
     [Cmdlet(VerbsLifecycle.Complete, "ConsoleRun", HelpUri = "https://consolemonster.dev/powershell/commands/complete-consolerun/")]
     [OutputType(typeof(RunSnapshot))]

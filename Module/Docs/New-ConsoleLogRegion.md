@@ -21,32 +21,55 @@ Printed once, the lines come from a script block of Message/Level records calls 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleLogRegion -Height 5 -Content {
-    [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
-    [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }
-    [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
-} | Show-Console
+$logRegionOptions = @{
+    Height = 5
+    Content = {
+        [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
+        [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }
+        [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
+    }
+}
+New-ConsoleLogRegion @logRegionOptions | Show-Console
 ```
 
 A short log printed once
 
 ### EXAMPLE 2
 ```powershell
-New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }
+$panelOptions = @{
+    Fill = $true
+    Title = 'Log'
+    Content = { New-ConsoleLogRegion }
+}
+New-ConsolePanel @panelOptions
 ```
 
 A log that fills the rest of a dashboard
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleLogRegion -Tag 'sql-index' -Level Warn -NoElapsed -Content {
-    @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }
-    @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }
-    @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }
-} | Show-Console
+$logRegionOptions = @{
+    NoElapsed = $true
+    Tag = 'sql-index'
+    Level = 'Warn'
+    Content = {
+        @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }
+        @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }
+        @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }
+    }
+}
+New-ConsoleLogRegion @logRegionOptions | Show-Console
 ```
 
 Only warnings and errors from one job
+
+### EXAMPLE 4
+```powershell
+Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleLogRegion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

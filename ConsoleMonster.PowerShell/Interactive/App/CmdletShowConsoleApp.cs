@@ -12,34 +12,78 @@ using ConsoleMonster.Styling;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs native input controls and dependent displays in a console application.</summary>
-    /// <remarks><para>Builds the layout once, then runs input synchronously on the caller's PowerShell thread. Callbacks are queued by controls and drained before input reads; dependent builders and key bindings run on that same thread. Adjacent New-ConsoleScreen commands make a screen stack. The footer lists the keys that work: the focused input's, the current screen's and -KeyBinding. Escape exits from the first screen. Cancellation restores the terminal through the core runner. Redirected output, CI and non-interactive sessions print initialized values once. Use -Mode Snapshot to request that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects an initialized snapshot when no input source is supplied; CONSOLEMONSTER_INPUT supplies scripted keys centrally. Nothing is sent to the pipeline unless -PassThru requests one ordinary hashtable.</para></remarks>
+    /// <remarks>
+    /// <para>Show-ConsoleApp builds the layout once. Input, control callbacks, dependent builders and key bindings run on the caller's PowerShell thread.</para>
+    /// <para>App screens
+    /// -----------</para>
+    /// <para>Adjacent New-ConsoleScreen commands form a screen stack. The footer shows keys available to the focused control, the current screen and the app, including keys supplied through KeyBinding. Escape exits from the first screen. Cancellation restores the terminal. Use PassThru to receive the final app state as one ordinary hashtable when the app exits.</para>
+    /// <para>Static snapshot
+    /// ---------------</para>
+    /// <para>Redirected output, CI and non-interactive sessions render the initialized app once. Mode Snapshot requests that view explicitly. CONSOLEMONSTER_SNAPSHOT=1 also selects it when there is no input source. CONSOLEMONSTER_INPUT supplies scripted keys for an app run.</para>
+    /// </remarks>
     /// <example>
     /// <para>Filter application data without leaving PowerShell</para>
-    /// <code>$servers = @(
+    /// <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn' }
     /// )
-    /// Show-ConsoleApp -Content {
-    ///     New-ConsoleTextInput -Key Query -OnChange { param($Value, $State) $State.Edits = 1 + $State.Edits }
-    ///     New-ConsoleTable -Bind { $servers | Where-Object Name -Like "*$($State.Query)*" } -Property Name, Status
-    ///     New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
-    /// } -PassThru</code>
+    /// $appOptions = @{
+    ///     PassThru = $true
+    ///     Content = {
+    ///         $textInputOptions = @{
+    ///             Key = 'Query'
+    ///             OnChange = { param($Value, $State) $State.Edits = 1 + $State.Edits }
+    ///         }
+    ///         New-ConsoleTextInput @textInputOptions
+    ///         $tableOptions = @{
+    ///             Bind = { $servers | Where-Object Name -Like "*$($State.Query)*" }
+    ///             Property = @('Name', 'Status')
+    ///         }
+    ///         New-ConsoleTable @tableOptions
+    ///         New-ConsoleBinding -Content { "Edits: $($State.Edits)" }
+    ///     }
+    /// }
+    /// Show-ConsoleApp @appOptions</code>
     /// </example>
     /// <example>
     /// <para>Add app-wide keys; the footer lists them</para>
-    /// <code>Show-ConsoleApp -Title Counter -KeyBinding ([ordered]@{
-    ///     '+' = 'add', { param($State) $State.Count = 1 + $State.Count }
-    ///     r = 'reset', { param($State) $State.Count = 0 }
-    /// }) -Content {
-    ///     New-ConsoleBinding -Content { "Count: $([int] $State.Count)" }
-    /// } -PassThru</code>
+    /// <code>
+    /// $appOptions = @{
+    ///     PassThru = $true
+    ///     Title = 'Counter'
+    ///     KeyBinding = ([ordered]@{
+    ///             '+' = 'add', { param($State) $State.Count = 1 + $State.Count }
+    ///             r = 'reset', { param($State) $State.Count = 0 }
+    ///         })
+    ///     Content = {
+    ///         New-ConsoleBinding -Content { "Count: $([int] $State.Count)" }
+    ///     }
+    /// }
+    /// Show-ConsoleApp @appOptions</code>
     /// </example>
     /// <example>
     /// <para>Print initialized values without reading keyboard input</para>
-    /// <code>Show-ConsoleApp -Mode Snapshot -Content {
-    ///     New-ConsoleTextInput -Key Query -Value 'web'
-    ///     New-ConsoleBinding -Content { "Query: $($State.Query)" }
-    /// } -PassThru</code>
+    /// <code>
+    /// $appOptions = @{
+    ///     PassThru = $true
+    ///     Mode = 'Snapshot'
+    ///     Content = {
+    ///         $textInputOptions = @{
+    ///             Key = 'Query'
+    ///             Value = 'web'
+    ///         }
+    ///         New-ConsoleTextInput @textInputOptions
+    ///         New-ConsoleBinding -Content { "Query: $($State.Query)" }
+    ///     }
+    /// }
+    /// Show-ConsoleApp @appOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see Show-ConsoleApp in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'help-sections' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleApp", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoleapp/")]
     [OutputType(typeof(Hashtable))]

@@ -7,8 +7,30 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Builds a diagram from a script block or connection rows.</summary>
     /// <remarks><para>Emit New-ConsoleDiagramNode, Link, Group and UseCase objects in Content. A node's label is its id unless Id is given. Pipeline rows use From, To, Label, Status and Group; selectors accept property names or script blocks using $_. Connections create undeclared endpoints. Graphics is optional for C#; the module includes it and registers its renderer.</para></remarks>
-    /// <example><para>A home network.</para><code>New-ConsoleDiagram -Title 'Home' { New-ConsoleDiagramNode Laptop -To Router; New-ConsoleDiagramNode Router -Kind Gateway } | Show-Console</code></example>
-    /// <example><para>Connection rows.</para><code>$rows | New-ConsoleDiagram -Title 'Replication' -From Source -To Destination</code></example>
+    /// <example><para>A home network.</para><code>
+    /// $diagramOptions = @{
+    ///     Title = 'Home'
+    ///     Content = {
+    ///         $diagramNodeOptions2 = @{
+    ///             Label = 'Laptop'
+    ///             To = @('Router')
+    ///         }
+    ///         New-ConsoleDiagramNode @diagramNodeOptions2;
+    ///         $diagramNodeOptions = @{
+    ///             Label = 'Router'
+    ///             Kind = 'Gateway'
+    ///         }
+    ///         New-ConsoleDiagramNode @diagramNodeOptions
+    ///     }
+    /// }
+    /// New-ConsoleDiagram @diagramOptions | Show-Console</code></example>
+    /// <example><para>Connection rows.</para><code>
+    /// $diagramOptions = @{
+    ///     Title = 'Replication'
+    ///     From = 'Source'
+    ///     To = 'Destination'
+    /// }
+    /// $rows | New-ConsoleDiagram @diagramOptions</code></example>
     [Cmdlet(VerbsCommon.New, "ConsoleDiagram", DefaultParameterSetName = "Rows", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolediagram/")]
     [OutputType(typeof(Diagram))]
     public sealed class CmdletNewConsoleDiagram : DiagramContentCmdlet {

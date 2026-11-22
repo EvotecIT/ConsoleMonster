@@ -15,21 +15,40 @@ Show-ConsolePresentation [-ScriptPath] <string> [-Path <string>] [-Width <int>] 
 ```
 
 ## DESCRIPTION
-Enter types and runs; Space types without running; b moves back without undoing side effects; s skips; q quits. The terminal title shows the step counter. ScriptPath selects the input demo script. Optional -Path saves the same child output as asciicast; without it temporary capture files are removed on exit. Stop or cancellation terminates only the owned child and restores the title.
+ScriptPath selects the demo script that runs in a child PowerShell process.
+
+Step-through presentation
+-------------------------
+
+Run without Path to control the steps from the terminal. Enter types and runs the current command. Space types it without running it, b moves back, s skips a step and q quits. The title shows the step counter. Moving back preserves effects from commands already run. Stop or cancellation ends the owned child process and restores the terminal title. Temporary capture files are removed on exit.
+
+Unattended recording
+--------------------
+
+Supplying Path runs the complete presentation unattended, saves the child output as an asciicast, and returns a FileInfo for the recording.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 # WhatIf previews the operation without executing the script or writing the recording.
-            Show-ConsolePresentation -ScriptPath ./demo.ps1 -Path ./talk.cast -WhatIf
+$presentationOptions = @{
+    WhatIf = $true
+    ScriptPath = './demo.ps1'
+    Path = './talk.cast'
+}
+Show-ConsolePresentation @presentationOptions
 ```
 
 Preview presenting and recording a demo script
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsolePresentation -ScriptPath ./inventory-demo.ps1 -WhatIf
+$presentationOptions = @{
+    WhatIf = $true
+    ScriptPath = './inventory-demo.ps1'
+}
+Show-ConsolePresentation @presentationOptions
 ```
 
 Preview presenting an inventory demonstration

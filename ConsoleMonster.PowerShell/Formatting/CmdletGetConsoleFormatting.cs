@@ -6,11 +6,16 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Returns the enabled feature names, whether compact errors are enabled, and whether built-in views are included. A refused installation is not reported as enabled. AddOptIns shows how to add Help, Prompt, Progress or GridView.</para></remarks>
     /// <example>
     /// <para>Inspect the current session's formatting</para>
-    /// <code>Enable-ConsoleFormatting -Include Help; Get-ConsoleFormatting</code>
+    /// <code>
+    /// $formattingOptions = @{
+    ///     Include = @('Help')
+    /// }
+    /// Enable-ConsoleFormatting @formattingOptions; Get-ConsoleFormatting</code>
     /// </example>
     /// <example>
     /// <para>Inspect which formatting features are enabled</para>
-    /// <code>Get-ConsoleFormatting | Select-Object Feature, Enabled | Show-ConsoleTable
+    /// <code>
+    /// Get-ConsoleFormatting | Select-Object Features, ErrorLayout, BuiltIn | Show-ConsoleTable
     /// </code>
     /// </example>
     [Cmdlet(VerbsCommon.Get, "ConsoleFormatting", HelpUri = "https://consolemonster.dev/powershell/commands/get-consoleformatting/")]

@@ -25,7 +25,22 @@ Show-Console -Content <Object> [-View <string>] [-Property <Object[]>] [-GroupBy
 ```
 
 ## DESCRIPTION
-Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields; Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets. AsWidget returns a view for layout or Export-ConsoleFrame; PassThru returns the original objects after showing them.
+Pipe objects to choose a view automatically, or use View for a table, list, object tree, source code, JSON, error or Markdown. Property chooses fields and Width sets the available space. Use New-ConsoleChart, New-ConsoleRule and New-ConsoleTree to construct those widgets.
+
+Markdown document viewer
+------------------------
+
+When Markdown with headings exceeds the screen height and goes directly to a rich terminal, the document viewer opens. It shows an outline and lets you fold sections. Press Ctrl+K to jump to a heading, / or Ctrl+F to search, and q to return to PowerShell.
+
+Markdown pager
+--------------
+
+Long Markdown without headings uses a scrolling pager in the same terminal conditions. Use Up and Down to scroll, PgUp and PgDn to move a page, and Home or End to jump to either end. Press / or Ctrl+F to search. After closing the search bar, use n and Shift+N to move between matches. Press q to return to PowerShell.
+
+Direct output and widget output
+-------------------------------
+
+Use NoPager to print Markdown directly. Short Markdown and output routed away from the interactive terminal also use direct output. AsWidget returns the view for composition or export. PassThru returns the original objects on the direct rendering path.
 
 ## EXAMPLES
 
@@ -38,23 +53,38 @@ Show a few running processes
 
 ### EXAMPLE 2
 ```powershell
-Get-Process | Select-Object -First 3 | Show-Console -View List -Property ProcessName, Id, WorkingSet64
+$showConsoleOptions = @{
+    View = 'List'
+    Property = @('ProcessName', 'Id', 'WorkingSet64')
+}
+Get-Process | Select-Object -First 3 | Show-Console @showConsoleOptions
 ```
 
 Read selected fields as a list
 
 ### EXAMPLE 3
 ```powershell
-Get-Item . | Show-Console -View Tree -Depth 1 -Property Name, FullName, LastWriteTime
+$showConsoleOptions = @{
+    View = 'Tree'
+    Depth = 1
+    Property = @('Name', 'FullName', 'LastWriteTime')
+}
+Get-Item . | Show-Console @showConsoleOptions
 ```
 
 Inspect a file object's members with a bounded tree
 
 ### EXAMPLE 4
 ```powershell
-Show-Console -View Code -Language PowerShell -LineNumbers -Content {
-    'Get-Process | Select-Object -First 5'
+$showConsoleOptions = @{
+    LineNumbers = $true
+    View = 'Code'
+    Language = 'PowerShell'
+    Content = {
+        'Get-Process | Select-Object -First 5'
+    }
 }
+Show-Console @showConsoleOptions
 ```
 
 Show a PowerShell snippet with line numbers
@@ -62,12 +92,24 @@ Show a PowerShell snippet with line numbers
 ### EXAMPLE 5
 ```powershell
 Show-Console -Content {
-    New-ConsolePanel -Title 'Build summary' -Content {
-        New-ConsoleRows -Gap 1 -Content {
-            New-ConsoleText 'All checks passed' -Role Pass
-            New-ConsoleRule -Title 'Ready to review'
+    $panelOptions = @{
+        Title = 'Build summary'
+        Content = {
+            $rowsOptions = @{
+                Gap = 1
+                Content = {
+                    $textOptions = @{
+                        Text = @('All checks passed')
+                        Role = 'Pass'
+                    }
+                    New-ConsoleText @textOptions
+                    New-ConsoleRule -Title 'Ready to review'
+                }
+            }
+            New-ConsoleRows @rowsOptions
         }
     }
+    New-ConsolePanel @panelOptions
 }
 ```
 
@@ -75,12 +117,41 @@ Compose a panel with native PowerShell script blocks
 
 ### EXAMPLE 6
 ```powershell
+$showConsoleOptions = @{
+    AsWidget = $true
+    View = 'List'
+    Property = @('ProcessName', 'Id')
+}
 Get-Process | Select-Object -First 3 |
-                Show-Console -View List -Property ProcessName, Id -AsWidget |
-                Export-ConsoleFrame -Format Text
+    Show-Console @showConsoleOptions |
+    Export-ConsoleFrame -Format Text
 ```
 
 Return a plain-text document for another pipeline command
+
+### EXAMPLE 7
+```powershell
+$markdown = @(
+    '# Plan'
+    ''
+    1..60 | ForEach-Object { "- Planned check $_" }
+    ''
+    '# Results'
+    ''
+    1..60 | ForEach-Object { "- Result $_" }
+) -join [Environment]::NewLine
+$markdown | Show-Console -View Markdown
+```
+
+Open a Markdown document with two headings. If it exceeds the terminal height, press Ctrl+K to jump to Results, then press q to return to PowerShell. Use NoPager to print the same document directly.
+
+### EXAMPLE 8
+```powershell
+Get-ConsoleDemo -Slug 'welcome-compact' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see Show-Console in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

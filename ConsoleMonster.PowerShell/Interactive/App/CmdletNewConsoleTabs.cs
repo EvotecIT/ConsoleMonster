@@ -9,19 +9,55 @@ using ConsoleMonster.Widgets;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates retained tabs with keyboard and pointer navigation.</summary>
     /// <remarks><para>Content emits records with Title and Content, or an ordered dictionary mapping page titles to widgets or script blocks. A dictionary containing both Title and Content is a page record, including when Content is null. Only the selected page receives input; switching pages retains its values and focus. With -Key, the app state holds the active page's title under that key, and -OnChange runs when the page changes.</para></remarks>
-    /// <example><para>Compose two retained pages.</para><code>Show-ConsoleApp -Mode Snapshot -Content {
-    ///     New-ConsoleTabs -Key Page -Content ([ordered]@{
-    ///         Search = { New-ConsoleTextInput -Key Query }
-    ///         About = { New-ConsoleText 'Inventory browser' }
-    ///     })
-    /// }</code></example>
+    /// <example><para>Compose two retained pages.</para><code>
+    /// $appOptions = @{
+    ///     Mode = 'Snapshot'
+    ///     Content = {
+    ///         $tabsOptions = @{
+    ///             Key = 'Page'
+    ///             Content = ([ordered]@{
+    ///                     Search = { New-ConsoleTextInput -Key Query }
+    ///                     About = {
+    ///                         $textOptions = @{
+    ///                             Text = @('Inventory browser')
+    ///                         }
+    ///                         New-ConsoleText @textOptions
+    ///                     }
+    ///                 })
+    ///         }
+    ///         New-ConsoleTabs @tabsOptions
+    ///     }
+    /// }
+    /// Show-ConsoleApp @appOptions</code></example>
     /// <example>
     /// <para>Compose two retained inventory pages</para>
-    /// <code>New-ConsoleTabs -Key inventory -Content ([ordered]@{
-    ///     Servers = { [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console -View List -AsWidget }
-    ///     Summary = { New-ConsoleText 'One server online' -Role Pass }
-    /// }) | Show-Console
-    /// </code>
+    /// <code>
+    /// $tabsOptions = @{
+    ///     Key = 'inventory'
+    ///     Content = ([ordered]@{
+    ///             Servers = {
+    ///                 $showConsoleOptions = @{
+    ///                     AsWidget = $true
+    ///                     View = 'List'
+    ///                 }
+    ///                 [pscustomobject]@{ Name = 'web01'; State = 'Online' } | Show-Console @showConsoleOptions
+    ///             }
+    ///             Summary = {
+    ///                 $textOptions = @{
+    ///                     Text = @('One server online')
+    ///                     Role = 'Pass'
+    ///                 }
+    ///                 New-ConsoleText @textOptions
+    ///             }
+    ///         })
+    /// }
+    /// New-ConsoleTabs @tabsOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleTabs in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTabs", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletabs/")]
     [OutputType(typeof(Tabs))]

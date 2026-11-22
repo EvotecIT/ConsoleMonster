@@ -8,7 +8,12 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Draws real pixels in terminals with an image protocol: Kitty and Ghostty (Kitty graphics), iTerm2 and WezTerm (iTerm2 inline images) and Windows Terminal (Sixel). Other terminals with 256 colours or more get half blocks. Redirected, CI, remote, 16-colour and no-colour output, the ISE and sessions with a transcript running get one line, [image: name WxH]. Get-ConsoleCapability shows the protocol in ImageProtocol. The aspect ratio is always kept. To put an image inside a panel or dashboard, use New-ConsoleImage.</para></remarks>
     /// <example>
     ///   <para>Show a chart 40 cells wide</para>
-    ///   <code>Show-ConsoleImage -Path ./chart.png -Width 40</code>
+    ///   <code>
+    /// $imageOptions = @{
+    ///     Path = './chart.png'
+    ///     Width = 40
+    /// }
+    /// Show-ConsoleImage @imageOptions</code>
     /// </example>
     /// <example>
     ///   <para>Preview every screenshot in a folder</para>
@@ -16,15 +21,32 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>Use half blocks, for example over a connection that drops image sequences</para>
-    ///   <code>Show-ConsoleImage -Path ./logo.png -Width 24 -Protocol HalfBlock</code>
+    ///   <code>
+    /// $imageOptions = @{
+    ///     Path = './logo.png'
+    ///     Width = 24
+    ///     Protocol = 'HalfBlock'
+    /// }
+    /// Show-ConsoleImage @imageOptions</code>
     /// </example>
     /// <example>
     ///   <para>Use Kitty graphics in a terminal that supports it but isn't detected</para>
-    ///   <code>Show-ConsoleImage -Path ./diagram.png -Protocol Kitty</code>
+    ///   <code>
+    /// $imageOptions = @{
+    ///     Path = './diagram.png'
+    ///     Protocol = 'Kitty'
+    /// }
+    /// Show-ConsoleImage @imageOptions</code>
     /// </example>
     /// <example>
     ///   <para>Show an image from an open stream, leaving it open for the caller</para>
-    ///   <code>Show-ConsoleImage -Bytes $stream -Label 'Chart' -Width 40</code>
+    ///   <code>
+    /// $imageOptions = @{
+    ///     Bytes = $stream
+    ///     Label = 'Chart'
+    ///     Width = 40
+    /// }
+    /// Show-ConsoleImage @imageOptions</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleImage", DefaultParameterSetName = "Path", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoleimage/")]
     public sealed class CmdletShowConsoleImage : ConsoleImageCommand {

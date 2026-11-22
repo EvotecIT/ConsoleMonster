@@ -13,7 +13,19 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Export an SVG with a dark window frame</para>
-    /// <code>New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -ChromeStyle MacOS</code>
+    /// <code>
+    /// $frameOptions = @{
+    ///     Format = 'Svg'
+    ///     Width = 120
+    ///     Height = 36
+    ///     Theme = 'Dark'
+    ///     Title = 'Nightly run'
+    ///     ChromeStyle = 'MacOS'
+    /// }
+    /// $textOptions = @{
+    ///     Text = @('Nightly run')
+    /// }
+    /// New-ConsoleText @textOptions | Export-ConsoleFrame @frameOptions</code>
     /// </example>
     [Cmdlet(VerbsData.Export, "ConsoleFrame", HelpUri = "https://consolemonster.dev/powershell/commands/export-consoleframe/")]
     [OutputType(typeof(string), typeof(byte[]), typeof(FileInfo))]

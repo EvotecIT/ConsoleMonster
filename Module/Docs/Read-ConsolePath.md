@@ -21,18 +21,40 @@ Matching entries of the typed folder are listed under the box (folders first); T
 
 ### EXAMPLE 1
 ```powershell
-$file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv
+$pathOptions = @{
+    MustExist = $true
+    Title = 'Import file'
+    Kind = 'File'
+    Extension = @('.csv')
+}
+$file = Read-ConsolePath @pathOptions
 ```
 
 An existing CSV file
 
 ### EXAMPLE 2
 ```powershell
-$path = Read-ConsolePath -Title 'Inventory folder' -Default . -Kind Directory -MustExist
-Write-ConsoleText "Inventory folder: $path"
+$pathOptions = @{
+    MustExist = $true
+    Title = 'Inventory folder'
+    Default = '.'
+    Kind = 'Folder'
+}
+$path = Read-ConsolePath @pathOptions
+$textOptions = @{
+    Text = @("Inventory folder: $path")
+}
+Write-ConsoleText @textOptions
 ```
 
 Select an existing inventory directory
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Read-ConsolePath in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

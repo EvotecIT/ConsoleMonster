@@ -4,13 +4,30 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a named single-line text input for Show-ConsoleApp.</summary>
     /// <remarks><para>Emits a stable core TextInput widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para></remarks>
-    /// <example><para>Create an application input.</para><code>New-ConsoleTextInput -Key Query -Placeholder 'Filter' -OnChange { $State.Edits = 1 + $State.Edits }</code></example>
+    /// <example><para>Create an application input.</para><code>
+    /// $textInputOptions = @{
+    ///     Key = 'Query'
+    ///     Placeholder = 'Filter'
+    ///     OnChange = { $State.Edits = 1 + $State.Edits }
+    /// }
+    /// New-ConsoleTextInput @textInputOptions</code></example>
     /// <example>
     /// <para>Compose an inventory text input</para>
-    /// <code>Show-ConsoleApp -Content {
-    ///     New-ConsoleTextInput -Key filter -Placeholder 'Server name' -Value web
-    /// }
-    /// </code>
+    /// <code>
+    /// Show-ConsoleApp -Content {
+    ///     $textInputOptions = @{
+    ///         Key = 'filter'
+    ///         Placeholder = 'Server name'
+    ///         Value = 'web'
+    ///     }
+    ///     New-ConsoleTextInput @textInputOptions
+    /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleTextInput in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTextInput", DefaultParameterSetName = "Single", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletextinput/")]
     [OutputType(typeof(TextInput), typeof(TextArea))]

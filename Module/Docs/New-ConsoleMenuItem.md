@@ -75,30 +75,65 @@ $tasks = @(
     [pscustomobject]@{ Name = 'Backup'; Category = 'Files'; Description = 'Preview a backup'; Enabled = $true }
     [pscustomobject]@{ Name = 'Verify'; Category = 'Files'; Description = 'Verify a backup'; Enabled = $false }
 )
-$menu = New-ConsoleMenu 'Tasks' -Content {
-    New-ConsoleMenuItem 'Tasks' -Hotkey k -MultiSelect $tasks -Display Name -GroupBy Category -Preview { $_.Description } -Selected { $_.Enabled }
-    New-ConsoleMenuItem -Exit
+$menuOptions2 = @{
+    Title = 'Tasks'
+    Content = {
+        $menuItemOptions = @{
+            Label = 'Tasks'
+            Hotkey = 'k'
+            MultiSelect = $tasks
+            Display = 'Name'
+            GroupBy = 'Category'
+            Preview = { $_.Description }
+            Selected = { $_.Enabled }
+        }
+        New-ConsoleMenuItem @menuItemOptions
+        New-ConsoleMenuItem -Exit
+    }
 }
-Show-ConsoleMenu $menu
+$menu = New-ConsoleMenu @menuOptions2
+$menuOptions = @{
+    Menu = $menu
+}
+Show-ConsoleMenu @menuOptions
 ```
 
 Build a multiple-choice item with an initial selection
 
 ### EXAMPLE 2
 ```powershell
-$menu = New-ConsoleMenu 'Inventory' -Content {
-    New-ConsoleMenuItem 'Preview refresh' -Action {
-        if ($MenuContext.Confirm('Preview an inventory refresh?')) {
-            $MenuContext.Toast('Preview ready')
-            $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
+$menuOptions2 = @{
+    Title = 'Inventory'
+    Content = {
+        $menuItemOptions = @{
+            Label = 'Preview refresh'
+            Action = {
+                if ($MenuContext.Confirm('Preview an inventory refresh?')) {
+                    $MenuContext.Toast('Preview ready')
+                    $MenuContext.ShowResult(@{ Title = 'Refresh preview'; Status = 'Pass'; Summary = 'No inventory changes were made.' })
+                }
+            }
         }
+        New-ConsoleMenuItem @menuItemOptions
+        New-ConsoleMenuItem -Exit
     }
-    New-ConsoleMenuItem -Exit
 }
-Show-ConsoleMenu $menu
+$menu = New-ConsoleMenu @menuOptions2
+$menuOptions = @{
+    Menu = $menu
+}
+Show-ConsoleMenu @menuOptions
 ```
 
 Confirm an action and return a result record
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleMenuItem in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

@@ -9,17 +9,48 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>Run a wizard and use the answers</para>
     ///   <code>
-    /// $form = New-ConsoleForm 'Example' -Content { New-ConsoleField Name 'Name' -Default 'example' }
-    /// $answers = Read-ConsoleForm $form
+    /// $formOptions2 = @{
+    ///     Title = 'Example'
+    ///     Content = {
+    ///         $fieldOptions = @{
+    ///             Key = 'Name'
+    ///             Label = 'Name'
+    ///             Default = 'example'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
+    /// }
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// $answers = Read-ConsoleForm @formOptions
     /// if ($answers) { Write-Host "Selected $($answers.Name)" }</code>
     /// </example>
     /// <example>
     /// <para>Collect a server name and display the submitted values</para>
-    /// <code>$form = New-ConsoleForm 'Inspect inventory' -Content {
-    ///     New-ConsoleField Server 'Server name' -Default web01 -Required
+    /// <code>
+    /// $formOptions2 = @{
+    ///     Title = 'Inspect inventory'
+    ///     Content = {
+    ///         $fieldOptions = @{
+    ///             Required = $true
+    ///             Key = 'Server'
+    ///             Label = 'Server name'
+    ///             Default = 'web01'
+    ///         }
+    ///         New-ConsoleField @fieldOptions
+    ///     }
     /// }
-    /// Read-ConsoleForm $form | Show-ConsoleTable
-    /// </code>
+    /// $form = New-ConsoleForm @formOptions2
+    /// $formOptions = @{
+    ///     Form = $form
+    /// }
+    /// Read-ConsoleForm @formOptions | Show-ConsoleTable</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleForm in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleForm", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleform/")]
     [OutputType(typeof(PSObject), typeof(FormResult))]

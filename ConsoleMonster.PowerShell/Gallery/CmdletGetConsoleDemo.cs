@@ -7,8 +7,14 @@ namespace ConsoleMonster.PowerShell {
     /// <summary>Lists gallery demos and returns their complete PowerShell source.</summary>
     /// <remarks><para>Returns each demo's title, category, tags, terminal size and Source. Slug accepts an exact name or wildcard pattern. Source is the complete script, ready to inspect or save with Set-Content.</para></remarks>
     /// <example><para>Browse the gallery.</para><code>Get-ConsoleDemo | Select-Object Slug, Title, Pitch</code></example>
-    /// <example><para>List the welcome demos.</para><code>Get-ConsoleDemo 'welcome-*'</code></example>
-    /// <example><para>Read a complete demo without running it.</para><code>(Get-ConsoleDemo assessment).Source</code></example>
+    /// <example><para>List the welcome demos.</para><code>
+    /// $demoOptions = @{
+    ///     Slug = 'welcome-*'
+    /// }
+    /// Get-ConsoleDemo @demoOptions</code></example>
+    /// <example><para>Read the complete assessment script. Source includes the sample data, layout and live updates as they are embedded in the module. Get-ConsoleDemo returns that text for inspection. Show-ConsoleDemo is the command that executes it.</para><code>
+    /// $demo = Get-ConsoleDemo -Slug 'assessment'
+    /// $demo.Source</code></example>
     [Cmdlet(VerbsCommon.Get, "ConsoleDemo", HelpUri = "https://consolemonster.dev/powershell/commands/get-consoledemo/")]
     [OutputType(typeof(PSObject))]
     public sealed class CmdletGetConsoleDemo : NoPipelineInputCmdlet {

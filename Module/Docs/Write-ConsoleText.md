@@ -21,24 +21,48 @@ Text is literal; Color and BackgroundColor apply per piece. Role, Decoration, Li
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleText -Text 'Checking group: ', 'Operators' -Color Gray, Green -Indent 4
+$textOptions = @{
+    Text = @('Checking group: ', 'Operators')
+    Color = @('Gray', 'Green')
+    Indent = 4
+}
+Write-ConsoleText @textOptions
 ```
 
 Colour two pieces and indent the message
 
 ### EXAMPLE 2
 ```powershell
-Write-ConsoleText 'Maintenance complete' -Role Pass -Alignment Center -Width 60
+$textOptions = @{
+    Text = @('Maintenance complete')
+    Role = 'Pass'
+    Alignment = 'Center'
+    Width = 60
+}
+Write-ConsoleText @textOptions
 ```
 
 Centre a heading within sixty columns
 
 ### EXAMPLE 3
 ```powershell
-Write-ConsoleText '[info] ', "Path exists`n2. line`n3. line" -Color Yellow, White -ShowTimestamp -SplitLines "`n"
+$textOptions = @{
+    ShowTimestamp = $true
+    Text = @('[info] ', "Path exists`n2. line`n3. line")
+    Color = @('Yellow', 'White')
+    SplitLines = "`n"
+}
+Write-ConsoleText @textOptions
 ```
 
 A multi-line message aligned under the time stamp
+
+### EXAMPLE 4
+```powershell
+Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see Write-ConsoleText in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

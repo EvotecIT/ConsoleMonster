@@ -21,39 +21,101 @@ A field has a name (its key in the result), a label, help shown while it has foc
 
 ### EXAMPLE 1
 ```powershell
-$form = New-ConsoleForm 'Server selection' -Content {
-    New-ConsoleField Site 'Site' -Kind Select -Choices 'Warsaw', 'Berlin' -Default Warsaw
-    New-ConsoleField Server 'Server' -Kind Select -DependsOn Site -LoadChoices {
-        param($Values)
-        [pscustomobject]@{ Name = "$($Values.Site)-web01" }
-        [pscustomobject]@{ Name = "$($Values.Site)-web02" }
-    } -Display Name -ParameterName Server
+$formOptions2 = @{
+    Title = 'Server selection'
+    Content = {
+        $fieldOptions2 = @{
+            Key = 'Site'
+            Label = 'Site'
+            Kind = 'Select'
+            Choices = @('Warsaw', 'Berlin')
+            Default = 'Warsaw'
+        }
+        New-ConsoleField @fieldOptions2
+        $fieldOptions = @{
+            Key = 'Server'
+            Label = 'Server'
+            Kind = 'Select'
+            DependsOn = @('Site')
+            LoadChoices = {
+                param($Values)
+                [pscustomobject]@{ Name = "$($Values.Site)-web01" }
+                [pscustomobject]@{ Name = "$($Values.Site)-web02" }
+            }
+            Display = 'Name'
+            ParameterName = 'Server'
+        }
+        New-ConsoleField @fieldOptions
+    }
 }
-Read-ConsoleForm $form
+$form = New-ConsoleForm @formOptions2
+$formOptions = @{
+    Form = $form
+}
+Read-ConsoleForm @formOptions
 ```
 
 Load dependent choices from the selected site
 
 ### EXAMPLE 2
 ```powershell
-$form = New-ConsoleForm 'Notifications' -Content {
-    New-ConsoleField Notify 'Send an email' -Kind Toggle
-    New-ConsoleField Email 'Email' -VisibleWhen { $Values.Notify } -Validator { $_ -match '@' }
+$formOptions2 = @{
+    Title = 'Notifications'
+    Content = {
+        $fieldOptions2 = @{
+            Key = 'Notify'
+            Label = 'Send an email'
+            Kind = 'Toggle'
+        }
+        New-ConsoleField @fieldOptions2
+        $fieldOptions = @{
+            Key = 'Email'
+            Label = 'Email'
+            VisibleWhen = { $Values.Notify }
+            Validator = { $_ -match '@' }
+        }
+        New-ConsoleField @fieldOptions
+    }
 }
-Read-ConsoleForm $form
+$form = New-ConsoleForm @formOptions2
+$formOptions = @{
+    Form = $form
+}
+Read-ConsoleForm @formOptions
 ```
 
 Show a field only when a toggle is enabled
 
 ### EXAMPLE 3
 ```powershell
-$form = New-ConsoleForm 'Servers' -Content {
-    New-ConsoleField Servers 'Servers' -Kind Select -Multiple -ParameterName ComputerName -LoadChoices {
-        [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
-        [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
-    } -Display Name -CommandValue Name -GroupBy Site -Badge Role -DisabledReason Offline -Default @{ Property = 'Online' }
+$formOptions2 = @{
+    Title = 'Servers'
+    Content = {
+        $fieldOptions = @{
+            Multiple = $true
+            Key = 'Servers'
+            Label = 'Servers'
+            Kind = 'Select'
+            ParameterName = 'ComputerName'
+            LoadChoices = {
+                [pscustomobject]@{ Name = 'web01'; Site = 'East'; Role = 'Web'; Offline = ''; Online = $true }
+                [pscustomobject]@{ Name = 'web02'; Site = 'West'; Role = 'Web'; Offline = 'Maintenance'; Online = $false }
+            }
+            Display = 'Name'
+            CommandValue = 'Name'
+            GroupBy = 'Site'
+            Badge = 'Role'
+            DisabledReason = 'Offline'
+            Default = @{ Property = 'Online' }
+        }
+        New-ConsoleField @fieldOptions
+    }
 }
-Read-ConsoleForm $form
+$form = New-ConsoleForm @formOptions2
+$formOptions = @{
+    Form = $form
+}
+Read-ConsoleForm @formOptions
 ```
 
 Group loaded choices, disable unavailable ones and select defaults by property
@@ -64,10 +126,30 @@ $checks = @(
     [pscustomobject]@{ Id = 'dns'; Name = 'DNS lookup'; Category = 'Network'; Seconds = 2 }
     [pscustomobject]@{ Id = 'disk'; Name = 'Free space'; Category = 'Storage'; Seconds = 1 }
 )
-New-ConsoleField Checks 'Checks' -Kind Select -Multiple -Choices $checks -Display Name -CommandValue Id -GroupBy Category -Badge { "~$($_.Seconds) s" } -ParameterName Check
+$fieldOptions = @{
+    Multiple = $true
+    Key = 'Checks'
+    Label = 'Checks'
+    Kind = 'Select'
+    Choices = $checks
+    Display = 'Name'
+    CommandValue = 'Id'
+    GroupBy = 'Category'
+    Badge = { "~$($_.Seconds) s" }
+    ParameterName = 'Check'
+}
+New-ConsoleField @fieldOptions
 ```
 
 Return choice identifiers and show a duration badge
+
+### EXAMPLE 5
+```powershell
+Get-ConsoleDemo -Slug 'setup' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'toolbox' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleField in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

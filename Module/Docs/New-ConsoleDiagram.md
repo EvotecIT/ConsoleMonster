@@ -21,14 +21,34 @@ Emit New-ConsoleDiagramNode, Link, Group and UseCase objects in Content. A node'
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDiagram -Title 'Home' { New-ConsoleDiagramNode Laptop -To Router; New-ConsoleDiagramNode Router -Kind Gateway } | Show-Console
+$diagramOptions = @{
+    Title = 'Home'
+    Content = {
+        $diagramNodeOptions2 = @{
+            Label = 'Laptop'
+            To = @('Router')
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions2;
+        $diagramNodeOptions = @{
+            Label = 'Router'
+            Kind = 'Gateway'
+        }
+        New-ConsoleDiagramNode @diagramNodeOptions
+    }
+}
+New-ConsoleDiagram @diagramOptions | Show-Console
 ```
 
 A home network.
 
 ### EXAMPLE 2
 ```powershell
-$rows | New-ConsoleDiagram -Title 'Replication' -From Source -To Destination
+$diagramOptions = @{
+    Title = 'Replication'
+    From = 'Source'
+    To = 'Destination'
+}
+$rows | New-ConsoleDiagram @diagramOptions
 ```
 
 Connection rows.

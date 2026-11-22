@@ -33,7 +33,12 @@ ReferenceObject and DifferenceObject are matched by Key (or Id, Key, Name and si
 ```powershell
 $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
 $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name
+$objectOptions = @{
+    ReferenceObject = $before
+    DifferenceObject = $after
+    Key = @('Name')
+}
+Compare-ConsoleObject @objectOptions
 ```
 
 Compare two small inventories
@@ -42,7 +47,13 @@ Compare two small inventories
 ```powershell
 $before = @([pscustomobject]@{ Name = 'web01'; Port = 80 })
 $after = @([pscustomobject]@{ Name = 'web01'; Port = 443 })
-$accepted = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Question 'Accept these changes?'
+$objectOptions = @{
+    ReferenceObject = $before
+    DifferenceObject = $after
+    Key = @('Name')
+    Question = 'Accept these changes?'
+}
+$accepted = Compare-ConsoleObject @objectOptions
 $accepted
 ```
 
@@ -55,7 +66,14 @@ $controllers = @(
     [pscustomobject]@{ Name = 'dc02'; Site = 'HQ'; LdapPort = 636 }
     [pscustomobject]@{ Name = 'dc03'; Site = 'Branch'; LdapPort = 636 }
 )
-$controllers | Compare-ConsoleObject -View Baseline -Key Name -Baseline dc02 -Ignore Name -Title 'Domain controllers'
+$objectOptions = @{
+    View = 'Baseline'
+    Key = @('Name')
+    Baseline = 'dc02'
+    Ignore = @('Name')
+    Title = 'Domain controllers'
+}
+$controllers | Compare-ConsoleObject @objectOptions
 ```
 
 Compare three domain controller settings against dc02.
@@ -63,8 +81,20 @@ Compare three domain controller settings against dc02.
 ### EXAMPLE 4
 ```powershell
 $normalizers = @{ ServicePrincipalName = { $_ -replace 'dc[0-9]+', 'HOST' } }
-$widget = Compare-ConsoleObject -ReferenceObject $before -DifferenceObject $after -Key Name -Normalize $normalizers -AsWidget
-$widget | Export-ConsoleFrame -Format Html -Width 120 -Path ./comparison.html
+$objectOptions = @{
+    AsWidget = $true
+    ReferenceObject = $before
+    DifferenceObject = $after
+    Key = @('Name')
+    Normalize = $normalizers
+}
+$widget = Compare-ConsoleObject @objectOptions
+$frameOptions = @{
+    Format = 'Html'
+    Width = 120
+    Path = './comparison.html'
+}
+$widget | Export-ConsoleFrame @frameOptions
 ```
 
 Normalize host-specific noise while retaining the original displayed values.

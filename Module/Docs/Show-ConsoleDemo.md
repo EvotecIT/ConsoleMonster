@@ -15,7 +15,20 @@ Show-ConsoleDemo [[-Slug] <string>] [-Mode <InteractionMode>] [-Step <int>] [<Co
 ```
 
 ## DESCRIPTION
-Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.
+Gallery picker
+--------------
+
+Omitting Slug opens a picker grouped by category. Type to filter. Focus a demo and press Enter to run it. Escape closes the picker without running a demo. In a session that cannot ask for a selection, supply a slug from Get-ConsoleDemo.
+
+Demo run
+--------
+
+Supplying Slug runs the chosen demo directly. Each script defines its own output and interaction. It runs in a child scope of the current PowerShell runspace and uses the current host and loaded ConsoleMonster commands. Get-ConsoleDemo exposes the same script in its Source property. Output and errors follow the normal PowerShell streams.
+
+Snapshot
+--------
+
+Mode Snapshot displays one recorded state selected by Step. The runner supplies the scripted input or queued live updates for that state. The copied demo source has no capture parameters.
 
 ## EXAMPLES
 
@@ -28,17 +41,36 @@ Pick a demo from the list and run it.
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleDemo fleet
+$demoOptions = @{
+    Slug = 'fleet'
+}
+Show-ConsoleDemo @demoOptions
 ```
 
 Run the fleet demo.
 
 ### EXAMPLE 3
 ```powershell
-Show-ConsoleDemo assessment -Mode Snapshot -Step 0
+$demoOptions = @{
+    Slug = 'assessment'
+    Mode = 'Snapshot'
+    Step = 0
+}
+Show-ConsoleDemo @demoOptions
 ```
 
-Render a deterministic snapshot.
+Render the first snapshot state from assessment. Step is zero-based. Use Get-ConsoleDemo -Slug 'assessment' to read the Steps metadata before choosing a later state.
+
+### EXAMPLE 4
+```powershell
+Get-ConsoleDemo | Sort-Object -Property Category, Slug |
+    Select-Object -Property Category, Slug, Title
+
+$demo = Get-ConsoleDemo -Slug 'chart-table'
+$demo.Source
+```
+
+Inspect every bundled example, grouped by gallery category. Use a slug from the list to retrieve its complete PowerShell source, then use the same slug with Show-ConsoleDemo when you want to run it.
 
 ## PARAMETERS
 

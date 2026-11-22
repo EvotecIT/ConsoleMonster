@@ -40,14 +40,23 @@ Use status colours that stay distinct with red-green colour blindness
 
 ### EXAMPLE 3
 ```powershell
-Set-ConsoleTheme -Theme ColorBlindSafe -Save
+$themeOptions = @{
+    Save = $true
+    Theme = 'ColorBlindSafe'
+}
+Set-ConsoleTheme @themeOptions
 ```
 
 Keep the colour-blind-safe theme in every new session
 
 ### EXAMPLE 4
 ```powershell
-Set-ConsoleTheme Dracula -Accessible -Save
+$themeOptions = @{
+    Accessible = $true
+    Save = $true
+    Theme = 'Dracula'
+}
+Set-ConsoleTheme @themeOptions
 ```
 
 Keep the accessible Dracula scheme in every session
@@ -55,7 +64,7 @@ Keep the accessible Dracula scheme in every session
 ### EXAMPLE 5
 ```powershell
 # Requires an existing team-theme.psd1 file. Changes the active session theme.
-            Set-ConsoleTheme -Path ./team-theme.psd1
+Set-ConsoleTheme -Path ./team-theme.psd1
 ```
 
 Load an existing theme exported by Export-ConsoleTheme

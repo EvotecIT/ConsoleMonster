@@ -28,7 +28,10 @@ Back to PowerShell's formatting
 
 ### EXAMPLE 2
 ```powershell
-Disable-ConsoleFormatting -Feature Progress
+$formattingOptions = @{
+    Feature = @('Progress')
+}
+Disable-ConsoleFormatting @formattingOptions
 ```
 
 Keep the views, go back to PowerShell's progress

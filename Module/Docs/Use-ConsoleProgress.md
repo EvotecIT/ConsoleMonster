@@ -21,12 +21,15 @@ The script runs on the pipeline thread with the caller's variables. While it run
 
 ### EXAMPLE 1
 ```powershell
-Use-ConsoleProgress {
-    foreach ($i in 1..50) {
-        Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
-        Start-Sleep -Milliseconds 50
+$progressOptions = @{
+    ScriptBlock = {
+        foreach ($i in 1..50) {
+            Write-Progress -Activity 'Copying' -Status "File $i of 50" -PercentComplete ($i * 2)
+            Start-Sleep -Milliseconds 50
+        }
     }
 }
+Use-ConsoleProgress @progressOptions
 ```
 
 An existing loop, unchanged
@@ -34,11 +37,11 @@ An existing loop, unchanged
 ### EXAMPLE 2
 ```powershell
 Use-ConsoleProgress -PrintFinalState:$false {
-                foreach ($server in 'web01', 'web02') {
-                    Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
-                    [pscustomobject]@{ Server = $server; Result = 'Pass' }
-                }
-            } | Show-ConsoleTable
+    foreach ($server in 'web01', 'web02') {
+        Write-Progress -Activity 'Inspect servers' -Status $server -PercentComplete 50
+        [pscustomobject]@{ Server = $server; Result = 'Pass' }
+    }
+} | Show-ConsoleTable
 ```
 
 Return server results and suppress the final progress area

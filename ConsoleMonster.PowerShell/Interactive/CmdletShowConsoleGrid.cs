@@ -10,22 +10,76 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Shows pipeline objects in an interactive grid and returns the rows you choose.</summary>
-    /// <remarks><para>An Out-GridView for the console, on Windows PowerShell 5.1 and PowerShell 7. Typing filters the rows (every word must appear in a shown column); Up/Down, PgUp/PgDn and Ctrl+Home/Ctrl+End move; F3 sorts by the next column (Shift+F3 the previous one) and F4 reverses the order; Space marks rows (Ctrl+A marks all shown rows); Enter shows the focused row with every column; F2 chooses the columns; Ctrl+Enter (or F10) returns the marked rows, or the focused row when none is marked; Esc clears the filter, then cancels. Columns come from -Property with the same options as Show-ConsoleTable (presenters, priorities, widths, tone rules); the original objects are returned. The screen has the same header bar, panel and footer as menus and forms. In line mode the rows are a numbered list. Without an interactive user (redirected output, a job, CI or -Mode None), one static view honours the initial filter, sort and hidden columns. Nothing is selected or returned.</para></remarks>
+    /// <remarks>
+    /// <para>Show-ConsoleGrid displays objects in Windows PowerShell 5.1 and PowerShell 7. Property configures the displayed columns using the same presenters, priorities and widths as Show-ConsoleTable. A selection returns the underlying objects to PowerShell.</para>
+    /// <para>Terminal grid
+    /// -------------</para>
+    /// <para>Use the arrow keys to focus a row. Press F10 or Ctrl+Enter to accept the selection and resume the PowerShell pipeline. Single returns the focused row. In Multiple mode, Space toggles the mark on the focused row and Ctrl+A marks all visible rows. Accept returns the marked rows, or the focused row if none are marked. In None mode, the accept keys are disabled and the grid is browse-only.</para>
+    /// <para>Use PgUp and PgDn to move a page at a time, or Ctrl+Home and Ctrl+End to move to the first or last row. Press Enter to inspect every column on the focused row. Type to filter. Each search word must appear in a displayed column. Press F2 to choose columns, F3 or Shift+F3 to cycle the sort column, and F4 to reverse the sort. Esc first clears an active filter. With the filter empty, Esc closes the grid without returning any objects.</para>
+    /// <para>When Command supplies actions, Ctrl+K opens the action list and F6 cancels work in progress. Actions run inside the grid. Accepting a selection returns the rows to the calling script.</para>
+    /// <para>Browser grid
+    /// ------------</para>
+    /// <para>With Window, the browser tab has a filter, sortable column headings and a table. Click a row to focus it. In Multiple mode, hold Ctrl or Command when clicking to toggle a row, or Shift-click to mark a range. Click OK to send the selection back to PowerShell. Browse-only mode has a Close button. Click Cancel or press Esc in the page to return without a selection. If the browser cannot open, the command warns and falls back to the terminal grid.</para>
+    /// <para>Numbered list
+    /// -------------</para>
+    /// <para>Line mode prints numbered rows and prompts for a response. In Single mode, enter one row number or press Enter with an empty response to choose the first row. In Multiple mode, enter a comma-separated list of numbers, such as 1,3. An empty response with no preselection returns nothing.</para>
+    /// <para>Static output
+    /// -------------</para>
+    /// <para>With Mode None, or when the command resolves to unattended output, it prints a static grid using the initial filter, sort and visible columns. It returns no selection.</para>
+    /// </remarks>
     /// <example>
-    /// <para>Inspect selected objects with an embedded command</para>
-    /// <code>$servers = @(
+    /// <para>Inspect a server inside the terminal grid. Press Ctrl+K and choose Inspect to run the command against the focused or marked rows. Press F10 or Ctrl+Enter when you want to close the grid and return the selected rows to PowerShell.</para>
+    /// <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Status = 'Pass'; Region = 'East' }
     ///     [pscustomobject]@{ Name = 'web02'; Status = 'Warn'; Region = 'West' }
     /// )
-    /// $servers | Show-ConsoleGrid -Property Name, Status, Region -Title 'Servers' -Command @{ Inspect = { param($Row) $Row | Select-Object Name, Status, Region } }</code>
+    /// $gridOptions = @{
+    ///     Property = @('Name', 'Status', 'Region')
+    ///     Title = 'Servers'
+    ///     Command = @(@{ Inspect = { param($Row) $Row | Select-Object Name, Status, Region } })
+    /// }
+    /// $servers | Show-ConsoleGrid @gridOptions</code>
     /// </example>
     /// <example>
-    /// <para>Browse processes sorted by memory</para>
-    /// <code>Get-Process | Show-ConsoleGrid -Property Name, Id, @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' } -SortColumn Memory -Descending -OutputMode None</code>
+    /// <para>Browse processes sorted by memory. None turns off selection output. Press Enter to inspect a row and Esc to leave the grid.</para>
+    /// <code>
+    /// $gridOptions = @{
+    ///     Descending = $true
+    ///     Property = @('Name', 'Id', @{ Name = 'Memory'; Expression = { $_.WorkingSet64 }; Presenter = 'Bytes' })
+    ///     SortColumn = 'Memory'
+    ///     OutputMode = 'None'
+    /// }
+    /// Get-Process | Show-ConsoleGrid @gridOptions</code>
     /// </example>
     /// <example>
-    /// <para>Choose services in the browser and stop them</para>
-    /// <code>Get-Service | Where-Object Status -eq Running | Show-ConsoleGrid -Property Name, DisplayName, Status -Title 'Stop services' -Window | Stop-Service -WhatIf</code>
+    /// <para>Preview stopping one process from the terminal grid. Use the arrows to focus a process, then press F10 or Ctrl+Enter. PowerShell resumes with the original Process object. Stop-Process receives that object, and WhatIf previews the stop. Cancelling the grid skips the preview.</para>
+    /// <code>
+    /// $gridOptions = @{
+    ///     Title = 'Preview stopping a process'
+    ///     Property = @('ProcessName', 'Id', 'CPU')
+    ///     SortColumn = 'ProcessName'
+    ///     OutputMode = 'Single'
+    ///     Window = $false
+    /// }
+    /// $selectedProcess = Get-Process | Show-ConsoleGrid @gridOptions
+    /// if ($null -ne $selectedProcess) {
+    ///     Stop-Process -InputObject @($selectedProcess) -WhatIf
+    /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Preview stopping services from the browser grid. Choose rows and click OK to pass the original service objects to Stop-Service. WhatIf previews the operation for each selected service.</para>
+    /// <code>
+    /// $gridOptions = @{
+    ///     Window = $true
+    ///     Property = @('Name', 'DisplayName', 'Status')
+    ///     Title = 'Stop services'
+    /// }
+    /// Get-Service | Where-Object Status -eq Running | Show-ConsoleGrid @gridOptions | Stop-Service -WhatIf</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Show-ConsoleGrid in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'service-browser' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleGrid", HelpUri = "https://consolemonster.dev/powershell/commands/show-consolegrid/")]
     [OutputType(typeof(object))]
@@ -46,7 +100,7 @@ namespace ConsoleMonster.PowerShell {
         [PSDefaultValue(Help = "Grid")]
         public string Title { get; set; } = "Grid";
 
-        /// <summary><para type="description">What is returned: Multiple (default; the marked rows or the focused row), Single (the focused row) or None (browse only).</para></summary>
+        /// <summary><para type="description">Controls what is returned when the operator accepts a selection. Multiple returns the marked rows, or the focused row if there are no marks in the terminal or browser grid. Single returns one row. None returns no objects. In the terminal, F10 and Ctrl+Enter accept a selection in Single and Multiple modes.</para></summary>
         [Parameter]
         [PSDefaultValue(Help = "Multiple")]
         public GridSelection OutputMode { get; set; } = GridSelection.Multiple;
@@ -80,7 +134,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter]
         public CultureInfo? Culture { get; set; }
 
-        /// <summary><para type="description">Forces how to ask: Rich (the grid), Line or Accessible (a numbered list), or None (fail without a user).</para></summary>
+        /// <summary><para type="description">Controls how the grid prompts. Rich uses the interactive terminal grid. Line uses a numbered prompt. Accessible uses numbered prompts when a line console is available. None prints a static grid and returns no selection.</para></summary>
         [Parameter]
         public InteractionMode? Mode { get; set; }
 

@@ -22,8 +22,16 @@ Each widget the scriptblock emits is a layer, bottom first; later layers paint o
 ### EXAMPLE 1
 ```powershell
 New-ConsoleStack -Content {
-    New-ConsoleChart -WidgetId latency -Type Line
-    New-ConsoleRegion -Horizontal Right -Content { New-ConsoleText -Markup '[pass]LIVE[/]' }
+    $chartOptions = @{
+        WidgetId = 'latency'
+        Type = 'Line'
+    }
+    New-ConsoleChart @chartOptions
+    $regionOptions = @{
+        Horizontal = 'Right'
+        Content = { New-ConsoleText -Markup '[pass]LIVE[/]' }
+    }
+    New-ConsoleRegion @regionOptions
 }
 ```
 
@@ -31,9 +39,22 @@ A chart with a status badge in its top-right corner
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleStack -Height 6 -Content {
-                New-ConsolePanel -Title Inventory -Content { New-ConsoleText 'web01: Online' }
-            } | Show-Console
+$stackOptions = @{
+    Height = 6
+    Content = {
+        $panelOptions = @{
+            Title = 'Inventory'
+            Content = {
+                $textOptions = @{
+                    Text = @('web01: Online')
+                }
+                New-ConsoleText @textOptions
+            }
+        }
+        New-ConsolePanel @panelOptions
+    }
+}
+New-ConsoleStack @stackOptions | Show-Console
 ```
 
 Compose an inventory stack

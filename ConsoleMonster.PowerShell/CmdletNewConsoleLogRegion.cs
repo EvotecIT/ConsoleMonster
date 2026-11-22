@@ -8,24 +8,46 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     ///   <para>A short log printed once</para>
     ///   <code>
-    /// New-ConsoleLogRegion -Height 5 -Content {
-    ///     [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
-    ///     [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }
-    ///     [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
-    /// } | Show-Console</code>
+    /// $logRegionOptions = @{
+    ///     Height = 5
+    ///     Content = {
+    ///         [pscustomobject]@{ Message = 'Discovered 4 domain controllers in 2 domains'; Level = 'Info'; AtSeconds = 2 }
+    ///         [pscustomobject]@{ Message = 'DC02: USN rollback check failed (event 2095)'; Level = 'Error'; AtSeconds = 44; Tag = 'DC02' }
+    ///         [pscustomobject]@{ Message = 'Using cached schema snapshot'; Level = 'Verbose'; AtSeconds = 53 }
+    ///     }
+    /// }
+    /// New-ConsoleLogRegion @logRegionOptions | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>A log that fills the rest of a dashboard</para>
-    ///   <code>New-ConsolePanel -Title 'Log' -Fill -Content { New-ConsoleLogRegion }</code>
+    ///   <code>
+    /// $panelOptions = @{
+    ///     Fill = $true
+    ///     Title = 'Log'
+    ///     Content = { New-ConsoleLogRegion }
+    /// }
+    /// New-ConsolePanel @panelOptions</code>
     /// </example>
     /// <example>
     ///   <para>Only warnings and errors from one job</para>
     ///   <code>
-    /// New-ConsoleLogRegion -Tag 'sql-index' -Level Warn -NoElapsed -Content {
-    ///     @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }
-    ///     @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }
-    ///     @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }
-    /// } | Show-Console</code>
+    /// $logRegionOptions = @{
+    ///     NoElapsed = $true
+    ///     Tag = 'sql-index'
+    ///     Level = 'Warn'
+    ///     Content = {
+    ///         @{ Message = 'Rebuilding IX_Users_Name'; Tag = 'sql-index' }
+    ///         @{ Message = 'Fragmentation 41% on IX_Orders_Date'; Level = 'Warn'; Tag = 'sql-index' }
+    ///         @{ Message = 'Backup share is read-only'; Level = 'Error'; Tag = 'backup' }
+    ///     }
+    /// }
+    /// New-ConsoleLogRegion @logRegionOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleLogRegion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'assessment' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleLogRegion", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolelogregion/")]
     [OutputType(typeof(LogRegion), typeof(Interactive.LogViewport))]

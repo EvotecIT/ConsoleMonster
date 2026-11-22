@@ -21,24 +21,46 @@ For a script that builds its own summary. The frame prints once and lays itself 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
-                @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
-                @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-            ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
-                Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
-            } | Show-Console
+$dashboardFrameOptions = @{
+    Title = 'Server estate'
+    Fact = @('contoso.example', '48 servers')
+    State = @(@{ State = 'Failing'; Count = 1; Word = 'failing' })
+    Meter = @(
+        @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
+        @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
+    )
+    Attention = @(@{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' })
+    Noun = 'server'
+    OutOf = 48
+    Section = @(@{
+            Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
+        })
+}
+New-ConsoleDashboardFrame @dashboardFrameOptions | Show-Console
 ```
 
 A small estate summary.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleDashboardFrame -Title 'Fleet checks' -Fact '12 servers inspected' -Meter @{
-                Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
-            } | Show-Console
+$dashboardFrameOptions = @{
+    Title = 'Fleet checks'
+    Fact = @('12 servers inspected')
+    Meter = @(@{
+            Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
+        })
+}
+New-ConsoleDashboardFrame @dashboardFrameOptions | Show-Console
 ```
 
 Compose an inventory dashboard frame
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see New-ConsoleDashboardFrame in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

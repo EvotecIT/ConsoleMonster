@@ -21,17 +21,52 @@ Put the region anywhere in a layout (inside New-ConsolePanel keeps the frame), t
 
 ### EXAMPLE 1
 ```powershell
-New-ConsolePanel -Title 'Result' -Content { New-ConsoleRegion -WidgetId main -Content { New-ConsoleProgress -Label 'Querying' -Indeterminate -WidgetId 'spinner' } }
+$panelOptions = @{
+    Title = 'Result'
+    Content = {
+        $regionOptions = @{
+            WidgetId = 'main'
+            Content = {
+                $progressOptions = @{
+                    Indeterminate = $true
+                    Label = 'Querying'
+                    WidgetId = 'spinner'
+                }
+                New-ConsoleProgress @progressOptions
+            }
+        }
+        New-ConsoleRegion @regionOptions
+    }
+}
+New-ConsolePanel @panelOptions
 ```
 
-A panel whose content switches from a spinner to a table
+Build a panel with an indeterminate spinner as its initial content. WidgetId main identifies the region for a later Update-Console -Content call. WidgetId spinner identifies the progress widget currently inside it.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleRegion -Horizontal Center -Padding 1 -Content { New-ConsoleText 'Ready' } | Show-Console
+$regionOptions = @{
+    Horizontal = 'Center'
+    Padding = @(1)
+    Content = {
+        $textOptions = @{
+            Text = @('Ready')
+        }
+        New-ConsoleText @textOptions
+    }
+}
+New-ConsoleRegion @regionOptions | Show-Console
 ```
 
-Align content inside a padded region
+Center Ready and leave one cell of padding on each side. Padding is an integer array. The one-entry form uses that entry for all four sides. With two entries the order is horizontal then vertical. With four entries it is left, top, right, bottom.
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'build-steps' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'log-tail' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleRegion in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

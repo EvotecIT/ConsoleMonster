@@ -8,13 +8,33 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Matching entries of the typed folder are listed under the box (folders first); Tab completes the common part or the focused entry, Up and Down move through them. -Kind File or Folder and -MustExist are checked on Enter. Returns the path as typed (environment variables and ~ are expanded only when checking).</para></remarks>
     /// <example>
     ///   <para>An existing CSV file</para>
-    ///   <code>$file = Read-ConsolePath 'Import file' -Kind File -MustExist -Extension .csv</code>
+    ///   <code>
+    /// $pathOptions = @{
+    ///     MustExist = $true
+    ///     Title = 'Import file'
+    ///     Kind = 'File'
+    ///     Extension = @('.csv')
+    /// }
+    /// $file = Read-ConsolePath @pathOptions</code>
     /// </example>
     /// <example>
     /// <para>Select an existing inventory directory</para>
-    /// <code>$path = Read-ConsolePath -Title 'Inventory folder' -Default . -Kind Directory -MustExist
-    /// Write-ConsoleText "Inventory folder: $path"
-    /// </code>
+    /// <code>
+    /// $pathOptions = @{
+    ///     MustExist = $true
+    ///     Title = 'Inventory folder'
+    ///     Default = '.'
+    ///     Kind = 'Folder'
+    /// }
+    /// $path = Read-ConsolePath @pathOptions
+    /// $textOptions = @{
+    ///     Text = @("Inventory folder: $path")
+    /// }
+    /// Write-ConsoleText @textOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsolePath in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsolePath", HelpUri = "https://consolemonster.dev/powershell/commands/read-consolepath/")]
     [OutputType(typeof(string))]

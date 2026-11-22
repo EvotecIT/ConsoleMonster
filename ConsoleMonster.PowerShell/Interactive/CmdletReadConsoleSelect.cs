@@ -7,15 +7,32 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.</para></remarks>
     /// <example>
     /// <para>Pick an object from a small inventory</para>
-    /// <code>$servers = @(
+    /// <code>
+    /// $servers = @(
     ///     [pscustomobject]@{ Name = 'web01'; Region = 'East'; Status = 'Pass' }
     ///     [pscustomobject]@{ Name = 'web02'; Region = 'West'; Status = 'Warn' }
     /// )
-    /// $server = $servers | Read-ConsoleSelect 'Server to inspect' -Display Name -Describe Status -GroupBy Region</code>
+    /// $selectOptions = @{
+    ///     Title = 'Server to inspect'
+    ///     Display = 'Name'
+    ///     Describe = 'Status'
+    ///     GroupBy = 'Region'
+    /// }
+    /// $server = $servers | Read-ConsoleSelect @selectOptions</code>
     /// </example>
     /// <example>
     /// <para>Choose from strings with a default</para>
-    /// <code>$environment = Read-ConsoleSelect 'Environment' -Choices 'Production', 'Staging', 'Lab' -Default 'Staging'</code>
+    /// <code>
+    /// $selectOptions = @{
+    ///     Title = 'Environment'
+    ///     Choices = @('Production', 'Staging', 'Lab')
+    ///     Default = 'Staging'
+    /// }
+    /// $environment = Read-ConsoleSelect @selectOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see Read-ConsoleSelect in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommunications.Read, "ConsoleSelect", DefaultParameterSetName = "Single", HelpUri = "https://consolemonster.dev/powershell/commands/read-consoleselect/")]
     [PowerForge.Fluent.FluentCmdlet(typeof(global::ConsoleMonster.Interactive.SelectQuestionOptions), Include = new[] { "PageSize", "Minimum", "Maximum" })]

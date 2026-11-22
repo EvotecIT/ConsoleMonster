@@ -22,24 +22,61 @@ Left/Right or a click moves a crosshair along X, and the row above the plot read
 ### EXAMPLE 1
 ```powershell
 $samples = 1..30 | ForEach-Object { [pscustomobject]@{ Minute = $_; Cpu = 40 + (Get-Random -Maximum 50); Memory = 50 + $_ } }
-$chart = New-ConsoleChart -Type Line -Unit '%' -Series @(
-    @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
+$chartOptions = @{
+    Type = 'Line'
+    Unit = '%'
+    Series = @(
+        @{ Key = 'cpu'; Values = $samples.Cpu }, @{ Key = 'memory'; Values = $samples.Memory })
+}
+$chart = New-ConsoleChart @chartOptions
 Show-ConsoleApp -Content {
-    New-ConsoleChartView -Key Load -Chart $chart -PointLabels $samples.Minute -LinkKey Minute
-    New-ConsoleDataGrid -Key Samples -InputObject $samples -Property Minute, Cpu, Memory -Height 8 -LinkKey Minute
+    $chartViewOptions = @{
+        Key = 'Load'
+        Chart = $chart
+        PointLabels = @($samples.Minute)
+        LinkKey = 'Minute'
+    }
+    New-ConsoleChartView @chartViewOptions
+    $dataGridOptions = @{
+        Key = 'Samples'
+        InputObject = $samples
+        Property = @('Minute', 'Cpu', 'Memory')
+        Height = 8
+        LinkKey = 'Minute'
+    }
+    New-ConsoleDataGrid @dataGridOptions
 }
 ```
 
-Explore CPU and memory samples next to the table they came from
+Explore CPU and memory together, as in the chart-table gallery demo. Both series and PointLabels use the order of the samples array. At each point, the label and both values describe the same minute. Giving the chart and grid the same LinkKey synchronizes the selected grid row and chart crosshair.
 
 ### EXAMPLE 2
 ```powershell
+$chartOptions = @{
+    Type = 'Line'
+    Series = @(
+        @{ Key = 'cpu'; Values = @(12, 25, 18, 31) }
+    )
+}
+$chart = New-ConsoleChart @chartOptions
 Show-ConsoleApp -Content {
-    New-ConsoleChartView -Key cpu -Chart (New-ConsoleChart -Type Line -Series @{ Key = 'cpu'; Values = 12, 25, 18, 31 })
+    $chartViewOptions = @{
+        Key = 'cpu'
+        Chart = $chart
+    }
+    New-ConsoleChartView @chartViewOptions
 }
 ```
 
-Compose an inventory chart view
+Compose an app with one CPU series. Series is a one-element array containing the series descriptor. Its Values array supplies four successive points. The chart view uses the resulting line chart as its data.
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'incident-workbench' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleChartView in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

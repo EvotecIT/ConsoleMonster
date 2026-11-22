@@ -6,11 +6,20 @@ using ConsoleMonster.Export;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Adds widgets or objects as Markdown to the CI job summary.</summary>
     /// <remarks><para>Uses the same semantic Markdown exporter as Export-ConsoleFrame. GitHub appends to GITHUB_STEP_SUMMARY. Azure writes a UTF-8 Markdown file in the job workspace and emits task.uploadsummary; the agent owns its later cleanup. GitLab and ordinary terminals write no files and return the Markdown so a script can save it. GitHub and Azure return no pipeline output.</para></remarks>
-    /// <example><para>Add a result table to the job summary</para><code>@([pscustomobject]@{ Check = 'Build'; Result = 'Passed' }) | Add-ConsoleJobSummary</code></example>
+    /// <example><para>Turn a build result into job-summary Markdown. The pipeline supplies one ordinary record. Add-ConsoleJobSummary selects its automatic view. In a local shell, the generated Markdown is available as pipeline output.</para><code>
+    /// $result = [pscustomobject]@{ Check = 'Build'; Result = 'Passed' }
+    /// $result | Add-ConsoleJobSummary</code></example>
     /// <example>
-    /// <para>Add an inventory table to the CI summary</para>
-    /// <code>$servers = @([pscustomobject]@{ Name = 'web01'; State = 'Pass' })
-    /// $servers | New-ConsoleTable | Add-ConsoleJobSummary
+    /// <para>Choose the inventory columns and title before handing the table widget to the summary command. The Markdown exporter uses that table structure. GitHub Actions appends the Markdown to the step-summary file. Azure Pipelines uploads a summary from a file in the job workspace.</para>
+    /// <code>
+    /// $servers = @(
+    ///     [pscustomobject]@{ Name = 'web01'; State = 'Pass' }
+    /// )
+    /// $tableOptions = @{
+    ///     Property = @('Name', 'State')
+    ///     Title = 'Inventory'
+    /// }
+    /// $servers | New-ConsoleTable @tableOptions | Add-ConsoleJobSummary
     /// </code>
     /// </example>
     [Cmdlet(VerbsCommon.Add, "ConsoleJobSummary", HelpUri = "https://consolemonster.dev/powershell/commands/add-consolejobsummary/")]

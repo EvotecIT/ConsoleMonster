@@ -29,11 +29,29 @@ Display the current input.
 ### EXAMPLE 2
 ```powershell
 Show-ConsoleApp -Content {
-    New-ConsoleBinding -WidgetId selection -Content { New-ConsoleText 'Choose a server to inspect' }
+    $bindingOptions = @{
+        WidgetId = 'selection'
+        Content = {
+            $textOptions = @{
+                Text = @('Choose a server to inspect')
+            }
+            New-ConsoleText @textOptions
+        }
+    }
+    New-ConsoleBinding @bindingOptions
 }
 ```
 
 Compose an inventory binding
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'fleet-filter' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'live-filter' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'task-menu' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleBinding in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

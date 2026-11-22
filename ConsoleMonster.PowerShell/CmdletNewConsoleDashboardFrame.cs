@@ -10,18 +10,38 @@ using ConsoleMonster.Views;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a dashboard frame: a summary with a title line, meters, a needs-attention list, sections, a legend and a footer.</summary>
     /// <remarks><para>For a script that builds its own summary. The frame prints once and lays itself out for the terminal's width: the facts follow the title and the states sit at its right, meters fill a row in the order given, Needs attention lists problems worst first, summary sections pack beside it, detail sections print below at full width, then the legend and the footer. Below 80 columns meters stack and sections take the whole width. Meters, states, attention items and sections are records or hashtables, the way New-ConsoleTabs takes pages. A module that owns summary objects declares its frame in C# and registers it as their default display instead.</para></remarks>
-    /// <example><para>A small estate summary.</para><code>New-ConsoleDashboardFrame -Title 'Server estate' -Fact 'contoso.example', '48 servers' -State @{ State = 'Failing'; Count = 1; Word = 'failing' } -Meter @(
-    ///     @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
-    ///     @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
-    /// ) -Attention @{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' } -Noun server -OutOf 48 -Section @{
-    ///     Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
-    /// } | Show-Console</code></example>
+    /// <example><para>A small estate summary.</para><code>
+    /// $dashboardFrameOptions = @{
+    ///     Title = 'Server estate'
+    ///     Fact = @('contoso.example', '48 servers')
+    ///     State = @(@{ State = 'Failing'; Count = 1; Word = 'failing' })
+    ///     Meter = @(
+    ///         @{ Label = 'Servers healthy'; Healthy = 44; Warning = 3; Failing = 1 }
+    ///         @{ Label = 'Backups current'; Healthy = 46; Whole = 48 }
+    ///     )
+    ///     Attention = @(@{ State = 'Failing'; Identity = 'SQL-03'; Reason = 'Disk D: 97% full'; Values = '97%' })
+    ///     Noun = 'server'
+    ///     OutOf = 48
+    ///     Section = @(@{
+    ///             Title = 'Sites'; Content = { New-ConsoleKeyValue -InputObject ([ordered] @{ London = 22; Amsterdam = 16 }) }
+    ///         })
+    /// }
+    /// New-ConsoleDashboardFrame @dashboardFrameOptions | Show-Console</code></example>
     /// <example>
     /// <para>Compose an inventory dashboard frame</para>
-    /// <code>New-ConsoleDashboardFrame -Title 'Fleet checks' -Fact '12 servers inspected' -Meter @{
-    ///     Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
-    /// } | Show-Console
-    /// </code>
+    /// <code>
+    /// $dashboardFrameOptions = @{
+    ///     Title = 'Fleet checks'
+    ///     Fact = @('12 servers inspected')
+    ///     Meter = @(@{
+    ///             Kind = 'Count'; Label = 'Passed'; Value = 12; State = 'Healthy'
+    ///         })
+    /// }
+    /// New-ConsoleDashboardFrame @dashboardFrameOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see New-ConsoleDashboardFrame in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'server-estate' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleDashboardFrame", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoledashboardframe/")]
     [OutputType(typeof(DashboardFrame))]

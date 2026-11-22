@@ -5,10 +5,39 @@ using ConsoleMonster.Text;
 
 namespace ConsoleMonster.PowerShell {
     /// <summary>Runs an embedded ConsoleMonster gallery demo in the current PowerShell runspace.</summary>
-    /// <remarks><para>Without a slug, it lists the demos to pick from, grouped by category. Executes the same self-contained PowerShell source offered by Get-ConsoleDemo (the Source property). The demo runs in a child scope of the current runspace and uses the current host and loaded ConsoleMonster commands. No child process, download or temporary script file is used. Live demos can be interrupted normally. -Mode Snapshot selects a recorded state using scripted input or queued live updates controlled by the runner. The copied source has no capture parameters. Demo output and errors follow the normal PowerShell streams.</para></remarks>
+    /// <remarks>
+    /// <para>Gallery picker
+    /// --------------</para>
+    /// <para>Omitting Slug opens a picker grouped by category. Type to filter. Focus a demo and press Enter to run it. Escape closes the picker without running a demo. In a session that cannot ask for a selection, supply a slug from Get-ConsoleDemo.</para>
+    /// <para>Demo run
+    /// --------</para>
+    /// <para>Supplying Slug runs the chosen demo directly. Each script defines its own output and interaction. It runs in a child scope of the current PowerShell runspace and uses the current host and loaded ConsoleMonster commands. Get-ConsoleDemo exposes the same script in its Source property. Output and errors follow the normal PowerShell streams.</para>
+    /// <para>Snapshot
+    /// --------</para>
+    /// <para>Mode Snapshot displays one recorded state selected by Step. The runner supplies the scripted input or queued live updates for that state. The copied demo source has no capture parameters.</para>
+    /// </remarks>
     /// <example><para>Pick a demo from the list and run it.</para><code>Show-ConsoleDemo</code></example>
-    /// <example><para>Run the fleet demo.</para><code>Show-ConsoleDemo fleet</code></example>
-    /// <example><para>Render a deterministic snapshot.</para><code>Show-ConsoleDemo assessment -Mode Snapshot -Step 0</code></example>
+    /// <example><para>Run the fleet demo.</para><code>
+    /// $demoOptions = @{
+    ///     Slug = 'fleet'
+    /// }
+    /// Show-ConsoleDemo @demoOptions</code></example>
+    /// <example><para>Render the first snapshot state from assessment. Step is zero-based. Use Get-ConsoleDemo -Slug 'assessment' to read the Steps metadata before choosing a later state.</para><code>
+    /// $demoOptions = @{
+    ///     Slug = 'assessment'
+    ///     Mode = 'Snapshot'
+    ///     Step = 0
+    /// }
+    /// Show-ConsoleDemo @demoOptions</code></example>
+    /// <example>
+    /// <para>Inspect every bundled example, grouped by gallery category. Use a slug from the list to retrieve its complete PowerShell source, then use the same slug with Show-ConsoleDemo when you want to run it.</para>
+    /// <code>
+    /// Get-ConsoleDemo | Sort-Object -Property Category, Slug |
+    ///     Select-Object -Property Category, Slug, Title
+    ///
+    /// $demo = Get-ConsoleDemo -Slug 'chart-table'
+    /// $demo.Source</code>
+    /// </example>
     [Cmdlet(VerbsCommon.Show, "ConsoleDemo", HelpUri = "https://consolemonster.dev/powershell/commands/show-consoledemo/")]
     [OutputType(typeof(PSObject))]
     public sealed class CmdletShowConsoleDemo : NoPipelineInputCmdlet {

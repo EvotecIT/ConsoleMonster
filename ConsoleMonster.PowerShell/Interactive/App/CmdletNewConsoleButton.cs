@@ -4,13 +4,32 @@ using ConsoleMonster.Interactive;
 namespace ConsoleMonster.PowerShell {
     /// <summary>Creates a named action button for Show-ConsoleApp.</summary>
     /// <remarks><para>Emits a stable core Button widget. Place inputs in the outer layout, outside dependent bindings. The final state contains the input's committed value.</para></remarks>
-    /// <example><para>Create an application input.</para><code>New-ConsoleButton -Key Apply -OnClick { $State.Applied = $true }</code></example>
+    /// <example><para>Create an application input.</para><code>
+    /// $buttonOptions = @{
+    ///     Key = 'Apply'
+    ///     OnClick = { $State.Applied = $true }
+    /// }
+    /// New-ConsoleButton @buttonOptions</code></example>
     /// <example>
     /// <para>Compose an inventory button</para>
-    /// <code>Show-ConsoleApp -Content {
-    ///     New-ConsoleButton -Key inspect -Label 'Inspect inventory' -OnClick { Write-ConsoleLogEntry 'Inspection requested' }
-    /// }
-    /// </code>
+    /// <code>
+    /// Show-ConsoleApp -Content {
+    ///     $buttonOptions = @{
+    ///         Key = 'inspect'
+    ///         Label = 'Inspect inventory'
+    ///         OnClick = {
+    ///             $logEntryOptions = @{
+    ///                 Message = 'Inspection requested'
+    ///             }
+    ///             Write-ConsoleLogEntry @logEntryOptions
+    ///         }
+    ///     }
+    ///     New-ConsoleButton @buttonOptions
+    /// }</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see New-ConsoleButton in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'setup-basic' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleButton", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolebutton/")]
     [OutputType(typeof(Button))]

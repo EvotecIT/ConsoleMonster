@@ -22,7 +22,7 @@ Sends a private terminal control to the parent recorder, which finalizes local f
 ### EXAMPLE 1
 ```powershell
 Write-Host 'Deployment finished'
-            Stop-ConsoleRecording
+Stop-ConsoleRecording
 ```
 
 Finish from inside the recorded child shell
@@ -30,8 +30,12 @@ Finish from inside the recorded child shell
 ### EXAMPLE 2
 ```powershell
 # In a shell started with Invoke-ConsoleRecording -Interactive:
-            Write-ConsoleText 'Inspection complete' -Role Pass
-            Stop-ConsoleRecording
+$textOptions = @{
+    Text = @('Inspection complete')
+    Role = 'Pass'
+}
+Write-ConsoleText @textOptions
+Stop-ConsoleRecording
 ```
 
 End a recording from inside the recorded shell

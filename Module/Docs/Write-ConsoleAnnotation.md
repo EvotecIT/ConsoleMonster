@@ -21,7 +21,14 @@ GitHub Actions and Azure Pipelines receive native annotations with escaped liter
 
 ### EXAMPLE 1
 ```powershell
-Write-ConsoleAnnotation -Level Error -Message 'Missing configuration' -File ./build.ps1 -Line 12 -Column 5
+$annotationOptions = @{
+    Level = 'Error'
+    Message = 'Missing configuration'
+    File = './build.ps1'
+    Line = 12
+    Column = 5
+}
+Write-ConsoleAnnotation @annotationOptions
 ```
 
 Point to a build error
@@ -29,7 +36,12 @@ Point to a build error
 ### EXAMPLE 2
 ```powershell
 $result = [pscustomobject]@{ Name = 'Inventory'; Detail = 'Two servers need an update' }
-Write-ConsoleAnnotation -Level Warning -Title $result.Name -Message $result.Detail
+$annotationOptions = @{
+    Level = 'Warning'
+    Title = $result.Name
+    Message = $result.Detail
+}
+Write-ConsoleAnnotation @annotationOptions
 ```
 
 Highlight an inventory warning in a CI log

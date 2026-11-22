@@ -20,9 +20,17 @@ Show-ConsoleDiagram [-Path] <string> [-Diagram <string>] [-Scenario <string>] [-
 ```
 
 ## DESCRIPTION
-Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Nodes keep their subtitle and live value on separate lines. A narrow view becomes a grouped wrapping tree, retaining every connection label. The Needs attention list includes each non-Pass node and link; -NoSummary hides it.
+Pipe connection rows with From, To, Label, Status and Group, or select other columns with property names or script blocks using $_. New-ConsoleDiagram builds the same widget from nodes, links, groups and use cases. Path reads one Markdown file with ChartForgeX visual fences or one plain architecture file. Errors in the selected diagram stop the command with the file line and diagnostic code. Other visual-fence errors and markup warnings use the warning stream.
 
-Reads a Markdown file with ChartForgeX visual fences, or a plain architecture file without fences, and draws the diagram in terminal cells: boxes, routed connections, dashed groups and a legend. When the diagram has use cases, the first one is selected and its steps, payloads and keys are shown. In an interactive console, Left and Right step through the use case, Space plays it, Tab switches use cases, Up and Down move the focus between nodes or scroll a diagram taller than the viewport, and D shows the focused node's details. The app footer shows the exit key. In redirected, CI, line and non-interactive sessions, or with -StaticSnapshot, one static view is printed at the chosen step. Errors in the selected diagram stop the command with the file line and diagnostic code. Errors in other visual fences and markup warnings are written as PowerShell warnings. -Path reads one file and cannot be combined with pipeline input; pipe connection rows without -Path.
+Interactive diagram
+-------------------
+
+The diagram shows boxes, routed connections, dashed groups and a legend. Nodes keep their subtitle and live value on separate lines. Use Up and Down to move between nodes or scroll a diagram taller than the viewport. Press D to inspect the focused node. The diagram starts on the first use case unless Scenario selects another. Left and Right step through its payloads and steps, Space plays it, and Tab switches use cases. The app footer shows the exit key.
+
+Static diagram
+--------------
+
+Redirected, CI, line and non-interactive sessions, or StaticSnapshot, print one view at the selected step. A narrow view becomes a grouped wrapping tree, retaining the connection labels. The Needs attention list shows non-Pass nodes and links. Use NoSummary to hide it.
 
 ## EXAMPLES
 
@@ -35,28 +43,53 @@ Explore a diagram and its use cases with the keyboard.
 
 ### EXAMPLE 2
 ```powershell
-Show-ConsoleDiagram -Path ./ad-replication.md -Scenario replicate -Step 6 -StaticSnapshot
+$diagramOptions = @{
+    StaticSnapshot = $true
+    Path = './ad-replication.md'
+    Scenario = 'replicate'
+    Step = 6
+}
+Show-ConsoleDiagram @diagramOptions
 ```
 
 Print one step of a use case without reading keys.
 
 ### EXAMPLE 3
 ```powershell
-Show-ConsoleDiagram -Path ./tierbridge.md -Scenario blocked -Step 7 -Width 120 -AsString
+$diagramOptions = @{
+    AsString = $true
+    Path = './tierbridge.md'
+    Scenario = 'blocked'
+    Step = 7
+    Width = 120
+}
+Show-ConsoleDiagram @diagramOptions
 ```
 
 Capture the diagram as plain text for a log or a ticket.
 
 ### EXAMPLE 4
 ```powershell
-$rows | Show-ConsoleDiagram -Title 'Replication' -StaticSnapshot
+$diagramOptions = @{
+    StaticSnapshot = $true
+    Title = 'Replication'
+}
+$rows | Show-ConsoleDiagram @diagramOptions
 ```
 
 Show connection rows using their standard columns.
 
 ### EXAMPLE 5
 ```powershell
-$rows | Show-ConsoleDiagram -From Source -To Destination -Label { $_.Lag.ToString() + ' min' } -Status Health -Group Site -AsString
+$diagramOptions = @{
+    AsString = $true
+    From = 'Source'
+    To = 'Destination'
+    Label = { $_.Lag.ToString() + ' min' }
+    Status = 'Health'
+    Group = 'Site'
+}
+$rows | Show-ConsoleDiagram @diagramOptions
 ```
 
 Select columns and calculate connection labels.

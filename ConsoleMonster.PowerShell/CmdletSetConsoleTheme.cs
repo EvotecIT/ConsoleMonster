@@ -18,12 +18,24 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     /// <para>Keep the colour-blind-safe theme in every new session</para>
-    /// <code>Set-ConsoleTheme -Theme ColorBlindSafe -Save</code>
+    /// <code>
+    /// $themeOptions = @{
+    ///     Save = $true
+    ///     Theme = 'ColorBlindSafe'
+    /// }
+    /// Set-ConsoleTheme @themeOptions</code>
     /// </example>
-    /// <example><para>Keep the accessible Dracula scheme in every session</para><code>Set-ConsoleTheme Dracula -Accessible -Save</code></example>
+    /// <example><para>Keep the accessible Dracula scheme in every session</para><code>
+    /// $themeOptions = @{
+    ///     Accessible = $true
+    ///     Save = $true
+    ///     Theme = 'Dracula'
+    /// }
+    /// Set-ConsoleTheme @themeOptions</code></example>
     /// <example>
     /// <para>Load an existing theme exported by Export-ConsoleTheme</para>
-    /// <code># Requires an existing team-theme.psd1 file. Changes the active session theme.
+    /// <code>
+    /// # Requires an existing team-theme.psd1 file. Changes the active session theme.
     /// Set-ConsoleTheme -Path ./team-theme.psd1</code>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "ConsoleTheme", DefaultParameterSetName = "Name", HelpUri = "https://consolemonster.dev/powershell/commands/set-consoletheme/")]

@@ -25,7 +25,11 @@ $backups = @(
     [pscustomobject]@{ Date = [datetime]'2026-10-01'; Status = 'Pass'; Label = 'Backup verified' }
     [pscustomobject]@{ Date = [datetime]'2026-10-02'; Status = 'Warn'; Label = 'Backup delayed' }
 )
-$backups | New-ConsoleCalendar -Year 2026 -Month 10 | Show-Console
+$calendarOptions = @{
+    Year = 2026
+    Month = 10
+}
+$backups | New-ConsoleCalendar @calendarOptions | Show-Console
 ```
 
 Display backup outcomes for October
@@ -39,10 +43,23 @@ Show this month
 
 ### EXAMPLE 3
 ```powershell
-New-ConsoleCalendar -Year 2026 -View Year -FirstDayOfWeek Monday
+$calendarOptions = @{
+    Year = 2026
+    View = 'Year'
+    FirstDayOfWeek = 'Monday'
+}
+New-ConsoleCalendar @calendarOptions
 ```
 
 Build a year view with Monday-first weeks
+
+### EXAMPLE 4
+```powershell
+Get-ConsoleDemo -Slug 'operations-calendar' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'stale-accounts' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleCalendar in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

@@ -11,7 +11,11 @@ namespace ConsoleMonster.PowerShell {
     ///   <para>Forty items part-way through a run</para>
     ///   <code>
     /// $states = @('Pass') * 28 + @('Fail') * 2 + @('Warn') + @('Running') * 4
-    /// New-ConsoleCellMap -InputObject $states -Count 40 | Show-Console</code>
+    /// $cellMapOptions = @{
+    ///     InputObject = $states
+    ///     Count = 40
+    /// }
+    /// New-ConsoleCellMap @cellMapOptions | Show-Console</code>
     /// </example>
     /// <example>
     ///   <para>States from objects</para>
@@ -19,7 +23,22 @@ namespace ConsoleMonster.PowerShell {
     /// </example>
     /// <example>
     ///   <para>A grid of three servers by four checks, with the server names beside the rows</para>
-    ///   <code>New-ConsoleCellMap -WidgetId checks -Count 12 -Columns 4 -RowLabels 'SRV01', 'SRV02', 'SRV03' -LegendLines 2 -InputObject Pass, Pass, Fail, Warn, Pass | Show-Console</code>
+    ///   <code>
+    /// $cellMapOptions = @{
+    ///     WidgetId = 'checks'
+    ///     Count = 12
+    ///     Columns = 4
+    ///     RowLabels = @('SRV01', 'SRV02', 'SRV03')
+    ///     LegendLines = 2
+    ///     InputObject = @('Pass', 'Pass', 'Fail', 'Warn', 'Pass')
+    /// }
+    /// New-ConsoleCellMap @cellMapOptions | Show-Console</code>
+    /// </example>
+    /// <example>
+    /// <para>Read any of these gallery scripts to see New-ConsoleCellMap in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>
+    /// Get-ConsoleDemo -Slug 'fleet' | Select-Object -ExpandProperty Source
+    /// Get-ConsoleDemo -Slug 'parallel-patch' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCellMap", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecellmap/")]
     [OutputType(typeof(CellMap))]

@@ -28,7 +28,18 @@ Export a table as an HTML page
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleText 'Nightly run' | Export-ConsoleFrame -Format Svg -Width 120 -Height 36 -Theme Dark -Title 'Nightly run' -ChromeStyle MacOS
+$frameOptions = @{
+    Format = 'Svg'
+    Width = 120
+    Height = 36
+    Theme = 'Dark'
+    Title = 'Nightly run'
+    ChromeStyle = 'MacOS'
+}
+$textOptions = @{
+    Text = @('Nightly run')
+}
+New-ConsoleText @textOptions | Export-ConsoleFrame @frameOptions
 ```
 
 Export an SVG with a dark window frame

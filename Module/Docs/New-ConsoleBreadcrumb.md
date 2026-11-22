@@ -26,9 +26,19 @@ The last segment is where you are. With -Outline it follows that outline's curre
 
 ### EXAMPLE 1
 ```powershell
-$sections = New-ConsoleOutline -Key Sections -Items 'General', @{ Title = 'Proxy'; Level = 2 }, 'Logging' -SelectedIndex 1
+$outlineOptions = @{
+    Key = 'Sections'
+    Items = @('General', @{ Title = 'Proxy'; Level = 2 }, 'Logging')
+    SelectedIndex = 1
+}
+$sections = New-ConsoleOutline @outlineOptions
 Show-ConsoleApp -Content {
-    New-ConsoleBreadcrumb -Key Where -Ancestors 'Settings' -Outline $sections
+    $breadcrumbOptions = @{
+        Key = 'Where'
+        Ancestors = @('Settings')
+        Outline = $sections
+    }
+    New-ConsoleBreadcrumb @breadcrumbOptions
     $sections
 }
 ```
@@ -37,10 +47,21 @@ Show where the reader is in an outline.
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleBreadcrumb -Key location -Segments 'Inventory', 'Servers', 'web01' | Show-Console
+$breadcrumbOptions = @{
+    Key = 'location'
+    Segments = @('Inventory', 'Servers', 'web01')
+}
+New-ConsoleBreadcrumb @breadcrumbOptions | Show-Console
 ```
 
 Compose an inventory breadcrumb
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'settings-tabs' | Select-Object -ExpandProperty Source
+```
+
+Read the gallery script to see New-ConsoleBreadcrumb in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 

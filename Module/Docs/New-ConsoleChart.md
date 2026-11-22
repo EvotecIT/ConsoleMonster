@@ -21,17 +21,40 @@ Type selects Bar, Stacked, Line, Scatter, Histogram or Sparkline. The shared C# 
 
 ### EXAMPLE 1
 ```powershell
-$servers = [pscustomobject]@{ Name = 'web01'; Cpu = 42 }, [pscustomobject]@{ Name = 'web02'; Cpu = 27 }; $servers | New-ConsoleChart -Property Cpu -Label Name -Unit '%'
+$servers = @(
+    [pscustomobject]@{ Name = 'web01'; Cpu = 42 }
+    [pscustomobject]@{ Name = 'web02'; Cpu = 27 }
+)
+$chartOptions = @{
+    Property = @('Cpu')
+    Label = 'Name'
+    Unit = '%'
+}
+$servers | New-ConsoleChart @chartOptions | Show-Console
 ```
 
-Chart a property of ordinary objects inside a report
+Draw two bars from ordinary records. Property is a one-element array in this input mode. Its first entry selects Cpu, the numeric value for each bar. Label selects Name for the bar labels. The command returns a chart widget; Show-Console renders it outside a layout.
 
 ### EXAMPLE 2
 ```powershell
-[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart -Type Bar -Unit ' ms' | Show-Console
+$chartOptions = @{
+    Type = 'Bar'
+    Unit = ' ms'
+}
+[pscustomobject] @{ Label = 'Cloudflare'; Value = 12 } | New-ConsoleChart @chartOptions | Show-Console
 ```
 
 Show resolver latency
+
+### EXAMPLE 3
+```powershell
+Get-ConsoleDemo -Slug 'license-usage' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'update-compliance' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'chart-table' | Select-Object -ExpandProperty Source
+Get-ConsoleDemo -Slug 'disk-usage' | Select-Object -ExpandProperty Source
+```
+
+Read any of these gallery scripts to see New-ConsoleChart in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.
 
 ## PARAMETERS
 
@@ -308,7 +331,7 @@ Accept wildcard characters: False
 ```
 
 ### -Property
-For Bar, Histogram or Sparkline: the numeric property of ordinary input objects (a name, pattern or calculated property).
+One-element array for Bar, Histogram or Sparkline. Its first entry selects the numeric value from each input object. Supply a name, a pattern resolving to one property, or one calculated-property descriptor.
 
 ```yaml
 Type: Object[]

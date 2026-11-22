@@ -21,7 +21,10 @@ Without -Name every setting is reset. Afterwards the next source applies: an env
 
 ### EXAMPLE 1
 ```powershell
-Reset-ConsoleSetting Theme
+$settingOptions = @{
+    Name = @('Theme')
+}
+Reset-ConsoleSetting @settingOptions
 ```
 
 Go back to the saved theme

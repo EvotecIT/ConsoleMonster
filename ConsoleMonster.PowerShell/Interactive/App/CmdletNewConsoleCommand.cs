@@ -8,19 +8,53 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Creates a passive command definition. Work runs in an isolated runspace with explicit arguments and module imports, not the defining closure. The first script parameter receives a deserialized row snapshot. Selected or marked rows are captured before optional modal confirmation and run in order. Output, host messages, warnings, errors and progress stream into the app's log. F6 requests cancellation while the app stays open. After a two-second grace period the app becomes available even when a native call is still stopping. That command cannot start again until its previous runspace exits; other commands remain available. Cancellation cannot undo effects already performed by an external operation.</para></remarks>
     /// <example>
     /// <para>Confirm before inspecting a selected object</para>
-    /// <code>$inspect = New-ConsoleCommand -Key Inspect -Label 'Inspect process' -Shortcut Ctrl+I -ConfirmPrompt 'Inspect the selected process?' -ScriptBlock {
-    ///     param($Row)
-    ///     $Row | Select-Object Name, Id
+    /// <code>
+    /// $commandOptions = @{
+    ///     Key = 'Inspect'
+    ///     Label = 'Inspect process'
+    ///     Shortcut = 'Ctrl+I'
+    ///     ConfirmPrompt = 'Inspect the selected process?'
+    ///     ScriptBlock = {
+    ///         param($Row)
+    ///         $Row | Select-Object Name, Id
+    ///     }
     /// }
-    /// Get-Process | Select-Object -First 8 | Show-ConsoleGrid -Command $inspect</code>
+    /// $inspect = New-ConsoleCommand @commandOptions
+    /// $gridOptions = @{
+    ///     Command = $inspect
+    /// }
+    /// Get-Process | Select-Object -First 8 | Show-ConsoleGrid @gridOptions</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory command</para>
-    /// <code>$refresh = New-ConsoleCommand -Key refresh -Label 'Refresh inventory' -Shortcut F5 -ScriptBlock {
-    ///     Write-ConsoleLogEntry 'Inventory refreshed' -Level Info
+    /// <code>
+    /// $commandOptions = @{
+    ///     Key = 'refresh'
+    ///     Label = 'Refresh inventory'
+    ///     Shortcut = 'F5'
+    ///     ScriptBlock = {
+    ///         $logEntryOptions = @{
+    ///             Message = 'Inventory refreshed'
+    ///             Level = 'Info'
+    ///         }
+    ///         Write-ConsoleLogEntry @logEntryOptions
+    ///     }
     /// }
-    /// Show-ConsoleApp -Command $refresh -Content { New-ConsoleText 'Press F5 to refresh' }
-    /// </code>
+    /// $refresh = New-ConsoleCommand @commandOptions
+    /// $appOptions = @{
+    ///     Command = $refresh
+    ///     Content = {
+    ///         $textOptions = @{
+    ///             Text = @('Press F5 to refresh')
+    ///         }
+    ///         New-ConsoleText @textOptions
+    ///     }
+    /// }
+    /// Show-ConsoleApp @appOptions</code>
+    /// </example>
+    /// <example>
+    /// <para>Read the gallery script to see New-ConsoleCommand in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</para>
+    /// <code>Get-ConsoleDemo -Slug 'service-browser' | Select-Object -ExpandProperty Source</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleCommand", HelpUri = "https://consolemonster.dev/powershell/commands/new-consolecommand/")]
     [OutputType(typeof(AppCommand))]

@@ -7,14 +7,26 @@ namespace ConsoleMonster.PowerShell {
     /// <remarks><para>Uses the same member adapters, paths, cycle guards and expansion budget as Show-ConsoleObject. Arrows expand and collapse; Enter drills into the selected subtree.</para></remarks>
     /// <example>
     /// <para>Browse a nested configuration</para>
-    /// <code>$config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
-    /// Show-ConsoleApp -Content { New-ConsoleTreeSelect -Key Members -InputObject $config }</code>
+    /// <code>
+    /// $config = [pscustomobject]@{ Name = 'example'; Settings = @{ Port = 443; Enabled = $true } }
+    /// Show-ConsoleApp -Content {
+    ///     $treeSelectOptions = @{
+    ///         Key = 'Members'
+    ///         InputObject = $config
+    ///     }
+    ///     New-ConsoleTreeSelect @treeSelectOptions
+    /// }</code>
     /// </example>
     /// <example>
     /// <para>Compose an inventory tree select</para>
-    /// <code>$inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
-    /// New-ConsoleTreeSelect -Key inventory -InputObject $inventory -Depth 3 | Show-Console
-    /// </code>
+    /// <code>
+    /// $inventory = [pscustomobject]@{ Site = 'Warsaw'; Server = [pscustomobject]@{ Name = 'web01'; State = 'Online' } }
+    /// $treeSelectOptions = @{
+    ///     Key = 'inventory'
+    ///     InputObject = $inventory
+    ///     Depth = 3
+    /// }
+    /// New-ConsoleTreeSelect @treeSelectOptions | Show-Console</code>
     /// </example>
     [Cmdlet(VerbsCommon.New, "ConsoleTreeSelect", HelpUri = "https://consolemonster.dev/powershell/commands/new-consoletreeselect/")]
     [OutputType(typeof(TreeSelect))]

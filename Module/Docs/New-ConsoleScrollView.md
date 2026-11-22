@@ -21,18 +21,36 @@ Mouse wheel scrolls the viewport. Tab navigation reveals focused inputs. Lists, 
 
 ### EXAMPLE 1
 ```powershell
-New-ConsoleScrollView -Content {
-    1..20 | ForEach-Object { New-ConsoleText "Detail line $_" }
-} -Height 12
+$scrollViewOptions = @{
+    Content = {
+        1..20 | ForEach-Object {
+            $textOptions = @{
+                Text = @("Detail line $_")
+            }
+            New-ConsoleText @textOptions
+        }
+    }
+    Height = 12
+}
+New-ConsoleScrollView @scrollViewOptions
 ```
 
 Build a scrollable detail pane
 
 ### EXAMPLE 2
 ```powershell
-New-ConsoleScrollView -Height 4 -Content {
-                foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') { New-ConsoleText $server }
-            } | Show-Console
+$scrollViewOptions = @{
+    Height = 4
+    Content = {
+        foreach ($server in 'web01', 'web02', 'db01', 'db02', 'dc01') {
+            $textOptions = @{
+                Text = $server
+            }
+            New-ConsoleText @textOptions
+        }
+    }
+}
+New-ConsoleScrollView @scrollViewOptions | Show-Console
 ```
 
 Compose an inventory scroll view

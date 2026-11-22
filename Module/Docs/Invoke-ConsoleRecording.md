@@ -31,27 +31,55 @@ Runs the script in an isolated child process, or opens a child shell with Intera
 
 ### EXAMPLE 1
 ```powershell
-Invoke-ConsoleRecording { Add-ConsoleRecordingMarker 'Build'; Get-Date; Write-Host 'Done' -ForegroundColor Green } -Path ./demo.html -WhatIf
+$recordingOptions = @{
+    WhatIf = $true
+    ScriptBlock = {
+        $recordingMarkerOptions = @{
+            Label = 'Build'
+        }
+        Add-ConsoleRecordingMarker @recordingMarkerOptions; Get-Date; Write-Host 'Done' -ForegroundColor Green }
+    Path = './demo.html'
+}
+Invoke-ConsoleRecording @recordingOptions
 ```
 
 Preview recording coloured output and a chapter
 
 ### EXAMPLE 2
 ```powershell
-Invoke-ConsoleRecording -Interactive -Path ./session.cast -WhatIf
+$recordingOptions = @{
+    Interactive = $true
+    WhatIf = $true
+    Path = './session.cast'
+}
+Invoke-ConsoleRecording @recordingOptions
 ```
 
 Preview recording a child shell
 
 ### EXAMPLE 3
 ```powershell
-Invoke-ConsoleRecording -Headless -Width 100 -Height 30 -InputScript 'wait:800 Down Down wait:600 Enter wait:1200 q' -Path ./app.cast -WhatIf {
-    Show-ConsoleApp -Content { New-ConsoleSelect -Key Color -Choices Red, Green, Blue }
+$recordingOptions = @{
+    Headless = $true
+    WhatIf = $true
+    Width = 100
+    Height = 30
+    InputScript = 'wait:800 Down Down wait:600 Enter wait:1200 q'
+    Path = './app.cast'
+    ScriptBlock = {
+        Show-ConsoleApp -Content {
+            $selectOptions = @{
+                Key = 'Color'
+                Choices = @('Red', 'Green', 'Blue')
+            }
+            New-ConsoleSelect @selectOptions
+        }
+    }
 }
-Export-ConsoleRecording -RecordingPath ./app.cast -Path ./app.gif
+Invoke-ConsoleRecording @recordingOptions
 ```
 
-Preview recording an app driven by keys, then make a GIF of it
+Preview recording an app driven by scripted keys. WhatIf reports the intended recording path without running the app or writing a cast.
 
 ## PARAMETERS
 
