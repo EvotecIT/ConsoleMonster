@@ -29,8 +29,8 @@ Build-Module -ModuleName 'ConsoleMonster' -RunMode $RunMode {
         CompatiblePSEditions = @('Desktop', 'Core')
         # ID used to uniquely identify this module
         GUID                 = '7ef2133c-55a5-47e6-809e-6010f6e65e09'
-        # Version number of this module.
-        ModuleVersion        = '3.0.1'
+        # PowerForge resolves the next patch on this release line.
+        ModuleVersion        = '3.0.X'
         # Author of this module
         Author               = 'Przemyslaw Klys'
         # Company or vendor of this module
