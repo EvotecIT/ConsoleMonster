@@ -100,15 +100,28 @@ namespace ConsoleMonster.PowerShell.Pester {
             }
 
             object? result = outcome?.Properties["Result"]?.Value;
+            bool shouldThrow = outcome?.Properties["Throw"]?.Value is true;
+            bool shouldExit = outcome?.Properties["Exit"]?.Value is true;
+            if (result == null) {
+                var error = new ErrorRecord(new InvalidOperationException("Pester returned no run result. Check the Pester output for the error that interrupted the run."), "ConsoleMonsterPesterResultMissing", ErrorCategory.InvalidResult, null);
+                if (shouldExit && !shouldThrow) {
+                    _source.Host.SetShouldExit(1);
+                    _source.WriteError(error);
+                } else {
+                    _source.ThrowTerminatingError(error);
+                }
+                return;
+            }
+
             bool passThru = outcome?.Properties["PassThru"]?.Value is bool p && p;
-            if (passThru && result != null) {
+            if (passThru) {
                 _source.WriteObject(result);
             }
             int failed = Count(result, "FailedCount") + Count(result, "FailedBlocksCount") + Count(result, "FailedContainersCount");
-            if (outcome?.Properties["Throw"]?.Value is bool shouldThrow && shouldThrow && failed > 0) {
+            if (shouldThrow && failed > 0) {
                 _source.ThrowTerminatingError(new ErrorRecord(new RuntimeException("Pester run failed, because " + failed.ToString(System.Globalization.CultureInfo.InvariantCulture) + " test(s) or block(s) failed."), "ConsoleMonsterPesterRunFailed", ErrorCategory.InvalidResult, result));
             }
-            if (outcome?.Properties["Exit"]?.Value is bool shouldExit && shouldExit) {
+            if (shouldExit) {
                 _source.Host.SetShouldExit(Math.Min(255, failed));
             }
         }
@@ -207,10 +220,7 @@ namespace ConsoleMonster.PowerShell.Pester {
             _source.WriteVerbose("Saved the final dashboard to " + path + ".");
         }
 
-        private static int Count(object? result, string property) {
-            if (result == null) {
-                return 0;
-            }
+        private static int Count(object result, string property) {
             object? value = PSObject.AsPSObject(result).Properties[property]?.Value;
             try {
                 return value == null ? 0 : Convert.ToInt32(value, System.Globalization.CultureInfo.InvariantCulture);

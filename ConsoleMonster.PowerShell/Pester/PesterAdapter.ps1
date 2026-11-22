@@ -291,4 +291,7 @@ if ($null -ne $result) {
     }
 }
 $Bridge.End()
+# A command that emits nothing can leave PowerShell's no-output sentinel in the assignment.
+# Give the C# caller a literal null when there is no native result.
+if ($null -eq $result) { $result = $null }
 [pscustomobject]@{ Result = $result; Exit = $exitRequested; Throw = $throwRequested; PassThru = $passThru }
