@@ -22,7 +22,7 @@ Show-ConsoleTable -Content <Object> [-Property <Object[]>] [-GroupBy <Object>] [
 ## DESCRIPTION
 Pipe one object per row. Property is an ordered array: a string selects a property, and a hashtable configures a column. Name identifies the column and reads the like-named property by default. Expression can override the value with a different property name or with a script block that receives the row as $_.
 
-Header changes the displayed heading. Presenter formats the cell value, such as rendering a byte count as a human-readable size. Priority affects which columns are kept when the grid has too little room. GroupBy adds group headings. ShowTotals automatically sums eligible numeric columns, excluding the key and identifier columns. Wrap keeps long text readable. The renderer can use labelled cards for narrow output.
+Header changes the displayed heading. Presenter formats the cell value, such as rendering a byte count as a human-readable size. Priority affects which columns are kept when the grid has too little room. GroupBy adds group headings. ShowTotals automatically sums eligible numeric columns other than the key column and columns using the Identifier presenter. The column name can influence the default presenter. An explicit Presenter overrides that default, and an explicit Aggregate controls the total for its column. Wrap keeps long text readable. The renderer can use labelled cards for narrow output.
 
 Show-ConsoleTable displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting opts into ConsoleMonster's display for ordinary prompt output.
 
@@ -379,7 +379,7 @@ Accept wildcard characters: False
 ```
 
 ### -ShowTotals
-Shows a totals row. The automatic sum applies to numeric columns other than the key and identifier columns.
+Shows a totals row. The automatic sum skips the key column and columns using the Identifier presenter. A numeric column with an explicit Number presenter can be summed even if its name usually selects the Identifier presenter. An explicit Aggregate controls the total for its column.
 
 ```yaml
 Type: SwitchParameter

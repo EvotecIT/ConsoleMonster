@@ -101,7 +101,7 @@ Remove-Item -LiteralPath $many
         $text | Should -Not -Match 'Running tests from'
     }
 
-    It 'exits nonzero for a failing assertion with ANSI in the NUnit report' {
+    It 'exits nonzero for ANSI-bearing failures and for missing run results' {
         $text = Invoke-PesterChild @'
 $test = Join-Path (Split-Path -Parent $fixtures) 'Ansi.Tests.ps1'
 @"
@@ -118,6 +118,27 @@ Invoke-ConsolePester -Configuration $configuration
 '@
         $LASTEXITCODE | Should -Be 1
         $text | Should -Match 'Tests failed: 1 failed'
+
+        $text = Invoke-PesterChild @'
+# Force the missing-result path independently of Pester's XML exporter.
+& (Get-Module Pester) {
+    function script:Invoke-Pester {
+        param($Configuration)
+        Write-Host 'PESTER-RETURNED-NOTHING'
+    }
+}
+$configuration = New-PesterConfiguration
+$configuration.Run.Path = $fixtures
+$configuration.Run.Exit = $true
+$configuration.Run.PassThru = $true
+$result = @(Invoke-ConsolePester -Configuration $configuration -ErrorVariable runErrors)
+"ERROR-ID=$($runErrors.FullyQualifiedErrorId -join ';')"
+"PASS-THROUGH=$($result.Count)"
+'@
+        $LASTEXITCODE | Should -Be 1
+        $text | Should -Match '(?m)^PESTER-RETURNED-NOTHING$'
+        $text | Should -Match '(?m)^ERROR-ID=ConsoleMonsterPesterResultMissing(?:,.*)?$'
+        $text | Should -Match '(?m)^PASS-THROUGH=0$'
     }
 
     It 'returns nothing without -PassThru and restores the Pester screen plugin afterwards' {

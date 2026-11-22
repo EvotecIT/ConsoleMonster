@@ -18,7 +18,7 @@ namespace ConsoleMonster.PowerShell {
     /// <para>Inline displays one selection prompt at a time in the scrollback. In line mode, respond with the numbered choice. Actions write their output in the scrollback and the menu returns after the action. Use Back in a submenu or choose an Exit item to leave.</para>
     /// <para>Static menu
     /// -----------</para>
-    /// <para>Mode None and sessions started with PowerShell's NonInteractive switch print the current menu once without executing actions. Redirected output and CI also use static output when there is no input source. Explicit Mode Line uses the host for input, so with an interactive host it can still prompt and run actions in CI or with redirected output.</para>
+    /// <para>Mode None prints the current menu once without executing actions. A session started with PowerShell's NonInteractive switch also prints a static menu if no input source is supplied. Scripted input, such as keys supplied by Invoke-ConsoleHeadless, can still drive the menu and run actions in that session. Redirected output and CI use static output when there is no input source. Explicit Mode Line uses the host for input, so with an interactive host it can still prompt and run actions in CI or with redirected output.</para>
     /// </remarks>
     /// <example>
     /// <para>Run a menu as an application</para>
