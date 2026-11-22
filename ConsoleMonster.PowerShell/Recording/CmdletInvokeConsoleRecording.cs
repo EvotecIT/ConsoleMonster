@@ -27,8 +27,8 @@ namespace ConsoleMonster.PowerShell {
     ///     Path = './session.cast'
     /// }
     /// Invoke-ConsoleRecording @recordingOptions</code></example>
-    /// <example><para>Preview recording an app driven by keys, then make a GIF of it</para><code>
-    /// $recordingOptions2 = @{
+    /// <example><para>Preview recording an app driven by scripted keys. WhatIf reports the intended recording path without running the app or writing a cast.</para><code>
+    /// $recordingOptions = @{
     ///     Headless = $true
     ///     WhatIf = $true
     ///     Width = 100
@@ -45,12 +45,7 @@ namespace ConsoleMonster.PowerShell {
     ///         }
     ///     }
     /// }
-    /// Invoke-ConsoleRecording @recordingOptions2
-    /// $recordingOptions = @{
-    ///     RecordingPath = './app.cast'
-    ///     Path = './app.gif'
-    /// }
-    /// Export-ConsoleRecording @recordingOptions</code></example>
+    /// Invoke-ConsoleRecording @recordingOptions</code></example>
     [Cmdlet(VerbsLifecycle.Invoke, "ConsoleRecording", DefaultParameterSetName = "Script", SupportsShouldProcess = true, HelpUri = "https://consolemonster.dev/powershell/commands/invoke-consolerecording/")]
     [OutputType(typeof(FileInfo))]
     public sealed partial class CmdletInvokeConsoleRecording : ConsoleRecordingCommand {

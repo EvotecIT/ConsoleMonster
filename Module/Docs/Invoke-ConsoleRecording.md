@@ -59,7 +59,7 @@ Preview recording a child shell
 
 ### EXAMPLE 3
 ```powershell
-$recordingOptions2 = @{
+$recordingOptions = @{
     Headless = $true
     WhatIf = $true
     Width = 100
@@ -76,15 +76,10 @@ $recordingOptions2 = @{
         }
     }
 }
-Invoke-ConsoleRecording @recordingOptions2
-$recordingOptions = @{
-    RecordingPath = './app.cast'
-    Path = './app.gif'
-}
-Export-ConsoleRecording @recordingOptions
+Invoke-ConsoleRecording @recordingOptions
 ```
 
-Preview recording an app driven by keys, then make a GIF of it
+Preview recording an app driven by scripted keys. WhatIf reports the intended recording path without running the app or writing a cast.
 
 ## PARAMETERS
 

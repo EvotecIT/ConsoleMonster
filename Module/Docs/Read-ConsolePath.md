@@ -38,7 +38,7 @@ $pathOptions = @{
     MustExist = $true
     Title = 'Inventory folder'
     Default = '.'
-    Kind = 'Directory'
+    Kind = 'Folder'
 }
 $path = Read-ConsolePath @pathOptions
 $textOptions = @{

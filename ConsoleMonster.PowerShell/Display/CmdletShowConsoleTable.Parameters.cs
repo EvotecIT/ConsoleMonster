@@ -44,7 +44,7 @@ namespace ConsoleMonster.PowerShell {
         [PSDefaultValue(Help = "$false")]
         public override SwitchParameter PassThru { get; set; }
 
-        /// <summary><para type="description">Shows a totals row for numeric columns.</para></summary>
+        /// <summary><para type="description">Shows a totals row. The automatic sum applies to numeric columns other than the key and identifier columns.</para></summary>
         [Parameter]
         [PSDefaultValue(Help = "$false")]
         public override SwitchParameter ShowTotals { get; set; }

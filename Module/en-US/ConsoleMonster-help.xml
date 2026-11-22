@@ -4852,7 +4852,7 @@ Enable-ConsoleFormatting @formattingOptions; Get-ConsoleFormatting</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 2</maml:title>
-        <dev:code>Get-ConsoleFormatting | Select-Object Feature, Enabled | Show-ConsoleTable</dev:code>
+        <dev:code>Get-ConsoleFormatting | Select-Object Features, ErrorLayout, BuiltIn | Show-ConsoleTable</dev:code>
         <dev:remarks>
           <maml:para>Inspect which formatting features are enabled</maml:para>
         </dev:remarks>
@@ -7260,7 +7260,7 @@ Invoke-ConsoleRecording @recordingOptions</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
-        <dev:code>$recordingOptions2 = @{&#xD;
+        <dev:code>$recordingOptions = @{&#xD;
     Headless = $true&#xD;
     WhatIf = $true&#xD;
     Width = 100&#xD;
@@ -7277,14 +7277,9 @@ Invoke-ConsoleRecording @recordingOptions</dev:code>
         }&#xD;
     }&#xD;
 }&#xD;
-Invoke-ConsoleRecording @recordingOptions2&#xD;
-$recordingOptions = @{&#xD;
-    RecordingPath = './app.cast'&#xD;
-    Path = './app.gif'&#xD;
-}&#xD;
-Export-ConsoleRecording @recordingOptions</dev:code>
+Invoke-ConsoleRecording @recordingOptions</dev:code>
         <dev:remarks>
-          <maml:para>Preview recording an app driven by keys, then make a GIF of it</maml:para>
+          <maml:para>Preview recording an app driven by scripted keys. WhatIf reports the intended recording path without running the app or writing a cast.</maml:para>
         </dev:remarks>
       </command:example>
     </command:examples>
@@ -7652,7 +7647,7 @@ $results = @($servers | Invoke-ConsoleRun @runOptions)&#xD;
 $results&#xD;
 $failures</dev:code>
         <dev:remarks>
-          <maml:para>Separate successful results from error records, as in patch-progress. ErrorAction keeps the synthetic error off the display while ErrorVariable retains it. Output from the other preview checks remains available as ordinary PowerShell objects. The sample makes no changes to any host.</maml:para>
+          <maml:para>Separate successful results from error records, as in patch-progress. SilentlyContinue suppresses the error display from the cmdlet's error stream, while ErrorVariable retains the error record. A live dashboard can still show the worker error in its log. The other preview checks return ordinary PowerShell objects. The sample makes no changes to any host.</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
@@ -30474,7 +30469,7 @@ $file = Read-ConsolePath @pathOptions</dev:code>
     MustExist = $true&#xD;
     Title = 'Inventory folder'&#xD;
     Default = '.'&#xD;
-    Kind = 'Directory'&#xD;
+    Kind = 'Folder'&#xD;
 }&#xD;
 $path = Read-ConsolePath @pathOptions&#xD;
 $textOptions = @{&#xD;
@@ -37482,7 +37477,7 @@ Show-ConsoleImage @imageOptions</dev:code>
       <maml:para>Inline displays one selection prompt at a time in the scrollback. In line mode, respond with the numbered choice. Actions write their output in the scrollback and the menu returns after the action. Use Back in a submenu or choose an Exit item to leave.</maml:para>
       <maml:para>Static menu&#xD;
 -----------</maml:para>
-      <maml:para>Redirected output, CI, Mode None and non-interactive sessions print the current menu once. The static view executes no actions.</maml:para>
+      <maml:para>Mode None and sessions started with PowerShell's NonInteractive switch print the current menu once without executing actions. Redirected output and CI also use static output when there is no input source. Explicit Mode Line uses the host for input, so with an interactive host it can still prompt and run actions in CI or with redirected output.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="__AllParameterSets">
@@ -39489,7 +39484,7 @@ Show-ConsoleStatusLine @statusLineOptions</dev:code>
     </command:details>
     <maml:description>
       <maml:para>Pipe one object per row. Property is an ordered array: a string selects a property, and a hashtable configures a column. Name identifies the column and reads the like-named property by default. Expression can override the value with a different property name or with a script block that receives the row as $_.</maml:para>
-      <maml:para>Header changes the displayed heading. Presenter formats the cell value, such as rendering a byte count as a human-readable size. Priority affects which columns are kept when the grid has too little room. GroupBy adds group headings. ShowTotals sums numeric columns, and Wrap keeps long text readable. The renderer can use labelled cards for narrow output.</maml:para>
+      <maml:para>Header changes the displayed heading. Presenter formats the cell value, such as rendering a byte count as a human-readable size. Priority affects which columns are kept when the grid has too little room. GroupBy adds group headings. ShowTotals automatically sums eligible numeric columns, excluding the key and identifier columns. Wrap keeps long text readable. The renderer can use labelled cards for narrow output.</maml:para>
       <maml:para>Show-ConsoleTable displays the table immediately. Use New-ConsoleTable to place a table in a layout or pass it to Export-ConsoleFrame. Enable-ConsoleFormatting opts into ConsoleMonster's display for ordinary prompt output.</maml:para>
     </maml:description>
     <command:syntax>
@@ -39662,7 +39657,7 @@ Show-ConsoleStatusLine @statusLineOptions</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ShowTotals</maml:name>
           <maml:description>
-            <maml:para>Shows a totals row for numeric columns.</maml:para>
+            <maml:para>Shows a totals row. The automatic sum applies to numeric columns other than the key and identifier columns.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -39889,7 +39884,7 @@ Show-ConsoleStatusLine @statusLineOptions</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ShowTotals</maml:name>
           <maml:description>
-            <maml:para>Shows a totals row for numeric columns.</maml:para>
+            <maml:para>Shows a totals row. The automatic sum applies to numeric columns other than the key and identifier columns.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
           <dev:type>
@@ -40128,7 +40123,7 @@ Show-ConsoleStatusLine @statusLineOptions</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ShowTotals</maml:name>
         <maml:description>
-          <maml:para>Shows a totals row for numeric columns.</maml:para>
+          <maml:para>Shows a totals row. The automatic sum applies to numeric columns other than the key and identifier columns.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>

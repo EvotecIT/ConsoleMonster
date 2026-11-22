@@ -35,7 +35,7 @@ namespace ConsoleMonster.PowerShell {
     /// $servers | Invoke-ConsoleRun @runOptions</code>
     /// </example>
     /// <example>
-    /// <para>Separate successful results from error records, as in patch-progress. ErrorAction keeps the synthetic error off the display while ErrorVariable retains it. Output from the other preview checks remains available as ordinary PowerShell objects. The sample makes no changes to any host.</para>
+    /// <para>Separate successful results from error records, as in patch-progress. SilentlyContinue suppresses the error display from the cmdlet's error stream, while ErrorVariable retains the error record. A live dashboard can still show the worker error in its log. The other preview checks return ordinary PowerShell objects. The sample makes no changes to any host.</para>
     /// <code>
     /// $servers = @('web-01', 'web-02', 'web-03')
     /// $runOptions = @{

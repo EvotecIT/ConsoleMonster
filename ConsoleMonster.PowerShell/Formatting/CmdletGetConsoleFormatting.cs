@@ -15,7 +15,7 @@ namespace ConsoleMonster.PowerShell {
     /// <example>
     /// <para>Inspect which formatting features are enabled</para>
     /// <code>
-    /// Get-ConsoleFormatting | Select-Object Feature, Enabled | Show-ConsoleTable
+    /// Get-ConsoleFormatting | Select-Object Features, ErrorLayout, BuiltIn | Show-ConsoleTable
     /// </code>
     /// </example>
     [Cmdlet(VerbsCommon.Get, "ConsoleFormatting", HelpUri = "https://consolemonster.dev/powershell/commands/get-consoleformatting/")]

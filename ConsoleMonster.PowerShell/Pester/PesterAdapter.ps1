@@ -253,6 +253,8 @@ if ($adapter) {
     $factory = { param($Verbosity) $plugin }.GetNewClosure()
     $original = & $pester { ${function:Get-WriteScreenPlugin} }
     & $pester { param($f) ${function:script:Get-WriteScreenPlugin} = $f } $factory
+    # The live pipeline may emit no result. Do not resolve the variable from the caller's scope.
+    $result = $null
     try {
         $ErrorActionPreference = $callerErrorAction
         if ($Options.Stream -or ($verbosity -eq 'None')) {

@@ -31,7 +31,7 @@ Inspect the current session's formatting
 
 ### EXAMPLE 2
 ```powershell
-Get-ConsoleFormatting | Select-Object Feature, Enabled | Show-ConsoleTable
+Get-ConsoleFormatting | Select-Object Features, ErrorLayout, BuiltIn | Show-ConsoleTable
 ```
 
 Inspect which formatting features are enabled
