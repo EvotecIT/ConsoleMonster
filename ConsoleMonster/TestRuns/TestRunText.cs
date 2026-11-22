@@ -208,7 +208,8 @@ namespace ConsoleMonster.TestRuns {
         /// <returns>The line (plain text).</returns>
         public static string SummaryLine(TestRunSnapshot snapshot, IGlyphSet glyphs) {
             StatusKind status = snapshot.Status;
-            return glyphs.StatusSymbol(status) + " " + Outcome(status) + ": " + Totals(snapshot, glyphs);
+            string outcome = snapshot.IncompleteReason ?? Outcome(status);
+            return glyphs.StatusSymbol(status) + " " + outcome + ": " + Totals(snapshot, glyphs);
         }
 
         /// <summary>The outcome words for a run status (Tests failed, Tests inconclusive, Tests passed), translated.</summary>

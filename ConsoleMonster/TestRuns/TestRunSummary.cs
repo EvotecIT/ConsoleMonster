@@ -122,7 +122,8 @@ namespace ConsoleMonster.TestRuns {
             // The outcome and the totals share a line when they fit; otherwise the totals go on the next line, indented.
             private bool Wraps(int width, RenderContext context, out string outcome, out string totals) {
                 StatusKind status = Outcome();
-                outcome = " " + context.Glyphs.StatusSymbol(status) + " " + TestRunText.Outcome(status);
+                string label = _snapshot.IncompleteReason ?? TestRunText.Outcome(status);
+                outcome = " " + context.Glyphs.StatusSymbol(status) + " " + label;
                 totals = TestRunText.Totals(_snapshot, context.Glyphs);
                 return DisplayWidth.Measure(outcome) + 2 + DisplayWidth.Measure(totals) > width;
             }

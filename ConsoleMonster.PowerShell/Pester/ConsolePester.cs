@@ -61,8 +61,11 @@ namespace ConsoleMonster.PowerShell.Pester {
             };
 
             PSObject? outcome;
+            object? result;
             try {
                 outcome = Invoke(bridge, stream);
+                result = outcome?.Properties["Result"]?.Value;
+                run.Finished(result == null ? "Pester run incomplete (no result)" : null);
             } catch (RuntimeException ex) when (!(ex is PipelineStoppedException)) {
                 StopSession();
                 FlushHostLines();
@@ -76,7 +79,6 @@ namespace ConsoleMonster.PowerShell.Pester {
                 _source.WriteWarning("Invoke-ConsolePester: " + fault);
             }
 
-            run.Finished();
             TestRunSnapshot snapshot = run.Snapshot();
             annotations.Dispose();
             if (!_options.NoJobSummary && ContinuousIntegration.Provider != ContinuousIntegrationProvider.None) {
@@ -99,7 +101,6 @@ namespace ConsoleMonster.PowerShell.Pester {
                 Export(run, snapshot, profile);
             }
 
-            object? result = outcome?.Properties["Result"]?.Value;
             bool shouldThrow = outcome?.Properties["Throw"]?.Value is true;
             bool shouldExit = outcome?.Properties["Exit"]?.Value is true;
             if (result == null) {

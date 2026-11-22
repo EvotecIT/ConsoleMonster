@@ -7,7 +7,7 @@ namespace ConsoleMonster.TestRuns {
     public sealed class TestRunSnapshot {
         internal TestRunSnapshot(int? total, int passed, int failed, int skipped, int inconclusive, int notRun, IReadOnlyList<TestContainerState> containers,
             IReadOnlyList<TestRecord> failures, IReadOnlyList<TestRecord> slowest, IReadOnlyList<double> durations, string? currentName,
-            IReadOnlyList<string>? currentBlocks, string? currentContainer, TimeSpan elapsed, bool isFinished, IReadOnlyList<StatusKind>? outcomes = null, TimeSpan? currentStarted = null) {
+            IReadOnlyList<string>? currentBlocks, string? currentContainer, TimeSpan elapsed, bool isFinished, IReadOnlyList<StatusKind>? outcomes = null, TimeSpan? currentStarted = null, string? incompleteReason = null) {
             Total = total;
             Passed = passed;
             Failed = failed;
@@ -25,6 +25,7 @@ namespace ConsoleMonster.TestRuns {
             IsFinished = isFinished;
             Outcomes = outcomes ?? new StatusKind[0];
             CurrentStarted = currentStarted;
+            IncompleteReason = incompleteReason;
         }
 
         /// <summary>The outcome of every test that ended, in the order they ended (for an outcome grid).</summary>
@@ -81,6 +82,8 @@ namespace ConsoleMonster.TestRuns {
         /// <summary>Whether the run finished.</summary>
         public bool IsFinished { get; }
 
+        internal string? IncompleteReason { get; }
+
         /// <summary>Block failures (setup or teardown outside tests).</summary>
         public int BlockFailures {
             get {
@@ -98,7 +101,7 @@ namespace ConsoleMonster.TestRuns {
                 if (!IsFinished) {
                     return StatusKind.Running;
                 }
-                if (Failed > 0 || BlockFailures > 0) {
+                if (IncompleteReason != null || Failed > 0 || BlockFailures > 0) {
                     return StatusKind.Fail;
                 }
                 if (Inconclusive > 0) {

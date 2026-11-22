@@ -291,8 +291,8 @@ if ($null -ne $result) {
         & $walk $Bridge $info[0] $info[1] $container $true
         $Bridge.ContainerFinished($info[0])
     }
+    $Bridge.End()
 }
-$Bridge.End()
 # A command that emits nothing can leave PowerShell's no-output sentinel in the assignment.
 # Give the C# caller a literal null when there is no native result.
 if ($null -eq $result) { $result = $null }
