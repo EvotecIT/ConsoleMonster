@@ -4,6 +4,14 @@
         $script:Runtime = [Diagnostics.Process]::GetCurrentProcess().Path
         # Linux kernels with dev.tty.legacy_tiocsti=0 can't take typed keys back, so static output doesn't ask there.
         $script:ProbesStaticOutput = -not (Test-Path '/proc/sys/dev/tty/legacy_tiocsti') -or (Get-Content '/proc/sys/dev/tty/legacy_tiocsti' -Raw).Trim() -eq '1'
+
+        function Format-ProbeDiagnostic([string] $Text) {
+            # Preserve the control bytes in readable form without making the NUnit failure report invalid XML.
+            [regex]::Replace($Text, '[\x00-\x08\x0B\x0C\x0E-\x1F]', [System.Text.RegularExpressions.MatchEvaluator]{
+                param($match)
+                '\x{0:X2}' -f [int][char]$match.Value[0]
+            })
+        }
     }
 
     It 'uses Unix host views with directory size placeholders, link sizes and explicit property overrides' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
@@ -123,11 +131,12 @@ Start-Sleep -Milliseconds 300
         & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --light-background
         $LASTEXITCODE | Should -Be 0
         $text = [IO.File]::ReadAllText($capture)
-        $text | Should -Match 'pending=False' -Because $text
-        if ($script:ProbesStaticOutput) { $text | Should -Match 'theme=Light pending' -Because $text }
+        $diagnostic = Format-ProbeDiagnostic $text
+        $text | Should -Match 'pending=False' -Because $diagnostic
+        if ($script:ProbesStaticOutput) { $text | Should -Match 'theme=Light pending' -Because $diagnostic }
     }
 
-    It 'hands a key typed during the background query to the next reader' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
+    It 'queries only when it can return typed input to the next reader' -Skip:([Environment]::OSVersion.Platform -ne [PlatformID]::Unix) {
         $source = @'
 Import-Module '__MODULE__'
 [pscustomobject]@{ Check = 'SPF'; Status = 'Pass' } | Show-ConsoleTable -Property Check, @{ Name = 'Status'; Presenter = 'Status' }
@@ -141,6 +150,11 @@ $typed = if ([Console]::KeyAvailable) { [Console]::ReadKey($true).KeyChar } else
         & python3 (Join-Path $PSScriptRoot 'Support/formatting_pty.py') $script:Runtime $file $capture 30 120 --light-background --type-during-probe
         $LASTEXITCODE | Should -Be 0
         $text = [IO.File]::ReadAllText($capture)
-        $text | Should -Match 'typed=q pending=False' -Because $text
+        $diagnostic = Format-ProbeDiagnostic $text
+        $query = [string][char]27 + ']11;?'
+        $text.Contains($query) | Should -Be $script:ProbesStaticOutput -Because $diagnostic
+        # The fixture only sends q in response to the query.
+        $expected = if ($script:ProbesStaticOutput) { 'q' } else { 'none' }
+        $text | Should -Match "typed=$expected pending=False" -Because $diagnostic
     }
 }

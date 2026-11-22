@@ -101,6 +101,25 @@ Remove-Item -LiteralPath $many
         $text | Should -Not -Match 'Running tests from'
     }
 
+    It 'exits nonzero for a failing assertion with ANSI in the NUnit report' {
+        $text = Invoke-PesterChild @'
+$test = Join-Path (Split-Path -Parent $fixtures) 'Ansi.Tests.ps1'
+@"
+Describe 'ANSI diagnostics' {
+    It 'fails' { 'none' | Should -Be 'q' -Because ([string][char]27 + '[?1h') }
+}
+"@ | Set-Content -LiteralPath $test -Encoding UTF8
+$configuration = New-PesterConfiguration
+$configuration.Run.Path = $test
+$configuration.Run.Exit = $true
+$configuration.TestResult.Enabled = $true
+$configuration.TestResult.OutputPath = Join-Path $fixtures 'ansi-results.xml'
+Invoke-ConsolePester -Configuration $configuration
+'@
+        $LASTEXITCODE | Should -Be 1
+        $text | Should -Match 'Tests failed: 1 failed'
+    }
+
     It 'returns nothing without -PassThru and restores the Pester screen plugin afterwards' {
         $text = Invoke-PesterChild @'
 $pester = Get-Module Pester
