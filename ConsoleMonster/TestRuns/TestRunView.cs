@@ -33,7 +33,7 @@ namespace ConsoleMonster.TestRuns {
         /// <returns>False once the run passed.</returns>
         public bool TryGetTaskbarProgress(out Output.TaskbarState state, out double fraction) {
             TestRunSnapshot snapshot = _run.Snapshot();
-            bool failed = snapshot.Failed > 0 || snapshot.BlockFailures > 0;
+            bool failed = snapshot.IncompleteReason != null || snapshot.Failed > 0 || snapshot.BlockFailures > 0;
             fraction = snapshot.Total.HasValue && snapshot.Total.Value > 0 ? Math.Min(1, snapshot.Done / (double)snapshot.Total.Value) : (snapshot.IsFinished ? 1 : double.NaN);
             if (snapshot.IsFinished && !failed) {
                 state = Output.TaskbarState.Clear;
@@ -115,7 +115,9 @@ namespace ConsoleMonster.TestRuns {
             }
             StatusKind status = snapshot.Status;
             return new Dashboard(Title ?? Text.Markup.Escape(context.Labels.TestsTitle), body) {
-                Detail = status == StatusKind.Running ? context.Labels.TestsStatusRunning : status == StatusKind.Fail ? context.Labels.TestsStatusFailed : status == StatusKind.Warn ? context.Labels.TestsStatusInconclusive : context.Labels.TestsStatusPassed,
+                Detail = snapshot.IncompleteReason ?? (status == StatusKind.Running ? context.Labels.TestsStatusRunning
+                    : status == StatusKind.Fail ? context.Labels.TestsStatusFailed
+                    : status == StatusKind.Warn ? context.Labels.TestsStatusInconclusive : context.Labels.TestsStatusPassed),
                 Status = status,
                 ShowElapsed = true
             };

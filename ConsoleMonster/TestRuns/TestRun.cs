@@ -29,6 +29,7 @@ namespace ConsoleMonster.TestRuns {
         private IReadOnlyList<string>? _currentBlocks;
         private string? _currentName;
         private TimeSpan? _finished;
+        private string? _incompleteReason;
 
         /// <summary>Creates a run.</summary>
         /// <param name="clock">The run clock (elapsed time since the run started); null uses a stopwatch started now.</param>
@@ -171,9 +172,13 @@ namespace ConsoleMonster.TestRuns {
         }
 
         /// <summary>The run ended; the clock stops.</summary>
-        public void Finished() {
+        public void Finished() => Finished(null);
+
+        /// <summary>Ends the run, preserving partial counts and an optional explanation for a missing outcome.</summary>
+        internal void Finished(string? incompleteReason) {
             lock (_gate) {
                 _finished ??= _clock();
+                _incompleteReason ??= incompleteReason;
                 _currentName = null;
                 _currentBlocks = null;
             }
@@ -190,7 +195,7 @@ namespace ConsoleMonster.TestRuns {
                 List<TestRecord> slowest = new List<TestRecord>(_slowest);
                 return new TestRunSnapshot(_total, _passed, _failed, _skipped, _inconclusive, _notRun, containers, new List<TestRecord>(_failures), slowest,
                     new List<double>(_durations), _currentName, _currentBlocks, _currentContainer, _finished ?? _clock(), _finished.HasValue,
-                    new List<StatusKind>(_outcomes), _currentName != null ? _currentStarted : null);
+                    new List<StatusKind>(_outcomes), _currentName != null ? _currentStarted : null, _incompleteReason);
             }
         }
 

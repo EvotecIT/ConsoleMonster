@@ -101,7 +101,7 @@ Remove-Item -LiteralPath $many
         $text | Should -Not -Match 'Running tests from'
     }
 
-    It 'exits nonzero for ANSI-bearing failures and for missing run results' {
+    It 'exits nonzero for ANSI-bearing failures with test report export enabled' {
         $text = Invoke-PesterChild @'
 $test = Join-Path (Split-Path -Parent $fixtures) 'Ansi.Tests.ps1'
 @"
@@ -117,8 +117,11 @@ $configuration.TestResult.OutputPath = Join-Path $fixtures 'ansi-results.xml'
 Invoke-ConsolePester -Configuration $configuration
 '@
         $LASTEXITCODE | Should -Be 1
-        $text | Should -Match 'Tests failed: 1 failed'
+        # A Pester version that can serialize the diagnostic still returns a normal failed result.
+        $text | Should -Match '(?m)^. (?:Tests failed|Pester run incomplete \(no result\)): 1 failed\b'
+    }
 
+    It 'reports an incomplete run and exits nonzero when Pester returns no result' {
         $text = Invoke-PesterChild @'
 # Force the missing-result path independently of Pester's XML exporter.
 & (Get-Module Pester) {
@@ -131,14 +134,24 @@ $configuration = New-PesterConfiguration
 $configuration.Run.Path = $fixtures
 $configuration.Run.Exit = $true
 $configuration.Run.PassThru = $true
-$result = @(Invoke-ConsolePester -Configuration $configuration -ErrorVariable runErrors)
+$env:CONSOLEMONSTER_CI = 'github'
+$env:GITHUB_ACTIONS = 'true'
+$env:GITHUB_STEP_SUMMARY = Join-Path $fixtures 'incomplete.md'
+$html = Join-Path $fixtures 'incomplete.html'
+$result = @(Invoke-ConsolePester -Configuration $configuration -ExportHtml $html -ErrorVariable runErrors)
 "ERROR-ID=$($runErrors.FullyQualifiedErrorId -join ';')"
 "PASS-THROUGH=$($result.Count)"
+"JOB-SUMMARY=$((Get-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Raw) -match 'Pester run incomplete \(no result\)')"
+"HTML-STATUS=$((Get-Content -LiteralPath $html -Raw) -match 'Pester run incomplete \(no result\)')"
 '@
         $LASTEXITCODE | Should -Be 1
         $text | Should -Match '(?m)^PESTER-RETURNED-NOTHING$'
         $text | Should -Match '(?m)^ERROR-ID=ConsoleMonsterPesterResultMissing(?:,.*)?$'
         $text | Should -Match '(?m)^PASS-THROUGH=0$'
+        $text | Should -Match '(?m)^. Pester run incomplete \(no result\):'
+        $text | Should -Not -Match '(?m)^. Tests passed:'
+        $text | Should -Match '(?m)^JOB-SUMMARY=True$'
+        $text | Should -Match '(?m)^HTML-STATUS=True$'
     }
 
     It 'returns nothing without -PassThru and restores the Pester screen plugin afterwards' {
@@ -210,5 +223,54 @@ try { Invoke-ConsolePester -Path $fixtures; 'NO ERROR' } catch { "ERROR=$($_.Ful
         $text | Should -Match 'PESTER_PREVIEW_OK'
         $text | Should -Match 'ERROR=ConsoleMonsterPesterNotFound'
         $text | Should -Match 'needs Pester 5 or later'
+    }
+}
+
+Describe 'CI Pester NUnit report validation' {
+    BeforeAll {
+        $script:ReportValidator = Join-Path $PSScriptRoot '../../.github/scripts/Assert-PesterNUnitReport.ps1'
+    }
+
+    It 'accepts a complete NUnit report with recorded failures' {
+        $report = Join-Path $TestDrive 'failing.xml'
+        Set-Content -LiteralPath $report -Value '<test-results total="1" errors="0" failures="1"><test-suite /></test-results>'
+        { & $script:ReportValidator -Path $report } | Should -Not -Throw
+    }
+
+    It 'rejects a missing NUnit report' {
+        $report = Join-Path $TestDrive 'missing.xml'
+        { & $script:ReportValidator -Path $report } | Should -Throw -ExpectedMessage '*report was not found*'
+    }
+
+    It 'rejects an invalid NUnit report (<Reason>)' -ForEach @(
+        @{
+            Reason = 'truncated after its opening elements'
+            Xml = '<test-results total="1" errors="0" failures="0"><test-suite><results>'
+            Message = '*malformed XML*'
+        }
+        @{
+            Reason = 'wrong XML format'
+            Xml = '<results><test-suite /></results>'
+            Message = '*test-results root*'
+        }
+        @{
+            Reason = 'missing suite'
+            Xml = '<test-results total="0" errors="0" failures="0" />'
+            Message = '*test-suite*'
+        }
+        @{
+            Reason = 'invalid failure count'
+            Xml = '<test-results total="1" errors="0" failures="-1"><test-suite /></test-results>'
+            Message = "*invalid 'failures' count*"
+        }
+        @{
+            Reason = 'DTD'
+            Xml = '<!DOCTYPE test-results [<!ENTITY value "0">]><test-results total="0" errors="0" failures="&value;"><test-suite /></test-results>'
+            Message = '*malformed XML*'
+        }
+    ) {
+        $report = Join-Path $TestDrive 'invalid.xml'
+        Set-Content -LiteralPath $report -Value $Xml
+        { & $script:ReportValidator -Path $report } | Should -Throw -ExpectedMessage $Message
     }
 }
