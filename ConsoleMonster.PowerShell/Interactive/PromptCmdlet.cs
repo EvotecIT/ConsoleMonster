@@ -17,7 +17,7 @@ namespace ConsoleMonster.PowerShell {
         [Parameter(Position = 0)]
 
         [PSDefaultValue(Help = "Enter a value")]
-        public string Title { get; set; } = "Enter a value";
+        public virtual string Title { get; set; } = "Enter a value";
 
         /// <summary><para type="description">Help text under the question.</para></summary>
         [Parameter]

@@ -257,7 +257,7 @@ Asks for a number.
 Asks for a file or folder path, with completion.
 
 ### [Read-ConsoleSelect](Read-ConsoleSelect.md)
-Asks the user to pick one of the choices and returns the chosen object.
+Prompts for a selection and returns the selected objects.
 
 ### [Read-ConsoleText](Read-ConsoleText.md)
 Asks for a line of text.

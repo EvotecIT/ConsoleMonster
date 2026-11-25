@@ -17,6 +17,8 @@ namespace ConsoleMonster.Interactive {
         public string? ParameterName { get; set; }
         /// <summary>Whether the answer is a collection instead of one value.</summary>
         public bool Multiple { get; set; }
+        /// <summary>Whether to show confirmation text after a successful selection. Defaults to true.</summary>
+        public bool ShowSummary { get; set; } = true;
         /// <summary>The prepared choices; their values, enabled state and initial selection are retained.</summary>
         public IList<Choice> Choices { get; } = new List<Choice>();
         private object? _default;

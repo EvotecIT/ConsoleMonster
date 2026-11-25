@@ -40,6 +40,8 @@ namespace ConsoleMonster.Interactive {
         /// </summary>
         public string? ParameterName { get; set; }
 
+        internal bool ShowSummary { get; set; } = true;
+
         /// <summary>Whether a default was set.</summary>
         public bool HasDefault { get; private set; }
 
@@ -87,7 +89,7 @@ namespace ConsoleMonster.Interactive {
                     throw Unavailable(labels);
                 case InteractionMode.Line:
                 case InteractionMode.Accessible:
-                    return AskLines(new LinePrompter(o.ResolveLineConsole(), labels, o.ResolveMode() == InteractionMode.Accessible), cancellationToken);
+                    return AskLines(new LinePrompter(o.ResolveLineConsole(), labels, o.ResolveMode() == InteractionMode.Accessible, ShowSummary), cancellationToken);
             }
             return ShowRich(o, labels, cancellationToken);
         }
@@ -154,7 +156,7 @@ namespace ConsoleMonster.Interactive {
                         surface.Complete(new[] { CancelledLine(context, labels) });
                         throw;
                     }
-                    surface.Complete(view.Summary(context));
+                    surface.Complete(ShowSummary || view.IsCanceled ? view.Summary(context) : null);
                     if (view.IsCanceled) {
                         throw new PromptCanceledException(Title);
                     }

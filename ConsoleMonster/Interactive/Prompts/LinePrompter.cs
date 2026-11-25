@@ -15,11 +15,13 @@ namespace ConsoleMonster.Interactive {
         private readonly ILineConsole _io;
         private readonly PromptLabels _labels;
         private readonly bool _accessible;
+        private readonly bool _confirmAnswer;
 
-        public LinePrompter(ILineConsole io, PromptLabels labels, bool accessible) {
+        public LinePrompter(ILineConsole io, PromptLabels labels, bool accessible, bool showSummary = true) {
             _io = io ?? throw new ArgumentNullException(nameof(io));
             _labels = labels ?? throw new ArgumentNullException(nameof(labels));
             _accessible = accessible;
+            _confirmAnswer = accessible && showSummary;
         }
 
         public bool Accessible => _accessible;
@@ -333,7 +335,7 @@ namespace ConsoleMonster.Interactive {
         }
 
         private void Confirmed(string answer) {
-            if (_accessible) {
+            if (_confirmAnswer) {
                 _io.WriteLine(PromptLabels.Format(_labels.SelectedHint, answer));
             }
         }
