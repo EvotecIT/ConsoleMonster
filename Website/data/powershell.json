@@ -759,7 +759,7 @@
         },
         {
           "name": "Read-ConsoleSelect",
-          "synopsis": "Asks the user to pick one of the choices and returns the chosen object.",
+          "synopsis": "Prompts for a selection and returns the selected objects.",
           "url": "/powershell/commands/read-consoleselect/"
         },
         {
