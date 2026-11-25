@@ -19,7 +19,7 @@ namespace ConsoleMonster.Interactive {
             if (options.Multiple) {
                 _multiple = new MultiSelectPrompt<object?>(options.Title, options.Choices) {
                     Description = options.Description, ParameterName = options.ParameterName, Minimum = options.Minimum, Maximum = options.Maximum,
-                    Collapsed = options.Collapsed, Preview = options.Preview
+                    Collapsed = options.Collapsed, Preview = options.Preview, ShowSummary = options.ShowSummary
                 };
                 if (options.PageSize > 0) { _multiple.PageSize = options.PageSize; }
                 if (options.Has(nameof(options.Default))) {
@@ -31,7 +31,7 @@ namespace ConsoleMonster.Interactive {
                 }
             } else {
                 _single = new SelectPrompt<object?>(options.Title, options.Choices) {
-                    Description = options.Description, ParameterName = options.ParameterName, Preview = options.Preview
+                    Description = options.Description, ParameterName = options.ParameterName, Preview = options.Preview, ShowSummary = options.ShowSummary
                 };
                 if (options.PageSize > 0) { _single.PageSize = options.PageSize; }
                 if (options.Has(nameof(options.Default))) { RequireChoice(options, options.Default); _single.Default = options.Default; }

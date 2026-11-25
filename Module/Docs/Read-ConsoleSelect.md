@@ -6,21 +6,23 @@ schema: 2.0.0
 ---
 # Read-ConsoleSelect
 ## SYNOPSIS
-Asks the user to pick one of the choices and returns the chosen object.
+Prompts for a selection and returns the selected objects.
 
 ## SYNTAX
 ### Single (Default)
 ```powershell
-Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] [-Default <Object>] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] [-Default <Object>] [-NoSummary] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ### Multiple
 ```powershell
-Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] -Multiple [-Default <Object>] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
+Read-ConsoleSelect [[-Title] <string>] [[-Choices] <Object[]>] -Multiple [-Default <Object>] [-NoSummary] [-Minimum <Int32>] [-Maximum <Int32>] [-Collapsed] [-Display <Object>] [-GroupBy <Object>] [-Describe <Object>] [-Badge <Object>] [-Hotkey <Object>] [-DisabledReason <scriptblock>] [-Preview <scriptblock>] [-PageSize <int>] [-Description <string>] [-ParameterName <string>] [-Mode <InteractionMode>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.
+Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The selected objects are returned. In remoting and the ISE the choices are numbered and the host reads the answer.
+
+The default title is "Choose one" for a single selection and "Choose items" with -Multiple. Use -NoSummary to omit the confirmation text after a successful selection.
 
 ## EXAMPLES
 
@@ -54,6 +56,13 @@ $environment = Read-ConsoleSelect @selectOptions
 Choose from strings with a default
 
 ### EXAMPLE 3
+```powershell
+$checks = Read-ConsoleSelect -Choices 'DNS', 'TLS', 'HTTP' -Multiple -NoSummary
+```
+
+Choose checks and omit the confirmation text
+
+### EXAMPLE 4
 ```powershell
 Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source
 ```
@@ -286,6 +295,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -NoSummary
+Omits the confirmation text after a successful selection. The selected objects are still returned.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Single, Multiple
+Aliases: None
+Possible values:
+
+Required: False
+Position: named
+Default value: $false
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PageSize
 The preferred number of visible rows.
 
@@ -335,7 +360,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The prompt displayed above the input control.
+The prompt displayed above the choices.
 
 ```yaml
 Type: String
@@ -345,7 +370,7 @@ Possible values:
 
 Required: False
 Position: 0
-Default value: Enter a value
+Default value: Choose one (Single) or Choose items (Multiple)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -3,7 +3,7 @@
 
 Cmdlet parameters, C# configuration and fluent calls use the same domain names. Familiar PowerShell conventions keep their own spelling, with each reason recorded in the contract. PowerShell keeps numeric duration parameters with units; C# keeps TimeSpan values. PrintFinalState and AutoPlay default to true in both surfaces; pass :$false in PowerShell or false in C# to disable them. Other PowerShell switches default to false.
 
-The contract covers **118 commands**, **1261 parameters** and **387 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
+The contract covers **118 commands**, **1262 parameters** and **387 reachable public types**. The metadata gate checks names, types, sets, positions, defaults, nullability and member paths. Rendering and triplet tests check behavior.
 
 Show-ConsoleTable displays tables. Show-Console -View List and Show-Console -View Tree display lists and trees. Read-* returns answers; New-ConsoleForm/Menu defines a question workflow; Show-ConsoleApp runs a persistent reactive application.
 

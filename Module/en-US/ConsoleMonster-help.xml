@@ -30501,11 +30501,12 @@ Write-ConsoleText @textOptions</dev:code>
       <command:verb>Read</command:verb>
       <command:noun>ConsoleSelect</command:noun>
       <maml:description>
-        <maml:para>Asks the user to pick one of the choices and returns the chosen object.</maml:para>
+        <maml:para>Prompts for a selection and returns the selected objects.</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
-      <maml:para>Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The chosen object itself is returned (a service, a record), not its text. In remoting and the ISE the choices are numbered and the host reads the answer.</maml:para>
+      <maml:para>Typing filters the list (fuzzy, matches highlighted). Choices can be grouped (-GroupBy), described (-Describe, shown for the focused choice), tagged (-Badge), picked by a key (-Hotkey; '/' then filters), disabled with a reason (-DisabledReason) and previewed (-Preview, beside the list when the window is wide). The selected objects are returned. In remoting and the ISE the choices are numbered and the host reads the answer.</maml:para>
+      <maml:para>The default title is "Choose one" for a single selection and "Choose items" with -Multiple. Use -NoSummary to omit the confirmation text after a successful selection.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem parameterSetName="Single">
@@ -30638,6 +30639,18 @@ Write-ConsoleText @textOptions</dev:code>
           <dev:defaultValue>None</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSummary</maml:name>
+          <maml:description>
+            <maml:para>Omits the confirmation text after a successful selection. The selected objects are still returned.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$false</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PageSize</maml:name>
           <maml:description>
             <maml:para>The preferred number of visible rows.</maml:para>
@@ -30676,14 +30689,14 @@ Write-ConsoleText @textOptions</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Title</maml:name>
           <maml:description>
-            <maml:para>The prompt displayed above the input control.</maml:para>
+            <maml:para>The prompt displayed above the choices.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>Enter a value</dev:defaultValue>
+          <dev:defaultValue>Choose one (Single) or Choose items (Multiple)</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
       <command:syntaxItem parameterSetName="Multiple">
@@ -30864,6 +30877,18 @@ Write-ConsoleText @textOptions</dev:code>
           <dev:defaultValue>$false</dev:defaultValue>
         </command:parameter>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+          <maml:name>NoSummary</maml:name>
+          <maml:description>
+            <maml:para>Omits the confirmation text after a successful selection. The selected objects are still returned.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+          <dev:type>
+            <maml:name>SwitchParameter</maml:name>
+            <maml:uri />
+          </dev:type>
+          <dev:defaultValue>$false</dev:defaultValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PageSize</maml:name>
           <maml:description>
             <maml:para>The preferred number of visible rows.</maml:para>
@@ -30902,14 +30927,14 @@ Write-ConsoleText @textOptions</dev:code>
         <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
           <maml:name>Title</maml:name>
           <maml:description>
-            <maml:para>The prompt displayed above the input control.</maml:para>
+            <maml:para>The prompt displayed above the choices.</maml:para>
           </maml:description>
           <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
             <maml:uri />
           </dev:type>
-          <dev:defaultValue>Enter a value</dev:defaultValue>
+          <dev:defaultValue>Choose one (Single) or Choose items (Multiple)</dev:defaultValue>
         </command:parameter>
       </command:syntaxItem>
     </command:syntax>
@@ -31090,6 +31115,18 @@ Write-ConsoleText @textOptions</dev:code>
         <dev:defaultValue>$false</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
+        <maml:name>NoSummary</maml:name>
+        <maml:description>
+          <maml:para>Omits the confirmation text after a successful selection. The selected objects are still returned.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue>$false</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PageSize</maml:name>
         <maml:description>
           <maml:para>The preferred number of visible rows.</maml:para>
@@ -31128,14 +31165,14 @@ Write-ConsoleText @textOptions</dev:code>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="False" position="0" aliases="none">
         <maml:name>Title</maml:name>
         <maml:description>
-          <maml:para>The prompt displayed above the input control.</maml:para>
+          <maml:para>The prompt displayed above the choices.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>Enter a value</dev:defaultValue>
+        <dev:defaultValue>Choose one (Single) or Choose items (Multiple)</dev:defaultValue>
       </command:parameter>
     </command:parameters>
     <command:inputTypes>
@@ -31183,6 +31220,13 @@ $environment = Read-ConsoleSelect @selectOptions</dev:code>
       </command:example>
       <command:example>
         <maml:title>EXAMPLE 3</maml:title>
+        <dev:code>$checks = Read-ConsoleSelect -Choices 'DNS', 'TLS', 'HTTP' -Multiple -NoSummary</dev:code>
+        <dev:remarks>
+          <maml:para>Choose checks and omit the confirmation text</maml:para>
+        </dev:remarks>
+      </command:example>
+      <command:example>
+        <maml:title>EXAMPLE 4</maml:title>
         <dev:code>Get-ConsoleDemo -Slug 'prompt-tour' | Select-Object -ExpandProperty Source</dev:code>
         <dev:remarks>
           <maml:para>Read the gallery script to see Read-ConsoleSelect in a complete example. Each lookup returns the script's source. Use the same slug with Show-ConsoleDemo to run it.</maml:para>

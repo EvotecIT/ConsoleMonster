@@ -15466,6 +15466,27 @@
           "Static": false
         },
         {
+          "Parameter": "NoSummary",
+          "ParameterType": "System.Management.Automation.SwitchParameter",
+          "Default": false,
+          "Sets": [
+            {
+              "Name": "__AllParameterSets",
+              "Position": -2147483648,
+              "Mandatory": false
+            }
+          ],
+          "CSharpType": "ConsoleMonster.Interactive.SelectQuestionOptions",
+          "Member": "ShowSummary",
+          "MemberKind": "Property",
+          "Conversion": "BooleanInversion",
+          "CSharpTypeName": "System.Boolean",
+          "Nullable": "NotNull",
+          "Writable": true,
+          "Static": false,
+          "Reason": "The selection summary is shown by default. NoSummary hides it."
+        },
+        {
           "Parameter": "PageSize",
           "ParameterType": "System.Int32",
           "Default": 0,

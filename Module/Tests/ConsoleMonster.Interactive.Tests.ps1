@@ -14,6 +14,7 @@
             )
             $lines = [System.Collections.Generic.List[string]]::new()
             $lines.Add("foreach (`$n in 'NO_COLOR', 'CONSOLEMONSTER_COLOR', 'CONSOLEMONSTER_MODE', 'CONSOLEMONSTER_ACCESSIBLE', 'CONSOLEMONSTER_NONINTERACTIVE', 'CI', 'GITHUB_ACTIONS', 'TF_BUILD') { [Environment]::SetEnvironmentVariable(`$n, `$null) }")
+            $lines.Add("`$env:CONSOLEMONSTER_LANGUAGE = 'en-US'")
             $lines.Add("[System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::GetCultureInfo('en-US')")
             $lines.Add('[Console]::InputEncoding = [Text.UTF8Encoding]::new($false)')
             $lines.Add('[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)')
@@ -323,12 +324,20 @@ $v = Read-ConsoleText 'Reason' -Multiline -Mode Accessible
             $field.MaxLines | Should -Be 3
         }
 
-        It 'accepts several numbers for a multi-selection' {
+        It 'returns the selected objects without the accessible confirmation when requested' {
             $text = Invoke-PromptChild -InputText "1,3`n" -Script @'
-$v = @(Read-ConsoleSelect -Title 'Pick' -Choices 'a', 'b', 'c' -Mode Accessible -Multiple)
-"value=$($v -join '+')"
+$items = @(
+    [pscustomobject]@{ Name = 'alpha'; Id = 1 }
+    [pscustomobject]@{ Name = 'beta'; Id = 2 }
+    [pscustomobject]@{ Name = 'gamma'; Id = 3 }
+)
+$v = @($items | Read-ConsoleSelect -Title 'Pick' -Display Name -Mode Accessible -Multiple -NoSummary)
+"ids=$($v.Id -join '+')"
 '@
-            $text | Should -Match 'value=a\+c'
+            $text | Should -Match 'Pick'
+            $text | Should -Match '1\) \[ \] alpha'
+            $text | Should -Match 'ids=1\+3'
+            $text | Should -Not -Match 'selected: alpha, gamma'
         }
     }
 
@@ -347,12 +356,12 @@ $picked = $services | Read-ConsoleSelect -Title 'Services'
             $text | Should -Not -Match 'System\.ServiceProcess\.ServiceController'
         }
 
-        It 'drives a selection and a multi-selection with keys' {
+        It 'drives prompts with keys and can suppress the rich selection summary' {
             $text = Invoke-PromptChild -Script @'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Down Enter')
-$v = Read-ConsoleSelect 'Pick' -Choices 'alpha', 'beta', 'gamma'
+$v = Read-ConsoleSelect -Choices 'alpha', 'beta', 'gamma'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Space Down Down Space Enter')
-$m = @(Read-ConsoleSelect -Title 'Pick' -Choices 'alpha', 'beta', 'gamma' -Multiple)
+$m = @(Read-ConsoleSelect -Choices 'alpha', 'beta', 'gamma' -Multiple -NoSummary)
 $keys = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('"bad" Enter Ctrl+U "good" Enter'); $keys.Paced = $true
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = $keys
 $t = Read-ConsoleText 'Name' -Validator { if ($_ -eq 'bad') { 'not that one' } }
@@ -360,8 +369,12 @@ $t = Read-ConsoleText 'Name' -Validator { if ($_ -eq 'bad') { 'not that one' } }
 $s = Read-ConsoleText -Title 'Token' -AsSecret
 "value=$v multi=$($m -join '+') text=$t secret=$($s.GetType().Name) length=$($s.Length)"
 '@
+            $text = $text -replace '\x1b\[[0-?]*[ -/]*[@-~]', ''
             $text | Should -Match 'value=beta multi=alpha\+gamma text=good secret=SecureString length=6'
             $text | Should -Match 'not that one'
+            $text | Should -Match 'Choose one  beta'
+            $text | Should -Match 'Choose items'
+            $text | Should -Not -Match 'Choose items  alpha, gamma'
         }
 
         It 'returns the original objects chosen in Show-ConsoleGrid' {
@@ -469,11 +482,13 @@ $null = Invoke-WebRequest -Uri ($Url + 'answer') -Method Post -Body 'ok:1' -Cont
             Test-Path -LiteralPath $marker | Should -BeFalse
         }
 
-        It 'cancels with a PromptCanceled error on Esc' {
+        It 'shows cancellation and reports PromptCanceled on Esc with NoSummary' {
             $text = Invoke-PromptChild -Script @'
 ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Interactive.InteractiveOptions'))::Default.Input = ([ConsoleMonster.Terminal].Assembly.GetType('ConsoleMonster.Input.ScriptedInput'))::new('Escape')
-try { Read-ConsoleSelect 'Pick' -Choices 'a', 'b' -ErrorAction Stop } catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
+try { Read-ConsoleSelect 'Pick' -Choices 'a', 'b' -NoSummary -ErrorAction Stop } catch { "id=$($_.FullyQualifiedErrorId.Split(',')[0])" }
 '@
+            $text = $text -replace '\x1b\[[0-?]*[ -/]*[@-~]', ''
+            $text | Should -Match 'Pick  cancelled'
             $text | Should -Match 'id=PromptCanceled'
         }
 
