@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@df478a7a984f80c18c4ec51f16f8c00e9a61408d
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-deploy.yml@777c5ad749c789be497a5b8b04f14defc76f4950
     with:
       website_root: Website
       pipeline_config: Website/pipeline.json
