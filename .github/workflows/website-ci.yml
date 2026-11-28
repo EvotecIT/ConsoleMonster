@@ -77,7 +77,7 @@ jobs:
   verify-site:
     needs: changes
     if: github.event_name == 'pull_request' && needs.changes.outputs.website == 'true'
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@df478a7a984f80c18c4ec51f16f8c00e9a61408d
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-ci.yml@777c5ad749c789be497a5b8b04f14defc76f4950
     with:
       website_root: Website
       pipeline_config: Website/pipeline.json
@@ -87,7 +87,7 @@ jobs:
 
   verify-site-trusted:
     if: github.event_name != 'pull_request'
-    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-run.yml@df478a7a984f80c18c4ec51f16f8c00e9a61408d
+    uses: EvotecIT/PSPublishModule/.github/workflows/powerforge-website-run.yml@777c5ad749c789be497a5b8b04f14defc76f4950
     with:
       website_root: Website
       pipeline_config: Website/pipeline.json
@@ -145,7 +145,7 @@ jobs:
           ref: ${{ steps.engine.outputs.ref || steps.engine.outputs.lockRef }}
           path: _powerforge
       - if: steps.changes.outputs.website == 'true'
-        uses: EvotecIT/PSPublishModule/.github/actions/setup-dotnet@df478a7a984f80c18c4ec51f16f8c00e9a61408d
+        uses: EvotecIT/PSPublishModule/.github/actions/setup-dotnet@777c5ad749c789be497a5b8b04f14defc76f4950
       - if: steps.changes.outputs.website == 'true'
         uses: actions/setup-node@v7
         with:
